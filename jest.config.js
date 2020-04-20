@@ -1,13 +1,13 @@
 module.exports = {
-    projects: ["./packages/*/jest.config.js"],
+    projects: ["packages/*/jest.config.js"],
     coverageReporters: ['text-summary'],
     reporters: ['default'],
     coverageThreshold: {
         global: {
-            statements: 62,
-            branches: 40,
-            functions: 45,
-            lines: 65
+            statements: 99,
+            branches: 99,
+            functions: 99,
+            lines: 99
         }
     },
 };
