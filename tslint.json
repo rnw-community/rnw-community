@@ -6,7 +6,6 @@
         "tslint-import-group-ordering",
         "tslint-sonarts",
         "tslint-config-prettier",
-        "rxjs-tslint-rules",
         "tslint-etc"
     ],
     "rulesDirectory": [
@@ -29,7 +28,6 @@
         "no-for-in": true,
         "no-banned-terms": true,
         "no-non-null-assertion": true,
-        "no-unused-styles": true,
         "import-group-ordering": {
             "severity": "error",
             "options": {
@@ -74,32 +72,6 @@
         "strict-type-predicates": true,
         "strict-boolean-expressions": [true, "ignore-rhs"],
         "react-hooks-nesting": "error",
-        "rxjs-finnish": {
-            "options": [
-                {
-                    "functions": false,
-                    "methods": false,
-                    "parameters": false,
-                    "properties": false,
-                    "variables": true
-                }
-            ],
-            "severity": "error"
-        },
-        "rxjs-ban-observables": true,
-        "rxjs-ban-operators": true,
-        "rxjs-no-async-subscribe": true,
-        "rxjs-no-explicit-generics": true,
-        "rxjs-no-ignored-subscribe": true,
-        "rxjs-no-ignored-subscription": true,
-        "rxjs-no-internal": true,
-        "rxjs-no-nested-subscribe": true,
-        "rxjs-no-tap": true,
-        "rxjs-no-unsafe-catch": true,
-        "rxjs-no-unsafe-first": true,
-        "rxjs-no-unsafe-scope": false,
-        "rxjs-no-unsafe-switchmap": true,
-        "rxjs-no-unsafe-takeuntil": true,
         "no-unused-variable": false,
         "ordered-imports": true,
         "member-ordering": [
