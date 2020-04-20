@@ -22,7 +22,7 @@ export const componentStyles = StyleSheet.create({
 JSX usage example with inlined fast styles:
 ```tsx
 import { View, Text } from 'react-native';
-import { Flex } from '@rnw-community/fast-style';
+import { Flex, Font } from '@rnw-community/fast-style';
 
 import { componentStyles } from './component.styles.ts'
 
