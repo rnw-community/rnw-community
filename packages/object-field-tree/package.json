@@ -1,6 +1,6 @@
 {
   "name": "object-field-tree",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "private": false,
   "description": "Create a object fields combinations tree with data generator function",
   "repository": "https://github.com/rnw-community/rnw-community/tree/master/packages/object-field-tree",
@@ -27,10 +27,10 @@
     "clear:deps": "rm -rf ./node_modules && rm -rf ./dist",
     "ci": "yarn ts && yarn lint && yarn test",
     "build": "tsc",
-    "prepare" : "yarn build",
+    "prepare": "yarn build",
     "prepublish": "yarn ts && yarn lint && yarn format && yarn test",
-    "preversion" : "yarn ci",
-    "version" : "yarn format && git add -A src",
-    "postversion" : "git push && git push --tags"
+    "preversion": "yarn ci",
+    "version": "yarn format && git add -A src",
+    "postversion": "git push && git push --tags"
   }
 }

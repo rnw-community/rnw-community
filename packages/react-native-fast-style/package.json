@@ -8,7 +8,7 @@
     "lint:fix": "yarn lint --fix",
     "test": "yarn jest",
     "test:coverage": "yarn jest --coverage",
-    "pretty": "prettier --write \"./src/**/*.{ts,tsx}\"",
+    "format": "prettier --write \"./src/**/*.{ts,tsx}\"",
     "clear": "rm -rf allure-* _results_",
     "clear:deps": "rm -rf ./node_modules && rm -rf ./dist"
   },
