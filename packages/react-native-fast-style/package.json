@@ -1,6 +1,6 @@
 {
   "name": "react-native-fast-style",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "private": false,
   "scripts": {
     "ts": "tsc -b --pretty",
@@ -13,6 +13,6 @@
     "clear:deps": "rm -rf ./node_modules && rm -rf ./dist"
   },
   "dependencies": {
-    "object-field-tree": "^0.0.3"
+    "object-field-tree": "^0.0.4"
   }
 }
