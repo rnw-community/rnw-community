@@ -1,4 +1,4 @@
-import { combine } from 'object-field-tree';
+import { combine } from '@rnw-community/object-field-tree';
 
 import { FlexAlignItemsEnum } from './enum/flex-align-items.enum';
 import { FlexDirectionEnum } from './enum/flex-direction.enum';

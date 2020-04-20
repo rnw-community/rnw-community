@@ -30,7 +30,7 @@
     "clear:deps": "rm -rf ./node_modules && rm -rf ./dist"
   },
   "dependencies": {
-    "object-field-tree": "^0.0.4"
+    "@rnw-community/object-field-tree": "^0.0.6"
   },
   "gitHead": "b5608910319390f9773a9d42c3cc828e8e8a1d95"
 }
