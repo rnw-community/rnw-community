@@ -4,13 +4,10 @@
         "tslint-config-standard",
         "tslint-eslint-rules",
         "tslint-import-group-ordering",
-        "tslint-react",
         "tslint-sonarts",
         "tslint-config-prettier",
         "rxjs-tslint-rules",
-        "tslint-react-hooks",
-        "tslint-etc",
-        "tslint-react-native"
+        "tslint-etc"
     ],
     "rulesDirectory": [
         "node_modules/tslint-origin-ordered-imports-rule/dist",
