@@ -27,14 +27,7 @@
     "test:coverage": "yarn jest --coverage",
     "format": "prettier --write \"./src/**/*.{ts,tsx,js}\"",
     "clear": "rm -rf allure-* _results_",
-    "clear:deps": "rm -rf ./node_modules && rm -rf ./dist",
-    "ci": "yarn ts && yarn lint && yarn test",
-    "build": "tsc",
-    "prepare": "yarn build",
-    "prepublish": "yarn ts && yarn lint && yarn format && yarn test",
-    "preversion": "yarn ci",
-    "version": "yarn format && git add -A src",
-    "postversion": "git push && git push --tags"
+    "clear:deps": "rm -rf ./node_modules && rm -rf ./dist"
   },
   "gitHead": "b5608910319390f9773a9d42c3cc828e8e8a1d95"
 }
