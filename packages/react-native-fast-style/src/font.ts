@@ -1,5 +1,4 @@
-import {combine} from 'object-field-tree/dist/src/combine';
-import {Enum} from 'object-field-tree/dist/src/type/enum.type';
+import { combine, Enum } from 'object-field-tree';
 
 export const getFont = (fontFamilyObj: Enum, fontSizeObj: Enum, fontColorObj: Enum) =>
     combine(

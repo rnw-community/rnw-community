@@ -1,4 +1,4 @@
-import {combine} from 'object-field-tree/src';
+import { combine } from 'object-field-tree';
 import { FlexAlignItemsEnum } from './enum/flex-align-items.enum';
 import { FlexDirectionEnum } from './enum/flex-direction.enum';
 import { FlexJustifyContentEnum } from './enum/flex-justify-content.enum';
