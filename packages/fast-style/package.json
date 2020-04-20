@@ -1,7 +1,21 @@
 {
-  "name": "rnw-community/fast-style",
+  "name": "@rnw-community/fast-style",
   "version": "0.0.4",
   "private": false,
+  "description": "Fast react native flex and font styling",
+  "repository": "https://github.com/rnw-community/rnw-community/tree/master/packages/fast-style",
+  "license": "MIT",
+  "main": "dist/src/index.js",
+  "types": "dist/src/index.d.ts",
+  "files": [
+    "dist/src/**/*"
+  ],
+  "keywords": [
+    "object field tree",
+    "enum tree",
+    "nested enums",
+    "typescript enum tree"
+  ],
   "scripts": {
     "ts": "tsc -b --pretty",
     "lint": "tslint --format stylish --project tsconfig.json",
