@@ -11,7 +11,7 @@
     "ts": "lerna run ts",
     "lint": "lerna run lint --parallel",
     "lint:fix": "lerna run lint:fix  --parallel",
-    "test": "yarn jest --passWithNoTests",
+    "test": "yarn jest",
     "test:coverage": "yarn jest --coverage --passWithNoTests",
     "cpd": "yarn jscpd packages",
     "format": "lerna run format --stream",
@@ -19,7 +19,6 @@
     "clear": "lerna run clear --stream",
     "deps:clear": "lerna run clear:deps --parallel && yarn deps:clear:root",
     "deps:clear:root": "rm -rf ./node_modules",
-    "postinstall": "jest --clearCache",
     "find-deadcode": "ts-prune"
   },
   "devDependencies": {
