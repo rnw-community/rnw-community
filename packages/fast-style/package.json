@@ -16,6 +16,9 @@
     "nested enums",
     "typescript enum tree"
   ],
+  "publishConfig": {
+    "access": "public"
+  },
   "scripts": {
     "ts": "tsc -b --pretty",
     "lint": "tslint --format stylish --project tsconfig.json",
@@ -28,5 +31,6 @@
   },
   "dependencies": {
     "object-field-tree": "^0.0.4"
-  }
+  },
+  "gitHead": "b5608910319390f9773a9d42c3cc828e8e8a1d95"
 }

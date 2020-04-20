@@ -16,6 +16,9 @@
     "nested enums",
     "typescript enum tree"
   ],
+  "publishConfig": {
+    "access": "public"
+  },
   "scripts": {
     "ts": "tsc -b --pretty",
     "lint": "tslint --format stylish --project tsconfig.json",
@@ -32,5 +35,6 @@
     "preversion": "yarn ci",
     "version": "yarn format && git add -A src",
     "postversion": "git push && git push --tags"
-  }
+  },
+  "gitHead": "b5608910319390f9773a9d42c3cc828e8e8a1d95"
 }
