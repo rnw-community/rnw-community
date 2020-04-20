@@ -45,4 +45,4 @@ export function combine(dataFn: (...keys: any) => any, ...objects: any[]): any {
     return result;
 }
 
-export {Enum};
+export type { Enum };
