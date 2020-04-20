@@ -1,5 +1,5 @@
 module.exports = {
-    projects: ["<rootDir>/packages/*/jest.config.js"],
+    projects: ["./packages/*/jest.config.js"],
     coverageReporters: ['text-summary'],
     reporters: ['default'],
     coverageThreshold: {
