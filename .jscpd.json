@@ -5,19 +5,11 @@
         "html"
     ],
     "ignore": [
-        "**/*.json",
-        "**/build/**",
         "**/dist/**",
-        "**/index.html",
-        "**/*.md",
         "**/__snapshots__/**",
         "**/__coverage__/**",
         "**/coverage/**",
-        "**/node_modules/**",
-        "**/ios/**",
-        "**/android/**",
-        "**/allure-results/**",
-        "**/packages/email-templates/**"
+        "**/node_modules/**"
     ],
     "absolute": true,
     "gitignore": true,
