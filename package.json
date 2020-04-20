@@ -8,7 +8,7 @@
     ]
   },
   "scripts": {
-    "ts": "lerna run ts",
+    "build": "lerna run build",
     "lint": "lerna run lint --parallel",
     "lint:fix": "lerna run lint:fix  --parallel",
     "test": "yarn jest",
@@ -16,7 +16,7 @@
     "cpd": "yarn jscpd packages",
     "format": "lerna run format --parallel",
     "find-deadcode": "ts-prune | grep -v dist | grep -v index.ts",
-    "ci": "yarn ts && yarn lint && yarn test:coverage && yarn cpd",
+    "ci": "yarn build && yarn lint && yarn test:coverage && yarn cpd",
     "clear": "lerna run clear --parallel",
     "deps:clear": "lerna run clear:deps --parallel && yarn deps:clear:root",
     "deps:clear:root": "rm -rf ./node_modules",
