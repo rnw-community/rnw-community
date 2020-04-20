@@ -2,22 +2,16 @@
     "compilerOptions": {
         "composite": true,
         "incremental": true,
-        "target": "esnext",
-        "module": "esnext",
+        "target": "es5",
+        "module": "commonjs",
+        "lib": ["esnext","es2017", "es7", "es6"],
         "moduleResolution": "node",
         "types": ["jest"],
-        "lib": [
-            "esnext",
-            "dom",
-            "dom.iterable"
-        ],
-        "allowJs": false,
+        "jsx": "preserve",
         "allowSyntheticDefaultImports": true,
         "isolatedModules": true,
         "esModuleInterop": true,
-        "jsx": "preserve",
-        "resolveJsonModule": true,
-        "skipLibCheck": true,
+        "declaration": true,
         "sourceMap": true,
         "strict": true,
         "alwaysStrict": true,
@@ -30,7 +24,6 @@
         "noImplicitReturns": true,
         "noFallthroughCasesInSwitch": true,
         "experimentalDecorators": true,
-        "forceConsistentCasingInFileNames": true,
-        "declarationMap": true
+        "forceConsistentCasingInFileNames": true
     }
 }
