@@ -13,6 +13,6 @@
     "clear:deps": "rm -rf ./node_modules && rm -rf ./dist"
   },
   "dependencies": {
-    "object-field-tree": "^0.0.2"
+    "object-field-tree": "^0.0.3"
   }
 }

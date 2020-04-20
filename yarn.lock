@@ -6424,11 +6424,6 @@ object-copy@^0.1.0:
     define-property "^0.2.5"
     kind-of "^3.0.3"
 
-object-field-tree@^0.0.2:
-  version "0.0.2"
-  resolved "https://registry.yarnpkg.com/object-field-tree/-/object-field-tree-0.0.2.tgz#4c07f10f218c099fac6679371914a65085f16b50"
-  integrity sha512-AKhkdc1zQgJNjZmSdNx7mYAOSYJG5cyBeGdar3/Lar48vi1ITF5gZRQDoax0C0lpznd0qAqTUi/QLFK+0q9Uog==
-
 object-inspect@^1.7.0:
   version "1.7.0"
   resolved "https://registry.yarnpkg.com/object-inspect/-/object-inspect-1.7.0.tgz#f4f6bd181ad77f006b5ece60bd0b6f398ff74a67"
