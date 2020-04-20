@@ -1,5 +1,5 @@
 {
-    "threshold": 1.58,
+    "threshold": 6,
     "reporters": [
         "console",
         "html"
