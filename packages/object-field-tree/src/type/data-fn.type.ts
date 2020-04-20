@@ -1,4 +1,4 @@
-import {Enum} from './enum.type';
+import { Enum } from './enum.type';
 
 export type DataFn1<D, T1 extends Enum> = (t1: keyof T1) => D;
 export type DataFn2<D, T1 extends Enum, T2 extends Enum> = (t1: keyof T1, t2: keyof T2) => D;

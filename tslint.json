@@ -71,7 +71,6 @@
         "throw-error": true,
         "strict-type-predicates": true,
         "strict-boolean-expressions": [true, "ignore-rhs"],
-        "react-hooks-nesting": "error",
         "no-unused-variable": false,
         "ordered-imports": true,
         "member-ordering": [
