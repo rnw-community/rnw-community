@@ -1,0 +1,34 @@
+{
+  "name": "object-field-tree",
+  "version": "0.0.2",
+  "private": false,
+  "description": "Create a object fields combinations tree with data generator function",
+  "repository": "https://github.com/rnw-community/rnw-community/tree/master/packages/object-field-tree",
+  "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  },
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "lib/**/*"
+  ],
+  "keywords": [
+    "object field tree",
+    "enum tree",
+    "nested enums",
+    "typescript enum tree"
+  ],
+  "scripts": {
+    "ts": "tsc -b --pretty",
+    "lint": "tslint --format stylish --project tsconfig.json",
+    "lint:fix": "yarn lint --fix",
+    "test": "yarn jest",
+    "test:coverage": "yarn jest --coverage",
+    "pretty": "prettier --write \"./src/**/*.{ts,tsx}\"",
+    "clear": "rm -rf allure-* _results_",
+    "clear:deps": "rm -rf ./node_modules && rm -rf ./dist",
+    "build": "tsc",
+    "prepublish": "yarn ts && yarn test"
+  }
+}
