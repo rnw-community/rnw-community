@@ -1,6 +1,6 @@
 {
   "name": "@rnw-community/fast-style",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "private": false,
   "description": "Fast react native flex and font styling",
   "repository": "https://github.com/rnw-community/rnw-community/tree/master/packages/fast-style",
