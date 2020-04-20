@@ -1,6 +1,6 @@
 module.exports = {
     projects: ["packages/*/jest.config.js"],
-    coverageReporters: ['text-summary', 'json'],
+    coverageReporters: ['text-summary', 'lcov'],
     reporters: ['default'],
     coverageThreshold: {
         global: {
