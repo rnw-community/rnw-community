@@ -5,10 +5,10 @@
   "description": "Create a object fields combinations tree with data generator function",
   "repository": "https://github.com/rnw-community/rnw-community/tree/master/packages/object-field-tree",
   "license": "MIT",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "main": "dist/src/index.js",
+  "types": "dist/src/index.d.ts",
   "files": [
-    "dist/**/*"
+    "dist/src/**/*"
   ],
   "keywords": [
     "object field tree",
