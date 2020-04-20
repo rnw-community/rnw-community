@@ -23,14 +23,14 @@
     "find-deadcode": "ts-prune"
   },
   "devDependencies": {
-    "@types/jest": "^25.2.1",
-    "jest": "^25.3.0",
     "@babel/core": "^7.9.0",
     "@babel/preset-env": "^7.9.5",
     "@babel/preset-typescript": "^7.9.0",
+    "@types/jest": "^25.2.1",
     "husky": "^4.2.3",
+    "jest": "^25.3.0",
     "jscpd": "^3.1.0",
-    "lerna": "^3.16.5",
+    "lerna": "^3.20.2",
     "lint-staged": "^10.1.2",
     "prettier": "^1.19.1",
     "ts-prune": "0.3.0",

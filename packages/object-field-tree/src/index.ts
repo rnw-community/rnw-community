@@ -1,5 +1,7 @@
 // tslint:disable:only-arrow-functions no-any
-import {Return1, Return2, Return3, Return4, DataFn1, DataFn2, DataFn3, DataFn4, Enum } from './type';
+import {DataFn1, DataFn2, DataFn3, DataFn4} from './type/data-fn.type';
+import { Enum } from "./type/enum.type";
+import {Return1, Return2, Return3, Return4} from './type/return.type';
 
 // TODO: Investigate if we can add types without specifying all combinations
 export function combine<D, T1 extends Enum>(dataFn: DataFn1<D, T1>, collection1: T1): Return1<T1, D>;
