@@ -4,4 +4,8 @@ node_js:
 cache: yarn
 
 script:
+  - npm install codecov -g
   - yarn ci
+
+after_success:
+  - codecov
