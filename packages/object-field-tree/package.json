@@ -5,13 +5,10 @@
   "description": "Create a object fields combinations tree with data generator function",
   "repository": "https://github.com/rnw-community/rnw-community/tree/master/packages/object-field-tree",
   "license": "MIT",
-  "publishConfig": {
-    "access": "public"
-  },
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "files": [
-    "lib/**/*"
+    "dist/**/*"
   ],
   "keywords": [
     "object field tree",
@@ -25,10 +22,15 @@
     "lint:fix": "yarn lint --fix",
     "test": "yarn jest",
     "test:coverage": "yarn jest --coverage",
-    "pretty": "prettier --write \"./src/**/*.{ts,tsx}\"",
+    "format": "prettier --write \"./src/**/*.{ts,tsx,js}\"",
     "clear": "rm -rf allure-* _results_",
     "clear:deps": "rm -rf ./node_modules && rm -rf ./dist",
+    "ci": "yarn ts && yarn lint && yarn test",
     "build": "tsc",
-    "prepublish": "yarn ts && yarn test"
+    "prepare" : "yarn build",
+    "prepublish": "yarn ts && yarn lint && yarn format && yarn test",
+    "preversion" : "yarn ci",
+    "version" : "yarn format && git add -A src",
+    "postversion" : "git push && git push --tags"
   }
 }

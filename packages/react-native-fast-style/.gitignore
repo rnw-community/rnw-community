@@ -1,4 +1,4 @@
 *.js
 allure-*
 _results_
-
+.dist
