@@ -50,5 +50,11 @@
     "tslint-origin-ordered-imports-rule": "^1.2.2",
     "tslint-sonarts": "^1.9.0",
     "typescript": "3.8.3"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "yarn ts && lint-staged",
+      "commit-msg": "commitlint -E HUSKY_GIT_PARAMS"
+    }
   }
 }
