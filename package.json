@@ -20,7 +20,7 @@
     "clear": "lerna run clear --parallel",
     "deps:clear": "lerna run clear:deps --parallel && yarn deps:clear:root",
     "deps:clear:root": "rm -rf ./node_modules",
-    "prepare": "yarn ts",
+    "prepare": "yarn build",
     "preversion": "yarn ci",
     "version": "yarn format && git add -A src",
     "postversion": "git push && git push --tags",
