@@ -1,0 +1,48 @@
+{
+  "name": "rnw-community",
+  "version": "0.0.1",
+  "private": true,
+  "workspaces": {
+    "packages": [
+      "packages/*"
+    ]
+  },
+  "scripts": {
+    "ts": "lerna run ts",
+    "lint": "lerna run lint --parallel",
+    "lint:fix": "lerna run lint:fix  --parallel",
+    "test": "yarn jest --passWithNoTests",
+    "test:coverage": "yarn jest --coverage --passWithNoTests",
+    "cpd": "yarn jscpd packages",
+    "ci": "yarn ts && yarn lint && yarn test:coverage && yarn cpd",
+    "pretty": "lerna run pretty --stream",
+    "clear": "lerna run clear --stream",
+    "deps:clear": "lerna run clear:deps --parallel && yarn deps:clear:root",
+    "deps:clear:root": "rm -rf ./node_modules",
+    "postinstall": "jest --clearCache",
+    "find-deadcode": "ts-prune"
+  },
+  "devDependencies": {
+    "@types/jest": "^25.2.1",
+    "jest": "^25.3.0",
+    "@babel/core": "^7.9.0",
+    "@babel/preset-env": "^7.9.5",
+    "@babel/preset-typescript": "^7.9.0",
+    "husky": "^4.2.3",
+    "jscpd": "^3.1.0",
+    "lerna": "^3.16.5",
+    "lint-staged": "^10.1.2",
+    "prettier": "^1.19.1",
+    "ts-prune": "0.3.0",
+    "tslint": "^6.1.0",
+    "tslint-config-prettier": "^1.18.0",
+    "tslint-config-standard": "^9.0.0",
+    "tslint-eslint-rules": "^5.4.0",
+    "tslint-etc": "^1.10.1",
+    "tslint-import-group-ordering": "^2.1.2",
+    "tslint-microsoft-contrib": "^6.2.0",
+    "tslint-origin-ordered-imports-rule": "^1.2.2",
+    "tslint-sonarts": "^1.9.0",
+    "typescript": "3.8.3"
+  }
+}

@@ -1,0 +1,36 @@
+{
+    "compilerOptions": {
+        "composite": true,
+        "incremental": true,
+        "target": "esnext",
+        "module": "esnext",
+        "moduleResolution": "node",
+        "types": ["jest"],
+        "lib": [
+            "esnext",
+            "dom",
+            "dom.iterable"
+        ],
+        "allowJs": false,
+        "allowSyntheticDefaultImports": true,
+        "isolatedModules": true,
+        "esModuleInterop": true,
+        "jsx": "preserve",
+        "resolveJsonModule": true,
+        "skipLibCheck": true,
+        "sourceMap": true,
+        "strict": true,
+        "alwaysStrict": true,
+        "strictFunctionTypes": true,
+        "strictNullChecks": true,
+        "noImplicitThis": true,
+        "noImplicitAny": true,
+        "noUnusedLocals": true,
+        "noUnusedParameters": true,
+        "noImplicitReturns": true,
+        "noFallthroughCasesInSwitch": true,
+        "experimentalDecorators": true,
+        "forceConsistentCasingInFileNames": true,
+        "declarationMap": true
+    }
+}

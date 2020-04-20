@@ -1,0 +1,25 @@
+{
+    "threshold": 1.58,
+    "reporters": [
+        "console",
+        "html"
+    ],
+    "ignore": [
+        "**/*.json",
+        "**/build/**",
+        "**/dist/**",
+        "**/index.html",
+        "**/*.md",
+        "**/__snapshots__/**",
+        "**/__coverage__/**",
+        "**/coverage/**",
+        "**/node_modules/**",
+        "**/ios/**",
+        "**/android/**",
+        "**/allure-results/**",
+        "**/packages/email-templates/**"
+    ],
+    "absolute": true,
+    "gitignore": true,
+    "blame": true
+}

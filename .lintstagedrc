@@ -1,0 +1,11 @@
+{
+    "packages/**/*.{ts,tsx}": [
+        "yarn tslint --fix",
+        "yarn prettier --write",
+        "git add ."
+    ],
+    "*.{md, json}": [
+        "yarn prettier",
+        "git add ."
+    ],
+}

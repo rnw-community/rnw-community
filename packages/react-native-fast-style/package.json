@@ -1,0 +1,18 @@
+{
+  "name": "react-native-fast-style",
+  "version": "0.0.1",
+  "private": false,
+  "scripts": {
+    "ts": "tsc -b --pretty",
+    "lint": "tslint --format stylish --project tsconfig.json",
+    "lint:fix": "yarn lint --fix",
+    "test": "yarn jest",
+    "test:coverage": "yarn jest --coverage",
+    "pretty": "prettier --write \"./src/**/*.{ts,tsx}\"",
+    "clear": "rm -rf allure-* _results_",
+    "clear:deps": "rm -rf ./node_modules && rm -rf ./dist"
+  },
+  "dependencies": {
+    "object-field-tree": "^0.0.1"
+  }
+}
