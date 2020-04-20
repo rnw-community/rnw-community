@@ -20,7 +20,7 @@
     "access": "public"
   },
   "scripts": {
-    "ts": "tsc -b --pretty",
+    "build": "tsc -b --pretty",
     "lint": "tslint --format stylish --project tsconfig.json",
     "lint:fix": "yarn lint --fix",
     "test": "yarn jest",
