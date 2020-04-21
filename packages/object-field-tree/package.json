@@ -1,6 +1,6 @@
 {
   "name": "@rnw-community/object-field-tree",
-  "version": "0.0.10",
+  "version": "0.0.11",
   "private": false,
   "description": "Create a object fields combinations tree with data generator function",
   "repository": "https://github.com/rnw-community/rnw-community/tree/master/packages/object-field-tree",
