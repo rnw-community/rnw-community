@@ -1,6 +1,10 @@
 import { combine, Enum } from '@rnw-community/object-field-tree';
 
-export const getFont = (fontFamilyObj: Enum, fontSizeObj: Enum, fontColorObj: Enum) =>
+export const getFont = <TFamily extends Enum, TSize extends Enum, TColor extends Enum>(
+    fontFamilyObj: TFamily,
+    fontSizeObj: TSize,
+    fontColorObj: TColor
+) =>
     combine(
         (fontFamily, fontSize, color) => ({
             fontFamily: fontFamilyObj[fontFamily],
