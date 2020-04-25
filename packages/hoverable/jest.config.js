@@ -1,5 +1,5 @@
 module.exports = {
-    displayName: 'fast-style',
+    displayName: 'hoverable',
     testRegex: "./src/.*\\.spec\\.(tsx?)$",
     testEnvironment: "node"
 };
