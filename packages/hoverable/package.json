@@ -36,11 +36,11 @@
     "@types/react": "^16.9.34",
     "@types/react-native": "^0.62.4",
     "react": "^16.13.0",
-    "react-native": "^0.60"
+    "react-native": "^0.61.5"
   },
   "peerDependencies": {
     "react": "^16.13.0",
-    "react-native": "^0.60"
+    "react-native": "^0.61.5"
   },
   "gitHead": "b5608910319390f9773a9d42c3cc828e8e8a1d95"
 }
