@@ -1,0 +1,27 @@
+{
+  "name": "@rnw-community/shared",
+  "version": "0.0.12",
+  "private": false,
+  "description": "Shared useful utils and types",
+  "repository": "https://github.com/rnw-community/rnw-community/tree/master/packages/shared",
+  "license": "MIT",
+  "main": "dist/src/index.js",
+  "types": "dist/src/index.d.ts",
+  "files": [
+    "dist/src/**/*"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "tsc -b --pretty",
+    "lint": "tslint --format stylish --project tsconfig.json",
+    "lint:fix": "yarn lint --fix",
+    "test": "yarn jest",
+    "test:coverage": "yarn jest --coverage",
+    "format": "prettier --write \"./src/**/*.{ts,tsx}\"",
+    "clear": "rm -rf allure-* _results_",
+    "clear:deps": "rm -rf ./node_modules && rm -rf ./dist"
+  },
+  "gitHead": "b5608910319390f9773a9d42c3cc828e8e8a1d95"
+}
