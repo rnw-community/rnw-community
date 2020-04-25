@@ -13,9 +13,9 @@ Following states and props will be added to the passed component:
 | Hovered   | `hoverStyle`      | `isHovered`   |
 | Regular   | `style`           |               |
 
-> Component can only be in one state.
+Component can only be in one state.
 
-> Hoverable components can be nested, giving ability to receive state from the parent Hoverable component.
+Hoverable components can be nested, giving ability to receive state from the parent Hoverable component.
 
 ### Example usage:
 ```tsx
