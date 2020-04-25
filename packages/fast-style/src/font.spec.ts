@@ -81,7 +81,6 @@ describe('GetFont', () => {
         expect(Font).toEqual(expectedTree);
     });
     it('Should throw an error if size enum has numeric values', () => {
-        // @ts-ignore
         const getFontError = () => getFont(TestFontFamilyEnum, TestFontSizeNumericEnum, TestFontColorEnum);
         expect(getFontError).toThrowError('fontSizeObj must have string values');
     });

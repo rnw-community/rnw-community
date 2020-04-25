@@ -1,6 +1,5 @@
 {
   "name": "rnw-community",
-  "version": "0.0.1",
   "private": true,
   "workspaces": {
     "packages": [
@@ -21,10 +20,9 @@
     "deps:clear": "lerna run clear:deps --parallel && yarn deps:clear:root",
     "deps:clear:root": "rm -rf ./node_modules",
     "prepare": "yarn build",
-    "preversion": "yarn ci",
-    "version": "yarn format && git add -A src",
-    "postversion": "git push && git push --tags",
-    "prepublish": "yarn format"
+    "preversion": "yarn format && yarn ci",
+    "version": "git add -A packages",
+    "postversion": "git push && git push --tags"
   },
   "devDependencies": {
     "@babel/core": "^7.9.0",

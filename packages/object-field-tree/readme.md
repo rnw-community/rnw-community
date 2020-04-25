@@ -1,6 +1,3 @@
-# React Native Fast Styles
+# Object field tree
 
-```
-export const Font = combinator(FontFamilyEnum, FontSizeEnum, FontColorEnum);
-export const Font = combinator(FontFamilyObject, FontSizeObject, FontColorObject);
-```
+Utility for generating complex nested objects with data generation callback.

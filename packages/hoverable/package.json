@@ -1,9 +1,9 @@
 {
-  "name": "@rnw-community/fast-style",
+  "name": "@rnw-community/hoverable",
   "version": "0.0.16",
   "private": false,
-  "description": "Fast react native flex and font styling",
-  "repository": "https://github.com/rnw-community/rnw-community/tree/master/packages/fast-style",
+  "description": "Hover support for React native elements in React native web",
+  "repository": "https://github.com/rnw-community/rnw-community/tree/master/packages/hoverable",
   "license": "MIT",
   "main": "dist/src/index.js",
   "types": "dist/src/index.d.ts",
@@ -11,10 +11,10 @@
     "dist/src/**/*"
   ],
   "keywords": [
-    "object field tree",
-    "enum tree",
-    "nested enums",
-    "typescript enum tree"
+    "hover",
+    "hoverable",
+    "react native hover",
+    "react native web hover"
   ],
   "publishConfig": {
     "access": "public"
@@ -30,7 +30,17 @@
     "clear:deps": "rm -rf ./node_modules && rm -rf ./dist"
   },
   "dependencies": {
-    "@rnw-community/object-field-tree": "^0.0.16"
+    "@rnw-community/shared": "^0.0.16"
+  },
+  "devDependencies": {
+    "@types/react": "^16.9.34",
+    "@types/react-native": "^0.62.4",
+    "react": "^16.13.0",
+    "react-native": "^0.60"
+  },
+  "peerDependencies": {
+    "react": "^16.13.0",
+    "react-native": "^0.60"
   },
   "gitHead": "b5608910319390f9773a9d42c3cc828e8e8a1d95"
 }

@@ -3,5 +3,6 @@
     "printWidth": 125,
     "tabWidth": 4,
     "semi": true,
-    "trailingComma": "es5"
+    "trailingComma": "es5",
+    "arrowParens": "avoid"
 }
