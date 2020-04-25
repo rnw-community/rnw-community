@@ -1,8 +1,8 @@
-import { StyleProp, ViewStyle } from 'react-native';
+import { StyleProp, TextStyle, ViewStyle } from 'react-native';
 
 import { OnEventFn } from '@rnw-community/shared';
 
-export interface HoverProps<T = ViewStyle> {
+export interface HoverProps<T = ViewStyle | TextStyle> {
     isDisabled?: boolean;
     disabledStyle?: StyleProp<T>;
     isActive?: boolean;
