@@ -5,7 +5,7 @@
         "html"
     ],
     "ignore": [
-        "*.json",
+        "**/*.json",
         "**/dist/**",
         "**/__snapshots__/**",
         "**/__coverage__/**",
