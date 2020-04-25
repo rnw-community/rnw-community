@@ -20,7 +20,7 @@ Following states and props will be added to the passed component:
 ### Example usage:
 ```tsx
 import { HoverView, withHover } from '@rnw-community/hoverable';
-import { Text, View } from 'react-native';
+import { Text } from 'react-native';
 
 const TextComponent = ({style}) => <Text style={style}>I am a component</Text>;
 

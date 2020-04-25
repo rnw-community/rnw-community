@@ -4,14 +4,19 @@ export const getFont = <TFamily extends Enum, TSize extends Enum, TColor extends
     fontFamilyObj: TFamily,
     fontSizeObj: TSize,
     fontColorObj: TColor
-) =>
-    combine(
+) => {
+    if (Object.values(fontSizeObj).some(item => typeof item === 'number')) {
+        throw new Error('fontSizeObj must have string values');
+    }
+
+    return combine(
         (fontFamily, fontSize, color) => ({
             fontFamily: fontFamilyObj[fontFamily],
-            fontSize: parseInt(fontSizeObj[fontSize], 10),
+            fontSize: parseInt(fontSizeObj[fontSize] as string, 10),
             color: fontColorObj[color],
         }),
         fontFamilyObj,
         fontSizeObj,
         fontColorObj
     );
+};
