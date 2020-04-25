@@ -1,43 +1,30 @@
-# React Native Fast Styles
+# Shared - React native web community
 
-Utility library for fast React Native styling.
+Generic types and utilities commonly used across packages.
 
-Styles usage example with spreading styles:
-```ts
-import { StyleSheet } from 'react-native';
-import { Flex, Font } from '@rnw-community/fast-style';
+## Types
+### `Maybe<T>`
+Generic type for declaring input type `T` to be nullable.
 
-export const componentStyles = StyleSheet.create({
-    root: {
-        ...Flex.row.flexEnd.stretch,
-        padding: 16
-    },
-    text: {
-        ...Font.ptSansBold.xs.blue,
-        testDecoration: 'underline'
-    }
-});
-```
+### `OnEventFn<T, R>`
 
-JSX usage example with inlined fast styles:
+Generic function type with input type `T` and return type `R`.
+
+
+## Utils
+
+### `cs` - Conditional styles shorthand
+Conditional styling, returns `styleObj` if `condition` is true.
+
+Useful for React Native styles:
 ```tsx
-import { View, Text } from 'react-native';
-import { Flex, Font } from '@rnw-community/fast-style';
+import { cs } from '@rnw-community/shared';
 
-import { componentStyles } from './component.styles.ts'
+import { Styles } from './styles';
 
-export const Component = () => (
-    <View style={componentStyles.root}>
-        <View style={Flex.column.center.flexStart}>
-            <Text style={componentStyles.text}>
-                Hi!
-            </Text>
-        </View>
-        <View style={Flex.column.center.flexStart}>
-            <Text style={Font.ptSansBold.xs.blue}>
-                There!
-            </Text>
-        </View>
-    </View>
-);
+const rootStyles = [
+    Styles.root,
+    cs(isActive, Styles.rootActive),
+    cs(isDisabled, Styles.rootDisabled)
+];
 ```
