@@ -9,7 +9,6 @@ Generic type for declaring input type `T` to be nullable.
 ### `OnEventFn<T, R>`
 Generic function type with input type `T` and return type `R`.
 
-
 ## Utils
 
 ### `cs` - Conditional styles shorthand
