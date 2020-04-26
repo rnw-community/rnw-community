@@ -44,6 +44,9 @@ console.log(tree.Chemistry.Easy);
 ```
 
 ### Generating components example
+With this approach you can create a strictly configurable building framework of Components for your project with very
+easy usage and IDE autocompletion.
+
 ```tsx
 import { combine } from '@rnw-community/object-field-tree';
 import { View } from 'react-native';
