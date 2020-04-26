@@ -1,44 +1,37 @@
 // tslint:disable-next-line:no-import-side-effect
 import '@testing-library/jest-native/extend-expect';
 import { cleanup, fireEvent, NativeTestEvent, render } from '@testing-library/react-native';
-import React, { FC } from 'react';
-import { StyleProp, Text, TextStyle, View } from 'react-native';
+import React from 'react';
+import { Text, View } from 'react-native';
 
 import { withHover } from './with-hover.hoc';
 
-interface Props {
-    style?: StyleProp<TextStyle>;
-    testID?: string;
-}
-
-enum SelectorEnum {
-    BaseComponent = 'BaseComponent',
-}
-
-const Component: FC<Props> = ({ children, ...props }) => <View {...props}>{children}</View>;
-const HoverableViewComponent = withHover(Component);
+const BaseComponentSelector = 'BaseComponent';
+const HoverableViewComponent = withHover(View);
 const hoverStyle = { backgroundColor: 'black' };
 const style = { width: 100, backgroundColor: 'white' };
+const MouseEnterEvent = new NativeTestEvent('mouseEnter');
+const MouseLeaveEvent = new NativeTestEvent('mouseLeave');
 
 describe('withHover HOC', () => {
     afterEach(cleanup);
     describe('Basic behavior of hoverable component', () => {
         it('Should merge hoverStyle with current style to component styles onMouseEnter', () => {
             const { getByTestId } = render(
-                <HoverableViewComponent testID={SelectorEnum.BaseComponent} style={style} hoverStyle={hoverStyle} />
+                <HoverableViewComponent testID={BaseComponentSelector} style={style} hoverStyle={hoverStyle} />
             );
-            const element = getByTestId(SelectorEnum.BaseComponent);
+            const element = getByTestId(BaseComponentSelector);
             expect(element).toHaveStyle(style);
-            fireEvent(element, new NativeTestEvent('mouseEnter'));
+            fireEvent(element, MouseEnterEvent);
             expect(element).toHaveStyle({ ...style, ...hoverStyle });
         });
         it('Should remove hoverStyle from component styles onMouseLeave', () => {
             const { getByTestId } = render(
-                <HoverableViewComponent testID={SelectorEnum.BaseComponent} style={style} hoverStyle={hoverStyle} />
+                <HoverableViewComponent testID={BaseComponentSelector} style={style} hoverStyle={hoverStyle} />
             );
-            const element = getByTestId(SelectorEnum.BaseComponent);
-            fireEvent(element, new NativeTestEvent('mouseEnter'));
-            fireEvent(element, new NativeTestEvent('mouseLeave'));
+            const element = getByTestId(BaseComponentSelector);
+            fireEvent(element, MouseEnterEvent);
+            fireEvent(element, MouseLeaveEvent);
             expect(element).toHaveStyle(style);
         });
     });
@@ -47,24 +40,23 @@ describe('withHover HOC', () => {
         const nestedStyle = { backgroundColor: 'yellow' };
         const nestedHoverStyle = { backgroundColor: 'blue' };
 
-        afterEach(cleanup);
         it('Should merge nestedHoverStyle with nested component styles onMouseEnter to the root element', () => {
             const { getByTestId, getByText } = render(
-                <HoverableViewComponent style={style} hoverStyle={hoverStyle} testID={SelectorEnum.BaseComponent}>
+                <HoverableViewComponent style={style} hoverStyle={hoverStyle} testID={BaseComponentSelector}>
                     <NestedHoverableText style={nestedStyle} hoverStyle={nestedHoverStyle}>
                         text
                     </NestedHoverableText>
                 </HoverableViewComponent>
             );
-            const rootElement = getByTestId(SelectorEnum.BaseComponent);
+            const rootElement = getByTestId(BaseComponentSelector);
             const nestedElement = getByText('text');
-            fireEvent(rootElement, new NativeTestEvent('mouseEnter'));
+            fireEvent(rootElement, MouseEnterEvent);
             expect(nestedElement).toHaveStyle(nestedHoverStyle);
         });
 
         it('Should merge hover styles with styles att all hoverable children levels on mouseEnter to the rootElement', () => {
             const { getByTestId, getByText } = render(
-                <HoverableViewComponent style={style} hoverStyle={hoverStyle} testID={SelectorEnum.BaseComponent}>
+                <HoverableViewComponent style={style} hoverStyle={hoverStyle} testID={BaseComponentSelector}>
                     <HoverableViewComponent>
                         <NestedHoverableText style={nestedStyle} hoverStyle={nestedHoverStyle}>
                             text
@@ -72,28 +64,27 @@ describe('withHover HOC', () => {
                     </HoverableViewComponent>
                 </HoverableViewComponent>
             );
-            const rootElement = getByTestId(SelectorEnum.BaseComponent);
+            const rootElement = getByTestId(BaseComponentSelector);
             const nestedElement = getByText('text');
-            fireEvent(rootElement, new NativeTestEvent('mouseEnter'));
+            fireEvent(rootElement, MouseEnterEvent);
             expect(nestedElement).toHaveStyle(nestedStyle);
-            expect(nestedElement).toHaveProp('isHovered', true);
         });
 
         it('Should not merge hoverStyles of nested not hoverable component on mouseEnter', () => {
             const { getByTestId, getByText } = render(
-                <HoverableViewComponent style={style} hoverStyle={hoverStyle} testID={SelectorEnum.BaseComponent}>
+                <HoverableViewComponent style={style} hoverStyle={hoverStyle} testID={BaseComponentSelector}>
                     <Text style={nestedStyle}>text</Text>
                 </HoverableViewComponent>
             );
-            const baseElement = getByTestId(SelectorEnum.BaseComponent);
+            const baseElement = getByTestId(BaseComponentSelector);
             const nestedElement = getByText('text');
-            fireEvent(baseElement, new NativeTestEvent('mouseEnter'));
+            fireEvent(baseElement, MouseEnterEvent);
             expect(nestedElement).not.toHaveProp('isHovered');
         });
 
         it('Should not merge hoverStyles of hoverable children of nested not hoverable component onMouseEnter to rootElement', () => {
             const { getByTestId, getByText } = render(
-                <HoverableViewComponent style={style} hoverStyle={hoverStyle} testID={SelectorEnum.BaseComponent}>
+                <HoverableViewComponent style={style} hoverStyle={hoverStyle} testID={BaseComponentSelector}>
                     <View>
                         <NestedHoverableText style={nestedStyle} hoverStyle={nestedHoverStyle}>
                             text
@@ -101,10 +92,10 @@ describe('withHover HOC', () => {
                     </View>
                 </HoverableViewComponent>
             );
-            const rootElement = getByTestId(SelectorEnum.BaseComponent);
+            const rootElement = getByTestId(BaseComponentSelector);
             const nestedElement = getByText('text');
-            fireEvent(rootElement, new NativeTestEvent('mouseEnter'));
-            expect(nestedElement).toHaveStyle(nestedStyle);
+            fireEvent(rootElement, MouseEnterEvent);
+            expect(nestedElement).not.toHaveStyle(nestedHoverStyle);
         });
     });
 });
