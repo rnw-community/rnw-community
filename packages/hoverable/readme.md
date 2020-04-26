@@ -20,7 +20,7 @@ Hoverable components can be nested, giving ability to receive state from the par
 ### Example usage:
 ```tsx
 import { HoverView, withHover } from '@rnw-community/hoverable';
-import { Text, View } from 'react-native';
+import { Text } from 'react-native';
 
 const TextComponent = ({style}) => <Text style={style}>I am a component</Text>;
 

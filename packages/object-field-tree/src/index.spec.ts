@@ -24,6 +24,90 @@ enum TestEnum4 {
     TestEnum4Key3 = 'TestEnum4_Value3',
 }
 
+enum TestNumericEnum1 {
+    TestNumericEnum1One = 1,
+    TestNumericEnum1Two = 2,
+}
+enum TestNumericEnum2 {
+    TestNumericEnum2One = 1,
+    TestNumericEnum2Two = 2,
+}
+
+const expectedNumericObj1 = {
+    '1': {
+        '1': {
+            '0': '1',
+            '1': '1',
+        },
+        '2': {
+            '0': '1',
+            '1': '2',
+        },
+        TestNumericEnum2One: {
+            '0': '1',
+            '1': 'TestNumericEnum2One',
+        },
+        TestNumericEnum2Two: {
+            '0': '1',
+            '1': 'TestNumericEnum2Two',
+        },
+    },
+    '2': {
+        '1': {
+            '0': '2',
+            '1': '1',
+        },
+        '2': {
+            '0': '2',
+            '1': '2',
+        },
+        TestNumericEnum2One: {
+            '0': '2',
+            '1': 'TestNumericEnum2One',
+        },
+        TestNumericEnum2Two: {
+            '0': '2',
+            '1': 'TestNumericEnum2Two',
+        },
+    },
+    TestNumericEnum1One: {
+        '1': {
+            '0': 'TestNumericEnum1One',
+            '1': '1',
+        },
+        '2': {
+            '0': 'TestNumericEnum1One',
+            '1': '2',
+        },
+        TestNumericEnum2One: {
+            '0': 'TestNumericEnum1One',
+            '1': 'TestNumericEnum2One',
+        },
+        TestNumericEnum2Two: {
+            '0': 'TestNumericEnum1One',
+            '1': 'TestNumericEnum2Two',
+        },
+    },
+    TestNumericEnum1Two: {
+        '1': {
+            '0': 'TestNumericEnum1Two',
+            '1': '1',
+        },
+        '2': {
+            '0': 'TestNumericEnum1Two',
+            '1': '2',
+        },
+        TestNumericEnum2One: {
+            '0': 'TestNumericEnum1Two',
+            '1': 'TestNumericEnum2One',
+        },
+        TestNumericEnum2Two: {
+            '0': 'TestNumericEnum1Two',
+            '1': 'TestNumericEnum2Two',
+        },
+    },
+};
+
 const testObj1 = {
     obj1_key1: 'obj1_val1',
     obj1_key2: 'obj1_val2',
@@ -86,5 +170,10 @@ describe('Combine', () => {
             0: 'obj1_key1',
             1: 'obj2_key1',
         });
+    });
+
+    it('Should create tree from 2 numeric enums and use both their keys and values', () => {
+        const result = combine(dataFnMock, TestNumericEnum1, TestNumericEnum2);
+        expect(result).toEqual(expectedNumericObj1);
     });
 });
