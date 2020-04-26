@@ -66,7 +66,7 @@ const widgetHeightStyleMap = {
 }
 
 export const Widget = combine(
-    (height, width) => (props) => <View style={[widgetHeightStyleMap[height], widgetWidthMap[width]]} />,
+    (height, width) => (props) => <View {...props} style={[widgetHeightStyleMap[height], widgetWidthMap[width]]} />,
     WidgetHeightEnum,
     widgetWidthMap
 );
