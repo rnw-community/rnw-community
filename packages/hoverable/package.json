@@ -30,13 +30,17 @@
     "clear:deps": "rm -rf ./node_modules && rm -rf ./dist"
   },
   "dependencies": {
-    "@rnw-community/shared": "^0.0.16"
+    "@rnw-community/shared": "^0.0.16",
+    "metro-react-native-babel-preset": "^0.59.0"
   },
   "devDependencies": {
+    "@testing-library/jest-native": "^3.1.0",
+    "@testing-library/react-native": "^5.0.3",
     "@types/react": "^16.9.34",
     "@types/react-native": "^0.62.4",
     "react": "^16.13.0",
-    "react-native": "^0.61.5"
+    "react-native": "^0.61.5",
+    "react-test-renderer": "^16.13.1"
   },
   "peerDependencies": {
     "react": "^16.13.0",
