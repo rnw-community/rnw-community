@@ -102,7 +102,7 @@ describe('withHover HOC', () => {
     describe('Children props', () => {
         const nestedTestColor = 'black';
 
-        it('Should nested component have isActive prop from the root element, if children has hoverColor Prop', () => {
+        it('Should have nested component with an isHovered prop from the root element, if children has hoverColor Prop', () => {
             const { getByTestId } = render(
                 <HoverableViewComponent isActive={true} testID={BaseComponentSelector}>
                     <View hoverColor={nestedTestColor} testID={NestedComponentSelector} />
@@ -112,7 +112,7 @@ describe('withHover HOC', () => {
             expect(nestedElement).toHaveProp('isHovered');
         });
 
-        it('Should nested component have isActive prop from the root element, if children has activeColor Prop', () => {
+        it('Should have nested component with an isActive prop from the root element, if children has activeColor Prop', () => {
             const { getByTestId } = render(
                 <HoverableViewComponent isActive={true} testID={BaseComponentSelector}>
                     <View activeColor={nestedTestColor} testID={NestedComponentSelector} />
@@ -122,7 +122,7 @@ describe('withHover HOC', () => {
             expect(nestedElement).toHaveProp('isActive');
         });
 
-        it('Should nested component have isActive prop from the root element, if children has disabledColor Prop', () => {
+        it('Should have nested component with an isDisabled prop from the root element, if children has disabledColor Prop', () => {
             const { getByTestId } = render(
                 <HoverableViewComponent isActive={true} testID={BaseComponentSelector}>
                     <View disabledColor={nestedTestColor} testID={NestedComponentSelector} />
@@ -132,7 +132,7 @@ describe('withHover HOC', () => {
             expect(nestedElement).toHaveProp('isDisabled');
         });
 
-        it('Should nested component have isActive prop from the root element, if children has hoverStyle Prop', () => {
+        it('Should have nested component with an isHovered prop from the root element, if children has hoverStyle Prop', () => {
             const { getByTestId } = render(
                 <HoverableViewComponent isActive={true} testID={BaseComponentSelector}>
                     <View hoverStyle={nestedTestColor} testID={NestedComponentSelector} />
@@ -142,7 +142,7 @@ describe('withHover HOC', () => {
             expect(nestedElement).toHaveProp('isHovered');
         });
 
-        it('Should nested component have isActive prop from the root element, if children has activeStyle Prop', () => {
+        it('Should have nested component with an isActive prop from the root element, if children has activeStyle Prop', () => {
             const { getByTestId } = render(
                 <HoverableViewComponent isActive={true} testID={BaseComponentSelector}>
                     <View activeStyle={nestedTestColor} testID={NestedComponentSelector} />
@@ -152,7 +152,7 @@ describe('withHover HOC', () => {
             expect(nestedElement).toHaveProp('isActive');
         });
 
-        it('Should nested component have isActive prop from the root element, if children has disabledStyle Prop', () => {
+        it('Should have nested component with an isDisabled prop from the root element, if children has disabledStyle Prop', () => {
             const { getByTestId } = render(
                 <HoverableViewComponent isActive={true} testID={BaseComponentSelector}>
                     <View disabledStyle={nestedTestColor} testID={NestedComponentSelector} />
@@ -162,7 +162,7 @@ describe('withHover HOC', () => {
             expect(nestedElement).toHaveProp('isDisabled');
         });
 
-        it('Should nested component not to have state props from the root element, if children has not styling props', () => {
+        it('Should have nested component without state props from the root element, if children has not styling props', () => {
             const { getByTestId } = render(
                 <HoverableViewComponent isActive={true} testID={BaseComponentSelector}>
                     <View testID={NestedComponentSelector} />
