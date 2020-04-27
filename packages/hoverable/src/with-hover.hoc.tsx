@@ -4,13 +4,7 @@ import React, { ComponentType, PropsWithChildren, ReactElement, useEffect, useMe
 import { HoverProps } from './hover.props';
 
 const isHoverableReactElement = (el: Maybe<ReactElement>) =>
-    el !== null &&
-    (el.props?.hoverStyle !== undefined ||
-        el.props?.activeStyle !== undefined ||
-        el.props?.disabledStyle !== undefined ||
-        el.props?.hoverColor !== undefined ||
-        el.props?.activeColor !== undefined ||
-        el.props?.disabledColor !== undefined);
+    el?.props?.['data-hoverable'] !== undefined || el?.props?.isActive !== undefined;
 
 const useChildrenWithProps = (children: ReactElement, props: object, filterFn: (el: ReactElement) => boolean = () => true) =>
     useMemo(() => React.Children.map(children, (el: ReactElement) => (filterFn(el) ? React.cloneElement(el, props) : el)), [
@@ -52,7 +46,7 @@ export const withHover = <T extends HoverProps = HoverProps>(Component: Componen
 
         const hoverableChildren = useChildrenWithProps(
             children as ReactElement,
-            { isHovered, isActive, isDisabled, isNested: true },
+            { isHovered, isActive, isDisabled, isNested: true, ['data-hoverable']: true },
             isHoverableReactElement
         );
 
@@ -73,6 +67,7 @@ export const withHover = <T extends HoverProps = HoverProps>(Component: Componen
                 {...(hasMouseEvents && { onMouseEnter: handleMouseEnter })}
                 {...(hasMouseEvents && { onMouseLeave: handleMouseLeave })}
                 {...componentProps}
+                data-hoverable={true}
             >
                 {hoverableChildren}
             </Component>
