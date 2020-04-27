@@ -7,6 +7,7 @@ import { Text, View } from 'react-native';
 import { withHover } from './with-hover.hoc';
 
 const BaseComponentSelector = 'BaseComponent';
+const NestedComponentSelector = 'NestedComponent';
 const HoverableViewComponent = withHover(View);
 const hoverStyle = { backgroundColor: 'black' };
 const style = { width: 100, backgroundColor: 'white' };
@@ -96,6 +97,81 @@ describe('withHover HOC', () => {
             const nestedElement = getByText('text');
             fireEvent(rootElement, MouseEnterEvent);
             expect(nestedElement).not.toHaveStyle(nestedHoverStyle);
+        });
+    });
+    describe('Children props', () => {
+        const nestedTestColor = 'black';
+
+        it('Should nested component have isActive prop from the root element, if children has hoverColor Prop', () => {
+            const { getByTestId } = render(
+                <HoverableViewComponent isActive={true} testID={BaseComponentSelector}>
+                    <View hoverColor={nestedTestColor} testID={NestedComponentSelector} />
+                </HoverableViewComponent>
+            );
+            const nestedElement = getByTestId(NestedComponentSelector);
+            expect(nestedElement).toHaveProp('isHovered');
+        });
+
+        it('Should nested component have isActive prop from the root element, if children has activeColor Prop', () => {
+            const { getByTestId } = render(
+                <HoverableViewComponent isActive={true} testID={BaseComponentSelector}>
+                    <View activeColor={nestedTestColor} testID={NestedComponentSelector} />
+                </HoverableViewComponent>
+            );
+            const nestedElement = getByTestId(NestedComponentSelector);
+            expect(nestedElement).toHaveProp('isActive');
+        });
+
+        it('Should nested component have isActive prop from the root element, if children has disabledColor Prop', () => {
+            const { getByTestId } = render(
+                <HoverableViewComponent isActive={true} testID={BaseComponentSelector}>
+                    <View disabledColor={nestedTestColor} testID={NestedComponentSelector} />
+                </HoverableViewComponent>
+            );
+            const nestedElement = getByTestId(NestedComponentSelector);
+            expect(nestedElement).toHaveProp('isDisabled');
+        });
+
+        it('Should nested component have isActive prop from the root element, if children has hoverStyle Prop', () => {
+            const { getByTestId } = render(
+                <HoverableViewComponent isActive={true} testID={BaseComponentSelector}>
+                    <View hoverStyle={nestedTestColor} testID={NestedComponentSelector} />
+                </HoverableViewComponent>
+            );
+            const nestedElement = getByTestId(NestedComponentSelector);
+            expect(nestedElement).toHaveProp('isHovered');
+        });
+
+        it('Should nested component have isActive prop from the root element, if children has activeStyle Prop', () => {
+            const { getByTestId } = render(
+                <HoverableViewComponent isActive={true} testID={BaseComponentSelector}>
+                    <View activeStyle={nestedTestColor} testID={NestedComponentSelector} />
+                </HoverableViewComponent>
+            );
+            const nestedElement = getByTestId(NestedComponentSelector);
+            expect(nestedElement).toHaveProp('isActive');
+        });
+
+        it('Should nested component have isActive prop from the root element, if children has disabledStyle Prop', () => {
+            const { getByTestId } = render(
+                <HoverableViewComponent isActive={true} testID={BaseComponentSelector}>
+                    <View disabledStyle={nestedTestColor} testID={NestedComponentSelector} />
+                </HoverableViewComponent>
+            );
+            const nestedElement = getByTestId(NestedComponentSelector);
+            expect(nestedElement).toHaveProp('isDisabled');
+        });
+
+        it('Should nested component not to have state props from the root element, if children has not styling props', () => {
+            const { getByTestId } = render(
+                <HoverableViewComponent isActive={true} testID={BaseComponentSelector}>
+                    <View testID={NestedComponentSelector} />
+                </HoverableViewComponent>
+            );
+            const nestedElement = getByTestId(NestedComponentSelector);
+            expect(nestedElement).not.toHaveProp('isHovered');
+            expect(nestedElement).not.toHaveProp('isActive');
+            expect(nestedElement).not.toHaveProp('isDisabled');
         });
     });
 });
