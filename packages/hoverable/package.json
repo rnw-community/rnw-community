@@ -30,8 +30,7 @@
     "clear:deps": "rm -rf ./node_modules && rm -rf ./dist"
   },
   "dependencies": {
-    "@rnw-community/shared": "^0.0.16",
-    "metro-react-native-babel-preset": "^0.59.0"
+    "@rnw-community/shared": "^0.0.16"
   },
   "devDependencies": {
     "@testing-library/jest-native": "^3.1.0",
