@@ -1,7 +1,11 @@
 {
     "extends": "../../tsconfig.json",
     "compilerOptions": {
-        "outDir": "./dist"
+        "outDir": "./dist",
+        "baseUrl": "./src",
+        "paths": {
+            "@hoverable/*": ["."]
+        }
     },
     "include": [
         "src"
