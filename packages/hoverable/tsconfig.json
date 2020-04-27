@@ -1,10 +1,14 @@
 {
     "extends": "../../tsconfig.json",
     "compilerOptions": {
-        "outDir": "./dist"
+        "outDir": "./dist",
+        "baseUrl": "./src",
+        "paths": {
+            "@hoverable/*": ["."]
+        }
     },
     "include": [
         "src"
     ],
-    "exclude": ["node_modules", "dist"]
+    "exclude": ["node_modules", "dist", "**/*.spec.ts*"]
 }
