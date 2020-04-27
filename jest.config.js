@@ -1,4 +1,5 @@
 module.exports = {
+    preset: '@testing-library/react-native',
     projects: ["packages/*/jest.config.js"],
     coverageReporters: ['text-summary', 'lcov'],
     reporters: ['default'],
