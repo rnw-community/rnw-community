@@ -5,7 +5,7 @@ import { HoverProps } from './hover.props';
 
 const isHoverableReactElement = (el: Maybe<ReactElement>) =>
     el !== null &&
-    (el.props?.hoverStyle !== undefined || el.props?.activeStyle !== undefined || el.props?.hoverColor !== undefined);
+    (el.props?.hoverStyle !== undefined || el.props?.activeStyle !== undefined || el.props?.hoverColor !== undefined || el.props?.activeColor !== undefined);
 
 const useChildrenWithProps = (children: ReactElement, props: object, filterFn: (el: ReactElement) => boolean = () => true) =>
     useMemo(() => React.Children.map(children, (el: ReactElement) => (filterFn(el) ? React.cloneElement(el, props) : el)), [
