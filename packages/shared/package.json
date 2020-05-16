@@ -13,8 +13,8 @@
   "publishConfig": {
     "access": "public"
   },
-  "devDependencies": {
-    "metro-react-native-babel-preset": "^0.59.0"
+  "peerDependencies": {
+    "react-native": "^0.61.5"
   },
   "scripts": {
     "build": "tsc -b --pretty",
