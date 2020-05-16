@@ -32,3 +32,35 @@ const buttonStyles = cs(isActive, Styles.buttonActive, Styles.buttonDisabled);
 
 ### `isDefined` - Check if variable is not undefined and is not null
 
+### Platform constants
+For simple identifying of the platform library provides global constants:
+ - `isWeb`
+ - 'isIOS'
+ - 'isAndroid'
+ - 'isMobile' - IOS or Android
+
+### Platform styling
+For simple platform-specific styling library provider helpers:
+ - `webStyles(style)`
+ - `androidStyles(style)`
+ - `iosStyles(style)`
+ - `mobileStyles(style)`
+
+Example usage:
+```ts
+import { StyleSheet } from 'react-native';
+import { webStyles, androidStyles } from '@rnw-community/shared';
+
+export const Styles = StyleSheet.create({
+    root: {
+        width: 200,
+        ...webStyles({
+            width: 400,
+        }),
+        ...androidStyles({
+            paddingBottom: 5
+        })
+    }
+});
+
+```
