@@ -12,7 +12,8 @@ Generic function type with input type `T` and return type `R`.
 ## Utils
 
 ### `cs` - Conditional styles shorthand
-Conditional styling, returns `styleObj` if `condition` is true.
+Conditional styling, returns `trueStyle` object if `condition` is true,
+otherwise returns `falseStyle` object which defaults to `{}`.
 
 Useful for React Native styles:
 ```tsx
@@ -25,4 +26,6 @@ const rootStyles = [
     cs(isActive, Styles.rootActive),
     cs(isDisabled, Styles.rootDisabled)
 ];
+
+const buttonStyles = cs(isActive, Styles.buttonActive, Styles.buttonDisabled);
 ```
