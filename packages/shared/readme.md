@@ -29,3 +29,6 @@ const rootStyles = [
 
 const buttonStyles = cs(isActive, Styles.buttonActive, Styles.buttonDisabled);
 ```
+
+### `isDefined` - Check if variable is not undefined and is not null
+
