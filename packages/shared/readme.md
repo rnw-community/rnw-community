@@ -64,3 +64,24 @@ export const Styles = StyleSheet.create({
 });
 
 ```
+
+### TestID
+Setting _testID_ for each platform can produce warning, `setTestId(...ids)` fixes it and has support for dynamically
+generated components.
+
+Example usage:
+```tsx
+import React, { FC } from 'react';
+import { Text } from 'react-native';
+
+import { setTestId } from '@shared/util/render.util';
+
+interface Props {
+    testID: string;
+}
+
+export const DynamicComponent: FC<Props> = ({testID = 'ParentTestID'}) => (
+    <Text {...setTestId(testID, `Text`)}>Text</Text>
+);
+```
+Which will generate `ParentTestID_Text`;
