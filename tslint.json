@@ -107,7 +107,7 @@
         "no-duplicate-case": true,
         "no-invalid-regexp": true,
         "no-regex-spaces": true,
-        "no-relative-imports": [true, "allow-siblings"],
+        "no-relative-imports": false,
         "valid-typeof": true,
         "no-switch-case-fall-through": true,
         "arrow-return-shorthand": true,
