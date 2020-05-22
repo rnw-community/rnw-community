@@ -50,7 +50,7 @@
                     },
                     {
                         "type": "project",
-                        "matches": "^@(hr-|admin-|employee-|partner-|shared|utils|interfaces|types|so)",
+                        "matches": "^@(shared|util)",
                         "imports-group": "common"
                     },
                     {
