@@ -8,7 +8,8 @@
   "main": "dist/src/index.js",
   "types": "dist/src/index.d.ts",
   "files": [
-    "dist/src/**/*"
+    "dist/src/**/*",
+    "!**/*.spec.*"
   ],
   "publishConfig": {
     "access": "public"
@@ -23,7 +24,7 @@
     "test": "yarn jest",
     "test:coverage": "yarn jest --coverage",
     "format": "prettier --write \"./src/**/*.{ts,tsx}\"",
-    "clear": "rm -rf allure-* _results_",
+    "clear": "rm -rf coverage && rm -rf dist",
     "clear:deps": "rm -rf ./node_modules && rm -rf ./dist"
   },
   "gitHead": "b5608910319390f9773a9d42c3cc828e8e8a1d95"
