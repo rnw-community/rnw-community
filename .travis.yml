@@ -11,7 +11,7 @@ after_success:
   - codecov
   - echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > ~/.npmrc
   - git remote add -f pub https://${GH_TOKEN}@github.com/${TRAVIS_REPO_SLUG}.git
-  - git checkout master # got an error w/o this one
+  - git checkout master
 
 deploy:
   - provider: script
