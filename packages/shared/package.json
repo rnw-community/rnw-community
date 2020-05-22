@@ -1,6 +1,6 @@
 {
   "name": "@rnw-community/shared",
-  "version": "0.0.17",
+  "version": "0.0.18",
   "private": false,
   "description": "Shared useful utils and types",
   "repository": "https://github.com/rnw-community/rnw-community/tree/master/packages/shared",
