@@ -65,7 +65,7 @@ export const Styles = StyleSheet.create({
 
 ```
 
-### TestID
+### setTestId
 Setting _testID_ for each platform can produce warning, `setTestId(...ids)` fixes it and has support for dynamically
 generated components.
 
