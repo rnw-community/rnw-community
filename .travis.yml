@@ -3,14 +3,16 @@ node_js:
   - "13"
 cache: yarn
 
-script:
+install:
   - npm install codecov -g
+
+script:
   - yarn ci
 
 after_success:
   - codecov
   - echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > ~/.npmrc
-  - git remote add -f origin https://${GH_TOKEN}@github.com/${TRAVIS_REPO_SLUG}.git
+  - git remote set-url origin https://${GH_TOKEN}@github.com/${TRAVIS_REPO_SLUG}.git
   - git push --quiet --set-upstream origin master
   - git checkout master
 
