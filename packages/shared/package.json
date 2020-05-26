@@ -15,7 +15,8 @@
     "access": "public"
   },
   "peerDependencies": {
-    "react-native": "^0.61.5"
+    "react-native": "^0.62.2",
+    "react": "^16.13.1"
   },
   "scripts": {
     "build": "tsc -b --pretty",
