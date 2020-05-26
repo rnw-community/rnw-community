@@ -7,4 +7,6 @@ export { webStyles, mobileStyles, iosStyles, androidStyles } from './platform-st
 export { isWeb, isAndroid, isIOS, isMobile } from './platform';
 export { setTestId } from './set-test-id';
 
-export const emptyFn = () => void 0;
+// tslint:disable-next-line:no-any
+export type EmptyFn = (...args: any[]) => void;
+export const emptyFn: EmptyFn = () => void 0;

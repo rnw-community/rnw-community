@@ -2,6 +2,14 @@
     "packages": [
         "packages/*"
     ],
+    "command": {
+        "publish": {
+            "conventionalCommits": true,
+            "allowBranch": [
+                "master"
+            ]
+        }
+    },
     "npmClient": "yarn",
-    "version": "0.0.16"
+    "version": "0.0.18"
 }
