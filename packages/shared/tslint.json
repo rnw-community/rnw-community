@@ -1,40 +1,5 @@
 {
     "extends": [
         "../../tslint.json"
-    ],
-    "rules": {
-        "import-group-ordering": {
-            "severity": "error",
-            "options": {
-                "imports-groups": [
-                    {
-                        "name": "dependencies"
-                    },
-                    {
-                        "name": "common"
-                    },
-                    {
-                        "name": "other"
-                    }
-                ],
-                "matching-rules": [
-                    {
-                        "type": "project",
-                        "matches": "^\\.",
-                        "imports-group": "other"
-                    },
-                    {
-                        "type": "project",
-                        "matches": "^@(util|enum)",
-                        "imports-group": "common"
-                    },
-                    {
-                        "type": "project",
-                        "imports-group": "dependencies",
-                        "matches": "^[@a-z]"
-                    }
-                ]
-            }
-        }
-    }
+    ]
 }
