@@ -1,6 +1,6 @@
 {
   "name": "@rnw-community/shared",
-  "version": "0.0.18",
+  "version": "0.1.0",
   "private": false,
   "description": "Shared useful utils and types",
   "repository": "https://github.com/rnw-community/rnw-community/tree/master/packages/shared",
@@ -15,8 +15,8 @@
     "access": "public"
   },
   "peerDependencies": {
-    "react-native": "^0.62.2",
-    "react": "^16.13.1"
+    "react": "^16.13.1",
+    "react-native": "^0.62.2"
   },
   "scripts": {
     "build": "tsc -b --pretty",
