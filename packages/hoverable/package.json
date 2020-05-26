@@ -1,6 +1,6 @@
 {
   "name": "@rnw-community/hoverable",
-  "version": "0.0.16",
+  "version": "0.0.18",
   "private": false,
   "description": "Hover support for React native elements in React native web",
   "repository": "https://github.com/rnw-community/rnw-community/tree/master/packages/hoverable",
@@ -8,7 +8,8 @@
   "main": "dist/src/index.js",
   "types": "dist/src/index.d.ts",
   "files": [
-    "dist/src/**/*"
+    "dist/src/**/*",
+    "!**/*.spec.*"
   ],
   "keywords": [
     "hover",
@@ -26,18 +27,19 @@
     "test": "yarn jest",
     "test:coverage": "yarn jest --coverage",
     "format": "prettier --write \"./src/**/*.{ts,tsx}\"",
-    "clear": "rm -rf allure-* _results_",
+    "clear": "rm -rf coverage && rm -rf dist",
     "clear:deps": "rm -rf ./node_modules && rm -rf ./dist"
   },
   "dependencies": {
-    "@rnw-community/shared": "^0.0.16"
+    "@rnw-community/shared": "^0.0.18"
   },
   "devDependencies": {
     "@testing-library/jest-native": "^3.1.0",
     "@testing-library/react-native": "^5.0.3",
     "@types/react": "^16.9.34",
     "@types/react-native": "^0.62.4",
-    "react": "^16.13.0",
+    "@types/react-test-renderer": "^16.9.2",
+    "react": "^16.13.1",
     "react-native": "^0.61.5",
     "react-test-renderer": "^16.13.1"
   },
