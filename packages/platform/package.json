@@ -1,19 +1,17 @@
 {
-  "name": "@rnw-community/object-field-tree",
+  "name": "@rnw-community/platform",
   "version": "0.1.0",
   "private": false,
-  "description": "Create a object fields combinations tree with data generator function",
+  "description": "React native web platform utils and helpers",
   "keywords": [
-    "object field tree",
-    "enum tree",
-    "nested enums",
-    "typescript enum tree",
+    "platform utils",
+    "platform helpers",
     "react",
     "react-native",
     "react native",
     "react-native-web"
   ],
-  "repository": "https://github.com/rnw-community/rnw-community/tree/master/packages/object-field-tree",
+  "repository": "https://github.com/rnw-community/rnw-community/tree/master/packages/platform",
   "license": "MIT",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -25,13 +23,17 @@
   "publishConfig": {
     "access": "public"
   },
+  "peerDependencies": {
+    "react-native": "^0.62.2",
+    "react": "^16.13.1"
+  },
   "scripts": {
     "build": "tsc -b --pretty",
     "lint": "tslint --format stylish --project tsconfig.json",
     "lint:fix": "yarn lint --fix",
     "test": "yarn jest",
     "test:coverage": "yarn jest --coverage",
-    "format": "prettier --write \"./src/**/*.{ts,tsx,js}\"",
+    "format": "prettier --write \"./src/**/*.{ts,tsx}\"",
     "clear": "rm -rf coverage && rm -rf dist",
     "clear:deps": "rm -rf ./node_modules && rm -rf ./dist"
   },
