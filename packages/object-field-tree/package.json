@@ -3,6 +3,16 @@
   "version": "0.0.18",
   "private": false,
   "description": "Create a object fields combinations tree with data generator function",
+  "keywords": [
+    "object field tree",
+    "enum tree",
+    "nested enums",
+    "typescript enum tree",
+    "react",
+    "react-native",
+    "react native",
+    "react-native-web"
+  ],
   "repository": "https://github.com/rnw-community/rnw-community/tree/master/packages/object-field-tree",
   "license": "MIT",
   "main": "dist/src/index.js",
@@ -11,12 +21,7 @@
     "dist/src/**/*",
     "!**/*.spec.*"
   ],
-  "keywords": [
-    "object field tree",
-    "enum tree",
-    "nested enums",
-    "typescript enum tree"
-  ],
+  "sideEffects": "false",
   "publishConfig": {
     "access": "public"
   },

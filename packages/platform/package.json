@@ -1,17 +1,17 @@
 {
-  "name": "@rnw-community/shared",
-  "version": "0.0.18",
+  "name": "@rnw-community/platform",
+  "version": "0.1.0",
   "private": false,
-  "description": "Shared useful utils and types",
+  "description": "React native web platform utils and helpers",
   "keywords": [
-    "generic utils",
-    "helpers",
+    "platform utils",
+    "platform helpers",
     "react",
     "react-native",
     "react native",
     "react-native-web"
   ],
-  "repository": "https://github.com/rnw-community/rnw-community/tree/master/packages/shared",
+  "repository": "https://github.com/rnw-community/rnw-community/tree/master/packages/platform",
   "license": "MIT",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -22,6 +22,10 @@
   "sideEffects": "false",
   "publishConfig": {
     "access": "public"
+  },
+  "peerDependencies": {
+    "react-native": "^0.62.2",
+    "react": "^16.13.1"
   },
   "scripts": {
     "build": "tsc -b --pretty",
