@@ -3,20 +3,21 @@
   "version": "0.1.0",
   "private": false,
   "description": "Fast react native flex and font styling",
-  "repository": "https://github.com/rnw-community/rnw-community/tree/master/packages/fast-style",
-  "license": "MIT",
-  "main": "dist/src/index.js",
-  "types": "dist/src/index.d.ts",
-  "files": [
-    "dist/src/**/*",
-    "!**/*.spec.*"
-  ],
   "keywords": [
     "object field tree",
     "enum tree",
     "nested enums",
     "typescript enum tree"
   ],
+  "repository": "https://github.com/rnw-community/rnw-community/tree/master/packages/fast-style",
+  "license": "MIT",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist/**/*",
+    "!**/*.spec.*"
+  ],
+  "sideEffects": "false",
   "publishConfig": {
     "access": "public"
   },

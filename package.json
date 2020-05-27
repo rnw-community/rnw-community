@@ -7,7 +7,7 @@
     ]
   },
   "scripts": {
-    "build": "lerna run build",
+    "build": "lerna run build --stream",
     "lint": "lerna run lint --parallel",
     "lint:fix": "lerna run lint:fix  --parallel",
     "test": "yarn jest",
@@ -19,7 +19,7 @@
     "clear": "lerna run clear --parallel",
     "deps:clear": "lerna run clear:deps --parallel && yarn deps:clear:root",
     "deps:clear:root": "rm -rf ./node_modules",
-    "prepare": "yarn build",
+    "postinstall": "lerna run build --stream",
     "preversion": "yarn format && yarn ci",
     "version": "git add -A packages",
     "postversion": "git push && git push --tags"
@@ -48,11 +48,5 @@
     "tslint-origin-ordered-imports-rule": "^1.2.2",
     "tslint-sonarts": "^1.9.0",
     "typescript": "3.8.3"
-  },
-  "husky": {
-    "hooks": {
-      "pre-commit": "lint-staged",
-      "commit-msg": "commitlint -E HUSKY_GIT_PARAMS"
-    }
   }
 }
