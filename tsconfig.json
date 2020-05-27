@@ -1,6 +1,5 @@
 {
     "compilerOptions": {
-        "composite": true,
         "incremental": true,
         "esModuleInterop": true,
         "target": "es5",
