@@ -1,6 +1,6 @@
 {
   "name": "@rnw-community/platform",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "private": false,
   "description": "React native web platform utils and helpers",
   "keywords": [
@@ -24,8 +24,8 @@
     "access": "public"
   },
   "peerDependencies": {
-    "react-native": "^0.62.2",
-    "react": "^16.13.1"
+    "react": "^16.13.1",
+    "react-native": "^0.62.2"
   },
   "scripts": {
     "build": "tsc -b --pretty",
