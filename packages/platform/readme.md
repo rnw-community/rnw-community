@@ -1,15 +1,15 @@
-# Shared - React native web community
-Generic types and utilities commonly used across packages.
+# Platform - React native web community
+Platform specific helpers and utils for react native web.
 
 ### Platform constants
-For simple identifying of the platform library provides global constants:
+Global constants for simple identifying of the platform:
  - `isWeb`
  - 'isIOS'
  - 'isAndroid'
  - 'isMobile' - IOS or Android
 
 ### Platform styling
-For simple platform-specific styling library provider helpers:
+Simple platform-specific styling helpers:
  - `webStyles(style)`
  - `androidStyles(style)`
  - `iosStyles(style)`
