@@ -54,3 +54,28 @@ export const DynamicComponent: FC<Props> = ({testID = 'ParentTestID'}) => (
 );
 ```
 Which will generate `ParentTestID_Text`;
+
+### Storage
+Generic `async storage` for [redux-persist](https://github.com/rt2zz/redux-persist) configuration supporting
+`web` and `native` platforms.
+
+Example usage:
+```ts
+import { storage } from '@rnw-community/platform';
+
+export const persistConfig = {
+    key: 'my-key',
+    storage,
+};
+```
+
+### getEnv
+Generic getter of environment variable value supporting `web` and `native` platforms. Works using [react-native-config](https://github.com/luggit/react-native-config)
+on `native` platform, uses node `process` on `web` platform.
+
+Example usage:
+```ts
+import { getEnv } from '@rnw-community/platform';
+
+const myEnvVar = getEnv('ENV_NAME');
+```
