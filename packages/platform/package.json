@@ -25,7 +25,15 @@
   },
   "peerDependencies": {
     "react": "^16.13.1",
-    "react-native": "^0.62.2"
+    "react-native": "^0.62.2",
+    "@react-native-community/async-storage": "^1.11.0",
+    "redux-persist": "^6.0.0",
+    "react-native-config": "^1.2.0"
+  },
+  "devDependencies": {
+    "@react-native-community/async-storage": "^1.11.0",
+    "redux-persist": "^6.0.0",
+    "react-native-config": "^1.2.0"
   },
   "scripts": {
     "build": "tsc -b --pretty",
