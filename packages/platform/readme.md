@@ -68,3 +68,14 @@ export const persistConfig = {
     storage,
 };
 ```
+
+### getEnv
+Generic getter of environment variable value supporting `web` and `native` platforms. Works using [react-native-config](https://github.com/luggit/react-native-config)
+on `native` platform, uses node `process` on `web` platform.
+
+Example usage:
+```ts
+import { getEnv } from '@rnw-community/platform';
+
+const myEnvVar = getEnv('ENV_NAME');
+```
