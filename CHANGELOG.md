@@ -3,6 +3,26 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.1.4](https://github.com/rnw-community/rnw-community/compare/v0.1.3...v0.1.4) (2020-07-11)
+
+
+### Bug Fixes
+
+* fixed fast-style package.json ([d282129](https://github.com/rnw-community/rnw-community/commit/d2821293f5c1f3ca233d8a6cf3959307c1031dfa))
+* fixed package.json ([e5402b8](https://github.com/rnw-community/rnw-community/commit/e5402b883e7642e124fc8dd14aaf30a8a36b8a34))
+* package.json ([3133d9b](https://github.com/rnw-community/rnw-community/commit/3133d9bc2b205339e4f4639fb979aebfb35afd33))
+* updated @rnw-community/hoverable dependencies ([07808e9](https://github.com/rnw-community/rnw-community/commit/07808e9fcd6f49182ff4dab1b93ed6a8b0e3afc4))
+* updated @rnw-community/hoverable dependencies ([dbc881e](https://github.com/rnw-community/rnw-community/commit/dbc881e82f03420ef65c3b56a69b046c4fa7a04c))
+
+
+### Features
+
+* updated @rnw-community/hoverable dependencies ([0e88f5f](https://github.com/rnw-community/rnw-community/commit/0e88f5fe0e443c4e9cec87761c8cff6fe80bf34c))
+
+
+
+
+
 ## [0.1.3](https://github.com/rnw-community/rnw-community/compare/v0.1.2...v0.1.3) (2020-06-04)
 
 **Note:** Version bump only for package rnw-community
