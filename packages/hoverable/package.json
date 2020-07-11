@@ -41,16 +41,16 @@
   "devDependencies": {
     "@testing-library/jest-native": "^3.1.0",
     "@testing-library/react-native": "^5.0.3",
-    "@types/react": "^16.9.34",
-    "@types/react-native": "^0.62.4",
+    "@types/react": "^16.9.42",
+    "@types/react-native": "^0.62.18",
     "@types/react-test-renderer": "^16.9.2",
     "react": "^16.13.1",
-    "react-native": "^0.61.5",
+    "react-native": "^0.62.2",
     "react-test-renderer": "^16.13.1"
   },
   "peerDependencies": {
-    "react": "^16.13.0",
-    "react-native": "^0.61.5"
+    "react": "^16.13.1",
+    "react-native": "^0.62.2"
   },
   "gitHead": "b5608910319390f9773a9d42c3cc828e8e8a1d95"
 }
