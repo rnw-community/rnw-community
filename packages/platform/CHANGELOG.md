@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.1.5](https://github.com/rnw-community/rnw-community/tree/master/packages/platform/compare/v0.1.4...v0.1.5) (2020-08-05)
+
+**Note:** Version bump only for package @rnw-community/platform
+
+
+
+
+
 ## [0.1.3](https://github.com/rnw-community/rnw-community/tree/master/packages/platform/compare/v0.1.2...v0.1.3) (2020-06-04)
 
 **Note:** Version bump only for package @rnw-community/platform
