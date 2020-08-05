@@ -4,9 +4,9 @@ Platform specific helpers and utils for react native web.
 ### Platform constants
 Global constants for simple identifying of the platform:
  - `isWeb`
- - 'isIOS'
- - 'isAndroid'
- - 'isMobile' - IOS or Android
+ - `isIOS`
+ - `isAndroid`
+ - `isMobile` - IOS or Android
 
 ### Platform styling
 Simple platform-specific styling helpers:
