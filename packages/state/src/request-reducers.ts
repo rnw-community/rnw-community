@@ -46,6 +46,7 @@ export const requestReducers = <S extends StateInterface, K extends keyof S, T =
         [stateKey]: {
             ...state[stateKey],
             ...overrideData,
+            isLoading: false,
             error,
         },
     })),
