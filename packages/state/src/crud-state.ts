@@ -1,38 +1,51 @@
 import { reducer } from 'ts-action';
 
-import { requestActions } from './request-actions';
-import { requestReducers } from './request-reducers';
-import { requestInitialState, RequestStateInterface } from './request-state.interface';
+import { createRequestState } from './create-request-state';
+import { RequestStateInterface } from './request-state.interface';
 
-export interface CrudStateInterface<Rt, Ca, Ra, Ua, Da, Ct = Rt, Ut = Rt, Dt = boolean> {
+export interface CrudStateInterface<T, Ca, Ra, Ua, Da, La, Ct = T, Ut = T, Dt = boolean, Lt = T[]> {
     create: RequestStateInterface<Ct, Ca>;
-    read: RequestStateInterface<Rt, Ra>;
+    read: RequestStateInterface<T, Ra>;
     update: RequestStateInterface<Ut, Ua>;
     delete: RequestStateInterface<Dt, Da>;
+    list: RequestStateInterface<Lt, La>;
 }
 
-export const createCrudState = <Rt, Ca, Ra, Ua, Da, Ct = Rt, Ut = Rt, Dt = boolean>(prefix: string) => {
-    const createActions = requestActions<Ct, Ca>(`${prefix}Create`);
-    const readActions = requestActions<Rt, Ra>(`${prefix}Read`);
-    const updateActions = requestActions<Ut, Ua>(`${prefix}Update`);
-    const deleteActions = requestActions<Dt, Da>(`${prefix}Delete`);
+export const createCrudState = <T, Ca, Ra, Ua, Da, La, Ct = T, Ut = T, Dt = boolean, Lt = T[]>(prefix: string) => {
+    type State = CrudStateInterface<T, Ca, Ra, Ua, Da, La, Ct, Ut, Dt, Lt>;
 
-    const initialState: CrudStateInterface<Rt, Ca, Ra, Ua, Da, Ct, Ut, Dt> = {
-        create: requestInitialState,
-        read: requestInitialState,
-        update: requestInitialState,
-        delete: requestInitialState,
+    const [createActions, createReducers, createInitialState] = createRequestState<Ct, Ca, State, 'create'>(
+        prefix,
+        'create'
+    );
+    const [readActions, readReducers, readInitialState] = createRequestState<T, Ra, State, 'read'>(prefix, 'read');
+    const [updateActions, updateReducers, updateInitialState] = createRequestState<Ut, Ua, State, 'update'>(
+        prefix,
+        'update'
+    );
+    const [deleteActions, deleteReducers, deleteInitialState] = createRequestState<Dt, Da, State, 'delete'>(
+        prefix,
+        'delete'
+    );
+    const [listActions, listReducers, listInitialState] = createRequestState<Lt, La, State, 'list'>(prefix, 'list');
+
+    const initialState: CrudStateInterface<T, Ca, Ra, Ua, Da, La, Ct, Ut, Dt, Lt> = {
+        create: createInitialState,
+        read: readInitialState,
+        update: updateInitialState,
+        delete: deleteInitialState,
+        list: listInitialState,
     };
 
+    const crudActions = [createActions, readActions, updateActions, deleteActions, listActions];
     const crudReducer = reducer(
         initialState,
-        ...requestReducers<CrudStateInterface<Rt, Ca, Ra, Ua, Da, Ct, Ut, Dt>, 'create'>(createActions, 'create'),
-        ...requestReducers<CrudStateInterface<Rt, Ca, Ra, Ua, Da, Ct, Ut, Dt>, 'read'>(readActions, 'read'),
-        ...requestReducers<CrudStateInterface<Rt, Ca, Ra, Ua, Da, Ct, Ut, Dt>, 'update'>(updateActions, 'update'),
-        ...requestReducers<CrudStateInterface<Rt, Ca, Ra, Ua, Da, Ct, Ut, Dt>, 'delete'>(deleteActions, 'delete')
+        ...createReducers,
+        ...readReducers,
+        ...updateReducers,
+        ...deleteReducers,
+        ...listReducers
     );
 
-    const actions = [createActions, readActions, updateActions, deleteActions];
-
-    return [actions, crudReducer];
+    return [crudActions, crudReducer, initialState];
 };
