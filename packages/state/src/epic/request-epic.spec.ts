@@ -14,39 +14,32 @@ import {
     testErrorMessage,
     testInitialState,
     TestState,
-} from './initial.spec';
-import {
-    concatEpic,
-    exhaustEpic,
-    requestEpic,
-    simpleConcatEpic,
-    simpleExhaustEpic,
-    simpleSwitchEpic,
-    switchEpic,
-} from './request-epic';
+} from '../initial-spec';
+import { requestEpic } from './request-epic';
+
+export const service$ = jest.fn();
+export const state$ = new BehaviorSubject<TestState>(testInitialState);
+export let action$ = new Subject<Action>();
+
+export const serviceCallTest = (epic: ReturnType<typeof requestEpic>) => () => {
+    epic(action$, state$).subscribe();
+
+    action$.next(requestAction(testEntityArgs));
+
+    expect(service$).toBeCalledWith(testEntityArgs, testInitialState);
+};
+
+export const resetMocks = () => {
+    service$.mockReset();
+    action$ = new Subject<Action>();
+};
 
 describe('requestEpic', () => {
+    const successSideEffectFn = jest.fn();
     const customSuccessAction = action('customAction', payload<TestEntity>());
     const customErrorAction = action('customAction', payload<{ error: string; args: TestEntityArgs }>());
-    const state$ = new BehaviorSubject<TestState>(testInitialState);
-    const successSideEffectFn = jest.fn();
-    const failedSideEffectFn = jest.fn();
-    const service$ = jest.fn();
 
-    let action$ = new Subject<Action>();
-
-    const serviceCallTest = (epic: ReturnType<typeof requestEpic>) => () => {
-        epic(action$, state$).subscribe();
-
-        action$.next(requestAction(testEntityArgs));
-
-        expect(service$).toBeCalledWith(testEntityArgs, testInitialState);
-    };
-
-    beforeEach(() => {
-        service$.mockReset();
-        action$ = new Subject<Action>();
-    });
+    beforeEach(resetMocks);
 
     it('should call service$ function with args and state', () => {
         serviceCallTest(requestEpic(switchMap, testActions, service$, testErrorMessage));
@@ -98,6 +91,8 @@ describe('requestEpic', () => {
     });
 
     it('should call failedSideEffectFn with error and request args if error has occurred', done => {
+        const failedSideEffectFn = jest.fn();
+
         const epic = requestEpic(
             switchMap,
             testActions,
@@ -123,35 +118,5 @@ describe('requestEpic', () => {
 
         action$.next(requestAction(testEntityArgs));
         action$.complete();
-    });
-
-    describe('switchEpic', () => {
-        it('should work through switchMap operator', () => {
-            serviceCallTest(switchEpic(testActions, service$, testErrorMessage));
-        });
-
-        it('simpleSwitchEpic should work with success actions array', () => {
-            serviceCallTest(simpleSwitchEpic(testActions, service$, testErrorMessage));
-        });
-    });
-
-    describe('concatEpic', () => {
-        it('should work through concatMap operator', () => {
-            serviceCallTest(concatEpic(testActions, service$, testErrorMessage));
-        });
-
-        it('simpleConcatEpic should work with success actions array', () => {
-            serviceCallTest(simpleConcatEpic(testActions, service$, testErrorMessage));
-        });
-    });
-
-    describe('exhaustEpic', () => {
-        it('should work through exhaustMap operator', () => {
-            serviceCallTest(exhaustEpic(testActions, service$, testErrorMessage));
-        });
-
-        it('simpleExhaustEpic should work with success actions array', () => {
-            serviceCallTest(simpleExhaustEpic(testActions, service$, testErrorMessage));
-        });
     });
 });

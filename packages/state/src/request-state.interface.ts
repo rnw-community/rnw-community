@@ -1,4 +1,4 @@
-export interface RequestStateInterface<T, A, P = void> {
+export interface RequestStateInterface<T, A = void, P = void> {
     data: T;
     isLoading?: boolean;
     args?: A;

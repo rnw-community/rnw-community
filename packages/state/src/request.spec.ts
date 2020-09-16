@@ -10,7 +10,7 @@ import {
     testEntityArgs,
     testInitialState,
     TestState,
-} from './initial.spec';
+} from './initial-spec';
 import { requestReducers } from './request-reducers';
 
 describe('itemRequest', () => {

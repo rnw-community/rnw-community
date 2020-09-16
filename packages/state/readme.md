@@ -5,11 +5,13 @@ Utility library for fast state boilerplate and management using `redux` and `red
 # TODO
  - Integrate and improve `configure-store`
  - Write docs
- - Add crud state with actions, reducers, and epics?
 
 ## Request state
 ## Request actions
 ## Request reducers
+## createRequestState
+## createCrudState
+
 ## Request epic
 ### requestEpic
 ### switchEpic
@@ -18,3 +20,4 @@ Utility library for fast state boilerplate and management using `redux` and `red
 ### simpleConcatEpic
 ### exhaustEpic
 ### simpleExhaustEpic
+
