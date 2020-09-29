@@ -1,3 +1,5 @@
+import { TextStyle } from 'react-native';
+
 import { getFont } from './font';
 
 enum TestFontFamilyEnum {
@@ -75,6 +77,82 @@ enum TestFontSizeNumericEnum {
     TestFontSizeNumericEnum2 = 2,
 }
 
+const additionalStyleMock: TextStyle = {
+    textAlignVertical: 'center',
+    includeFontPadding: false,
+};
+
+const expectedExtendedTree = {
+    Family1: {
+        Size1: {
+            Color1: {
+                color: 'Color1',
+                fontFamily: 'Family1',
+                fontSize: 1,
+                textAlignVertical: 'center',
+                includeFontPadding: false,
+            },
+            Color2: {
+                color: 'Color2',
+                fontFamily: 'Family1',
+                fontSize: 1,
+                textAlignVertical: 'center',
+                includeFontPadding: false,
+            },
+        },
+        Size2: {
+            Color1: {
+                color: 'Color1',
+                fontFamily: 'Family1',
+                fontSize: 2,
+                textAlignVertical: 'center',
+                includeFontPadding: false,
+            },
+            Color2: {
+                color: 'Color2',
+                fontFamily: 'Family1',
+                fontSize: 2,
+                textAlignVertical: 'center',
+                includeFontPadding: false,
+            },
+        },
+    },
+    Family2: {
+        Size1: {
+            Color1: {
+                color: 'Color1',
+                fontFamily: 'Family2',
+                fontSize: 1,
+                textAlignVertical: 'center',
+                includeFontPadding: false,
+            },
+            Color2: {
+                color: 'Color2',
+                fontFamily: 'Family2',
+                fontSize: 1,
+                textAlignVertical: 'center',
+                includeFontPadding: false,
+            },
+        },
+        Size2: {
+            Color1: {
+                color: 'Color1',
+                fontFamily: 'Family2',
+                fontSize: 2,
+                textAlignVertical: 'center',
+                includeFontPadding: false,
+            },
+            Color2: {
+                color: 'Color2',
+                fontFamily: 'Family2',
+                fontSize: 2,
+                textAlignVertical: 'center',
+                includeFontPadding: false,
+            },
+        },
+    },
+};
+
 describe('GetFont', () => {
     it('Should create a tree for mocked font family, size and color', () => {
         const Font = getFont(TestFontFamilyEnum, TestFontSizeEnum, TestFontColorEnum);
@@ -83,5 +161,9 @@ describe('GetFont', () => {
     it('Should throw an error if size enum has numeric values', () => {
         const getFontError = () => getFont(TestFontFamilyEnum, TestFontSizeNumericEnum, TestFontColorEnum);
         expect(getFontError).toThrowError('fontSizeObj must have string values');
+    });
+    it('Should add additional styles', () => {
+        const Font = getFont(TestFontFamilyEnum, TestFontSizeEnum, TestFontColorEnum, additionalStyleMock);
+        expect(Font).toEqual(expectedExtendedTree);
     });
 });

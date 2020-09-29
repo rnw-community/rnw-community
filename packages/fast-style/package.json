@@ -34,5 +34,8 @@
   "dependencies": {
     "@rnw-community/object-field-tree": "^0.1.1"
   },
+  "devDependencies": {
+    "@types/react-native": "^0.63.20"
+  },
   "gitHead": "b5608910319390f9773a9d42c3cc828e8e8a1d95"
 }
