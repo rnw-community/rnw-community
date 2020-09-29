@@ -14,8 +14,8 @@ export const getFont = <TFamily extends Enum, TSize extends Enum, TColor extends
     return combine(
         (fontFamily, fontSize, color) => ({
             fontFamily: fontFamilyObj[fontFamily],
-            color: fontColorObj[color],
             fontSize: parseInt(fontSizeObj[fontSize] as string, 10),
+            color: fontColorObj[color],
             ...additionalStyle,
         }),
         fontFamilyObj,
