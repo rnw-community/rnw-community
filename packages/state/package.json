@@ -1,0 +1,45 @@
+{
+  "name": "@rnw-community/state",
+  "version": "0.1.1",
+  "private": false,
+  "description": "Generic redux and redux-observable types and helpers",
+  "keywords": [
+    "redux state utils",
+    "crud redux helper",
+    "crud redux-observable epic",
+    "generic eic"
+  ],
+  "repository": "https://github.com/rnw-community/rnw-community/tree/master/packages/fast-style",
+  "license": "MIT",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist/**/*",
+    "!**/*.spec.*"
+  ],
+  "sideEffects": "false",
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "tsc -b --pretty",
+    "lint": "tslint --format stylish --project tsconfig.json",
+    "lint:fix": "yarn lint --fix",
+    "test": "yarn jest",
+    "test:coverage": "yarn jest --coverage",
+    "format": "prettier --write \"./src/**/*.{ts,tsx}\"",
+    "clear": "rm -rf coverage && rm -rf dist",
+    "clear:deps": "rm -rf ./node_modules && rm -rf ./dist"
+  },
+  "devDependencies": {
+    "ts-action": "^11.0.0",
+    "ts-action-operators": "^9.1.1",
+    "rxjs": "^6.6.2"
+  },
+  "peerDependencies": {
+    "ts-action": "^11.0.0",
+    "ts-action-operators": "^9.1.1",
+    "rxjs": "^6.6.2"
+  },
+  "gitHead": "b5608910319390f9773a9d42c3cc828e8e8a1d95"
+}
