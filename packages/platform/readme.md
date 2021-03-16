@@ -43,7 +43,7 @@ Example usage:
 import React, { FC } from 'react';
 import { Text } from 'react-native';
 
-import { setTestId } from '@shared/util/render.util';
+import { setTestId } from '@rnw-community/platform';
 
 interface Props {
     testID: string;
