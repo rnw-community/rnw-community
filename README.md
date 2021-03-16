@@ -13,6 +13,7 @@ Monorepo for useful React Native and React Native Web packages which can help yo
 - [Shared](https://github.com/rnw-community/rnw-community/tree/master/packages/shared)
 - [Fast style](https://github.com/rnw-community/rnw-community/tree/master/packages/fast-style)
 - [Hoverable](https://github.com/rnw-community/rnw-community/tree/master/packages/hoverable)
+- [Platform](https://github.com/rnw-community/rnw-community/tree/master/packages/platform)
 
 ##Get Started
 
