@@ -1,4 +1,5 @@
-type StyleType = Array<Record<string, unknown>> | Record<string, unknown> | false | null | undefined;
+// eslint-disable-next-line @typescript-eslint/ban-types
+type StyleType = Array<Record<string, unknown>> | object | false | null | undefined;
 
 /**
  * Conditional styling, returns `trueStyle` object if `condition` is true,
