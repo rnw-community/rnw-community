@@ -8,11 +8,10 @@ const isHoverableReactElement = (el: Maybe<ReactElement>) =>
     (el.props?.hoverStyle !== undefined || el.props?.activeStyle !== undefined || el.props?.hoverColor !== undefined);
 
 const useChildrenWithProps = (children: ReactElement, props: object, filterFn: (el: ReactElement) => boolean = () => true) =>
-    useMemo(() => React.Children.map(children, (el: ReactElement) => (filterFn(el) ? React.cloneElement(el, props) : el)), [
-        children,
-        props,
-        filterFn,
-    ]);
+    useMemo(
+        () => React.Children.map(children, (el: ReactElement) => (filterFn(el) ? React.cloneElement(el, props) : el)),
+        [children, props, filterFn]
+    );
 
 // TODO: Think and implement native logic, do we need hovers? we do need active state
 // TODO: Mobile support?
