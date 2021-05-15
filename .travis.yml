@@ -19,7 +19,7 @@ after_success:
 
 deploy:
   - provider: script
-    script: npx lerna publish --yes
+    script: npx lerna publish --yes --conventional-commits
     skip_cleanup: true
     keep_history: true
     on:

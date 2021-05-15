@@ -1,1 +1,1 @@
-export type Enum<D = string | number> = { [K: string]: D };
+export type Enum<D = unknown> = Record<string, D>;
