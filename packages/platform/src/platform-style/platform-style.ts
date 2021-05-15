@@ -1,7 +1,7 @@
 import { CSSProperties } from 'react';
 import { ImageStyle, TextStyle, ViewStyle } from 'react-native';
 
-import { isAndroid, isIOS, isMobile, isWeb } from './platform';
+import { isAndroid, isIOS, isMobile, isWeb } from '../platform';
 
 export type StyleType = ViewStyle | TextStyle | ImageStyle | {};
 
@@ -17,6 +17,7 @@ const platformStyles = <T extends object = StyleType | CSSProperties, R = StyleT
  * @returns Style object if current build platform is WEB otherwise {}
  */
 export const webStyles = <T extends object = StyleType | CSSProperties>(style: T) => platformStyles<T>(isWeb, style);
+
 /**
  * Return style object if current build platform is Android or IOS
  *

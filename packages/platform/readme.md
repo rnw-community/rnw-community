@@ -56,6 +56,8 @@ export const DynamicComponent: FC<Props> = ({testID = 'ParentTestID'}) => (
 Which will generate `ParentTestID_Text`;
 
 ### Storage
+> Deprecated Use @react-native-community/async-storage, it has web fallback support
+
 Generic `async storage` for [redux-persist](https://github.com/rt2zz/redux-persist) configuration supporting
 `web` and `native` platforms.
 

@@ -1,6 +1,6 @@
 // tslint:disable-next-line:no-import-side-effect
 import '@testing-library/jest-native/extend-expect';
-import { cleanup, fireEvent, NativeTestEvent, render } from '@testing-library/react-native';
+import { cleanup, fireEvent, render } from '@testing-library/react-native';
 import React from 'react';
 import { Text, View } from 'react-native';
 
@@ -10,8 +10,8 @@ const BaseComponentSelector = 'BaseComponent';
 const HoverableViewComponent = withHover(View);
 const hoverStyle = { backgroundColor: 'black' };
 const style = { width: 100, backgroundColor: 'white' };
-const MouseEnterEvent = new NativeTestEvent('mouseEnter');
-const MouseLeaveEvent = new NativeTestEvent('mouseLeave');
+const MouseEnterEvent = 'mouseEnter';
+const MouseLeaveEvent = 'mouseLeave';
 
 describe('withHover HOC', () => {
     afterEach(cleanup);
