@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 
 import { cs, emptyFn, isDefined, isString } from '@rnw-community/shared';
 
-import type { HoverProps } from './hover.props';
+import type { HoverProps } from '../hover.props';
 import type { Maybe } from '@rnw-community/shared';
 import type { ComponentType, PropsWithChildren, ReactElement } from 'react';
 

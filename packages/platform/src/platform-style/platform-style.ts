@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/ban-types */
-import { isAndroid, isIOS, isMobile, isWeb } from '../platform';
+import { isAndroid, isIOS, isMobile, isWeb } from '../platform/platform';
 
 import type { ImageStyle, TextStyle, ViewStyle } from 'react-native';
 import type { CSSProperties } from 'react';

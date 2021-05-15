@@ -1,6 +1,6 @@
-import '../platform.mock';
+import '../platform/platform.mock';
 
-import * as constants from '../platform';
+import * as constants from '../platform/platform';
 
 import { androidStyles, iosStyles, mobileStyles, webStyles } from './platform-style';
 

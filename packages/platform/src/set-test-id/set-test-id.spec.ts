@@ -1,6 +1,6 @@
-import '../platform.mock';
+import '../platform/platform.mock';
 
-import * as constants from '../platform';
+import * as constants from '../platform/platform';
 
 import { setTestId } from './set-test-id';
 
