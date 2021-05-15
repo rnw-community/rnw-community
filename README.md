@@ -1,4 +1,4 @@
-# React native web community
+# React native & React native web community packages
 
 Monorepo for useful React Native and React Native Web packages which can help you develop better software.
 
