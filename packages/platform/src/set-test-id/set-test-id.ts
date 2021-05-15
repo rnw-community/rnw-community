@@ -1,4 +1,4 @@
-import { isWeb } from './platform';
+import { isIOS, isWeb } from '../platform';
 
 /**
  * Get WEB, IOS and Android supported object with `testID` props.
@@ -12,5 +12,5 @@ import { isWeb } from './platform';
 export const setTestId = (...args: Array<string | number>) => {
     const id = args.join('_');
 
-    return isWeb ? { testID: id } : { accessibilityLabel: id, testID: id };
+    return isWeb || isIOS ? { testID: id } : { accessibilityLabel: id, testID: id };
 };
