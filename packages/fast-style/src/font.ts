@@ -1,12 +1,14 @@
-import { combine, Enum } from '@rnw-community/object-field-tree';
-import { TextStyle } from 'react-native';
+import { combine } from '@rnw-community/object-field-tree';
+
+import type { Enum } from '@rnw-community/object-field-tree';
+import type { TextStyle } from 'react-native';
 
 export const getFont = <TFamily extends Enum, TSize extends Enum, TColor extends Enum>(
     fontFamilyObj: TFamily,
     fontSizeObj: TSize,
     fontColorObj: TColor,
     additionalStyle: TextStyle = {}
-) => {
+): ReturnType<typeof combine> => {
     if (Object.values(fontSizeObj).some(item => typeof item === 'number')) {
         throw new Error('fontSizeObj must have string values');
     }

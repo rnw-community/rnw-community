@@ -5,15 +5,22 @@ describe('cs', () => {
     const falseStyle = { backgroundColor: 'red' };
 
     it('should return trueStyle if condition is true', () => {
-        expect(cs(true, trueStyle, falseStyle)).toEqual(trueStyle);
+        expect.hasAssertions();
+        expect(cs(true, trueStyle, falseStyle)).toStrictEqual(trueStyle);
     });
+
     it('should return falseStyle if condition is false', () => {
-        expect(cs(false, trueStyle, falseStyle)).toEqual(falseStyle);
+        expect.hasAssertions();
+        expect(cs(false, trueStyle, falseStyle)).toStrictEqual(falseStyle);
     });
+
     it('should return trueStyle if condition is true and falseStyle not passed', () => {
-        expect(cs(true, trueStyle)).toEqual(trueStyle);
+        expect.hasAssertions();
+        expect(cs(true, trueStyle)).toStrictEqual(trueStyle);
     });
+
     it('should return empty object if condition is false and falseStyle not passed', () => {
-        expect(cs(false, trueStyle)).toEqual({});
+        expect.hasAssertions();
+        expect(cs(false, trueStyle)).toStrictEqual({});
     });
 });

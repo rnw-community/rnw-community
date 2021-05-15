@@ -23,8 +23,8 @@
   },
   "scripts": {
     "build": "tsc -b --pretty",
-    "lint": "tslint --format stylish --project tsconfig.json",
-    "lint:fix": "yarn lint --fix",
+    "lint": "yarn eslint src",
+    "lint:fix": "yarn lint --fix src",
     "test": "yarn jest",
     "test:coverage": "yarn jest --coverage",
     "format": "prettier --write \"./src/**/*.{ts,tsx}\"",
@@ -35,7 +35,8 @@
     "@rnw-community/object-field-tree": "^0.1.1"
   },
   "devDependencies": {
-    "@types/react-native": "^0.64.5"
+    "@types/react-native": "^0.64.5",
+    "react-native": "^0.64.1"
   },
   "gitHead": "b5608910319390f9773a9d42c3cc828e8e8a1d95"
 }

@@ -27,8 +27,8 @@
   },
   "scripts": {
     "build": "tsc -b --pretty",
-    "lint": "tslint --format stylish --project tsconfig.json",
-    "lint:fix": "yarn lint --fix",
+    "lint": "yarn eslint src",
+    "lint:fix": "yarn lint --fix src",
     "test": "yarn jest",
     "test:coverage": "yarn jest --coverage",
     "format": "prettier --write \"./src/**/*.{ts,tsx}\"",

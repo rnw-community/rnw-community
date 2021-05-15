@@ -1,11 +1,12 @@
-import { CSSProperties } from 'react';
-import { ImageStyle, TextStyle, ViewStyle } from 'react-native';
-
+/* eslint-disable @typescript-eslint/ban-types */
 import { isAndroid, isIOS, isMobile, isWeb } from '../platform';
 
-export type StyleType = ViewStyle | TextStyle | ImageStyle | {};
+import type { ImageStyle, TextStyle, ViewStyle } from 'react-native';
+import type { CSSProperties } from 'react';
 
-const platformStyles = <T extends object = StyleType | CSSProperties, R = StyleType>(
+export type StyleType = ImageStyle | Record<string, unknown> | TextStyle | ViewStyle;
+
+const platformStyles = <T extends object = CSSProperties | StyleType, R = StyleType>(
     isPlatform: boolean,
     style: T
 ): R | {} => (isPlatform ? style : {});
@@ -16,7 +17,8 @@ const platformStyles = <T extends object = StyleType | CSSProperties, R = StyleT
  * @param style Styling object
  * @returns Style object if current build platform is WEB otherwise {}
  */
-export const webStyles = <T extends object = StyleType | CSSProperties>(style: T) => platformStyles<T>(isWeb, style);
+export const webStyles = <T extends object = CSSProperties | StyleType>(style: T): StyleType =>
+    platformStyles<T>(isWeb, style);
 
 /**
  * Return style object if current build platform is Android or IOS
@@ -24,7 +26,7 @@ export const webStyles = <T extends object = StyleType | CSSProperties>(style: T
  * @param style Styling object
  * @returns Style object if current build platform is Android or IOS otherwise {}
  */
-export const mobileStyles = <T extends object>(style: T) => platformStyles<T>(isMobile, style);
+export const mobileStyles = <T extends object>(style: T): StyleType => platformStyles<T>(isMobile, style);
 
 /**
  * Return style object if current build platform is IOS
@@ -32,7 +34,7 @@ export const mobileStyles = <T extends object>(style: T) => platformStyles<T>(is
  * @param style Styling object
  * @returns Style object if current build platform is IOS otherwise {}
  */
-export const iosStyles = <T extends object>(style: T) => platformStyles<T>(isIOS, style);
+export const iosStyles = <T extends object>(style: T): StyleType => platformStyles<T>(isIOS, style);
 
 /**
  * Return style object if current build platform is Android
@@ -40,4 +42,4 @@ export const iosStyles = <T extends object>(style: T) => platformStyles<T>(isIOS
  * @param style Styling object
  * @returns Style object if current build platform is Android otherwise {}
  */
-export const androidStyles = <T extends object>(style: T) => platformStyles<T>(isAndroid, style);
+export const androidStyles = <T extends object>(style: T): StyleType => platformStyles<T>(isAndroid, style);

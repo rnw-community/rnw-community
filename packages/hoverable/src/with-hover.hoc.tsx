@@ -1,22 +1,34 @@
-import { cs, emptyFn, Maybe } from '@rnw-community/shared';
-import React, { ComponentType, PropsWithChildren, ReactElement, useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 
-import { HoverProps } from './hover.props';
+import { cs, emptyFn, isDefined, isString } from '@rnw-community/shared';
 
-const isHoverableReactElement = (el: Maybe<ReactElement>) =>
-    el !== null &&
-    (el.props?.hoverStyle !== undefined || el.props?.activeStyle !== undefined || el.props?.hoverColor !== undefined);
+import type { HoverProps } from './hover.props';
+import type { Maybe } from '@rnw-community/shared';
+import type { ComponentType, PropsWithChildren, ReactElement } from 'react';
 
-const useChildrenWithProps = (children: ReactElement, props: object, filterFn: (el: ReactElement) => boolean = () => true) =>
-    useMemo(() => React.Children.map(children, (el: ReactElement) => (filterFn(el) ? React.cloneElement(el, props) : el)), [
-        children,
-        props,
-        filterFn,
-    ]);
+// eslint-disable-next-line @typescript-eslint/no-explicit-any,@typescript-eslint/ban-types
+const isReactElement = <P extends object = any>(el: any): el is ReactElement<P> =>
+    isDefined(el) && !isString(el) && 'props' in el;
 
-// TODO: Think and implement native logic, do we need hovers? we do need active state
-// TODO: Mobile support?
-export const withHover = <T extends HoverProps = HoverProps>(Component: ComponentType<T>): ComponentType<T & HoverProps> =>
+const isHoverableReactElement = (el: Maybe<ReactElement>): boolean =>
+    isReactElement<HoverProps>(el) && (el.props.hoverStyle !== undefined || el.props.activeStyle !== undefined);
+
+const useChildrenWithProps = (
+    children: ReactElement,
+    // eslint-disable-next-line @typescript-eslint/ban-types
+    props: object,
+    filterFn: (el: ReactElement) => boolean = () => true
+): ReactElement[] =>
+    useMemo(
+        () => React.Children.map(children, (el: ReactElement) => (filterFn(el) ? React.cloneElement(el, props) : el)),
+        [children, props, filterFn]
+    );
+
+/*
+ * TODO: Think and implement native logic, do we need hovers? we do need active state
+ * TODO: Mobile support?
+ */
+export const withHover = <T extends HoverProps = HoverProps>(Component: ComponentType<T>): ComponentType<HoverProps & T> =>
     React.memo<T>((props: PropsWithChildren<T>) => {
         const {
             style,
@@ -33,14 +45,14 @@ export const withHover = <T extends HoverProps = HoverProps>(Component: Componen
         } = props;
         const [isHovered, setIsHovered] = useState(initialIsHovered);
 
-        useEffect(() => setIsHovered(initialIsHovered), [initialIsHovered]);
-        useEffect(() => setIsHovered(isActive ? false : isHovered), [isActive]);
+        useEffect(() => void setIsHovered(initialIsHovered), [initialIsHovered]);
+        useEffect(() => void setIsHovered(isActive ? false : isHovered), [isActive]);
 
-        const handleMouseEnter = () => {
+        const handleMouseEnter = (): void => {
             onHover(true);
             setIsHovered(true);
         };
-        const handleMouseLeave = () => {
+        const handleMouseLeave = (): void => {
             onHover(false);
             setIsHovered(false);
         };
@@ -62,7 +74,7 @@ export const withHover = <T extends HoverProps = HoverProps>(Component: Componen
         const hasMouseEvents = !isNested && !isActive && !isDisabled;
 
         return (
-            // @ts-ignore
+            // @ts-expect-error Mouse events not available
             <Component
                 style={styles}
                 {...(hasMouseEvents && { onMouseEnter: handleMouseEnter })}

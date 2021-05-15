@@ -1,6 +1,6 @@
 {
     "packages/**/*.{ts,tsx}": [
-        "yarn tslint --fix",
+        "yarn eslint --fix",
         "yarn prettier --write",
         "git add ."
     ],

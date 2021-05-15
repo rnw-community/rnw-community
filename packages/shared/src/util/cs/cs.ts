@@ -1,4 +1,4 @@
-type StyleType = object | undefined | null | false | object[];
+type StyleType = Array<Record<string, unknown>> | Record<string, unknown> | false | null | undefined;
 
 /**
  * Conditional styling, returns `trueStyle` object if `condition` is true,
