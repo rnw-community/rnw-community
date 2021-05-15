@@ -16,12 +16,14 @@ const isHoverableReactElement = (el: Maybe<ReactElement>): boolean =>
 const useChildrenWithProps = (
     children: ReactElement,
     // eslint-disable-next-line @typescript-eslint/ban-types
-    props: object,
-    filterFn: (el: ReactElement) => boolean = () => true
+    props: object
 ): ReactElement[] =>
     useMemo(
-        () => React.Children.map(children, (el: ReactElement) => (filterFn(el) ? React.cloneElement(el, props) : el)),
-        [children, props, filterFn]
+        () =>
+            React.Children.map(children, (el: ReactElement) =>
+                isHoverableReactElement(el) ? React.cloneElement(el, props) : el
+            ),
+        [children, props]
     );
 
 /*
@@ -57,11 +59,12 @@ export const withHover = <T extends HoverProps = HoverProps>(Component: Componen
             setIsHovered(false);
         };
 
-        const hoverableChildren = useChildrenWithProps(
-            children as ReactElement,
-            { isHovered, isActive, isDisabled, isNested: true },
-            isHoverableReactElement
-        );
+        const hoverableChildren = useChildrenWithProps(children as ReactElement, {
+            isHovered,
+            isActive,
+            isDisabled,
+            isNested: true,
+        });
 
         const styles = [
             style,
