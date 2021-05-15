@@ -25,7 +25,7 @@
   },
   "peerDependencies": {
     "@react-native-community/async-storage": "^1.12.1",
-    "react": "^16.14.0",
+    "react": "^17.0.2",
     "react-native": "^0.64.1",
     "react-native-config": "^1.4.2",
     "redux-persist": "^6.0.0"

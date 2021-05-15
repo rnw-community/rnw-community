@@ -39,17 +39,17 @@
     "@rnw-community/shared": "^0.1.2"
   },
   "devDependencies": {
-    "@testing-library/jest-native": "^3.1.0",
-    "@testing-library/react-native": "^5.0.3",
-    "@types/react": "^16.14.6",
+    "@testing-library/jest-native": "^4.0.1",
+    "@testing-library/react-native": "^8.0.0-rc.1",
+    "@types/react": "^17.0.5",
     "@types/react-native": "^0.64.5",
-    "@types/react-test-renderer": "^16.9.5",
-    "react": "^16.14.0",
+    "@types/react-test-renderer": "^17.0.1",
+    "react": "^17.0.2",
     "react-native": "^0.64.1",
-    "react-test-renderer": "^16.14.0"
+    "react-test-renderer": "^17.0.2"
   },
   "peerDependencies": {
-    "react": "^16.14.0",
+    "react": "^17.0.2",
     "react-native": "^0.64.1"
   },
   "gitHead": "b5608910319390f9773a9d42c3cc828e8e8a1d95"
