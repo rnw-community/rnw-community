@@ -1,7 +1,6 @@
-/* tslint:disable:no-duplicate-string */
 import { Flex } from './flex';
 
-const expectedCenter = (flexDirection: string) => ({
+const expectedCenter = (flexDirection: string): Record<string, unknown> => ({
     center: {
         baseline: {
             alignItems: 'baseline',
@@ -31,7 +30,7 @@ const expectedCenter = (flexDirection: string) => ({
     },
 });
 
-const expectedFlexEnd = (flexDirection: string) => ({
+const expectedFlexEnd = (flexDirection: string): Record<string, unknown> => ({
     flexEnd: {
         baseline: {
             alignItems: 'baseline',
@@ -61,7 +60,7 @@ const expectedFlexEnd = (flexDirection: string) => ({
     },
 });
 
-const expectedFlexStart = (flexDirection: string) => ({
+const expectedFlexStart = (flexDirection: string): Record<string, unknown> => ({
     flexStart: {
         baseline: {
             alignItems: 'baseline',
@@ -91,7 +90,7 @@ const expectedFlexStart = (flexDirection: string) => ({
     },
 });
 
-const expectedSpaceAround = (flexDirection: string) => ({
+const expectedSpaceAround = (flexDirection: string): Record<string, unknown> => ({
     spaceAround: {
         baseline: {
             alignItems: 'baseline',
@@ -121,7 +120,7 @@ const expectedSpaceAround = (flexDirection: string) => ({
     },
 });
 
-const expectedSpaceBetween = (flexDirection: string) => ({
+const expectedSpaceBetween = (flexDirection: string): Record<string, unknown> => ({
     spaceBetween: {
         baseline: {
             alignItems: 'baseline',
@@ -151,7 +150,7 @@ const expectedSpaceBetween = (flexDirection: string) => ({
     },
 });
 
-const expectedSpaceEvenly = (flexDirection: string) => ({
+const expectedSpaceEvenly = (flexDirection: string): Record<string, unknown> => ({
     spaceEvenly: {
         baseline: {
             alignItems: 'baseline',
@@ -181,7 +180,7 @@ const expectedSpaceEvenly = (flexDirection: string) => ({
     },
 });
 
-const expectedMainAxis = (flexDirection: string) => ({
+const expectedMainAxis = (flexDirection: string): Record<string, unknown> => ({
     ...expectedCenter(flexDirection),
     ...expectedFlexEnd(flexDirection),
     ...expectedFlexStart(flexDirection),
@@ -190,9 +189,11 @@ const expectedMainAxis = (flexDirection: string) => ({
     ...expectedSpaceEvenly(flexDirection),
 });
 
-describe('Flex', () => {
-    it('Should has all of the options for Flex direction, alignItems and justifyContent', () => {
-        expect(Flex).toEqual({
+describe('flex', () => {
+    it('should has all of the options for Flex direction, alignItems and justifyContent', () => {
+        expect.hasAssertions();
+
+        expect(Flex).toStrictEqual({
             column: expectedMainAxis('column'),
             columnReverse: expectedMainAxis('column-reverse'),
             row: expectedMainAxis('row'),

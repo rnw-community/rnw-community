@@ -1,33 +1,45 @@
-// tslint:disable-next-line:no-import-side-effect
-import '../platform.mock';
+import '../platform/platform.mock';
 
-import * as constants from '../platform';
+import * as constants from '../platform/platform';
+
 import { androidStyles, iosStyles, mobileStyles, webStyles } from './platform-style';
 
-describe('Platform styles', () => {
+describe('platform styles', () => {
     const styleObj = { backgroundColor: 'red' };
 
     it('should apply webStyles if platform is WEB', () => {
-        // @ts-ignore
+        expect.hasAssertions();
+
+        // @ts-expect-error No other way to redefine platform constants
+        // eslint-disable-next-line no-import-assign
         constants.isWeb = true;
-        expect(webStyles(styleObj)).toEqual(styleObj);
+        expect(webStyles(styleObj)).toStrictEqual(styleObj);
     });
 
     it('should apply iosStyles if platform is IOS', () => {
-        // @ts-ignore
+        expect.hasAssertions();
+
+        // @ts-expect-error No other way to redefine platform constants
+        // eslint-disable-next-line no-import-assign
         constants.isIOS = true;
-        expect(iosStyles(styleObj)).toEqual(styleObj);
+        expect(iosStyles(styleObj)).toStrictEqual(styleObj);
     });
 
     it('should apply androidStyles if platform is Android', () => {
-        // @ts-ignore
+        expect.hasAssertions();
+
+        // @ts-expect-error No other way to redefine platform constants
+        // eslint-disable-next-line no-import-assign
         constants.isAndroid = true;
-        expect(androidStyles(styleObj)).toEqual(styleObj);
+        expect(androidStyles(styleObj)).toStrictEqual(styleObj);
     });
 
     it('should apply mobileStyles if platform is Android or IOS', () => {
-        // @ts-ignore
+        expect.hasAssertions();
+
+        // @ts-expect-error No other way to redefine platform constants
+        // eslint-disable-next-line no-import-assign
         constants.isMobile = true;
-        expect(mobileStyles(styleObj)).toEqual(styleObj);
+        expect(mobileStyles(styleObj)).toStrictEqual(styleObj);
     });
 });

@@ -1,6 +1,6 @@
-import { TextStyle } from 'react-native';
-
 import { getFont } from './font';
+
+import type { TextStyle } from 'react-native';
 
 enum TestFontFamilyEnum {
     Family1 = 'Family1',
@@ -73,7 +73,7 @@ const expectedTree = {
 };
 
 enum TestFontSizeNumericEnum {
-    TestFontSizeNumericEnum1,
+    TestFontSizeNumericEnum1 = 0,
     TestFontSizeNumericEnum2 = 2,
 }
 
@@ -153,17 +153,26 @@ const expectedExtendedTree = {
     },
 };
 
-describe('GetFont', () => {
-    it('Should create a tree for mocked font family, size and color', () => {
+describe('getFont', () => {
+    it('should create a tree for mocked font family, size and color', () => {
+        expect.hasAssertions();
+
         const Font = getFont(TestFontFamilyEnum, TestFontSizeEnum, TestFontColorEnum);
-        expect(Font).toEqual(expectedTree);
+        expect(Font).toStrictEqual(expectedTree);
     });
-    it('Should throw an error if size enum has numeric values', () => {
-        const getFontError = () => getFont(TestFontFamilyEnum, TestFontSizeNumericEnum, TestFontColorEnum);
-        expect(getFontError).toThrowError('fontSizeObj must have string values');
+
+    it('should throw an error if size enum has numeric values', () => {
+        expect.hasAssertions();
+
+        const getFontError = (): ReturnType<typeof getFont> =>
+            getFont(TestFontFamilyEnum, TestFontSizeNumericEnum, TestFontColorEnum);
+        expect(getFontError).toThrow('fontSizeObj must have string values');
     });
-    it('Should add additional styles', () => {
+
+    it('should add additional styles', () => {
+        expect.hasAssertions();
+
         const Font = getFont(TestFontFamilyEnum, TestFontSizeEnum, TestFontColorEnum, additionalStyleMock);
-        expect(Font).toEqual(expectedExtendedTree);
+        expect(Font).toStrictEqual(expectedExtendedTree);
     });
 });

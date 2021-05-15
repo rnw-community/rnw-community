@@ -1,4 +1,4 @@
-import { isIOS, isWeb } from '../platform';
+import { isIOS, isWeb } from '../platform/platform';
 
 /**
  * Get WEB, IOS and Android supported object with `testID` props.
@@ -9,7 +9,9 @@ import { isIOS, isWeb } from '../platform';
  * @params {...string} Test identifiers
  * @returns Concatenated Test identifiers using `_` symbol
  */
-export const setTestId = (...args: Array<string | number>) => {
+export const setTestId = (
+    ...args: Array<number | string>
+): { accessibilityLabel: string; testID: string } | { testID: string } => {
     const id = args.join('_');
 
     return isWeb || isIOS ? { testID: id } : { accessibilityLabel: id, testID: id };

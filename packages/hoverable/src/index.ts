@@ -1,6 +1,6 @@
 export { HoverProps } from './hover.props';
 
-export { withHover } from './with-hover.hoc';
+export { withHover } from './with-hover/with-hover.hoc';
 
 export { HoverImage } from './component/hover-image';
 export { HoverText } from './component/hover-text';

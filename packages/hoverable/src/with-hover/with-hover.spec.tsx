@@ -1,8 +1,7 @@
-// tslint:disable-next-line:no-import-side-effect
 import '@testing-library/jest-native/extend-expect';
-import { cleanup, fireEvent, render } from '@testing-library/react-native';
-import React from 'react';
+import { fireEvent, render } from '@testing-library/react-native';
 import { Text, View } from 'react-native';
+import React from 'react';
 
 import { withHover } from './with-hover.hoc';
 
@@ -14,20 +13,22 @@ const MouseEnterEvent = 'mouseEnter';
 const MouseLeaveEvent = 'mouseLeave';
 
 describe('withHover HOC', () => {
-    afterEach(cleanup);
-    describe('Basic behavior of hoverable component', () => {
-        it('Should merge hoverStyle with current style to component styles onMouseEnter', () => {
+    describe('basic behavior of hoverable component', () => {
+        it('should merge hoverStyle with current style to component styles onMouseEnter', () => {
+            expect.hasAssertions();
             const { getByTestId } = render(
-                <HoverableViewComponent testID={BaseComponentSelector} style={style} hoverStyle={hoverStyle} />
+                <HoverableViewComponent hoverStyle={hoverStyle} style={style} testID={BaseComponentSelector} />
             );
             const element = getByTestId(BaseComponentSelector);
             expect(element).toHaveStyle(style);
             fireEvent(element, MouseEnterEvent);
             expect(element).toHaveStyle({ ...style, ...hoverStyle });
         });
-        it('Should remove hoverStyle from component styles onMouseLeave', () => {
+
+        it('should remove hoverStyle from component styles onMouseLeave', () => {
+            expect.hasAssertions();
             const { getByTestId } = render(
-                <HoverableViewComponent testID={BaseComponentSelector} style={style} hoverStyle={hoverStyle} />
+                <HoverableViewComponent hoverStyle={hoverStyle} style={style} testID={BaseComponentSelector} />
             );
             const element = getByTestId(BaseComponentSelector);
             fireEvent(element, MouseEnterEvent);
@@ -35,15 +36,17 @@ describe('withHover HOC', () => {
             expect(element).toHaveStyle(style);
         });
     });
-    describe('Behavior with children', () => {
+
+    describe('behavior with children', () => {
         const NestedHoverableText = withHover(Text);
         const nestedStyle = { backgroundColor: 'yellow' };
         const nestedHoverStyle = { backgroundColor: 'blue' };
 
-        it('Should merge nestedHoverStyle with nested component styles onMouseEnter to the root element', () => {
+        it('should merge nestedHoverStyle with nested component styles onMouseEnter to the root element', () => {
+            expect.hasAssertions();
             const { getByTestId, getByText } = render(
-                <HoverableViewComponent style={style} hoverStyle={hoverStyle} testID={BaseComponentSelector}>
-                    <NestedHoverableText style={nestedStyle} hoverStyle={nestedHoverStyle}>
+                <HoverableViewComponent hoverStyle={hoverStyle} style={style} testID={BaseComponentSelector}>
+                    <NestedHoverableText hoverStyle={nestedHoverStyle} style={nestedStyle}>
                         text
                     </NestedHoverableText>
                 </HoverableViewComponent>
@@ -54,11 +57,12 @@ describe('withHover HOC', () => {
             expect(nestedElement).toHaveStyle(nestedHoverStyle);
         });
 
-        it('Should merge hover styles with styles att all hoverable children levels on mouseEnter to the rootElement', () => {
+        it('should merge hover styles with styles att all hoverable children levels on mouseEnter to the rootElement', () => {
+            expect.hasAssertions();
             const { getByTestId, getByText } = render(
-                <HoverableViewComponent style={style} hoverStyle={hoverStyle} testID={BaseComponentSelector}>
+                <HoverableViewComponent hoverStyle={hoverStyle} style={style} testID={BaseComponentSelector}>
                     <HoverableViewComponent>
-                        <NestedHoverableText style={nestedStyle} hoverStyle={nestedHoverStyle}>
+                        <NestedHoverableText hoverStyle={nestedHoverStyle} style={nestedStyle}>
                             text
                         </NestedHoverableText>
                     </HoverableViewComponent>
@@ -70,9 +74,10 @@ describe('withHover HOC', () => {
             expect(nestedElement).toHaveStyle(nestedStyle);
         });
 
-        it('Should not merge hoverStyles of nested not hoverable component on mouseEnter', () => {
+        it('should not merge hoverStyles of nested not hoverable component on mouseEnter', () => {
+            expect.hasAssertions();
             const { getByTestId, getByText } = render(
-                <HoverableViewComponent style={style} hoverStyle={hoverStyle} testID={BaseComponentSelector}>
+                <HoverableViewComponent hoverStyle={hoverStyle} style={style} testID={BaseComponentSelector}>
                     <Text style={nestedStyle}>text</Text>
                 </HoverableViewComponent>
             );
@@ -82,11 +87,12 @@ describe('withHover HOC', () => {
             expect(nestedElement).not.toHaveProp('isHovered');
         });
 
-        it('Should not merge hoverStyles of hoverable children of nested not hoverable component onMouseEnter to rootElement', () => {
+        it('should not merge hoverStyles of hoverable children of nested not hoverable component onMouseEnter to rootElement', () => {
+            expect.hasAssertions();
             const { getByTestId, getByText } = render(
-                <HoverableViewComponent style={style} hoverStyle={hoverStyle} testID={BaseComponentSelector}>
+                <HoverableViewComponent hoverStyle={hoverStyle} style={style} testID={BaseComponentSelector}>
                     <View>
-                        <NestedHoverableText style={nestedStyle} hoverStyle={nestedHoverStyle}>
+                        <NestedHoverableText hoverStyle={nestedHoverStyle} style={nestedStyle}>
                             text
                         </NestedHoverableText>
                     </View>
