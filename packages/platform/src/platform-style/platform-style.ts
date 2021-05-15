@@ -1,7 +1,7 @@
 import { CSSProperties } from 'react';
 import { ImageStyle, TextStyle, ViewStyle } from 'react-native';
 
-import { isAndroid, isIOS, isMobile, isWeb } from './platform';
+import { isAndroid, isIOS, isMobile, isWeb } from '../platform';
 
 export type StyleType = ViewStyle | TextStyle | ImageStyle | {};
 

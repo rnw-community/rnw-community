@@ -1,7 +1,7 @@
 // tslint:disable-next-line:no-import-side-effect
 import './platform.mock';
 
-import * as constants from './platform';
+import * as constants from '../platform';
 import { setTestId } from './set-test-id';
 
 describe('setTestId', () => {

@@ -1,4 +1,4 @@
-import { isAndroid, isWeb } from './platform';
+import { isAndroid, isWeb } from '../platform';
 
 /**
  * Get WEB, IOS and Android supported object with `testID` props.
