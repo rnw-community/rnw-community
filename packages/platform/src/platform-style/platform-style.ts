@@ -4,7 +4,7 @@ import { isAndroid, isIOS, isMobile, isWeb } from '../platform/platform';
 import type { ImageStyle, TextStyle, ViewStyle } from 'react-native';
 import type { CSSProperties } from 'react';
 
-export type StyleType = ImageStyle | Record<string, unknown> | TextStyle | ViewStyle;
+type StyleType = ImageStyle | Record<string, unknown> | TextStyle | ViewStyle;
 
 const platformStyles = <T extends object = CSSProperties | StyleType, R = StyleType>(
     isPlatform: boolean,
