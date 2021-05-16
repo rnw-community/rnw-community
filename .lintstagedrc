@@ -4,6 +4,6 @@
         "yarn prettier --write"
     ],
     "*.{md, json}": [
-        "yarn prettier"
+        "yarn prettier --write"
     ],
 }
