@@ -16,7 +16,7 @@
     "cpd": "yarn jscpd packages",
     "format": "lerna run format --parallel",
     "find-deadcode": "ts-prune",
-    "ci": "yarn ts && yarn lint && && yarn find-deadcode && yarn test:coverage && yarn cpd",
+    "ci": "yarn ts && yarn lint && yarn find-deadcode && yarn test:coverage && yarn cpd",
     "clear": "lerna run clear --parallel",
     "deps:clear": "lerna run clear:deps --parallel && yarn deps:clear:root",
     "deps:clear:root": "rm -rf ./node_modules",
