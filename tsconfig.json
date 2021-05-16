@@ -1,11 +1,10 @@
 {
     "compilerOptions": {
-        "incremental": true,
         "esModuleInterop": true,
-        "target": "es5",
-        "module": "commonjs",
-        "lib": ["es2017", "es7", "es6"],
+        "target": "ESNext",
+        "module": "ESNext",
         "moduleResolution": "node",
+        "lib": ["es2017", "es7", "es6"],
         "types": ["jest", "node"],
         "jsx": "react",
         "declaration": true,
@@ -21,6 +20,7 @@
         "noImplicitReturns": true,
         "noFallthroughCasesInSwitch": true,
         "experimentalDecorators": true,
-        "forceConsistentCasingInFileNames": true
+        "forceConsistentCasingInFileNames": true,
+        "noEmit": true
     }
 }
