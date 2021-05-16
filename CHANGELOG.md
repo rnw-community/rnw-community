@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.2.0](https://github.com/rnw-community/rnw-community/compare/v0.1.9...v0.2.0) (2021-05-16)
+
+
+### Features
+
+* test commit ([8587441](https://github.com/rnw-community/rnw-community/commit/8587441e91d2da90ddb50aa61e76cdc5b4a7d3d4))
+* test commit ([5aa4a4b](https://github.com/rnw-community/rnw-community/commit/5aa4a4b1eb11bd0ba2cdbe8f2093a8d0c44a665d))
+
+
+
+
+
 ## [0.1.9](https://github.com/rnw-community/rnw-community/compare/v0.1.8...v0.1.9) (2021-05-15)
 
 **Note:** Version bump only for package rnw-community
