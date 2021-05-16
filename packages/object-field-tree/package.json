@@ -25,7 +25,8 @@
     "access": "public"
   },
   "scripts": {
-    "build": "tsc -b --pretty",
+    "ts": "tsc --pretty -p tsconfig.json",
+    "build": "tsc --pretty -p tsconfig.build.json",
     "lint": "yarn eslint src",
     "lint:fix": "yarn lint --fix src",
     "test": "yarn jest",
