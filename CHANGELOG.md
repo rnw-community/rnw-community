@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.3.1](https://github.com/rnw-community/rnw-community/compare/v0.3.0...v0.3.1) (2021-05-17)
+
+
+### Bug Fixes
+
+* **platform:** fixed ClassType ([#31](https://github.com/rnw-community/rnw-community/issues/31)) ([1c847f4](https://github.com/rnw-community/rnw-community/commit/1c847f4a81398a771c8f0c03ec9edc65a75ef161))
+
+
+
+
+
 # [0.3.0](https://github.com/rnw-community/rnw-community/compare/v0.2.0...v0.3.0) (2021-05-16)
 
 ### Bug Fixes
