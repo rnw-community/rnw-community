@@ -1,6 +1,6 @@
 {
   "name": "@rnw-community/fast-style",
-  "version": "0.3.0",
+  "version": "0.3.4",
   "private": false,
   "description": "Fast react native flex and font styling",
   "keywords": [
