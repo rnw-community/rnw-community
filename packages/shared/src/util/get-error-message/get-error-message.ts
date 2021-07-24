@@ -7,9 +7,8 @@ import { isError } from '../../type-guard/is-error/is-error';
  * using `catch(err:unknown)...`
  *
  * @param err unknown Instance of Error from catch block
- * @param fallbackMessage string Fallback message if err is not an instance of Error
+ * @param fallback string Fallback message if err is not an instance of Error
  *
  * @returns string
  */
-export const getErrorMessage = (err: unknown, fallbackMessage = ''): string =>
-    isError(err) ? err.message : fallbackMessage;
+export const getErrorMessage = (err: unknown, fallback = ''): string => (isError(err) ? err.message : fallback);

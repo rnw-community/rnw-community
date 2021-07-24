@@ -1,8 +1,8 @@
 /* eslint-disable @typescript-eslint/ban-types */
 import { isAndroid, isIOS, isMobile, isWeb } from '../platform/platform';
 
-import type { ImageStyle, TextStyle, ViewStyle } from 'react-native';
 import type { CSSProperties } from 'react';
+import type { ImageStyle, TextStyle, ViewStyle } from 'react-native';
 
 type StyleType = ImageStyle | Record<string, unknown> | TextStyle | ViewStyle;
 

@@ -35,7 +35,7 @@
     "@rnw-community/object-field-tree": "^0.3.0"
   },
   "devDependencies": {
-    "@types/react-native": "^0.64.5",
+    "@types/react-native": "^0.64.12",
     "react-native": "^0.64.1"
   },
   "gitHead": "b5608910319390f9773a9d42c3cc828e8e8a1d95"
