@@ -146,3 +146,20 @@ export const getErrorText = (err: unknown): string => {
     return 'Unknown error';
 };
 ```
+
+### `getErrorMessage`
+
+Get error message text type-safely in catch blocks, or return fallback message. This is needed when you when
+`error: unknown` is used(this should be used always)
+
+#### Example
+
+```ts
+// RxJS
+catchError((error: unknown) => [errorAction(getErrorMessage(error))]);
+```
+
+```ts
+try {...}
+catch(error: unknown) { console.log(getErrorMessage(error)); }
+```
