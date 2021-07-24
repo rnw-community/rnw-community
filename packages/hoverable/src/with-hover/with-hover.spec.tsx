@@ -1,7 +1,7 @@
 import '@testing-library/jest-native/extend-expect';
 import { fireEvent, render } from '@testing-library/react-native';
-import { Text, View } from 'react-native';
 import React from 'react';
+import { Text, View } from 'react-native';
 
 import { withHover } from './with-hover.hoc';
 

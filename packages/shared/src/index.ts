@@ -11,3 +11,4 @@ export { isError } from './type-guard/is-error/is-error';
 
 export { cs } from './util/cs/cs';
 export { emptyFn } from './util/empty-fn/empty-fn';
+export { getErrorMessage } from './util/get-error-message/get-error-message';

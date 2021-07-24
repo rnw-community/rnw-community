@@ -1,6 +1,6 @@
 language: node_js
 node_js:
-  - "13"
+  - "14"
 cache: yarn
 
 install:
@@ -24,7 +24,3 @@ deploy:
     keep_history: true
     on:
       branch: master
-
-branches:
-  only:
-    - master
