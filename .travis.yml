@@ -24,7 +24,3 @@ deploy:
     keep_history: true
     on:
       branch: master
-
-branches:
-  only:
-    - master
