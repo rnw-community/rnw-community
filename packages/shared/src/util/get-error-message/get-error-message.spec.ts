@@ -8,7 +8,7 @@ describe('get-error-message', () => {
 
     it('should return fallback message if first argument is not instance of error', () => {
         expect.hasAssertions();
-        expect(getErrorMessage({ data: 'text' }, 'fallbackMessage')).toStrictEqual('fallbackMessage');
+        expect(getErrorMessage({ message: 'text' }, 'fallbackMessage')).toStrictEqual('fallbackMessage');
     });
 
     it('should return error message when first argument is error and fallback message is defined', () => {
