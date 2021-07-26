@@ -12,7 +12,7 @@ describe('loadingFinished', () => {
             ...initialLoadingState,
         };
 
-        const failedState = loadingFinished(state);
+        const finishedState = loadingFinished(state);
 
         expect(state.isLoading).toStrictEqual(false);
         expect(state.isPristine).toStrictEqual(false);
