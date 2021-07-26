@@ -3,7 +3,16 @@
 Generic redux loading state, selectors and utils for sending requests and handling loading/error states.
 Library supports redux-toolkit and other class redux approaches.
 
+Supported loading states:
+
+-   `pristine` - nothing has happened to the state slice
+-   `loading` - loading started
+-   `failed` - loading failed
+-   `success` - loading was successful
+
 ## Utils
+
+Helper reducer functions that will change loading state.
 
 ### `loadingStarted(state: LoadingStateInterface)`
 
