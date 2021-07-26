@@ -18,8 +18,8 @@ describe('loadingFailed', () => {
         expect(state.isPristine).toStrictEqual(false);
         expect(state.error).toStrictEqual('error');
 
-        expect(finishedState.isLoading).toStrictEqual(false);
-        expect(finishedState.isPristine).toStrictEqual(false);
-        expect(finishedState.error).toStrictEqual('error');
+        expect(failedState.isLoading).toStrictEqual(false);
+        expect(failedState.isPristine).toStrictEqual(false);
+        expect(failedState.error).toStrictEqual('error');
     });
 });
