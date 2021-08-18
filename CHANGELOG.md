@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.5.0](https://github.com/rnw-community/rnw-community/compare/v0.4.0...v0.5.0) (2021-08-18)
+
+
+### Features
+
+* **nestjs-rxjs-logger:** added package ([#38](https://github.com/rnw-community/rnw-community/issues/38)) ([774d69d](https://github.com/rnw-community/rnw-community/commit/774d69d9ba7ace09a138d0dd767c567eaf37a730))
+
+
+
+
+
 # [0.4.0](https://github.com/rnw-community/rnw-community/compare/v0.3.4...v0.4.0) (2021-07-26)
 
 
