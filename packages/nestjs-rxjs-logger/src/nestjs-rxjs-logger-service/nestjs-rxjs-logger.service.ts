@@ -7,7 +7,7 @@ import type { LoggerService } from '@nestjs/common';
 import type { Observable } from 'rxjs';
 
 type LogOperatorFn<T> = (source$: Observable<T>) => Observable<T>;
-
+type MessageFn<T> = (input: T) => string;
 /**
  * RxJS wrapper for printing NestJS logs.
  */
@@ -55,10 +55,10 @@ export class NestJsRxjsLoggerService {
      * @see NestJsRxjsLoggerService#print
      * @see AppLogLevelEnum
      *
-     * @param message Message to log
+     * @param message Message to log, or MessageFn handler that receives stream input and should return message to log
      * @param context Log context value, by default outputs currently defined context,
      */
-    info$<T>(message: string, context = this.context): LogOperatorFn<T> {
+    info$<T>(message: MessageFn<T> | string, context = this.context): LogOperatorFn<T> {
         return this.print$(message, context, AppLogLevelEnum.info);
     }
 
@@ -68,10 +68,10 @@ export class NestJsRxjsLoggerService {
      * @see NestJsRxjsLoggerService#print
      * @see AppLogLevelEnum
      *
-     * @param message Message to log
+     * @param message Message to log, or MessageFn handler that receives stream input and should return message to log
      * @param context Log context value, by default outputs currently defined context,
      */
-    debug$<T>(message: string, context = this.context): LogOperatorFn<T> {
+    debug$<T>(message: MessageFn<T> | string, context = this.context): LogOperatorFn<T> {
         return this.print$(message, context, AppLogLevelEnum.debug);
     }
 
@@ -81,10 +81,10 @@ export class NestJsRxjsLoggerService {
      * @see NestJsRxjsLoggerService#print
      * @see AppLogLevelEnum
      *
-     * @param message Message to log
+     * @param message Message to log, or MessageFn handler that receives stream input and should return message to log
      * @param context Log context value, by default outputs currently defined context,
      */
-    warn$<T>(message: string, context = this.context): LogOperatorFn<T> {
+    warn$<T>(message: MessageFn<T> | string, context = this.context): LogOperatorFn<T> {
         return this.print$(message, context, AppLogLevelEnum.warn);
     }
 
@@ -94,10 +94,10 @@ export class NestJsRxjsLoggerService {
      * @see NestJsRxjsLoggerService#print
      * @see AppLogLevelEnum
      *
-     * @param message Message to log
+     * @param message Message to log, or MessageFn handler that receives stream input and should return message to log
      * @param context Log context value, by default outputs currently defined context,
      */
-    verbose$<T>(message: string, context = this.context): LogOperatorFn<T> {
+    verbose$<T>(message: MessageFn<T> | string, context = this.context): LogOperatorFn<T> {
         return this.print$(message, context, AppLogLevelEnum.verbose);
     }
 
@@ -107,10 +107,10 @@ export class NestJsRxjsLoggerService {
      * @see NestJsRxjsLoggerService#print
      * @see AppLogLevelEnum
      *
-     * @param message Message to log
+     * @param message Message to log, or MessageFn handler that receives stream input and should return message to log
      * @param context Log context value, by default outputs currently defined context,
      */
-    error$<T>(message: string, context = this.context): LogOperatorFn<T> {
+    error$<T>(message: MessageFn<T> | string, context = this.context): LogOperatorFn<T> {
         return this.print$(message, context, AppLogLevelEnum.error);
     }
 
@@ -121,15 +121,17 @@ export class NestJsRxjsLoggerService {
      * @see NestJsRxjsLoggerService#setContext
      * @see AppLogLevelEnum
      *
-     * @param message Message to log
+     * @param message Message to log, or MessageFn handler that receives stream input and should return message to log
      * @param context Log context value, by default outputs currently defined context,
      * @param level Log level
      */
-    private print$<T>(message: string, context: string, level: AppLogLevelEnum): LogOperatorFn<T> {
+    private print$<T>(message: MessageFn<T> | string, context: string, level: AppLogLevelEnum): LogOperatorFn<T> {
         return (source$: Observable<T>): Observable<T> =>
             source$.pipe(
                 concatMap(input => {
-                    this.print(message, context, level);
+                    const messageText = typeof message === 'function' ? message(input) : message;
+
+                    this.print(messageText, context, level);
 
                     return [input];
                 })
