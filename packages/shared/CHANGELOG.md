@@ -3,48 +3,33 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.5.0](https://github.com/rnw-community/rnw-community/tree/master/packages/shared/compare/v0.4.0...v0.5.0) (2021-08-18)
+
+### Features
+
+-   **nestjs-rxjs-logger:** added package ([#38](https://github.com/rnw-community/rnw-community/tree/master/packages/shared/issues/38)) ([774d69d](https://github.com/rnw-community/rnw-community/tree/master/packages/shared/commit/774d69d9ba7ace09a138d0dd767c567eaf37a730))
+
 # [0.4.0](https://github.com/rnw-community/rnw-community/tree/master/packages/shared/compare/v0.3.4...v0.4.0) (2021-07-26)
 
 **Note:** Version bump only for package @rnw-community/shared
-
-
-
-
 
 ## [0.3.4](https://github.com/rnw-community/rnw-community/tree/master/packages/shared/compare/v0.3.3...v0.3.4) (2021-07-24)
 
 **Note:** Version bump only for package @rnw-community/shared
 
-
-
-
-
 ## [0.3.3](https://github.com/rnw-community/rnw-community/tree/master/packages/shared/compare/v0.3.2...v0.3.3) (2021-05-18)
 
 **Note:** Version bump only for package @rnw-community/shared
-
-
-
-
 
 ## [0.3.2](https://github.com/rnw-community/rnw-community/tree/master/packages/shared/compare/v0.3.1...v0.3.2) (2021-05-18)
 
 **Note:** Version bump only for package @rnw-community/shared
 
-
-
-
-
 ## [0.3.1](https://github.com/rnw-community/rnw-community/tree/master/packages/shared/compare/v0.3.0...v0.3.1) (2021-05-17)
-
 
 ### Bug Fixes
 
-* **platform:** fixed ClassType ([#31](https://github.com/rnw-community/rnw-community/tree/master/packages/shared/issues/31)) ([1c847f4](https://github.com/rnw-community/rnw-community/tree/master/packages/shared/commit/1c847f4a81398a771c8f0c03ec9edc65a75ef161))
-
-
-
-
+-   **platform:** fixed ClassType ([#31](https://github.com/rnw-community/rnw-community/tree/master/packages/shared/issues/31)) ([1c847f4](https://github.com/rnw-community/rnw-community/tree/master/packages/shared/commit/1c847f4a81398a771c8f0c03ec9edc65a75ef161))
 
 # [0.3.0](https://github.com/rnw-community/rnw-community/tree/master/packages/shared/compare/v0.2.0...v0.3.0) (2021-05-16)
 

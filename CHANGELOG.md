@@ -3,51 +3,35 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
-# [0.4.0](https://github.com/rnw-community/rnw-community/compare/v0.3.4...v0.4.0) (2021-07-26)
-
+# [0.5.0](https://github.com/rnw-community/rnw-community/compare/v0.4.0...v0.5.0) (2021-08-18)
 
 ### Features
 
-* **redux-loadable:** added redux-loadable package ([#36](https://github.com/rnw-community/rnw-community/issues/36)) ([d47ca32](https://github.com/rnw-community/rnw-community/commit/d47ca32951b93349aa926deb1b006ac8550572d7))
+-   **nestjs-rxjs-logger:** added package ([#38](https://github.com/rnw-community/rnw-community/issues/38)) ([774d69d](https://github.com/rnw-community/rnw-community/commit/774d69d9ba7ace09a138d0dd767c567eaf37a730))
 
+# [0.4.0](https://github.com/rnw-community/rnw-community/compare/v0.3.4...v0.4.0) (2021-07-26)
 
+### Features
 
-
+-   **redux-loadable:** added redux-loadable package ([#36](https://github.com/rnw-community/rnw-community/issues/36)) ([d47ca32](https://github.com/rnw-community/rnw-community/commit/d47ca32951b93349aa926deb1b006ac8550572d7))
 
 ## [0.3.4](https://github.com/rnw-community/rnw-community/compare/v0.3.3...v0.3.4) (2021-07-24)
 
 **Note:** Version bump only for package rnw-community
 
-
-
-
-
 ## [0.3.3](https://github.com/rnw-community/rnw-community/compare/v0.3.2...v0.3.3) (2021-05-18)
 
 **Note:** Version bump only for package rnw-community
-
-
-
-
 
 ## [0.3.2](https://github.com/rnw-community/rnw-community/compare/v0.3.1...v0.3.2) (2021-05-18)
 
 **Note:** Version bump only for package rnw-community
 
-
-
-
-
 ## [0.3.1](https://github.com/rnw-community/rnw-community/compare/v0.3.0...v0.3.1) (2021-05-17)
-
 
 ### Bug Fixes
 
-* **platform:** fixed ClassType ([#31](https://github.com/rnw-community/rnw-community/issues/31)) ([1c847f4](https://github.com/rnw-community/rnw-community/commit/1c847f4a81398a771c8f0c03ec9edc65a75ef161))
-
-
-
-
+-   **platform:** fixed ClassType ([#31](https://github.com/rnw-community/rnw-community/issues/31)) ([1c847f4](https://github.com/rnw-community/rnw-community/commit/1c847f4a81398a771c8f0c03ec9edc65a75ef161))
 
 # [0.3.0](https://github.com/rnw-community/rnw-community/compare/v0.2.0...v0.3.0) (2021-05-16)
 
