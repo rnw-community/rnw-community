@@ -7,49 +7,25 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 **Note:** Version bump only for package @rnw-community/hoverable
 
-
-
-
-
 # [0.4.0](https://github.com/rnw-community/rnw-community/tree/master/packages/hoverable/compare/v0.3.4...v0.4.0) (2021-07-26)
 
 **Note:** Version bump only for package @rnw-community/hoverable
-
-
-
-
 
 ## [0.3.4](https://github.com/rnw-community/rnw-community/tree/master/packages/hoverable/compare/v0.3.3...v0.3.4) (2021-07-24)
 
 **Note:** Version bump only for package @rnw-community/hoverable
 
-
-
-
-
 ## [0.3.3](https://github.com/rnw-community/rnw-community/tree/master/packages/hoverable/compare/v0.3.2...v0.3.3) (2021-05-18)
 
 **Note:** Version bump only for package @rnw-community/hoverable
-
-
-
-
 
 ## [0.3.2](https://github.com/rnw-community/rnw-community/tree/master/packages/hoverable/compare/v0.3.1...v0.3.2) (2021-05-18)
 
 **Note:** Version bump only for package @rnw-community/hoverable
 
-
-
-
-
 ## [0.3.1](https://github.com/rnw-community/rnw-community/tree/master/packages/hoverable/compare/v0.3.0...v0.3.1) (2021-05-17)
 
 **Note:** Version bump only for package @rnw-community/hoverable
-
-
-
-
 
 # [0.3.0](https://github.com/rnw-community/rnw-community/tree/master/packages/hoverable/compare/v0.2.0...v0.3.0) (2021-05-16)
 
