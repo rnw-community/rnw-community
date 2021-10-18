@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.7.0](https://github.com/rnw-community/rnw-community/compare/v0.6.0...v0.7.0) (2021-10-18)
+
+
+### Features
+
+* **nestjs-rxjs-logger:** added catch$ operator for logging errors in stream ([#43](https://github.com/rnw-community/rnw-community/issues/43)) ([a2e4104](https://github.com/rnw-community/rnw-community/commit/a2e410409a1aa037991205384e971dfc911c2ec8))
+
+
+
+
+
 # [0.6.0](https://github.com/rnw-community/rnw-community/compare/v0.5.0...v0.6.0) (2021-09-06)
 
 
