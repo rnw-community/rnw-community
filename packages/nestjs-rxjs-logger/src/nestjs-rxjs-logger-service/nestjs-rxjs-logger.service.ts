@@ -1,5 +1,5 @@
 import { Inject, Injectable, Scope } from '@nestjs/common';
-import { concatMap, of, tap } from 'rxjs';
+import { catchError, concatMap, of, tap, throwError } from 'rxjs';
 
 import { AppLogLevelEnum } from '../app-log-level.enum';
 
@@ -8,6 +8,8 @@ import type { Observable } from 'rxjs';
 
 type LogOperatorFn<T> = (source$: Observable<T>) => Observable<T>;
 type MessageFn<T> = (input: T) => string;
+type ErrorMessageFn = (error: unknown) => string;
+
 /**
  * RxJS wrapper for printing NestJS logs.
  */
@@ -112,6 +114,29 @@ export class NestJsRxjsLoggerService {
      */
     error$<T>(message: MessageFn<T> | string, context = this.context): LogOperatorFn<T> {
         return this.print$(message, context, AppLogLevelEnum.error);
+    }
+
+    /**
+     * RxJS operator for catching error and printing it to logs with log level: error. Original
+     * error would be thrown into the stream for further handling.
+     *
+     * @see NestJsRxjsLoggerService#print
+     * @see AppLogLevelEnum
+     *
+     * @param message ErrorMessageFn handler that receives error:unknown and should return message to log error
+     * @param context Log context value, by default outputs currently defined context,
+     */
+    catch$<T>(message: ErrorMessageFn, context = this.context): LogOperatorFn<T> {
+        return (source$: Observable<T>): Observable<T> =>
+            source$.pipe(
+                catchError((error: unknown) => {
+                    const messageText = message(error);
+
+                    this.print(messageText, context, AppLogLevelEnum.error);
+
+                    return throwError(() => error);
+                })
+            );
     }
 
     /**
