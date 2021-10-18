@@ -1,5 +1,7 @@
 /* eslint-disable jest/expect-expect */
-import { Observable, of } from 'rxjs';
+import { Observable, concatMap, of, throwError } from 'rxjs';
+
+import { getErrorMessage } from '@rnw-community/shared';
 
 import { AppLogLevelEnum } from '../app-log-level.enum';
 
@@ -131,5 +133,30 @@ describe('nestJsRxJSLoggerService', () => {
         service.setContext(logContext);
 
         await print$Test('info$', 'log', logContext, service)();
+    });
+
+    it('should catch stream error and print error with error message function', async () => {
+        expect.assertions(1);
+
+        await new Promise((resolve, reject) => {
+            const loggerMethod = jest.spyOn(loggerMock, 'error');
+            const service = new NestJsRxjsLoggerService(loggerMock);
+
+            const initialMessage = 'initial error';
+            const errorMessageFn = (error: unknown): string => `Modified ${getErrorMessage(error)}`;
+
+            const stream = of(true).pipe(
+                concatMap(() => throwError(() => new Error(initialMessage))),
+                service.catch$(errorMessageFn)
+            );
+
+            stream.subscribe({
+                next: reject,
+                error: (error: unknown) => {
+                    expect(loggerMethod).toHaveBeenCalledWith(errorMessageFn(error), '');
+                    resolve(true);
+                },
+            });
+        });
     });
 });
