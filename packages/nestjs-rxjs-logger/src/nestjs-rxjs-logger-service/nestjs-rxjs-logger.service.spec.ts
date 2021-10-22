@@ -5,7 +5,7 @@ import { getErrorMessage } from '@rnw-community/shared';
 
 import { AppLogLevelEnum } from '../app-log-level.enum';
 
-import { NestJsRxjsLoggerService } from './nestjs-rxjs-logger.service';
+import { NestJSRxJSLoggerService } from './nestjs-rxjs-logger.service';
 
 import type { LoggerService } from '@nestjs/common';
 
@@ -23,7 +23,7 @@ const create$Test = (method: keyof typeof loggerMock, logLevel: AppLogLevelEnum)
     return await new Promise((resolve, reject) => {
         const loggerMethod = jest.spyOn(loggerMock, method);
 
-        const service = new NestJsRxjsLoggerService(loggerMock);
+        const service = new NestJSRxJSLoggerService(loggerMock);
         const logMessage = 'logMessage';
         const logContext = 'logContext';
 
@@ -42,14 +42,14 @@ const create$Test = (method: keyof typeof loggerMock, logLevel: AppLogLevelEnum)
     });
 };
 
-type RxJSMethod = keyof Pick<NestJsRxjsLoggerService, 'debug$' | 'error$' | 'info$' | 'verbose$' | 'warn$'>;
+type RxJSMethod = keyof Pick<NestJSRxJSLoggerService, 'debug$' | 'error$' | 'info$' | 'verbose$' | 'warn$'>;
 
 const print$Test =
     (
         rxjsMethod: RxJSMethod,
         method: keyof typeof loggerMock,
         logMessage: string | ((input: unknown) => string),
-        service = new NestJsRxjsLoggerService(loggerMock),
+        service = new NestJSRxJSLoggerService(loggerMock),
         logContext = ''
         // eslint-disable-next-line max-params
     ) =>
@@ -61,7 +61,7 @@ const print$Test =
 
             const getOperator = (
                 messageInput: string | ((input: unknown) => string)
-            ): ReturnType<NestJsRxjsLoggerService['info$']> => {
+            ): ReturnType<NestJSRxJSLoggerService['info$']> => {
                 if (rxjsMethod === 'info$') {
                     return service.info$(messageInput, logContext);
                 } else if (rxjsMethod === 'debug$') {
@@ -127,7 +127,7 @@ describe('nestJsRxJSLoggerService', () => {
     it('should set log context', async () => {
         expect.assertions(2);
 
-        const service = new NestJsRxjsLoggerService(loggerMock);
+        const service = new NestJSRxJSLoggerService(loggerMock);
         const logContext = 'customContext';
 
         service.setContext(logContext);
@@ -140,7 +140,7 @@ describe('nestJsRxJSLoggerService', () => {
 
         await new Promise((resolve, reject) => {
             const loggerMethod = jest.spyOn(loggerMock, 'error');
-            const service = new NestJsRxjsLoggerService(loggerMock);
+            const service = new NestJSRxJSLoggerService(loggerMock);
 
             const initialMessage = 'initial error';
             const errorMessageFn = (error: unknown): string => `Modified ${getErrorMessage(error)}`;
