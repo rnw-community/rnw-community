@@ -61,7 +61,7 @@ module.exports = {
             },
         ],
         '@typescript-eslint/no-type-alias': 'off',
-        '@typescript-eslint/require-await': 'off',
+        '@typescript-eslint/no-meaningless-void-operator': 'off',
         'lines-between-class-members': 'off',
         'import/namespace': 'off',
         'import/order': [

@@ -47,7 +47,7 @@ describe('nestJSRxJSRedisService', () => {
 
             redis.set$(redisKey, redisValue, 1).subscribe(data => {
                 expect(set).toHaveBeenCalledWith(redisKey, redisValue, 'EX', 1);
-                expect(data).toStrictEqual(true);
+                expect(data).toBe(true);
                 resolve(true);
             });
         }));
@@ -62,7 +62,7 @@ describe('nestJSRxJSRedisService', () => {
 
             redis.del$(redisKey).subscribe(data => {
                 expect(del).toHaveBeenCalledWith(redisKey);
-                expect(data).toStrictEqual(1);
+                expect(data).toBe(1);
                 resolve(true);
             });
         }));
