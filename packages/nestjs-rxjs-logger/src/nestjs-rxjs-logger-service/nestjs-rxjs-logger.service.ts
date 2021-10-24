@@ -1,12 +1,12 @@
+// eslint-disable-next-line max-classes-per-file
 import { Inject, Injectable, Scope } from '@nestjs/common';
 import { catchError, concatMap, of, tap, throwError } from 'rxjs';
 
 import { AppLogLevelEnum } from '../app-log-level.enum';
 
 import type { LoggerService } from '@nestjs/common';
-import type { Observable } from 'rxjs';
+import type { MonoTypeOperatorFunction, Observable } from 'rxjs';
 
-type LogOperatorFn<T> = (source$: Observable<T>) => Observable<T>;
 type MessageFn<T> = (input: T) => string;
 type ErrorMessageFn = (error: unknown) => string;
 
@@ -14,11 +14,11 @@ type ErrorMessageFn = (error: unknown) => string;
  * RxJS wrapper for printing NestJS logs.
  */
 @Injectable({ scope: Scope.TRANSIENT })
-export class NestJsRxjsLoggerService {
+export class NestJSRxJSLoggerService {
     /**
      * Logs context value
      */
-    private context = '';
+    protected context = '';
 
     constructor(@Inject('LOGGER') private readonly logger: LoggerService) {}
 
@@ -40,7 +40,7 @@ export class NestJsRxjsLoggerService {
      *
      * TODO: Can we create void observable instead of boolean?
      *
-     * @see NestJsRxjsLoggerService#setContext
+     * @see NestJSRxJSLoggerService#setContext
      * @see AppLogLevelEnum
      *
      * @param message Message to log
@@ -54,65 +54,70 @@ export class NestJsRxjsLoggerService {
     /**
      * RxJS operator for printing logs with log level: info.
      *
-     * @see NestJsRxjsLoggerService#print
+     * @see NestJSRxJSLoggerService#print
      * @see AppLogLevelEnum
      *
      * @param message Message to log, or MessageFn handler that receives stream input and should return message to log
      * @param context Log context value, by default outputs currently defined context,
      */
-    info$<T>(message: MessageFn<T> | string, context = this.context): LogOperatorFn<T> {
+    info<T>(message: MessageFn<T> | string, context = this.context): MonoTypeOperatorFunction<T> {
         return this.print$(message, context, AppLogLevelEnum.info);
     }
 
     /**
      * RxJS operator for printing logs with log level: debug.
      *
-     * @see NestJsRxjsLoggerService#print
+     * @see NestJSRxJSLoggerService#print
      * @see AppLogLevelEnum
      *
      * @param message Message to log, or MessageFn handler that receives stream input and should return message to log
      * @param context Log context value, by default outputs currently defined context,
      */
-    debug$<T>(message: MessageFn<T> | string, context = this.context): LogOperatorFn<T> {
+    debug<T>(message: MessageFn<T> | string, context = this.context): MonoTypeOperatorFunction<T> {
         return this.print$(message, context, AppLogLevelEnum.debug);
+    }
+
+    /** @deprecated Use warn operator instead(without $)  */
+    warn$<T>(message: MessageFn<T> | string, context = this.context): MonoTypeOperatorFunction<T> {
+        return this.warn(message, context);
     }
 
     /**
      * RxJS operator for printing logs with log level: warn.
      *
-     * @see NestJsRxjsLoggerService#print
+     * @see NestJSRxJSLoggerService#print
      * @see AppLogLevelEnum
      *
      * @param message Message to log, or MessageFn handler that receives stream input and should return message to log
      * @param context Log context value, by default outputs currently defined context,
      */
-    warn$<T>(message: MessageFn<T> | string, context = this.context): LogOperatorFn<T> {
+    warn<T>(message: MessageFn<T> | string, context = this.context): MonoTypeOperatorFunction<T> {
         return this.print$(message, context, AppLogLevelEnum.warn);
     }
 
     /**
      * RxJS operator for printing logs with log level: verbose.
      *
-     * @see NestJsRxjsLoggerService#print
+     * @see NestJSRxJSLoggerService#print
      * @see AppLogLevelEnum
      *
      * @param message Message to log, or MessageFn handler that receives stream input and should return message to log
      * @param context Log context value, by default outputs currently defined context,
      */
-    verbose$<T>(message: MessageFn<T> | string, context = this.context): LogOperatorFn<T> {
+    verbose<T>(message: MessageFn<T> | string, context = this.context): MonoTypeOperatorFunction<T> {
         return this.print$(message, context, AppLogLevelEnum.verbose);
     }
 
     /**
      * RxJS operator for printing logs with log level: error.
      *
-     * @see NestJsRxjsLoggerService#print
+     * @see NestJSRxJSLoggerService#print
      * @see AppLogLevelEnum
      *
      * @param message Message to log, or MessageFn handler that receives stream input and should return message to log
      * @param context Log context value, by default outputs currently defined context,
      */
-    error$<T>(message: MessageFn<T> | string, context = this.context): LogOperatorFn<T> {
+    error<T>(message: MessageFn<T> | string, context = this.context): MonoTypeOperatorFunction<T> {
         return this.print$(message, context, AppLogLevelEnum.error);
     }
 
@@ -120,13 +125,13 @@ export class NestJsRxjsLoggerService {
      * RxJS operator for catching error and printing it to logs with log level: error. Original
      * error would be thrown into the stream for further handling.
      *
-     * @see NestJsRxjsLoggerService#print
+     * @see NestJSRxJSLoggerService#print
      * @see AppLogLevelEnum
      *
      * @param message ErrorMessageFn handler that receives error:unknown and should return message to log error
      * @param context Log context value, by default outputs currently defined context,
      */
-    catch$<T>(message: ErrorMessageFn, context = this.context): LogOperatorFn<T> {
+    catch<T>(message: ErrorMessageFn, context = this.context): MonoTypeOperatorFunction<T> {
         return (source$: Observable<T>): Observable<T> =>
             source$.pipe(
                 catchError((error: unknown) => {
@@ -143,14 +148,14 @@ export class NestJsRxjsLoggerService {
      * RxJS operator for printing logs.
      * Prints log in RxJS stream and returns input stream.
      *
-     * @see NestJsRxjsLoggerService#setContext
+     * @see NestJSRxJSLoggerService#setContext
      * @see AppLogLevelEnum
      *
      * @param message Message to log, or MessageFn handler that receives stream input and should return message to log
      * @param context Log context value, by default outputs currently defined context,
      * @param level Log level
      */
-    private print$<T>(message: MessageFn<T> | string, context: string, level: AppLogLevelEnum): LogOperatorFn<T> {
+    private print$<T>(message: MessageFn<T> | string, context: string, level: AppLogLevelEnum): MonoTypeOperatorFunction<T> {
         return (source$: Observable<T>): Observable<T> =>
             source$.pipe(
                 concatMap(input => {
@@ -166,7 +171,7 @@ export class NestJsRxjsLoggerService {
     /**
      * Inner wrapper for printing different level log messages.
      *
-     * @see NestJsRxjsLoggerService#setContext
+     * @see NestJSRxJSLoggerService#setContext
      * @see AppLogLevelEnum
      *
      * @param message Message to log
@@ -187,5 +192,33 @@ export class NestJsRxjsLoggerService {
             // @ts-expect-error TODO: Why TS thinks this is wrong?
             this.logger.verbose(message, context);
         }
+    }
+}
+
+/** @deprecated Wrong naming - @see NestJsRxjsLoggerService */
+export class NestJsRxjsLoggerService extends NestJSRxJSLoggerService {
+    /** @deprecated Use info operator instead(without $)  */
+    info$<T>(message: MessageFn<T> | string, context = this.context): MonoTypeOperatorFunction<T> {
+        return this.info(message, context);
+    }
+
+    /** @deprecated Use catch operator instead(without $)  */
+    catch$<T>(message: ErrorMessageFn, context = this.context): MonoTypeOperatorFunction<T> {
+        return this.catch(message, context);
+    }
+
+    /** @deprecated Use error operator instead(without $)  */
+    error$<T>(message: MessageFn<T> | string, context = this.context): MonoTypeOperatorFunction<T> {
+        return this.error(message, context);
+    }
+
+    /** @deprecated Use verbose operator instead(without $)  */
+    verbose$<T>(message: MessageFn<T> | string, context = this.context): MonoTypeOperatorFunction<T> {
+        return this.verbose(message, context);
+    }
+
+    /** @deprecated Use debug operator instead(without $)  */
+    debug$<T>(message: MessageFn<T> | string, context = this.context): MonoTypeOperatorFunction<T> {
+        return this.debug(message, context);
     }
 }

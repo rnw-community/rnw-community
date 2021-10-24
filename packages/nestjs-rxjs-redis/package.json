@@ -1,12 +1,12 @@
 {
-  "name": "@rnw-community/nestjs-rxjs-logger",
+  "name": "@rnw-community/nestjs-rxjs-redis",
   "version": "0.7.0",
   "private": false,
-  "description": "NestJS RxJS logger",
+  "description": "NestJS RxJS redis",
   "keywords": [
     "nestjs",
-    "nestjs logger",
-    "rxjs logger"
+    "nestjs redis",
+    "rxjs redis"
   ],
   "repository": "https://github.com/rnw-community/rnw-community/tree/master/packages/shared",
   "license": "MIT",
@@ -36,10 +36,14 @@
   },
   "devDependencies": {
     "@nestjs/common": "^8.0.6",
+    "ioredis": "^4.28.0",
+    "nestjs-redis": "^1.3.3",
     "@rnw-community/shared": "^0.6.0"
   },
   "peerDependencies": {
     "@nestjs/common": "^8.0.6",
-    "@rnw-community/shared": "^0.6.0"
+    "@rnw-community/shared": "^0.6.0",
+    "ioredis": "^4.28.0",
+    "nestjs-redis": "^1.3.3"
   }
 }
