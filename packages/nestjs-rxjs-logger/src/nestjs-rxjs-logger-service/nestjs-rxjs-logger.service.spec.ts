@@ -42,7 +42,7 @@ const create$Test = (method: keyof typeof loggerMock, logLevel: AppLogLevelEnum)
     });
 };
 
-type RxJSMethod = keyof Pick<NestJSRxJSLoggerService, 'debug$' | 'error$' | 'info$' | 'verbose$' | 'warn$'>;
+type RxJSMethod = keyof Pick<NestJSRxJSLoggerService, 'debug' | 'error' | 'info' | 'verbose' | 'warn'>;
 
 const print$Test =
     (
@@ -61,18 +61,18 @@ const print$Test =
 
             const getOperator = (
                 messageInput: string | ((input: unknown) => string)
-            ): ReturnType<NestJSRxJSLoggerService['info$']> => {
-                if (rxjsMethod === 'info$') {
-                    return service.info$(messageInput, logContext);
-                } else if (rxjsMethod === 'debug$') {
-                    return service.debug$(messageInput, logContext);
-                } else if (rxjsMethod === 'warn$') {
-                    return service.warn$(messageInput, logContext);
-                } else if (rxjsMethod === 'error$') {
-                    return service.error$(messageInput, logContext);
+            ): ReturnType<NestJSRxJSLoggerService['info']> => {
+                if (rxjsMethod === 'info') {
+                    return service.info(messageInput, logContext);
+                } else if (rxjsMethod === 'debug') {
+                    return service.debug(messageInput, logContext);
+                } else if (rxjsMethod === 'warn') {
+                    return service.warn(messageInput, logContext);
+                } else if (rxjsMethod === 'error') {
+                    return service.error(messageInput, logContext);
                 }
 
-                return service.verbose$(logMessage, logContext);
+                return service.verbose(logMessage, logContext);
             };
 
             const stream = of(true).pipe(getOperator(logMessage));
@@ -97,31 +97,31 @@ describe('nestJsRxJSLoggerService', () => {
     it('should create observable and output log with info log error', create$Test('warn', AppLogLevelEnum.error));
     it('should create observable and output log with info log verbose', create$Test('warn', AppLogLevelEnum.verbose));
 
-    it('should print info log message', print$Test('info$', 'log', 'test-info'));
-    it('should print debug log message', print$Test('debug$', 'debug', 'test-debug'));
-    it('should print warn log message', print$Test('warn$', 'warn', 'test-warn'));
-    it('should print error log message', print$Test('error$', 'error', 'test-error'));
-    it('should print verbose log message', print$Test('verbose$', 'verbose', 'test-verbose'));
+    it('should print info log message', print$Test('info', 'log', 'test-info'));
+    it('should print debug log message', print$Test('debug', 'debug', 'test-debug'));
+    it('should print warn log message', print$Test('warn', 'warn', 'test-warn'));
+    it('should print error log message', print$Test('error', 'error', 'test-error'));
+    it('should print verbose log message', print$Test('verbose', 'verbose', 'test-verbose'));
 
     it(
         'should print info with log message function',
-        print$Test('info$', 'log', () => 'test-info')
+        print$Test('info', 'log', () => 'test-info')
     );
     it(
         'should print debug with log message function',
-        print$Test('debug$', 'debug', () => 'test-debug')
+        print$Test('debug', 'debug', () => 'test-debug')
     );
     it(
         'should print warn with log message function',
-        print$Test('warn$', 'warn', () => 'test-warn')
+        print$Test('warn', 'warn', () => 'test-warn')
     );
     it(
         'should print error with log message function',
-        print$Test('error$', 'error', () => 'test-error')
+        print$Test('error', 'error', () => 'test-error')
     );
     it(
         'should print verbose with log message function',
-        print$Test('verbose$', 'verbose', () => 'test-verbose')
+        print$Test('verbose', 'verbose', () => 'test-verbose')
     );
 
     it('should set log context', async () => {
@@ -132,7 +132,7 @@ describe('nestJsRxJSLoggerService', () => {
 
         service.setContext(logContext);
 
-        await print$Test('info$', 'log', logContext, service)();
+        await print$Test('info', 'log', logContext, service)();
     });
 
     it('should catch stream error and print error with error message function', async () => {
@@ -147,7 +147,7 @@ describe('nestJsRxJSLoggerService', () => {
 
             const stream = of(true).pipe(
                 concatMap(() => throwError(() => new Error(initialMessage))),
-                service.catch$(errorMessageFn)
+                service.catch(errorMessageFn)
             );
 
             stream.subscribe({
