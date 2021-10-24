@@ -25,6 +25,9 @@
     "version": "git add -A packages",
     "postversion": "git push && git push --tags"
   },
+  "engines": {
+    "node": ">=14.0.0"
+  },
   "devDependencies": {
     "reflect-metadata": "^0.1.13",
     "@babel/core": "^7.14.8",
@@ -43,7 +46,7 @@
     "eslint-config-prettier": "^8.3.0",
     "eslint-config-standard-with-typescript": "^20.0.0",
     "eslint-plugin-eslint-comments": "^3.2.0",
-    "eslint-plugin-import": "^2.23.4",
+    "eslint-plugin-import": "^2.25.2",
     "eslint-plugin-jest": "^24.4.0",
     "eslint-plugin-node": "^11.1.0",
     "eslint-plugin-promise": "^4.3.1",
