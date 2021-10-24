@@ -1,3 +1,4 @@
+// eslint-disable-next-line max-classes-per-file
 import { Inject, Injectable, Scope } from '@nestjs/common';
 import { catchError, concatMap, of, tap, throwError } from 'rxjs';
 
@@ -17,7 +18,7 @@ export class NestJSRxJSLoggerService {
     /**
      * Logs context value
      */
-    private context = '';
+    protected context = '';
 
     constructor(@Inject('LOGGER') private readonly logger: LoggerService) {}
 
@@ -50,11 +51,6 @@ export class NestJSRxJSLoggerService {
         return of(true).pipe(tap(() => void this.print(message, context, level)));
     }
 
-    /** @deprecated Use info operator instead(without $)  */
-    info$<T>(message: MessageFn<T> | string, context = this.context): MonoTypeOperatorFunction<T> {
-        return this.info(message, context);
-    }
-
     /**
      * RxJS operator for printing logs with log level: info.
      *
@@ -66,11 +62,6 @@ export class NestJSRxJSLoggerService {
      */
     info<T>(message: MessageFn<T> | string, context = this.context): MonoTypeOperatorFunction<T> {
         return this.print$(message, context, AppLogLevelEnum.info);
-    }
-
-    /** @deprecated Use debug operator instead(without $)  */
-    debug$<T>(message: MessageFn<T> | string, context = this.context): MonoTypeOperatorFunction<T> {
-        return this.debug(message, context);
     }
 
     /**
@@ -104,11 +95,6 @@ export class NestJSRxJSLoggerService {
         return this.print$(message, context, AppLogLevelEnum.warn);
     }
 
-    /** @deprecated Use verbose operator instead(without $)  */
-    verbose$<T>(message: MessageFn<T> | string, context = this.context): MonoTypeOperatorFunction<T> {
-        return this.verbose(message, context);
-    }
-
     /**
      * RxJS operator for printing logs with log level: verbose.
      *
@@ -122,11 +108,6 @@ export class NestJSRxJSLoggerService {
         return this.print$(message, context, AppLogLevelEnum.verbose);
     }
 
-    /** @deprecated Use error operator instead(without $)  */
-    error$<T>(message: MessageFn<T> | string, context = this.context): MonoTypeOperatorFunction<T> {
-        return this.error(message, context);
-    }
-
     /**
      * RxJS operator for printing logs with log level: error.
      *
@@ -138,11 +119,6 @@ export class NestJSRxJSLoggerService {
      */
     error<T>(message: MessageFn<T> | string, context = this.context): MonoTypeOperatorFunction<T> {
         return this.print$(message, context, AppLogLevelEnum.error);
-    }
-
-    /** @deprecated Use catch operator instead(without $)  */
-    catch$<T>(message: ErrorMessageFn, context = this.context): MonoTypeOperatorFunction<T> {
-        return this.catch(message, context);
     }
 
     /**
@@ -216,5 +192,33 @@ export class NestJSRxJSLoggerService {
             // @ts-expect-error TODO: Why TS thinks this is wrong?
             this.logger.verbose(message, context);
         }
+    }
+}
+
+/** @deprecated Wrong naming - @see NestJsRxjsLoggerService */
+export class NestJsRxjsLoggerService extends NestJSRxJSLoggerService {
+    /** @deprecated Use info operator instead(without $)  */
+    info$<T>(message: MessageFn<T> | string, context = this.context): MonoTypeOperatorFunction<T> {
+        return this.info(message, context);
+    }
+
+    /** @deprecated Use catch operator instead(without $)  */
+    catch$<T>(message: ErrorMessageFn, context = this.context): MonoTypeOperatorFunction<T> {
+        return this.catch(message, context);
+    }
+
+    /** @deprecated Use error operator instead(without $)  */
+    error$<T>(message: MessageFn<T> | string, context = this.context): MonoTypeOperatorFunction<T> {
+        return this.error(message, context);
+    }
+
+    /** @deprecated Use verbose operator instead(without $)  */
+    verbose$<T>(message: MessageFn<T> | string, context = this.context): MonoTypeOperatorFunction<T> {
+        return this.verbose(message, context);
+    }
+
+    /** @deprecated Use debug operator instead(without $)  */
+    debug$<T>(message: MessageFn<T> | string, context = this.context): MonoTypeOperatorFunction<T> {
+        return this.debug(message, context);
     }
 }
