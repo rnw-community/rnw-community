@@ -28,7 +28,8 @@ export class NestJSRxJSRedisService {
      */
     set$(key: string, value: string, ttlInSeconds: number, error = `Error setting ${key} to redis`): Observable<boolean> {
         return from(this.redisClient.set(key, value, 'EX', ttlInSeconds)).pipe(
-            concatMap(result => (result === 'OK' ? of(true) : throwError(() => new Error(error))))
+            concatMap(result => (result === 'OK' ? of(true) : throwError(() => new Error(error)))),
+            catchError(() => throwError(() => new Error(error)))
         );
     }
 
@@ -43,7 +44,8 @@ export class NestJSRxJSRedisService {
      */
     get$(key: string, error = `Error getting ${key} from redis`): Observable<string> {
         return from(this.redisClient.get(key)).pipe(
-            concatMap(res => (isDefined(res) ? of(res) : throwError(() => new Error(error))))
+            concatMap(res => (isDefined(res) ? of(res) : throwError(() => new Error(error)))),
+            catchError(() => throwError(() => new Error(error)))
         );
     }
 

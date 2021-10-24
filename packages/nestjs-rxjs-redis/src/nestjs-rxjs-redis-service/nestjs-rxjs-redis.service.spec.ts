@@ -1,4 +1,7 @@
+/* eslint-disable max-lines */
 import { of } from 'rxjs';
+
+import { emptyFn, getErrorMessage } from '@rnw-community/shared';
 
 import { NestJSRxJSRedisService } from './nestjs-rxjs-redis.service';
 
@@ -37,6 +40,39 @@ describe('nestJSRxJSRedisService', () => {
             });
         }));
 
+    it('get$ operation returns null', () =>
+        new Promise(resolve => {
+            expect.assertions(2);
+
+            const get = jest.fn().mockResolvedValue(null);
+            const redisService = getRedisService({ get });
+            const redis = new NestJSRxJSRedisService(redisService);
+
+            redis.get$(redisKey).subscribe({
+                next: emptyFn,
+                error(error: unknown) {
+                    expect(get).toHaveBeenCalledWith(redisKey);
+                    expect(getErrorMessage(error)).toStrictEqual(`Error getting ${redisKey} from redis`);
+                    resolve(true);
+                },
+            });
+        }));
+
+    it('get$ operation throws error', () =>
+        new Promise(resolve => {
+            expect.assertions(2);
+
+            const get = jest.fn().mockRejectedValue(null);
+            const redisService = getRedisService({ get });
+            const redis = new NestJSRxJSRedisService(redisService);
+
+            redis.get$(redisKey).subscribe(emptyFn, (error: unknown) => {
+                expect(get).toHaveBeenCalledWith(redisKey);
+                expect(getErrorMessage(error)).toStrictEqual(`Error getting ${redisKey} from redis`);
+                resolve(true);
+            });
+        }));
+
     it('set$ operation should create observable', () =>
         new Promise(resolve => {
             expect.assertions(2);
@@ -52,6 +88,42 @@ describe('nestJSRxJSRedisService', () => {
             });
         }));
 
+    it('set$ operation returns not OK', () =>
+        new Promise(resolve => {
+            expect.assertions(2);
+
+            const set = jest.fn().mockResolvedValue('FAIL');
+            const redisService = getRedisService({ set });
+            const redis = new NestJSRxJSRedisService(redisService);
+
+            redis.set$(redisKey, redisValue, 1).subscribe({
+                next: emptyFn,
+                error(error: unknown) {
+                    expect(set).toHaveBeenCalledWith(redisKey, redisValue, 'EX', 1);
+                    expect(getErrorMessage(error)).toStrictEqual(`Error setting ${redisKey} to redis`);
+                    resolve(true);
+                },
+            });
+        }));
+
+    it('set$ operation throws error', () =>
+        new Promise(resolve => {
+            expect.assertions(2);
+
+            const set = jest.fn().mockRejectedValue('FAIL');
+            const redisService = getRedisService({ set });
+            const redis = new NestJSRxJSRedisService(redisService);
+
+            redis.set$(redisKey, redisValue, 1).subscribe({
+                next: emptyFn,
+                error(error: unknown) {
+                    expect(set).toHaveBeenCalledWith(redisKey, redisValue, 'EX', 1);
+                    expect(getErrorMessage(error)).toStrictEqual(`Error setting ${redisKey} to redis`);
+                    resolve(true);
+                },
+            });
+        }));
+
     it('del$ operation should create observable', () =>
         new Promise(resolve => {
             expect.assertions(2);
@@ -64,6 +136,24 @@ describe('nestJSRxJSRedisService', () => {
                 expect(del).toHaveBeenCalledWith(redisKey);
                 expect(data).toBe(1);
                 resolve(true);
+            });
+        }));
+
+    it('del$ operation throws error', () =>
+        new Promise(resolve => {
+            expect.assertions(2);
+
+            const del = jest.fn().mockRejectedValue(0);
+            const redisService = getRedisService({ del });
+            const redis = new NestJSRxJSRedisService(redisService);
+
+            redis.del$(redisKey).subscribe({
+                next: emptyFn,
+                error(error: unknown) {
+                    expect(del).toHaveBeenCalledWith(redisKey);
+                    expect(getErrorMessage(error)).toStrictEqual(`Error deleting ${redisKey} from redis`);
+                    resolve(true);
+                },
             });
         }));
 
