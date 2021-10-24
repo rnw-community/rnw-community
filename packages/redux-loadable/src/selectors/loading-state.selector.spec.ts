@@ -14,7 +14,7 @@ describe('loadingStateSelector', () => {
         const [isLoading, isFailed, isPristine, error] = sliceSelector(state);
 
         expect(isLoading).toStrictEqual(state.testSlice.isLoading);
-        expect(isFailed).toStrictEqual(false);
+        expect(isFailed).toBe(false);
         expect(isPristine).toStrictEqual(state.testSlice.isPristine);
         expect(error).toStrictEqual(state.testSlice.error);
     });

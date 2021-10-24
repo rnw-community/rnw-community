@@ -35,7 +35,8 @@
     "rxjs": "^7.3.0"
   },
   "devDependencies": {
-    "@nestjs/common": "^8.0.6"
+    "@nestjs/common": "^8.0.6",
+    "@rnw-community/shared": "^0.6.0"
   },
   "peerDependencies": {
     "@nestjs/common": "^8.0.6",

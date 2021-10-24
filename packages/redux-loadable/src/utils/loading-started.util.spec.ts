@@ -14,12 +14,12 @@ describe('loadingStarted', () => {
 
         const startedState = loadingStarted(state);
 
-        expect(state.isLoading).toStrictEqual(true);
-        expect(state.isPristine).toStrictEqual(false);
-        expect(state.error).toStrictEqual('');
+        expect(state.isLoading).toBe(true);
+        expect(state.isPristine).toBe(false);
+        expect(state.error).toBe('');
 
-        expect(startedState.isLoading).toStrictEqual(true);
-        expect(startedState.isPristine).toStrictEqual(false);
-        expect(startedState.error).toStrictEqual('');
+        expect(startedState.isLoading).toBe(true);
+        expect(startedState.isPristine).toBe(false);
+        expect(startedState.error).toBe('');
     });
 });

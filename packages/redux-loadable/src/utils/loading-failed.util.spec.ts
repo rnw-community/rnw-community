@@ -14,12 +14,12 @@ describe('loadingFailed', () => {
 
         const failedState = loadingFailed(state, 'error');
 
-        expect(state.isLoading).toStrictEqual(false);
-        expect(state.isPristine).toStrictEqual(false);
-        expect(state.error).toStrictEqual('error');
+        expect(state.isLoading).toBe(false);
+        expect(state.isPristine).toBe(false);
+        expect(state.error).toBe('error');
 
-        expect(failedState.isLoading).toStrictEqual(false);
-        expect(failedState.isPristine).toStrictEqual(false);
-        expect(failedState.error).toStrictEqual('error');
+        expect(failedState.isLoading).toBe(false);
+        expect(failedState.isPristine).toBe(false);
+        expect(failedState.error).toBe('error');
     });
 });
