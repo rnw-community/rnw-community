@@ -62,6 +62,7 @@ module.exports = {
         ],
         '@typescript-eslint/no-type-alias': 'off',
         '@typescript-eslint/no-meaningless-void-operator': 'off',
+        '@typescript-eslint/promise-function-async': 'off',
         'lines-between-class-members': 'off',
         'import/namespace': 'off',
         'import/order': [
@@ -133,23 +134,13 @@ module.exports = {
         'react/jsx-no-constructed-context-values': 'off',
         'react-native/no-raw-text': 'off',
         'prefer-named-capture-group': 'off',
-        '@typescript-eslint/promise-function-async': 'off',
+        'jest/prefer-lowercase-title': ['error', { ignore: ['describe'] }],
     },
     overrides: [{ files: '*.d.ts', rules: { 'init-declarations': 'off' } }],
     settings: {
-        'import/parsers': {
-            '@typescript-eslint/parser': ['.ts', '.tsx'],
-        },
-        'import/resolver': {
-            node: {
-                moduleDirectory: ['node_modules', 'src'],
-            },
-        },
-        jest: {
-            version: 26,
-        },
-        react: {
-            version: 'detect',
-        },
+        'import/parsers': { '@typescript-eslint/parser': ['.ts', '.tsx'] },
+        'import/resolver': { node: { moduleDirectory: ['node_modules', 'src'] } },
+        jest: { version: require('jest/package.json').version },
+        react: { version: 'detect' },
     },
 };

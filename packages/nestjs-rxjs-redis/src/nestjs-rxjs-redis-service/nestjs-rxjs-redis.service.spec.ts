@@ -24,7 +24,7 @@ const getRedisService = (redisClient?: Partial<Pick<IORedis.Redis, 'del' | 'get'
     } as RedisService);
 
 // eslint-disable-next-line max-lines-per-function,max-statements
-describe('nestJSRxJSRedisService', () => {
+describe('NestJSRxJSRedisService', () => {
     it('get$ operation should create observable', () =>
         new Promise(resolve => {
             expect.assertions(2);
@@ -40,7 +40,7 @@ describe('nestJSRxJSRedisService', () => {
             });
         }));
 
-    it('get$ operation returns null', () =>
+    it('get$ operation when redis clinet returns null', () =>
         new Promise(resolve => {
             expect.assertions(2);
 
@@ -58,7 +58,7 @@ describe('nestJSRxJSRedisService', () => {
             });
         }));
 
-    it('get$ operation throws error', () =>
+    it('get$ operation when redis client throws error', () =>
         new Promise(resolve => {
             expect.assertions(2);
 
@@ -88,7 +88,7 @@ describe('nestJSRxJSRedisService', () => {
             });
         }));
 
-    it('set$ operation returns not OK', () =>
+    it('set$ operation when redis client returns not OK', () =>
         new Promise(resolve => {
             expect.assertions(2);
 
@@ -106,7 +106,7 @@ describe('nestJSRxJSRedisService', () => {
             });
         }));
 
-    it('set$ operation throws error', () =>
+    it('set$ operation when redis client throws error', () =>
         new Promise(resolve => {
             expect.assertions(2);
 
@@ -139,7 +139,7 @@ describe('nestJSRxJSRedisService', () => {
             });
         }));
 
-    it('del$ operation throws error', () =>
+    it('del$ operation when redis client throws error', () =>
         new Promise(resolve => {
             expect.assertions(2);
 
