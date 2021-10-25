@@ -5,30 +5,17 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 ## [0.7.4](https://github.com/rnw-community/rnw-community/compare/v0.7.3...v0.7.4) (2021-10-25)
 
-
 ### Bug Fixes
 
-* **nestjs-rxjs-redis:** import nestjs-redis, fix nestjs-redis service injection ([#48](https://github.com/rnw-community/rnw-community/issues/48)) ([d9cd832](https://github.com/rnw-community/rnw-community/commit/d9cd8328b98dd60374ffca1942e6f8391271de07))
-
-
-
-
+-   **nestjs-rxjs-redis:** import nestjs-redis, fix nestjs-redis service injection ([#48](https://github.com/rnw-community/rnw-community/issues/48)) ([d9cd832](https://github.com/rnw-community/rnw-community/commit/d9cd8328b98dd60374ffca1942e6f8391271de07))
 
 ## [0.7.3](https://github.com/rnw-community/rnw-community/compare/v0.7.2...v0.7.3) (2021-10-25)
 
 **Note:** Version bump only for package rnw-community
 
-
-
-
-
 ## [0.7.2](https://github.com/rnw-community/rnw-community/compare/v0.7.1...v0.7.2) (2021-10-25)
 
 **Note:** Version bump only for package rnw-community
-
-
-
-
 
 ## [0.7.1](https://github.com/rnw-community/rnw-community/compare/v0.7.0...v0.7.1) (2021-10-24)
 

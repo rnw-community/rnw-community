@@ -7,7 +7,7 @@ Monorepo for useful NestJS, React Native and React Native Web packages which can
 [![DeepScan grade](https://deepscan.io/api/teams/11119/projects/14033/branches/251011/badge/grade.svg)](https://deepscan.io/dashboard#view=project&tid=11119&pid=14033&bid=251011)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com)
 
-> All packages are following industry standard Typescript strict and ESLing checks and has maximum test coverage
+> All packages are following industry standard Typescript strict rules and ESLint checks and has maximum test coverage
 
 ## Packages
 

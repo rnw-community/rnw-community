@@ -3,3 +3,5 @@ jest.mock('react-native', () => ({
         OS: 'no',
     },
 }));
+
+export {};
