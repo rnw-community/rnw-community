@@ -1,10 +1,11 @@
 import { Injectable } from '@nestjs/common';
+// eslint-disable-next-line @typescript-eslint/consistent-type-imports
+import { RedisService } from 'nestjs-redis';
 import { catchError, concatMap, from, map, of, throwError } from 'rxjs';
 
 import { isDefined } from '@rnw-community/shared';
 
 import type { Redis } from 'ioredis';
-import type { RedisService } from 'nestjs-redis';
 import type { MonoTypeOperatorFunction, Observable, OperatorFunction } from 'rxjs';
 
 @Injectable()

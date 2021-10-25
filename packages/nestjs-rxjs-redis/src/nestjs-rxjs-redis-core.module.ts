@@ -1,4 +1,5 @@
 import { Global, Module } from '@nestjs/common';
+import { RedisModule } from 'nestjs-redis';
 
 import { NestJSRxJSRedisService } from './nestjs-rxjs-redis-service/nestjs-rxjs-redis.service';
 
@@ -14,7 +15,7 @@ export class NestJSRxJSRedisCoreModule {
     static forRootAsync(options: RedisModuleAsyncOptions): DynamicModule {
         return {
             module: NestJSRxJSRedisCoreModule,
-            imports: options.imports,
+            imports: [RedisModule.forRootAsync(options)],
             exports: [NestJSRxJSRedisService],
         };
     }
