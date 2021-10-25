@@ -194,31 +194,3 @@ export class NestJSRxJSLoggerService {
         }
     }
 }
-
-/** @deprecated Wrong naming - @see NestJsRxjsLoggerService */
-export class NestJsRxjsLoggerService extends NestJSRxJSLoggerService {
-    /** @deprecated Use info operator instead(without $)  */
-    info$<T>(message: MessageFn<T> | string, context = this.context): MonoTypeOperatorFunction<T> {
-        return this.info(message, context);
-    }
-
-    /** @deprecated Use catch operator instead(without $)  */
-    catch$<T>(message: ErrorMessageFn, context = this.context): MonoTypeOperatorFunction<T> {
-        return this.catch(message, context);
-    }
-
-    /** @deprecated Use error operator instead(without $)  */
-    error$<T>(message: MessageFn<T> | string, context = this.context): MonoTypeOperatorFunction<T> {
-        return this.error(message, context);
-    }
-
-    /** @deprecated Use verbose operator instead(without $)  */
-    verbose$<T>(message: MessageFn<T> | string, context = this.context): MonoTypeOperatorFunction<T> {
-        return this.verbose(message, context);
-    }
-
-    /** @deprecated Use debug operator instead(without $)  */
-    debug$<T>(message: MessageFn<T> | string, context = this.context): MonoTypeOperatorFunction<T> {
-        return this.debug(message, context);
-    }
-}

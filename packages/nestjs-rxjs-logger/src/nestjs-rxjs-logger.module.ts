@@ -9,6 +9,3 @@ import { NestJSRxJSLoggerService } from './nestjs-rxjs-logger-service/nestjs-rxj
     exports: [NestJSRxJSLoggerService],
 })
 export class NestJSRxJSLoggerModule {}
-
-/** @deprecated Wrong naming - @see NestJSRxJSRedisModule */
-export class NestJsRxJsLoggerModule extends NestJSRxJSLoggerModule {}

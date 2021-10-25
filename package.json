@@ -25,6 +25,9 @@
     "version": "git add -A packages",
     "postversion": "git push && git push --tags"
   },
+  "engines": {
+    "node": ">=14.0.0"
+  },
   "devDependencies": {
     "reflect-metadata": "^0.1.13",
     "@babel/core": "^7.15.8",
