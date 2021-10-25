@@ -73,7 +73,7 @@ export const MetricsServiceMixin = <C extends MC, G extends MC, H extends MC, S 
                     this.startedHistogramMetrics[metric] = undefined;
                 } else {
                     Logger.error(
-                        `Cannot end histogram metric "${metric as string}" - It was not started`,
+                        `Cannot end histogram for metric "${metric as string}" - It was not started`,
                         MetricsService.name
                     );
                 }
