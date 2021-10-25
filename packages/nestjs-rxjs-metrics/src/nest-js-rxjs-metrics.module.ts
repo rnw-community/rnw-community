@@ -1,4 +1,4 @@
-import { Global, Module } from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { PrometheusModule } from '@willsoto/nestjs-prometheus';
 
 import { createMetricsRecord } from './util/create-metrics-record.util';
@@ -7,7 +7,6 @@ import type { MetricsModuleOptionsInterface } from './interface/metrics-module-o
 import type { MetricConfig } from './type/metrics-config.type';
 import type { DynamicModule } from '@nestjs/common';
 
-@Global()
 @Module({})
 export class MetricsModule {
     static forRootAsync<C extends MetricConfig, G extends MetricConfig, H extends MetricConfig, S extends MetricConfig>(
