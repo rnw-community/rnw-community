@@ -12,6 +12,10 @@ import type { DynamicModule, ModuleMetadata } from '@nestjs/common';
 })
 export class NestJSRxJSRedisModule {
     static forRootAsync(options: ModuleMetadata): DynamicModule {
-        return RedisModule.forRootAsync(options);
+        return {
+            module: NestJSRxJSRedisModule,
+            imports: [RedisModule.forRootAsync(options), ...(options.imports ?? [])],
+            ...options,
+        };
     }
 }
