@@ -22,6 +22,11 @@
         "noFallthroughCasesInSwitch": true,
         "experimentalDecorators": true,
         "forceConsistentCasingInFileNames": true,
-        "noEmit": true
+        "noEmit": true,
+        "exactOptionalPropertyTypes": false,
+        "noImplicitOverride": true,
+        "noPropertyAccessFromIndexSignature": true,
+        "noUncheckedIndexedAccess": false,
+        "useUnknownInCatchVariables": true
     }
 }

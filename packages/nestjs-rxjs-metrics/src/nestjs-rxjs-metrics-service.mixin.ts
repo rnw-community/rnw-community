@@ -18,7 +18,12 @@ type MetricsCtor<C extends MC, G extends MC, H extends MC, S extends MC> = new (
     summaryMetrics: Record<keyof S, Summary<string>>
 ) => MetricsServiceInterface<C, G, H, S>;
 
-export const MetricsServiceMixin = <C extends MC, G extends MC, H extends MC, S extends MC>(): MetricsCtor<C, G, H, S> =>
+export const NestJSRxJSMetricsServiceMixin = <C extends MC, G extends MC, H extends MC, S extends MC>(): MetricsCtor<
+    C,
+    G,
+    H,
+    S
+> =>
     class MetricsService {
         private readonly startedHistogramMetrics: HistogramRecord<H>;
         private readonly startedSummaryMetrics: SummaryRecord<S>;
@@ -73,7 +78,7 @@ export const MetricsServiceMixin = <C extends MC, G extends MC, H extends MC, S 
                     this.startedHistogramMetrics[metric] = undefined;
                 } else {
                     Logger.error(
-                        `Cannot end histogram metric "${metric as string}" - It was not started`,
+                        `Cannot end histogram for metric "${metric as string}" - It was not started`,
                         MetricsService.name
                     );
                 }
