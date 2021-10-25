@@ -41,11 +41,12 @@
   "devDependencies": {
     "@nestjs/common": "^8.0.6",
     "prom-client": "^14.0.0",
-    "@willsoto/nestjs-prometheus": "^4.0.1"
+    "@willsoto/nestjs-prometheus": "^4.0.1",
+    "@rnw-community/shared": "^0.7.1"
   },
   "peerDependencies": {
     "@nestjs/common": "^8.0.6",
-    "@rnw-community/shared": "^0.6.0",
+    "@rnw-community/shared": "^0.7.1",
     "prom-client": "^14.0.0",
     "@willsoto/nestjs-prometheus": "^4.0.1"
   }
