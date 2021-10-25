@@ -9,6 +9,9 @@ import { NestJSRxJSLoggerService } from './nestjs-rxjs-logger.service';
 
 import type { LoggerService } from '@nestjs/common';
 
+type RxJSMethod = keyof Pick<NestJSRxJSLoggerService, 'debug' | 'error' | 'info' | 'verbose' | 'warn'>;
+type LoggerMethod = keyof Pick<LoggerService, 'debug' | 'error' | 'log' | 'verbose' | 'warn'>;
+
 const loggerMock: LoggerService = {
     log: () => void 0,
     error: () => void 0,
@@ -17,7 +20,7 @@ const loggerMock: LoggerService = {
     verbose: () => void 0,
 };
 
-const create$Test = (method: keyof typeof loggerMock, logLevel: AppLogLevelEnum) => async (): Promise<boolean> => {
+const create$Test = (method: LoggerMethod, logLevel: AppLogLevelEnum) => async (): Promise<boolean> => {
     expect.assertions(2);
 
     return await new Promise((resolve, reject) => {
@@ -42,12 +45,10 @@ const create$Test = (method: keyof typeof loggerMock, logLevel: AppLogLevelEnum)
     });
 };
 
-type RxJSMethod = keyof Pick<NestJSRxJSLoggerService, 'debug' | 'error' | 'info' | 'verbose' | 'warn'>;
-
 const print$Test =
     (
         rxjsMethod: RxJSMethod,
-        method: keyof typeof loggerMock,
+        method: LoggerMethod,
         logMessage: string | ((input: unknown) => string),
         service = new NestJSRxJSLoggerService(loggerMock),
         logContext = ''
