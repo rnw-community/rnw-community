@@ -1,2 +1,2 @@
-export * from './metrics-service.mixin';
-export * from './nest-js-rxjs-metrics.module';
+export * from './nestjs-rxjs-metrics-service.mixin';
+export * from './nestjs-rxjs-metrics.module';
