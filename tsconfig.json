@@ -30,7 +30,6 @@
         "noUncheckedIndexedAccess": false,
         "useUnknownInCatchVariables": true,
         "allowSyntheticDefaultImports": true,
-        "composite": true,
         "declarationMap": true,
         "incremental": true,
         "isolatedModules": true,

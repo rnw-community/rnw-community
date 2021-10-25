@@ -21,7 +21,7 @@
     "deps:clear": "lerna run clear:deps --parallel && yarn deps:clear:root",
     "deps:clear:root": "rm -rf ./node_modules",
     "postinstall": "lerna run build --stream",
-    "preversion": "yarn format && yarn ci && yarn build",
+    "preversion": "yarn format && yarn ci",
     "version": "git add -A packages",
     "postversion": "git push && git push --tags"
   },
