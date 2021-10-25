@@ -1,6 +1,6 @@
-# React native & React native web community packages
+# NestJS, React native & React native web community packages
 
-Monorepo for useful React Native and React Native Web packages which can help you develop better software.
+Monorepo for useful NestJS, React Native and React Native Web packages which can help you develop better software faster.
 
 [![Build Status](https://app.travis-ci.com/rnw-community/rnw-community.svg?branch=master)](https://app.travis-ci.com/rnw-community/rnw-community)
 [![codecov](https://codecov.io/gh/rnw-community/rnw-community/branch/master/graph/badge.svg)](https://codecov.io/gh/rnw-community/rnw-community)
