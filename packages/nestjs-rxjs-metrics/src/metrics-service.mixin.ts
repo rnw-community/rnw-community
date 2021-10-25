@@ -1,22 +1,25 @@
+import { Logger } from '@nestjs/common';
+
 import { isDefined } from '@rnw-community/shared';
 
 import { rxjsOperator } from './util/rxjs-operator.util';
 
 import type { MetricsServiceInterface } from './interface/metrics-service.interface';
 import type { HistogramRecord } from './type/histogram-record.type';
-import type { MetricConfig } from './type/metrics-config.type';
+import type { MetricConfig as MC } from './type/metrics-config.type';
 import type { SummaryRecord } from './type/summary-record.type';
 import type { Counter, Gauge, Histogram, Summary } from 'prom-client';
 import type { MonoTypeOperatorFunction } from 'rxjs';
 
-export const MetricsServiceMixin = <
-    C extends MetricConfig,
-    G extends MetricConfig,
-    H extends MetricConfig,
-    S extends MetricConfig
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
->(): new (...args: any[]) => MetricsServiceInterface<C, G, H, S> =>
-    class CustomMetricsService {
+type MetricsCtor<C extends MC, G extends MC, H extends MC, S extends MC> = new (
+    counterMetrics: Record<keyof C, Counter<string>>,
+    gaugeMetrics: Record<keyof G, Gauge<string>>,
+    histogramMetrics: Record<keyof H, Histogram<string>>,
+    summaryMetrics: Record<keyof S, Summary<string>>
+) => MetricsServiceInterface<C, G, H, S>;
+
+export const MetricsServiceMixin = <C extends MC, G extends MC, H extends MC, S extends MC>(): MetricsCtor<C, G, H, S> =>
+    class MetricsService {
         private readonly startedHistogramMetrics: HistogramRecord<H>;
         private readonly startedSummaryMetrics: SummaryRecord<S>;
 
@@ -64,13 +67,16 @@ export const MetricsServiceMixin = <
             return rxjsOperator(() => {
                 const metricEndFn = this.startedHistogramMetrics[metric];
 
-                if (!isDefined(metricEndFn)) {
-                    throw new Error(`Cannot end histogram metric ${metric as string} - It was not started`);
+                if (isDefined(metricEndFn)) {
+                    metricEndFn?.();
+
+                    this.startedHistogramMetrics[metric] = undefined;
+                } else {
+                    Logger.error(
+                        `Cannot end histogram metric "${metric as string}" - It was not started`,
+                        MetricsService.name
+                    );
                 }
-
-                metricEndFn?.();
-
-                this.startedHistogramMetrics[metric] = undefined;
             });
         }
 
@@ -84,13 +90,16 @@ export const MetricsServiceMixin = <
             return rxjsOperator(() => {
                 const metricEndFn = this.startedSummaryMetrics[metric];
 
-                if (!isDefined(metricEndFn)) {
-                    throw new Error(`Cannot end summary metric ${metric as string} - It was not started`);
+                if (isDefined(metricEndFn)) {
+                    metricEndFn?.();
+
+                    this.startedSummaryMetrics[metric] = undefined;
+                } else {
+                    Logger.error(
+                        `Cannot end summary for metric "${metric as string}" - It was not started`,
+                        MetricsService.name
+                    );
                 }
-
-                metricEndFn?.();
-
-                this.startedSummaryMetrics[metric] = undefined;
             });
         }
     };

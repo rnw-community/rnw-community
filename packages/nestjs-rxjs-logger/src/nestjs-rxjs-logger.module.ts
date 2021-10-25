@@ -1,16 +1,11 @@
+// eslint-disable-next-line max-classes-per-file
 import { Logger, Module } from '@nestjs/common';
 
-import { NestJsRxjsLoggerService } from './nestjs-rxjs-logger-service/nestjs-rxjs-logger.service';
+import { NestJSRxJSLoggerService } from './nestjs-rxjs-logger-service/nestjs-rxjs-logger.service';
 
 @Module({
     imports: [],
-    providers: [
-        NestJsRxjsLoggerService,
-        {
-            provide: 'LOGGER',
-            useValue: Logger,
-        },
-    ],
-    exports: [NestJsRxjsLoggerService],
+    providers: [NestJSRxJSLoggerService, { provide: 'LOGGER', useValue: Logger }],
+    exports: [NestJSRxJSLoggerService],
 })
-export class NestJsRxJsLoggerModule {}
+export class NestJSRxJSLoggerModule {}
