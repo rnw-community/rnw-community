@@ -32,7 +32,7 @@
   },
   "gitHead": "b5608910319390f9773a9d42c3cc828e8e8a1d95",
   "dependencies": {
-    "rxjs": "^7.3.0"
+    "rxjs": "^7.4.0"
   },
   "devDependencies": {
     "@nestjs/common": "^8.0.6",

@@ -40,7 +40,6 @@
   },
   "devDependencies": {
     "@nestjs/common": "^8.0.6",
-    "rxjs": "^7.4.0",
     "prom-client": "^14.0.0",
     "@willsoto/nestjs-prometheus": "^4.0.1"
   },
