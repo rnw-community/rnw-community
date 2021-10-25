@@ -8,7 +8,7 @@ import type { MetricConfig } from './type/metrics-config.type';
 import type { DynamicModule } from '@nestjs/common';
 
 @Module({})
-export class MetricsModule {
+export class NestJSRxJSMetricsModule {
     static forRootAsync<C extends MetricConfig, G extends MetricConfig, H extends MetricConfig, S extends MetricConfig>(
         options: MetricsModuleOptionsInterface<C, G, H, S>
     ): DynamicModule {
@@ -17,7 +17,7 @@ export class MetricsModule {
         return {
             ...options,
             imports: [PrometheusModule.register(nestjsPrometheusOptions), ...(options.imports ?? [])],
-            module: MetricsModule,
+            module: NestJSRxJSMetricsModule,
             providers: [
                 {
                     provide: 'COUNTER',

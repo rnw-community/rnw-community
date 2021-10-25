@@ -1,7 +1,7 @@
 import { Logger } from '@nestjs/common';
 import { of } from 'rxjs';
 
-import { MetricsServiceMixin } from './metrics-service.mixin';
+import { NestJSRxJSMetricsServiceMixin } from './nestjs-rxjs-metrics-service.mixin';
 import { createMetricsRecord } from './util/create-metrics-record.util';
 
 import type { Counter, Gauge, Histogram, Summary } from 'prom-client';
@@ -16,7 +16,7 @@ const gaugeRecord = createMetricsRecord<Gauge<string>, typeof gaugeMetrics>('Gau
 const histogramRecord = createMetricsRecord<Histogram<string>, typeof histogramMetrics>('Histogram', histogramMetrics);
 const summaryRecord = createMetricsRecord<Summary<string>, typeof summaryMetrics>('Summary', summaryMetrics);
 
-class NestJSRxJSMetricsService extends MetricsServiceMixin<
+class NestJSRxJSMetricsService extends NestJSRxJSMetricsServiceMixin<
     typeof counterMetrics,
     typeof gaugeMetrics,
     typeof histogramMetrics,
