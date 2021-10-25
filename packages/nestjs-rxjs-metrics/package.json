@@ -28,7 +28,7 @@
     "test": "yarn jest",
     "test:coverage": "yarn jest --coverage",
     "format": "prettier --write \"./src/**/*.{ts,tsx}\"",
-    "clear": "rm -rf coverage && rm -rf dist",
+    "clear": "rm -rf coverage && rm -rf dist && rm -f *.tsbuildinfo",
     "clear:deps": "rm -rf ./node_modules && rm -rf ./dist"
   },
   "engines": {

@@ -7,17 +7,9 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 **Note:** Version bump only for package @rnw-community/nestjs-rxjs-logger
 
-
-
-
-
 ## [0.7.2](https://github.com/rnw-community/rnw-community/tree/master/packages/shared/compare/v0.7.1...v0.7.2) (2021-10-25)
 
 **Note:** Version bump only for package @rnw-community/nestjs-rxjs-logger
-
-
-
-
 
 ## [0.7.1](https://github.com/rnw-community/rnw-community/tree/master/packages/shared/compare/v0.7.0...v0.7.1) (2021-10-24)
 

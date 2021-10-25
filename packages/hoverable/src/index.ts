@@ -1,4 +1,4 @@
-export { HoverProps } from './hover.props';
+export type { HoverProps } from './hover.props';
 
 export { withHover } from './with-hover/with-hover.hoc';
 

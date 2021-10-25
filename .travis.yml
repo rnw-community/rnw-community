@@ -6,6 +6,7 @@ cache: yarn
 install:
   - npm install codecov -g
   - yarn install --ignore-scripts --frozen-lockfile --check-files
+  - yarn build
 
 script:
   - yarn ci
