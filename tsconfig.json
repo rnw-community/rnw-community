@@ -21,12 +21,20 @@
         "noImplicitReturns": true,
         "noFallthroughCasesInSwitch": true,
         "experimentalDecorators": true,
+        "emitDecoratorMetadata": true,
         "forceConsistentCasingInFileNames": true,
         "noEmit": true,
         "exactOptionalPropertyTypes": false,
         "noImplicitOverride": true,
         "noPropertyAccessFromIndexSignature": true,
         "noUncheckedIndexedAccess": false,
-        "useUnknownInCatchVariables": true
+        "useUnknownInCatchVariables": true,
+        "allowSyntheticDefaultImports": true,
+        "composite": true,
+        "declarationMap": true,
+        "incremental": true,
+        "isolatedModules": true,
+        "removeComments": false,
+        "resolveJsonModule": true
     }
 }

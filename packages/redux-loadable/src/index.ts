@@ -1,4 +1,5 @@
-export { LoadingStateInterface, initialLoadingState } from './interface/loading-state.interface';
+export type { LoadingStateInterface } from './interface/loading-state.interface';
+export { initialLoadingState } from './interface/loading-state.interface';
 
 export { loadingStateSelector } from './selectors/loading-state.selector';
 
