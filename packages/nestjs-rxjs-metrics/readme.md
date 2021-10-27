@@ -2,6 +2,11 @@
 
 NestJS prometheus metrics wrapper for using with RxJS streams.
 
+## TODO
+
+-   Add module `create` unit tests
+-   Finish docs with operator examples
+
 ## Installation
 
 Install additional peer dependencies:
@@ -20,7 +25,7 @@ export const histogramMetrics = { my_histogram_metric_label: 'My histogram metri
 export const summaryMetrics = { my_summary_metric_label: 'My summary metric description' };
 ```
 
--   Create metrics service for NestJS DI, this service should be used in the project:
+-   Create metrics module and service for NestJS DI, this module and service should be used in the project:
 
 ```ts
 import { Inject, Injectable } from '@nestjs/common';
@@ -32,22 +37,23 @@ import type { gaugeMetrics } from './gauge.metrics';
 import type { histogramMetrics } from './histogram.metrics';
 import type { summaryMetrics } from './summary.metrics';
 
+export const [BaseMetricsModule, BaseMetricsService] = NestJSRxJSMetricsModule.create({
+    counterMetrics,
+    gaugeMetrics,
+    histogramMetrics,
+    summaryMetrics,
+    controller: PrometheusController,
+});
+
 @Injectable()
-export class MetricsService extends MetricsServiceMixin<
-    typeof counterMetrics,
-    typeof gaugeMetrics,
-    typeof histogramMetrics,
-    typeof summaryMetrics
->() {
-    constructor(
-        @Inject('COUNTER') counter: typeof counterMetrics,
-        @Inject('GAUGE') gauge: typeof gaugeMetrics,
-        @Inject('HISTOGRAM') histogram: typeof histogramMetrics,
-        @Inject('SUMMARY') summary: typeof summaryMetrics
-    ) {
-        super(counter, gauge, histogram, summary);
-    }
-}
+export class MetricsService extends BaseMetricsService {}
+
+@Module({
+    imports: [BaseMetricsModule],
+    providers: [MetricsService],
+    exports: [MetricsService],
+})
+export class MetricsModule {}
 ```
 
 ## Usage
