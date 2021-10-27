@@ -1,5 +1,4 @@
 import type { MetricConfig } from '../type/metrics-config.type';
-import type { ModuleMetadata } from '@nestjs/common';
 import type { PrometheusOptions } from '@willsoto/nestjs-prometheus';
 
 export interface MetricsModuleOptionsInterface<
@@ -7,8 +6,7 @@ export interface MetricsModuleOptionsInterface<
     G extends MetricConfig,
     H extends MetricConfig,
     S extends MetricConfig
-> extends PrometheusOptions,
-        ModuleMetadata {
+> extends PrometheusOptions {
     counterMetrics: C;
     gaugeMetrics: G;
     histogramMetrics: H;

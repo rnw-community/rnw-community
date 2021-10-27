@@ -1,8 +1,9 @@
 import { Logger } from '@nestjs/common';
 import { of } from 'rxjs';
 
-import { NestJSRxJSMetricsServiceMixin } from './nestjs-rxjs-metrics-service.mixin';
-import { createMetricsRecord } from './util/create-metrics-record.util';
+import { createMetricsRecord } from '../util/create-metrics-record.util';
+
+import { NestJSRxJSMetricsService } from './nestjs-rxjs-metrics.service';
 
 import type { Counter, Gauge, Histogram, Summary } from 'prom-client';
 
@@ -16,12 +17,16 @@ const gaugeRecord = createMetricsRecord<Gauge<string>, typeof gaugeMetrics>('Gau
 const histogramRecord = createMetricsRecord<Histogram<string>, typeof histogramMetrics>('Histogram', histogramMetrics);
 const summaryRecord = createMetricsRecord<Summary<string>, typeof summaryMetrics>('Summary', summaryMetrics);
 
-class NestJSRxJSMetricsService extends NestJSRxJSMetricsServiceMixin<
+class MetricsService extends NestJSRxJSMetricsService<
     typeof counterMetrics,
     typeof gaugeMetrics,
     typeof histogramMetrics,
     typeof summaryMetrics
->() {}
+> {
+    constructor() {
+        super(counterRecord, gaugeRecord, histogramRecord, summaryRecord);
+    }
+}
 
 jest.mock('@willsoto/nestjs-prometheus', () => ({
     getOrCreateMetric: () => ({ inc: jest.fn(), dec: jest.fn(), startTimer: jest.fn() }),
@@ -34,7 +39,7 @@ describe('NestJSRxJSMetricsService', () => {
         await new Promise(resolve => {
             expect.assertions(3);
 
-            const service = new NestJSRxJSMetricsService(counterRecord, gaugeRecord, histogramRecord, summaryRecord);
+            const service = new MetricsService();
 
             const counterSpy = jest.spyOn(counterRecord.my_counter_metric_label, 'inc');
 
@@ -53,7 +58,7 @@ describe('NestJSRxJSMetricsService', () => {
         await new Promise(resolve => {
             expect.assertions(3);
 
-            const service = new NestJSRxJSMetricsService(counterRecord, gaugeRecord, histogramRecord, summaryRecord);
+            const service = new MetricsService();
 
             const gaugeSpy = jest.spyOn(gaugeRecord.my_gauge_metric_label, 'inc');
 
@@ -72,7 +77,7 @@ describe('NestJSRxJSMetricsService', () => {
         await new Promise(resolve => {
             expect.assertions(3);
 
-            const service = new NestJSRxJSMetricsService(counterRecord, gaugeRecord, histogramRecord, summaryRecord);
+            const service = new MetricsService();
 
             const gaugeSpy = jest.spyOn(gaugeRecord.my_gauge_metric_label, 'dec');
 
@@ -90,7 +95,7 @@ describe('NestJSRxJSMetricsService', () => {
         await new Promise(resolve => {
             expect.assertions(1);
 
-            const service = new NestJSRxJSMetricsService(counterRecord, gaugeRecord, histogramRecord, summaryRecord);
+            const service = new MetricsService();
 
             const histogramSpy = jest.spyOn(histogramRecord.my_histogram_metric_label, 'startTimer');
 
@@ -106,7 +111,7 @@ describe('NestJSRxJSMetricsService', () => {
         await new Promise(resolve => {
             expect.assertions(1);
 
-            const service = new NestJSRxJSMetricsService(counterRecord, gaugeRecord, histogramRecord, summaryRecord);
+            const service = new MetricsService();
 
             const endTimerFn = jest.fn();
             jest.spyOn(histogramRecord.my_histogram_metric_label, 'startTimer').mockReturnValue(endTimerFn);
@@ -123,7 +128,7 @@ describe('NestJSRxJSMetricsService', () => {
         await new Promise(resolve => {
             expect.assertions(2);
 
-            const service = new NestJSRxJSMetricsService(counterRecord, gaugeRecord, histogramRecord, summaryRecord);
+            const service = new MetricsService();
 
             const endTimerFn = jest.fn();
             jest.spyOn(histogramRecord.my_histogram_metric_label, 'startTimer').mockReturnValue(endTimerFn);
@@ -135,7 +140,7 @@ describe('NestJSRxJSMetricsService', () => {
                     expect(endTimerFn).not.toHaveBeenCalledWith();
                     expect(loggerErrorSpy).toHaveBeenCalledWith(
                         `Cannot end histogram for metric "my_histogram_metric_label" - It was not started`,
-                        'MetricsService'
+                        'NestJSRxJSMetricsService'
                     );
 
                     resolve(true);
@@ -146,7 +151,7 @@ describe('NestJSRxJSMetricsService', () => {
         await new Promise(resolve => {
             expect.assertions(1);
 
-            const service = new NestJSRxJSMetricsService(counterRecord, gaugeRecord, histogramRecord, summaryRecord);
+            const service = new MetricsService();
 
             const summarySpy = jest.spyOn(summaryRecord.my_summary_metric_label, 'startTimer');
 
@@ -162,7 +167,7 @@ describe('NestJSRxJSMetricsService', () => {
         await new Promise(resolve => {
             expect.assertions(1);
 
-            const service = new NestJSRxJSMetricsService(counterRecord, gaugeRecord, histogramRecord, summaryRecord);
+            const service = new MetricsService();
 
             const endTimerFn = jest.fn();
             jest.spyOn(summaryRecord.my_summary_metric_label, 'startTimer').mockReturnValue(endTimerFn);
@@ -179,7 +184,7 @@ describe('NestJSRxJSMetricsService', () => {
         await new Promise(resolve => {
             expect.assertions(2);
 
-            const service = new NestJSRxJSMetricsService(counterRecord, gaugeRecord, histogramRecord, summaryRecord);
+            const service = new MetricsService();
 
             const endTimerFn = jest.fn();
             jest.spyOn(summaryRecord.my_summary_metric_label, 'startTimer').mockReturnValue(endTimerFn);
@@ -191,7 +196,7 @@ describe('NestJSRxJSMetricsService', () => {
                     expect(endTimerFn).not.toHaveBeenCalledWith();
                     expect(loggerErrorSpy).toHaveBeenCalledWith(
                         `Cannot end summary for metric "my_summary_metric_label" - It was not started`,
-                        'MetricsService'
+                        'NestJSRxJSMetricsService'
                     );
 
                     resolve(true);
