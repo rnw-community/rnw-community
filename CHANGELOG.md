@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.8.0](https://github.com/rnw-community/rnw-community/compare/v0.7.5...v0.8.0) (2021-10-27)
+
+
+### Features
+
+* **nestjs-rxjs-metrics:** added new typed api ([#51](https://github.com/rnw-community/rnw-community/issues/51)) ([51e4cb2](https://github.com/rnw-community/rnw-community/commit/51e4cb2afb7ab1d6efc49d601f45a9f48090b3dc))
+
+
+
+
+
 ## [0.7.4](https://github.com/rnw-community/rnw-community/compare/v0.7.3...v0.7.4) (2021-10-25)
 
 ### Bug Fixes
