@@ -4,7 +4,6 @@ NestJS prometheus metrics wrapper for using with RxJS streams.
 
 ## TODO
 
--   Add module `create` unit tests
 -   Finish docs with operator examples
 
 ## Installation
@@ -19,10 +18,22 @@ Install additional peer dependencies:
 -   Create custom metrics objects for each type of metrics, this is needed for safe TS usage inside the service operators:
 
 ```ts
-export const counterMetrics = { my_counter_metric_label: 'My counter metric description' };
-export const gaugeMetrics = { my_gauge_metric_label: 'My gauge metric description' };
-export const histogramMetrics = { my_histogram_metric_label: 'My histogram metric description' };
-export const summaryMetrics = { my_summary_metric_label: 'My summary metric description' };
+export const counterMetrics = { my_counter_metric: 'My counter metric description' };
+export const gaugeMetrics = { my_gauge_metric: 'My gauge metric description' };
+export const histogramMetrics = { my_histogram_metric: 'My histogram metric description' };
+export const summaryMetrics = { my_summary_metric: 'My summary metric description' };
+```
+
+-   Create custom histogram and summary metrics labels enums, this is needed for safe TS usage inside the service operators:
+
+```ts
+const histogramLabels = {
+    my_histogram_metric: ['my_histogram_metric_label'] as const,
+};
+
+const summaryLabels = {
+    my_summary_metric: ['my_summary_label'] as const,
+};
 ```
 
 -   Create metrics module and service for NestJS DI, this module and service should be used in the project:
@@ -42,6 +53,8 @@ export const [BaseMetricsModule, BaseMetricsService] = NestJSRxJSMetricsModule.c
     gaugeMetrics,
     histogramMetrics,
     summaryMetrics,
+    summaryLabels,
+    histogramLabels,
     controller: PrometheusController,
 });
 
