@@ -9,7 +9,10 @@ import type { EnvType } from './env.type';
 
 /* eslint-disable class-methods-use-this */
 @Injectable()
-export class ApiConfigService<EnvTypes extends Record<string, string>, EnvKeys extends Extract<keyof EnvTypes, string>> {
+export class NestJSTypedConfigService<
+    EnvTypes extends Record<string, string>,
+    EnvKeys extends Extract<keyof EnvTypes, string>
+> {
     private readonly envCache = new Map();
 
     constructor(private readonly config: ConfigService<EnvTypes>) {}
@@ -17,7 +20,7 @@ export class ApiConfigService<EnvTypes extends Record<string, string>, EnvKeys e
     public get<T extends EnvKeys>(envVariable: T): EnvType<EnvTypes, T> {
         if (this.envCache.has(envVariable)) {
             const value = this.envCache.get(envVariable) as EnvType<EnvTypes, T>;
-            Logger.log(`Using env variable "${envVariable}" from cache`, ApiConfigService.name);
+            Logger.debug(`Using env variable "${envVariable}" from cache`, NestJSTypedConfigService.name);
 
             return value;
         }
@@ -32,14 +35,14 @@ export class ApiConfigService<EnvTypes extends Record<string, string>, EnvKeys e
         }
 
         this.envCache.set(envVariable, variableValue);
-        Logger.log(`Using env variable "${envVariable}" = "${variableValue as string}"`, ApiConfigService.name);
+        Logger.debug(`Using env variable "${envVariable}"`, NestJSTypedConfigService.name);
 
         return variableValue as unknown as EnvType<EnvTypes, T>;
     }
 
     private handleFileEnvVariable<T extends EnvKeys>(envVariable: T, filePath?: EnvType<EnvTypes, T>): EnvType<EnvTypes, T> {
         if (isNotEmptyString(filePath)) {
-            Logger.log(`Using env variable "${envVariable}" from file "${filePath}"`, ApiConfigService.name);
+            Logger.debug(`Using env variable "${envVariable}" from file "${filePath}"`, NestJSTypedConfigService.name);
 
             return this.readFileEnvFromFS<T>(envVariable, filePath);
         }
@@ -50,14 +53,14 @@ export class ApiConfigService<EnvTypes extends Record<string, string>, EnvKeys e
     private readFileEnvFromEnvironment<T extends EnvKeys>(envVariable: T): EnvType<EnvTypes, T> {
         const value = process.env[envVariable.replace('_FILE', '')] as EnvType<EnvTypes, T>;
 
-        Logger.log(`Using env variable "${envVariable}" from environment "${value}"`, ApiConfigService.name);
+        Logger.debug(`Using env variable "${envVariable}" from environment "${value}"`, NestJSTypedConfigService.name);
 
         return value;
     }
 
     private readFileEnvFromFS<T extends EnvKeys>(envVariable: T, variableValue: EnvType<EnvTypes, T>): EnvType<EnvTypes, T> {
         if (!existsSync(variableValue as string)) {
-            throw new Error(`Could not read file ${envVariable} - ${variableValue}`);
+            throw new Error(`Could not read file "${envVariable}"`);
         }
 
         return readFileSync(variableValue).toString().trim() as EnvType<EnvTypes, T>;

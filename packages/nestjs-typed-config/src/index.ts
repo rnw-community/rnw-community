@@ -1,1 +1,1 @@
-export * from './api-config.module';
+export * from './nest-js-typed-config.module';
