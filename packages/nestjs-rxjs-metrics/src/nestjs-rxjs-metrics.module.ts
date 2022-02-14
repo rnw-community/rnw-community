@@ -6,6 +6,7 @@ import { NestJSRxJSMetricsService } from './nestjs-rxjs-metrics-service/nestjs-r
 import { createMetricsRecord } from './util/create-metrics-record.util';
 
 import type { MetricsModuleOptionsInterface } from './interface/metrics-module-options.interface';
+import type { LabelsConfig } from './type/labels-config.type';
 import type { MetricConfig as MC } from './type/metrics-config.type';
 import type { DynamicModule, Type } from '@nestjs/common';
 
@@ -15,20 +16,35 @@ export class NestJSRxJSMetricsModule {
      * Create module and strongly typed service class for extension.
      *
      * @param options Metrics configuration object
-     * @return [DynamicModule, Type<NestJSRxJSMetricsService<C, G, H, S>>] Tuple with typed dynamic module and service class for extending
+     * @return [DynamicModule, Type<NestJSRxJSMetricsService<C, G, H, S, SL, HL>>] Tuple with typed dynamic module and service class for extending
      */
-    static create<C extends MC, G extends MC, H extends MC, S extends MC>(
-        options: MetricsModuleOptionsInterface<C, G, H, S>
-    ): [DynamicModule, Type<NestJSRxJSMetricsService<C, G, H, S>>] {
-        const { counterMetrics, gaugeMetrics, histogramMetrics, summaryMetrics, ...nestjsPrometheusOptions } = options;
+    static create<
+        C extends MC,
+        G extends MC,
+        H extends MC,
+        S extends MC,
+        HL extends LabelsConfig<H> = LabelsConfig<H>,
+        SL extends LabelsConfig<S> = LabelsConfig<S>
+    >(
+        options: MetricsModuleOptionsInterface<C, G, H, S, HL, SL>
+    ): [DynamicModule, Type<NestJSRxJSMetricsService<C, G, H, S, HL, SL>>] {
+        const {
+            counterMetrics,
+            gaugeMetrics,
+            histogramMetrics,
+            summaryMetrics,
+            summaryLabels,
+            histogramLabels,
+            ...nestjsPrometheusOptions
+        } = options;
 
-        class MetricsService extends NestJSRxJSMetricsService<C, G, H, S> {
+        class MetricsService extends NestJSRxJSMetricsService<C, G, H, S, HL, SL> {
             constructor() {
                 super(
                     createMetricsRecord('Counter', counterMetrics),
                     createMetricsRecord('Gauge', gaugeMetrics),
-                    createMetricsRecord('Histogram', histogramMetrics),
-                    createMetricsRecord('Summary', summaryMetrics)
+                    createMetricsRecord('Histogram', histogramMetrics, histogramLabels),
+                    createMetricsRecord('Summary', summaryMetrics, summaryLabels)
                 );
             }
         }
