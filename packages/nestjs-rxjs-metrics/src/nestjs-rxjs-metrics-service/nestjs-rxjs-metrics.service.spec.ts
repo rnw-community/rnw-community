@@ -177,8 +177,8 @@ describe('NestJSRxJSMetricsService', () => {
                     service.histogramEnd('my_histogram_metric', { my_histogram_metric_label: 2 })
                 )
                 .subscribe(() => {
-                    expect(histogramSpy).toHaveBeenCalledWith({ my_histogram_label: 1 });
-                    expect(endTimerFn).toHaveBeenCalledWith({ my_histogram_label: 2 });
+                    expect(histogramSpy).toHaveBeenCalledWith({ my_histogram_metric_label: 1 });
+                    expect(endTimerFn).toHaveBeenCalledWith({ my_histogram_metric_label: 2 });
                     resolve(true);
                 });
         }));
