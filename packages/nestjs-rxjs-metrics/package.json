@@ -9,7 +9,7 @@
     "rxjs metrice",
     "rxjs prometheus"
   ],
-  "repository": "https://github.com/rnw-community/rnw-community/tree/master/packages/shared",
+  "repository": "https://github.com/rnw-community/rnw-community/tree/master/packages/nestjs-rxjs-metrics",
   "license": "MIT",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
