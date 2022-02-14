@@ -1,14 +1,15 @@
 {
-  "name": "@rnw-community/nestjs-rxjs-logger",
+  "name": "@rnw-community/nestjs-typed-config",
   "version": "0.8.0",
   "private": false,
-  "description": "NestJS RxJS logger",
+  "description": "NestJS typed config",
   "keywords": [
     "nestjs",
-    "nestjs logger",
-    "rxjs logger"
+    "nestjs config",
+    "nestjs ts config",
+    "nestjs typescript config"
   ],
-  "repository": "https://github.com/rnw-community/rnw-community/tree/master/packages/nestjs-rxjs-logger",
+  "repository": "https://github.com/rnw-community/rnw-community/tree/master/packages/nestjs-typed-config",
   "license": "MIT",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -30,16 +31,22 @@
     "clear": "rm -rf coverage && rm -rf dist && rm -f *.tsbuildinfo",
     "clear:deps": "rm -rf ./node_modules && rm -rf ./dist"
   },
+  "engines": {
+    "node": ">=14.0.0"
+  },
   "gitHead": "b5608910319390f9773a9d42c3cc828e8e8a1d95",
   "dependencies": {
-    "rxjs": "^7.4.0"
+    "@rnw-community/shared": "^0.8.0"
   },
   "devDependencies": {
     "@nestjs/common": "^8.0.6",
-    "@rnw-community/shared": "^0.6.0"
+    "@nestjs/config": "^1.1.7",
+    "@hapi/joi": "^17.1.1",
+    "@types/hapi__joi": "^17.1.7"
   },
   "peerDependencies": {
     "@nestjs/common": "^8.0.6",
-    "@rnw-community/shared": "^0.6.0"
+    "@nestjs/config": "^1.1.7",
+    "@hapi/joi": "^17.1.1"
   }
 }

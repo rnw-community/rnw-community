@@ -11,7 +11,7 @@
     "react native",
     "react-native-web"
   ],
-  "repository": "https://github.com/rnw-community/rnw-community/tree/master/packages/shared",
+  "repository": "https://github.com/rnw-community/rnw-community/tree/master/packages/redux-loadable",
   "license": "MIT",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
