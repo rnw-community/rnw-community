@@ -88,7 +88,7 @@ export enum EnvironmentVariablesEnum {
 
 Value of that environment variable should be a path to the file:
 
-```
+```shell
 echo $POSTGRES_PASSWORD_FILE
 /secrets/postgres_pwd
 ```
