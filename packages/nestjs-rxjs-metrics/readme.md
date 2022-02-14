@@ -72,10 +72,6 @@ export class MetricsModule {}
 This package provides a set of [RxJS](https://rxjs.dev) operators for beautiful usage of prometheus metrics inside the streams.
 Take a look at best practises and other useful docs from official [prometheus documentation](https://prometheus.io/docs/introduction/overview/).
 
-```ts
-
-```
-
 ### Counter
 
 [Counter](https://prometheus.io/docs/concepts/metric_types/#counter) supports next operator:
