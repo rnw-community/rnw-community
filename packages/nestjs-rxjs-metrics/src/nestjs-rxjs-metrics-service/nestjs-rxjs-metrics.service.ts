@@ -4,16 +4,24 @@ import { isDefined } from '@rnw-community/shared';
 
 import { rxjsOperator } from '../util/rxjs-operator.util';
 
-import type { MetricsServiceInterface } from '../interface/metrics-service.interface';
 import type { HistogramRecord } from '../type/histogram-record.type';
+import type { LabelsConfig } from '../type/labels-config.type';
 import type { MetricConfig as MC } from '../type/metrics-config.type';
 import type { SummaryRecord } from '../type/summary-record.type';
-import type { Counter, Gauge, Histogram, Summary } from 'prom-client';
+import type { Counter, Gauge, Histogram, LabelValues, Summary } from 'prom-client';
 import type { MonoTypeOperatorFunction } from 'rxjs';
 
-export class NestJSRxJSMetricsService<C extends MC, G extends MC, H extends MC, S extends MC>
-    implements MetricsServiceInterface<C, G, H, S>
-{
+type ValuesOf<T extends readonly string[]> = T[number];
+
+// TODO: Should we add runtime checks for the labels passed? We have TS support right now
+export class NestJSRxJSMetricsService<
+    C extends MC,
+    G extends MC,
+    H extends MC,
+    S extends MC,
+    HL extends LabelsConfig<H> = LabelsConfig<H>,
+    SL extends LabelsConfig<S> = LabelsConfig<S>
+> {
     protected readonly startedHistogramMetrics: HistogramRecord<H>;
     protected readonly startedSummaryMetrics: SummaryRecord<S>;
 
@@ -24,11 +32,11 @@ export class NestJSRxJSMetricsService<C extends MC, G extends MC, H extends MC, 
         protected readonly summaryMetrics: Record<keyof S, Summary<string>>
     ) {
         this.startedHistogramMetrics = Object.fromEntries(
-            Object.entries(this.histogramMetrics).map(([key]) => [key, undefined])
-        ) as HistogramRecord<H>;
+            Object.entries(this.histogramMetrics).map(([key]) => [key, []])
+        ) as unknown as HistogramRecord<H>;
         this.startedSummaryMetrics = Object.fromEntries(
-            Object.entries(this.summaryMetrics).map(([key]) => [key, undefined])
-        ) as SummaryRecord<S>;
+            Object.entries(this.summaryMetrics).map(([key]) => [key, []])
+        ) as unknown as SummaryRecord<S>;
     }
 
     counter<T>(metric: keyof C, value = 1): MonoTypeOperatorFunction<T> {
@@ -51,20 +59,18 @@ export class NestJSRxJSMetricsService<C extends MC, G extends MC, H extends MC, 
         return this.gauge(metric, gauge => void gauge.dec(value));
     }
 
-    histogramStart<T>(metric: keyof H): MonoTypeOperatorFunction<T> {
+    histogramStart<T>(metric: keyof H, labels?: LabelValues<ValuesOf<HL[keyof H]>>): MonoTypeOperatorFunction<T> {
         return rxjsOperator(() => {
-            this.startedHistogramMetrics[metric] = this.histogramMetrics[metric].startTimer();
+            this.startedHistogramMetrics[metric].push(this.histogramMetrics[metric].startTimer(labels));
         });
     }
 
-    histogramEnd<T>(metric: keyof H): MonoTypeOperatorFunction<T> {
+    histogramEnd<T>(metric: keyof H, labels?: LabelValues<ValuesOf<HL[keyof H]>>): MonoTypeOperatorFunction<T> {
         return rxjsOperator(() => {
-            const metricEndFn = this.startedHistogramMetrics[metric];
+            const metricEndFn = this.startedHistogramMetrics[metric].pop();
 
             if (isDefined(metricEndFn)) {
-                metricEndFn?.();
-
-                this.startedHistogramMetrics[metric] = undefined;
+                metricEndFn(labels);
             } else {
                 Logger.error(
                     `Cannot end histogram for metric "${metric as string}" - It was not started`,
@@ -74,20 +80,18 @@ export class NestJSRxJSMetricsService<C extends MC, G extends MC, H extends MC, 
         });
     }
 
-    summaryStart<T>(metric: keyof S): MonoTypeOperatorFunction<T> {
+    summaryStart<T>(metric: keyof S, labels?: LabelValues<ValuesOf<SL[keyof S]>>): MonoTypeOperatorFunction<T> {
         return rxjsOperator(() => {
-            this.startedSummaryMetrics[metric] = this.summaryMetrics[metric].startTimer();
+            this.startedSummaryMetrics[metric].push(this.summaryMetrics[metric].startTimer(labels));
         });
     }
 
-    summaryEnd<T>(metric: keyof S): MonoTypeOperatorFunction<T> {
+    summaryEnd<T>(metric: keyof S, labels?: LabelValues<ValuesOf<SL[keyof S]>>): MonoTypeOperatorFunction<T> {
         return rxjsOperator(() => {
-            const metricEndFn = this.startedSummaryMetrics[metric];
+            const metricEndFn = this.startedSummaryMetrics[metric].pop();
 
             if (isDefined(metricEndFn)) {
-                metricEndFn?.();
-
-                this.startedSummaryMetrics[metric] = undefined;
+                metricEndFn(labels);
             } else {
                 Logger.error(
                     `Cannot end summary for metric "${metric as string}" - It was not started`,
