@@ -10,7 +10,7 @@ import type Joi from 'joi';
 @Module({})
 export class NestJSTypedConfigModule {
     // eslint-disable-next-line @typescript-eslint/ban-types
-    static create<Enum extends string, C extends Record<Enum, string>>(
+    static create<Enum extends string, C extends Record<Enum, boolean | number | string>>(
         validationSchema: Joi.ObjectSchema<C>
     ): [DynamicModule, Type<NestJSTypedConfigService<Enum, C, Extract<keyof C, string>>>] {
         class Service extends NestJSTypedConfigService<Enum, C, Extract<keyof C, string>> {}

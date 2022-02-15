@@ -11,7 +11,7 @@ import type { EnvType } from './env.type';
 @Injectable()
 export class NestJSTypedConfigService<
     EnvEnum extends string,
-    EnvTypes extends Record<EnvEnum, string>,
+    EnvTypes extends Record<EnvEnum, boolean | number | string>,
     EnvKeys extends Extract<keyof EnvTypes, string> = Extract<keyof EnvTypes, string>
 > {
     private readonly envCache = new Map();
@@ -55,7 +55,10 @@ export class NestJSTypedConfigService<
         /* eslint-disable @typescript-eslint/non-nullable-type-assertion-style */
         const value = this.config.get(envVariable.replace('_FILE', '') as T) as EnvType<EnvTypes, T>;
 
-        Logger.debug(`Using env variable "${envVariable}" from environment "${value}"`, NestJSTypedConfigService.name);
+        Logger.debug(
+            `Using env variable "${envVariable}" from environment "${value as string}"`,
+            NestJSTypedConfigService.name
+        );
 
         return value;
     }
@@ -65,6 +68,8 @@ export class NestJSTypedConfigService<
             throw new Error(`Could not read file "${envVariable}"`);
         }
 
-        return readFileSync(variableValue).toString().trim() as EnvType<EnvTypes, T>;
+        return readFileSync(variableValue as string)
+            .toString()
+            .trim() as EnvType<EnvTypes, T>;
     }
 }
