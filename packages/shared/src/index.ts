@@ -5,7 +5,7 @@ export type { EmptyFn } from './type/empty-fn.type';
 
 export { isDefined } from './type-guard/is-defined/is-defined';
 export { isString } from './type-guard/is-string/is-string';
-export { isEmptyString } from './type-guard/is-empty-string/is-empty-string';
+export { isNotEmptyArray } from './type-guard/is-not-empty-array/is-not-empty-array';
 export { isNotEmptyString } from './type-guard/is-not-empty-string/is-not-empty-string';
 export { isError } from './type-guard/is-error/is-error';
 

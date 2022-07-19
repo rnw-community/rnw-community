@@ -163,3 +163,15 @@ catchError((error: unknown) => [errorAction(getErrorMessage(error))]);
 try {...}
 catch(error: unknown) { console.log(getErrorMessage(error)); }
 ```
+
+### `isNotEmptyArray`
+
+Check if variable is NOT an empty string.
+
+#### Example
+
+```ts
+const notEmptyArray = ['test'];
+
+isNotEmptyArray(notEmptyArray); // returns true and narrows type to array of strings
+```
