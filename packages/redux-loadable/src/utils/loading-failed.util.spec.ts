@@ -10,6 +10,8 @@ describe('loadingFailed', () => {
 
         const state: LoadingStateInterface = {
             ...initialLoadingState,
+            isPristine: false,
+            error: 'Test error',
         };
 
         const failedState = loadingFailed(state, 'error');
