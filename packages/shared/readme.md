@@ -80,7 +80,7 @@ export const Component = ({ onClick = emptyFn }: Props) => <View onClick={onClic
 ### `getErrorMessage`
 
 Get error message text type-safely in catch blocks, or return fallback message. This is needed when
-`error: unknown` is used(this should be used always), fallback message will be returned if `error.message is missing
+`error: unknown` is used(this should be used always), fallback message will be returned if `error.message` is missing
 
 #### Example
 
