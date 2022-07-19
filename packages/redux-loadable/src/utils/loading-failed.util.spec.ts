@@ -10,17 +10,15 @@ describe('loadingFailed', () => {
 
         const state: LoadingStateInterface = {
             ...initialLoadingState,
-            isPristine: false,
-            error: 'Test error',
         };
 
         const failedState = loadingFailed(state, 'error');
 
-        expect(state.isLoading).toBe(false);
+        expect(state.isLoading).toBe(initialLoadingState.isLoading);
         expect(state.isPristine).toBe(false);
         expect(state.error).toBe('error');
 
-        expect(failedState.isLoading).toBe(false);
+        expect(failedState.isLoading).toBe(initialLoadingState.isLoading);
         expect(failedState.isPristine).toBe(false);
         expect(failedState.error).toBe('error');
     });

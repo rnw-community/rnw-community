@@ -10,16 +10,18 @@ describe('loadingReset', () => {
 
         const state: LoadingStateInterface = {
             ...initialLoadingState,
+            isPristine: false,
+            error: 'Test error',
         };
 
         const finishedState = loadingReset(state);
 
-        expect(state.isLoading).toBe(false);
-        expect(state.isPristine).toBe(true);
-        expect(state.error).toBe('');
+        expect(state.isLoading).toBe(initialLoadingState.isLoading);
+        expect(state.isPristine).toBe(initialLoadingState.isPristine);
+        expect(state.error).toBe(initialLoadingState.error);
 
-        expect(finishedState.isLoading).toBe(false);
-        expect(finishedState.isPristine).toBe(true);
-        expect(finishedState.error).toBe('');
+        expect(finishedState.isLoading).toBe(initialLoadingState.isLoading);
+        expect(finishedState.isPristine).toBe(initialLoadingState.isPristine);
+        expect(finishedState.error).toBe(initialLoadingState.error);
     });
 });
