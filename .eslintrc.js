@@ -64,7 +64,7 @@ module.exports = {
             'error',
             {
                 default: {
-                    memberTypes: ['signature', 'protected-field', 'field', 'constructor', 'method'],
+                    memberTypes: ['field', 'constructor', 'get', 'set', 'method'],
                     order: 'alphabetically',
                 },
             },

@@ -14,10 +14,12 @@ export class NestJSTypedConfigService<
     EnvTypes extends Record<EnvEnum, boolean | number | string>,
     EnvKeys extends Extract<keyof EnvTypes, string> = Extract<keyof EnvTypes, string>
 > {
-    constructor(private readonly config: ConfigService<EnvTypes>) {}
-
     private readonly envCache = new Map();
 
+    // eslint-disable-next-line @typescript-eslint/member-ordering
+    constructor(private readonly config: ConfigService<EnvTypes>) {}
+
+    // eslint-disable-next-line @typescript-eslint/member-ordering
     get<T extends EnvKeys>(envVariable: T): EnvType<EnvTypes, T> {
         if (this.envCache.has(envVariable)) {
             const value = this.envCache.get(envVariable) as EnvType<EnvTypes, T>;
