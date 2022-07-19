@@ -32,10 +32,10 @@ module.exports = {
             jsx: true,
         },
         ecmaVersion: 2020,
-        project: ['./packages/*/tsconfig.json', './tsconfig.json'],
+        project: ['./packages/**/tsconfig.json', './tsconfig.json'],
         sourceType: 'module',
     },
-    plugins: ['@typescript-eslint', 'react', 'react-native', 'import', 'jest', 'node', 'promise', 'standard', 'rxjs'],
+    plugins: ['@typescript-eslint', 'react', 'react-native', 'import', 'jest', 'node', 'promise', 'rxjs'],
     rules: {
         '@typescript-eslint/indent': 'off',
         '@typescript-eslint/prefer-readonly-parameter-types': 'off',
@@ -60,6 +60,16 @@ module.exports = {
                 multilineDetection: 'brackets',
             },
         ],
+        '@typescript-eslint/member-ordering': [
+            'error',
+            {
+                default: {
+                    memberTypes: ['signature', 'protected-field', 'field', 'constructor', 'method'],
+                    order: 'alphabetically',
+                },
+            },
+        ],
+        '@typescript-eslint/parameter-properties': 'off',
         '@typescript-eslint/no-type-alias': 'off',
         '@typescript-eslint/no-meaningless-void-operator': 'off',
         '@typescript-eslint/promise-function-async': 'off',
@@ -135,6 +145,7 @@ module.exports = {
         'react-native/no-raw-text': 'off',
         'prefer-named-capture-group': 'off',
         'jest/prefer-lowercase-title': ['error', { ignore: ['describe'] }],
+        'jest/max-expects': 'off',
     },
     overrides: [{ files: '*.d.ts', rules: { 'init-declarations': 'off' } }],
     settings: {

@@ -12,8 +12,8 @@ export interface MetricsModuleOptionsInterface<
 > extends PrometheusOptions {
     counterMetrics: C;
     gaugeMetrics: G;
-    histogramMetrics: H;
-    summaryMetrics: S;
-    summaryLabels?: SL;
     histogramLabels?: HL;
+    histogramMetrics: H;
+    summaryLabels?: SL;
+    summaryMetrics: S;
 }

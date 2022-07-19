@@ -18,9 +18,9 @@ enum EnvironmentVariablesEnum {
 
 interface EnvironmentVariablesInterface {
     [EnvironmentVariablesEnum.ENVIRONMENT_VARIABLE]: string;
-    [EnvironmentVariablesEnum.ENVIRONMENT_VARIABLE_NUMBER]: number;
     [EnvironmentVariablesEnum.ENVIRONMENT_VARIABLE_BOOL]: boolean;
     [EnvironmentVariablesEnum.ENVIRONMENT_VARIABLE_ENUM]: EnvEnum;
+    [EnvironmentVariablesEnum.ENVIRONMENT_VARIABLE_NUMBER]: number;
 }
 
 describe('NestJSTypedConfigModule', () => {
