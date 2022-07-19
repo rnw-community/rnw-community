@@ -15,5 +15,5 @@ export const loadingFinished = <T extends LoadingStateInterface>(state: T): T =>
     state.isLoading = initialLoadingState.isLoading;
     state.error = initialLoadingState.error;
 
-    return state;
+    return { ...state };
 };

@@ -20,6 +20,8 @@ Helper reducer functions that will change loading state.
 
 ### `loadingFailed(state: LoadingStateInterface, error: string)`
 
+### `loadingReset(state: LoadingStateInterface)`
+
 ## LoadingStateInterface
 
 -   `isPristine` - flag showing that slice is in initial state and no requests were made.

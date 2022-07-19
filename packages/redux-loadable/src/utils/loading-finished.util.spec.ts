@@ -14,11 +14,11 @@ describe('loadingFinished', () => {
 
         const finishedState = loadingFinished(state);
 
-        expect(state.isLoading).toBe(false);
+        expect(state.isLoading).toBe(initialLoadingState.isLoading);
         expect(state.isPristine).toBe(false);
         expect(state.error).toBe('');
 
-        expect(finishedState.isLoading).toBe(false);
+        expect(finishedState.isLoading).toBe(initialLoadingState.isLoading);
         expect(finishedState.isPristine).toBe(false);
         expect(finishedState.error).toBe('');
     });
