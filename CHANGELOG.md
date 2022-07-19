@@ -3,6 +3,19 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.11.0](https://github.com/rnw-community/rnw-community/compare/v0.10.1...v0.11.0) (2022-07-19)
+
+
+### Features
+
+* updated dev deps, fixed eslint issues ([#66](https://github.com/rnw-community/rnw-community/issues/66)) ([6482997](https://github.com/rnw-community/rnw-community/commit/64829972b89db0954ac6db21185bc467825e6d84))
+* **redux-loadable:** added loadingReset util, fixed copying state object ([#67](https://github.com/rnw-community/rnw-community/issues/67)) ([75d0fc5](https://github.com/rnw-community/rnw-community/commit/75d0fc5b2d85d5c9948a6f4e0f08fc0cf93f895e))
+* **shared:** added isNotEmptyArray util ([#65](https://github.com/rnw-community/rnw-community/issues/65)) ([ffffa85](https://github.com/rnw-community/rnw-community/commit/ffffa85ed332102062fb7e614c8cb26ecdb0b175))
+
+
+
+
+
 ## [0.10.1](https://github.com/rnw-community/rnw-community/compare/v0.10.0...v0.10.1) (2022-02-15)
 
 

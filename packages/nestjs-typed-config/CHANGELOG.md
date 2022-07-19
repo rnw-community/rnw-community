@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.11.0](https://github.com/rnw-community/rnw-community/tree/master/packages/nestjs-typed-config/compare/v0.10.1...v0.11.0) (2022-07-19)
+
+
+### Features
+
+* updated dev deps, fixed eslint issues ([#66](https://github.com/rnw-community/rnw-community/tree/master/packages/nestjs-typed-config/issues/66)) ([6482997](https://github.com/rnw-community/rnw-community/tree/master/packages/nestjs-typed-config/commit/64829972b89db0954ac6db21185bc467825e6d84))
+
+
+
+
+
 ## [0.10.1](https://github.com/rnw-community/rnw-community/tree/master/packages/nestjs-typed-config/compare/v0.10.0...v0.10.1) (2022-02-15)
 
 
