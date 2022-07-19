@@ -148,7 +148,7 @@ isNotEmptyString(notEmptyString); // returns true and narrows type to string
 
 ### `isNotEmptyArray`
 
-Check if variable is NOT an empty string.
+Check if variable is NOT an empty array.
 
 #### Example
 
