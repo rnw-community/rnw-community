@@ -16,5 +16,5 @@ export const loadingFailed = <T extends LoadingStateInterface>(state: T, errorRe
     state.isLoading = initialLoadingState.isLoading;
     state.error = errorReason;
 
-    return state;
+    return { ...state };
 };
