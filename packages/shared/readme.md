@@ -18,6 +18,7 @@ Generic function type with input type `T` and return type `R`.
 interface Props {
     onSelectIxd?: OnEventFn<number>;
 }
+export { isEmptyString } from './type-guard/is-empty-string/is-empty-string';
 
 export const Component = ({ onClick = emptyFn }: Props) => {
     return <View onClick={() => onClick(Math.random(2))} />;
@@ -77,6 +78,23 @@ interface Props {
 export const Component = ({ onClick = emptyFn }: Props) => <View onClick={onClick} />;
 ```
 
+### `getErrorMessage`
+
+Get error message text type-safely in catch blocks, or return fallback message. This is needed when
+`error: unknown` is used(this should be used always), fallback message will be returned if `error.message` is missing
+
+#### Example
+
+```ts
+// RxJS
+catchError((error: unknown) => [errorAction(getErrorMessage(error, 'fallback message'))]);
+```
+
+```ts
+try {...}
+catch(error: unknown) { console.log(getErrorMessage(error)); }
+```
+
 ## Type guards
 
 Convenient [typescript type guards](https://www.typescriptlang.org/docs/handbook/2/narrowing.html#using-type-predicates) for everyday usage.
@@ -129,6 +147,18 @@ const notEmptyString = 'test';
 isNotEmptyString(notEmptyString); // returns true and narrows type to string
 ```
 
+### `isNotEmptyArray`
+
+Check if variable is NOT an empty array.
+
+#### Example
+
+```ts
+const notEmptyArray = ['test'];
+
+isNotEmptyArray(notEmptyArray); // returns true and narrows type to array of strings
+```
+
 ### `isError`
 
 Check if variable is an Error. Useful for `try/catch` blocks where `error: unknown`.
@@ -145,21 +175,4 @@ export const getErrorText = (err: unknown): string => {
 
     return 'Unknown error';
 };
-```
-
-### `getErrorMessage`
-
-Get error message text type-safely in catch blocks, or return fallback message. This is needed when you when
-`error: unknown` is used(this should be used always)
-
-#### Example
-
-```ts
-// RxJS
-catchError((error: unknown) => [errorAction(getErrorMessage(error))]);
-```
-
-```ts
-try {...}
-catch(error: unknown) { console.log(getErrorMessage(error)); }
 ```
