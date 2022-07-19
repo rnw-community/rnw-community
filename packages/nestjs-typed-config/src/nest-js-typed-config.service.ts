@@ -14,11 +14,10 @@ export class NestJSTypedConfigService<
     EnvTypes extends Record<EnvEnum, boolean | number | string>,
     EnvKeys extends Extract<keyof EnvTypes, string> = Extract<keyof EnvTypes, string>
 > {
-    private readonly envCache = new Map();
-
     constructor(private readonly config: ConfigService<EnvTypes>) {}
 
-    public get<T extends EnvKeys>(envVariable: T): EnvType<EnvTypes, T> {
+    // eslint-disable-next-line @typescript-eslint/member-ordering
+    get<T extends EnvKeys>(envVariable: T): EnvType<EnvTypes, T> {
         if (this.envCache.has(envVariable)) {
             const value = this.envCache.get(envVariable) as EnvType<EnvTypes, T>;
             Logger.debug(`Using env variable "${envVariable}" from cache`, NestJSTypedConfigService.name);
@@ -72,4 +71,6 @@ export class NestJSTypedConfigService<
             .toString()
             .trim() as EnvType<EnvTypes, T>;
     }
+
+    private readonly envCache = new Map();
 }

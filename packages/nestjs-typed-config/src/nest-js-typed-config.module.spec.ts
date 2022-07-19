@@ -11,16 +11,16 @@ enum EnvEnum {
 
 enum EnvironmentVariablesEnum {
     ENVIRONMENT_VARIABLE = 'ENVIRONMENT_VARIABLE',
-    ENVIRONMENT_VARIABLE_NUMBER = 'ENVIRONMENT_VARIABLE_NUMBER',
     ENVIRONMENT_VARIABLE_BOOL = 'ENVIRONMENT_VARIABLE_BOOL',
     ENVIRONMENT_VARIABLE_ENUM = 'ENVIRONMENT_VARIABLE_ENUM',
+    ENVIRONMENT_VARIABLE_NUMBER = 'ENVIRONMENT_VARIABLE_NUMBER',
 }
 
 interface EnvironmentVariablesInterface {
     [EnvironmentVariablesEnum.ENVIRONMENT_VARIABLE]: string;
-    [EnvironmentVariablesEnum.ENVIRONMENT_VARIABLE_NUMBER]: number;
     [EnvironmentVariablesEnum.ENVIRONMENT_VARIABLE_BOOL]: boolean;
     [EnvironmentVariablesEnum.ENVIRONMENT_VARIABLE_ENUM]: EnvEnum;
+    [EnvironmentVariablesEnum.ENVIRONMENT_VARIABLE_NUMBER]: number;
 }
 
 describe('NestJSTypedConfigModule', () => {

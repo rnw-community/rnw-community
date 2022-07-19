@@ -20,6 +20,7 @@ module.exports = {
         'plugin:rxjs/recommended',
         'standard-with-typescript',
         'prettier',
+        'plugin:typescript-sort-keys/recommended',
     ],
     globals: {
         Atomics: 'readonly',
@@ -32,10 +33,20 @@ module.exports = {
             jsx: true,
         },
         ecmaVersion: 2020,
-        project: ['./packages/*/tsconfig.json', './tsconfig.json'],
+        project: ['./packages/**/tsconfig.json', './tsconfig.json'],
         sourceType: 'module',
     },
-    plugins: ['@typescript-eslint', 'react', 'react-native', 'import', 'jest', 'node', 'promise', 'standard', 'rxjs'],
+    plugins: [
+        '@typescript-eslint',
+        'react',
+        'react-native',
+        'import',
+        'jest',
+        'node',
+        'promise',
+        'rxjs',
+        'typescript-sort-keys',
+    ],
     rules: {
         '@typescript-eslint/indent': 'off',
         '@typescript-eslint/prefer-readonly-parameter-types': 'off',
@@ -60,6 +71,141 @@ module.exports = {
                 multilineDetection: 'brackets',
             },
         ],
+        '@typescript-eslint/member-ordering': [
+            'error',
+            {
+                default: {
+                    memberTypes: [
+                        // Index signature
+                        'signature',
+
+                        // Fields
+                        'public-static-field',
+                        'protected-static-field',
+                        'private-static-field',
+
+                        'public-decorated-field',
+                        'protected-decorated-field',
+                        'private-decorated-field',
+
+                        'public-instance-field',
+                        'protected-instance-field',
+                        'private-instance-field',
+
+                        'public-abstract-field',
+                        'protected-abstract-field',
+                        'private-abstract-field',
+
+                        'public-field',
+                        'protected-field',
+                        'private-field',
+
+                        'static-field',
+                        'instance-field',
+                        'abstract-field',
+
+                        'decorated-field',
+
+                        'field',
+
+                        // Constructors
+                        'public-constructor',
+                        'protected-constructor',
+                        'private-constructor',
+
+                        'constructor',
+
+                        // Getters
+                        'public-static-get',
+                        'protected-static-get',
+                        'private-static-get',
+
+                        'public-decorated-get',
+                        'protected-decorated-get',
+                        'private-decorated-get',
+
+                        'public-instance-get',
+                        'protected-instance-get',
+                        'private-instance-get',
+
+                        'public-abstract-get',
+                        'protected-abstract-get',
+                        'private-abstract-get',
+
+                        'public-get',
+                        'protected-get',
+                        'private-get',
+
+                        'static-get',
+                        'instance-get',
+                        'abstract-get',
+
+                        'decorated-get',
+
+                        'get',
+
+                        // Setters
+                        'public-static-set',
+                        'protected-static-set',
+                        'private-static-set',
+
+                        'public-decorated-set',
+                        'protected-decorated-set',
+                        'private-decorated-set',
+
+                        'public-instance-set',
+                        'protected-instance-set',
+                        'private-instance-set',
+
+                        'public-abstract-set',
+                        'protected-abstract-set',
+                        'private-abstract-set',
+
+                        'public-set',
+                        'protected-set',
+                        'private-set',
+
+                        'static-set',
+                        'instance-set',
+                        'abstract-set',
+
+                        'decorated-set',
+
+                        'set',
+
+                        // Methods
+                        'public-static-method',
+                        'protected-static-method',
+                        'private-static-method',
+
+                        'public-decorated-method',
+                        'protected-decorated-method',
+                        'private-decorated-method',
+
+                        'public-instance-method',
+                        'protected-instance-method',
+                        'private-instance-method',
+
+                        'public-abstract-method',
+                        'protected-abstract-method',
+                        'private-abstract-method',
+
+                        'public-method',
+                        'protected-method',
+                        'private-method',
+
+                        'static-method',
+                        'instance-method',
+                        'abstract-method',
+
+                        'decorated-method',
+
+                        'method',
+                    ],
+                },
+            },
+        ],
+        '@typescript-eslint/parameter-properties': 'off',
         '@typescript-eslint/no-type-alias': 'off',
         '@typescript-eslint/no-meaningless-void-operator': 'off',
         '@typescript-eslint/promise-function-async': 'off',
@@ -135,6 +281,7 @@ module.exports = {
         'react-native/no-raw-text': 'off',
         'prefer-named-capture-group': 'off',
         'jest/prefer-lowercase-title': ['error', { ignore: ['describe'] }],
+        'jest/max-expects': 'off',
     },
     overrides: [{ files: '*.d.ts', rules: { 'init-declarations': 'off' } }],
     settings: {

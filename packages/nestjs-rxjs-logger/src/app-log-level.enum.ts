@@ -1,7 +1,7 @@
 export enum AppLogLevelEnum {
+    debug = 'debug',
     error = 'error',
     info = 'info',
-    warn = 'warn',
-    debug = 'debug',
     verbose = 'verbose',
+    warn = 'warn',
 }

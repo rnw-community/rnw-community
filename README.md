@@ -21,3 +21,9 @@ Monorepo for useful NestJS, React Native and React Native Web packages which can
 -   [NestJS RxJS Redis](https://github.com/rnw-community/rnw-community/tree/master/packages/nestjs-rxjs-logger) [![npm version](https://badge.fury.io/js/%40rnw-community%2Fnestjs-rxjs-redis.svg)](https://badge.fury.io/js/%40rnw-community%2Fnestjs-rxjs-redis)
 -   [NestJS RxJS Metrics](https://github.com/rnw-community/rnw-community/tree/master/packages/nestjs-rxjs-metrics) [![npm version](https://badge.fury.io/js/%40rnw-community%2Fnestjs-rxjs-redis.svg)](https://badge.fury.io/js/%40rnw-community%2Fnestjs-rxjs-metrics)
 -   [NestJS Typed Config](https://github.com/rnw-community/rnw-community/tree/master/packages/nestjs-typed-config) [![npm version](https://badge.fury.io/js/%40rnw-community%2Fnestjs-typed-config.svg)](https://badge.fury.io/js/%40rnw-community%2Fnestjs-typed-config)
+
+## TODO
+
+-   Migrate to turborepo
+-   Fix `member-ordering` lint rule and move private/protected fields to top
+-   Fix `Redis` type import lint rule ignore

@@ -52,7 +52,7 @@ describe('NestJSRxJSRedisService', () => {
                 next: emptyFn,
                 error(error: unknown) {
                     expect(get).toHaveBeenCalledWith(redisKey);
-                    expect(getErrorMessage(error)).toStrictEqual(`Error getting ${redisKey} from redis`);
+                    expect(getErrorMessage(error)).toBe(`Error getting ${redisKey} from redis`);
                     resolve(true);
                 },
             });
@@ -68,7 +68,7 @@ describe('NestJSRxJSRedisService', () => {
 
             redis.get$(redisKey).subscribe(emptyFn, (error: unknown) => {
                 expect(get).toHaveBeenCalledWith(redisKey);
-                expect(getErrorMessage(error)).toStrictEqual(`Error getting ${redisKey} from redis`);
+                expect(getErrorMessage(error)).toBe(`Error getting ${redisKey} from redis`);
                 resolve(true);
             });
         }));
@@ -100,7 +100,7 @@ describe('NestJSRxJSRedisService', () => {
                 next: emptyFn,
                 error(error: unknown) {
                     expect(set).toHaveBeenCalledWith(redisKey, redisValue, 'EX', 1);
-                    expect(getErrorMessage(error)).toStrictEqual(`Error setting ${redisKey} to redis`);
+                    expect(getErrorMessage(error)).toBe(`Error setting ${redisKey} to redis`);
                     resolve(true);
                 },
             });
@@ -118,7 +118,7 @@ describe('NestJSRxJSRedisService', () => {
                 next: emptyFn,
                 error(error: unknown) {
                     expect(set).toHaveBeenCalledWith(redisKey, redisValue, 'EX', 1);
-                    expect(getErrorMessage(error)).toStrictEqual(`Error setting ${redisKey} to redis`);
+                    expect(getErrorMessage(error)).toBe(`Error setting ${redisKey} to redis`);
                     resolve(true);
                 },
             });
@@ -151,7 +151,7 @@ describe('NestJSRxJSRedisService', () => {
                 next: emptyFn,
                 error(error: unknown) {
                     expect(del).toHaveBeenCalledWith(redisKey);
-                    expect(getErrorMessage(error)).toStrictEqual(`Error deleting ${redisKey} from redis`);
+                    expect(getErrorMessage(error)).toBe(`Error deleting ${redisKey} from redis`);
                     resolve(true);
                 },
             });
