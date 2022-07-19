@@ -14,9 +14,6 @@ export class NestJSTypedConfigService<
     EnvTypes extends Record<EnvEnum, boolean | number | string>,
     EnvKeys extends Extract<keyof EnvTypes, string> = Extract<keyof EnvTypes, string>
 > {
-    private readonly envCache = new Map();
-
-    // eslint-disable-next-line @typescript-eslint/member-ordering
     constructor(private readonly config: ConfigService<EnvTypes>) {}
 
     // eslint-disable-next-line @typescript-eslint/member-ordering
@@ -74,4 +71,6 @@ export class NestJSTypedConfigService<
             .toString()
             .trim() as EnvType<EnvTypes, T>;
     }
+
+    private readonly envCache = new Map();
 }

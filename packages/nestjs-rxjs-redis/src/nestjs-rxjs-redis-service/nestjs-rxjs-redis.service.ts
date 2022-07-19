@@ -10,9 +10,6 @@ import type { MonoTypeOperatorFunction, Observable, OperatorFunction } from 'rxj
 
 @Injectable()
 export class NestJSRxJSRedisService {
-    private readonly redisClient: Redis;
-
-    // eslint-disable-next-line @typescript-eslint/member-ordering
     constructor(readonly redisService: RedisService) {
         this.redisClient = redisService.getClient();
     }
@@ -190,4 +187,6 @@ export class NestJSRxJSRedisService {
                 })
             );
     }
+
+    private readonly redisClient: Redis;
 }

@@ -1,8 +1,8 @@
 export enum FlexJustifyContentEnum {
-    flexStart = 'flex-start',
-    flexEnd = 'flex-end',
     center = 'center',
-    spaceBetween = 'space-between',
+    flexEnd = 'flex-end',
+    flexStart = 'flex-start',
     spaceAround = 'space-around',
+    spaceBetween = 'space-between',
     spaceEvenly = 'space-evenly',
 }

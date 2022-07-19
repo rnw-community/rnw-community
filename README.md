@@ -25,3 +25,5 @@ Monorepo for useful NestJS, React Native and React Native Web packages which can
 ## TODO
 
 -   Migrate to turborepo
+-   Fix `member-ordering` lint rule and move private/protected fields to top
+-   Fix `Redis` type import lint rule ignore
