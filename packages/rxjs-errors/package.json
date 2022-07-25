@@ -1,0 +1,46 @@
+{
+  "name": "@rnw-community/rxjs-errors",
+  "version": "0.11.0",
+  "private": false,
+  "description": "RxJS errors utils",
+  "keywords": [
+    "rxjs errors",
+    "rxjs"
+  ],
+  "repository": "https://github.com/rnw-community/rnw-community/tree/master/packages/rxjs-errors",
+  "license": "MIT",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist/**/*"
+  ],
+  "sideEffects": "false",
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "ts": "tsc --pretty -p tsconfig.json",
+    "build": "tsc --pretty -p tsconfig.build.json",
+    "lint": "yarn eslint src",
+    "lint:fix": "yarn lint --fix src",
+    "test": "yarn jest",
+    "test:coverage": "yarn jest --coverage",
+    "format": "prettier --write \"./src/**/*.{ts,tsx}\"",
+    "clear": "rm -rf coverage && rm -rf dist && rm -f *.tsbuildinfo",
+    "clear:deps": "rm -rf ./node_modules && rm -rf ./dist"
+  },
+  "gitHead": "b5608910319390f9773a9d42c3cc828e8e8a1d95",
+  "dependencies": {
+    "rxjs": "^7.4.0",
+    "@rnw-community/nestjs-rxjs-logger": "^0.11.0",
+    "@rnw-community/shared": "^0.11.0"
+  },
+  "devDependencies": {
+    "expect-type": "^0.13.0"
+  },
+  "peerDependencies": {
+    "@nestjs/common": "^8.0.6",
+    "@rnw-community/nestjs-rxjs-logger": "^0.11.0",
+    "@rnw-community/shared": "^0.11.0"
+  }
+}
