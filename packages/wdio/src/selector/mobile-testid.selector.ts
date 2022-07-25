@@ -1,7 +1,7 @@
 import { isAndroidCapability } from '../capability';
 
-import { androidTestIdSelector } from './android-testid.selector';
-import { iosTestIdSelector } from './ios-testid.selector';
+import { androidTestIDSelector } from './android-testid.selector';
+import { iosTestIDSelector } from './ios-testid.selector';
 
-export const mobileTestIdSelector = (testID: string): string =>
-    isAndroidCapability() ? androidTestIdSelector(testID) : iosTestIdSelector(testID);
+export const mobileTestIDSelector = (testID: string): string =>
+    isAndroidCapability() ? androidTestIDSelector(testID) : iosTestIDSelector(testID);

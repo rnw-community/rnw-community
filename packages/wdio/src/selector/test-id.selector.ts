@@ -1,7 +1,7 @@
 import { isBrowserCapability } from '../capability';
 
-import { mobileTestIdSelector } from './mobile-testid.selector';
-import { webTestIdSelector } from './web-testid.selector';
+import { mobileTestIDSelector } from './mobile-testid.selector';
+import { webTestIDSelector } from './web-testid.selector';
 
-export const testIdSelector = (testID: string): string =>
-    isBrowserCapability() ? webTestIdSelector(testID) : mobileTestIdSelector(testID);
+export const testIDSelector = (testID: string): string =>
+    isBrowserCapability() ? webTestIDSelector(testID) : mobileTestIDSelector(testID);

@@ -1,4 +1,4 @@
-export const androidTestIdSelector = (testID: string): string => `~${testID}`;
+export const androidTestIDSelector = (testID: string): string => `~${testID}`;
 
 /*
  * TODO: This version is for future
