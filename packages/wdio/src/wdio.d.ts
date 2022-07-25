@@ -1,6 +1,6 @@
-import type { SwipeDirectionType } from './type';
-
 declare namespace WebdriverIO {
+    import type { SwipeDirectionType } from './type';
+
     interface Browser {
         testID$: (testID: string) => Promise<Element>;
         testID$$: (testID: string) => Promise<ElementArray>;
