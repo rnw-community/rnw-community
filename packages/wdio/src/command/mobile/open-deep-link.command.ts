@@ -3,14 +3,12 @@
  *
  * @param {string} url
  */
-import { isAndroidCapability, isBrowserCapability } from '../../capability';
+import { isAndroidCapability, isIOSCapability } from '../../capability';
 
 export const openDeepLinkCommand = async (url: string, prefix: string, packageName: string): Promise<void> => {
     if (isAndroidCapability()) {
         await driver.execute('mobile:deepLink', { url: `${prefix}${url}`, package: packageName });
-    } else if (isBrowserCapability()) {
-        // NOOP
-    } else {
+    } else if (isIOSCapability()) {
         // TODO: Find better IOS implementation
         await driver.execute('mobile: launchApp', { bundleId: 'com.apple.mobilesafari' });
 
