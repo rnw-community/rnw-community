@@ -10,7 +10,7 @@ export const testID$$Index = async (
     const elements = await testID$$(testID, context);
 
     if (index >= elements.length || index < 0) {
-        throw new Error(`Cannot get item by testID ${testID} with index "${index}"`);
+        throw new Error(`Cannot get item by testID "${testID}" with index "${index}"`);
     }
 
     return elements[index];
