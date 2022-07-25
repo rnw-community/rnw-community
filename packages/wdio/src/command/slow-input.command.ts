@@ -5,10 +5,8 @@ export const slowInputCommand = async (
     value: string,
     delay = DEFAULT_INPUT_DELAY
 ): Promise<void> => {
-    for (const char of value.split('')) {
-        // eslint-disable-next-line no-await-in-loop
+    for await (const char of value.split('')) {
         await browser.pause(delay);
-        // eslint-disable-next-line no-await-in-loop
         await el.addValue(char);
     }
 };
