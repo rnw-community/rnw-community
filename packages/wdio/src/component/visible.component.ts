@@ -1,4 +1,4 @@
-// TODO: Remove this when this rul will be fixed
+// TODO: Remove this when this rule will be fixed
 /* eslint-disable @typescript-eslint/member-ordering */
 import { isDefined, isNotEmptyString } from '@rnw-community/shared';
 
