@@ -7,6 +7,7 @@ import {
     testID$$,
     testID$$Index,
 } from './command';
+import { swipeCommand } from './command/swipe.command';
 
 export const addWdioCommands = (): void => {
     // HINT: Browser commands
@@ -40,4 +41,5 @@ export const addWdioCommands = (): void => {
     browser.addCommand('slowInput', slowInputCommand, true);
     browser.addCommand('clearInput', clearInputCommand, true);
     browser.addCommand('relativeClick', relativeClickCommand, true);
+    browser.addCommand('swipe', swipeCommand, true);
 };

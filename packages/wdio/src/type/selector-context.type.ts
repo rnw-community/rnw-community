@@ -1,1 +1,1 @@
-export type SelectorContext = WebdriverIO.Browser | WebdriverIO.Element;
+export type SelectorContextType = WebdriverIO.Browser | WebdriverIO.Element;

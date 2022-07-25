@@ -1,11 +1,11 @@
 import { testID$$ } from './test-ids.command';
 
-import type { SelectorContext } from '../type';
+import type { SelectorContextType } from '../type';
 
 export const testID$$Index = async (
     testID: string,
     index: number,
-    context: SelectorContext = browser
+    context: SelectorContextType = browser
 ): Promise<WebdriverIO.Element> => {
     const elements = await testID$$(testID, context);
 
