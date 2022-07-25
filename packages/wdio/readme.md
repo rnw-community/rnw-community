@@ -6,7 +6,6 @@ WDIO commands and utils.
 
 Install additional peer dependencies:
 
--   [@nestjs/config](https://github.com/nestjs/config)
--   [joi](https://github.com/sideway/joi)
+-   [webdriverio](https://github.com/webdriverio/webdriverio)
 
 ## Usage
