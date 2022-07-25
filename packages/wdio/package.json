@@ -22,7 +22,7 @@
   },
   "scripts": {
     "ts": "tsc --pretty -p tsconfig.json",
-    "prebuild": "cp ./src/wdio.d.ts ./dist/",
+    "postbuild": "cp ./src/wdio.d.ts ./dist/",
     "build": "tsc --pretty -p tsconfig.build.json",
     "lint": "yarn eslint src",
     "lint:fix": "yarn lint --fix src",
