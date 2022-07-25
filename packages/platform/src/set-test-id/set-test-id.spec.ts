@@ -11,7 +11,7 @@ describe('setTestId', () => {
         // @ts-expect-error No other way to redefine platform constants
         // eslint-disable-next-line no-import-assign
         constants.isWeb = true;
-        expect(setTestId('test')).toStrictEqual({ testID: 'test' });
+        expect(setTestId('test')).toStrictEqual({ 'data-test-id': 'test' });
     });
 
     it('should return object with testID and accessibilityLabel on ANDROID platforms', () => {

@@ -7,6 +7,7 @@ import { isAndroidCapability, isIOSCapability } from '../../capability';
 
 export const openDeepLinkCommand = async (url: string, prefix: string, packageName: string): Promise<void> => {
     if (isAndroidCapability()) {
+        // TODO: can we use this browser.capabilities.appPackage ?
         await driver.execute('mobile:deepLink', { url: `${prefix}${url}`, package: packageName });
     } else if (isIOSCapability()) {
         // TODO: Find better IOS implementation

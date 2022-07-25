@@ -1,1 +1,3 @@
-export const webTestIDSelector = (testID: string): string => `[data-test-id="${testID}"]`;
+import { WebSelectorConfig } from '../config';
+
+export const webTestIDSelector = (testID: string): string => `[${WebSelectorConfig}="${testID}"]`;
