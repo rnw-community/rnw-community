@@ -13,6 +13,7 @@ declare namespace WebdriverIO {
 
     interface Element {
         clearInput: () => Promise<void>;
+        relativeClick: (xPercent: number, yPercent: number) => Promise<void>;
         slowInput: (value: string, delay: number) => Promise<void>;
         testID$: (testID: string) => Promise<Element>;
         testID$$: (testID: string) => Promise<ElementArray>;
