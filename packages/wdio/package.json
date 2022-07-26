@@ -1,6 +1,6 @@
 {
   "name": "@rnw-community/wdio",
-  "version": "0.14.1",
+  "version": "0.14.2",
   "private": false,
   "description": "WDIO commands, page objects and utils",
   "keywords": [
@@ -41,8 +41,8 @@
   },
   "devDependencies": {
     "@wdio/types": "^7.20.7",
-    "webdriverio": "^7.20.7",
-    "concat": "^1.0.3"
+    "concat": "^1.0.3",
+    "webdriverio": "^7.20.7"
   },
   "peerDependencies": {
     "webdriverio": "^7.20.7"
