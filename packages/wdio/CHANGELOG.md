@@ -3,6 +3,19 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.14.1](https://github.com/rnw-community/rnw-community/compare/v0.14.0...v0.14.1) (2022-07-26)
+
+
+### Bug Fixes
+
+* **wdio:** added open deep link command to Browser types ([5e5c631](https://github.com/rnw-community/rnw-community/commit/5e5c6313f13d6011d58cb79e9a9e85f1c2a31c8a))
+* **wdio:** fixed commands export ([b3522ad](https://github.com/rnw-community/rnw-community/commit/b3522ade6777b0db8d45f2db2f078400d740648c))
+* **wdio:** fixed slow input command signature ([94adc7f](https://github.com/rnw-community/rnw-community/commit/94adc7fd903ca06109f90b1ff63d78532b177e9e))
+
+
+
+
+
 # [0.14.0](https://github.com/rnw-community/rnw-community/compare/v0.13.0...v0.14.0) (2022-07-26)
 
 
