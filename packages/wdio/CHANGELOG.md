@@ -3,6 +3,22 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.16.0](https://github.com/rnw-community/rnw-community/compare/v0.15.0...v0.16.0) (2022-07-26)
+
+
+### Bug Fixes
+
+* **wdio:** fixed missing global browser object in swipe command ([9893d87](https://github.com/rnw-community/rnw-community/commit/9893d870ae86bb074c044b7e0bd6ee6b8793d8e2))
+
+
+### Features
+
+* **wdio:** added automatic root element search in passed selectors enum ([13c6c38](https://github.com/rnw-community/rnw-community/commit/13c6c3849cb7c7e9939609211c240dbc9a725703))
+
+
+
+
+
 # [0.15.0](https://github.com/rnw-community/rnw-community/compare/v0.14.2...v0.15.0) (2022-07-26)
 
 
