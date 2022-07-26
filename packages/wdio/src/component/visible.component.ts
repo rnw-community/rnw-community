@@ -1,5 +1,3 @@
-// TODO: Remove this when this rule will be fixed
-/* eslint-disable @typescript-eslint/member-ordering */
 import { isDefined, isNotEmptyString } from '@rnw-community/shared';
 
 import { testID$ } from '../command';
@@ -16,8 +14,13 @@ export class VisibleComponent {
         }
     }
 
-    get rootEl(): Promise<WebdriverIO.Element> {
+    get RootEl(): Promise<WebdriverIO.Element> {
         return isDefined(this.constructorEl) ? Promise.resolve(this.constructorEl) : testID$(this.constructorSelector);
+    }
+
+    /** @deprecated Use RootEl getter to follow semantic */
+    get rootEl(): Promise<WebdriverIO.Element> {
+        return this.RootEl;
     }
 
     async isExisting(): Promise<boolean> {
