@@ -7,60 +7,31 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 **Note:** Version bump only for package @rnw-community/shared
 
-
-
-
-
 # [0.11.0](https://github.com/rnw-community/rnw-community/tree/master/packages/shared/compare/v0.10.1...v0.11.0) (2022-07-19)
-
 
 ### Features
 
-* **shared:** added isNotEmptyArray util ([#65](https://github.com/rnw-community/rnw-community/tree/master/packages/shared/issues/65)) ([ffffa85](https://github.com/rnw-community/rnw-community/tree/master/packages/shared/commit/ffffa85ed332102062fb7e614c8cb26ecdb0b175))
-
-
-
-
+-   **shared:** added isNotEmptyArray util ([#65](https://github.com/rnw-community/rnw-community/tree/master/packages/shared/issues/65)) ([ffffa85](https://github.com/rnw-community/rnw-community/tree/master/packages/shared/commit/ffffa85ed332102062fb7e614c8cb26ecdb0b175))
 
 # [0.10.0](https://github.com/rnw-community/rnw-community/tree/master/packages/shared/compare/v0.9.0...v0.10.0) (2022-02-14)
 
 **Note:** Version bump only for package @rnw-community/shared
 
-
-
-
-
 # [0.9.0](https://github.com/rnw-community/rnw-community/tree/master/packages/shared/compare/v0.8.0...v0.9.0) (2022-02-14)
 
 **Note:** Version bump only for package @rnw-community/shared
-
-
-
-
 
 # [0.8.0](https://github.com/rnw-community/rnw-community/tree/master/packages/shared/compare/v0.7.5...v0.8.0) (2021-10-27)
 
 **Note:** Version bump only for package @rnw-community/shared
 
-
-
-
-
 ## [0.7.5](https://github.com/rnw-community/rnw-community/tree/master/packages/shared/compare/v0.7.4...v0.7.5) (2021-10-25)
 
 **Note:** Version bump only for package @rnw-community/shared
 
-
-
-
-
 ## [0.7.2](https://github.com/rnw-community/rnw-community/tree/master/packages/shared/compare/v0.7.1...v0.7.2) (2021-10-25)
 
 **Note:** Version bump only for package @rnw-community/shared
-
-
-
-
 
 ## [0.7.1](https://github.com/rnw-community/rnw-community/tree/master/packages/shared/compare/v0.7.0...v0.7.1) (2021-10-24)
 
