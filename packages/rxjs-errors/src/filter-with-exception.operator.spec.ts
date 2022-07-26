@@ -65,11 +65,13 @@ describe('filterWithException', () => {
         await new Promise(resolve => {
             class CustomError extends Error {}
 
+            const errorCreator = (msg: string): Error => new CustomError(msg);
+
             const wantedErrorText = 'Error';
 
             of('A')
                 .pipe(
-                    filterWithException(() => false, wantedErrorText, CustomError),
+                    filterWithException(() => false, wantedErrorText, errorCreator),
                     catchError((err: unknown) => {
                         expect(err instanceof CustomError).toBe(true);
                         expect(getErrorMessage(err)).toBe(wantedErrorText);
