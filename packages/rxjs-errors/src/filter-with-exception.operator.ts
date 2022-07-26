@@ -8,18 +8,18 @@ import type { OperatorFunction } from 'rxjs';
 export type FilterWithExceptionOperator = <TInput, TOutput extends TInput = TInput>(
     passingCondition: ((val: TInput) => boolean) | ((val: TInput) => val is TOutput),
     errorStringOrMsgFn: string | ((val: TInput) => string),
-    ErrCtor?: new (msg: string) => Error
+    createError?: (msg: string) => Error
 ) => OperatorFunction<TInput, TOutput>;
 
 export const filterWithException: FilterWithExceptionOperator =
-    (passingCondition, errorCodeOrMsgFn, ErrCtor = RxJSFilterError) =>
+    (passingCondition, errorCodeOrMsgFn, createError = (msg: string) => new RxJSFilterError(msg)) =>
     source$ =>
         source$.pipe(
             concatMap(val =>
                 passingCondition(val)
                     ? of(val)
-                    : throwError(
-                          () => new ErrCtor(typeof errorCodeOrMsgFn === 'string' ? errorCodeOrMsgFn : errorCodeOrMsgFn(val))
+                    : throwError(() =>
+                          createError(typeof errorCodeOrMsgFn === 'string' ? errorCodeOrMsgFn : errorCodeOrMsgFn(val))
                       )
             )
         );
