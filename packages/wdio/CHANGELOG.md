@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.17.0](https://github.com/rnw-community/rnw-community/compare/v0.16.0...v0.17.0) (2022-07-26)
+
+
+### Bug Fixes
+
+* **wdio:** fixed rootKey search in selectors enum ([fd8ad5c](https://github.com/rnw-community/rnw-community/commit/fd8ad5c584ea5bc6b873c42177b299c4cc954fda))
+
+
+
+
+
 # [0.16.0](https://github.com/rnw-community/rnw-community/compare/v0.15.0...v0.16.0) (2022-07-26)
 
 
