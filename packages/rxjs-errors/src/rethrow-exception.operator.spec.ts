@@ -6,7 +6,7 @@ import { getErrorMessage } from '@rnw-community/shared';
 import { rethrowException } from './rethrow-exception.operator';
 import { RxJSFilterError } from './rxjs-filter-error';
 
-describe('rethrowExceptionWithLogger', () => {
+describe('rethrowException', () => {
     it('should throw RxJSFilterError and log error message', async () => {
         expect.assertions(4);
 

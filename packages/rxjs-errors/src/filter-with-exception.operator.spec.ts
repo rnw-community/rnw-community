@@ -6,7 +6,7 @@ import { getErrorMessage } from '@rnw-community/shared';
 import { filterWithException } from './filter-with-exception.operator';
 import { RxJSFilterError } from './rxjs-filter-error';
 
-describe('filterWithError', () => {
+describe('filterWithException', () => {
     it('should pass the value forward if condition returns true', async () => {
         expect.assertions(1);
 
