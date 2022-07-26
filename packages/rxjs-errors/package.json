@@ -1,6 +1,6 @@
 {
   "name": "@rnw-community/rxjs-errors",
-  "version": "0.11.0",
+  "version": "0.17.0",
   "private": false,
   "description": "RxJS errors utils",
   "keywords": [
@@ -31,8 +31,8 @@
   },
   "gitHead": "b5608910319390f9773a9d42c3cc828e8e8a1d95",
   "dependencies": {
-    "rxjs": "^7.4.0",
-    "@rnw-community/shared": "^0.11.0"
+    "@rnw-community/shared": "^0.11.0",
+    "rxjs": "^7.4.0"
   },
   "devDependencies": {
     "expect-type": "^0.13.0"
