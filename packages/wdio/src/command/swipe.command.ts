@@ -1,45 +1,60 @@
 import type { SwipeDirectionType } from '../type';
 
-const ANDROID_SWIPE_OFFSET = -10;
+// eslint-disable-next-line no-magic-numbers
+const ANDROID_SWIPE_OFFSET = browser.isAndroid ? -10 : 0;
 
-export const swipeCommand = async (
+interface Position {
+    x: number;
+    y: number;
+}
+
+const getSwipePositionsByDirection = async (
     element: WebdriverIO.Element,
     direction: SwipeDirectionType,
-    offset = { x: 0, y: 0 }
-): Promise<void> => {
+    offset: Position = { x: 0, y: 0 }
+): Promise<[start: Position, end: Position]> => {
     const elSize = await element.getSize();
     const elPos = await element.getLocation();
-    let swipeStart = { x: 0, y: 0 };
-    let swipeEnd = { x: 0, y: 0 };
 
-    const androidRectFix = browser.isAndroid ? ANDROID_SWIPE_OFFSET : 0;
     switch (direction) {
         case 'left':
-            swipeStart = {
-                x: elPos.x + offset.x + elSize.width + androidRectFix,
-                y: elPos.y + elSize.height / 2 + offset.y,
-            };
-            swipeEnd = { x: elPos.x, y: elPos.y + elSize.height / 2 + offset.y };
-            break;
+            return [
+                {
+                    x: elPos.x + offset.x + elSize.width + ANDROID_SWIPE_OFFSET,
+                    y: elPos.y + elSize.height / 2 + offset.y,
+                },
+                { x: elPos.x, y: elPos.y + elSize.height / 2 + offset.y },
+            ];
 
         case 'right':
-            swipeStart = { x: elPos.x + offset.x, y: elPos.y + elSize.height / 2 + offset.y };
-            swipeEnd = { x: elPos.x + elSize.width + androidRectFix, y: elPos.y + elSize.height / 2 + offset.y };
-            break;
+            return [
+                { x: elPos.x + offset.x, y: elPos.y + elSize.height / 2 + offset.y },
+                { x: elPos.x + elSize.width + ANDROID_SWIPE_OFFSET, y: elPos.y + elSize.height / 2 + offset.y },
+            ];
 
         case 'top':
-            swipeStart = { x: elSize.width / 2 + offset.x, y: elPos.y + offset.y };
-            swipeEnd = { x: elSize.width / 2, y: 50 };
-            break;
+            return [
+                { x: elSize.width / 2 + offset.x, y: elPos.y + offset.y },
+                { x: elSize.width / 2, y: 50 },
+            ];
 
         case 'bottom':
-            swipeStart = { x: elSize.width / 2 + offset.x, y: elPos.y + offset.y };
-            swipeEnd = { x: elSize.width / 2, y: elSize.height + ANDROID_SWIPE_OFFSET };
-            break;
+            return [
+                { x: elSize.width / 2 + offset.x, y: elPos.y + offset.y },
+                { x: elSize.width / 2, y: elSize.height + ANDROID_SWIPE_OFFSET },
+            ];
 
         default:
             throw new Error('Invalid swipe direction');
     }
+};
+
+export const swipeCommand = async (
+    element: WebdriverIO.Element,
+    direction: SwipeDirectionType,
+    offset: Position = { x: 0, y: 0 }
+): Promise<void> => {
+    const [swipeStart, swipeEnd] = await getSwipePositionsByDirection(element, direction, offset);
 
     await browser.touchAction([
         { action: 'press', ...swipeStart },
