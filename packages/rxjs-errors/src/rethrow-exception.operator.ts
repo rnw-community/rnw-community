@@ -1,30 +1,27 @@
 import { catchError, throwError } from 'rxjs';
 
-import { getErrorMessage } from '@rnw-community/shared';
+import { getErrorMessage, isDefined } from '@rnw-community/shared';
 
 import { RxJSFilterError } from './rxjs-filter-error';
 
-import type { MonoTypeOperatorFunction, Observable } from 'rxjs';
+import type { Observable } from 'rxjs';
 
-export type RethrowExceptionWithLoggerOperator = <T>(
+export type RethrowExceptionOperator = <T>(
     errStringOrMessageFn: string | ((err: unknown) => string),
-    logFn$: (logMsg: (err: unknown) => string) => MonoTypeOperatorFunction<T>,
+    logFn?: (msg: string) => void,
     ErrorCtor?: new (msg: string) => Error
 ) => (source$: Observable<T>) => Observable<T>;
 
-export const rethrowException: RethrowExceptionWithLoggerOperator = (
-    errStringOrMessageFn,
-    logFn$,
-    ErrorCtor = RxJSFilterError
-) => {
+export const rethrowException: RethrowExceptionOperator = (errStringOrMessageFn, logFn, ErrorCtor = RxJSFilterError) => {
     const getErrorMessageString = (err: unknown): string =>
         typeof errStringOrMessageFn === 'string' ? errStringOrMessageFn : errStringOrMessageFn(err);
 
     return source$ =>
         source$.pipe(
-            logFn$((err: unknown) => `${getErrorMessageString(err)}: ${getErrorMessage(err)}`),
-            catchError((err: unknown) =>
-                throwError(() => (err instanceof ErrorCtor ? err : new ErrorCtor(getErrorMessageString(err))))
-            )
+            catchError((err: unknown) => {
+                if (isDefined(logFn)) logFn(`${getErrorMessageString(err)}: ${getErrorMessage(err)}`);
+
+                return throwError(() => (err instanceof ErrorCtor ? err : new ErrorCtor(getErrorMessageString(err))));
+            })
         );
 };

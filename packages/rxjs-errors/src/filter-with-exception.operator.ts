@@ -5,13 +5,13 @@ import { RxJSFilterError } from './rxjs-filter-error';
 
 import type { OperatorFunction } from 'rxjs';
 
-export type FilterWithErrorOperator = <TInput, TOutput extends TInput = TInput>(
+export type FilterWithExceptionOperator = <TInput, TOutput extends TInput = TInput>(
     passingCondition: ((val: TInput) => boolean) | ((val: TInput) => val is TOutput),
-    errorCodeOrMsgFn: string | ((val: TInput) => string),
+    errorStringOrMsgFn: string | ((val: TInput) => string),
     ErrCtor?: new (msg: string) => Error
 ) => OperatorFunction<TInput, TOutput>;
 
-export const filterWithError: FilterWithErrorOperator =
+export const filterWithException: FilterWithExceptionOperator =
     (passingCondition, errorCodeOrMsgFn, ErrCtor = RxJSFilterError) =>
     source$ =>
         source$.pipe(

@@ -1,3 +1,3 @@
-export * from './filter-with-error.operator';
-export * from './rethrow-exception-with-logger.operator';
-export * from './rxjs-error';
+export * from './filter-with-exception.operator';
+export * from './rethrow-exception.operator';
+export * from './rxjs-filter-error';

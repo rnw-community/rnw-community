@@ -3,30 +3,8 @@ import { EMPTY, catchError, concatMap, of, throwError } from 'rxjs';
 
 import { getErrorMessage } from '@rnw-community/shared';
 
-import { rethrowException } from './rethrow-exception-with-logger.operator';
+import { rethrowException } from './rethrow-exception.operator';
 import { RxJSFilterError } from './rxjs-filter-error';
-
-import type { MonoTypeOperatorFunction, Observable } from 'rxjs';
-
-const buildLogger = (): {
-    log: <T>(logMsg: (err: unknown) => string) => MonoTypeOperatorFunction<T>;
-    loggedMessages: string[];
-} => ({
-    loggedMessages: [] as string[],
-    // eslint-disable-next-line @typescript-eslint/member-ordering
-    log<T>(logMsg: (err: unknown) => string): MonoTypeOperatorFunction<T> {
-        return (source$: Observable<T>): Observable<T> =>
-            source$.pipe(
-                catchError((error: unknown) => {
-                    const messageText = logMsg(error);
-
-                    this.loggedMessages.push(messageText);
-
-                    return throwError(() => error);
-                })
-            );
-    },
-});
 
 describe('rethrowExceptionWithLogger', () => {
     it('should throw RxJSFilterError and log error message', async () => {
@@ -37,17 +15,17 @@ describe('rethrowExceptionWithLogger', () => {
             const wantedLogPrefix = 'Encountered an error';
             const wantedLogMsg = `${wantedLogPrefix}: ${wantedErrorMsg}`;
 
-            const logger = buildLogger();
+            const logger = jest.fn();
 
             of('A')
                 .pipe(
                     concatMap(() => throwError(() => new Error(wantedErrorMsg))),
-                    rethrowException(wantedLogPrefix, logger.log.bind(logger)),
+                    rethrowException(wantedLogPrefix, logger),
                     catchError((err: unknown) => {
                         expect(getErrorMessage(err)).toBe(wantedLogPrefix);
                         expect(err instanceof RxJSFilterError).toBe(true);
-                        expect(logger.loggedMessages).toHaveLength(1);
-                        expect(logger.loggedMessages[0]).toBe(wantedLogMsg);
+                        expect(logger).toHaveBeenCalledTimes(1);
+                        expect(logger).toHaveBeenCalledWith(wantedLogMsg);
 
                         resolve(true);
 
@@ -62,12 +40,12 @@ describe('rethrowExceptionWithLogger', () => {
         await new Promise(resolve => {
             const wantedErrorMsg = 'wanted error message';
 
-            const logger = buildLogger();
+            const logger = jest.fn();
 
             of('A')
                 .pipe(
                     concatMap(() => throwError(() => new RxJSFilterError(wantedErrorMsg))),
-                    rethrowException('wrong error message', logger.log.bind(logger)),
+                    rethrowException('wrong error message', logger),
                     catchError((err: unknown) => {
                         expect(getErrorMessage(err)).toBe(wantedErrorMsg);
 
@@ -92,12 +70,12 @@ describe('rethrowExceptionWithLogger', () => {
             const wantedErrorMsg = 'error message';
             const wantedLogPrefix = 'Encountered an error';
 
-            const logger = buildLogger();
+            const logger = jest.fn();
 
             of('A')
                 .pipe(
                     concatMap(() => throwError(() => new Error(wantedErrorMsg))),
-                    rethrowException(wantedLogPrefix, logger.log.bind(logger), CustomError),
+                    rethrowException(wantedLogPrefix, logger, CustomError),
                     catchError((err: unknown) => {
                         expect(getErrorMessage(err)).toBe(`CustomError: ${wantedLogPrefix}`);
                         expect(err instanceof CustomError).toBe(true);
@@ -115,14 +93,14 @@ describe('rethrowExceptionWithLogger', () => {
         await new Promise(resolve => {
             const wantedErrorMsg = 'wanted error message';
 
-            const logger = buildLogger();
+            const logger = jest.fn();
 
             class CustomError extends Error {}
 
             of('A')
                 .pipe(
                     concatMap(() => throwError(() => new CustomError(wantedErrorMsg))),
-                    rethrowException('wrong error message', logger.log.bind(logger), CustomError),
+                    rethrowException('wrong error message', logger, CustomError),
                     catchError((err: unknown) => {
                         expect(getErrorMessage(err)).toBe(wantedErrorMsg);
                         expect(err instanceof CustomError).toBe(true);
