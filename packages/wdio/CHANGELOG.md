@@ -3,6 +3,24 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.14.0](https://github.com/rnw-community/rnw-community/compare/v0.13.0...v0.14.0) (2022-07-26)
+
+
+### Bug Fixes
+
+* fixed project config ([6fbeb76](https://github.com/rnw-community/rnw-community/commit/6fbeb763a6b0bfdc53ffd0b8fac26e054d36545d))
+* **wdio:** added defaultTestID arg to setPropTestID ([2ab61ac](https://github.com/rnw-community/rnw-community/commit/2ab61ac5f966f70c25896e3abb28df27cf01f416))
+* **wdio:** made testId field optional to match RN types ([40208cf](https://github.com/rnw-community/rnw-community/commit/40208cf1937ffb5a66ecea8a83ba8f79aed4f671))
+
+
+### Features
+
+* improved page size by removing tsbuildinfo ([a7a7e5a](https://github.com/rnw-community/rnw-community/commit/a7a7e5aad6155681c481825365dba72a2acef831))
+
+
+
+
+
 # [0.13.0](https://github.com/rnw-community/rnw-community/compare/v0.12.1...v0.13.0) (2022-07-26)
 
 
