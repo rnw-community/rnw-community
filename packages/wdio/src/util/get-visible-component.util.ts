@@ -23,11 +23,12 @@ type VisibleComponentWithSelectorsCtor<T extends string> = new (
 export const getVisibleComponent = <T extends string, E = unknown>(selectors: E): VisibleComponentWithSelectorsCtor<T> =>
     // @ts-expect-error We use proxy for dynamic fields
     class extends VisibleComponent {
-        private readonly selectorKeys = Object.keys(selectors) as Array<keyof T>;
-
         constructor(selectorOrElement?: WebdriverIO.Element | string) {
-            // @ts-expect-error We need better types for enums =)
-            const rootSelector = isDefined(selectorOrElement) ? selectorOrElement : (selectors.Root as string);
+            const selectorKeys = Object.keys(selectors) as Array<keyof T>;
+            // @ts-expect-error We need better enum types
+            const selectorRootKey = selectors[selectorKeys.find(key => key === 'Root')] as string;
+
+            const rootSelector = isDefined(selectorOrElement) ? selectorOrElement : selectorRootKey;
 
             if (!isDefined(rootSelector)) {
                 throw new Error('Cannot create VisibleComponent - No Root element selector was passed');
@@ -44,7 +45,7 @@ export const getVisibleComponent = <T extends string, E = unknown>(selectors: E)
                         return Reflect.get(proxyClient, field, receiver);
                     }
 
-                    if (field in proxyClient.selectorKeys) {
+                    if (field in selectorKeys) {
                         if ((field as string).includes('Els')) {
                             // @ts-expect-error We need to fix types of the enum
                             // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
