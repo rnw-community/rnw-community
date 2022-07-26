@@ -5,13 +5,11 @@ import { Platform } from './get-platform.util';
 import type { AndroidTestIDProps, TestIDProps, WebTestIDProps } from '../interface';
 
 /**
- * Get WEB, IOS and Android supported object with `testID` props.
+ * Get WEB, IOS and Android supported object with TestID fields.
  *
- * Method support oped-ended args for test identifiers useful for dynamically
- * generated components.
+ * @param args {...string} Additional TestID modifiers
  *
- * @params {...string} Test identifiers
- * @returns Concatenated Test identifiers using `_` symbol
+ * @return {AndroidTestIDProps | TestIDProps | WebTestIDProps} Object with platform TestID fields
  */
 export const setTestID = (...args: Array<number | string>): AndroidTestIDProps | TestIDProps | WebTestIDProps => {
     const testID = args.join('_');
