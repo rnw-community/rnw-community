@@ -5,4 +5,4 @@ void rimraf.sync('./dist/*.tsbuildinfo');
 
 void concat(['./src/wdio.d.ts', './dist/index.d.ts'], './dist/index.d.ts')
     .then(result => console.log(result))
-    .catch(err => console.error(`Failed generating wdio types`));
+    .catch(() => console.error(`Failed generating wdio types`));
