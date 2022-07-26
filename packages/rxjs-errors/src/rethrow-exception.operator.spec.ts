@@ -6,6 +6,7 @@ import { getErrorMessage } from '@rnw-community/shared';
 import { rethrowException } from './rethrow-exception.operator';
 import { RxJSFilterError } from './rxjs-filter-error';
 
+// eslint-disable-next-line max-lines-per-function
 describe('rethrowException', () => {
     it('should throw RxJSFilterError and log error message', async () => {
         expect.assertions(4);
@@ -90,6 +91,7 @@ describe('rethrowException', () => {
     });
     it('should rethrow the error as is if the caught error is an instance of passed in custom error', async () => {
         expect.assertions(2);
+
         await new Promise(resolve => {
             const wantedErrorMsg = 'wanted error message';
 
@@ -101,6 +103,34 @@ describe('rethrowException', () => {
                 .pipe(
                     concatMap(() => throwError(() => new CustomError(wantedErrorMsg))),
                     rethrowException('wrong error message', logger, CustomError),
+                    catchError((err: unknown) => {
+                        expect(getErrorMessage(err)).toBe(wantedErrorMsg);
+                        expect(err instanceof CustomError).toBe(true);
+
+                        resolve(true);
+
+                        return EMPTY;
+                    })
+                )
+                .subscribe();
+        });
+    });
+    it('should call custom error creator if provided', async () => {
+        expect.assertions(2);
+
+        await new Promise(resolve => {
+            const wantedErrorMsg = 'custom error';
+
+            const logger = jest.fn();
+
+            class CustomError extends Error {}
+
+            const errorCreator = (): Error => new CustomError('custom error');
+
+            of('A')
+                .pipe(
+                    concatMap(() => throwError(() => new Error())),
+                    rethrowException('wrong error message', logger, RxJSFilterError, errorCreator),
                     catchError((err: unknown) => {
                         expect(getErrorMessage(err)).toBe(wantedErrorMsg);
                         expect(err instanceof CustomError).toBe(true);
