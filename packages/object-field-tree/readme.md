@@ -8,10 +8,12 @@ with IDE autocompletion.
 Real world usage examples:
 [@rnw-community/fast-style](https://github.com/rnw-community/rnw-community/tree/master/packages/fast-style)
 
-##Example
+## Example
 
 ### Typescript enum and object usage example
+
 You need to understand how [TS converts enums](https://www.typescriptlang.org/docs/handbook/enums.html) into JS.
+
 ```ts
 import { combine } from '@rnw-community/object-field-tree';
 import { View } from 'react-native';
@@ -44,6 +46,7 @@ console.log(tree.Chemistry.Easy);
 ```
 
 ### Generating components example
+
 With this approach you can create a strictly configurable building framework of Components for your project with very
 easy usage and IDE autocompletion.
 
@@ -57,6 +60,7 @@ enum WidgetHeightEnum {
     'Small' = 'Small',
     'Medium' = 'Medium',
 }
+
 const widgetWidthMap = {
     'Third': WidgetStyles.thrirdWidth,
     'TwoThirds': WidgetStyles.twoThrirdsWidth,
