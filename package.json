@@ -16,7 +16,7 @@
     "cpd": "yarn jscpd packages",
     "format": "lerna run format --parallel",
     "find-deadcode": "ts-prune",
-    "ci": "yarn build && yarn ts && yarn lint && yarn find-deadcode && yarn test:coverage && yarn cpd",
+    "ci": "yarn build && yarn ts && yarn lint && yarn find-deadcode && yarn cpd && yarn test:coverage",
     "clear": "lerna run clear --parallel",
     "deps:clear": "lerna run clear:deps --parallel && yarn deps:clear:root",
     "deps:clear:root": "rm -rf ./node_modules",
@@ -64,6 +64,7 @@
     "prettier": "^2.7.1",
     "reflect-metadata": "^0.1.13",
     "ts-prune": "^0.10.3",
-    "typescript": "^4.7.4"
+    "typescript": "^4.7.4",
+    "caniuse-lite": "^1.0.30001370"
   }
 }
