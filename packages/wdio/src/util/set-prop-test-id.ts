@@ -11,12 +11,14 @@ import type { AndroidTestIDProps, TestIDProps, WebTestIDProps } from '../interfa
  * @see setTestID
  * @see getTestID
  *
+ * @param defaultTestID {string} Default TestID value
  * @param props {AndroidTestIDProps | TestIDProps | WebTestIDProps} Object with TestID fields
  * @param args {...string} Additional TestID modifiers
  *
  * @return {AndroidTestIDProps | TestIDProps | WebTestIDProps} Object with platform TestID fields
  */
 export const setPropTestID = (
+    defaultTestID: string,
     props: AndroidTestIDProps | TestIDProps | WebTestIDProps,
     ...args: Array<number | string>
-): AndroidTestIDProps | TestIDProps | WebTestIDProps => setTestID(getTestID(props), ...args);
+): AndroidTestIDProps | TestIDProps | WebTestIDProps => setTestID(getTestID(props, defaultTestID), ...args);
