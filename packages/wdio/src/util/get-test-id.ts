@@ -14,16 +14,16 @@ const isWebTestIDProps = (props: AndroidTestIDProps | TestIDProps | WebTestIDPro
  *
  * @see setTestID
  *
- * @params {AndroidTestIDProps | TestIDProps | WebTestIDProps} Props object
- * @params {string} Default TestID value
+ * @param props {AndroidTestIDProps | TestIDProps | WebTestIDProps} Props object
+ * @param defaultTestID {string} Default TestID value
  * @returns TestID object field
  */
-export const getTestID = (props: AndroidTestIDProps | TestIDProps | WebTestIDProps, defaultTesID = ''): string => {
+export const getTestID = (props: AndroidTestIDProps | TestIDProps | WebTestIDProps, defaultTestID = ''): string => {
     if (Platform.OS === 'web' && isWebTestIDProps(props)) {
         return props[WebSelectorConfig];
     } else if (isNotEmptyString(props.testID)) {
         return props.testID;
     }
 
-    return defaultTesID;
+    return defaultTestID;
 };
