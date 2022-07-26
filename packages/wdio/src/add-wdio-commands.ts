@@ -9,37 +9,39 @@ import {
 } from './command';
 import { swipeCommand } from './command/swipe.command';
 
-export const addWdioCommands = (): void => {
+import type { SelectorContextType } from './type';
+
+export const addWdioCommands = (context: SelectorContextType): void => {
     // HINT: Browser commands
-    browser.addCommand('testID$', testID$, false);
-    browser.addCommand('testID$$', testID$$, false);
-    browser.addCommand('testID$$Index', testID$$Index, false);
-    browser.addCommand('openDeepLink', openDeepLinkCommand, false);
+    context.addCommand('testID$', testID$, false);
+    context.addCommand('testID$$', testID$$, false);
+    context.addCommand('testID$$Index', testID$$Index, false);
+    context.addCommand('openDeepLink', openDeepLinkCommand, false);
 
     // HINT: Element commands
-    browser.addCommand(
+    context.addCommand(
         'testID$',
         async function TestID$(this: WebdriverIO.Element, testID: string) {
             return await testID$(testID, this);
         },
         true
     );
-    browser.addCommand(
+    context.addCommand(
         'testID$$',
         async function TestID$$(this: WebdriverIO.Element, testID: string) {
             return await testID$$(testID, this);
         },
         true
     );
-    browser.addCommand(
+    context.addCommand(
         'testID$$Index',
         async function TestID$$Index(this: WebdriverIO.Element, testID: string, idx: number) {
             return await testID$$Index(testID, idx, this);
         },
         true
     );
-    browser.addCommand('slowInput', slowInputCommand, true);
-    browser.addCommand('clearInput', clearInputCommand, true);
-    browser.addCommand('relativeClick', relativeClickCommand, true);
-    browser.addCommand('swipe', swipeCommand, true);
+    context.addCommand('slowInput', slowInputCommand, true);
+    context.addCommand('clearInput', clearInputCommand, true);
+    context.addCommand('relativeClick', relativeClickCommand, true);
+    context.addCommand('swipe', swipeCommand, true);
 };

@@ -3,6 +3,52 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.14.2](https://github.com/rnw-community/rnw-community/compare/v0.14.1...v0.14.2) (2022-07-26)
+
+
+### Bug Fixes
+
+* **wdio:** added build command to concat types ([9a4e4ee](https://github.com/rnw-community/rnw-community/commit/9a4e4ee9f8da81ae79de91287c46af5a79218af8))
+* **wdio:** added build command to concat types ([eef0949](https://github.com/rnw-community/rnw-community/commit/eef09491a5e58dbfcd4270c828f59bf51256764b))
+
+
+
+
+
+## [0.14.1](https://github.com/rnw-community/rnw-community/compare/v0.14.0...v0.14.1) (2022-07-26)
+
+
+### Bug Fixes
+
+* **wdio:** added open deep link command to Browser types ([5e5c631](https://github.com/rnw-community/rnw-community/commit/5e5c6313f13d6011d58cb79e9a9e85f1c2a31c8a))
+* **wdio:** fixed commands export ([b3522ad](https://github.com/rnw-community/rnw-community/commit/b3522ade6777b0db8d45f2db2f078400d740648c))
+* **wdio:** fixed slow input command signature ([94adc7f](https://github.com/rnw-community/rnw-community/commit/94adc7fd903ca06109f90b1ff63d78532b177e9e))
+
+
+
+
+
+# [0.14.0](https://github.com/rnw-community/rnw-community/compare/v0.13.0...v0.14.0) (2022-07-26)
+
+
+### Bug Fixes
+
+* fixed project config ([6fbeb76](https://github.com/rnw-community/rnw-community/commit/6fbeb763a6b0bfdc53ffd0b8fac26e054d36545d))
+* **hoverable:** fixed jest config ([c60ff98](https://github.com/rnw-community/rnw-community/commit/c60ff989a36a9830deb853d52a59f50c536fa634))
+* **wdio:** added defaultTestID arg to setPropTestID ([2ab61ac](https://github.com/rnw-community/rnw-community/commit/2ab61ac5f966f70c25896e3abb28df27cf01f416))
+* **wdio:** made testId field optional to match RN types ([40208cf](https://github.com/rnw-community/rnw-community/commit/40208cf1937ffb5a66ecea8a83ba8f79aed4f671))
+
+
+### Features
+
+* added github release option to lerna ([0378e1f](https://github.com/rnw-community/rnw-community/commit/0378e1f2be39c532879124247169bb3748998011))
+* improved page size by removing tsbuildinfo ([a7a7e5a](https://github.com/rnw-community/rnw-community/commit/a7a7e5aad6155681c481825365dba72a2acef831))
+* removed CHANGELOG from jscpd ([cd378c7](https://github.com/rnw-community/rnw-community/commit/cd378c71520523b77926ec6a14bd17c3e905235a))
+
+
+
+
+
 # [0.13.0](https://github.com/rnw-community/rnw-community/compare/v0.12.1...v0.13.0) (2022-07-26)
 
 

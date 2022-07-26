@@ -1,6 +1,6 @@
 {
   "name": "@rnw-community/wdio",
-  "version": "0.13.0",
+  "version": "0.14.2",
   "private": false,
   "description": "WDIO commands, page objects and utils",
   "keywords": [
@@ -23,7 +23,7 @@
   "scripts": {
     "ts": "tsc --pretty -p tsconfig.json",
     "build": "tsc --pretty -p tsconfig.build.json",
-    "postbuild": "cp ./src/wdio.d.ts ./dist/ && rm -rf ./dist/*.tsbuildinfo",
+    "postbuild": "node ./build.js",
     "lint": "yarn eslint src",
     "lint:fix": "yarn lint --fix src",
     "test": "yarn jest",
@@ -41,6 +41,7 @@
   },
   "devDependencies": {
     "@wdio/types": "^7.20.7",
+    "concat": "^1.0.3",
     "webdriverio": "^7.20.7"
   },
   "peerDependencies": {
