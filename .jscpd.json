@@ -10,7 +10,8 @@
         "**/__snapshots__/**",
         "**/__coverage__/**",
         "**/coverage/**",
-        "**/node_modules/**"
+        "**/node_modules/**",
+        "**/CHANGELOG.md"
     ],
     "absolute": true,
     "gitignore": true,
