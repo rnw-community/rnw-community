@@ -1,6 +1,6 @@
 {
   "name": "@rnw-community/redux-loadable",
-  "version": "0.12.0",
+  "version": "0.12.1",
   "private": false,
   "description": "Redux loading state slice",
   "keywords": [
