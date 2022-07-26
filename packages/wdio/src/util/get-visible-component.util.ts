@@ -1,3 +1,5 @@
+import { isDefined } from '@rnw-community/shared';
+
 import { VisibleComponent } from '../component';
 
 // TODO: Improve typings with Enum, improve ts errors?
@@ -15,7 +17,7 @@ type VisibleComponentWithSelectors<T extends string> = VisibleComponent & {
 } & { [TKey in SelectorMethods<T, 'Els'>]: Promise<WebdriverIO.ElementArray> };
 
 type VisibleComponentWithSelectorsCtor<T extends string> = new (
-    selectorOrElement: WebdriverIO.Element | string
+    selectorOrElement?: WebdriverIO.Element | string
 ) => VisibleComponentWithSelectors<T>;
 
 export const getVisibleComponent = <T extends string, E = unknown>(selectors: E): VisibleComponentWithSelectorsCtor<T> =>
@@ -23,8 +25,15 @@ export const getVisibleComponent = <T extends string, E = unknown>(selectors: E)
     class extends VisibleComponent {
         private readonly selectorKeys = Object.keys(selectors) as Array<keyof T>;
 
-        constructor(selectorOrElement: WebdriverIO.Element | string) {
-            super(selectorOrElement);
+        constructor(selectorOrElement?: WebdriverIO.Element | string) {
+            // @ts-expect-error We need better types for enums =)
+            const rootSelector = isDefined(selectorOrElement) ? selectorOrElement : (selectors.Root as string);
+
+            if (!isDefined(rootSelector)) {
+                throw new Error('Cannot create VisibleComponent - No Root element selector was passed');
+            }
+
+            super(rootSelector);
 
             // eslint-disable-next-line no-constructor-return
             return new Proxy(this, {
