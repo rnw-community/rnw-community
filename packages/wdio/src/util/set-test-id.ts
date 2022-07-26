@@ -14,13 +14,13 @@ import type { AndroidTestIDProps, TestIDProps, WebTestIDProps } from '../interfa
  * @returns Concatenated Test identifiers using `_` symbol
  */
 export const setTestID = (...args: Array<number | string>): AndroidTestIDProps | TestIDProps | WebTestIDProps => {
-    const id = args.join('_');
+    const testID = args.join('_');
 
     if (Platform.OS === 'web') {
-        return { [WebSelectorConfig]: id };
+        return { [WebSelectorConfig]: testID, testID };
     } else if (Platform.OS === 'ios') {
-        return { testID: id };
+        return { testID };
     }
 
-    return { accessibilityLabel: id, testID: id };
+    return { accessibilityLabel: testID, testID };
 };
