@@ -22,8 +22,8 @@
   },
   "scripts": {
     "ts": "tsc --pretty -p tsconfig.json",
-    "postbuild": "cp ./src/wdio.d.ts ./dist/",
     "build": "tsc --pretty -p tsconfig.build.json",
+    "postbuild": "cp ./src/wdio.d.ts ./dist/ && rm -rf ./dist/*.tsbuildinfo",
     "lint": "yarn eslint src",
     "lint:fix": "yarn lint --fix src",
     "test": "yarn jest",
