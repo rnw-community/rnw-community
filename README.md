@@ -7,7 +7,7 @@ Monorepo for useful NestJS, React Native and React Native Web packages which can
 [![DeepScan grade](https://deepscan.io/api/teams/11119/projects/14033/branches/251011/badge/grade.svg)](https://deepscan.io/dashboard#view=project&tid=11119&pid=14033&bid=251011)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com)
 
-> All packages are following industry standard Typescript strict rules and ESLint checks and has maximum test coverage
+> All packages are following industry standard Typescript strict rules and ESLint checks and covered with unit tests
 
 ## Packages
 
@@ -21,6 +21,7 @@ Monorepo for useful NestJS, React Native and React Native Web packages which can
 -   [NestJS RxJS Redis](https://github.com/rnw-community/rnw-community/tree/master/packages/nestjs-rxjs-logger) [![npm version](https://badge.fury.io/js/%40rnw-community%2Fnestjs-rxjs-redis.svg)](https://badge.fury.io/js/%40rnw-community%2Fnestjs-rxjs-redis)
 -   [NestJS RxJS Metrics](https://github.com/rnw-community/rnw-community/tree/master/packages/nestjs-rxjs-metrics) [![npm version](https://badge.fury.io/js/%40rnw-community%2Fnestjs-rxjs-redis.svg)](https://badge.fury.io/js/%40rnw-community%2Fnestjs-rxjs-metrics)
 -   [NestJS Typed Config](https://github.com/rnw-community/rnw-community/tree/master/packages/nestjs-typed-config) [![npm version](https://badge.fury.io/js/%40rnw-community%2Fnestjs-typed-config.svg)](https://badge.fury.io/js/%40rnw-community%2Fnestjs-typed-config)
+-   [WDIO](https://github.com/rnw-community/rnw-community/tree/master/packages/wdio) [![npm version](https://badge.fury.io/js/%40rnw-community%2Fnestjs-typed-config.svg)](https://badge.fury.io/js/%40rnw-community%2wdio)
 
 ## TODO
 

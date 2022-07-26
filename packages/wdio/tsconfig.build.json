@@ -1,0 +1,16 @@
+{
+    "extends": "../../tsconfig.build.json",
+    "compilerOptions": {
+        "types": ["node", "webdriverio/async"],
+        "outDir": "./dist"
+    },
+    "include": [
+        "./src",
+        "./src/wdio.d.ts"
+    ],
+    "exclude": [
+        "node_modules",
+        "dist",
+        "**/*.spec.*"
+    ]
+}
