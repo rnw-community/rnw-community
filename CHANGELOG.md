@@ -3,6 +3,22 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.15.0](https://github.com/rnw-community/rnw-community/compare/v0.14.2...v0.15.0) (2022-07-26)
+
+
+### Bug Fixes
+
+* **wdio:** fixed missing global browser object for the commands ([ff704a9](https://github.com/rnw-community/rnw-community/commit/ff704a9e34d83efb7a26aafa93d1a9cd969a3f67))
+
+
+### Features
+
+* **wdio:** added getVisibleComponent util ([0577895](https://github.com/rnw-community/rnw-community/commit/0577895f13ed276c657cc5d403a8827ad8fa6cfb))
+
+
+
+
+
 ## [0.14.2](https://github.com/rnw-community/rnw-community/compare/v0.14.1...v0.14.2) (2022-07-26)
 
 
