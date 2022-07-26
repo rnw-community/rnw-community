@@ -22,6 +22,7 @@ Monorepo for useful NestJS, React Native and React Native Web packages which can
 -   [NestJS RxJS Metrics](https://github.com/rnw-community/rnw-community/tree/master/packages/nestjs-rxjs-metrics) [![npm version](https://badge.fury.io/js/%40rnw-community%2Fnestjs-rxjs-redis.svg)](https://badge.fury.io/js/%40rnw-community%2Fnestjs-rxjs-metrics)
 -   [NestJS Typed Config](https://github.com/rnw-community/rnw-community/tree/master/packages/nestjs-typed-config) [![npm version](https://badge.fury.io/js/%40rnw-community%2Fnestjs-typed-config.svg)](https://badge.fury.io/js/%40rnw-community%2Fnestjs-typed-config)
 -   [WDIO](https://github.com/rnw-community/rnw-community/tree/master/packages/wdio) [![npm version](https://badge.fury.io/js/%40rnw-community%2Fnestjs-typed-config.svg)](https://badge.fury.io/js/%40rnw-community%2wdio)
+-   [RxJS Errors](https://github.com/rnw-community/rnw-community/tree/master/packages/rxjs-errors) [![npm version](https://badge.fury.io/js/%40rnw-community%rxjs-errors.svg)](https://badge.fury.io/js/%40rnw-community%2Frxjs-errors)
 
 ## TODO
 
