@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.17.1](https://github.com/rnw-community/rnw-community/compare/v0.17.0...v0.17.1) (2022-07-26)
+
+
+### Bug Fixes
+
+* **wdio:** added RootEl to VisibleComponent to follow same semantic ([9eb6b1a](https://github.com/rnw-community/rnw-community/commit/9eb6b1a5f396bde3123adb95160d7d1f3fdf3b03))
+
+
+
+
+
 # [0.17.0](https://github.com/rnw-community/rnw-community/compare/v0.16.0...v0.17.0) (2022-07-26)
 
 
