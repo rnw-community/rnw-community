@@ -10,6 +10,7 @@ Utils that help work with errors in rxjs observable's
 
 - [`filterWithException`](#filterwithexception) - works like `filter` from rxjs, but throw an error instead of ignoring the
   value.
+
 - [`rethrowException`](#rethrowexception) - will catch any error in the observable, create a
   new `RxJSFilterError` (or any custom) with custom message and log it with a custom logger function that you can optionally
   pass in. If it catches `RxJSFilterError` (or any custom), it will
