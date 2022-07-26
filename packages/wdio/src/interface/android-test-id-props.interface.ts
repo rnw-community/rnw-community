@@ -1,5 +1,5 @@
-import type { IOSTestIDProps } from './ios-test-id-props.interface';
+import type { TestIDProps } from './test-id-props.interface';
 
-export interface AndroidTestIDProps extends IOSTestIDProps {
+export interface AndroidTestIDProps extends TestIDProps {
     accessibilityLabel: string;
 }

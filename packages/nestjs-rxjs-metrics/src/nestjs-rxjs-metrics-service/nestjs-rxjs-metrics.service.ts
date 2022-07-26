@@ -22,7 +22,9 @@ export class NestJSRxJSMetricsService<
     HL extends LabelsConfig<H> = LabelsConfig<H>,
     SL extends LabelsConfig<S> = LabelsConfig<S>
 > {
-    // eslint-disable-next-line @typescript-eslint/member-ordering
+    protected readonly startedHistogramMetrics: HistogramRecord<H>;
+    protected readonly startedSummaryMetrics: SummaryRecord<S>;
+
     constructor(
         protected readonly counterMetrics: Record<keyof C, Counter<string>>,
         protected readonly gaugeMetrics: Record<keyof G, Gauge<string>>,
@@ -98,7 +100,4 @@ export class NestJSRxJSMetricsService<
             }
         });
     }
-
-    protected readonly startedHistogramMetrics: HistogramRecord<H>;
-    protected readonly startedSummaryMetrics: SummaryRecord<S>;
 }

@@ -4,12 +4,13 @@ import { catchError, concatMap, from, map, of, throwError } from 'rxjs';
 
 import { isDefined } from '@rnw-community/shared';
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import type { Redis } from 'ioredis';
 import type { MonoTypeOperatorFunction, Observable, OperatorFunction } from 'rxjs';
 
 @Injectable()
 export class NestJSRxJSRedisService {
+    private readonly redisClient: Redis;
+
     constructor(readonly redisService: RedisService) {
         this.redisClient = redisService.getClient();
     }
@@ -187,6 +188,4 @@ export class NestJSRxJSRedisService {
                 })
             );
     }
-
-    private readonly redisClient: Redis;
 }

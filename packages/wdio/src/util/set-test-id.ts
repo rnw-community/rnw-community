@@ -2,7 +2,7 @@ import { WebSelectorConfig } from '../config';
 
 import { Platform } from './get-platform.util';
 
-import type { AndroidTestIDProps, IOSTestIDProps, WebTestIDProps } from '../interface';
+import type { AndroidTestIDProps, TestIDProps, WebTestIDProps } from '../interface';
 
 /**
  * Get WEB, IOS and Android supported object with `testID` props.
@@ -13,14 +13,14 @@ import type { AndroidTestIDProps, IOSTestIDProps, WebTestIDProps } from '../inte
  * @params {...string} Test identifiers
  * @returns Concatenated Test identifiers using `_` symbol
  */
-export const setTestID = (...args: Array<number | string>): AndroidTestIDProps | IOSTestIDProps | WebTestIDProps => {
-    const id = args.join('_');
+export const setTestID = (...args: Array<number | string>): AndroidTestIDProps | TestIDProps | WebTestIDProps => {
+    const testID = args.join('_');
 
     if (Platform.OS === 'web') {
-        return { [WebSelectorConfig]: id };
+        return { [WebSelectorConfig]: testID, testID };
     } else if (Platform.OS === 'ios') {
-        return { testID: id };
+        return { testID };
     }
 
-    return { accessibilityLabel: id, testID: id };
+    return { accessibilityLabel: testID, testID };
 };
