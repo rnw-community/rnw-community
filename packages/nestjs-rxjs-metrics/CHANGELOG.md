@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.15.0](https://github.com/rnw-community/rnw-community/compare/v0.14.2...v0.15.0) (2022-07-26)
+
+**Note:** Version bump only for package @rnw-community/nestjs-rxjs-metrics
+
+
+
+
+
 ## [0.14.2](https://github.com/rnw-community/rnw-community/compare/v0.14.1...v0.14.2) (2022-07-26)
 
 **Note:** Version bump only for package @rnw-community/nestjs-rxjs-metrics
