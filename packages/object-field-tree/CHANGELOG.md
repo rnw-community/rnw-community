@@ -5,14 +5,9 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 ## [0.12.1](https://github.com/rnw-community/rnw-community/compare/v0.12.0...v0.12.1) (2022-07-26)
 
-
 ### Bug Fixes
 
-* **wdio:** fixed setTestID typings ([#72](https://github.com/rnw-community/rnw-community/issues/72)) ([ecacd8f](https://github.com/rnw-community/rnw-community/commit/ecacd8f1492fdacab5ae7fa76976b287ca6d52ab))
-
-
-
-
+-   **wdio:** fixed setTestID typings ([#72](https://github.com/rnw-community/rnw-community/issues/72)) ([ecacd8f](https://github.com/rnw-community/rnw-community/commit/ecacd8f1492fdacab5ae7fa76976b287ca6d52ab))
 
 # [0.12.0](https://github.com/rnw-community/rnw-community/tree/master/packages/object-field-tree/compare/v0.11.0...v0.12.0) (2022-07-26)
 

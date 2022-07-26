@@ -1,4 +1,4 @@
-import { isDefined } from '@rnw-community/shared';
+import { isDefined, isNotEmptyString } from '@rnw-community/shared';
 
 import { WebSelectorConfig } from '../config';
 
@@ -15,12 +15,15 @@ const isWebTestIDProps = (props: AndroidTestIDProps | TestIDProps | WebTestIDPro
  * @see setTestID
  *
  * @params {AndroidTestIDProps | TestIDProps | WebTestIDProps} Props object
+ * @params {string} Default TestID value
  * @returns TestID object field
  */
-export const getTestId = (props: AndroidTestIDProps | TestIDProps | WebTestIDProps): string => {
+export const getTestID = (props: AndroidTestIDProps | TestIDProps | WebTestIDProps, defaultTesID = ''): string => {
     if (Platform.OS === 'web' && isWebTestIDProps(props)) {
         return props[WebSelectorConfig];
+    } else if (isNotEmptyString(props.testID)) {
+        return props.testID;
     }
 
-    return props.testID;
+    return defaultTesID;
 };
