@@ -1,15 +1,13 @@
 {
-  "name": "@rnw-community/nestjs-typed-config",
+  "name": "@rnw-community/rxjs-errors",
   "version": "0.17.0",
   "private": false,
-  "description": "NestJS typed config",
+  "description": "RxJS errors utils",
   "keywords": [
-    "nestjs",
-    "nestjs config",
-    "nestjs ts config",
-    "nestjs typescript config"
+    "rxjs error operator",
+    "rxjs error handling"
   ],
-  "repository": "https://github.com/rnw-community/rnw-community/tree/master/packages/nestjs-typed-config",
+  "repository": "https://github.com/rnw-community/rnw-community/tree/master/packages/rxjs-errors",
   "license": "MIT",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -23,7 +21,6 @@
   "scripts": {
     "ts": "tsc --pretty -p tsconfig.json",
     "build": "tsc --pretty -p tsconfig.build.json",
-    "postbuild": "rm -rf ./dist/*.tsbuildinfo",
     "lint": "yarn eslint src",
     "lint:fix": "yarn lint --fix src",
     "test": "yarn jest",
@@ -32,22 +29,12 @@
     "clear": "rm -rf coverage && rm -rf dist && rm -f *.tsbuildinfo",
     "clear:deps": "rm -rf ./node_modules && rm -rf ./dist"
   },
-  "engines": {
-    "node": ">=14.0.0"
-  },
   "gitHead": "b5608910319390f9773a9d42c3cc828e8e8a1d95",
   "dependencies": {
-    "@rnw-community/shared": "^0.8.0"
+    "@rnw-community/shared": "^0.11.0",
+    "rxjs": "^7.4.0"
   },
   "devDependencies": {
-    "@nestjs/common": "^8.0.6",
-    "@nestjs/config": "^1.1.7",
-    "@types/hapi__joi": "^17.1.7",
-    "joi": "^17.1.1"
-  },
-  "peerDependencies": {
-    "@nestjs/common": "^8.0.6",
-    "@nestjs/config": "^1.1.7",
-    "joi": "^17.1.1"
+    "expect-type": "^0.13.0"
   }
 }
