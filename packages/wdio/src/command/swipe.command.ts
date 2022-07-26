@@ -49,12 +49,12 @@ const getSwipePositionsByDirection = async (
     }
 };
 
-export const swipeCommand = async (
-    element: WebdriverIO.Element,
+export const swipeCommand = async function swipeCommand(
+    this: WebdriverIO.Element,
     direction: SwipeDirectionType,
     offset: Position = { x: 0, y: 0 }
-): Promise<void> => {
-    const [swipeStart, swipeEnd] = await getSwipePositionsByDirection(element, direction, offset);
+): Promise<void> {
+    const [swipeStart, swipeEnd] = await getSwipePositionsByDirection(this, direction, offset);
 
     await browser.touchAction([
         { action: 'press', ...swipeStart },

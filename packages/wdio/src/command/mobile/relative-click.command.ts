@@ -1,13 +1,13 @@
 const ONE_HUNDRED_PERCENT = 100;
 
 export const relativeClickCommand = async function relativeClickCommand(
-    element: WebdriverIO.Element,
+    this: WebdriverIO.Element,
     xPercent: number,
     yPercent: number
 ): Promise<void> {
-    const size = await element.getSize();
+    const size = await this.getSize();
 
-    await element.touchAction({
+    await this.touchAction({
         action: 'tap',
         x: (size.width * xPercent) / ONE_HUNDRED_PERCENT,
         y: (size.height * yPercent) / ONE_HUNDRED_PERCENT,
