@@ -6,7 +6,7 @@ import { Platform } from './get-platform.util';
 
 import type { AndroidTestIDProps, TestIDProps, WebTestIDProps } from '../interface';
 
-const isWebTestIDProps = (props: AndroidTestIDProps | TestIDProps | WebTestIDProps): props is WebTestIDProps =>
+const isWebTestIDProps = (props: AndroidTestIDProps | TestIDProps | WebTestIDProps): props is Required<WebTestIDProps> =>
     WebSelectorConfig in props && isDefined(props[WebSelectorConfig]);
 
 /**
