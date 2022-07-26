@@ -1,10 +1,10 @@
-export const clearInputCommand = async (element: WebdriverIO.Element): Promise<void> => {
+export const clearInputCommand = async function clearInputCommand(this: WebdriverIO.Element): Promise<void> {
     // HINT: Not working
-    await element.clearValue();
+    await this.clearValue();
     // HINT: Not working
-    await element.setValue('');
+    await this.setValue('');
 
-    const currentText = await element.getText();
+    const currentText = await this.getText();
 
-    await element.sendKeys(Array(currentText.length).fill('\ue017') as string[]);
+    await this.sendKeys(Array(currentText.length).fill('\ue017') as string[]);
 };
