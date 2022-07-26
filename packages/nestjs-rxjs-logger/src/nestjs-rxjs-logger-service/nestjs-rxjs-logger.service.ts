@@ -16,6 +16,11 @@ type ErrorMessageFn = (error: unknown) => string;
  */
 @Injectable({ scope: Scope.TRANSIENT })
 export class NestJSRxJSLoggerService {
+    /**
+     * Logs context value
+     */
+    protected context = '';
+
     constructor(@Inject('LOGGER') private readonly logger: LoggerService) {}
 
     /**
@@ -189,9 +194,4 @@ export class NestJSRxJSLoggerService {
                 })
             );
     }
-
-    /**
-     * Logs context value
-     */
-    protected context = '';
 }
