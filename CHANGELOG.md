@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.14.2](https://github.com/rnw-community/rnw-community/compare/v0.14.1...v0.14.2) (2022-07-26)
+
+
+### Bug Fixes
+
+* **wdio:** added build command to concat types ([9a4e4ee](https://github.com/rnw-community/rnw-community/commit/9a4e4ee9f8da81ae79de91287c46af5a79218af8))
+* **wdio:** added build command to concat types ([eef0949](https://github.com/rnw-community/rnw-community/commit/eef09491a5e58dbfcd4270c828f59bf51256764b))
+
+
+
+
+
 ## [0.14.1](https://github.com/rnw-community/rnw-community/compare/v0.14.0...v0.14.1) (2022-07-26)
 
 
