@@ -1,6 +1,6 @@
 {
   "name": "@rnw-community/redux-loadable",
-  "version": "0.11.0",
+  "version": "0.13.0",
   "private": false,
   "description": "Redux loading state slice",
   "keywords": [
@@ -25,6 +25,7 @@
   "scripts": {
     "ts": "tsc --pretty -p tsconfig.json",
     "build": "tsc --pretty -p tsconfig.build.json",
+    "postbuild": "rm -rf ./dist/*.tsbuildinfo",
     "lint": "yarn eslint src",
     "lint:fix": "yarn lint --fix src",
     "test": "yarn jest",

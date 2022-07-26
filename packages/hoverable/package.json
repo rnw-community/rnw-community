@@ -1,6 +1,6 @@
 {
   "name": "@rnw-community/hoverable",
-  "version": "0.11.0",
+  "version": "0.13.0",
   "private": false,
   "description": "Hover support for React native elements in React native web",
   "keywords": [
@@ -27,6 +27,7 @@
   "scripts": {
     "ts": "tsc --pretty -p tsconfig.json",
     "build": "tsc --pretty -p tsconfig.build.json",
+    "postbuild": "rm -rf ./dist/*.tsbuildinfo",
     "lint": "yarn eslint src",
     "lint:fix": "yarn lint --fix src",
     "test": "yarn jest",
@@ -36,7 +37,7 @@
     "clear:deps": "rm -rf ./node_modules && rm -rf ./dist"
   },
   "dependencies": {
-    "@rnw-community/shared": "^0.11.0"
+    "@rnw-community/shared": "^0.13.0"
   },
   "devDependencies": {
     "@testing-library/jest-native": "^4.0.1",

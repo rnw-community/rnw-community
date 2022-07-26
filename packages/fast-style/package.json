@@ -1,6 +1,6 @@
 {
   "name": "@rnw-community/fast-style",
-  "version": "0.11.0",
+  "version": "0.13.0",
   "private": false,
   "description": "Fast react native flex and font styling",
   "keywords": [
@@ -23,6 +23,7 @@
   "scripts": {
     "ts": "tsc --pretty -p tsconfig.json",
     "build": "tsc --pretty -p tsconfig.build.json",
+    "postbuild": "rm -rf ./dist/*.tsbuildinfo",
     "lint": "yarn eslint src",
     "lint:fix": "yarn lint --fix src",
     "test": "yarn jest",
@@ -32,7 +33,7 @@
     "clear:deps": "rm -rf ./node_modules && rm -rf ./dist"
   },
   "dependencies": {
-    "@rnw-community/object-field-tree": "^0.11.0"
+    "@rnw-community/object-field-tree": "^0.13.0"
   },
   "devDependencies": {
     "@types/react-native": "^0.64.12",

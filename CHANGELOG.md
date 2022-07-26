@@ -3,62 +3,60 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
-# [0.11.0](https://github.com/rnw-community/rnw-community/compare/v0.10.1...v0.11.0) (2022-07-19)
+# [0.13.0](https://github.com/rnw-community/rnw-community/compare/v0.12.1...v0.13.0) (2022-07-26)
 
 
 ### Features
 
-* updated dev deps, fixed eslint issues ([#66](https://github.com/rnw-community/rnw-community/issues/66)) ([6482997](https://github.com/rnw-community/rnw-community/commit/64829972b89db0954ac6db21185bc467825e6d84))
-* **redux-loadable:** added loadingReset util, fixed copying state object ([#67](https://github.com/rnw-community/rnw-community/issues/67)) ([75d0fc5](https://github.com/rnw-community/rnw-community/commit/75d0fc5b2d85d5c9948a6f4e0f08fc0cf93f895e))
-* **shared:** added isNotEmptyArray util ([#65](https://github.com/rnw-community/rnw-community/issues/65)) ([ffffa85](https://github.com/rnw-community/rnw-community/commit/ffffa85ed332102062fb7e614c8cb26ecdb0b175))
+* **wdio:** added setPropTestID helper for React components ([#73](https://github.com/rnw-community/rnw-community/issues/73)) ([fe07a9a](https://github.com/rnw-community/rnw-community/commit/fe07a9ada0de47f41b48e92e33c41d786fae4cf9))
 
 
 
 
 
-## [0.10.1](https://github.com/rnw-community/rnw-community/compare/v0.10.0...v0.10.1) (2022-02-15)
-
+## [0.12.1](https://github.com/rnw-community/rnw-community/compare/v0.12.0...v0.12.1) (2022-07-26)
 
 ### Bug Fixes
 
-* **nestjs-typed-config:** added support for numbers,booleans,enums values ([9826033](https://github.com/rnw-community/rnw-community/commit/9826033e89674202763a1dadf1f48daead52a16c))
+-   **wdio:** fixed setTestID typings ([#72](https://github.com/rnw-community/rnw-community/issues/72)) ([ecacd8f](https://github.com/rnw-community/rnw-community/commit/ecacd8f1492fdacab5ae7fa76976b287ca6d52ab))
 
+# [0.12.0](https://github.com/rnw-community/rnw-community/compare/v0.11.0...v0.12.0) (2022-07-26)
 
+### Features
 
+-   Added wdio package ([#68](https://github.com/rnw-community/rnw-community/issues/68)) ([da771bb](https://github.com/rnw-community/rnw-community/commit/da771bb3ff73d9b02de6ff8c458dbde334b4b9e9))
 
+# [0.11.0](https://github.com/rnw-community/rnw-community/compare/v0.10.1...v0.11.0) (2022-07-19)
+
+### Features
+
+-   updated dev deps, fixed eslint issues ([#66](https://github.com/rnw-community/rnw-community/issues/66)) ([6482997](https://github.com/rnw-community/rnw-community/commit/64829972b89db0954ac6db21185bc467825e6d84))
+-   **redux-loadable:** added loadingReset util, fixed copying state object ([#67](https://github.com/rnw-community/rnw-community/issues/67)) ([75d0fc5](https://github.com/rnw-community/rnw-community/commit/75d0fc5b2d85d5c9948a6f4e0f08fc0cf93f895e))
+-   **shared:** added isNotEmptyArray util ([#65](https://github.com/rnw-community/rnw-community/issues/65)) ([ffffa85](https://github.com/rnw-community/rnw-community/commit/ffffa85ed332102062fb7e614c8cb26ecdb0b175))
+
+## [0.10.1](https://github.com/rnw-community/rnw-community/compare/v0.10.0...v0.10.1) (2022-02-15)
+
+### Bug Fixes
+
+-   **nestjs-typed-config:** added support for numbers,booleans,enums values ([9826033](https://github.com/rnw-community/rnw-community/commit/9826033e89674202763a1dadf1f48daead52a16c))
 
 # [0.10.0](https://github.com/rnw-community/rnw-community/compare/v0.9.0...v0.10.0) (2022-02-14)
 
-
 ### Features
 
-* **nestjs-typed-config:** new package added ([#57](https://github.com/rnw-community/rnw-community/issues/57)) ([e9450cc](https://github.com/rnw-community/rnw-community/commit/e9450cc69c794121c5c4e2bd6694ec7ec98a7cb1))
-
-
-
-
+-   **nestjs-typed-config:** new package added ([#57](https://github.com/rnw-community/rnw-community/issues/57)) ([e9450cc](https://github.com/rnw-community/rnw-community/commit/e9450cc69c794121c5c4e2bd6694ec7ec98a7cb1))
 
 # [0.9.0](https://github.com/rnw-community/rnw-community/compare/v0.8.0...v0.9.0) (2022-02-14)
 
-
 ### Features
 
-* **nestjs-rxjs-metrics:** added labels support, fixed metrics did not start error ([#56](https://github.com/rnw-community/rnw-community/issues/56)) ([6f1190f](https://github.com/rnw-community/rnw-community/commit/6f1190fde89f1a4d3fc30b8cd62098959a3a96e4))
-
-
-
-
+-   **nestjs-rxjs-metrics:** added labels support, fixed metrics did not start error ([#56](https://github.com/rnw-community/rnw-community/issues/56)) ([6f1190f](https://github.com/rnw-community/rnw-community/commit/6f1190fde89f1a4d3fc30b8cd62098959a3a96e4))
 
 # [0.8.0](https://github.com/rnw-community/rnw-community/compare/v0.7.5...v0.8.0) (2021-10-27)
 
-
 ### Features
 
-* **nestjs-rxjs-metrics:** added new typed api ([#51](https://github.com/rnw-community/rnw-community/issues/51)) ([51e4cb2](https://github.com/rnw-community/rnw-community/commit/51e4cb2afb7ab1d6efc49d601f45a9f48090b3dc))
-
-
-
-
+-   **nestjs-rxjs-metrics:** added new typed api ([#51](https://github.com/rnw-community/rnw-community/issues/51)) ([51e4cb2](https://github.com/rnw-community/rnw-community/commit/51e4cb2afb7ab1d6efc49d601f45a9f48090b3dc))
 
 ## [0.7.4](https://github.com/rnw-community/rnw-community/compare/v0.7.3...v0.7.4) (2021-10-25)
 

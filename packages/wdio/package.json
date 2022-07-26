@@ -1,0 +1,49 @@
+{
+  "name": "@rnw-community/wdio",
+  "version": "0.13.0",
+  "private": false,
+  "description": "WDIO commands, page objects and utils",
+  "keywords": [
+    "wdio",
+    "wdio commands",
+    "wdio selectors",
+    "wdio pageobject"
+  ],
+  "repository": "https://github.com/rnw-community/rnw-community/tree/master/packages/wdio",
+  "license": "MIT",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist/**/*"
+  ],
+  "sideEffects": "false",
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "ts": "tsc --pretty -p tsconfig.json",
+    "build": "tsc --pretty -p tsconfig.build.json",
+    "postbuild": "cp ./src/wdio.d.ts ./dist/ && rm -rf ./dist/*.tsbuildinfo",
+    "lint": "yarn eslint src",
+    "lint:fix": "yarn lint --fix src",
+    "test": "yarn jest",
+    "test:coverage": "yarn jest --coverage",
+    "format": "prettier --write \"./src/**/*.{ts,tsx}\"",
+    "clear": "rm -rf coverage && rm -rf dist && rm -f *.tsbuildinfo",
+    "clear:deps": "rm -rf ./node_modules && rm -rf ./dist"
+  },
+  "engines": {
+    "node": ">=14.0.0"
+  },
+  "gitHead": "b5608910319390f9773a9d42c3cc828e8e8a1d95",
+  "dependencies": {
+    "@rnw-community/shared": "^0.8.0"
+  },
+  "devDependencies": {
+    "@wdio/types": "^7.20.7",
+    "webdriverio": "^7.20.7"
+  },
+  "peerDependencies": {
+    "webdriverio": "^7.20.7"
+  }
+}

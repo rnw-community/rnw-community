@@ -1,6 +1,6 @@
 {
   "name": "@rnw-community/platform",
-  "version": "0.11.0",
+  "version": "0.13.0",
   "private": false,
   "description": "React native web platform utils and helpers",
   "keywords": [
@@ -22,6 +22,9 @@
   "publishConfig": {
     "access": "public"
   },
+  "dependencies": {
+    "@rnw-community/wdio": "^0.13.0"
+  },
   "peerDependencies": {
     "@react-native-community/async-storage": "^1.12.1",
     "react": "^17.0.2",
@@ -37,6 +40,7 @@
   "scripts": {
     "ts": "tsc --pretty -p tsconfig.json",
     "build": "tsc --pretty -p tsconfig.build.json",
+    "postbuild": "rm -rf ./dist/*.tsbuildinfo",
     "lint": "yarn eslint src",
     "lint:fix": "yarn lint --fix src",
     "test": "yarn jest",

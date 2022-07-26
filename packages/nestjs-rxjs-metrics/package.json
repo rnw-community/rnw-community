@@ -1,6 +1,6 @@
 {
   "name": "@rnw-community/nestjs-rxjs-metrics",
-  "version": "0.11.0",
+  "version": "0.13.0",
   "private": false,
   "description": "NestJS RxJS logger",
   "keywords": [
@@ -23,6 +23,7 @@
   "scripts": {
     "ts": "tsc --pretty -p tsconfig.json",
     "build": "tsc --pretty -p tsconfig.build.json",
+    "postbuild": "rm -rf ./dist/*.tsbuildinfo",
     "lint": "yarn eslint src",
     "lint:fix": "yarn lint --fix src",
     "test": "yarn jest",
@@ -36,7 +37,7 @@
   },
   "gitHead": "b5608910319390f9773a9d42c3cc828e8e8a1d95",
   "dependencies": {
-    "@rnw-community/shared": "^0.11.0",
+    "@rnw-community/shared": "^0.13.0",
     "rxjs": "^7.4.0"
   },
   "devDependencies": {
