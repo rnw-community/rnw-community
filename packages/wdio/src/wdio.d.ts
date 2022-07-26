@@ -2,12 +2,14 @@ declare namespace WebdriverIO {
     import type { SwipeDirectionType } from './type';
 
     interface Browser {
+        openDeepLink: (url: string) => Promise<void>;
         testID$: (testID: string) => Promise<Element>;
         testID$$: (testID: string) => Promise<ElementArray>;
         testID$$Index: (testID: string) => Promise<Element>;
     }
 
     interface MultiRemoteBrowser {
+        openDeepLink: (url: string) => Promise<void>;
         testID$: (testID: string) => Promise<Element>;
         testID$$: (testID: string) => Promise<ElementArray>;
         testID$$Index: (testID: string) => Promise<Element>;
