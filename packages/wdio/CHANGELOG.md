@@ -3,6 +3,25 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.20.0](https://github.com/rnw-community/rnw-community/compare/v0.19.1...v0.20.0) (2022-07-27)
+
+
+### Bug Fixes
+
+* **wdio:** fixed return types error ([a2b1606](https://github.com/rnw-community/rnw-community/commit/a2b1606226656aac916c88787cbd2e5dceddf634))
+
+
+### Features
+
+* **wdio:** added additional methods to VisibleComponent and selectors ([3fa81de](https://github.com/rnw-community/rnw-community/commit/3fa81de6c61631259d8587a5438ab6edd8f9039a))
+* **wdio:** added additional methods to VisibleComponent and selectors ([ed28337](https://github.com/rnw-community/rnw-community/commit/ed28337813ff3241a8745aee42b53610d9b1a145))
+* **wdio:** added click method to VisibleComponent for root el click ([a891f9a](https://github.com/rnw-community/rnw-community/commit/a891f9ab3fb6e8008365dee71b2dd0c61344c103))
+* **wdio:** added createVisibleComponent helper to avoid empty classes ([9ce0a92](https://github.com/rnw-community/rnw-community/commit/9ce0a92d5874cfa103a05e30656e53cf9b20a93a))
+
+
+
+
+
 ## [0.19.1](https://github.com/rnw-community/rnw-community/compare/v0.19.0...v0.19.1) (2022-07-27)
 
 
