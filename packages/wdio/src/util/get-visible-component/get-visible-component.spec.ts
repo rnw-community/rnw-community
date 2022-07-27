@@ -20,8 +20,8 @@ const elementMethods = {
     getText: jest.fn(() => Promise.resolve('')),
     isDisplayed: jest.fn(() => Promise.resolve(true)),
     isExisting: jest.fn(() => Promise.resolve(true)),
-    waitForExist: jest.fn(() => Promise.resolve(true)),
-    waitForDisplayed: jest.fn(() => Promise.resolve(true)),
+    waitForExist: jest.fn(() => Promise.resolve(void 0)),
+    waitForDisplayed: jest.fn(() => Promise.resolve(void 0)),
 };
 
 const mockElement = {
@@ -160,7 +160,7 @@ describe('getVisibleComponent', () => {
         const component = new Component();
         const waitForExistChildElSpy = jest.spyOn(component, 'waitForExistsChildEl');
 
-        await expect(component.ButtonWaitForExists).resolves.toBe(true);
+        await expect(component.ButtonWaitForExists).resolves.toBe(void 0);
         expect(waitForExistChildElSpy).toHaveBeenCalledWith(Selectors.Button);
     });
 
@@ -170,7 +170,7 @@ describe('getVisibleComponent', () => {
         const component = new Component();
         const waitForDisplayedChildElSpy = jest.spyOn(component, 'waitForDisplayedChildEl');
 
-        await expect(component.ButtonWaitForDisplayed).resolves.toBe(true);
+        await expect(component.ButtonWaitForDisplayed).resolves.toBe(void 0);
         expect(waitForDisplayedChildElSpy).toHaveBeenCalledWith(Selectors.Button);
     });
 });
