@@ -58,6 +58,10 @@ export class VisibleComponent {
         await (await this.getChildElByIdx(selector, idx, root)).click();
     }
 
+    async setValueChildEl(selector: string, value: string, root = this.RootEl): Promise<void> {
+        await (await this.getChildEl(selector, root)).setValue(value);
+    }
+
     async isDisplayedChildEl(selector: string, root = this.RootEl): Promise<boolean> {
         return await (await this.getChildEl(selector, root)).isDisplayed();
     }
@@ -70,11 +74,19 @@ export class VisibleComponent {
         return await (await this.getChildEl(selector, root)).getText();
     }
 
-    async waitForExistsChildEl(selector: string, root = this.RootEl): Promise<void> {
-        await (await this.getChildEl(selector, root)).waitForExist();
+    async waitForExistsChildEl(
+        selector: string,
+        args: Parameters<WebdriverIO.Element['waitForExist']>,
+        root = this.RootEl
+    ): Promise<void> {
+        await (await this.getChildEl(selector, root)).waitForExist(...args);
     }
 
-    async waitForDisplayedChildEl(selector: string, root = this.RootEl): Promise<void> {
-        await (await this.getChildEl(selector, root)).waitForDisplayed();
+    async waitForDisplayedChildEl(
+        selector: string,
+        args: Parameters<WebdriverIO.Element['waitForDisplayed']>,
+        root = this.RootEl
+    ): Promise<void> {
+        await (await this.getChildEl(selector, root)).waitForDisplayed(...args);
     }
 }
