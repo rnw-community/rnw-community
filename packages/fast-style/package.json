@@ -1,6 +1,6 @@
 {
   "name": "@rnw-community/fast-style",
-  "version": "0.24.1",
+  "version": "0.24.2",
   "private": false,
   "description": "Fast react native flex and font styling",
   "keywords": [
@@ -33,7 +33,7 @@
     "clear:deps": "rm -rf ./node_modules && rm -rf ./dist"
   },
   "dependencies": {
-    "@rnw-community/object-field-tree": "^0.24.1"
+    "@rnw-community/object-field-tree": "^0.24.2"
   },
   "devDependencies": {
     "@types/react-native": "^0.64.12",
