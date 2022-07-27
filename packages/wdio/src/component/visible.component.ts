@@ -2,6 +2,8 @@ import { isDefined, isNotEmptyString } from '@rnw-community/shared';
 
 import { testID$ } from '../command';
 
+import type { SetValueArgs } from '../type';
+
 export class VisibleComponent {
     private readonly constructorEl: WebdriverIO.Element | undefined;
     private readonly constructorSelector: string = '';
@@ -58,8 +60,8 @@ export class VisibleComponent {
         await (await this.getChildElByIdx(selector, idx, root)).click();
     }
 
-    async setValueChildEl(selector: string, value: string, root = this.RootEl): Promise<void> {
-        await (await this.getChildEl(selector, root)).setValue(value);
+    async setValueChildEl(selector: string, args: SetValueArgs, root = this.RootEl): Promise<void> {
+        await (await this.getChildEl(selector, root)).setValue(...args);
     }
 
     async isDisplayedChildEl(selector: string, root = this.RootEl): Promise<boolean> {

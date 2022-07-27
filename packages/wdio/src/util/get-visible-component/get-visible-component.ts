@@ -2,7 +2,14 @@ import { isDefined } from '@rnw-community/shared';
 
 import { VisibleComponent } from '../../component';
 
-import type { VisibleComponentWithSelectorsCtor } from '../../type';
+import type {
+    SelectorObject,
+    SetValueArgs,
+    VisibleComponentWithSelectorsCtor,
+    WaitForDisplayedArgs,
+    WaitForEnabledArgs,
+    WaitForExistArgs,
+} from '../../type';
 
 // TODO: Improve typings with Enum, improve ts errors?
 export const getVisibleComponent = <T extends string, E = unknown>(selectors: E): VisibleComponentWithSelectorsCtor<T> =>
@@ -23,66 +30,72 @@ export const getVisibleComponent = <T extends string, E = unknown>(selectors: E)
 
             // eslint-disable-next-line no-constructor-return
             return new Proxy(this, {
-                // eslint-disable-next-line max-statements
-                get(proxyClient, field: T, receiver) {
-                    if (field in proxyClient) {
+                get(client, field: T, receiver) {
+                    if (field in client) {
                         // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-                        return Reflect.get(proxyClient, field, receiver);
+                        return Reflect.get(client, field, receiver);
                     }
 
                     // TODO: This logic need improvement to avoid false positives
                     const selectorKey = selectorKeys.find(key => field.includes(key));
 
                     if (isDefined(selectorKey)) {
-                        if (field.endsWith('WaitForEnabled')) {
-                            // @ts-expect-error We need to fix types of the enum
-                            // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-                            return (...args) => proxyClient.waitForEnabledChildEl(selectors[selectorKey], args);
-                        } else if (field.endsWith('SetValue')) {
-                            // @ts-expect-error We need to fix types of the enum
-                            // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-                            return (value: string) => proxyClient.setValueChildEl(selectors[selectorKey], value);
-                        } else if (field.endsWith('WaitForDisplayed')) {
-                            // @ts-expect-error We need to fix types of the enum
-                            // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-                            return (...args) => proxyClient.waitForDisplayedChildEl(selectors[selectorKey], args);
-                        } else if (field.endsWith('WaitForExists')) {
-                            // @ts-expect-error We need to fix types of the enum
-                            // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-                            return (...args) => proxyClient.waitForExistsChildEl(selectors[selectorKey], args);
-                        } else if (field.endsWith('ClickByIdx')) {
-                            // @ts-expect-error We need to fix types of the enum
-                            // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-                            return (idx: number) => proxyClient.clickByIdxChildEl(selectors[selectorKey], idx);
-                        } else if (field.endsWith('Click')) {
-                            // @ts-expect-error We need to fix types of the enum
-                            // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-                            return proxyClient.clickChildEl(selectors[selectorKey]);
-                        } else if (field.endsWith('Text')) {
-                            // @ts-expect-error We need to fix types of the enum
-                            // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-                            return proxyClient.getTextChildEl(selectors[selectorKey]);
-                        } else if (field.endsWith('IsDisplayed')) {
-                            // @ts-expect-error We need to fix types of the enum
-                            // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-                            return proxyClient.isDisplayedChildEl(selectors[selectorKey]);
-                        } else if (field.endsWith('Exists')) {
-                            // @ts-expect-error We need to fix types of the enum
-                            // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-                            return proxyClient.isExistingChildEl(selectors[selectorKey]);
-                        } else if (field.endsWith('Els')) {
-                            // @ts-expect-error We need to fix types of the enum
-                            // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-                            return proxyClient.getChildEls(selectors[selectorKey]);
-                        } else if (field.endsWith('El')) {
-                            // @ts-expect-error We need to fix types of the enum
-                            // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-                            return proxyClient.getChildEl(selectors[selectorKey]);
-                        }
+                        // @ts-expect-error We need to fix types of the enum
+                        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+                        const selectorValue = selectors[selectorKey] as string;
+
+                        return client.callDynamicMethod(field, selectorKey, selectorValue);
                     }
 
                     return undefined;
                 },
             });
+        }
+
+        protected getSelectorObject(selectorValue: string): SelectorObject {
+            return {
+                waitForDisplayed: (...args: WaitForDisplayedArgs) => this.waitForDisplayedChildEl(selectorValue, args),
+                waitForExist: (...args: WaitForExistArgs) => this.waitForExistsChildEl(selectorValue, args),
+                waitForEnabled: (...args: WaitForEnabledArgs) => this.waitForEnabledChildEl(selectorValue, args),
+                setValue: (...args: SetValueArgs) => this.setValueChildEl(selectorValue, args),
+                click: () => this.clickChildEl(selectorValue),
+                clickByIdx: (idx: number) => this.clickByIdxChildEl(selectorValue, idx),
+                getText: () => this.getTextChildEl(selectorValue),
+                isDisplayed: () => this.isDisplayedChildEl(selectorValue),
+                isExisting: () => this.isExistingChildEl(selectorValue),
+            };
+        }
+
+        // eslint-disable-next-line max-statements
+        protected callDynamicMethod(field: string, selectorKey: string, selectorValue: string): unknown {
+            const selectorObject = this.getSelectorObject(selectorValue);
+
+            if (field === selectorKey) {
+                return selectorObject;
+            } else if (field.endsWith('WaitForEnabled')) {
+                return selectorObject.waitForEnabled;
+            } else if (field.endsWith('SetValue')) {
+                return selectorObject.setValue;
+            } else if (field.endsWith('WaitForDisplayed')) {
+                return selectorObject.waitForDisplayed;
+            } else if (field.endsWith('WaitForExists')) {
+                return selectorObject.waitForExist;
+            } else if (field.endsWith('ClickByIdx')) {
+                return selectorObject.clickByIdx;
+            } else if (field.endsWith('Click')) {
+                return selectorObject.click();
+            } else if (field.endsWith('Text')) {
+                return selectorObject.getText();
+            } else if (field.endsWith('IsDisplayed')) {
+                return selectorObject.isDisplayed();
+            } else if (field.endsWith('Exists')) {
+                return selectorObject.isExisting();
+            } else if (field.endsWith('Els')) {
+                return this.getChildEls(selectorValue);
+            } else if (field.endsWith('El')) {
+                return this.getChildEl(selectorValue);
+            }
+
+            return undefined;
         }
     };
