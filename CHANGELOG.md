@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.19.1](https://github.com/rnw-community/rnw-community/compare/v0.19.0...v0.19.1) (2022-07-27)
+
+
+### Bug Fixes
+
+* **wdio:** fixed SelectorText return type ([31ab88e](https://github.com/rnw-community/rnw-community/commit/31ab88e781ed4b23d322825a20f6bdd88db30a6b))
+
+
+
+
+
 # [0.19.0](https://github.com/rnw-community/rnw-community/compare/v0.18.4...v0.19.0) (2022-07-27)
 
 
