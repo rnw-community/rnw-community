@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.22.0](https://github.com/rnw-community/rnw-community/compare/v0.21.0...v0.22.0) (2022-07-27)
+
+
+### Features
+
+* **wdio:** added waitForEnabled ([20f7468](https://github.com/rnw-community/rnw-community/commit/20f7468119ce917356b0c6e7c92483fe54aa588b))
+
+
+
+
+
 # [0.21.0](https://github.com/rnw-community/rnw-community/compare/v0.20.0...v0.21.0) (2022-07-27)
 
 
