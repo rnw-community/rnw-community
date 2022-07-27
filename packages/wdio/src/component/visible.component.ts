@@ -46,4 +46,20 @@ export class VisibleComponent {
     async getChildEls(selector: string, root = this.rootEl): Promise<WebdriverIO.ElementArray> {
         return await root.then(async rootEl => await rootEl.testID$$(selector));
     }
+
+    async clickChildEl(selector: string, root = this.rootEl): Promise<void> {
+        return void (await (await this.getChildEl(selector, root)).click());
+    }
+
+    async isDisplayedChildEl(selector: string, root = this.rootEl): Promise<boolean> {
+        return await (await this.getChildEl(selector, root)).isDisplayed();
+    }
+
+    async isExistingChildEl(selector: string, root = this.rootEl): Promise<boolean> {
+        return await (await this.getChildEl(selector, root)).isExisting();
+    }
+
+    async getTextChildEl(selector: string, root = this.rootEl): Promise<string> {
+        return await (await this.getChildEl(selector, root)).getText();
+    }
 }
