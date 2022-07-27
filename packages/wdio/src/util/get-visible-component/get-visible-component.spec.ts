@@ -12,24 +12,25 @@ enum Selectors {
 
 class Component extends getVisibleComponent<Selectors>(Selectors) {}
 
+const elementMethods = {
+    testID$: jest.fn(() => Promise.resolve({})),
+    testID$$: jest.fn(() => Promise.resolve([{}])),
+    click: jest.fn(() => Promise.resolve(void 0)),
+    getText: jest.fn(() => Promise.resolve('')),
+    isDisplayed: jest.fn(() => Promise.resolve(true)),
+    isExisting: jest.fn(() => Promise.resolve(true)),
+};
+
 const mockElement = {
-    testID$: jest.fn(() =>
-        Promise.resolve({
-            testID$: jest.fn(() => Promise.resolve({})),
-            testID$$: jest.fn(() => Promise.resolve([{}])),
-        })
-    ),
-    testID$$: jest.fn(() =>
-        Promise.resolve({
-            testID$: jest.fn(() => Promise.resolve({})),
-            testID$$: jest.fn(() => Promise.resolve([{}])),
-        })
-    ),
+    click: jest.fn(() => Promise.resolve(void 0)),
+    testID$: jest.fn(() => Promise.resolve(elementMethods)),
+    testID$$: jest.fn(() => Promise.resolve(elementMethods)),
 };
 
 jest.mock('../../command', () => ({
     testID$: jest.fn(() => Promise.resolve(mockElement)),
     testID$$: jest.fn(() => Promise.resolve([mockElement])),
+    click: jest.fn(() => Promise.resolve(void 0)),
 }));
 
 describe('getVisibleComponent', () => {
@@ -95,5 +96,49 @@ describe('getVisibleComponent', () => {
 
         expect(getChildElsSpy).toHaveBeenCalledWith(Selectors.Button);
         expectTypeOf(buttonEls).toBeArray();
+    });
+
+    it('should add selectors enum methods for clicking element with suffix ElClick', async () => {
+        expect.assertions(1);
+
+        const component = new Component();
+        const clickChildElSpy = jest.spyOn(component, 'clickChildEl');
+
+        await component.ButtonElClick;
+
+        expect(clickChildElSpy).toHaveBeenCalledWith(Selectors.Button);
+    });
+
+    it('should add selectors enum methods for getting element text with suffix ElText', async () => {
+        expect.assertions(1);
+
+        const component = new Component();
+        const getTextChildElSpy = jest.spyOn(component, 'getTextChildEl');
+
+        await component.ButtonElText;
+
+        expect(getTextChildElSpy).toHaveBeenCalledWith(Selectors.Button);
+    });
+
+    it('should add selectors enum methods for getting element displayed status with suffix ElDisplayed', async () => {
+        expect.assertions(1);
+
+        const component = new Component();
+        const isDisplayedChildElSpy = jest.spyOn(component, 'isDisplayedChildEl');
+
+        await component.ButtonElDisplayed;
+
+        expect(isDisplayedChildElSpy).toHaveBeenCalledWith(Selectors.Button);
+    });
+
+    it('should add selectors enum methods for getting element existing status with suffix ElExists', async () => {
+        expect.assertions(1);
+
+        const component = new Component();
+        const isExistingChildElSpy = jest.spyOn(component, 'isExistingChildEl');
+
+        await component.ButtonElExists;
+
+        expect(isExistingChildElSpy).toHaveBeenCalledWith(Selectors.Button);
     });
 });

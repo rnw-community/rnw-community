@@ -14,7 +14,13 @@ type SelectorMethods<T extends string, S extends string> = T extends `${infer Pr
 
 type VisibleComponentWithSelectors<T extends string> = VisibleComponent & {
     [TKey in SelectorMethods<T, 'El'>]: Promise<WebdriverIO.Element>;
-} & { [TKey in SelectorMethods<T, 'Els'>]: Promise<WebdriverIO.ElementArray> };
+} & {
+    [TKey in SelectorMethods<T, 'ElDisplayed'>]: Promise<boolean>;
+} & {
+    [TKey in SelectorMethods<T, 'ElExists'>]: Promise<boolean>;
+} & {
+    [TKey in SelectorMethods<T, 'Els'>]: Promise<WebdriverIO.ElementArray>;
+} & { [TKey in SelectorMethods<T, 'ElClick'>]: Promise<void> } & { [TKey in SelectorMethods<T, 'ElText'>]: Promise<void> };
 
 type VisibleComponentWithSelectorsCtor<T extends string> = new (
     selectorOrElement?: WebdriverIO.Element | string
@@ -48,7 +54,23 @@ export const getVisibleComponent = <T extends string, E = unknown>(selectors: E)
                     const selectorKey = selectorKeys.find(key => field.includes(key));
 
                     if (isDefined(selectorKey)) {
-                        if (field.includes('Els')) {
+                        if (field.includes('ElClick')) {
+                            // @ts-expect-error We need to fix types of the enum
+                            // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+                            return proxyClient.clickChildEl(selectors[selectorKey]);
+                        } else if (field.includes('ElText')) {
+                            // @ts-expect-error We need to fix types of the enum
+                            // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+                            return proxyClient.getTextChildEl(selectors[selectorKey]);
+                        } else if (field.includes('ElDisplayed')) {
+                            // @ts-expect-error We need to fix types of the enum
+                            // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+                            return proxyClient.isDisplayedChildEl(selectors[selectorKey]);
+                        } else if (field.includes('ElExists')) {
+                            // @ts-expect-error We need to fix types of the enum
+                            // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+                            return proxyClient.isExistingChildEl(selectors[selectorKey]);
+                        } else if (field.includes('Els')) {
                             // @ts-expect-error We need to fix types of the enum
                             // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
                             return proxyClient.getChildEls(selectors[selectorKey]);
