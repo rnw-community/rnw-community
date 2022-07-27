@@ -89,4 +89,12 @@ export class VisibleComponent {
     ): Promise<void> {
         await (await this.getChildEl(selector, root)).waitForDisplayed(...args);
     }
+
+    async waitForEnabledChildEl(
+        selector: string,
+        args: Parameters<WebdriverIO.Element['waitForEnabled']>,
+        root = this.RootEl
+    ): Promise<void> {
+        await (await this.getChildEl(selector, root)).waitForEnabled(...args);
+    }
 }
