@@ -12,9 +12,15 @@ export type VisibleComponentWithSelectors<T extends string> = VisibleComponent &
 } & {
     [TKey in SelectorMethods<T, 'IsDisplayed'>]: Promise<boolean>;
 } & {
+    [TKey in SelectorMethods<T, 'SetValue'>]: (value: string) => Promise<void>;
+} & {
     [TKey in SelectorMethods<T, 'Text'>]: Promise<string>;
 } & {
-    [TKey in SelectorMethods<T, 'WaitForDisplayed'>]: Promise<void>;
+    [TKey in SelectorMethods<T, 'WaitForDisplayed'>]: (
+        ...args: Parameters<WebdriverIO.Element['waitForExist']>
+    ) => Promise<void>;
 } & {
-    [TKey in SelectorMethods<T, 'WaitForExists'>]: Promise<void>;
+    [TKey in SelectorMethods<T, 'WaitForExists'>]: (
+        ...args: Parameters<WebdriverIO.Element['waitForDisplayed']>
+    ) => Promise<void>;
 } & { [TKey in SelectorMethods<T, 'Click'>]: Promise<void> };
