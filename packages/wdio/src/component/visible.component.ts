@@ -24,19 +24,19 @@ export class VisibleComponent {
     }
 
     async isExisting(): Promise<boolean> {
-        return await (await this.rootEl).isExisting();
+        return await (await this.RootEl).isExisting();
     }
 
     async isNotExisting(): Promise<void> {
-        await (await this.rootEl).waitForDisplayed({ reverse: true });
+        await (await this.RootEl).waitForDisplayed({ reverse: true });
     }
 
     async isReady(): Promise<void> {
-        await (await this.rootEl).waitForDisplayed();
+        await (await this.RootEl).waitForDisplayed();
     }
 
     async isDisplayed(): Promise<boolean> {
-        return await (await this.rootEl).isDisplayed();
+        return await (await this.RootEl).isDisplayed();
     }
 
     async click(): Promise<void> {
@@ -51,19 +51,38 @@ export class VisibleComponent {
         return await root.then(async rootEl => await rootEl.testID$$(selector));
     }
 
-    async clickChildEl(selector: string, root = this.rootEl): Promise<void> {
-        return void (await (await this.getChildEl(selector, root)).click());
+    async getChildElByIdx(selector: string, idx: number, root = this.rootEl): Promise<WebdriverIO.Element> {
+        return await root.then(async rootEl => await rootEl.testID$$Index(selector, idx));
     }
 
-    async isDisplayedChildEl(selector: string, root = this.rootEl): Promise<boolean> {
+    async clickChildEl(selector: string, root = this.rootEl): ReturnType<WebdriverIO.Element['click']> {
+        await (await this.getChildEl(selector, root)).click();
+    }
+
+    async clickByIdxChildEl(selector: string, idx: number, root = this.rootEl): ReturnType<WebdriverIO.Element['click']> {
+        await (await this.getChildElByIdx(selector, idx, root)).click();
+    }
+
+    async isDisplayedChildEl(selector: string, root = this.rootEl): ReturnType<WebdriverIO.Element['isDisplayed']> {
         return await (await this.getChildEl(selector, root)).isDisplayed();
     }
 
-    async isExistingChildEl(selector: string, root = this.rootEl): Promise<boolean> {
+    async isExistingChildEl(selector: string, root = this.rootEl): ReturnType<WebdriverIO.Element['isExisting']> {
         return await (await this.getChildEl(selector, root)).isExisting();
     }
 
-    async getTextChildEl(selector: string, root = this.rootEl): Promise<string> {
+    async getTextChildEl(selector: string, root = this.rootEl): ReturnType<WebdriverIO.Element['getText']> {
         return await (await this.getChildEl(selector, root)).getText();
+    }
+
+    async waitForExistsChildEl(selector: string, root = this.rootEl): ReturnType<WebdriverIO.Element['waitForExist']> {
+        return await (await this.getChildEl(selector, root)).waitForExist();
+    }
+
+    async waitForDisplayedChildEl(
+        selector: string,
+        root = this.rootEl
+    ): ReturnType<WebdriverIO.Element['waitForDisplayed']> {
+        return await (await this.getChildEl(selector, root)).waitForDisplayed();
     }
 }

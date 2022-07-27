@@ -13,14 +13,22 @@ type SelectorMethods<T extends string, S extends string> = T extends `${infer Pr
     : never;
 
 type VisibleComponentWithSelectors<T extends string> = VisibleComponent & {
+    [TKey in SelectorMethods<T, 'ClickByIdx'>]: (idx: number) => ReturnType<WebdriverIO.Element['click']>;
+} & {
     [TKey in SelectorMethods<T, 'El'>]: Promise<WebdriverIO.Element>;
 } & {
     [TKey in SelectorMethods<T, 'Els'>]: Promise<WebdriverIO.ElementArray>;
 } & {
-    [TKey in SelectorMethods<T, 'Exists'>]: Promise<boolean>;
+    [TKey in SelectorMethods<T, 'Exists'>]: ReturnType<WebdriverIO.Element['isExisting']>;
 } & {
-    [TKey in SelectorMethods<T, 'IsDisplayed'>]: Promise<boolean>;
-} & { [TKey in SelectorMethods<T, 'Click'>]: Promise<void> } & { [TKey in SelectorMethods<T, 'Text'>]: Promise<string> };
+    [TKey in SelectorMethods<T, 'IsDisplayed'>]: ReturnType<WebdriverIO.Element['isDisplayed']>;
+} & {
+    [TKey in SelectorMethods<T, 'Text'>]: ReturnType<WebdriverIO.Element['getText']>;
+} & {
+    [TKey in SelectorMethods<T, 'WaitForDisplayed'>]: ReturnType<WebdriverIO.Element['waitForDisplayed']>;
+} & {
+    [TKey in SelectorMethods<T, 'WaitForExists'>]: ReturnType<WebdriverIO.Element['waitForExist']>;
+} & { [TKey in SelectorMethods<T, 'Click'>]: ReturnType<WebdriverIO.Element['click']> };
 
 type VisibleComponentWithSelectorsCtor<T extends string> = new (
     selectorOrElement?: WebdriverIO.Element | string
@@ -44,6 +52,7 @@ export const getVisibleComponent = <T extends string, E = unknown>(selectors: E)
 
             // eslint-disable-next-line no-constructor-return
             return new Proxy(this, {
+                // eslint-disable-next-line max-statements
                 get(proxyClient, field: T, receiver) {
                     if (field in proxyClient) {
                         // eslint-disable-next-line @typescript-eslint/no-unsafe-return
@@ -54,7 +63,19 @@ export const getVisibleComponent = <T extends string, E = unknown>(selectors: E)
                     const selectorKey = selectorKeys.find(key => field.includes(key));
 
                     if (isDefined(selectorKey)) {
-                        if (field.endsWith('Click')) {
+                        if (field.endsWith('WaitForDisplayed')) {
+                            // @ts-expect-error We need to fix types of the enum
+                            // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+                            return proxyClient.waitForDisplayedChildEl(selectors[selectorKey]);
+                        } else if (field.endsWith('WaitForExists')) {
+                            // @ts-expect-error We need to fix types of the enum
+                            // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+                            return proxyClient.waitForExistsChildEl(selectors[selectorKey]);
+                        } else if (field.endsWith('ClickByIdx')) {
+                            // @ts-expect-error We need to fix types of the enum
+                            // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+                            return (idx: number) => proxyClient.clickByIdxChildEl(selectors[selectorKey], idx);
+                        } else if (field.endsWith('Click')) {
                             // @ts-expect-error We need to fix types of the enum
                             // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
                             return proxyClient.clickChildEl(selectors[selectorKey]);
