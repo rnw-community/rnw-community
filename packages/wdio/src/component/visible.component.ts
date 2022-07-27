@@ -39,6 +39,10 @@ export class VisibleComponent {
         return await (await this.rootEl).isDisplayed();
     }
 
+    async click(): Promise<void> {
+        await (await this.RootEl).click();
+    }
+
     async getChildEl(selector: string, root = this.rootEl): Promise<WebdriverIO.Element> {
         return await root.then(async rootEl => await rootEl.testID$(selector));
     }
