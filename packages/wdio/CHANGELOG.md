@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.24.0](https://github.com/rnw-community/rnw-community/compare/v0.23.1...v0.24.0) (2022-07-27)
+
+
+### Features
+
+* **wdio:** added selector context to createVisibleComponent as mandatory argument ([6e57705](https://github.com/rnw-community/rnw-community/commit/6e57705582d603d9bf98e7eff5a922b6d71422dd))
+
+
+
+
+
 ## [0.23.1](https://github.com/rnw-community/rnw-community/compare/v0.23.0...v0.23.1) (2022-07-27)
 
 **Note:** Version bump only for package @rnw-community/wdio
