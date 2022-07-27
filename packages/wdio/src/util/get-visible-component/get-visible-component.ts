@@ -2,38 +2,9 @@ import { isDefined } from '@rnw-community/shared';
 
 import { VisibleComponent } from '../../component';
 
+import type { VisibleComponentWithSelectorsCtor } from '../../type';
+
 // TODO: Improve typings with Enum, improve ts errors?
-
-// @ts-expect-error We ignore prefix, how we can avoid TS error?
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-type SelectorMethods<T extends string, S extends string> = T extends `${infer Prefix}.${infer Selector}`
-    ? Selector extends `Root`
-        ? never
-        : `${Selector}${S}`
-    : never;
-
-type VisibleComponentWithSelectors<T extends string> = VisibleComponent & {
-    [TKey in SelectorMethods<T, 'ClickByIdx'>]: (idx: number) => ReturnType<WebdriverIO.Element['click']>;
-} & {
-    [TKey in SelectorMethods<T, 'El'>]: Promise<WebdriverIO.Element>;
-} & {
-    [TKey in SelectorMethods<T, 'Els'>]: Promise<WebdriverIO.ElementArray>;
-} & {
-    [TKey in SelectorMethods<T, 'Exists'>]: ReturnType<WebdriverIO.Element['isExisting']>;
-} & {
-    [TKey in SelectorMethods<T, 'IsDisplayed'>]: ReturnType<WebdriverIO.Element['isDisplayed']>;
-} & {
-    [TKey in SelectorMethods<T, 'Text'>]: ReturnType<WebdriverIO.Element['getText']>;
-} & {
-    [TKey in SelectorMethods<T, 'WaitForDisplayed'>]: ReturnType<WebdriverIO.Element['waitForDisplayed']>;
-} & {
-    [TKey in SelectorMethods<T, 'WaitForExists'>]: ReturnType<WebdriverIO.Element['waitForExist']>;
-} & { [TKey in SelectorMethods<T, 'Click'>]: ReturnType<WebdriverIO.Element['click']> };
-
-type VisibleComponentWithSelectorsCtor<T extends string> = new (
-    selectorOrElement?: WebdriverIO.Element | string
-) => VisibleComponentWithSelectors<T>;
-
 export const getVisibleComponent = <T extends string, E = unknown>(selectors: E): VisibleComponentWithSelectorsCtor<T> =>
     // @ts-expect-error We use proxy for dynamic fields
     class extends VisibleComponent {

@@ -2,6 +2,10 @@
 
 WDIO commands and utils.
 
+## TODO
+
+-   Add unit tests
+
 ## Installation
 
 Install additional peer dependencies:
