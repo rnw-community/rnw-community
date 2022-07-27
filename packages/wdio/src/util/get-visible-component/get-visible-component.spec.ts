@@ -99,46 +99,42 @@ describe('getVisibleComponent', () => {
     });
 
     it('should add selectors enum methods for clicking element with suffix ElClick', async () => {
-        expect.assertions(1);
+        expect.assertions(2);
 
         const component = new Component();
         const clickChildElSpy = jest.spyOn(component, 'clickChildEl');
 
-        await component.ButtonElClick;
-
+        await expect(component.ButtonClick).resolves.toBe(void 0);
         expect(clickChildElSpy).toHaveBeenCalledWith(Selectors.Button);
     });
 
     it('should add selectors enum methods for getting element text with suffix ElText', async () => {
-        expect.assertions(1);
+        expect.assertions(2);
 
         const component = new Component();
         const getTextChildElSpy = jest.spyOn(component, 'getTextChildEl');
 
-        await component.ButtonElText;
-
+        await expect(component.ButtonText).resolves.toBe('');
         expect(getTextChildElSpy).toHaveBeenCalledWith(Selectors.Button);
     });
 
     it('should add selectors enum methods for getting element displayed status with suffix ElDisplayed', async () => {
-        expect.assertions(1);
+        expect.assertions(2);
 
         const component = new Component();
         const isDisplayedChildElSpy = jest.spyOn(component, 'isDisplayedChildEl');
 
-        await component.ButtonElDisplayed;
-
+        await expect(component.ButtonIsDisplayed).resolves.toBe(true);
         expect(isDisplayedChildElSpy).toHaveBeenCalledWith(Selectors.Button);
     });
 
     it('should add selectors enum methods for getting element existing status with suffix ElExists', async () => {
-        expect.assertions(1);
+        expect.assertions(2);
 
         const component = new Component();
         const isExistingChildElSpy = jest.spyOn(component, 'isExistingChildEl');
 
-        await component.ButtonElExists;
-
+        await expect(component.ButtonExists).resolves.toBe(true);
         expect(isExistingChildElSpy).toHaveBeenCalledWith(Selectors.Button);
     });
 });
