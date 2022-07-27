@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.18.4](https://github.com/rnw-community/rnw-community/compare/v0.18.3...v0.18.4) (2022-07-27)
+
+
+### Bug Fixes
+
+* **wdio:** added additional getVisibleComponent methods ([2386479](https://github.com/rnw-community/rnw-community/commit/2386479ac1befdcea9e521682a91ac9fc0b4b332))
+
+
+
+
+
 ## [0.18.3](https://github.com/rnw-community/rnw-community/compare/v0.18.2...v0.18.3) (2022-07-27)
 
 
