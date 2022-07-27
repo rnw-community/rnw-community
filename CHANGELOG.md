@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.23.0](https://github.com/rnw-community/rnw-community/compare/v0.22.0...v0.23.0) (2022-07-27)
+
+
+### Features
+
+* **wdio:** added selectorOrElement for createVisibleComponent ([eb8c206](https://github.com/rnw-community/rnw-community/commit/eb8c206c3f509b31a9d2b8b31d62f916cb2fff0b))
+
+
+
+
+
 # [0.22.0](https://github.com/rnw-community/rnw-community/compare/v0.21.0...v0.22.0) (2022-07-27)
 
 
