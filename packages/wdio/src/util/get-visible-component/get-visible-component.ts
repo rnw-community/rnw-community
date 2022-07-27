@@ -12,24 +12,25 @@ import type {
 } from '../../type';
 
 // TODO: Improve typings with Enum, improve ts errors?
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const getVisibleComponent = <T extends string, E extends { [K in T]: string } = any>(
-    selectors: E
-): VisibleComponentWithSelectorsCtor<T> =>
+export const getVisibleComponent = <T extends string, E = unknown>(selectors: E): VisibleComponentWithSelectorsCtor<T> =>
     // @ts-expect-error We use proxy for dynamic fields
     class extends VisibleComponent {
         constructor(selectorOrElement?: WebdriverIO.Element | string) {
             const selectorKeys = Object.keys(selectors) as T[];
 
             const rootSelectorKey = selectorKeys.find(key => key === 'Root');
+            // @ts-expect-error Fix me
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
             const selectorRootKey = isDefined(rootSelectorKey) ? selectors[rootSelectorKey] : undefined;
 
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
             const rootSelector = isDefined(selectorOrElement) ? selectorOrElement : selectorRootKey;
 
             if (!isDefined(rootSelector)) {
                 throw new Error('Cannot create VisibleComponent - No Root element selector was passed');
             }
 
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
             super(rootSelector);
 
             // eslint-disable-next-line no-constructor-return
@@ -68,7 +69,9 @@ export const getVisibleComponent = <T extends string, E extends { [K in T]: stri
                 return undefined;
             }
 
-            const selectorValue = selectors[selectorKey];
+            // @ts-expect-error Fix me
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+            const selectorValue = selectors[selectorKey] as string;
             const selectorObject = this.getSelectorObject(selectorValue);
 
             if (field === selectorKey) {
