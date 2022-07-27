@@ -20,7 +20,7 @@ type VisibleComponentWithSelectors<T extends string> = VisibleComponent & {
     [TKey in SelectorMethods<T, 'Exists'>]: Promise<boolean>;
 } & {
     [TKey in SelectorMethods<T, 'IsDisplayed'>]: Promise<boolean>;
-} & { [TKey in SelectorMethods<T, 'Click'>]: Promise<void> } & { [TKey in SelectorMethods<T, 'Text'>]: Promise<void> };
+} & { [TKey in SelectorMethods<T, 'Click'>]: Promise<void> } & { [TKey in SelectorMethods<T, 'Text'>]: Promise<string> };
 
 type VisibleComponentWithSelectorsCtor<T extends string> = new (
     selectorOrElement?: WebdriverIO.Element | string
