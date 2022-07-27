@@ -12,13 +12,17 @@ import type {
 } from '../../type';
 
 // TODO: Improve typings with Enum, improve ts errors?
-export const getVisibleComponent = <T extends string, E = unknown>(selectors: E): VisibleComponentWithSelectorsCtor<T> =>
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export const getVisibleComponent = <T extends string, E extends { [K in T]: string } = any>(
+    selectors: E
+): VisibleComponentWithSelectorsCtor<T> =>
     // @ts-expect-error We use proxy for dynamic fields
     class extends VisibleComponent {
         constructor(selectorOrElement?: WebdriverIO.Element | string) {
             const selectorKeys = Object.keys(selectors) as T[];
-            // @ts-expect-error We need better enum types
-            const selectorRootKey = selectors[selectorKeys.find(key => key === 'Root')] as string;
+
+            const rootSelectorKey = selectorKeys.find(key => key === 'Root');
+            const selectorRootKey = isDefined(rootSelectorKey) ? selectors[rootSelectorKey] : undefined;
 
             const rootSelector = isDefined(selectorOrElement) ? selectorOrElement : selectorRootKey;
 
@@ -36,18 +40,7 @@ export const getVisibleComponent = <T extends string, E = unknown>(selectors: E)
                         return Reflect.get(client, field, receiver);
                     }
 
-                    // TODO: This logic need improvement to avoid false positives
-                    const selectorKey = selectorKeys.find(key => field.includes(key));
-
-                    if (isDefined(selectorKey)) {
-                        // @ts-expect-error We need to fix types of the enum
-                        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-                        const selectorValue = selectors[selectorKey] as string;
-
-                        return client.callDynamicMethod(field, selectorKey, selectorValue);
-                    }
-
-                    return undefined;
+                    return client.callDynamicMethod(field, selectorKeys);
                 },
             });
         }
@@ -67,7 +60,15 @@ export const getVisibleComponent = <T extends string, E = unknown>(selectors: E)
         }
 
         // eslint-disable-next-line max-statements
-        protected callDynamicMethod(field: string, selectorKey: string, selectorValue: string): unknown {
+        protected callDynamicMethod(field: string, selectorKeys: T[]): unknown {
+            // TODO: This logic need improvement to avoid false positives
+            const selectorKey = selectorKeys.find(key => field.includes(key));
+
+            if (!isDefined(selectorKey)) {
+                return undefined;
+            }
+
+            const selectorValue = selectors[selectorKey];
             const selectorObject = this.getSelectorObject(selectorValue);
 
             if (field === selectorKey) {

@@ -2,7 +2,7 @@ import { isDefined, isNotEmptyString } from '@rnw-community/shared';
 
 import { testID$ } from '../command';
 
-import type { SetValueArgs } from '../type';
+import type { SetValueArgs, WaitForDisplayedArgs, WaitForEnabledArgs, WaitForExistArgs } from '../type';
 
 export class VisibleComponent {
     private readonly constructorEl: WebdriverIO.Element | undefined;
@@ -76,27 +76,15 @@ export class VisibleComponent {
         return await (await this.getChildEl(selector, root)).getText();
     }
 
-    async waitForExistsChildEl(
-        selector: string,
-        args: Parameters<WebdriverIO.Element['waitForExist']>,
-        root = this.RootEl
-    ): Promise<void> {
+    async waitForExistsChildEl(selector: string, args: WaitForExistArgs, root = this.RootEl): Promise<void> {
         await (await this.getChildEl(selector, root)).waitForExist(...args);
     }
 
-    async waitForDisplayedChildEl(
-        selector: string,
-        args: Parameters<WebdriverIO.Element['waitForDisplayed']>,
-        root = this.RootEl
-    ): Promise<void> {
+    async waitForDisplayedChildEl(selector: string, args: WaitForDisplayedArgs, root = this.RootEl): Promise<void> {
         await (await this.getChildEl(selector, root)).waitForDisplayed(...args);
     }
 
-    async waitForEnabledChildEl(
-        selector: string,
-        args: Parameters<WebdriverIO.Element['waitForEnabled']>,
-        root = this.RootEl
-    ): Promise<void> {
+    async waitForEnabledChildEl(selector: string, args: WaitForEnabledArgs, root = this.RootEl): Promise<void> {
         await (await this.getChildEl(selector, root)).waitForEnabled(...args);
     }
 }
