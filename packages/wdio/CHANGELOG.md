@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.21.0](https://github.com/rnw-community/rnw-community/compare/v0.20.0...v0.21.0) (2022-07-27)
+
+
+### Features
+
+* **wdio:** added setValue to visible component, added params to waitFor* ([5a64eb0](https://github.com/rnw-community/rnw-community/commit/5a64eb03efede798a7b8d3c36247431b13413c43))
+
+
+
+
+
 # [0.20.0](https://github.com/rnw-community/rnw-community/compare/v0.19.1...v0.20.0) (2022-07-27)
 
 
