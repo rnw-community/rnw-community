@@ -15,16 +15,20 @@ class Component extends getVisibleComponent<Selectors>(Selectors) {}
 const elementMethods = {
     testID$: jest.fn(() => Promise.resolve({})),
     testID$$: jest.fn(() => Promise.resolve([{}])),
+    testID$$Index: jest.fn(() => Promise.resolve({})),
     click: jest.fn(() => Promise.resolve(void 0)),
     getText: jest.fn(() => Promise.resolve('')),
     isDisplayed: jest.fn(() => Promise.resolve(true)),
     isExisting: jest.fn(() => Promise.resolve(true)),
+    waitForExist: jest.fn(() => Promise.resolve(true)),
+    waitForDisplayed: jest.fn(() => Promise.resolve(true)),
 };
 
 const mockElement = {
     click: jest.fn(() => Promise.resolve(void 0)),
     testID$: jest.fn(() => Promise.resolve(elementMethods)),
     testID$$: jest.fn(() => Promise.resolve(elementMethods)),
+    testID$$Index: jest.fn(() => Promise.resolve(elementMethods)),
 };
 
 jest.mock('../../command', () => ({
@@ -33,6 +37,7 @@ jest.mock('../../command', () => ({
     click: jest.fn(() => Promise.resolve(void 0)),
 }));
 
+// eslint-disable-next-line max-lines-per-function,max-statements
 describe('getVisibleComponent', () => {
     it('should throw error on calling not supported proxy method', () => {
         expect.assertions(1);
@@ -98,7 +103,7 @@ describe('getVisibleComponent', () => {
         expectTypeOf(buttonEls).toBeArray();
     });
 
-    it('should add selectors enum methods for clicking element with suffix ElClick', async () => {
+    it('should add selectors enum methods for clicking element with suffix Click', async () => {
         expect.assertions(2);
 
         const component = new Component();
@@ -108,7 +113,18 @@ describe('getVisibleComponent', () => {
         expect(clickChildElSpy).toHaveBeenCalledWith(Selectors.Button);
     });
 
-    it('should add selectors enum methods for getting element text with suffix ElText', async () => {
+    it('should add selectors enum methods for clicking element in array by index with suffix ClickByIdx', async () => {
+        expect.assertions(2);
+
+        const component = new Component();
+        const clickByIdxChildElSpy = jest.spyOn(component, 'clickByIdxChildEl');
+
+        expectTypeOf(component.ButtonClickByIdx).toBeFunction();
+        await expect(component.ButtonClickByIdx(1)).resolves.toBe(void 0);
+        expect(clickByIdxChildElSpy).toHaveBeenCalledWith(Selectors.Button, 1);
+    });
+
+    it('should add selectors enum methods for getting element text with suffix Text', async () => {
         expect.assertions(2);
 
         const component = new Component();
@@ -118,7 +134,7 @@ describe('getVisibleComponent', () => {
         expect(getTextChildElSpy).toHaveBeenCalledWith(Selectors.Button);
     });
 
-    it('should add selectors enum methods for getting element displayed status with suffix ElDisplayed', async () => {
+    it('should add selectors enum methods for getting element displayed status with suffix IsDisplayed', async () => {
         expect.assertions(2);
 
         const component = new Component();
@@ -128,7 +144,7 @@ describe('getVisibleComponent', () => {
         expect(isDisplayedChildElSpy).toHaveBeenCalledWith(Selectors.Button);
     });
 
-    it('should add selectors enum methods for getting element existing status with suffix ElExists', async () => {
+    it('should add selectors enum methods for getting element existing status with suffix Exists', async () => {
         expect.assertions(2);
 
         const component = new Component();
@@ -136,5 +152,25 @@ describe('getVisibleComponent', () => {
 
         await expect(component.ButtonExists).resolves.toBe(true);
         expect(isExistingChildElSpy).toHaveBeenCalledWith(Selectors.Button);
+    });
+
+    it('should add selectors enum methods for waiting element to exist with suffix WaitForExists', async () => {
+        expect.assertions(2);
+
+        const component = new Component();
+        const waitForExistChildElSpy = jest.spyOn(component, 'waitForExistsChildEl');
+
+        await expect(component.ButtonWaitForExists).resolves.toBe(true);
+        expect(waitForExistChildElSpy).toHaveBeenCalledWith(Selectors.Button);
+    });
+
+    it('should add selectors enum methods for waiting element to be displayed with suffix WaitForDisplayed', async () => {
+        expect.assertions(2);
+
+        const component = new Component();
+        const waitForDisplayedChildElSpy = jest.spyOn(component, 'waitForDisplayedChildEl');
+
+        await expect(component.ButtonWaitForDisplayed).resolves.toBe(true);
+        expect(waitForDisplayedChildElSpy).toHaveBeenCalledWith(Selectors.Button);
     });
 });

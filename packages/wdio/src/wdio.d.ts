@@ -5,14 +5,14 @@ declare namespace WebdriverIO {
         openDeepLink: (url: string) => Promise<void>;
         testID$: (testID: string) => Promise<Element>;
         testID$$: (testID: string) => Promise<ElementArray>;
-        testID$$Index: (testID: string) => Promise<Element>;
+        testID$$Index: (testID: string, idx: number) => Promise<Element>;
     }
 
     interface MultiRemoteBrowser {
         openDeepLink: (url: string) => Promise<void>;
         testID$: (testID: string) => Promise<Element>;
         testID$$: (testID: string) => Promise<ElementArray>;
-        testID$$Index: (testID: string) => Promise<Element>;
+        testID$$Index: (testID: string, idx: number) => Promise<Element>;
     }
 
     interface Element {
@@ -22,6 +22,6 @@ declare namespace WebdriverIO {
         swipe: (direction: SwipeDirectionType, offset = { x: 0, y: 0 }) => Promise<void>;
         testID$: (testID: string) => Promise<Element>;
         testID$$: (testID: string) => Promise<ElementArray>;
-        testID$$Index: (testID: string) => Promise<Element>;
+        testID$$Index: (testID: string, idx: number) => Promise<Element>;
     }
 }
