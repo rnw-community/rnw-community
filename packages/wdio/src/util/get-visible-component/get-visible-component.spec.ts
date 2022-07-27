@@ -39,6 +39,8 @@ jest.mock('../../command', () => ({
     testID$$: jest.fn(() => Promise.resolve([mockElement])),
 }));
 
+// TODO: Add selector object tests
+
 // eslint-disable-next-line max-lines-per-function,max-statements
 describe('getVisibleComponent', () => {
     it('should throw error on calling not supported proxy method', () => {

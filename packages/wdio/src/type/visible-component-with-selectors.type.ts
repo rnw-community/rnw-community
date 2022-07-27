@@ -1,5 +1,6 @@
 import type { VisibleComponent } from '../component';
 import type { SelectorMethods } from './selector-methods.type';
+import type { SelectorObject } from './selector-object.type';
 
 export type VisibleComponentWithSelectors<T extends string> = VisibleComponent & {
     [TKey in SelectorMethods<T, 'ClickByIdx'>]: (idx: number) => Promise<void>;
@@ -27,4 +28,4 @@ export type VisibleComponentWithSelectors<T extends string> = VisibleComponent &
     [TKey in SelectorMethods<T, 'WaitForExists'>]: (
         ...args: Parameters<WebdriverIO.Element['waitForDisplayed']>
     ) => Promise<void>;
-} & { [TKey in SelectorMethods<T, ''>]: WebdriverIO.Element } & { [TKey in SelectorMethods<T, 'Click'>]: Promise<void> };
+} & { [TKey in SelectorMethods<T, ''>]: SelectorObject } & { [TKey in SelectorMethods<T, 'Click'>]: Promise<void> };
