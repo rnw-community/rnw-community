@@ -1,7 +1,6 @@
 import { getVisibleComponent } from '../get-visible-component/get-visible-component';
 
-import type { SelectorContextType, VisibleComponentWithSelectors } from '../../type';
-import type { Enum } from '../../type/enum.type';
+import type { Enum, SelectorContextType, VisibleComponentWithSelectors } from '../../type';
 
 export const createVisibleComponent = <T extends string>(
     selectors: Enum<T>,

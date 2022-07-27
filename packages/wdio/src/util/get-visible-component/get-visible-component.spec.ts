@@ -10,7 +10,7 @@ enum SelectorsEnum {
     Root = 'Selectors.Root',
 }
 
-class Component extends getVisibleComponent<SelectorsEnum>(SelectorsEnum) {}
+class Component extends getVisibleComponent(SelectorsEnum) {}
 
 const elementMethods = {
     testID$: jest.fn(() => Promise.resolve({})),

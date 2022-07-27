@@ -3,6 +3,7 @@ import { isDefined } from '@rnw-community/shared';
 import { VisibleComponent } from '../../component';
 
 import type {
+    Enum,
     SelectorObject,
     SetValueArgs,
     VisibleComponentWithSelectorsCtor,
@@ -11,19 +12,14 @@ import type {
     WaitForExistArgs,
 } from '../../type';
 
-// TODO: Improve typings with Enum, improve ts errors?
-export const getVisibleComponent = <T extends string, E = unknown>(selectors: E): VisibleComponentWithSelectorsCtor<T> =>
+export const getVisibleComponent = <T extends string>(selectors: Enum<T>): VisibleComponentWithSelectorsCtor<T> =>
     // @ts-expect-error We use proxy for dynamic fields
     class extends VisibleComponent {
         constructor(selectorOrElement?: WebdriverIO.Element | string) {
             const selectorKeys = Object.keys(selectors) as T[];
 
             const rootSelectorKey = selectorKeys.find(key => key === 'Root');
-            // @ts-expect-error Fix me
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
             const selectorRootKey = isDefined(rootSelectorKey) ? selectors[rootSelectorKey] : undefined;
-
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
             const rootSelector = isDefined(selectorOrElement) ? selectorOrElement : selectorRootKey;
 
             if (!isDefined(rootSelector)) {
@@ -69,8 +65,6 @@ export const getVisibleComponent = <T extends string, E = unknown>(selectors: E)
                 return undefined;
             }
 
-            // @ts-expect-error Fix me
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
             const selectorValue = selectors[selectorKey] as string;
             const selectorObject = this.getSelectorObject(selectorValue);
 
