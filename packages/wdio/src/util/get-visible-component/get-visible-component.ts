@@ -38,7 +38,7 @@ export const getVisibleComponent = <T extends string, E = unknown>(selectors: E)
     // @ts-expect-error We use proxy for dynamic fields
     class extends VisibleComponent {
         constructor(selectorOrElement?: WebdriverIO.Element | string) {
-            const selectorKeys = Object.keys(selectors).sort((s1, s2) => s1.length - s2.length) as T[];
+            const selectorKeys = Object.keys(selectors) as T[];
             // @ts-expect-error We need better enum types
             const selectorRootKey = selectors[selectorKeys.find(key => key === 'Root')] as string;
 
