@@ -34,7 +34,11 @@ export const getVisibleComponent = <T extends string, E = unknown>(selectors: E)
                     const selectorKey = selectorKeys.find(key => field.includes(key));
 
                     if (isDefined(selectorKey)) {
-                        if (field.endsWith('SetValue')) {
+                        if (field.endsWith('WaitForEnabled')) {
+                            // @ts-expect-error We need to fix types of the enum
+                            // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+                            return (...args) => proxyClient.waitForEnabledChildEl(selectors[selectorKey], args);
+                        } else if (field.endsWith('SetValue')) {
                             // @ts-expect-error We need to fix types of the enum
                             // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
                             return (value: string) => proxyClient.setValueChildEl(selectors[selectorKey], value);

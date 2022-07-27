@@ -20,6 +20,10 @@ export type VisibleComponentWithSelectors<T extends string> = VisibleComponent &
         ...args: Parameters<WebdriverIO.Element['waitForExist']>
     ) => Promise<void>;
 } & {
+    [TKey in SelectorMethods<T, 'WaitForEnabled'>]: (
+        ...args: Parameters<WebdriverIO.Element['waitForEnabled']>
+    ) => Promise<void>;
+} & {
     [TKey in SelectorMethods<T, 'WaitForExists'>]: (
         ...args: Parameters<WebdriverIO.Element['waitForDisplayed']>
     ) => Promise<void>;

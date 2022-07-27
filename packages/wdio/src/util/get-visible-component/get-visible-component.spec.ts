@@ -22,6 +22,7 @@ const elementMethods = {
     isExisting: jest.fn(() => Promise.resolve(true)),
     waitForExist: jest.fn(() => Promise.resolve(void 0)),
     waitForDisplayed: jest.fn(() => Promise.resolve(void 0)),
+    waitForEnabled: jest.fn(() => Promise.resolve(void 0)),
     setValue: jest.fn(() => Promise.resolve(void 0)),
 };
 
@@ -175,6 +176,17 @@ describe('getVisibleComponent', () => {
         expectTypeOf(component.ButtonWaitForDisplayed).toBeFunction();
         await expect(component.ButtonWaitForDisplayed({ reverse: true })).resolves.toBe(void 0);
         expect(waitForDisplayedChildElSpy).toHaveBeenCalledWith(Selectors.Button, [{ reverse: true }]);
+    });
+
+    it('should add selectors enum methods for waiting element to be enabled with suffix WaitForEnabled', async () => {
+        expect.assertions(2);
+
+        const component = new Component();
+        const waitForEnabledChildElSpy = jest.spyOn(component, 'waitForEnabledChildEl');
+
+        expectTypeOf(component.ButtonWaitForEnabled).toBeFunction();
+        await expect(component.ButtonWaitForEnabled({ reverse: true })).resolves.toBe(void 0);
+        expect(waitForEnabledChildElSpy).toHaveBeenCalledWith(Selectors.Button, [{ reverse: true }]);
     });
 
     it('should add selectors enum methods for setting element value with suffix SetValue', async () => {
