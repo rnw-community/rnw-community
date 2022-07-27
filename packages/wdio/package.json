@@ -42,7 +42,8 @@
   "devDependencies": {
     "@wdio/types": "^7.20.7",
     "concat": "^1.0.3",
-    "webdriverio": "^7.20.7"
+    "webdriverio": "^7.20.7",
+    "expect-type": "^0.13.0"
   },
   "peerDependencies": {
     "webdriverio": "^7.20.7"

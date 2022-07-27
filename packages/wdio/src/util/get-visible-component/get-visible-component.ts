@@ -1,6 +1,6 @@
 import { isDefined } from '@rnw-community/shared';
 
-import { VisibleComponent } from '../component';
+import { VisibleComponent } from '../../component';
 
 // TODO: Improve typings with Enum, improve ts errors?
 
@@ -24,7 +24,7 @@ export const getVisibleComponent = <T extends string, E = unknown>(selectors: E)
     // @ts-expect-error We use proxy for dynamic fields
     class extends VisibleComponent {
         constructor(selectorOrElement?: WebdriverIO.Element | string) {
-            const selectorKeys = Object.keys(selectors) as Array<keyof T>;
+            const selectorKeys = Object.keys(selectors).sort((s1, s2) => s1.length - s2.length) as T[];
             // @ts-expect-error We need better enum types
             const selectorRootKey = selectors[selectorKeys.find(key => key === 'Root')] as string;
 
@@ -38,22 +38,24 @@ export const getVisibleComponent = <T extends string, E = unknown>(selectors: E)
 
             // eslint-disable-next-line no-constructor-return
             return new Proxy(this, {
-                // @ts-expect-error field is required to be string or a symbol, we need it to be keyof TController for proper typings inside
-                get(proxyClient, field: keyof T, receiver) {
+                get(proxyClient, field: T, receiver) {
                     if (field in proxyClient) {
                         // eslint-disable-next-line @typescript-eslint/no-unsafe-return
                         return Reflect.get(proxyClient, field, receiver);
                     }
 
-                    if (field in selectorKeys) {
-                        if ((field as string).includes('Els')) {
+                    // TODO: This logic need improvement to avoid false positives
+                    const selectorKey = selectorKeys.find(key => field.includes(key));
+
+                    if (isDefined(selectorKey)) {
+                        if (field.includes('Els')) {
                             // @ts-expect-error We need to fix types of the enum
                             // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-                            return proxyClient.getChildEls(selectors[field]);
-                        } else if ((field as string).includes('El')) {
+                            return proxyClient.getChildEls(selectors[selectorKey]);
+                        } else if (field.includes('El')) {
                             // @ts-expect-error We need to fix types of the enum
                             // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-                            return proxyClient.getChildEl(selectors[field]);
+                            return proxyClient.getChildEl(selectors[selectorKey]);
                         }
                     }
 
