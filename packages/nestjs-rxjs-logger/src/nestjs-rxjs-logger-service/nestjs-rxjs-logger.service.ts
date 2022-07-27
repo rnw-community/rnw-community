@@ -155,7 +155,7 @@ export class NestJSRxJSLoggerService {
      * @param context Log context value, by default outputs currently defined context,
      * @param level Log level, default
      */
-    private print(message: string, context = this.context, level: AppLogLevelEnum = AppLogLevelEnum.info): void {
+    print(message: string, context = this.context, level: AppLogLevelEnum = AppLogLevelEnum.info): void {
         if (level === AppLogLevelEnum.debug) {
             // @ts-expect-error TODO: Why TS thinks this is wrong?
             this.logger.debug(message, context);

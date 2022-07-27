@@ -3,6 +3,25 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.18.2](https://github.com/rnw-community/rnw-community/compare/v0.18.1...v0.18.2) (2022-07-27)
+
+
+### Bug Fixes
+
+* **nestjs-rxjs-logger:** make print method public ([#75](https://github.com/rnw-community/rnw-community/issues/75)) ([c63660e](https://github.com/rnw-community/rnw-community/commit/c63660e282a6070579769ee1815cc6c0eeface9b))
+
+
+
+
+
+## [0.18.1](https://github.com/rnw-community/rnw-community/compare/v0.18.0...v0.18.1) (2022-07-26)
+
+**Note:** Version bump only for package @rnw-community/nestjs-rxjs-logger
+
+
+
+
+
 # [0.18.0](https://github.com/rnw-community/rnw-community/compare/v0.17.1...v0.18.0) (2022-07-26)
 
 **Note:** Version bump only for package @rnw-community/nestjs-rxjs-logger
