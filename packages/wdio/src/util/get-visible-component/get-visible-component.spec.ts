@@ -27,6 +27,7 @@ const elementMethods = {
 };
 
 const mockElement = {
+    ...elementMethods,
     click: jest.fn(() => Promise.resolve(void 0)),
     testID$: jest.fn(() => Promise.resolve(elementMethods)),
     testID$$: jest.fn(() => Promise.resolve(elementMethods)),
@@ -36,7 +37,6 @@ const mockElement = {
 jest.mock('../../command', () => ({
     testID$: jest.fn(() => Promise.resolve(mockElement)),
     testID$$: jest.fn(() => Promise.resolve([mockElement])),
-    click: jest.fn(() => Promise.resolve(void 0)),
 }));
 
 // eslint-disable-next-line max-lines-per-function,max-statements
@@ -197,6 +197,6 @@ describe('getVisibleComponent', () => {
 
         expectTypeOf(component.ButtonSetValue).toBeFunction();
         await expect(component.ButtonSetValue('')).resolves.toBe(void 0);
-        expect(setValueChildElSpy).toHaveBeenCalledWith(Selectors.Button, '');
+        expect(setValueChildElSpy).toHaveBeenCalledWith(Selectors.Button, ['']);
     });
 });
