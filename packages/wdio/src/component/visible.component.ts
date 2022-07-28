@@ -26,6 +26,7 @@ export class VisibleComponent {
         return await (await this.getSafelyRootEl()).isExisting();
     }
 
+    // TODO: Rename add agrs to follow same semantic as WDIO
     async isNotExisting(): Promise<void> {
         await (await this.getSafelyRootEl()).waitForDisplayed({ reverse: true });
     }
@@ -105,7 +106,7 @@ export class VisibleComponent {
         await (await this.getChildEl(selector, root)).waitForEnabled(...args);
     }
 
-    private async getSafelyRootEl(): Promise<WebdriverIO.Element> {
+    async getSafelyRootEl(): Promise<WebdriverIO.Element> {
         const rootEl = await this.RootEl;
         if (!isDefined(rootEl)) {
             throw new Error(`RootEl is not defined`);
