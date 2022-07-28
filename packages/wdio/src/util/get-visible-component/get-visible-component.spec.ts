@@ -71,18 +71,6 @@ describe('getVisibleComponent', () => {
         expect(testID$).toHaveBeenCalledWith(SelectorsEnum.Button);
     });
 
-    it('should throw error if neither constructor Root selector arg nor Root enum selector is available', () => {
-        expect.assertions(1);
-
-        enum NoRootSelectors {
-            Body = 'NoRootSelectors.Body',
-        }
-
-        class NoRootComponent extends getVisibleComponent<NoRootSelectors>(NoRootSelectors) {}
-
-        expect(() => new NoRootComponent()).toThrow('Cannot create VisibleComponent - No Root element selector was passed');
-    });
-
     it('should add selectors enum methods for finding single element with suffix El', async () => {
         expect.assertions(1);
 
