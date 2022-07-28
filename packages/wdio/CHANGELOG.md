@@ -3,6 +3,10 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.24.10](https://github.com/rnw-community/rnw-community/compare/v0.24.9...v0.24.10) (2022-07-28)
+
+**Note:** Version bump only for package @rnw-community/wdio
+
 ## [0.24.9](https://github.com/rnw-community/rnw-community/compare/v0.24.8...v0.24.9) (2022-07-28)
 
 ### Bug Fixes
