@@ -20,7 +20,7 @@ after_success:
 
 deploy:
   - provider: script
-    script: npx lerna publish --yes --conventional-commits --github-release
+    script: npx lerna publish --yes --conventional-commits --create-release=github
     skip_cleanup: true
     keep_history: true
     on:
