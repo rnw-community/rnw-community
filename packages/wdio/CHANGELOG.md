@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.24.9](https://github.com/rnw-community/rnw-community/compare/v0.24.8...v0.24.9) (2022-07-28)
+
+### Bug Fixes
+
+-   **wdio:** added typesafe getSafelyRootEl to VisibleComponent ([6bf59a9](https://github.com/rnw-community/rnw-community/commit/6bf59a988a1a64871bee7c9b20acb46c2a08bb71))
+
 ## [0.24.8](https://github.com/rnw-community/rnw-community/compare/v0.24.7...v0.24.8) (2022-07-28)
 
 **Note:** Version bump only for package @rnw-community/wdio
