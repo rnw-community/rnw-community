@@ -16,6 +16,8 @@ Install additional peer dependencies:
 
 ### VisibleComponent
 
+Page/Component object which provides root element behaviour and helpers for working with nested elements.
+
 #### getVisibleComponent
 
 #### createVisibleComponent
