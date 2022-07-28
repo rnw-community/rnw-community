@@ -14,6 +14,12 @@ Install additional peer dependencies:
 
 ## Usage
 
+### VisibleComponent
+
+#### getVisibleComponent
+
+#### createVisibleComponent
+
 ## Utils
 
 ### setTestID

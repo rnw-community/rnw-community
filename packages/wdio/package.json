@@ -35,7 +35,7 @@
   "engines": {
     "node": ">=14.0.0"
   },
-  "gitHead": "b5608910319390f9773a9d42c3cc828e8e8a1d95",
+  "gitHead": "ed2cec449e634a16dc3a80b4a8cd2d1d28c9f9c4",
   "dependencies": {
     "@rnw-community/shared": "^0.8.0"
   },
