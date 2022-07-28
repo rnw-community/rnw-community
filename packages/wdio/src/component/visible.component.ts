@@ -1,6 +1,6 @@
 import { isDefined, isNotEmptyString } from '@rnw-community/shared';
 
-import { testID$ } from '../command';
+import { testID$, testID$$, testID$$Index } from '../command';
 
 import type { SetValueArgs, WaitForDisplayedArgs, WaitForEnabledArgs, WaitForExistArgs } from '../type';
 
@@ -8,7 +8,7 @@ export class VisibleComponent {
     private readonly constructorEl: WebdriverIO.Element | undefined;
     private readonly constructorSelector: string = '';
 
-    constructor(selectorOrElement: WebdriverIO.Element | string) {
+    constructor(selectorOrElement?: WebdriverIO.Element | string) {
         if (isNotEmptyString(selectorOrElement)) {
             this.constructorSelector = selectorOrElement;
         } else {
@@ -41,15 +41,30 @@ export class VisibleComponent {
     }
 
     async getChildEl(selector: string, root = this.RootEl): Promise<WebdriverIO.Element> {
-        return await root.then(async rootEl => await rootEl.testID$(selector));
+        const rootEl = await root;
+        if (!isDefined(rootEl)) {
+            return await testID$(selector);
+        }
+
+        return await rootEl.testID$(selector);
     }
 
     async getChildEls(selector: string, root = this.RootEl): Promise<WebdriverIO.ElementArray> {
-        return await root.then(async rootEl => await rootEl.testID$$(selector));
+        const rootEl = await root;
+        if (!isDefined(rootEl)) {
+            return await testID$$(selector);
+        }
+
+        return await rootEl.testID$$(selector);
     }
 
     async getChildElByIdx(selector: string, idx: number, root = this.RootEl): Promise<WebdriverIO.Element> {
-        return await root.then(async rootEl => await rootEl.testID$$Index(selector, idx));
+        const rootEl = await root;
+        if (!isDefined(rootEl)) {
+            return await testID$$Index(selector, idx);
+        }
+
+        return await rootEl.testID$$Index(selector, idx);
     }
 
     async clickChildEl(selector: string, root = this.RootEl): Promise<void> {
