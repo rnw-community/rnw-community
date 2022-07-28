@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.24.4](https://github.com/rnw-community/rnw-community/compare/v0.24.3...v0.24.4) (2022-07-28)
+
+
+### Bug Fixes
+
+* **wdio:** fixed createVisibleComponent second argument to accept string ([662d119](https://github.com/rnw-community/rnw-community/commit/662d119d7f0943d0560af11feaa299f24db3b8e4))
+
+
+
+
+
 ## [0.24.3](https://github.com/rnw-community/rnw-community/compare/v0.24.2...v0.24.3) (2022-07-28)
 
 
