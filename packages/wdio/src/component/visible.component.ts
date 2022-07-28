@@ -16,28 +16,30 @@ export class VisibleComponent {
         }
     }
 
-    get RootEl(): Promise<WebdriverIO.Element> {
-        return isDefined(this.constructorEl) ? Promise.resolve(this.constructorEl) : testID$(this.constructorSelector);
+    get RootEl(): Promise<WebdriverIO.Element | undefined> {
+        return isNotEmptyString(this.constructorSelector)
+            ? testID$(this.constructorSelector)
+            : Promise.resolve(this.constructorEl);
     }
 
     async isExisting(): Promise<boolean> {
-        return await (await this.RootEl).isExisting();
+        return await (await this.getSafelyRootEl()).isExisting();
     }
 
     async isNotExisting(): Promise<void> {
-        await (await this.RootEl).waitForDisplayed({ reverse: true });
+        await (await this.getSafelyRootEl()).waitForDisplayed({ reverse: true });
     }
 
     async isReady(): Promise<void> {
-        await (await this.RootEl).waitForDisplayed();
+        await (await this.getSafelyRootEl()).waitForDisplayed();
     }
 
     async isDisplayed(): Promise<boolean> {
-        return await (await this.RootEl).isDisplayed();
+        return await (await this.getSafelyRootEl()).isDisplayed();
     }
 
     async click(): Promise<void> {
-        await (await this.RootEl).click();
+        await (await this.getSafelyRootEl()).click();
     }
 
     async getChildEl(selector: string, root = this.RootEl): Promise<WebdriverIO.Element> {
@@ -101,5 +103,14 @@ export class VisibleComponent {
 
     async waitForEnabledChildEl(selector: string, args: WaitForEnabledArgs, root = this.RootEl): Promise<void> {
         await (await this.getChildEl(selector, root)).waitForEnabled(...args);
+    }
+
+    private async getSafelyRootEl(): Promise<WebdriverIO.Element> {
+        const rootEl = await this.RootEl;
+        if (!isDefined(rootEl)) {
+            throw new Error(`RootEl is not defined`);
+        }
+
+        return rootEl;
     }
 }
