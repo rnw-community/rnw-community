@@ -22,11 +22,6 @@ export const getVisibleComponent = <T extends string>(selectors: Enum<T>): Visib
             const selectorRootKey = isDefined(rootSelectorKey) ? selectors[rootSelectorKey] : undefined;
             const rootSelector = isDefined(selectorOrElement) ? selectorOrElement : selectorRootKey;
 
-            if (!isDefined(rootSelector)) {
-                throw new Error('Cannot create VisibleComponent - No Root element selector was passed');
-            }
-
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
             super(rootSelector);
 
             // eslint-disable-next-line no-constructor-return

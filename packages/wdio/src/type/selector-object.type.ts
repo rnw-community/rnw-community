@@ -1,5 +1,6 @@
 import type { SetValueArgs, WaitForDisplayedArgs, WaitForEnabledArgs, WaitForExistArgs } from './wdio-types.type';
 
+// TODO: Add WebdriverIO typing
 export interface SelectorObject {
     click: () => Promise<void>;
     clickByIdx: (idx: number) => Promise<void>;
