@@ -41,3 +41,7 @@ export const DynamicComponent: FC<IOSTestIDProps> = ({ testID = 'ParentTestID' }
 ```
 
 Which will generate `ParentTestID_Text`;
+
+### getTestID
+
+### setPropTestID
