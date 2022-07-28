@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.24.6](https://github.com/rnw-community/rnw-community/compare/v0.24.5...v0.24.6) (2022-07-28)
+
+### Bug Fixes
+
+-   **wdio:** fixed VisibleComponent without root behaviour ([1c23e5b](https://github.com/rnw-community/rnw-community/commit/1c23e5b34396823adeb9c5842f30a5bd466f5cf7))
+
 ## [0.24.5](https://github.com/rnw-community/rnw-community/compare/v0.24.4...v0.24.5) (2022-07-28)
 
 ### Bug Fixes
