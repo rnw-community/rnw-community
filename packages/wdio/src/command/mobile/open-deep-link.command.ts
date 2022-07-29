@@ -19,8 +19,7 @@ export const openDeepLinkCommand = async (
             throw new Error('Cannot open deep link - packageName should be defined');
         }
 
-        // TODO: can we use this browser.capabilities.appPackage ?
-        await driver.execute('mobile:deepLink', { url: `${url}`, package: packageName });
+        await driver.execute('mobile:deepLink', { url, package: packageName });
     } else if (isIOSCapability()) {
         // TODO: Find better IOS implementation, improve speed
         await driver.execute('mobile: launchApp', { bundleId: 'com.apple.mobilesafari' });

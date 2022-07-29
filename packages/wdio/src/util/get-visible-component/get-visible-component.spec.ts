@@ -30,13 +30,14 @@ const mockElement = {
     ...elementMethods,
     click: jest.fn(() => Promise.resolve(void 0)),
     testID$: jest.fn(() => Promise.resolve(elementMethods)),
-    testID$$: jest.fn(() => Promise.resolve(elementMethods)),
+    testID$$: jest.fn(() => Promise.resolve([elementMethods])),
     testID$$Index: jest.fn(() => Promise.resolve(elementMethods)),
 };
 
 jest.mock('../../command', () => ({
     testID$: jest.fn(() => Promise.resolve(mockElement)),
     testID$$: jest.fn(() => Promise.resolve([mockElement])),
+    testID$$Index: jest.fn(() => Promise.resolve(mockElement)),
 }));
 
 // TODO: Add selector object tests
@@ -52,13 +53,14 @@ describe('getVisibleComponent', () => {
     });
 
     it('should use Root enum selector as VisibleComponent RootEl', async () => {
-        expect.assertions(1);
+        expect.assertions(2);
 
         const component = new Component();
 
         await component.ButtonEl;
 
-        expect(testID$).toHaveBeenCalledWith(SelectorsEnum.Root);
+        expect(testID$).toHaveBeenNthCalledWith(1, SelectorsEnum.Root);
+        expect(testID$).toHaveBeenNthCalledWith(2, SelectorsEnum.Button, expect.objectContaining({}));
     });
 
     it('should use constructor Root selector arg over Root enum selector as VisibleComponent RootEl', async () => {
