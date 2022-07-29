@@ -6,7 +6,7 @@ import type { ComponentWithSelectors, Enum } from '../../type';
 
 type RootedComponentWithSelectorsCtor<T extends string> = new (
     selectorOrElement?: WebdriverIO.Element | string
-) => ComponentWithSelectors<T>;
+) => ComponentWithSelectors<T, RootedComponent>;
 
 export const getRootedComponent = <T extends string>(selectors: Enum<T>): RootedComponentWithSelectorsCtor<T> =>
     // @ts-expect-error We use proxy for dynamic fields
