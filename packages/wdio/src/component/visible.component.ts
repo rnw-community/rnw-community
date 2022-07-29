@@ -7,111 +7,113 @@ import type { SetValueArgs, WaitForDisplayedArgs, WaitForEnabledArgs, WaitForExi
 export class VisibleComponent {
     private readonly constructorEl: WebdriverIO.Element | undefined;
     private readonly constructorSelector: string = '';
+    private readonly hasRoot: boolean;
 
     constructor(selectorOrElement?: WebdriverIO.Element | string) {
         if (isNotEmptyString(selectorOrElement)) {
+            this.hasRoot = true;
             this.constructorSelector = selectorOrElement;
-        } else {
+        } else if (isDefined(selectorOrElement)) {
+            this.hasRoot = true;
             this.constructorEl = selectorOrElement;
+        } else {
+            this.hasRoot = false;
         }
     }
 
-    get RootEl(): Promise<WebdriverIO.Element | undefined> {
-        return isNotEmptyString(this.constructorSelector)
-            ? testID$(this.constructorSelector)
-            : Promise.resolve(this.constructorEl);
+    get RootEl(): Promise<WebdriverIO.Element> {
+        if (this.hasRoot) {
+            if (isNotEmptyString(this.constructorSelector)) {
+                return testID$(this.constructorSelector);
+            } else if (isDefined(this.constructorEl)) {
+                return Promise.resolve(this.constructorEl);
+            }
+        }
+
+        throw new Error(`${VisibleComponent.name} does not have a RootEl`);
     }
 
-    async isExisting(): Promise<boolean> {
-        return await (await this.getSafelyRootEl()).isExisting();
+    async waitForDisplayed(...args: WaitForDisplayedArgs): Promise<void> {
+        await (await this.RootEl).waitForDisplayed(...args);
     }
 
-    // TODO: Rename add agrs to follow same semantic as WDIO
-    async isNotExisting(): Promise<void> {
-        await (await this.getSafelyRootEl()).waitForDisplayed({ reverse: true });
+    async waitForEnabled(...args: WaitForEnabledArgs): Promise<void> {
+        await (await this.RootEl).waitForEnabled(...args);
     }
 
-    async isReady(): Promise<void> {
-        await (await this.getSafelyRootEl()).waitForDisplayed();
+    async waitForExist(...args: WaitForExistArgs): Promise<void> {
+        await (await this.RootEl).waitForExist(...args);
     }
 
     async isDisplayed(): Promise<boolean> {
-        return await (await this.getSafelyRootEl()).isDisplayed();
+        return await (await this.RootEl).isDisplayed();
+    }
+
+    async isExisting(): Promise<boolean> {
+        return await (await this.RootEl).isExisting();
     }
 
     async click(): Promise<void> {
-        await (await this.getSafelyRootEl()).click();
+        await (await this.RootEl).click();
     }
 
-    async getChildEl(selector: string, root = this.RootEl): Promise<WebdriverIO.Element> {
-        const rootEl = await root;
-        if (!isDefined(rootEl)) {
+    async getChildEl(selector: string): Promise<WebdriverIO.Element> {
+        if (!this.hasRoot) {
             return await testID$(selector);
         }
 
-        return await rootEl.testID$(selector);
+        return await testID$(selector, await this.RootEl);
     }
 
-    async getChildEls(selector: string, root = this.RootEl): Promise<WebdriverIO.ElementArray> {
-        const rootEl = await root;
-        if (!isDefined(rootEl)) {
+    async getChildEls(selector: string): Promise<WebdriverIO.ElementArray> {
+        if (!this.hasRoot) {
             return await testID$$(selector);
         }
 
-        return await rootEl.testID$$(selector);
+        return await testID$$(selector, await this.RootEl);
     }
 
-    async getChildElByIdx(selector: string, idx: number, root = this.RootEl): Promise<WebdriverIO.Element> {
-        const rootEl = await root;
-        if (!isDefined(rootEl)) {
+    async getChildElByIdx(selector: string, idx: number): Promise<WebdriverIO.Element> {
+        if (!this.hasRoot) {
             return await testID$$Index(selector, idx);
         }
 
-        return await rootEl.testID$$Index(selector, idx);
+        return await testID$$Index(selector, idx, await this.RootEl);
     }
 
-    async clickChildEl(selector: string, root = this.RootEl): Promise<void> {
-        await (await this.getChildEl(selector, root)).click();
+    async clickChildEl(selector: string): Promise<void> {
+        await (await this.getChildEl(selector)).click();
     }
 
-    async clickByIdxChildEl(selector: string, idx: number, root = this.RootEl): Promise<void> {
-        await (await this.getChildElByIdx(selector, idx, root)).click();
+    async clickByIdxChildEl(selector: string, idx: number): Promise<void> {
+        await (await this.getChildElByIdx(selector, idx)).click();
     }
 
-    async setValueChildEl(selector: string, args: SetValueArgs, root = this.RootEl): Promise<void> {
-        await (await this.getChildEl(selector, root)).setValue(...args);
+    async setValueChildEl(selector: string, args: SetValueArgs): Promise<void> {
+        await (await this.getChildEl(selector)).setValue(...args);
     }
 
-    async isDisplayedChildEl(selector: string, root = this.RootEl): Promise<boolean> {
-        return await (await this.getChildEl(selector, root)).isDisplayed();
+    async isDisplayedChildEl(selector: string): Promise<boolean> {
+        return await (await this.getChildEl(selector)).isDisplayed();
     }
 
-    async isExistingChildEl(selector: string, root = this.RootEl): Promise<boolean> {
-        return await (await this.getChildEl(selector, root)).isExisting();
+    async isExistingChildEl(selector: string): Promise<boolean> {
+        return await (await this.getChildEl(selector)).isExisting();
     }
 
-    async getTextChildEl(selector: string, root = this.RootEl): Promise<string> {
-        return await (await this.getChildEl(selector, root)).getText();
+    async getTextChildEl(selector: string): Promise<string> {
+        return await (await this.getChildEl(selector)).getText();
     }
 
-    async waitForExistsChildEl(selector: string, args: WaitForExistArgs, root = this.RootEl): Promise<void> {
-        await (await this.getChildEl(selector, root)).waitForExist(...args);
+    async waitForExistsChildEl(selector: string, args: WaitForExistArgs): Promise<void> {
+        await (await this.getChildEl(selector)).waitForExist(...args);
     }
 
-    async waitForDisplayedChildEl(selector: string, args: WaitForDisplayedArgs, root = this.RootEl): Promise<void> {
-        await (await this.getChildEl(selector, root)).waitForDisplayed(...args);
+    async waitForDisplayedChildEl(selector: string, args: WaitForDisplayedArgs): Promise<void> {
+        await (await this.getChildEl(selector)).waitForDisplayed(...args);
     }
 
-    async waitForEnabledChildEl(selector: string, args: WaitForEnabledArgs, root = this.RootEl): Promise<void> {
-        await (await this.getChildEl(selector, root)).waitForEnabled(...args);
-    }
-
-    async getSafelyRootEl(): Promise<WebdriverIO.Element> {
-        const rootEl = await this.RootEl;
-        if (!isDefined(rootEl)) {
-            throw new Error(`RootEl is not defined`);
-        }
-
-        return rootEl;
+    async waitForEnabledChildEl(selector: string, args: WaitForEnabledArgs): Promise<void> {
+        await (await this.getChildEl(selector)).waitForEnabled(...args);
     }
 }
