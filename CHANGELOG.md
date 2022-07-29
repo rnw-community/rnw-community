@@ -3,6 +3,13 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.26.5](https://github.com/rnw-community/rnw-community/compare/v0.26.4...v0.26.5) (2022-07-29)
+
+### Bug Fixes
+
+-   **wdio:** fixed slowInputCommand for android ([baadd6e](https://github.com/rnw-community/rnw-community/commit/baadd6e2d936bede6a2d98dbc3955df3374831d5))
+-   **wdio:** fixed slowInputCommand for android ([1adcbc9](https://github.com/rnw-community/rnw-community/commit/1adcbc9acee9b8e0c4d7546fecfb0ccf9206b965))
+
 ## [0.26.4](https://github.com/rnw-community/rnw-community/compare/v0.26.3...v0.26.4) (2022-07-29)
 
 ### Bug Fixes
