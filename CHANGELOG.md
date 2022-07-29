@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.26.0](https://github.com/rnw-community/rnw-community/compare/v0.25.0...v0.26.0) (2022-07-29)
+
+
+### Features
+
+* **wdio:** refactored VisibleComponent root methods to match wdio element method ([3260fd4](https://github.com/rnw-community/rnw-community/commit/3260fd4d78c66758bbeb22e9f8e230053f44ea67))
+
+
+
+
+
 # [0.25.0](https://github.com/rnw-community/rnw-community/compare/v0.24.10...v0.25.0) (2022-07-29)
 
 ### Features
