@@ -4,10 +4,10 @@ module.exports = {
     reporters: ['default'],
     coverageThreshold: {
         global: {
-            statements: 94.5,
-            branches: 83,
-            functions: 93.5,
-            lines: 94,
+            statements: 92,
+            branches: 81,
+            functions: 89,
+            lines: 91,
         },
     },
 };
