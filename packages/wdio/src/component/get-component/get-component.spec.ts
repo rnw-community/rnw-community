@@ -2,37 +2,15 @@
 import { expectTypeOf } from 'expect-type';
 
 import { testID$ } from '../../command';
+import { mockElement } from '../element.mock';
 
-import { getVisibleComponent } from './get-visible-component';
+import { getComponent } from './get-component';
 
 enum SelectorsEnum {
     Button = 'Selectors.Button',
-    Root = 'Selectors.Root',
 }
 
-class Component extends getVisibleComponent(SelectorsEnum) {}
-
-const elementMethods = {
-    testID$: jest.fn(() => Promise.resolve({})),
-    testID$$: jest.fn(() => Promise.resolve([{}])),
-    testID$$Index: jest.fn(() => Promise.resolve({})),
-    click: jest.fn(() => Promise.resolve(void 0)),
-    getText: jest.fn(() => Promise.resolve('')),
-    isDisplayed: jest.fn(() => Promise.resolve(true)),
-    isExisting: jest.fn(() => Promise.resolve(true)),
-    waitForExist: jest.fn(() => Promise.resolve(void 0)),
-    waitForDisplayed: jest.fn(() => Promise.resolve(void 0)),
-    waitForEnabled: jest.fn(() => Promise.resolve(void 0)),
-    setValue: jest.fn(() => Promise.resolve(void 0)),
-};
-
-const mockElement = {
-    ...elementMethods,
-    click: jest.fn(() => Promise.resolve(void 0)),
-    testID$: jest.fn(() => Promise.resolve(elementMethods)),
-    testID$$: jest.fn(() => Promise.resolve([elementMethods])),
-    testID$$Index: jest.fn(() => Promise.resolve(elementMethods)),
-};
+class Component extends getComponent(SelectorsEnum) {}
 
 jest.mock('../../command', () => ({
     testID$: jest.fn(() => Promise.resolve(mockElement)),
@@ -40,10 +18,8 @@ jest.mock('../../command', () => ({
     testID$$Index: jest.fn(() => Promise.resolve(mockElement)),
 }));
 
-// TODO: Add selector object tests
-
 // eslint-disable-next-line max-lines-per-function,max-statements
-describe('getVisibleComponent', () => {
+describe('getComponent', () => {
     it('should throw error on calling not supported proxy method', () => {
         expect.assertions(1);
 
@@ -52,23 +28,12 @@ describe('getVisibleComponent', () => {
         expect(() => void component.IDONOTEXISTS()).toThrow(TypeError);
     });
 
-    it('should use Root enum selector as VisibleComponent RootEl', async () => {
-        expect.assertions(2);
-
-        const component = new Component();
-
-        await component.ButtonEl;
-
-        expect(testID$).toHaveBeenNthCalledWith(1, SelectorsEnum.Root);
-        expect(testID$).toHaveBeenNthCalledWith(2, SelectorsEnum.Button, expect.objectContaining({}));
-    });
-
-    it('should use constructor Root selector arg over Root enum selector as VisibleComponent RootEl', async () => {
+    it('should use constructor global context for getting elements', async () => {
         expect.assertions(1);
 
         const component = new Component(SelectorsEnum.Button);
 
-        await component.ButtonEl;
+        await component.Button.el();
 
         expect(testID$).toHaveBeenCalledWith(SelectorsEnum.Button);
     });
@@ -79,7 +44,7 @@ describe('getVisibleComponent', () => {
         const component = new Component();
         const getChildElSpy = jest.spyOn(component, 'getChildEl');
 
-        const buttonEl = await component.ButtonEl;
+        const buttonEl = await component.Button.el();
 
         expect(getChildElSpy).toHaveBeenCalledWith(SelectorsEnum.Button);
         expectTypeOf(buttonEl).toBeObject();
@@ -91,7 +56,7 @@ describe('getVisibleComponent', () => {
         const component = new Component();
         const getChildElsSpy = jest.spyOn(component, 'getChildEls');
 
-        const buttonEls = await component.ButtonEls;
+        const buttonEls = await component.Button.els();
 
         expect(getChildElsSpy).toHaveBeenCalledWith(SelectorsEnum.Button);
         expectTypeOf(buttonEls).toBeArray();
@@ -103,7 +68,8 @@ describe('getVisibleComponent', () => {
         const component = new Component();
         const clickChildElSpy = jest.spyOn(component, 'clickChildEl');
 
-        await expect(component.ButtonClick).resolves.toBe(void 0);
+        expectTypeOf(component.Button.click).toBeFunction();
+        await expect(component.Button.click()).resolves.toBe(void 0);
         expect(clickChildElSpy).toHaveBeenCalledWith(SelectorsEnum.Button);
     });
 
@@ -113,8 +79,8 @@ describe('getVisibleComponent', () => {
         const component = new Component();
         const clickByIdxChildElSpy = jest.spyOn(component, 'clickByIdxChildEl');
 
-        expectTypeOf(component.ButtonClickByIdx).toBeFunction();
-        await expect(component.ButtonClickByIdx(1)).resolves.toBe(void 0);
+        expectTypeOf(component.Button.clickByIdx).toBeFunction();
+        await expect(component.Button.clickByIdx(1)).resolves.toBe(void 0);
         expect(clickByIdxChildElSpy).toHaveBeenCalledWith(SelectorsEnum.Button, 1);
     });
 
@@ -124,7 +90,8 @@ describe('getVisibleComponent', () => {
         const component = new Component();
         const getTextChildElSpy = jest.spyOn(component, 'getTextChildEl');
 
-        await expect(component.ButtonText).resolves.toBe('');
+        expectTypeOf(component.Button.getText).toBeFunction();
+        await expect(component.Button.getText()).resolves.toBe('');
         expect(getTextChildElSpy).toHaveBeenCalledWith(SelectorsEnum.Button);
     });
 
@@ -134,7 +101,8 @@ describe('getVisibleComponent', () => {
         const component = new Component();
         const isDisplayedChildElSpy = jest.spyOn(component, 'isDisplayedChildEl');
 
-        await expect(component.ButtonIsDisplayed).resolves.toBe(true);
+        expectTypeOf(component.Button.isDisplayed).toBeFunction();
+        await expect(component.Button.isDisplayed()).resolves.toBe(true);
         expect(isDisplayedChildElSpy).toHaveBeenCalledWith(SelectorsEnum.Button);
     });
 
@@ -144,7 +112,8 @@ describe('getVisibleComponent', () => {
         const component = new Component();
         const isExistingChildElSpy = jest.spyOn(component, 'isExistingChildEl');
 
-        await expect(component.ButtonExists).resolves.toBe(true);
+        expectTypeOf(component.Button.isExisting).toBeFunction();
+        await expect(component.Button.isExisting()).resolves.toBe(true);
         expect(isExistingChildElSpy).toHaveBeenCalledWith(SelectorsEnum.Button);
     });
 
@@ -154,8 +123,8 @@ describe('getVisibleComponent', () => {
         const component = new Component();
         const waitForExistChildElSpy = jest.spyOn(component, 'waitForExistsChildEl');
 
-        expectTypeOf(component.ButtonWaitForExists).toBeFunction();
-        await expect(component.ButtonWaitForExists({ reverse: true })).resolves.toBe(void 0);
+        expectTypeOf(component.Button.waitForExist).toBeFunction();
+        await expect(component.Button.waitForExist({ reverse: true })).resolves.toBe(void 0);
         expect(waitForExistChildElSpy).toHaveBeenCalledWith(SelectorsEnum.Button, [{ reverse: true }]);
     });
 
@@ -165,8 +134,8 @@ describe('getVisibleComponent', () => {
         const component = new Component();
         const waitForDisplayedChildElSpy = jest.spyOn(component, 'waitForDisplayedChildEl');
 
-        expectTypeOf(component.ButtonWaitForDisplayed).toBeFunction();
-        await expect(component.ButtonWaitForDisplayed({ reverse: true })).resolves.toBe(void 0);
+        expectTypeOf(component.Button.waitForDisplayed).toBeFunction();
+        await expect(component.Button.waitForDisplayed({ reverse: true })).resolves.toBe(void 0);
         expect(waitForDisplayedChildElSpy).toHaveBeenCalledWith(SelectorsEnum.Button, [{ reverse: true }]);
     });
 
@@ -176,8 +145,8 @@ describe('getVisibleComponent', () => {
         const component = new Component();
         const waitForEnabledChildElSpy = jest.spyOn(component, 'waitForEnabledChildEl');
 
-        expectTypeOf(component.ButtonWaitForEnabled).toBeFunction();
-        await expect(component.ButtonWaitForEnabled({ reverse: true })).resolves.toBe(void 0);
+        expectTypeOf(component.Button.waitForEnabled).toBeFunction();
+        await expect(component.Button.waitForEnabled({ reverse: true })).resolves.toBe(void 0);
         expect(waitForEnabledChildElSpy).toHaveBeenCalledWith(SelectorsEnum.Button, [{ reverse: true }]);
     });
 
@@ -187,8 +156,8 @@ describe('getVisibleComponent', () => {
         const component = new Component();
         const setValueChildElSpy = jest.spyOn(component, 'setValueChildEl');
 
-        expectTypeOf(component.ButtonSetValue).toBeFunction();
-        await expect(component.ButtonSetValue('')).resolves.toBe(void 0);
+        expectTypeOf(component.Button.setValue).toBeFunction();
+        await expect(component.Button.setValue('')).resolves.toBe(void 0);
         expect(setValueChildElSpy).toHaveBeenCalledWith(SelectorsEnum.Button, ['']);
     });
 });
