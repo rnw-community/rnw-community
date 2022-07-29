@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.25.0](https://github.com/rnw-community/rnw-community/compare/v0.24.10...v0.25.0) (2022-07-29)
+
+### Features
+
+-   **wdio:** changed openDeepLink command arguments ([959589d](https://github.com/rnw-community/rnw-community/commit/959589d11ec9634330b237266e5d41aa9db0bfd4))
+
 ## [0.24.10](https://github.com/rnw-community/rnw-community/compare/v0.24.9...v0.24.10) (2022-07-28)
 
 **Note:** Version bump only for package @rnw-community/wdio
