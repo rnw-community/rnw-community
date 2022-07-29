@@ -80,27 +80,13 @@ export class Component {
         };
     }
 
-    // eslint-disable-next-line max-statements
     protected callDynamicMethod<T extends string>(selectors: Enum<T>, field: string): unknown {
-        const selectorKeys = Object.keys(selectors) as T[];
-        // TODO: This logic need improvement to avoid false positives
-        const selectorKey = selectorKeys.find(key => field.includes(key));
+        const selectorValue = selectors[field];
 
-        if (!isDefined(selectorKey)) {
+        if (!isDefined(selectorValue)) {
             return undefined;
         }
 
-        const selectorValue = selectors[selectorKey] as string;
-        const selectorObject = this.getSelectorObject(selectorValue);
-
-        if (field === selectorKey) {
-            return selectorObject;
-        } else if (field.endsWith('Els')) {
-            return this.getChildEls(selectorValue);
-        } else if (field.endsWith('El')) {
-            return this.getChildEl(selectorValue);
-        }
-
-        return undefined;
+        return this.getSelectorObject(selectorValue);
     }
 }
