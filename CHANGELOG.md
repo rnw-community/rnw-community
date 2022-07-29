@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.26.4](https://github.com/rnw-community/rnw-community/compare/v0.26.3...v0.26.4) (2022-07-29)
+
+### Bug Fixes
+
+-   **wdio:** fixed getting selector object ([f842ded](https://github.com/rnw-community/rnw-community/commit/f842ded28b5deb7ac0c4afc4b61a47d9e35f60cb))
+
 ## [0.26.3](https://github.com/rnw-community/rnw-community/compare/v0.26.2...v0.26.3) (2022-07-29)
 
 ### Bug Fixes
