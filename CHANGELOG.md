@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.26.3](https://github.com/rnw-community/rnw-community/compare/v0.26.2...v0.26.3) (2022-07-29)
+
+### Bug Fixes
+
+-   **wdio:** adde prebuild clear ([95912f5](https://github.com/rnw-community/rnw-community/commit/95912f5e56eaa0308ebf76688e4e9f4eb91e8a31))
+
 ## [0.26.2](https://github.com/rnw-community/rnw-community/compare/v0.26.1...v0.26.2) (2022-07-29)
 
 ### Bug Fixes
