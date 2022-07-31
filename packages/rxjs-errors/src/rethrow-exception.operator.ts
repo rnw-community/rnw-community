@@ -9,7 +9,7 @@ import type { Observable } from 'rxjs';
 export type RethrowExceptionOperator = <T>(
     errStringOrMessageFn: string | ((err: unknown) => string),
     logFn?: (msg: string) => void,
-    ErrorCtor?: new (msg: string) => Error,
+    ErrorCtor?: new (msg: string, ...args: never[]) => Error,
     createError?: (msg: string) => Error
 ) => (source$: Observable<T>) => Observable<T>;
 
