@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.26.6](https://github.com/rnw-community/rnw-community/compare/v0.26.5...v0.26.6) (2022-07-31)
+
+
+### Bug Fixes
+
+* **rxjs-errors:** error ctor type in rethrowException ([#76](https://github.com/rnw-community/rnw-community/issues/76)) ([2372dda](https://github.com/rnw-community/rnw-community/commit/2372dda49cd5aa806ecce6fbe526204a939dc5c0))
+
+
+
+
+
 ## [0.26.1](https://github.com/rnw-community/rnw-community/compare/v0.26.0...v0.26.1) (2022-07-29)
 
 **Note:** Version bump only for package @rnw-community/rxjs-errors
