@@ -143,4 +143,72 @@ describe('rethrowException', () => {
                 .subscribe();
         });
     });
+    it('should allow creating exceptions with more than one argument', async () => {
+        expect.assertions(3);
+
+        await new Promise(resolve => {
+            const wantedErrorMsg = 'custom error';
+            const wantedAdditionalErrorMsg = 'custom additional message';
+
+            const logger = jest.fn();
+
+            class CustomError extends Error {
+                constructor(msg: string, public readonly additionalMsg: string) {
+                    super(msg);
+                }
+            }
+
+            const errorCreator = (): Error => new CustomError(wantedErrorMsg, wantedAdditionalErrorMsg);
+
+            of('A')
+                .pipe(
+                    concatMap(() => throwError(() => new Error())),
+                    rethrowException('wrong error message', logger, RxJSFilterError, errorCreator),
+                    catchError((err: unknown) => {
+                        expect(err instanceof CustomError).toBe(true);
+                        expect(getErrorMessage(err)).toBe(wantedErrorMsg);
+                        expect((err as CustomError).additionalMsg).toBe(wantedAdditionalErrorMsg);
+
+                        resolve(true);
+
+                        return EMPTY;
+                    })
+                )
+                .subscribe();
+        });
+    });
+    it('should ignore passed in exceptions with more than one argument', async () => {
+        expect.assertions(3);
+
+        await new Promise(resolve => {
+            const wantedErrorMsg = 'initial error';
+            const wantedAdditionalErrorMsg = 'initial additional message';
+
+            const logger = jest.fn();
+
+            class CustomError extends Error {
+                constructor(msg: string, public readonly additionalMsg: string) {
+                    super(msg);
+                }
+            }
+
+            const errorCreator = (msg: string): Error => new CustomError(msg, 'wrong additional message');
+
+            of('A')
+                .pipe(
+                    concatMap(() => throwError(() => new CustomError(wantedErrorMsg, wantedAdditionalErrorMsg))),
+                    rethrowException('wrong error message', logger, CustomError, errorCreator),
+                    catchError((err: unknown) => {
+                        expect(err instanceof CustomError).toBe(true);
+                        expect(getErrorMessage(err)).toBe(wantedErrorMsg);
+                        expect((err as CustomError).additionalMsg).toBe(wantedAdditionalErrorMsg);
+
+                        resolve(true);
+
+                        return EMPTY;
+                    })
+                )
+                .subscribe();
+        });
+    });
 });
