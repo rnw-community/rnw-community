@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.26.7](https://github.com/rnw-community/rnw-community/compare/v0.26.6...v0.26.7) (2022-08-01)
+
+
+### Bug Fixes
+
+* **wdio:** fixed ios openDeepLink command ([7f1d230](https://github.com/rnw-community/rnw-community/commit/7f1d2302174920232fb34eee41d6dec1f9d1bad1))
+
+
+
+
+
 ## [0.26.6](https://github.com/rnw-community/rnw-community/compare/v0.26.5...v0.26.6) (2022-07-31)
 
 

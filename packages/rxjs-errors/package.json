@@ -1,6 +1,6 @@
 {
   "name": "@rnw-community/rxjs-errors",
-  "version": "0.26.6",
+  "version": "0.26.7",
   "private": false,
   "description": "RxJS errors utils",
   "keywords": [
