@@ -3,7 +3,7 @@ import { isDefined, isNotEmptyString } from '@rnw-community/shared';
 import { testID$, testID$$, testID$$Index } from '../../command';
 import { Component } from '../component/component';
 
-import type { WaitForDisplayedArgs, WaitForEnabledArgs, WaitForExistArgs } from '../../type';
+import type { ClickArgs, WaitForDisplayedArgs, WaitForEnabledArgs, WaitForExistArgs } from '../type';
 
 export class RootedComponent extends Component {
     private readonly constructorEl: WebdriverIO.Element | undefined;
@@ -47,8 +47,8 @@ export class RootedComponent extends Component {
         return await (await this.RootEl).isExisting();
     }
 
-    async click(): Promise<void> {
-        await (await this.RootEl).click();
+    async click(...args: ClickArgs): Promise<void> {
+        await (await this.RootEl).click(...args);
     }
 
     override async getChildEl(selector: string): Promise<WebdriverIO.Element> {

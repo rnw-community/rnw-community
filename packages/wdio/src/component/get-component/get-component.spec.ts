@@ -121,11 +121,11 @@ describe('getComponent', () => {
         expect.assertions(2);
 
         const component = new Component();
-        const waitForExistChildElSpy = jest.spyOn(component, 'waitForExistsChildEl');
+        const waitForExistChildElSpy = jest.spyOn(component, 'waitForExistChildEl');
 
         expectTypeOf(component.Button.waitForExist).toBeFunction();
         await expect(component.Button.waitForExist({ reverse: true })).resolves.toBe(void 0);
-        expect(waitForExistChildElSpy).toHaveBeenCalledWith(SelectorsEnum.Button, [{ reverse: true }]);
+        expect(waitForExistChildElSpy).toHaveBeenCalledWith(SelectorsEnum.Button, { reverse: true });
     });
 
     it('should add selectors enum methods for waiting element to be displayed with suffix WaitForDisplayed', async () => {
@@ -136,7 +136,7 @@ describe('getComponent', () => {
 
         expectTypeOf(component.Button.waitForDisplayed).toBeFunction();
         await expect(component.Button.waitForDisplayed({ reverse: true })).resolves.toBe(void 0);
-        expect(waitForDisplayedChildElSpy).toHaveBeenCalledWith(SelectorsEnum.Button, [{ reverse: true }]);
+        expect(waitForDisplayedChildElSpy).toHaveBeenCalledWith(SelectorsEnum.Button, { reverse: true });
     });
 
     it('should add selectors enum methods for waiting element to be enabled with suffix WaitForEnabled', async () => {
@@ -147,7 +147,7 @@ describe('getComponent', () => {
 
         expectTypeOf(component.Button.waitForEnabled).toBeFunction();
         await expect(component.Button.waitForEnabled({ reverse: true })).resolves.toBe(void 0);
-        expect(waitForEnabledChildElSpy).toHaveBeenCalledWith(SelectorsEnum.Button, [{ reverse: true }]);
+        expect(waitForEnabledChildElSpy).toHaveBeenCalledWith(SelectorsEnum.Button, { reverse: true });
     });
 
     it('should add selectors enum methods for setting element value with suffix SetValue', async () => {
@@ -158,6 +158,6 @@ describe('getComponent', () => {
 
         expectTypeOf(component.Button.setValue).toBeFunction();
         await expect(component.Button.setValue('')).resolves.toBe(void 0);
-        expect(setValueChildElSpy).toHaveBeenCalledWith(SelectorsEnum.Button, ['']);
+        expect(setValueChildElSpy).toHaveBeenCalledWith(SelectorsEnum.Button, '');
     });
 });

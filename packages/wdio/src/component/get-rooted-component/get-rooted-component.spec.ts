@@ -28,11 +28,11 @@ describe('getRootedComponent', () => {
         expect.assertions(1);
 
         expect(() => new (getRootedComponent(SelectorsWithoutRootEnum))()).toThrow(
-            'Cannot create RootedVisibleComponent - Neither root selector not root element is passed'
+            'Cannot create RootedComponent - Neither root selector nor root element is passed'
         );
     });
 
-    it('should use Root enum selector as VisibleComponent RootEl', async () => {
+    it('should use Root enum selector as Component RootEl', async () => {
         expect.assertions(2);
 
         const component = new RootedComponent();
