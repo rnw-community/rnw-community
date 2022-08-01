@@ -23,14 +23,17 @@ export const openDeepLinkCommand = async (
     } else if (isIOSCapability()) {
         // TODO: Find better IOS implementation, improve speed
         await driver.execute('mobile: launchApp', { bundleId: 'com.apple.mobilesafari' });
-        // TODO: How we can read bundleId, is this available in capabilities?
 
-        const urlButtonSelector = "type == 'XCUIElementTypeButton' && name CONTAINS 'URL'";
-        const urlFieldSelector = "type == 'XCUIElementTypeTextField' && name CONTAINS 'URL'";
-        const urlButton = await $(`-ios predicate string:${urlButtonSelector}`);
-        const urlField = await $(`-ios predicate string:${urlFieldSelector}`);
+        const addressBar = $(`//XCUIElementTypeOther[@name="CapsuleNavigationBar?isSelected=true"]`);
+        const urlField = $(
+            `//XCUIElementTypeApplication[@name="Safari"]/XCUIElementTypeWindow[3]/XCUIElementTypeOther/XCUIElementTypeOther/XCUIElementTypeOther[1]`
+        );
 
-        await urlButton.click();
+        if (!(await driver.isKeyboardShown())) {
+            await addressBar.click();
+            await driver.waitUntil(async () => await driver.isKeyboardShown());
+        }
+
         await urlField.setValue(`${url}\uE007`);
     }
 };
