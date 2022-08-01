@@ -1,6 +1,6 @@
 import type { SelectorObject } from './type';
 
-const elementMethods: SelectorObject = {
+export const mockElement: SelectorObject = {
     click: jest.fn(() => Promise.resolve(void 0)),
     getText: jest.fn(() => Promise.resolve('')),
     isDisplayed: jest.fn(() => Promise.resolve(true)),
@@ -15,12 +15,4 @@ const elementMethods: SelectorObject = {
     els: jest.fn(() => Promise.resolve([{}] as unknown as WebdriverIO.ElementArray)),
     getLocation: jest.fn(() => Promise.resolve({ x: 0, y: 0 })),
     getSize: jest.fn(() => Promise.resolve({ width: 0, height: 0 })),
-};
-
-export const mockElement = {
-    ...elementMethods,
-    click: jest.fn(() => Promise.resolve(void 0)),
-    testID$: jest.fn(() => Promise.resolve(elementMethods)),
-    testID$$: jest.fn(() => Promise.resolve([elementMethods])),
-    testID$$Index: jest.fn(() => Promise.resolve(elementMethods)),
 };

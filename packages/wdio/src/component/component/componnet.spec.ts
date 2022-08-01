@@ -3,13 +3,7 @@ import { mockElement } from '../element.mock';
 
 import { Component } from './component';
 
-import type {
-    ClickArgs,
-    SetValueArgs,
-    WaitForDisplayedArgs,
-    WaitForEnabledArgs,
-    WaitForExistArgs,
-} from '../type/wdio-types.type';
+import type { ClickArgs, SetValueArgs, WaitForDisplayedArgs, WaitForEnabledArgs, WaitForExistArgs } from '../type';
 
 jest.mock('../../command', () => ({
     testID$: jest.fn(() => Promise.resolve(mockElement)),

@@ -8,10 +8,6 @@ enum RootedSelectorsEnum {
     Root = 'Selectors.Root',
 }
 
-enum SelectorsWithoutRootEnum {
-    Button = 'Selectors.Button',
-}
-
 class RootedComponent extends getRootedComponent(RootedSelectorsEnum) {}
 
 jest.mock('../../command', () => ({
@@ -20,12 +16,13 @@ jest.mock('../../command', () => ({
     testID$$Index: jest.fn(() => Promise.resolve(mockElement)),
 }));
 
-/*
- * TODO: Add root methods test
- */
 describe('getRootedComponent', () => {
     it('should throw an error if no root selector is passed nor Root enum key exists', () => {
         expect.assertions(1);
+
+        enum SelectorsWithoutRootEnum {
+            Button = 'Selectors.Button',
+        }
 
         expect(() => new (getRootedComponent(SelectorsWithoutRootEnum))()).toThrow(
             'Cannot create RootedComponent - Neither root selector nor root element is passed'
@@ -41,5 +38,15 @@ describe('getRootedComponent', () => {
 
         expect(testID$).toHaveBeenNthCalledWith(1, RootedSelectorsEnum.Root);
         expect(testID$).toHaveBeenNthCalledWith(2, RootedSelectorsEnum.Button, expect.objectContaining({}));
+    });
+
+    it('should call parent RootedComponent methods', async () => {
+        expect.assertions(1);
+
+        const component = new RootedComponent();
+
+        await component.RootEl;
+
+        expect(testID$).toHaveBeenNthCalledWith(1, RootedSelectorsEnum.Root);
     });
 });

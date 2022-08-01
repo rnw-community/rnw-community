@@ -28,38 +28,36 @@ describe('getComponent', () => {
         expect(() => void component.IDONOTEXISTS()).toThrow(TypeError);
     });
 
-    it('should use constructor global context for getting elements', async () => {
-        expect.assertions(1);
+    it('should get wdio element by selector using method el', async () => {
+        expect.assertions(2);
 
         const component = new Component(SelectorsEnum.Button);
 
-        await component.Button.el();
-
+        expectTypeOf(component.Button.el).toBeFunction();
+        await expect(component.Button.el()).resolves.toMatchObject(mockElement);
         expect(testID$).toHaveBeenCalledWith(SelectorsEnum.Button);
     });
 
-    it('should add selectors enum methods for finding single element with suffix El', async () => {
-        expect.assertions(1);
-
-        const component = new Component();
-        const getChildElSpy = jest.spyOn(component, 'getChildEl');
-
-        const buttonEl = await component.Button.el();
-
-        expect(getChildElSpy).toHaveBeenCalledWith(SelectorsEnum.Button);
-        expectTypeOf(buttonEl).toBeObject();
-    });
-
-    it('should add selectors enum methods for finding array of elements with suffix Els', async () => {
-        expect.assertions(1);
+    it('should get wdio elements array by selector using method els', async () => {
+        expect.assertions(2);
 
         const component = new Component();
         const getChildElsSpy = jest.spyOn(component, 'getChildEls');
 
-        const buttonEls = await component.Button.els();
-
+        expectTypeOf(component.Button.els).toBeFunction();
+        await expect(component.Button.els()).resolves.toContain(mockElement);
         expect(getChildElsSpy).toHaveBeenCalledWith(SelectorsEnum.Button);
-        expectTypeOf(buttonEls).toBeArray();
+    });
+
+    it('should get nth wdio element by selector using method byIdx', async () => {
+        expect.assertions(2);
+
+        const component = new Component(SelectorsEnum.Button);
+        const getChildElByIdxSpy = jest.spyOn(component, 'getChildElByIdx');
+
+        expectTypeOf(component.Button.byIdx).toBeFunction();
+        await expect(component.Button.byIdx(1)).resolves.toMatchObject(mockElement);
+        expect(getChildElByIdxSpy).toHaveBeenCalledWith(SelectorsEnum.Button, 1);
     });
 
     it('should add selectors enum methods for clicking element with suffix Click', async () => {
@@ -159,5 +157,27 @@ describe('getComponent', () => {
         expectTypeOf(component.Button.setValue).toBeFunction();
         await expect(component.Button.setValue('')).resolves.toBe(void 0);
         expect(setValueChildElSpy).toHaveBeenCalledWith(SelectorsEnum.Button, '');
+    });
+
+    it('should add selectors enum methods for getting element location with getLocation', async () => {
+        expect.assertions(2);
+
+        const component = new Component();
+        const getLocationChildElSpy = jest.spyOn(component, 'getLocationChildEl');
+
+        expectTypeOf(component.Button.getLocation).toBeFunction();
+        await expect(component.Button.getLocation()).resolves.toMatchObject({ x: 0, y: 0 });
+        expect(getLocationChildElSpy).toHaveBeenCalledWith(SelectorsEnum.Button);
+    });
+
+    it('should add selectors enum methods for getting element size with getSize', async () => {
+        expect.assertions(2);
+
+        const component = new Component();
+        const getSizeChildElSpy = jest.spyOn(component, 'getSizeChildEl');
+
+        expectTypeOf(component.Button.getSize).toBeFunction();
+        await expect(component.Button.getSize()).resolves.toMatchObject({ width: 0, height: 0 });
+        expect(getSizeChildElSpy).toHaveBeenCalledWith(SelectorsEnum.Button);
     });
 });
