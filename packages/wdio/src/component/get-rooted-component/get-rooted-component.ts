@@ -1,25 +1,23 @@
 import { isDefined } from '@rnw-community/shared';
 
 import { RootedComponent } from '../rooted-component/rooted-component';
+import { findEnumRootSelector, proxyCall } from '../util';
 
-import type { ComponentWithSelectors, Enum } from '../../type';
+import type { Enum } from '../../type';
+import type { RootedComponentWithSelectors } from '../type';
 
 type RootedComponentWithSelectorsCtor<T extends string> = new (
     selectorOrElement?: WebdriverIO.Element | string
-) => ComponentWithSelectors<T, RootedComponent>;
+) => RootedComponentWithSelectors<T>;
 
 export const getRootedComponent = <T extends string>(selectors: Enum<T>): RootedComponentWithSelectorsCtor<T> =>
     // @ts-expect-error We use proxy for dynamic fields
     class extends RootedComponent {
-        constructor(selectorOrElement: WebdriverIO.Element | string) {
-            const selectorKeys = Object.keys(selectors) as T[];
-
-            const rootSelectorKey = selectorKeys.find(key => key === 'Root');
-            const selectorRootKey = isDefined(rootSelectorKey) ? selectors[rootSelectorKey] : undefined;
-            const rootSelector = isDefined(selectorOrElement) ? selectorOrElement : selectorRootKey;
+        constructor(selectorOrElement?: WebdriverIO.Element | string) {
+            const rootSelector = isDefined(selectorOrElement) ? selectorOrElement : findEnumRootSelector(selectors);
 
             if (!isDefined(rootSelector)) {
-                throw new Error('Cannot create RootedVisibleComponent - Neither root selector not root element is passed');
+                throw new Error('Cannot create RootedComponent - Neither root selector nor root element is passed');
             }
 
             super(rootSelector);
@@ -32,7 +30,7 @@ export const getRootedComponent = <T extends string>(selectors: Enum<T>): Rooted
                         return Reflect.get(client, field, receiver);
                     }
 
-                    return client.callDynamicMethod(selectors, field);
+                    return proxyCall(client, selectors, field);
                 },
             });
         }
