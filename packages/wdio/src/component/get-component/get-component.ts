@@ -1,10 +1,12 @@
 import { Component } from '../component/component';
+import { proxyCall } from '../util';
 
-import type { ComponentWithSelectors, Enum } from '../../type';
+import type { Enum } from '../../type';
+import type { ComponentWithSelectors } from '../type';
 
 type ComponentWithSelectorsCtor<T extends string> = new (
     selectorOrElement?: WebdriverIO.Element | string
-) => ComponentWithSelectors<T, Component>;
+) => ComponentWithSelectors<T>;
 
 export const getComponent = <T extends string>(selectors: Enum<T>): ComponentWithSelectorsCtor<T> =>
     // @ts-expect-error We use proxy for dynamic fields
@@ -20,7 +22,7 @@ export const getComponent = <T extends string>(selectors: Enum<T>): ComponentWit
                         return Reflect.get(client, field, receiver);
                     }
 
-                    return client.callDynamicMethod(selectors, field);
+                    return proxyCall(client, selectors, field);
                 },
             });
         }

@@ -1,26 +1,19 @@
-import { isDefined } from '@rnw-community/shared';
-
 import { testID$, testID$$, testID$$Index } from '../../command';
 
-import type {
-    Enum,
-    SelectorObject,
-    SetValueArgs,
-    WaitForDisplayedArgs,
-    WaitForEnabledArgs,
-    WaitForExistArgs,
-} from '../../type';
+import type { ClickArgs, SetValueArgs, WaitForDisplayedArgs, WaitForEnabledArgs, WaitForExistArgs } from '../type';
+import type { Location } from 'webdriverio/build/commands/element/getLocation';
+import type { Size } from 'webdriverio/build/commands/element/getSize';
 
 export class Component {
-    async clickChildEl(selector: string): Promise<void> {
-        await (await this.getChildEl(selector)).click();
+    async clickChildEl(selector: string, ...args: ClickArgs): Promise<void> {
+        await (await this.getChildEl(selector)).click(...args);
     }
 
-    async clickByIdxChildEl(selector: string, idx: number): Promise<void> {
-        await (await this.getChildElByIdx(selector, idx)).click();
+    async clickByIdxChildEl(selector: string, idx: number, ...args: ClickArgs): Promise<void> {
+        await (await this.getChildElByIdx(selector, idx)).click(...args);
     }
 
-    async setValueChildEl(selector: string, args: SetValueArgs): Promise<void> {
+    async setValueChildEl(selector: string, ...args: SetValueArgs): Promise<void> {
         await (await this.getChildEl(selector)).setValue(...args);
     }
 
@@ -36,16 +29,24 @@ export class Component {
         return await (await this.getChildEl(selector)).getText();
     }
 
-    async waitForExistsChildEl(selector: string, args: WaitForExistArgs): Promise<void> {
+    async waitForExistChildEl(selector: string, ...args: WaitForExistArgs): Promise<void> {
         await (await this.getChildEl(selector)).waitForExist(...args);
     }
 
-    async waitForDisplayedChildEl(selector: string, args: WaitForDisplayedArgs): Promise<void> {
+    async waitForDisplayedChildEl(selector: string, ...args: WaitForDisplayedArgs): Promise<void> {
         await (await this.getChildEl(selector)).waitForDisplayed(...args);
     }
 
-    async waitForEnabledChildEl(selector: string, args: WaitForEnabledArgs): Promise<void> {
+    async waitForEnabledChildEl(selector: string, ...args: WaitForEnabledArgs): Promise<void> {
         await (await this.getChildEl(selector)).waitForEnabled(...args);
+    }
+
+    async getLocationChildEl(selector: string): Promise<Location> {
+        return await (await this.getChildEl(selector)).getLocation();
+    }
+
+    async getSizeChildEl(selector: string): Promise<Size> {
+        return await (await this.getChildEl(selector)).getSize();
     }
 
     // eslint-disable-next-line class-methods-use-this
@@ -61,32 +62,5 @@ export class Component {
     // eslint-disable-next-line class-methods-use-this
     async getChildElByIdx(selector: string, idx: number): Promise<WebdriverIO.Element> {
         return await testID$$Index(selector, idx);
-    }
-
-    protected getSelectorObject(selectorValue: string): SelectorObject {
-        return {
-            el: () => this.getChildEl(selectorValue),
-            els: () => this.getChildEls(selectorValue),
-            byIdx: (idx: number) => this.getChildElByIdx(selectorValue, idx),
-            waitForDisplayed: (...args: WaitForDisplayedArgs) => this.waitForDisplayedChildEl(selectorValue, args),
-            waitForExist: (...args: WaitForExistArgs) => this.waitForExistsChildEl(selectorValue, args),
-            waitForEnabled: (...args: WaitForEnabledArgs) => this.waitForEnabledChildEl(selectorValue, args),
-            setValue: (...args: SetValueArgs) => this.setValueChildEl(selectorValue, args),
-            click: () => this.clickChildEl(selectorValue),
-            clickByIdx: (idx: number) => this.clickByIdxChildEl(selectorValue, idx),
-            getText: () => this.getTextChildEl(selectorValue),
-            isDisplayed: () => this.isDisplayedChildEl(selectorValue),
-            isExisting: () => this.isExistingChildEl(selectorValue),
-        };
-    }
-
-    protected callDynamicMethod<T extends string>(selectors: Enum<T>, field: string): unknown {
-        const selectorValue = selectors[field];
-
-        if (!isDefined(selectorValue)) {
-            return undefined;
-        }
-
-        return this.getSelectorObject(selectorValue);
     }
 }
