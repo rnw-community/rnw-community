@@ -3,35 +3,27 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.26.9](https://github.com/rnw-community/rnw-community/compare/v0.26.8...v0.26.9) (2022-08-02)
+
+### Bug Fixes
+
+-   **wdio:** fixed createRootedComponent return type ([9cc07a0](https://github.com/rnw-community/rnw-community/commit/9cc07a0f87e5e0a4850df54c932f42184546ebd3))
+
 ## [0.26.8](https://github.com/rnw-community/rnw-community/compare/v0.26.7...v0.26.8) (2022-08-02)
 
 **Note:** Version bump only for package rnw-community
 
-
-
-
-
 ## [0.26.7](https://github.com/rnw-community/rnw-community/compare/v0.26.6...v0.26.7) (2022-08-01)
-
 
 ### Bug Fixes
 
-* **wdio:** fixed ios openDeepLink command ([7f1d230](https://github.com/rnw-community/rnw-community/commit/7f1d2302174920232fb34eee41d6dec1f9d1bad1))
-
-
-
-
+-   **wdio:** fixed ios openDeepLink command ([7f1d230](https://github.com/rnw-community/rnw-community/commit/7f1d2302174920232fb34eee41d6dec1f9d1bad1))
 
 ## [0.26.6](https://github.com/rnw-community/rnw-community/compare/v0.26.5...v0.26.6) (2022-07-31)
 
-
 ### Bug Fixes
 
-* **rxjs-errors:** error ctor type in rethrowException ([#76](https://github.com/rnw-community/rnw-community/issues/76)) ([2372dda](https://github.com/rnw-community/rnw-community/commit/2372dda49cd5aa806ecce6fbe526204a939dc5c0))
-
-
-
-
+-   **rxjs-errors:** error ctor type in rethrowException ([#76](https://github.com/rnw-community/rnw-community/issues/76)) ([2372dda](https://github.com/rnw-community/rnw-community/commit/2372dda49cd5aa806ecce6fbe526204a939dc5c0))
 
 ## [0.26.5](https://github.com/rnw-community/rnw-community/compare/v0.26.4...v0.26.5) (2022-07-29)
 
