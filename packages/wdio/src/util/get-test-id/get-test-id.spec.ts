@@ -24,7 +24,7 @@ describe('getTestID', () => {
 
         expect(getTestID(props)).toBe('test');
     });
-    it('should return default testID is props does not have it', () => {
+    it('should return default testID if props does not have it', () => {
         expect.assertions(1);
 
         Platform.OS = 'ios';
