@@ -15,6 +15,15 @@ jest.mock('../../command', () => ({
 }));
 
 describe('create-rooted-component', () => {
+    it('should create RootedComponent instance with selectors, using selector as root', async () => {
+        expect.assertions(3);
+
+        const component = createRootedComponent(Selectors, Selectors.Button);
+
+        await expect(component.Button.el()).resolves.toMatchObject(mockElement);
+        expect(testID$).toHaveBeenNthCalledWith(1, Selectors.Button);
+        expect(testID$).toHaveBeenNthCalledWith(2, Selectors.Button, mockElement);
+    });
     it('should create RootedComponent instance with selectors, using Root selector from enum', async () => {
         expect.assertions(1);
 
@@ -29,14 +38,5 @@ describe('create-rooted-component', () => {
 
         await expect(component.Button.el()).resolves.toMatchObject(mockElement);
         expect(testID$).toHaveBeenCalledWith(Selectors.Button, mockElement);
-    });
-    it('should create RootedComponent instance with selectors, using selector as root', async () => {
-        expect.assertions(3);
-
-        const component = createRootedComponent(Selectors, Selectors.Button);
-
-        await expect(component.Button.el()).resolves.toMatchObject(mockElement);
-        expect(testID$).toHaveBeenNthCalledWith(1, Selectors.Button);
-        expect(testID$).toHaveBeenNthCalledWith(2, Selectors.Button, mockElement);
     });
 });
