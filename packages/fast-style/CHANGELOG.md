@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.27.1](https://github.com/rnw-community/rnw-community/compare/v0.27.0...v0.27.1) (2022-08-23)
+
+**Note:** Version bump only for package @rnw-community/fast-style
+
+
+
+
+
 # [0.27.0](https://github.com/rnw-community/rnw-community/compare/v0.26.10...v0.27.0) (2022-08-23)
 
 **Note:** Version bump only for package @rnw-community/fast-style
