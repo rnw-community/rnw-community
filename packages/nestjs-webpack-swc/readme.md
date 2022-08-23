@@ -93,12 +93,20 @@ const migrations = importTypeormWebpackMigrations(require.context('./migration/'
 
 If your project is running inside the docker container and your host system has different architecture
 you may end up with `Error: Bindings not found` SWC error, this is happening because when you install
-[SWC](https://swc.rs) it uses the bindings for your host machine, to fix this you can add the following
-`package.json` script and add it to `postinstall` script:
+[SWC](https://swc.rs) it uses the bindings for your host machine, to fix this:
+
+1. Create `.yarnrc` file in the project root:
+
+```plain
+--ignore-engines true
+--ignore-platform true
+```
+
+2. Add swc bindings dependencies:
 
 ```json
 {
-    "swc-install-bindings": "npm install --no-save --loglevel=error --prefer-offline --no-audit --progress=false --force @swc/core-linux-arm64-musl @swc/core-linux-x64-musl",
-    "postinstall": "yarn swc-install-bindings"
+    "@swc/core-linux-arm64-musl": "^1.2.242",
+    "@swc/core-linux-x64-musl": "^1.2.242"
 }
 ```
