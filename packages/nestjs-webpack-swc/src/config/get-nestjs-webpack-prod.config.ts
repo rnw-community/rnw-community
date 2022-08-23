@@ -5,4 +5,5 @@ import type Webpack from 'webpack';
 
 export const getNestJSWebpackProdConfig = (options: Configuration, _webpack: typeof Webpack): Configuration => ({
     ...getNestJSWebpackGenericConfig(options, { minify: true }),
+    mode: 'production',
 });
