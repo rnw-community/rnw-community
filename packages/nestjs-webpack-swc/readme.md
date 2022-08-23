@@ -45,8 +45,10 @@ module.exports = require('@dotgoclub/be-lib').getNestJSWebpackProdConfig;
 Change `package.json` `build`, `start:dev` scripts:
 
 ```json
-"build": "nest build --webpack --webpackPath webpack-prod.config.js",
-"start:dev": "nest build --webpack --webpackPath webpack-dev.config.js --watch"
+{
+    "build": "nest build --webpack --webpackPath webpack-prod.config.js",
+    "start:dev": "nest build --webpack --webpackPath webpack-dev.config.js --watch"
+}
 ```
 
 ## Typeorm migrations
@@ -54,12 +56,22 @@ Change `package.json` `build`, `start:dev` scripts:
 If your project is using [TypeORM](https://typeorm.io), then you will face problems with running migrations from NestJS app,
 this package provides utility for loading TypeORM migrations within webpack build.
 
-Install additional peer dependencies:
+1. Install additional peer dependencies:
 
 -   [@types/webpack-env](https://www.npmjs.com/package/@types/webpack-env)
 
-Following code will return class instances array that you can pass to TypeORM configuration, you will only need to provide
-path to the folder where all migrations are stored:
+2. Add this package to your `tsconfig.*.json` files:
+
+```json
+{
+    "compilerOptions": {
+        "types": ["node", "@types/webpack-env"]
+    }
+}
+```
+
+3. Add code that will return class instances array that you can pass to TypeORM configuration, you will only need to provide
+   path to the folder where all migrations are stored:
 
 ```ts
 const migrations = importTypeormWebpackMigrations(require.context('./migration/', true, /\.ts$/u));
@@ -73,6 +85,8 @@ you may end up with `Error: Bindings not found` SWC error, this is happening bec
 `package.json` script and add it to `postinstall` script:
 
 ```json
-"swc-install-bindings": "npm install --no-save --loglevel=error --prefer-offline --no-audit --progress=false --force @swc/core-linux-arm64-musl @swc/core-linux-x64-musl",
-"postinstall": "yarn swc-install-bindings"
+{
+    "swc-install-bindings": "npm install --no-save --loglevel=error --prefer-offline --no-audit --progress=false --force @swc/core-linux-arm64-musl @swc/core-linux-x64-musl",
+    "postinstall": "yarn swc-install-bindings"
+}
 ```
