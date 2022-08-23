@@ -1,10 +1,9 @@
 import { isDefined, isNotEmptyString } from '@rnw-community/shared';
 
-import { WebSelectorConfig } from '../config';
+import { WebSelectorConfig } from '../../config';
+import { Platform } from '../get-platform.util';
 
-import { Platform } from './get-platform.util';
-
-import type { AndroidTestIDProps, TestIDProps, WebTestIDProps } from '../interface';
+import type { AndroidTestIDProps, TestIDProps, WebTestIDProps } from '../../interface';
 
 const isWebTestIDProps = (props: AndroidTestIDProps | TestIDProps | WebTestIDProps): props is Required<WebTestIDProps> =>
     WebSelectorConfig in props && isDefined(props[WebSelectorConfig]);
