@@ -37,7 +37,7 @@ module.exports = require('@dotgoclub/be-lib').getNestJSWebpackProdConfig;
 
 Change `package.json` `build`, `start:dev` scripts:
 
-```
+```json
 "build": "nest build --webpack --webpackPath webpack-prod.config.js",
 "start:dev": "nest build --webpack --webpackPath webpack-dev.config.js --watch"
 ```
