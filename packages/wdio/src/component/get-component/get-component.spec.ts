@@ -60,7 +60,7 @@ describe('getComponent', () => {
         expect(getChildElByIdxSpy).toHaveBeenCalledWith(SelectorsEnum.Button, 1);
     });
 
-    it('should add selectors enum methods for clicking element with suffix Click', async () => {
+    it('should add selectors enum methods for clicking element using click', async () => {
         expect.assertions(2);
 
         const component = new Component();
@@ -71,7 +71,7 @@ describe('getComponent', () => {
         expect(clickChildElSpy).toHaveBeenCalledWith(SelectorsEnum.Button);
     });
 
-    it('should add selectors enum methods for clicking element in array by index with suffix ClickByIdx', async () => {
+    it('should add selectors enum methods for clicking element in array by index using clickByIdx', async () => {
         expect.assertions(2);
 
         const component = new Component();
@@ -82,7 +82,7 @@ describe('getComponent', () => {
         expect(clickByIdxChildElSpy).toHaveBeenCalledWith(SelectorsEnum.Button, 1);
     });
 
-    it('should add selectors enum methods for getting element text with suffix Text', async () => {
+    it('should add selectors enum methods for getting element text using getText', async () => {
         expect.assertions(2);
 
         const component = new Component();

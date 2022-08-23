@@ -25,15 +25,15 @@ export const openDeepLinkCommand = async (
         await driver.execute('mobile: launchApp', { bundleId: 'com.apple.mobilesafari' });
 
         const addressBar = $(`//XCUIElementTypeOther[@name="CapsuleNavigationBar?isSelected=true"]`);
-        const urlField = $(
-            `//XCUIElementTypeApplication[@name="Safari"]/XCUIElementTypeWindow[3]/XCUIElementTypeOther/XCUIElementTypeOther/XCUIElementTypeOther[1]`
-        );
 
         if (!(await driver.isKeyboardShown())) {
             await addressBar.click();
             await driver.waitUntil(async () => await driver.isKeyboardShown());
         }
 
+        const urlField = await $(
+            `//XCUIElementTypeApplication[@name="Safari"]/XCUIElementTypeWindow[3]/XCUIElementTypeOther/XCUIElementTypeOther/XCUIElementTypeOther[1]`
+        );
         await urlField.setValue(`${url}\uE007`);
     }
 };

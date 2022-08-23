@@ -3,7 +3,7 @@ import { mockElement } from '../element.mock';
 
 import { RootedComponent } from './rooted-component';
 
-import type { ClickArgs, SelectorObject, WaitForDisplayedArgs, WaitForEnabledArgs, WaitForExistArgs } from '../type';
+import type { ClickArgs, WaitForDisplayedArgs, WaitForEnabledArgs, WaitForExistArgs } from '../type';
 
 jest.mock('../../command', () => ({
     testID$: jest.fn(() => Promise.resolve(mockElement)),
@@ -18,7 +18,7 @@ enum Selectors {
 
 // TODO: Can we call method on parent with proper types?
 // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
-const getRootElSpies = (parent: RootedComponent, method: keyof SelectorObject) => {
+const getRootElSpies = (parent: RootedComponent, method: keyof typeof mockElement) => {
     const getRootElSpy = jest.spyOn(parent, 'RootEl', 'get');
     const elementMethodSpy = jest.spyOn(mockElement, method);
 

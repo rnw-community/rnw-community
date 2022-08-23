@@ -1,8 +1,7 @@
-import { WebSelectorConfig } from '../config';
+import { WebSelectorConfig } from '../../config';
+import { Platform } from '../get-platform.util';
 
-import { Platform } from './get-platform.util';
-
-import type { AndroidTestIDProps, TestIDProps, WebTestIDProps } from '../interface';
+import type { AndroidTestIDProps, TestIDProps, WebTestIDProps } from '../../interface';
 
 /**
  * Get WEB, IOS and Android supported object with TestID fields.
