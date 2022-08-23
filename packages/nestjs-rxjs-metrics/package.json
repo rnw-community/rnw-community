@@ -1,6 +1,6 @@
 {
   "name": "@rnw-community/nestjs-rxjs-metrics",
-  "version": "0.29.0",
+  "version": "0.30.0",
   "private": false,
   "description": "NestJS RxJS logger",
   "keywords": [
@@ -37,7 +37,7 @@
   },
   "gitHead": "b5608910319390f9773a9d42c3cc828e8e8a1d95",
   "dependencies": {
-    "@rnw-community/shared": "^0.29.0",
+    "@rnw-community/shared": "^0.30.0",
     "rxjs": "^7.4.0"
   },
   "devDependencies": {
