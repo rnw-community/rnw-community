@@ -1,6 +1,6 @@
 # NestJS Webpack + SWC configuration
 
-NestJS webpack and SWC configuration helpers, this can speed up your local NestJS development speed up to
+NestJS webpack and SWC configuration helpers, this can speed up your local NestJS development up to
 10x.
 
 -   [NestJS](https://docs.nestjs.com) offers [Webpack](https://webpack.js.org) configuration with [HMR](https://docs.nestjs.com/recipes/hot-reload) which significantly
