@@ -37,7 +37,7 @@ module.exports = require('@rnw-community/nestjs-webpack-swc').getNestJSWebpackDe
 Create `webpack-prod.config.js` in root of the NestJS package:
 
 ```js
-module.exports = require('@dotgoclub/be-lib').getNestJSWebpackProdConfig;
+module.exports = require('@rnw-community/nestjs-webpack-swc').getNestJSWebpackProdConfig;
 ```
 
 ### Scripts package.json
