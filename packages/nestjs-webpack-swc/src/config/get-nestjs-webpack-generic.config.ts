@@ -11,7 +11,10 @@ export const getNestJSWebpackGenericConfig = (
     swcOptions: Record<string, unknown> = {}
 ): Configuration => ({
     ...options,
-    externals: [nodeExternals({ modulesFromFile: true, allowlist: ['webpack/hot/poll?100'] })],
+    externals: [
+        // HINT: We need to include this package inside the build to handle missing dependencies errors, and tree-shake it
+        nodeExternals({ modulesFromFile: true, allowlist: ['webpack/hot/poll?100', '@rnw-community/nestjs-webpack-swc'] }),
+    ],
     externalsPresets: { node: true },
     cache: {
         type: 'filesystem',
