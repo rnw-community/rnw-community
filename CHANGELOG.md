@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.30.0](https://github.com/rnw-community/rnw-community/compare/v0.29.0...v0.30.0) (2022-08-23)
+
+
+### Features
+
+* **nestjs-webpack-swc:** added production config keep_classnames for typeorm migrations ([3a274b1](https://github.com/rnw-community/rnw-community/commit/3a274b1b30fb89a37b966cff61f880ce8ae9924f))
+
+
+
+
+
 # [0.29.0](https://github.com/rnw-community/rnw-community/compare/v0.28.0...v0.29.0) (2022-08-23)
 
 
