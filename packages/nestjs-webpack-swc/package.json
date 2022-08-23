@@ -41,7 +41,8 @@
     "@types/webpack-node-externals": "^2.5.3",
     "run-script-webpack-plugin": "^0.1.1",
     "webpack": "^5.74.0",
-    "webpack-node-externals": "^3.0.0"
+    "webpack-node-externals": "^3.0.0",
+    "terser-webpack-plugin": "^5.3.5"
   },
   "peerDependencies": {
     "@swc/cli": "^0.1.57",
@@ -50,6 +51,7 @@
     "run-script-webpack-plugin": "^0.1.1",
     "swc-loader": "^0.2.3",
     "webpack": "^5.74.0",
-    "webpack-node-externals": "^3.0.0"
+    "webpack-node-externals": "^3.0.0",
+    "terser-webpack-plugin": "^5.3.5"
   }
 }
