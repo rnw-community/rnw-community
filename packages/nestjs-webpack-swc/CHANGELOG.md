@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.29.0](https://github.com/rnw-community/rnw-community/compare/v0.28.0...v0.29.0) (2022-08-23)
+
+
+### Features
+
+* **nestjs-webpack-swc:** added mode production to webpack prod config ([b7f0055](https://github.com/rnw-community/rnw-community/commit/b7f00556bcc2911ce32ba64233b6dd52622fefe4))
+
+
+
+
+
 # [0.28.0](https://github.com/rnw-community/rnw-community/compare/v0.27.4...v0.28.0) (2022-08-23)
 
 
