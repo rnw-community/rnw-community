@@ -51,6 +51,11 @@ Change `package.json` `build`, `start:dev` scripts:
 }
 ```
 
+### .gitignore
+
+For maximum speed webpack is configured to generate [filesystem cache](https://webpack.js.org/configuration/cache/) and uses `.build_cache` folder
+in package root, so you need to add it to your `.gitignore` file.
+
 ## Typeorm migrations
 
 If your project is using [TypeORM](https://typeorm.io), then you will face problems with running migrations from NestJS app,
