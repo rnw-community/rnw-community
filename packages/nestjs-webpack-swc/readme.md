@@ -12,15 +12,15 @@ NestJS webpack and SWC configuration helpers, this can speed up your local NestJ
 
 ## Installation
 
-Install additional peer dependencies:
-
--   [run-script-webpack-plugin](https://github.com/atassis/run-script-webpack-plugin)
--   [webpack](https://github.com/webpack/webpack)
--   [webpack-node-externals](https://github.com/liady/webpack-node-externals)
--   [swc-loader](https://github.com/swc-project/swc-loader)
--   [@swc/cli](https://github.com/swc-project/cli)
--   [@swc/core](https://github.com/swc-project/swc)
--   [@swc/helpers](https://github.com/swc-project/helpers)
+1. Install package `@rnw-community/nestjs-webpack-swc` using your package manager
+2. Install additional peer dependencies:
+    - [run-script-webpack-plugin](https://github.com/atassis/run-script-webpack-plugin)
+    - [webpack](https://github.com/webpack/webpack)
+    - [webpack-node-externals](https://github.com/liady/webpack-node-externals)
+    - [swc-loader](https://github.com/swc-project/swc-loader)
+    - [@swc/cli](https://github.com/swc-project/cli)
+    - [@swc/core](https://github.com/swc-project/swc)
+    - [@swc/helpers](https://github.com/swc-project/helpers)
 
 ## Configuration
 
