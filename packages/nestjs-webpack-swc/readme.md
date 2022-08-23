@@ -56,7 +56,12 @@ Change `package.json` `build`, `start:dev` scripts:
 For maximum speed webpack is configured to generate [filesystem cache](https://webpack.js.org/configuration/cache/) and uses `.build_cache` folder
 in package root, so you need to add it to your `.gitignore` file.
 
-## Typeorm migrations
+## Possible webpack issues
+
+Due to webpack bundling approach you may encounter problems with packages that use absolute/relative paths, each of this
+cases needs separate solutions. Feel free to open an issue.
+
+### Typeorm migrations
 
 If your project is using [TypeORM](https://typeorm.io), then you will face problems with running migrations from NestJS app,
 this package provides utility for loading TypeORM migrations within webpack build.
@@ -82,7 +87,9 @@ this package provides utility for loading TypeORM migrations within webpack buil
 const migrations = importTypeormWebpackMigrations(require.context('./migration/', true, /\.ts$/u));
 ```
 
-## SWC bindings
+## SWC possible issues
+
+### SWC bindings
 
 If your project is running inside the docker container and your host system has different architecture
 you may end up with `Error: Bindings not found` SWC error, this is happening because when you install
