@@ -1,0 +1,15 @@
+{
+    "extends": "../../tsconfig.build.json",
+    "compilerOptions": {
+        "outDir": "./dist",
+        "types": ["@types/webpack-env", "node"]
+    },
+    "include": [
+        "./src"
+    ],
+    "exclude": [
+        "node_modules",
+        "dist",
+        "**/*.spec.*"
+    ]
+}
