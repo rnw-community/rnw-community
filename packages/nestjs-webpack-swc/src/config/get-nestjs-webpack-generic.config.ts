@@ -5,15 +5,20 @@ import nodeExternals from 'webpack-node-externals';
 import { swcConfig } from './swc.config';
 
 import type { Configuration } from 'webpack';
+import type webpackNodeExternals from 'webpack-node-externals';
 
 export const getNestJSWebpackGenericConfig = (
     options: Configuration,
-    swcOptions: Record<string, unknown> = {}
+    swcOptions: Record<string, unknown> = {},
+    allowList: webpackNodeExternals.Options['allowlist'] = []
 ): Configuration => ({
     ...options,
     externals: [
         // HINT: We need to include this package inside the build to handle missing dependencies errors, and tree-shake it
-        nodeExternals({ modulesFromFile: true, allowlist: ['webpack/hot/poll?100', '@rnw-community/nestjs-webpack-swc'] }),
+        nodeExternals({
+            modulesFromFile: true,
+            allowlist: ['webpack/hot/poll?100', ...(Array.isArray(allowList) ? allowList : [allowList])],
+        }),
     ],
     externalsPresets: { node: true },
     cache: {
