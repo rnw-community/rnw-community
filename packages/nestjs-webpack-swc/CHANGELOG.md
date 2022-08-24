@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.31.0](https://github.com/rnw-community/rnw-community/compare/v0.30.0...v0.31.0) (2022-08-24)
+
+
+### Features
+
+* **nestjs-webpack-swc:** updated barrel export and docs to avoid bundling config deps ([b6b6c2b](https://github.com/rnw-community/rnw-community/commit/b6b6c2b8bf5166cce4856c13614db20f8f2b2764))
+
+
+
+
+
 # [0.30.0](https://github.com/rnw-community/rnw-community/compare/v0.29.0...v0.30.0) (2022-08-23)
 
 
