@@ -68,7 +68,7 @@ cases needs separate solutions. Feel free to open an issue.
 If your project is using [TypeORM](https://typeorm.io), then you will face problems with running migrations from NestJS app,
 this package provides utility for loading TypeORM migrations within webpack build.
 
-1. Install additional peer dependencies:
+1. Install additional dev dependencies:
 
 -   [@types/webpack-env](https://www.npmjs.com/package/@types/webpack-env)
 
@@ -88,6 +88,30 @@ this package provides utility for loading TypeORM migrations within webpack buil
 ```ts
 const migrations = importTypeormWebpackMigrations(require.context('./migration/', true, /\.ts$/u));
 ```
+
+#### Typeorm CLI
+
+With webpack in place you will not have your migrations transpiled into the dist folder anymore so to use typeorm cli
+you will need additional changes:
+
+1. Install additional dev dependencies:
+    - [ts-node](https://github.com/TypeStrong/ts-node)
+    - [tsconfig-paths](https://github.com/dividab/tsconfig-paths)
+2. Add/change your `package.json` scripts(you should have `tsconfig.build.json` with `module:commonjs`):
+
+```json
+{
+    "scripts": {
+        "typeorm": "ts-node -P tsconfig.build.json -r tsconfig-paths/register ./node_modules/.bin/typeorm",
+        "migrate:create": "yarn typeorm migration:create -d ./data-source.mjs",
+        "migrate:down": "yarn typeorm migration:revert -d ./data-source.mjs",
+        "migrate:generate": "yarn typeorm migration:generate -d ./data-source.mjs",
+        "migrate:up": "yarn typeorm migration:run -d ./data-source.mjs"
+    }
+}
+```
+
+> `-d ./data-source.mjs` is a [TypeORM v3 breaking changes](https://github.com/typeorm/typeorm/blob/master/CHANGELOG.md#breaking-changes-1) you can remove it for v2
 
 ## SWC possible issues
 
