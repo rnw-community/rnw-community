@@ -15,6 +15,7 @@ export const getNestJSWebpackProdConfig = (options: Configuration, _webpack: typ
                 parallel: true,
                 terserOptions: {
                     keep_classnames: true,
+                    mangle: false,
                 },
             }),
         ],
