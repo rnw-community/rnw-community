@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.34.0](https://github.com/rnw-community/rnw-community/compare/v0.33.0...v0.34.0) (2022-08-25)
+
+**Note:** Version bump only for package @rnw-community/rxjs-errors
+
+
+
+
+
 # [0.33.0](https://github.com/rnw-community/rnw-community/compare/v0.32.1...v0.33.0) (2022-08-25)
 
 **Note:** Version bump only for package @rnw-community/rxjs-errors
