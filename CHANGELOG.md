@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.34.0](https://github.com/rnw-community/rnw-community/compare/v0.33.0...v0.34.0) (2022-08-25)
+
+
+### Features
+
+* **nestjs-webpack-swc:** disabled production mangling ([a0c1198](https://github.com/rnw-community/rnw-community/commit/a0c1198894f3d4e59fb8ce34767e12c88f435ff0))
+
+
+
+
+
 # [0.33.0](https://github.com/rnw-community/rnw-community/compare/v0.32.1...v0.33.0) (2022-08-25)
 
 
