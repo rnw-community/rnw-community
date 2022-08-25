@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.33.0](https://github.com/rnw-community/rnw-community/compare/v0.32.1...v0.33.0) (2022-08-25)
+
+
+### Features
+
+* **platform:** migrated async storage to @react-native-async-storage/async-storage ([9193abc](https://github.com/rnw-community/rnw-community/commit/9193abcfba96e97d2dec3722b0a3e0c76fe9c08f))
+
+
+
+
+
 ## [0.32.1](https://github.com/rnw-community/rnw-community/compare/v0.32.0...v0.32.1) (2022-08-25)
 
 **Note:** Version bump only for package @rnw-community/platform
