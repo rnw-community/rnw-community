@@ -35,4 +35,8 @@ export const getNestJSWebpackGenericConfig = (
             },
         ],
     },
+    node: {
+        __dirname: false,
+        __filename: false,
+    },
 });
