@@ -42,6 +42,19 @@ module.exports =
     require('@rnw-community/nestjs-webpack-swc/dist/config/get-nestjs-webpack-prod.config').getNestJSWebpackProdConfig;
 ```
 
+### NestJS HMR
+
+For blazing fast DX, this package provides utility to simplify [HMR configuration](https://docs.nestjs.com/recipes/hot-reload):
+
+```ts
+import { handleNestJSWebpackHmr } from '@rnw-community/nestjs-webpack-swc';
+
+const bootstrap = async (): Promise<void> => {
+    //...
+    handleNestJSWebpackHmr();
+};
+```
+
 ### Scripts package.json
 
 Change `package.json` `build`, `start:dev` scripts:
@@ -136,3 +149,5 @@ you may end up with `Error: Bindings not found` SWC error, this is happening bec
     "@swc/core-linux-x64-musl": "^1.2.242"
 }
 ```
+
+#
