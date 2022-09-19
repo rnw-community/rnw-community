@@ -2506,7 +2506,7 @@
     tslib "2.2.0"
     uuid "8.3.2"
 
-"@nestjs/common@^8.0.6", "@nestjs/common@^8.4.7":
+"@nestjs/common@^8.0.6":
   version "8.4.7"
   resolved "https://registry.yarnpkg.com/@nestjs/common/-/common-8.4.7.tgz#fc4a575b797e230bb5a0bcab6da8b796aa88d605"
   integrity sha512-m/YsbcBal+gA5CFrDpqXqsSfylo+DIQrkFY3qhVIltsYRfu8ct8J9pqsTO6OPf3mvqdOpFGrV5sBjoyAzOBvsw==

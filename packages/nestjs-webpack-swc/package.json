@@ -43,7 +43,7 @@
     "terser-webpack-plugin": "^5.3.5",
     "webpack": "^5.74.0",
     "webpack-node-externals": "^3.0.0",
-    "@nestjs/common": "^8.4.7",
+    "@nestjs/common": "^8.0.6",
     "@rnw-community/shared": "^0.34.0"
   },
   "peerDependencies": {
@@ -55,7 +55,7 @@
     "terser-webpack-plugin": "^5.3.5",
     "webpack": "^5.74.0",
     "webpack-node-externals": "^3.0.0",
-    "@nestjs/core": "^8.4.7",
+    "@nestjs/common": "^8.0.6",
     "@rnw-community/shared": "^0.34.0"
   }
 }
