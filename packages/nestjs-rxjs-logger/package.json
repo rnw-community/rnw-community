@@ -1,6 +1,6 @@
 {
   "name": "@rnw-community/nestjs-rxjs-logger",
-  "version": "0.34.0",
+  "version": "0.35.0",
   "private": false,
   "description": "NestJS RxJS logger",
   "keywords": [

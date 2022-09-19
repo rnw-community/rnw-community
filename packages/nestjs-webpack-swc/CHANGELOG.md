@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.35.0](https://github.com/rnw-community/rnw-community/compare/v0.34.0...v0.35.0) (2022-09-19)
+
+
+### Features
+
+* **nestjs-webpack-swc:** added handleNestJSWebpackHmr util ([#80](https://github.com/rnw-community/rnw-community/issues/80)) ([45d1aa4](https://github.com/rnw-community/rnw-community/commit/45d1aa432b2ca3607bf08622367f55d6a0281ec1))
+
+
+
+
+
 # [0.34.0](https://github.com/rnw-community/rnw-community/compare/v0.33.0...v0.34.0) (2022-08-25)
 
 
