@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.35.2](https://github.com/rnw-community/rnw-community/compare/v0.35.1...v0.35.2) (2022-09-21)
+
+
+### Bug Fixes
+
+* **wdio:** removed testID prop generation in setTestID ([#83](https://github.com/rnw-community/rnw-community/issues/83)) ([3613e2f](https://github.com/rnw-community/rnw-community/commit/3613e2f9b9f9286eb1ead5a8bdd936e5819fe4b8))
+
+
+
+
+
 ## [0.35.1](https://github.com/rnw-community/rnw-community/compare/v0.35.0...v0.35.1) (2022-09-21)
 
 
