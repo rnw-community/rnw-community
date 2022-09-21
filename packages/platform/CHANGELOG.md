@@ -3,120 +3,67 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.35.0](https://github.com/rnw-community/rnw-community/compare/v0.34.0...v0.35.0) (2022-09-19)
+
+**Note:** Version bump only for package @rnw-community/platform
+
 # [0.34.0](https://github.com/rnw-community/rnw-community/compare/v0.33.0...v0.34.0) (2022-08-25)
 
 **Note:** Version bump only for package @rnw-community/platform
 
-
-
-
-
 # [0.33.0](https://github.com/rnw-community/rnw-community/compare/v0.32.1...v0.33.0) (2022-08-25)
-
 
 ### Features
 
-* **platform:** migrated async storage to @react-native-async-storage/async-storage ([9193abc](https://github.com/rnw-community/rnw-community/commit/9193abcfba96e97d2dec3722b0a3e0c76fe9c08f))
-
-
-
-
+-   **platform:** migrated async storage to @react-native-async-storage/async-storage ([9193abc](https://github.com/rnw-community/rnw-community/commit/9193abcfba96e97d2dec3722b0a3e0c76fe9c08f))
 
 ## [0.32.1](https://github.com/rnw-community/rnw-community/compare/v0.32.0...v0.32.1) (2022-08-25)
 
 **Note:** Version bump only for package @rnw-community/platform
 
-
-
-
-
 # [0.32.0](https://github.com/rnw-community/rnw-community/compare/v0.31.1...v0.32.0) (2022-08-25)
 
 **Note:** Version bump only for package @rnw-community/platform
-
-
-
-
 
 # [0.31.0](https://github.com/rnw-community/rnw-community/compare/v0.30.0...v0.31.0) (2022-08-24)
 
 **Note:** Version bump only for package @rnw-community/platform
 
-
-
-
-
 # [0.30.0](https://github.com/rnw-community/rnw-community/compare/v0.29.0...v0.30.0) (2022-08-23)
 
 **Note:** Version bump only for package @rnw-community/platform
-
-
-
-
 
 # [0.29.0](https://github.com/rnw-community/rnw-community/compare/v0.28.0...v0.29.0) (2022-08-23)
 
 **Note:** Version bump only for package @rnw-community/platform
 
-
-
-
-
 # [0.28.0](https://github.com/rnw-community/rnw-community/compare/v0.27.4...v0.28.0) (2022-08-23)
 
 **Note:** Version bump only for package @rnw-community/platform
-
-
-
-
 
 ## [0.27.4](https://github.com/rnw-community/rnw-community/compare/v0.27.3...v0.27.4) (2022-08-23)
 
 **Note:** Version bump only for package @rnw-community/platform
 
-
-
-
-
 ## [0.27.3](https://github.com/rnw-community/rnw-community/compare/v0.27.2...v0.27.3) (2022-08-23)
 
 **Note:** Version bump only for package @rnw-community/platform
-
-
-
-
 
 ## [0.27.2](https://github.com/rnw-community/rnw-community/compare/v0.27.1...v0.27.2) (2022-08-23)
 
 **Note:** Version bump only for package @rnw-community/platform
 
-
-
-
-
 ## [0.27.1](https://github.com/rnw-community/rnw-community/compare/v0.27.0...v0.27.1) (2022-08-23)
 
 **Note:** Version bump only for package @rnw-community/platform
-
-
-
-
 
 # [0.27.0](https://github.com/rnw-community/rnw-community/compare/v0.26.10...v0.27.0) (2022-08-23)
 
 **Note:** Version bump only for package @rnw-community/platform
 
-
-
-
-
 ## [0.26.10](https://github.com/rnw-community/rnw-community/compare/v0.26.9...v0.26.10) (2022-08-23)
 
 **Note:** Version bump only for package @rnw-community/platform
-
-
-
-
 
 ## [0.26.9](https://github.com/rnw-community/rnw-community/compare/v0.26.8...v0.26.9) (2022-08-02)
 

@@ -1,6 +1,6 @@
 {
   "name": "@rnw-community/nestjs-webpack-swc",
-  "version": "0.34.0",
+  "version": "0.35.0",
   "private": false,
   "description": "NestJS typed config",
   "keywords": [
@@ -37,6 +37,8 @@
   },
   "gitHead": "b5608910319390f9773a9d42c3cc828e8e8a1d95",
   "devDependencies": {
+    "@nestjs/common": "^8.0.6",
+    "@rnw-community/shared": "^0.35.0",
     "@types/webpack-env": "^1.18.0",
     "@types/webpack-node-externals": "^2.5.3",
     "run-script-webpack-plugin": "^0.1.1",
@@ -47,6 +49,8 @@
     "@rnw-community/shared": "^0.34.0"
   },
   "peerDependencies": {
+    "@nestjs/common": "^8.0.6",
+    "@rnw-community/shared": "^0.34.0",
     "@swc/cli": "^0.1.57",
     "@swc/core": "^1.2.239",
     "@swc/helpers": "^0.4.7",
