@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.35.1](https://github.com/rnw-community/rnw-community/compare/v0.35.0...v0.35.1) (2022-09-21)
+
+
+### Bug Fixes
+
+* **nestjs-webpack-swc:** fixed hmr helper ([#82](https://github.com/rnw-community/rnw-community/issues/82)) ([561ae93](https://github.com/rnw-community/rnw-community/commit/561ae93f3e4dec954d99e7e9e3b7d576e6cb0e4e))
+
+
+
+
+
 # [0.35.0](https://github.com/rnw-community/rnw-community/compare/v0.34.0...v0.35.0) (2022-09-19)
 
 **Note:** Version bump only for package @rnw-community/shared
