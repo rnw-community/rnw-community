@@ -44,13 +44,11 @@
     "run-script-webpack-plugin": "^0.1.1",
     "terser-webpack-plugin": "^5.3.5",
     "webpack": "^5.74.0",
-    "webpack-node-externals": "^3.0.0",
-    "@nestjs/common": "^8.0.6",
-    "@rnw-community/shared": "^0.34.0"
+    "webpack-node-externals": "^3.0.0"
   },
   "peerDependencies": {
     "@nestjs/common": "^8.0.6",
-    "@rnw-community/shared": "^0.34.0",
+    "@rnw-community/shared": "^0.35.0",
     "@swc/cli": "^0.1.57",
     "@swc/core": "^1.2.239",
     "@swc/helpers": "^0.4.7",
@@ -58,8 +56,6 @@
     "swc-loader": "^0.2.3",
     "terser-webpack-plugin": "^5.3.5",
     "webpack": "^5.74.0",
-    "webpack-node-externals": "^3.0.0",
-    "@nestjs/common": "^8.0.6",
-    "@rnw-community/shared": "^0.34.0"
+    "webpack-node-externals": "^3.0.0"
   }
 }
