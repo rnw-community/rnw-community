@@ -51,7 +51,7 @@ import { handleNestJSWebpackHmr } from '@rnw-community/nestjs-webpack-swc';
 
 const bootstrap = async (): Promise<void> => {
     //...
-    handleNestJSWebpackHmr();
+    handleNestJSWebpackHmr(app, module);
 };
 ```
 
