@@ -11,7 +11,7 @@ describe('setTestID', () => {
 
         Platform.OS = 'web';
 
-        expect(setTestID('test')).toMatchObject({ [WebSelectorConfig]: 'test', testID: 'test' });
+        expect(setTestID('test')).toMatchObject({ [WebSelectorConfig]: 'test' });
     });
     it('should return object with testID prop for ios', () => {
         expect.assertions(1);
