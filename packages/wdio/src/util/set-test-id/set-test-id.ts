@@ -14,7 +14,7 @@ export const setTestID = (...args: Array<number | string>): AndroidTestIDProps |
     const testID = args.join('_');
 
     if (Platform.OS === 'web') {
-        return { [WebSelectorConfig]: testID, testID };
+        return { [WebSelectorConfig]: testID };
     } else if (Platform.OS === 'ios') {
         return { testID };
     }
