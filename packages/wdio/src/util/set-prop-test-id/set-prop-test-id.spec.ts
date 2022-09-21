@@ -13,7 +13,7 @@ describe('setPropTestID', () => {
 
         const props = { [WebSelectorConfig]: 'test' };
 
-        expect(setPropTestID('default', props)).toMatchObject({ [WebSelectorConfig]: 'test', testID: 'test' });
+        expect(setPropTestID('default', props)).toMatchObject({ [WebSelectorConfig]: 'test' });
     });
 
     it('should read testID prop and return object with testID prop for ios', () => {
