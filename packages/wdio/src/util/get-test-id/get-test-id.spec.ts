@@ -3,7 +3,7 @@ import { Platform } from '../get-platform/get-platform.util';
 
 import { getTestID } from './get-test-id';
 
-jest.mock('../get-platform.util', () => ({ Platform: { OS: 'web' } }));
+jest.mock('../get-platform/get-platform.util', () => ({ Platform: { OS: 'web' } }));
 
 describe('getTestID', () => {
     it('should return testID prop from WebSelectorConfig for the web', () => {

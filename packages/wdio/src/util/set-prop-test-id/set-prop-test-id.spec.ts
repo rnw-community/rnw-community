@@ -3,7 +3,7 @@ import { Platform } from '../get-platform/get-platform.util';
 
 import { setPropTestID } from './set-prop-test-id';
 
-jest.mock('../get-platform.util', () => ({ Platform: { OS: 'web' } }));
+jest.mock('../get-platform/get-platform.util', () => ({ Platform: { OS: 'web' } }));
 
 describe('setPropTestID', () => {
     it('should read testID prop and return object with testID prop from WebSelectorConfig for the web', () => {
