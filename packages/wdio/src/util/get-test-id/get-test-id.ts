@@ -1,7 +1,7 @@
 import { isDefined, isNotEmptyString } from '@rnw-community/shared';
 
 import { WebSelectorConfig } from '../../config';
-import { Platform } from '../get-platform.util';
+import { Platform } from '../get-platform/get-platform.util';
 
 import type { AndroidTestIDProps, TestIDProps, WebTestIDProps } from '../../interface';
 
