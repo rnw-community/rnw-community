@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.35.3](https://github.com/rnw-community/rnw-community/compare/v0.35.2...v0.35.3) (2022-09-22)
+
+
+### Bug Fixes
+
+* **wdio:** fixed get platform util to support webpack CI build ([#84](https://github.com/rnw-community/rnw-community/issues/84)) ([b3e12ce](https://github.com/rnw-community/rnw-community/commit/b3e12ce932999e5341be720891dbcceaff716a8f))
+
+
+
+
+
 ## [0.35.2](https://github.com/rnw-community/rnw-community/compare/v0.35.1...v0.35.2) (2022-09-21)
 
 
