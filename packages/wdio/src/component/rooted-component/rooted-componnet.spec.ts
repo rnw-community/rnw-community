@@ -77,6 +77,15 @@ describe('RootedComponent', () => {
         await expect(rootedComponent.RootEl).resolves.toBe(rootEl);
     });
 
+    it('should return Root wdio element from constructor ChainablePromiseElement wdio element', () => {
+        expect.assertions(1);
+
+        const rootEl = Promise.resolve({ ...mockElement, iamRoot: true });
+        const rootedComponent = new RootedComponent(rootEl as unknown as WebdriverIO.Element);
+
+        expect(rootedComponent.RootEl).toBe(rootEl);
+    });
+
     it('should click Root wdio element using click', async () => {
         expect.assertions(2);
 
