@@ -4,9 +4,11 @@ import { testID$, testID$$, testID$$Index } from '../../command';
 import { Component } from '../component/component';
 
 import type { ClickArgs, WaitForDisplayedArgs, WaitForEnabledArgs, WaitForExistArgs } from '../type';
+import type { ChainablePromiseElement } from 'webdriverio';
 
 export class RootedComponent extends Component {
     private readonly constructorEl: WebdriverIO.Element | undefined;
+    private readonly constructorPromiseEl: ChainablePromiseElement<WebdriverIO.Element> | undefined;
     private readonly constructorSelector: string = '';
 
     constructor(selectorOrElement: WebdriverIO.Element | string) {
@@ -15,13 +17,19 @@ export class RootedComponent extends Component {
         if (isNotEmptyString(selectorOrElement)) {
             this.constructorSelector = selectorOrElement;
         } else if (isDefined(selectorOrElement)) {
-            this.constructorEl = selectorOrElement;
+            if ('then' in selectorOrElement) {
+                this.constructorPromiseEl = selectorOrElement;
+            } else {
+                this.constructorEl = selectorOrElement;
+            }
         }
     }
 
     get RootEl(): Promise<WebdriverIO.Element> {
         if (isDefined(this.constructorEl)) {
             return Promise.resolve(this.constructorEl);
+        } else if (isDefined(this.constructorPromiseEl)) {
+            return this.constructorPromiseEl;
         }
 
         return testID$(this.constructorSelector);
