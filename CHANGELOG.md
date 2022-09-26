@@ -3,38 +3,29 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
-## [0.35.3](https://github.com/rnw-community/rnw-community/compare/v0.35.2...v0.35.3) (2022-09-22)
+# [0.36.0](https://github.com/rnw-community/rnw-community/compare/v0.35.3...v0.36.0) (2022-09-25)
 
+### Features
+
+-   **wdio:** added RootedComponent support to accept ChainablePromiseElement as root element ([#85](https://github.com/rnw-community/rnw-community/issues/85)) ([4911a81](https://github.com/rnw-community/rnw-community/commit/4911a81cd37d65f6445a2c7967f84be8ea903037))
+
+## [0.35.3](https://github.com/rnw-community/rnw-community/compare/v0.35.2...v0.35.3) (2022-09-22)
 
 ### Bug Fixes
 
-* **wdio:** fixed get platform util to support webpack CI build ([#84](https://github.com/rnw-community/rnw-community/issues/84)) ([b3e12ce](https://github.com/rnw-community/rnw-community/commit/b3e12ce932999e5341be720891dbcceaff716a8f))
-
-
-
-
+-   **wdio:** fixed get platform util to support webpack CI build ([#84](https://github.com/rnw-community/rnw-community/issues/84)) ([b3e12ce](https://github.com/rnw-community/rnw-community/commit/b3e12ce932999e5341be720891dbcceaff716a8f))
 
 ## [0.35.2](https://github.com/rnw-community/rnw-community/compare/v0.35.1...v0.35.2) (2022-09-21)
 
-
 ### Bug Fixes
 
-* **wdio:** removed testID prop generation in setTestID ([#83](https://github.com/rnw-community/rnw-community/issues/83)) ([3613e2f](https://github.com/rnw-community/rnw-community/commit/3613e2f9b9f9286eb1ead5a8bdd936e5819fe4b8))
-
-
-
-
+-   **wdio:** removed testID prop generation in setTestID ([#83](https://github.com/rnw-community/rnw-community/issues/83)) ([3613e2f](https://github.com/rnw-community/rnw-community/commit/3613e2f9b9f9286eb1ead5a8bdd936e5819fe4b8))
 
 ## [0.35.1](https://github.com/rnw-community/rnw-community/compare/v0.35.0...v0.35.1) (2022-09-21)
 
-
 ### Bug Fixes
 
-* **nestjs-webpack-swc:** fixed hmr helper ([#82](https://github.com/rnw-community/rnw-community/issues/82)) ([561ae93](https://github.com/rnw-community/rnw-community/commit/561ae93f3e4dec954d99e7e9e3b7d576e6cb0e4e))
-
-
-
-
+-   **nestjs-webpack-swc:** fixed hmr helper ([#82](https://github.com/rnw-community/rnw-community/issues/82)) ([561ae93](https://github.com/rnw-community/rnw-community/commit/561ae93f3e4dec954d99e7e9e3b7d576e6cb0e4e))
 
 # [0.35.0](https://github.com/rnw-community/rnw-community/compare/v0.34.0...v0.35.0) (2022-09-19)
 
