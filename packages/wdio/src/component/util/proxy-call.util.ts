@@ -2,9 +2,20 @@ import { isDefined } from '@rnw-community/shared';
 
 import type { Enum } from '../../type';
 import type { Component } from '../component/component';
-import type { ClickArgs, SetValueArgs, WaitForDisplayedArgs, WaitForEnabledArgs, WaitForExistArgs } from '../type';
+import type {
+    ClickArgs,
+    ComponentType,
+    SetValueArgs,
+    WaitForDisplayedArgs,
+    WaitForEnabledArgs,
+    WaitForExistArgs,
+} from '../type';
 
-export const proxyCall = <E extends string, T extends Component>(client: T, selectors: Enum<E>, field: string): unknown => {
+export const proxyCall = <E extends string, T extends Component>(
+    client: ComponentType<E, T>,
+    selectors: Enum<E>,
+    field: string
+): unknown => {
     const selectorValue = selectors[field];
 
     if (!isDefined(selectorValue)) {

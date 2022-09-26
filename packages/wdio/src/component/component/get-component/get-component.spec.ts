@@ -1,8 +1,7 @@
 // eslint-disable-next-line max-classes-per-file
 import { expectTypeOf } from 'expect-type';
 
-import { testID$ } from '../../command';
-import { mockElement } from '../element.mock';
+import { mockDefaultConfig, mockElement } from '../../element.mock';
 
 import { getComponent } from './get-component';
 
@@ -11,12 +10,6 @@ enum SelectorsEnum {
 }
 
 class Component extends getComponent(SelectorsEnum) {}
-
-jest.mock('../../command', () => ({
-    testID$: jest.fn(() => Promise.resolve(mockElement)),
-    testID$$: jest.fn(() => Promise.resolve([mockElement])),
-    testID$$Index: jest.fn(() => Promise.resolve(mockElement)),
-}));
 
 // eslint-disable-next-line max-lines-per-function,max-statements
 describe('getComponent', () => {
@@ -35,7 +28,7 @@ describe('getComponent', () => {
 
         expectTypeOf(component.Button.el).toBeFunction();
         await expect(component.Button.el()).resolves.toMatchObject(mockElement);
-        expect(testID$).toHaveBeenCalledWith(SelectorsEnum.Button);
+        expect(mockDefaultConfig.elSelectorFn).toHaveBeenCalledWith(SelectorsEnum.Button);
     });
 
     it('should get wdio elements array by selector using method els', async () => {
