@@ -1,16 +1,9 @@
-import { testID$, testID$$, testID$$Index } from '../../command';
-import { mockElement } from '../element.mock';
+import { mockDefaultConfig, mockElement } from '../element.mock';
 
 import { RootedComponent } from './rooted-component';
 
 import type { ClickArgs, WaitForDisplayedArgs, WaitForEnabledArgs, WaitForExistArgs } from '../type';
 import type { ChainablePromiseElement } from 'webdriverio';
-
-jest.mock('../../command', () => ({
-    testID$: jest.fn(() => Promise.resolve(mockElement)),
-    testID$$: jest.fn(() => Promise.resolve([mockElement])),
-    testID$$Index: jest.fn(() => Promise.resolve(mockElement)),
-}));
 
 enum Selectors {
     Button = 'Selectors.Button',
@@ -33,47 +26,60 @@ describe('RootedComponent', () => {
     it('should return wdio element by selector in Root element using getChildEl', async () => {
         expect.assertions(3);
 
-        const rootedComponent = new RootedComponent(Selectors.Root);
+        const rootedComponent = new RootedComponent(Selectors.Root, mockDefaultConfig);
 
         await expect(rootedComponent.getChildEl(Selectors.Button)).resolves.toMatchObject(mockElement);
-        expect(testID$).toHaveBeenNthCalledWith(1, Selectors.Root);
-        expect(testID$).toHaveBeenNthCalledWith(2, Selectors.Button, expect.objectContaining(mockElement));
+        expect(mockDefaultConfig.elSelectorFn).toHaveBeenNthCalledWith(1, Selectors.Root);
+        expect(mockDefaultConfig.elSelectorFn).toHaveBeenNthCalledWith(
+            2,
+            Selectors.Button,
+            expect.objectContaining(mockElement)
+        );
     });
 
     it('should return array of wdio elements in Root by selector using getChildEls', async () => {
         expect.assertions(3);
 
-        const rootedComponent = new RootedComponent(Selectors.Root);
+        const rootedComponent = new RootedComponent(Selectors.Root, mockDefaultConfig);
 
         await expect(rootedComponent.getChildEls(Selectors.Button)).resolves.toContain(mockElement);
-        expect(testID$).toHaveBeenNthCalledWith(1, Selectors.Root);
-        expect(testID$$).toHaveBeenNthCalledWith(1, Selectors.Button, expect.objectContaining(mockElement));
+        expect(mockDefaultConfig.elSelectorFn).toHaveBeenNthCalledWith(1, Selectors.Root);
+        expect(mockDefaultConfig.elsSelectorFn).toHaveBeenNthCalledWith(
+            1,
+            Selectors.Button,
+            expect.objectContaining(mockElement)
+        );
     });
 
     it('should return nth wdio element in Root by selector using getChildElByIdx', async () => {
         expect.assertions(3);
 
-        const rootedComponent = new RootedComponent(Selectors.Root);
+        const rootedComponent = new RootedComponent(Selectors.Root, mockDefaultConfig);
 
         await expect(rootedComponent.getChildElByIdx(Selectors.Button, 1)).resolves.toMatchObject(mockElement);
-        expect(testID$).toHaveBeenNthCalledWith(1, Selectors.Root);
-        expect(testID$$Index).toHaveBeenNthCalledWith(1, Selectors.Button, 1, expect.objectContaining(mockElement));
+        expect(mockDefaultConfig.elSelectorFn).toHaveBeenNthCalledWith(1, Selectors.Root);
+        expect(mockDefaultConfig.elsIndexSelectorFn).toHaveBeenNthCalledWith(
+            1,
+            Selectors.Button,
+            1,
+            expect.objectContaining(mockElement)
+        );
     });
 
     it('should return Root wdio element by constructor selector', async () => {
         expect.assertions(2);
 
-        const rootedComponent = new RootedComponent(Selectors.Root);
+        const rootedComponent = new RootedComponent(Selectors.Root, mockDefaultConfig);
 
         await expect(rootedComponent.RootEl).resolves.toMatchObject(mockElement);
-        expect(testID$).toHaveBeenNthCalledWith(1, Selectors.Root);
+        expect(mockDefaultConfig.elSelectorFn).toHaveBeenNthCalledWith(1, Selectors.Root);
     });
 
     it('should return Root wdio element from constructor wdio element', async () => {
         expect.assertions(1);
 
         const rootEl = { ...mockElement, iamRoot: true };
-        const rootedComponent = new RootedComponent(rootEl as unknown as WebdriverIO.Element);
+        const rootedComponent = new RootedComponent(rootEl as unknown as WebdriverIO.Element, mockDefaultConfig);
 
         await expect(rootedComponent.RootEl).resolves.toBe(rootEl);
     });
@@ -82,7 +88,10 @@ describe('RootedComponent', () => {
         expect.assertions(1);
 
         const rootEl = Promise.resolve({ ...mockElement, iamRoot: true });
-        const rootedComponent = new RootedComponent(rootEl as unknown as ChainablePromiseElement<WebdriverIO.Element>);
+        const rootedComponent = new RootedComponent(
+            rootEl as unknown as ChainablePromiseElement<WebdriverIO.Element>,
+            mockDefaultConfig
+        );
 
         expect(rootedComponent.RootEl).toBe(rootEl);
     });
@@ -90,7 +99,7 @@ describe('RootedComponent', () => {
     it('should click Root wdio element using click', async () => {
         expect.assertions(2);
 
-        const rootedComponent = new RootedComponent(Selectors.Root);
+        const rootedComponent = new RootedComponent(Selectors.Root, mockDefaultConfig);
 
         const [getRootElSpy, elementMethodSpy] = getRootElSpies(rootedComponent, 'click');
 
@@ -104,7 +113,7 @@ describe('RootedComponent', () => {
     it('should get Root wdio element displayed status using isDisplayed', async () => {
         expect.assertions(3);
 
-        const rootedComponent = new RootedComponent(Selectors.Root);
+        const rootedComponent = new RootedComponent(Selectors.Root, mockDefaultConfig);
 
         const [getRootElSpy, elementMethodSpy] = getRootElSpies(rootedComponent, 'isDisplayed');
 
@@ -116,7 +125,7 @@ describe('RootedComponent', () => {
     it('should get Root wdio element existing status using isExisting', async () => {
         expect.assertions(3);
 
-        const rootedComponent = new RootedComponent(Selectors.Root);
+        const rootedComponent = new RootedComponent(Selectors.Root, mockDefaultConfig);
 
         const [getRootElSpy, elementMethodSpy] = getRootElSpies(rootedComponent, 'isExisting');
 
@@ -128,7 +137,7 @@ describe('RootedComponent', () => {
     it('should wait for Root wdio element to be displayed using waitForDisplayed', async () => {
         expect.assertions(2);
 
-        const rootedComponent = new RootedComponent(Selectors.Root);
+        const rootedComponent = new RootedComponent(Selectors.Root, mockDefaultConfig);
 
         const [getRootElSpy, elementMethodSpy] = getRootElSpies(rootedComponent, 'waitForDisplayed');
 
@@ -142,7 +151,7 @@ describe('RootedComponent', () => {
     it('should wait for Root wdio element to exist using waitForExist', async () => {
         expect.assertions(2);
 
-        const rootedComponent = new RootedComponent(Selectors.Root);
+        const rootedComponent = new RootedComponent(Selectors.Root, mockDefaultConfig);
 
         const [getRootElSpy, elementMethodSpy] = getRootElSpies(rootedComponent, 'waitForExist');
 
@@ -156,7 +165,7 @@ describe('RootedComponent', () => {
     it('should wait for Root wdio element to be enabled using waitForEnabled', async () => {
         expect.assertions(2);
 
-        const rootedComponent = new RootedComponent(Selectors.Root);
+        const rootedComponent = new RootedComponent(Selectors.Root, mockDefaultConfig);
 
         const [getRootElSpy, elementMethodSpy] = getRootElSpies(rootedComponent, 'waitForEnabled');
 

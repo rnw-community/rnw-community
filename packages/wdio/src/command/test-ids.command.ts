@@ -1,6 +1,5 @@
 import { testIDSelector } from '../selector';
 
-import type { SelectorContextType } from '../type';
+import type { ElsSelectorFn } from '../type';
 
-export const testID$$ = async (testID: string, context: SelectorContextType = browser): Promise<WebdriverIO.ElementArray> =>
-    await context.$$(testIDSelector(testID));
+export const testID$$: ElsSelectorFn = async (testID, context = browser) => await context.$$(testIDSelector(testID));
