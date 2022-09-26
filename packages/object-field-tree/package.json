@@ -38,9 +38,9 @@
   },
   "gitHead": "b5608910319390f9773a9d42c3cc828e8e8a1d95",
   "peerDependencies": {
-    "@rnw-community/shared": "^0.36.1"
+    "@rnw-community/shared": "^0.37.0"
   },
   "devDependencies": {
-    "@rnw-community/shared": "^0.36.1"
+    "@rnw-community/shared": "^0.37.0"
   }
 }

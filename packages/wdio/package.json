@@ -38,14 +38,14 @@
   },
   "gitHead": "ed2cec449e634a16dc3a80b4a8cd2d1d28c9f9c4",
   "devDependencies": {
-    "@rnw-community/shared": "^0.36.1",
+    "@rnw-community/shared": "^0.37.0",
     "@wdio/types": "^7.20.7",
     "concat": "^1.0.3",
     "expect-type": "^0.13.0",
     "webdriverio": "^7.20.7"
   },
   "peerDependencies": {
-    "@rnw-community/shared": "^0.36.1",
+    "@rnw-community/shared": "^0.37.0",
     "webdriverio": "^7.20.7"
   }
 }
