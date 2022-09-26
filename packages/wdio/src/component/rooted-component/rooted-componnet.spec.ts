@@ -16,7 +16,9 @@ const getRootElSpies = (parent: RootedComponent, method: keyof typeof mockElemen
     const getRootElSpy = jest.spyOn(parent, 'RootEl', 'get');
     const elementMethodSpy = jest.spyOn(mockElement, method);
 
-    getRootElSpy.mockImplementation(() => Promise.resolve(mockElement as unknown as WebdriverIO.Element));
+    getRootElSpy.mockImplementation(
+        () => Promise.resolve(mockElement) as unknown as ChainablePromiseElement<WebdriverIO.Element>
+    );
 
     return [getRootElSpy, elementMethodSpy];
 };

@@ -7,6 +7,7 @@ import type {
     WaitForEnabledArgs,
     WaitForExistArgs,
 } from '../type';
+import type { ChainablePromiseArray, ChainablePromiseElement } from 'webdriverio';
 import type { Location } from 'webdriverio/build/commands/element/getLocation';
 import type { Size } from 'webdriverio/build/commands/element/getSize';
 
@@ -65,15 +66,15 @@ export class Component {
         return await (await this.getChildEl(selector)).getSize();
     }
 
-    async getChildEl(selector: string): Promise<WebdriverIO.Element> {
-        return await this.elSelectorFn(selector);
+    getChildEl(selector: string): ChainablePromiseElement<WebdriverIO.Element> {
+        return this.elSelectorFn(selector) as ChainablePromiseElement<WebdriverIO.Element>;
     }
 
-    async getChildEls(selector: string): Promise<WebdriverIO.ElementArray> {
-        return await this.elsSelectorFn(selector);
+    getChildEls(selector: string): ChainablePromiseArray<WebdriverIO.ElementArray> {
+        return this.elsSelectorFn(selector) as ChainablePromiseArray<WebdriverIO.ElementArray>;
     }
 
-    async getChildElByIdx(selector: string, idx: number): Promise<WebdriverIO.Element> {
-        return await this.elsIndexSelectorFn(selector, idx);
+    getChildElByIdx(selector: string, idx: number): ChainablePromiseElement<WebdriverIO.Element> {
+        return this.elsIndexSelectorFn(selector, idx) as ChainablePromiseElement<WebdriverIO.Element>;
     }
 }

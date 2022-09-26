@@ -2,6 +2,7 @@ export type { ClassType } from './type/class.type';
 export type { OnEventFn } from './type/on-event-fn.type';
 export type { Maybe } from './type/maybe.type';
 export type { EmptyFn } from './type/empty-fn.type';
+export type { Enum } from './type/enum.type';
 
 export { isDefined } from './type-guard/is-defined/is-defined';
 export { isString } from './type-guard/is-string/is-string';

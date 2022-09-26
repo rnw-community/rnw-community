@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any,@typescript-eslint/ban-types,@typescript-eslint/ban-ts-comment */
 import type { DataFn1, DataFn2, DataFn3, DataFn4 } from './type/data-fn.type';
-import type { Enum } from './type/enum.type';
 import type { Return1, Return2, Return3, Return4 } from './type/return.type';
+import type { Enum } from '@rnw-community/shared';
 
 // TODO: Investigate if we can add types without specifying all combinations
 export function combine<D, T1 extends Enum>(dataFn: DataFn1<D, T1>, collection1: T1): Return1<T1, D>;

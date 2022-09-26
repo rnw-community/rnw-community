@@ -1,6 +1,6 @@
 import { isDefined } from '@rnw-community/shared';
 
-import type { Enum } from '../../type';
+import type { Enum } from '@rnw-community/shared';
 
 export const findEnumRootSelector = <T extends string>(selectors: Enum<T>): string | undefined => {
     const selectorKeys = Object.keys(selectors) as T[];

@@ -3,6 +3,10 @@ import { mockDefaultConfig, mockElement } from '../element.mock';
 import { Component } from './component';
 
 import type { ClickArgs, SetValueArgs, WaitForDisplayedArgs, WaitForEnabledArgs, WaitForExistArgs } from '../type';
+import type { ChainablePromiseElement } from 'webdriverio';
+
+const getChildEl = (): ChainablePromiseElement<WebdriverIO.Element> =>
+    Promise.resolve(mockElement) as unknown as ChainablePromiseElement<WebdriverIO.Element>;
 
 // eslint-disable-next-line max-lines-per-function,max-statements
 describe('Component', () => {
@@ -40,7 +44,7 @@ describe('Component', () => {
 
         const getChildElSpy = jest.spyOn(component, 'getChildEl');
         const elementClickSpy = jest.spyOn(mockElement, 'click');
-        getChildElSpy.mockImplementation(() => Promise.resolve(mockElement as unknown as WebdriverIO.Element));
+        getChildElSpy.mockImplementation(getChildEl);
 
         const args: ClickArgs = [{ button: 1 }];
         await component.clickChildEl('test-selector', ...args);
@@ -56,7 +60,7 @@ describe('Component', () => {
 
         const getChildElByIdxSpy = jest.spyOn(component, 'getChildElByIdx');
         const elementClickSpy = jest.spyOn(mockElement, 'click');
-        getChildElByIdxSpy.mockImplementation(() => Promise.resolve(mockElement as unknown as WebdriverIO.Element));
+        getChildElByIdxSpy.mockImplementation(getChildEl);
 
         const args: ClickArgs = [{ button: 1 }];
         await component.clickByIdxChildEl('test-selector', 1, ...args);
@@ -72,7 +76,7 @@ describe('Component', () => {
 
         const getChildElSpy = jest.spyOn(component, 'getChildEl');
         const elementSetValueSpy = jest.spyOn(mockElement, 'setValue');
-        getChildElSpy.mockImplementation(() => Promise.resolve(mockElement as unknown as WebdriverIO.Element));
+        getChildElSpy.mockImplementation(getChildEl);
 
         const args: SetValueArgs = [''];
         await component.setValueChildEl('test-selector', ...args);
@@ -88,7 +92,7 @@ describe('Component', () => {
 
         const getChildElSpy = jest.spyOn(component, 'getChildEl');
         const elementIsDisplayedSpy = jest.spyOn(mockElement, 'isDisplayed');
-        getChildElSpy.mockImplementation(() => Promise.resolve(mockElement as unknown as WebdriverIO.Element));
+        getChildElSpy.mockImplementation(getChildEl);
 
         await expect(component.isDisplayedChildEl('test-selector')).resolves.toBe(true);
 
@@ -103,7 +107,7 @@ describe('Component', () => {
 
         const getChildElSpy = jest.spyOn(component, 'getChildEl');
         const elementIsExistingSpy = jest.spyOn(mockElement, 'isExisting');
-        getChildElSpy.mockImplementation(() => Promise.resolve(mockElement as unknown as WebdriverIO.Element));
+        getChildElSpy.mockImplementation(getChildEl);
 
         await expect(component.isExistingChildEl('test-selector')).resolves.toBe(true);
 
@@ -118,7 +122,7 @@ describe('Component', () => {
 
         const getChildElSpy = jest.spyOn(component, 'getChildEl');
         const elementGetTextSpy = jest.spyOn(mockElement, 'getText');
-        getChildElSpy.mockImplementation(() => Promise.resolve(mockElement as unknown as WebdriverIO.Element));
+        getChildElSpy.mockImplementation(getChildEl);
 
         await expect(component.getTextChildEl('test-selector')).resolves.toBe('');
 
@@ -133,7 +137,7 @@ describe('Component', () => {
 
         const getChildElSpy = jest.spyOn(component, 'getChildEl');
         const elementWaitForExistsSpy = jest.spyOn(mockElement, 'waitForExist');
-        getChildElSpy.mockImplementation(() => Promise.resolve(mockElement as unknown as WebdriverIO.Element));
+        getChildElSpy.mockImplementation(getChildEl);
 
         const args: WaitForExistArgs = [{ reverse: true }];
         await component.waitForExistChildEl('test-selector', ...args);
@@ -149,7 +153,7 @@ describe('Component', () => {
 
         const getChildElSpy = jest.spyOn(component, 'getChildEl');
         const elementWaitForDisplayedSpy = jest.spyOn(mockElement, 'waitForDisplayed');
-        getChildElSpy.mockImplementation(() => Promise.resolve(mockElement as unknown as WebdriverIO.Element));
+        getChildElSpy.mockImplementation(getChildEl);
 
         const args: WaitForDisplayedArgs = [{ reverse: true }];
         await component.waitForDisplayedChildEl('test-selector', ...args);
@@ -165,7 +169,7 @@ describe('Component', () => {
 
         const getChildElSpy = jest.spyOn(component, 'getChildEl');
         const elementWaitForEnabledSpy = jest.spyOn(mockElement, 'waitForEnabled');
-        getChildElSpy.mockImplementation(() => Promise.resolve(mockElement as unknown as WebdriverIO.Element));
+        getChildElSpy.mockImplementation(getChildEl);
 
         const args: WaitForEnabledArgs = [{ reverse: true }];
         await component.waitForEnabledChildEl('test-selector', ...args);
@@ -181,7 +185,7 @@ describe('Component', () => {
 
         const getChildElSpy = jest.spyOn(component, 'getChildEl');
         const elementGetSizeSpy = jest.spyOn(mockElement, 'getSize');
-        getChildElSpy.mockImplementation(() => Promise.resolve(mockElement as unknown as WebdriverIO.Element));
+        getChildElSpy.mockImplementation(getChildEl);
 
         await expect(component.getSizeChildEl('test-selector')).resolves.toMatchObject({ width: 0, height: 0 });
 
@@ -196,7 +200,7 @@ describe('Component', () => {
 
         const getChildElSpy = jest.spyOn(component, 'getChildEl');
         const elementGetLocationSpy = jest.spyOn(mockElement, 'getLocation');
-        getChildElSpy.mockImplementation(() => Promise.resolve(mockElement as unknown as WebdriverIO.Element));
+        getChildElSpy.mockImplementation(getChildEl);
 
         await expect(component.getLocationChildEl('test-selector')).resolves.toMatchObject({ x: 0, y: 0 });
 

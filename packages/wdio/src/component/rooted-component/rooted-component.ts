@@ -10,20 +10,21 @@ import type {
     WaitForEnabledArgs,
     WaitForExistArgs,
 } from '../type';
+import type { ChainablePromiseArray, ChainablePromiseElement } from 'webdriverio';
 
 export class RootedComponent extends Component {
     constructor(protected readonly parentElInput: ComponentInputArg, config: ComponentConfigInterface) {
         super(config);
     }
 
-    get RootEl(): Promise<WebdriverIO.Element> {
+    get RootEl(): ChainablePromiseElement<WebdriverIO.Element> {
         if (isNotEmptyString(this.parentElInput)) {
-            return this.elSelectorFn(this.parentElInput);
+            return this.elSelectorFn(this.parentElInput) as ChainablePromiseElement<WebdriverIO.Element>;
         } else if ('then' in this.parentElInput) {
             return this.parentElInput;
         }
 
-        return Promise.resolve(this.parentElInput);
+        return Promise.resolve(this.parentElInput) as ChainablePromiseElement<WebdriverIO.Element>;
     }
 
     async waitForDisplayed(...args: WaitForDisplayedArgs): Promise<void> {
@@ -50,15 +51,21 @@ export class RootedComponent extends Component {
         await (await this.RootEl).click(...args);
     }
 
-    override async getChildEl(selector: string): Promise<WebdriverIO.Element> {
-        return await this.elSelectorFn(selector, await this.RootEl);
+    override getChildEl(selector: string): ChainablePromiseElement<WebdriverIO.Element> {
+        return this.RootEl.then(rootEl =>
+            this.elSelectorFn(selector, rootEl)
+        ) as ChainablePromiseElement<WebdriverIO.Element>;
     }
 
-    override async getChildEls(selector: string): Promise<WebdriverIO.ElementArray> {
-        return await this.elsSelectorFn(selector, await this.RootEl);
+    override getChildEls(selector: string): ChainablePromiseArray<WebdriverIO.ElementArray> {
+        return this.RootEl.then(rootEl =>
+            this.elsSelectorFn(selector, rootEl)
+        ) as ChainablePromiseArray<WebdriverIO.ElementArray>;
     }
 
-    override async getChildElByIdx(selector: string, idx: number): Promise<WebdriverIO.Element> {
-        return await this.elsIndexSelectorFn(selector, idx, await this.RootEl);
+    override getChildElByIdx(selector: string, idx: number): ChainablePromiseElement<WebdriverIO.Element> {
+        return this.RootEl.then(rootEl =>
+            this.elsIndexSelectorFn(selector, idx, rootEl)
+        ) as ChainablePromiseElement<WebdriverIO.Element>;
     }
 }

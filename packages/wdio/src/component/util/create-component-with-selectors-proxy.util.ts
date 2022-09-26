@@ -1,8 +1,8 @@
 import { proxyCall } from './proxy-call.util';
 
-import type { Enum } from '../../type';
 import type { Component } from '../component/component';
 import type { ComponentType } from '../type';
+import type { Enum } from '@rnw-community/shared';
 
 export const createComponentWithSelectorsProxy = <E extends string, T extends Component>(
     parent: T,

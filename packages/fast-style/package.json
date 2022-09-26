@@ -32,8 +32,9 @@
     "clear": "rm -rf coverage && rm -rf dist && rm -f *.tsbuildinfo",
     "clear:deps": "rm -rf ./node_modules && rm -rf ./dist"
   },
-  "dependencies": {
-    "@rnw-community/object-field-tree": "^0.36.1"
+  "peerDependencies": {
+    "@rnw-community/object-field-tree": "^0.36.1",
+    "@rnw-community/shared": "^0.36.1"
   },
   "devDependencies": {
     "@types/react-native": "^0.64.12",

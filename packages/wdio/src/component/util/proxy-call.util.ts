@@ -1,6 +1,5 @@
 import { isDefined } from '@rnw-community/shared';
 
-import type { Enum } from '../../type';
 import type { Component } from '../component/component';
 import type {
     ClickArgs,
@@ -10,6 +9,7 @@ import type {
     WaitForEnabledArgs,
     WaitForExistArgs,
 } from '../type';
+import type { Enum } from '@rnw-community/shared';
 
 export const proxyCall = <E extends string, T extends Component>(
     client: ComponentType<E, T>,
