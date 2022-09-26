@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.37.0](https://github.com/rnw-community/rnw-community/compare/v0.36.1...v0.37.0) (2022-09-26)
+
+
+### Features
+
+* **wdio:** added custom selectors functions config and helpers ([#87](https://github.com/rnw-community/rnw-community/issues/87)) ([58b21f1](https://github.com/rnw-community/rnw-community/commit/58b21f14396acbb69f1db878c8203a51f654bfd0))
+
+
+
+
+
 ## [0.36.1](https://github.com/rnw-community/rnw-community/compare/v0.36.0...v0.36.1) (2022-09-26)
 
 ### Bug Fixes
