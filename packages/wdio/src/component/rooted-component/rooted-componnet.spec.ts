@@ -4,6 +4,7 @@ import { mockElement } from '../element.mock';
 import { RootedComponent } from './rooted-component';
 
 import type { ClickArgs, WaitForDisplayedArgs, WaitForEnabledArgs, WaitForExistArgs } from '../type';
+import type { ChainablePromiseElement } from 'webdriverio';
 
 jest.mock('../../command', () => ({
     testID$: jest.fn(() => Promise.resolve(mockElement)),
@@ -81,7 +82,7 @@ describe('RootedComponent', () => {
         expect.assertions(1);
 
         const rootEl = Promise.resolve({ ...mockElement, iamRoot: true });
-        const rootedComponent = new RootedComponent(rootEl as unknown as WebdriverIO.Element);
+        const rootedComponent = new RootedComponent(rootEl as unknown as ChainablePromiseElement<WebdriverIO.Element>);
 
         expect(rootedComponent.RootEl).toBe(rootEl);
     });

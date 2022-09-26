@@ -7,36 +7,19 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 **Note:** Version bump only for package @rnw-community/platform
 
-
-
-
-
 ## [0.35.3](https://github.com/rnw-community/rnw-community/compare/v0.35.2...v0.35.3) (2022-09-22)
 
 **Note:** Version bump only for package @rnw-community/platform
-
-
-
-
 
 ## [0.35.2](https://github.com/rnw-community/rnw-community/compare/v0.35.1...v0.35.2) (2022-09-21)
 
 **Note:** Version bump only for package @rnw-community/platform
 
-
-
-
-
 ## [0.35.1](https://github.com/rnw-community/rnw-community/compare/v0.35.0...v0.35.1) (2022-09-21)
-
 
 ### Bug Fixes
 
-* **nestjs-webpack-swc:** fixed hmr helper ([#82](https://github.com/rnw-community/rnw-community/issues/82)) ([561ae93](https://github.com/rnw-community/rnw-community/commit/561ae93f3e4dec954d99e7e9e3b7d576e6cb0e4e))
-
-
-
-
+-   **nestjs-webpack-swc:** fixed hmr helper ([#82](https://github.com/rnw-community/rnw-community/issues/82)) ([561ae93](https://github.com/rnw-community/rnw-community/commit/561ae93f3e4dec954d99e7e9e3b7d576e6cb0e4e))
 
 # [0.35.0](https://github.com/rnw-community/rnw-community/compare/v0.34.0...v0.35.0) (2022-09-19)
 

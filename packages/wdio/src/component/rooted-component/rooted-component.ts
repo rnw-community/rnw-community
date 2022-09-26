@@ -3,7 +3,7 @@ import { isDefined, isNotEmptyString } from '@rnw-community/shared';
 import { testID$, testID$$, testID$$Index } from '../../command';
 import { Component } from '../component/component';
 
-import type { ClickArgs, WaitForDisplayedArgs, WaitForEnabledArgs, WaitForExistArgs } from '../type';
+import type { ClickArgs, ComponentInputArg, WaitForDisplayedArgs, WaitForEnabledArgs, WaitForExistArgs } from '../type';
 import type { ChainablePromiseElement } from 'webdriverio';
 
 export class RootedComponent extends Component {
@@ -11,7 +11,7 @@ export class RootedComponent extends Component {
     private readonly constructorPromiseEl: ChainablePromiseElement<WebdriverIO.Element> | undefined;
     private readonly constructorSelector: string = '';
 
-    constructor(selectorOrElement: WebdriverIO.Element | string) {
+    constructor(selectorOrElement: ComponentInputArg) {
         super();
 
         if (isNotEmptyString(selectorOrElement)) {
