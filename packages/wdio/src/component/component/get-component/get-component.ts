@@ -1,16 +1,18 @@
-import { Component } from '../component/component';
-import { proxyCall } from '../util';
+import { proxyCall } from '../../util';
+import { Component } from '../component';
 
-import type { Enum } from '../../type';
-import type { ComponentInputArg, ComponentWithSelectors } from '../type';
+import type { Enum } from '../../../type';
+import type { ComponentWithSelectorsCtor } from '../../type';
+import type { ComponentConfigInterface } from '../../type/component-config-arg.type';
 
-type ComponentWithSelectorsCtor<T extends string> = new (selectorOrElement?: ComponentInputArg) => ComponentWithSelectors<T>;
-
-export const getComponent = <T extends string>(selectors: Enum<T>): ComponentWithSelectorsCtor<T> =>
+export const getComponent = <T extends string>(
+    selectors: Enum<T>,
+    config?: ComponentConfigInterface
+): ComponentWithSelectorsCtor<T> =>
     // @ts-expect-error We use proxy for dynamic fields
     class extends Component {
         constructor() {
-            super();
+            super(config);
 
             // eslint-disable-next-line no-constructor-return
             return new Proxy(this, {

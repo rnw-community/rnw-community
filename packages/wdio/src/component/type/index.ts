@@ -4,3 +4,4 @@ export type { WaitForDisplayedArgs, WaitForEnabledArgs, WaitForExistArgs, SetVal
 export type { SelectorMethods } from './selector-methods.type';
 export type { SelectorObject } from './selector-object.type';
 export type { ComponentInputArg } from './component-input-arg.type';
+export type { ComponentWithSelectorsCtor } from './component-with-selectors-ctor.type';

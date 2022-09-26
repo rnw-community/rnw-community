@@ -4,6 +4,7 @@ import { mockElement } from '../element.mock';
 import { Component } from './component';
 
 import type { ClickArgs, SetValueArgs, WaitForDisplayedArgs, WaitForEnabledArgs, WaitForExistArgs } from '../type';
+import type { ComponentConfigInterface } from '../type/component-config-arg.type';
 
 jest.mock('../../command', () => ({
     testID$: jest.fn(() => Promise.resolve(mockElement)),
@@ -13,6 +14,27 @@ jest.mock('../../command', () => ({
 
 // eslint-disable-next-line max-lines-per-function,max-statements
 describe('Component', () => {
+    it('should use config object to set up selector methods', async () => {
+        expect.assertions(3);
+
+        const config: ComponentConfigInterface = {
+            elSelectorFn: jest.fn(),
+            elsSelectorFn: jest.fn(),
+            elsIndexSelectorFn: jest.fn(),
+        };
+
+        const component = new Component(config);
+
+        await component.getChildEl('test-selector');
+        expect(config.elSelectorFn).toHaveBeenCalledWith('test-selector');
+
+        await component.getChildEls('test-selector');
+        expect(config.elsSelectorFn).toHaveBeenCalledWith('test-selector');
+
+        await component.getChildElByIdx('test-selector', 1);
+        expect(config.elsIndexSelectorFn).toHaveBeenCalledWith('test-selector', 1);
+    });
+
     it('should return wdio element by selector using getChildEl', async () => {
         expect.assertions(1);
 

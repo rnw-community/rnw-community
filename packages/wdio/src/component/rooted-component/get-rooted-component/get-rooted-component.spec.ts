@@ -1,5 +1,5 @@
-import { testID$ } from '../../command';
-import { mockElement } from '../element.mock';
+import { testID$ } from '../../../command';
+import { mockElement } from '../../element.mock';
 
 import { getRootedComponent } from './get-rooted-component';
 
@@ -10,7 +10,7 @@ enum RootedSelectorsEnum {
 
 class RootedComponent extends getRootedComponent(RootedSelectorsEnum) {}
 
-jest.mock('../../command', () => ({
+jest.mock('../../../command', () => ({
     testID$: jest.fn(() => Promise.resolve(mockElement)),
     testID$$: jest.fn(() => Promise.resolve([mockElement])),
     testID$$Index: jest.fn(() => Promise.resolve(mockElement)),

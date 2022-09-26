@@ -1,16 +1,20 @@
 import { isDefined } from '@rnw-community/shared';
 
-import { RootedComponent } from '../rooted-component/rooted-component';
-import { findEnumRootSelector, proxyCall } from '../util';
+import { findEnumRootSelector, proxyCall } from '../../util';
+import { RootedComponent } from '../rooted-component';
 
-import type { Enum } from '../../type';
-import type { ComponentInputArg, RootedComponentWithSelectors } from '../type';
+import type { Enum } from '../../../type';
+import type { ComponentInputArg, RootedComponentWithSelectors } from '../../type';
+import type { ComponentConfigInterface } from '../../type/component-config-arg.type';
 
 type RootedComponentWithSelectorsCtor<T extends string> = new (
     selectorOrElement?: ComponentInputArg
 ) => RootedComponentWithSelectors<T>;
 
-export const getRootedComponent = <T extends string>(selectors: Enum<T>): RootedComponentWithSelectorsCtor<T> =>
+export const getRootedComponent = <T extends string>(
+    selectors: Enum<T>,
+    config?: ComponentConfigInterface
+): RootedComponentWithSelectorsCtor<T> =>
     // @ts-expect-error We use proxy for dynamic fields
     class extends RootedComponent {
         constructor(selectorOrElement?: ComponentInputArg) {
@@ -20,7 +24,7 @@ export const getRootedComponent = <T extends string>(selectors: Enum<T>): Rooted
                 throw new Error('Cannot create RootedComponent - Neither root selector nor root element is passed');
             }
 
-            super(rootSelector);
+            super(rootSelector, config);
 
             // eslint-disable-next-line no-constructor-return
             return new Proxy(this, {

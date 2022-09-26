@@ -1,38 +1,23 @@
-import { isDefined, isNotEmptyString } from '@rnw-community/shared';
+import { isNotEmptyString } from '@rnw-community/shared';
 
-import { testID$, testID$$, testID$$Index } from '../../command';
 import { Component } from '../component/component';
 
 import type { ClickArgs, ComponentInputArg, WaitForDisplayedArgs, WaitForEnabledArgs, WaitForExistArgs } from '../type';
-import type { ChainablePromiseElement } from 'webdriverio';
+import type { ComponentConfigInterface } from '../type/component-config-arg.type';
 
 export class RootedComponent extends Component {
-    private readonly constructorEl: WebdriverIO.Element | undefined;
-    private readonly constructorPromiseEl: ChainablePromiseElement<WebdriverIO.Element> | undefined;
-    private readonly constructorSelector: string = '';
-
-    constructor(selectorOrElement: ComponentInputArg) {
-        super();
-
-        if (isNotEmptyString(selectorOrElement)) {
-            this.constructorSelector = selectorOrElement;
-        } else if (isDefined(selectorOrElement)) {
-            if ('then' in selectorOrElement) {
-                this.constructorPromiseEl = selectorOrElement;
-            } else {
-                this.constructorEl = selectorOrElement;
-            }
-        }
+    constructor(protected readonly parentElInput: ComponentInputArg, config?: ComponentConfigInterface) {
+        super(config);
     }
 
     get RootEl(): Promise<WebdriverIO.Element> {
-        if (isDefined(this.constructorEl)) {
-            return Promise.resolve(this.constructorEl);
-        } else if (isDefined(this.constructorPromiseEl)) {
-            return this.constructorPromiseEl;
+        if (isNotEmptyString(this.parentElInput)) {
+            return this.elSelectorFn(this.parentElInput);
+        } else if ('then' in this.parentElInput) {
+            return this.parentElInput;
         }
 
-        return testID$(this.constructorSelector);
+        return Promise.resolve(this.parentElInput);
     }
 
     async waitForDisplayed(...args: WaitForDisplayedArgs): Promise<void> {
@@ -60,14 +45,14 @@ export class RootedComponent extends Component {
     }
 
     override async getChildEl(selector: string): Promise<WebdriverIO.Element> {
-        return await testID$(selector, await this.RootEl);
+        return await this.elSelectorFn(selector, await this.RootEl);
     }
 
     override async getChildEls(selector: string): Promise<WebdriverIO.ElementArray> {
-        return await testID$$(selector, await this.RootEl);
+        return await this.elsSelectorFn(selector, await this.RootEl);
     }
 
     override async getChildElByIdx(selector: string, idx: number): Promise<WebdriverIO.Element> {
-        return await testID$$Index(selector, idx, await this.RootEl);
+        return await this.elsIndexSelectorFn(selector, idx, await this.RootEl);
     }
 }

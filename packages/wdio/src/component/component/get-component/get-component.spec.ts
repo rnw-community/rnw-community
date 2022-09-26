@@ -1,8 +1,8 @@
 // eslint-disable-next-line max-classes-per-file
 import { expectTypeOf } from 'expect-type';
 
-import { testID$ } from '../../command';
-import { mockElement } from '../element.mock';
+import { testID$ } from '../../../command';
+import { mockElement } from '../../element.mock';
 
 import { getComponent } from './get-component';
 
@@ -12,7 +12,7 @@ enum SelectorsEnum {
 
 class Component extends getComponent(SelectorsEnum) {}
 
-jest.mock('../../command', () => ({
+jest.mock('../../../command', () => ({
     testID$: jest.fn(() => Promise.resolve(mockElement)),
     testID$$: jest.fn(() => Promise.resolve([mockElement])),
     testID$$Index: jest.fn(() => Promise.resolve(mockElement)),

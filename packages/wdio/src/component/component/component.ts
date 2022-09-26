@@ -1,10 +1,22 @@
 import { testID$, testID$$, testID$$Index } from '../../command';
 
+import type { ElSelectorFn, ElsIndexSelectorFn, ElsSelectorFn } from '../../type';
 import type { ClickArgs, SetValueArgs, WaitForDisplayedArgs, WaitForEnabledArgs, WaitForExistArgs } from '../type';
+import type { ComponentConfigInterface } from '../type/component-config-arg.type';
 import type { Location } from 'webdriverio/build/commands/element/getLocation';
 import type { Size } from 'webdriverio/build/commands/element/getSize';
 
 export class Component {
+    protected elSelectorFn: ElSelectorFn;
+    protected elsSelectorFn: ElsSelectorFn;
+    protected elsIndexSelectorFn: ElsIndexSelectorFn;
+
+    constructor(config?: ComponentConfigInterface) {
+        this.elSelectorFn = config?.elSelectorFn ?? testID$;
+        this.elsSelectorFn = config?.elsSelectorFn ?? testID$$;
+        this.elsIndexSelectorFn = config?.elsIndexSelectorFn ?? testID$$Index;
+    }
+
     async clickChildEl(selector: string, ...args: ClickArgs): Promise<void> {
         await (await this.getChildEl(selector)).click(...args);
     }
@@ -49,18 +61,15 @@ export class Component {
         return await (await this.getChildEl(selector)).getSize();
     }
 
-    // eslint-disable-next-line class-methods-use-this
     async getChildEl(selector: string): Promise<WebdriverIO.Element> {
-        return await testID$(selector);
+        return await this.elSelectorFn(selector);
     }
 
-    // eslint-disable-next-line class-methods-use-this
     async getChildEls(selector: string): Promise<WebdriverIO.ElementArray> {
-        return await testID$$(selector);
+        return await this.elsSelectorFn(selector);
     }
 
-    // eslint-disable-next-line class-methods-use-this
     async getChildElByIdx(selector: string, idx: number): Promise<WebdriverIO.Element> {
-        return await testID$$Index(selector, idx);
+        return await this.elsIndexSelectorFn(selector, idx);
     }
 }
