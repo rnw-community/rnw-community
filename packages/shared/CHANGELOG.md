@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.36.1](https://github.com/rnw-community/rnw-community/compare/v0.36.0...v0.36.1) (2022-09-26)
+
+### Bug Fixes
+
+-   **wdio:** fixed constructor types to accept ChainablePromiseElement ([#86](https://github.com/rnw-community/rnw-community/issues/86)) ([66b5aea](https://github.com/rnw-community/rnw-community/commit/66b5aeaa618f71b6484a76314a407423e5e8946f))
+
 # [0.36.0](https://github.com/rnw-community/rnw-community/compare/v0.35.3...v0.36.0) (2022-09-25)
 
 **Note:** Version bump only for package @rnw-community/shared
