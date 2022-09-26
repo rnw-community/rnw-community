@@ -67,14 +67,14 @@ export class Component {
     }
 
     getChildEl(selector: string): ChainablePromiseElement<WebdriverIO.Element> {
-        return this.elSelectorFn(selector) as ChainablePromiseElement<WebdriverIO.Element>;
+        return this.elSelectorFn(selector);
     }
 
     getChildEls(selector: string): ChainablePromiseArray<WebdriverIO.ElementArray> {
-        return this.elsSelectorFn(selector) as ChainablePromiseArray<WebdriverIO.ElementArray>;
+        return this.elsSelectorFn(selector);
     }
 
     getChildElByIdx(selector: string, idx: number): ChainablePromiseElement<WebdriverIO.Element> {
-        return this.elsIndexSelectorFn(selector, idx) as ChainablePromiseElement<WebdriverIO.Element>;
+        return this.elsIndexSelectorFn(selector, idx);
     }
 }

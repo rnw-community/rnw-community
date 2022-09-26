@@ -19,7 +19,7 @@ export class RootedComponent extends Component {
 
     get RootEl(): ChainablePromiseElement<WebdriverIO.Element> {
         if (isNotEmptyString(this.parentElInput)) {
-            return this.elSelectorFn(this.parentElInput) as ChainablePromiseElement<WebdriverIO.Element>;
+            return this.elSelectorFn(this.parentElInput);
         } else if ('then' in this.parentElInput) {
             return this.parentElInput;
         }
