@@ -2,17 +2,6 @@ import { mockElement } from '../../element.mock';
 
 import { get$RootedComponent } from './get$-rooted-component';
 
-jest.mock('../../../command', () => ({
-    byIndex$$: jest.fn(() => Promise.resolve(mockElement)),
-}));
-
-// @ts-expect-error Test
-// eslint-disable-next-line
-global.$ = jest.fn(() => Promise.resolve(mockElement));
-// @ts-expect-error Test
-// eslint-disable-next-line jest/prefer-spy-on
-global.$$ = jest.fn(() => Promise.resolve([mockElement]));
-
 enum RootedSelectorsEnum {
     Button = 'Selectors.Button',
     Root = 'Selectors.Root',

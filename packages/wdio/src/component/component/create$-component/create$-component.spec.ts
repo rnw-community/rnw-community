@@ -2,17 +2,6 @@ import { mockElement } from '../../element.mock';
 
 import { create$Component } from './create$-component';
 
-jest.mock('../../../command', () => ({
-    byIndex$$: jest.fn(() => Promise.resolve(mockElement)),
-}));
-
-// @ts-expect-error Test
-// eslint-disable-next-line
-global.$ = jest.fn(() => Promise.resolve(mockElement));
-// @ts-expect-error Test
-// eslint-disable-next-line jest/prefer-spy-on
-global.$$ = jest.fn(() => Promise.resolve([mockElement]));
-
 enum Selectors {
     Button = 'Selectors.Button',
 }

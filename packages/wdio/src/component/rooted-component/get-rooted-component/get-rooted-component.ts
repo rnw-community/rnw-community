@@ -1,19 +1,15 @@
 import { isDefined } from '@rnw-community/shared';
 
-import { findEnumRootSelector, proxyCall } from '../../util';
+import { defaultComponentConfig } from '../../default-component.config';
+import { createComponentWithSelectorsProxy, findEnumRootSelector } from '../../util';
 import { RootedComponent } from '../rooted-component';
 
 import type { Enum } from '../../../type';
-import type { ComponentInputArg, RootedComponentWithSelectors } from '../../type';
-import type { ComponentConfigInterface } from '../../type/component-config-arg.type';
-
-type RootedComponentWithSelectorsCtor<T extends string> = new (
-    selectorOrElement?: ComponentInputArg
-) => RootedComponentWithSelectors<T>;
+import type { ComponentConfigInterface, ComponentInputArg, RootedComponentWithSelectorsCtor } from '../../type';
 
 export const getRootedComponent = <T extends string>(
     selectors: Enum<T>,
-    config?: ComponentConfigInterface
+    config: ComponentConfigInterface = defaultComponentConfig
 ): RootedComponentWithSelectorsCtor<T> =>
     // @ts-expect-error We use proxy for dynamic fields
     class extends RootedComponent {
@@ -27,15 +23,6 @@ export const getRootedComponent = <T extends string>(
             super(rootSelector, config);
 
             // eslint-disable-next-line no-constructor-return
-            return new Proxy(this, {
-                get(client, field: T, receiver) {
-                    if (field in client) {
-                        // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-                        return Reflect.get(client, field, receiver);
-                    }
-
-                    return proxyCall(client, selectors, field);
-                },
-            });
+            return createComponentWithSelectorsProxy(this, selectors);
         }
     };

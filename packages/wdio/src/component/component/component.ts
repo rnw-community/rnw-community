@@ -1,8 +1,12 @@
-import { testID$, testID$$, testID$$Index } from '../../command';
-
 import type { ElSelectorFn, ElsIndexSelectorFn, ElsSelectorFn } from '../../type';
-import type { ClickArgs, SetValueArgs, WaitForDisplayedArgs, WaitForEnabledArgs, WaitForExistArgs } from '../type';
-import type { ComponentConfigInterface } from '../type/component-config-arg.type';
+import type {
+    ClickArgs,
+    ComponentConfigInterface,
+    SetValueArgs,
+    WaitForDisplayedArgs,
+    WaitForEnabledArgs,
+    WaitForExistArgs,
+} from '../type';
 import type { Location } from 'webdriverio/build/commands/element/getLocation';
 import type { Size } from 'webdriverio/build/commands/element/getSize';
 
@@ -11,10 +15,10 @@ export class Component {
     protected elsSelectorFn: ElsSelectorFn;
     protected elsIndexSelectorFn: ElsIndexSelectorFn;
 
-    constructor(config?: ComponentConfigInterface) {
-        this.elSelectorFn = config?.elSelectorFn ?? testID$;
-        this.elsSelectorFn = config?.elsSelectorFn ?? testID$$;
-        this.elsIndexSelectorFn = config?.elsIndexSelectorFn ?? testID$$Index;
+    constructor(config: ComponentConfigInterface) {
+        this.elSelectorFn = config.elSelectorFn;
+        this.elsSelectorFn = config.elsSelectorFn;
+        this.elsIndexSelectorFn = config.elsIndexSelectorFn;
     }
 
     async clickChildEl(selector: string, ...args: ClickArgs): Promise<void> {

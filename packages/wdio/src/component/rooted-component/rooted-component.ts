@@ -2,11 +2,17 @@ import { isNotEmptyString } from '@rnw-community/shared';
 
 import { Component } from '../component/component';
 
-import type { ClickArgs, ComponentInputArg, WaitForDisplayedArgs, WaitForEnabledArgs, WaitForExistArgs } from '../type';
-import type { ComponentConfigInterface } from '../type/component-config-arg.type';
+import type {
+    ClickArgs,
+    ComponentConfigInterface,
+    ComponentInputArg,
+    WaitForDisplayedArgs,
+    WaitForEnabledArgs,
+    WaitForExistArgs,
+} from '../type';
 
 export class RootedComponent extends Component {
-    constructor(protected readonly parentElInput: ComponentInputArg, config?: ComponentConfigInterface) {
+    constructor(protected readonly parentElInput: ComponentInputArg, config: ComponentConfigInterface) {
         super(config);
     }
 

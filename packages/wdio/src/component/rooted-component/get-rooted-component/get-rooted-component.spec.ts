@@ -1,5 +1,4 @@
-import { testID$ } from '../../../command';
-import { mockElement } from '../../element.mock';
+import { mockDefaultConfig } from '../../element.mock';
 
 import { getRootedComponent } from './get-rooted-component';
 
@@ -9,12 +8,6 @@ enum RootedSelectorsEnum {
 }
 
 class RootedComponent extends getRootedComponent(RootedSelectorsEnum) {}
-
-jest.mock('../../../command', () => ({
-    testID$: jest.fn(() => Promise.resolve(mockElement)),
-    testID$$: jest.fn(() => Promise.resolve([mockElement])),
-    testID$$Index: jest.fn(() => Promise.resolve(mockElement)),
-}));
 
 describe('getRootedComponent', () => {
     it('should throw an error if no root selector is passed nor Root enum key exists', () => {
@@ -36,8 +29,12 @@ describe('getRootedComponent', () => {
 
         await component.Button.el();
 
-        expect(testID$).toHaveBeenNthCalledWith(1, RootedSelectorsEnum.Root);
-        expect(testID$).toHaveBeenNthCalledWith(2, RootedSelectorsEnum.Button, expect.objectContaining({}));
+        expect(mockDefaultConfig.elSelectorFn).toHaveBeenNthCalledWith(1, RootedSelectorsEnum.Root);
+        expect(mockDefaultConfig.elSelectorFn).toHaveBeenNthCalledWith(
+            2,
+            RootedSelectorsEnum.Button,
+            expect.objectContaining({})
+        );
     });
 
     it('should call parent RootedComponent methods', async () => {
@@ -47,6 +44,6 @@ describe('getRootedComponent', () => {
 
         await component.RootEl;
 
-        expect(testID$).toHaveBeenNthCalledWith(1, RootedSelectorsEnum.Root);
+        expect(mockDefaultConfig.elSelectorFn).toHaveBeenNthCalledWith(1, RootedSelectorsEnum.Root);
     });
 });

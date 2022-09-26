@@ -1,9 +1,8 @@
-import { byIndex$$ } from '../../../command';
+import { default$ComponentConfig } from '../../default$-component.config';
 import { getRootedComponent } from '../get-rooted-component/get-rooted-component';
 
-export const get$RootedComponent: typeof getRootedComponent = selectors =>
-    getRootedComponent(selectors, {
-        elSelectorFn: $,
-        elsSelectorFn: $$,
-        elsIndexSelectorFn: byIndex$$,
-    });
+import type { Enum } from '../../../type';
+import type { RootedComponentWithSelectorsCtor } from '../../type';
+
+export const get$RootedComponent = <T extends string>(selectors: Enum<T>): RootedComponentWithSelectorsCtor<T> =>
+    getRootedComponent(selectors, default$ComponentConfig);
