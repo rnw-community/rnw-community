@@ -8,12 +8,16 @@ import type { ChainablePromiseElement } from 'webdriverio';
 const getChildEl = (): ChainablePromiseElement<WebdriverIO.Element> =>
     Promise.resolve(mockElement) as unknown as ChainablePromiseElement<WebdriverIO.Element>;
 
+enum SelectorsEnum {
+    Button = 'SelectorsEnum',
+}
+
 // eslint-disable-next-line max-lines-per-function,max-statements
 describe('Component', () => {
     it('should return wdio element by selector using getChildEl', async () => {
         expect.assertions(1);
 
-        const component = new Component(mockDefaultConfig);
+        const component = new Component(mockDefaultConfig, SelectorsEnum);
 
         await component.getChildEl('test-selector');
         expect(mockDefaultConfig.elSelectorFn).toHaveBeenCalledWith('test-selector');
@@ -22,7 +26,7 @@ describe('Component', () => {
     it('should return array of wdio elements by selector using getChildEls', async () => {
         expect.assertions(1);
 
-        const component = new Component(mockDefaultConfig);
+        const component = new Component(mockDefaultConfig, SelectorsEnum);
 
         await component.getChildEls('test-selector');
         expect(mockDefaultConfig.elsSelectorFn).toHaveBeenCalledWith('test-selector');
@@ -31,7 +35,7 @@ describe('Component', () => {
     it('should return nth wdio element by selector using getChildElByIdx', async () => {
         expect.assertions(1);
 
-        const component = new Component(mockDefaultConfig);
+        const component = new Component(mockDefaultConfig, SelectorsEnum);
 
         await component.getChildElByIdx('test-selector', 1);
         expect(mockDefaultConfig.elsIndexSelectorFn).toHaveBeenCalledWith('test-selector', 1);
@@ -40,7 +44,7 @@ describe('Component', () => {
     it('should click wdio element by selector using clickChildEl', async () => {
         expect.assertions(2);
 
-        const component = new Component(mockDefaultConfig);
+        const component = new Component(mockDefaultConfig, SelectorsEnum);
 
         const getChildElSpy = jest.spyOn(component, 'getChildEl');
         const elementClickSpy = jest.spyOn(mockElement, 'click');
@@ -56,7 +60,7 @@ describe('Component', () => {
     it('should click nth wdio element by selector using clickByIdxChildEl', async () => {
         expect.assertions(2);
 
-        const component = new Component(mockDefaultConfig);
+        const component = new Component(mockDefaultConfig, SelectorsEnum);
 
         const getChildElByIdxSpy = jest.spyOn(component, 'getChildElByIdx');
         const elementClickSpy = jest.spyOn(mockElement, 'click');
@@ -72,7 +76,7 @@ describe('Component', () => {
     it('should set value  for wdio element by selector using setValueChildEl', async () => {
         expect.assertions(2);
 
-        const component = new Component(mockDefaultConfig);
+        const component = new Component(mockDefaultConfig, SelectorsEnum);
 
         const getChildElSpy = jest.spyOn(component, 'getChildEl');
         const elementSetValueSpy = jest.spyOn(mockElement, 'setValue');
@@ -88,7 +92,7 @@ describe('Component', () => {
     it('should get wdio element displayed status by selector using isDisplayedChildEl', async () => {
         expect.assertions(3);
 
-        const component = new Component(mockDefaultConfig);
+        const component = new Component(mockDefaultConfig, SelectorsEnum);
 
         const getChildElSpy = jest.spyOn(component, 'getChildEl');
         const elementIsDisplayedSpy = jest.spyOn(mockElement, 'isDisplayed');
@@ -103,7 +107,7 @@ describe('Component', () => {
     it('should get wdio element existing status by selector using isExistingChildEl', async () => {
         expect.assertions(3);
 
-        const component = new Component(mockDefaultConfig);
+        const component = new Component(mockDefaultConfig, SelectorsEnum);
 
         const getChildElSpy = jest.spyOn(component, 'getChildEl');
         const elementIsExistingSpy = jest.spyOn(mockElement, 'isExisting');
@@ -118,7 +122,7 @@ describe('Component', () => {
     it('should get wdio element text by selector using getTextChildEl', async () => {
         expect.assertions(3);
 
-        const component = new Component(mockDefaultConfig);
+        const component = new Component(mockDefaultConfig, SelectorsEnum);
 
         const getChildElSpy = jest.spyOn(component, 'getChildEl');
         const elementGetTextSpy = jest.spyOn(mockElement, 'getText');
@@ -133,7 +137,7 @@ describe('Component', () => {
     it('should wait for wdio element to exist by selector using waitForExistsChildEl', async () => {
         expect.assertions(2);
 
-        const component = new Component(mockDefaultConfig);
+        const component = new Component(mockDefaultConfig, SelectorsEnum);
 
         const getChildElSpy = jest.spyOn(component, 'getChildEl');
         const elementWaitForExistsSpy = jest.spyOn(mockElement, 'waitForExist');
@@ -149,7 +153,7 @@ describe('Component', () => {
     it('should wait for wdio element to be displayed by selector using waitForDisplayedChildEl', async () => {
         expect.assertions(2);
 
-        const component = new Component(mockDefaultConfig);
+        const component = new Component(mockDefaultConfig, SelectorsEnum);
 
         const getChildElSpy = jest.spyOn(component, 'getChildEl');
         const elementWaitForDisplayedSpy = jest.spyOn(mockElement, 'waitForDisplayed');
@@ -165,7 +169,7 @@ describe('Component', () => {
     it('should wait for wdio element to be enabled by selector using waitForEnabledChildEl', async () => {
         expect.assertions(2);
 
-        const component = new Component(mockDefaultConfig);
+        const component = new Component(mockDefaultConfig, SelectorsEnum);
 
         const getChildElSpy = jest.spyOn(component, 'getChildEl');
         const elementWaitForEnabledSpy = jest.spyOn(mockElement, 'waitForEnabled');
@@ -181,7 +185,7 @@ describe('Component', () => {
     it('should get wdio element size by selector using getSizeChildEl', async () => {
         expect.assertions(3);
 
-        const component = new Component(mockDefaultConfig);
+        const component = new Component(mockDefaultConfig, SelectorsEnum);
 
         const getChildElSpy = jest.spyOn(component, 'getChildEl');
         const elementGetSizeSpy = jest.spyOn(mockElement, 'getSize');
@@ -196,7 +200,7 @@ describe('Component', () => {
     it('should get wdio element location by selector using getSizeChildEl', async () => {
         expect.assertions(3);
 
-        const component = new Component(mockDefaultConfig);
+        const component = new Component(mockDefaultConfig, SelectorsEnum);
 
         const getChildElSpy = jest.spyOn(component, 'getChildEl');
         const elementGetLocationSpy = jest.spyOn(mockElement, 'getLocation');

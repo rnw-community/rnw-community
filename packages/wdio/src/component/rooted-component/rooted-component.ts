@@ -1,6 +1,7 @@
-import { isNotEmptyString } from '@rnw-community/shared';
+import { isDefined, isNotEmptyString } from '@rnw-community/shared';
 
 import { Component } from '../component/component';
+import { findEnumRootSelector } from '../util';
 
 import type {
     ClickArgs,
@@ -10,11 +11,25 @@ import type {
     WaitForEnabledArgs,
     WaitForExistArgs,
 } from '../type';
+import type { Enum } from '@rnw-community/shared';
 import type { ChainablePromiseArray, ChainablePromiseElement } from 'webdriverio';
 
-export class RootedComponent extends Component {
-    constructor(protected readonly parentElInput: ComponentInputArg, config: ComponentConfigInterface) {
-        super(config);
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export class RootedComponent<T extends string = any> extends Component<T> {
+    protected readonly parentElInput: ComponentInputArg;
+
+    constructor(
+        config: ComponentConfigInterface,
+        public override selectors: Enum<T>,
+        selectorOrElement: ComponentInputArg | undefined = findEnumRootSelector(selectors)
+    ) {
+        if (!isDefined(selectorOrElement)) {
+            throw new Error('Cannot create RootedComponent - Neither root selector nor root element is passed');
+        }
+
+        super(config, selectors);
+
+        this.parentElInput = selectorOrElement;
     }
 
     get RootEl(): ChainablePromiseElement<WebdriverIO.Element> {
