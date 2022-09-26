@@ -5,8 +5,6 @@ import { Component } from '../component';
 import type { ComponentConfigInterface, ComponentWithSelectorsCtor } from '../../type';
 import type { Enum } from '@rnw-community/shared';
 
-export type Type<T extends Component> = new (config: ComponentConfigInterface) => T;
-
 export const getComponent = <T extends string>(
     selectors: Enum<T>,
     config: ComponentConfigInterface = defaultComponentConfig
