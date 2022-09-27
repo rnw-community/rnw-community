@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.38.3](https://github.com/rnw-community/rnw-community/compare/v0.38.2...v0.38.3) (2022-09-27)
+
+
+### Bug Fixes
+
+* **wdio:** added esm/cjs build config ([#92](https://github.com/rnw-community/rnw-community/issues/92)) ([02195a1](https://github.com/rnw-community/rnw-community/commit/02195a1da3dccc62f2fe9f19105769c237fee02a))
+
+
+
+
+
 ## [0.38.2](https://github.com/rnw-community/rnw-community/compare/v0.38.1...v0.38.2) (2022-09-27)
 
 
