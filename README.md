@@ -28,4 +28,3 @@ Monorepo for useful NestJS, React Native and React Native Web packages which can
 ## TODO
 
 -   Migrate to turborepo
--   Add esm build config to all packages
