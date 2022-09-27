@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.38.2](https://github.com/rnw-community/rnw-community/compare/v0.38.1...v0.38.2) (2022-09-27)
+
+
+### Bug Fixes
+
+* **wdio:** fixed SelectorObject types to support ChainablePromiseElement/Array ([#91](https://github.com/rnw-community/rnw-community/issues/91)) ([c9fa5b7](https://github.com/rnw-community/rnw-community/commit/c9fa5b70d58ec42f9025336a512965c3d7ee5968))
+
+
+
+
+
 ## [0.38.1](https://github.com/rnw-community/rnw-community/compare/v0.38.0...v0.38.1) (2022-09-27)
 
 **Note:** Version bump only for package @rnw-community/fast-style
