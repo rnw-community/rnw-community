@@ -1,6 +1,6 @@
 import { combine } from '@rnw-community/object-field-tree';
 
-import type { Enum } from '@rnw-community/object-field-tree';
+import type { Enum } from '@rnw-community/shared';
 import type { TextStyle } from 'react-native';
 
 export const getFont = <TFamily extends Enum, TSize extends Enum, TColor extends Enum>(

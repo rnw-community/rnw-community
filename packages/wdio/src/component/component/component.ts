@@ -1,3 +1,5 @@
+import { isDefined } from '@rnw-community/shared';
+
 import type { ElSelectorFn, ElsIndexSelectorFn, ElsSelectorFn } from '../../type';
 import type {
     ClickArgs,
@@ -7,18 +9,54 @@ import type {
     WaitForEnabledArgs,
     WaitForExistArgs,
 } from '../type';
+import type { Enum } from '@rnw-community/shared';
+import type { ChainablePromiseArray, ChainablePromiseElement } from 'webdriverio';
 import type { Location } from 'webdriverio/build/commands/element/getLocation';
 import type { Size } from 'webdriverio/build/commands/element/getSize';
 
-export class Component {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export class Component<T extends string = any> {
     protected elSelectorFn: ElSelectorFn;
     protected elsSelectorFn: ElsSelectorFn;
     protected elsIndexSelectorFn: ElsIndexSelectorFn;
 
-    constructor(config: ComponentConfigInterface) {
+    constructor(config: ComponentConfigInterface, public selectors: Enum<T>) {
         this.elSelectorFn = config.elSelectorFn;
         this.elsSelectorFn = config.elsSelectorFn;
         this.elsIndexSelectorFn = config.elsIndexSelectorFn;
+
+        // eslint-disable-next-line no-constructor-return
+        return new Proxy(this, {
+            get(client, field: T, receiver) {
+                if (field in client) {
+                    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+                    return Reflect.get(client, field, receiver);
+                }
+
+                const selectorValue = client.selectors[field];
+                if (!isDefined(selectorValue)) {
+                    return undefined;
+                }
+
+                return {
+                    el: () => client.getChildEl(selectorValue),
+                    els: () => client.getChildEls(selectorValue),
+                    byIdx: (idx: number) => client.getChildElByIdx(selectorValue, idx),
+                    waitForDisplayed: (...args: WaitForDisplayedArgs) =>
+                        client.waitForDisplayedChildEl(selectorValue, ...args),
+                    waitForExist: (...args: WaitForExistArgs) => client.waitForExistChildEl(selectorValue, ...args),
+                    waitForEnabled: (...args: WaitForEnabledArgs) => client.waitForEnabledChildEl(selectorValue, ...args),
+                    setValue: (...args: SetValueArgs) => client.setValueChildEl(selectorValue, ...args),
+                    click: (...args: ClickArgs) => client.clickChildEl(selectorValue, ...args),
+                    clickByIdx: (idx: number, ...args: ClickArgs) => client.clickByIdxChildEl(selectorValue, idx, ...args),
+                    getText: () => client.getTextChildEl(selectorValue),
+                    isDisplayed: () => client.isDisplayedChildEl(selectorValue),
+                    isExisting: () => client.isExistingChildEl(selectorValue),
+                    getLocation: () => client.getLocationChildEl(selectorValue),
+                    getSize: () => client.getSizeChildEl(selectorValue),
+                };
+            },
+        });
     }
 
     async clickChildEl(selector: string, ...args: ClickArgs): Promise<void> {
@@ -65,15 +103,15 @@ export class Component {
         return await (await this.getChildEl(selector)).getSize();
     }
 
-    async getChildEl(selector: string): Promise<WebdriverIO.Element> {
-        return await this.elSelectorFn(selector);
+    getChildEl(selector: string): ChainablePromiseElement<WebdriverIO.Element> {
+        return this.elSelectorFn(selector);
     }
 
-    async getChildEls(selector: string): Promise<WebdriverIO.ElementArray> {
-        return await this.elsSelectorFn(selector);
+    getChildEls(selector: string): ChainablePromiseArray<WebdriverIO.ElementArray> {
+        return this.elsSelectorFn(selector);
     }
 
-    async getChildElByIdx(selector: string, idx: number): Promise<WebdriverIO.Element> {
-        return await this.elsIndexSelectorFn(selector, idx);
+    getChildElByIdx(selector: string, idx: number): ChainablePromiseElement<WebdriverIO.Element> {
+        return this.elsIndexSelectorFn(selector, idx);
     }
 }

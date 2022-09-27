@@ -1,4 +1,5 @@
 export { Component } from './component/component';
+export { getExtendedComponent } from './component/get-exteded-component/get-extended-component';
 export { getComponent } from './component/get-component/get-component';
 export { createComponent } from './component/create-component/create-component';
 export { create$Component } from './component/create$-component/create$-component';
