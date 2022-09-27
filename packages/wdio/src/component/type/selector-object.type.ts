@@ -1,14 +1,15 @@
 import type { SetValueArgs, WaitForDisplayedArgs, WaitForEnabledArgs, WaitForExistArgs } from './wdio-types.type';
+import type { ChainablePromiseArray, ChainablePromiseElement } from 'webdriverio';
 import type { Location } from 'webdriverio/build/commands/element/getLocation';
 import type { Size } from 'webdriverio/build/commands/element/getSize';
 
 // TODO: Add WebdriverIO return types, would be nice if we could reference original wdio methods for intelisense
 export interface SelectorObject {
-    byIdx: (idx: number) => Promise<WebdriverIO.Element>;
+    byIdx: (idx: number) => ChainablePromiseElement<WebdriverIO.Element>;
     click: () => Promise<void>;
     clickByIdx: (idx: number) => Promise<void>;
-    el: () => Promise<WebdriverIO.Element>;
-    els: () => Promise<WebdriverIO.ElementArray>;
+    el: () => ChainablePromiseElement<WebdriverIO.Element>;
+    els: () => ChainablePromiseArray<WebdriverIO.ElementArray>;
     getLocation: () => Promise<Location>;
     getSize: () => Promise<Size>;
     getText: () => Promise<string>;
