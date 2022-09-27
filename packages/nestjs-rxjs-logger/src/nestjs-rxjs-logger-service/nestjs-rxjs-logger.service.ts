@@ -140,11 +140,6 @@ export class NestJSRxJSLoggerService {
         return this.print$(message, context, AppLogLevelEnum.warn);
     }
 
-    /** @deprecated Use warn operator instead(without $)  */
-    warn$<T>(message: MessageFn<T> | string, context = this.context): MonoTypeOperatorFunction<T> {
-        return this.warn(message, context);
-    }
-
     /**
      * Inner wrapper for printing different level log messages.
      *
