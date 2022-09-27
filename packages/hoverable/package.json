@@ -1,6 +1,6 @@
 {
   "name": "@rnw-community/hoverable",
-  "version": "0.38.1",
+  "version": "0.38.3",
   "private": false,
   "description": "Hover support for React native elements in React native web",
   "keywords": [
@@ -55,12 +55,12 @@
     "react": "^17.0.2",
     "react-native": "^0.64.1",
     "react-test-renderer": "^17.0.2",
-    "@rnw-community/shared": "^0.38.1"
+    "@rnw-community/shared": "^0.38.3"
   },
   "peerDependencies": {
     "react": "^17.0.2",
     "react-native": "^0.64.1",
-    "@rnw-community/shared": "^0.38.1"
+    "@rnw-community/shared": "^0.38.3"
   },
   "gitHead": "b5608910319390f9773a9d42c3cc828e8e8a1d95"
 }
