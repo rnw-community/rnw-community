@@ -1,14 +1,17 @@
 {
     "extends": "../../tsconfig.build-cjs.json",
     "compilerOptions": {
-        "outDir": "./dist"
+        "types": ["node", "webdriverio/async"],
+        "outDir": "./dist/cjs"
     },
     "include": [
-        "./src"
+        "./src",
+        "./src/wdio.d.ts"
     ],
     "exclude": [
         "node_modules",
         "dist",
-        "**/*.spec.*"
+        "**/*.spec.*",
+        "**/*.mock.*"
     ]
 }

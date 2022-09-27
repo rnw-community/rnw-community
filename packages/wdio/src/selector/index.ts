@@ -1,6 +1,5 @@
-export * from './android-testid.selector';
-export * from './ios-testid.selector';
-export * from './mobile-testid.selector';
-export * from './web-testid.selector';
-
-export * from './test-id.selector';
+export { androidTestIDSelector } from './android-testid.selector';
+export { iosTestIDSelector } from './ios-testid.selector';
+export { mobileTestIDSelector } from './mobile-testid.selector';
+export { webTestIDSelector } from './web-testid.selector';
+export { testIDSelector } from './test-id.selector';
