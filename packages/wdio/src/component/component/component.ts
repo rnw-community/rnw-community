@@ -15,7 +15,7 @@ import type { Location } from 'webdriverio/build/commands/element/getLocation';
 import type { Size } from 'webdriverio/build/commands/element/getSize';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export class Component<T extends string = any> {
+export class Component<T = any> {
     protected elSelectorFn: ElSelectorFn;
     protected elsSelectorFn: ElsSelectorFn;
     protected elsIndexSelectorFn: ElsIndexSelectorFn;
@@ -27,13 +27,13 @@ export class Component<T extends string = any> {
 
         // eslint-disable-next-line no-constructor-return
         return new Proxy(this, {
-            get(client, field: T, receiver) {
+            get(client, field: string, receiver) {
                 if (field in client) {
                     // eslint-disable-next-line @typescript-eslint/no-unsafe-return
                     return Reflect.get(client, field, receiver);
                 }
 
-                const selectorValue = client.selectors[field];
+                const selectorValue = client.selectors[field] as unknown as string;
                 if (!isDefined(selectorValue)) {
                     return undefined;
                 }

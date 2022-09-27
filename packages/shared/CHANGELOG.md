@@ -5,14 +5,9 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 # [0.38.0](https://github.com/rnw-community/rnw-community/compare/v0.37.0...v0.38.0) (2022-09-27)
 
-
 ### Features
 
-* **wdio:** refactored enum, added wdio ChainablePromise support ([#89](https://github.com/rnw-community/rnw-community/issues/89)) ([d8f24bf](https://github.com/rnw-community/rnw-community/commit/d8f24bf8d9a3c3ffec7c1151f466ed058da8af6c))
-
-
-
-
+-   **wdio:** refactored enum, added wdio ChainablePromise support ([#89](https://github.com/rnw-community/rnw-community/issues/89)) ([d8f24bf](https://github.com/rnw-community/rnw-community/commit/d8f24bf8d9a3c3ffec7c1151f466ed058da8af6c))
 
 # [0.37.0](https://github.com/rnw-community/rnw-community/compare/v0.36.1...v0.37.0) (2022-09-26)
 

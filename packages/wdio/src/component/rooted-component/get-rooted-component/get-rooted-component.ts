@@ -3,9 +3,8 @@ import { getExtendedRootedComponent } from '../get-extended-rooted-component/get
 import { RootedComponent } from '../rooted-component';
 
 import type { ComponentConfigInterface, RootedComponentWithSelectorsCtor } from '../../type';
-import type { Enum } from '@rnw-community/shared';
 
-export const getRootedComponent = <T extends string>(
-    selectors: Enum<T>,
+export const getRootedComponent = <T>(
+    selectors: T,
     config: ComponentConfigInterface = defaultComponentConfig
 ): RootedComponentWithSelectorsCtor<T> => getExtendedRootedComponent(selectors, RootedComponent, config);

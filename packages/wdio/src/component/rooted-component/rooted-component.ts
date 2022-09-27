@@ -15,7 +15,7 @@ import type { Enum } from '@rnw-community/shared';
 import type { ChainablePromiseArray, ChainablePromiseElement } from 'webdriverio';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export class RootedComponent<T extends string = any> extends Component<T> {
+export class RootedComponent<T = any> extends Component<T> {
     protected readonly parentElInput: ComponentInputArg;
 
     constructor(

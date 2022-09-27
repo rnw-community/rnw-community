@@ -11,6 +11,7 @@ enum SelectorsEnum {
 }
 
 enum AdditionalSelectorsEnum {
+    CSSSelector = '.my-lib-class',
     Toggle = 'AdditionalSelectorsEnum.Toggle',
 }
 
@@ -19,6 +20,16 @@ class CustomComponent extends getExtendedComponent(SelectorsEnum, ParentComponen
 
 // eslint-disable-next-line max-lines-per-function,max-statements
 describe('getExtendedComponent', () => {
+    it('should work with css-like selector methods', async () => {
+        expect.assertions(2);
+
+        const component = new CustomComponent();
+
+        expectTypeOf(component.CSSSelector.el).toBeFunction();
+        await expect(component.CSSSelector.el()).resolves.toMatchObject(mockElement);
+        expect(mockDefaultConfig.elSelectorFn).toHaveBeenCalledWith(AdditionalSelectorsEnum.CSSSelector);
+    });
+
     it('should get selector methods for enum from parent class', async () => {
         expect.assertions(4);
 
