@@ -1,6 +1,6 @@
 {
   "name": "@rnw-community/platform",
-  "version": "0.37.0",
+  "version": "0.38.0",
   "private": false,
   "description": "React native web platform utils and helpers",
   "keywords": [
@@ -23,7 +23,7 @@
     "access": "public"
   },
   "dependencies": {
-    "@rnw-community/wdio": "^0.37.0"
+    "@rnw-community/wdio": "^0.38.0"
   },
   "peerDependencies": {
     "@react-native-async-storage/async-storage": "^1.13.4",
