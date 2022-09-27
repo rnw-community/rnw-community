@@ -1,4 +1,4 @@
-import type { Enum } from './enum.type';
+import type { Enum } from '@rnw-community/shared';
 
 export type Return1<T extends Enum, D> = Record<keyof T, D>;
 export type Return2<D, T1 extends Enum, T2 extends Enum> = Record<keyof T1, Return1<T2, D>>;

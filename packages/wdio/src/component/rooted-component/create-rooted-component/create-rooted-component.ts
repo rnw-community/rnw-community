@@ -1,8 +1,7 @@
 import { getRootedComponent } from '../get-rooted-component/get-rooted-component';
 
-import type { Enum } from '../../../type';
-import type { ComponentInputArg, RootedComponentWithSelectors } from '../../type';
-import type { ComponentConfigInterface } from '../../type/component-config-arg.type';
+import type { ComponentConfigInterface, ComponentInputArg, RootedComponentWithSelectors } from '../../type';
+import type { Enum } from '@rnw-community/shared';
 
 export const createRootedComponent = <T extends string>(
     selectors: Enum<T>,

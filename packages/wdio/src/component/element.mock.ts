@@ -1,7 +1,14 @@
-export const mockDefaultConfig = {
-    elSelectorFn: jest.fn(() => Promise.resolve(mockElement as unknown as WebdriverIO.Element)),
-    elsSelectorFn: jest.fn(() => Promise.resolve([mockElement] as unknown as WebdriverIO.ElementArray)),
-    elsIndexSelectorFn: jest.fn(() => Promise.resolve(mockElement as unknown as WebdriverIO.Element)),
+import type { ComponentConfigInterface } from './type';
+import type { ChainablePromiseArray, ChainablePromiseElement } from 'webdriverio';
+
+export const mockDefaultConfig: ComponentConfigInterface = {
+    elSelectorFn: jest.fn(() => Promise.resolve(mockElement) as unknown as ChainablePromiseElement<WebdriverIO.Element>),
+    elsSelectorFn: jest.fn(
+        () => Promise.resolve([mockElement]) as unknown as ChainablePromiseArray<WebdriverIO.ElementArray>
+    ),
+    elsIndexSelectorFn: jest.fn(
+        () => Promise.resolve(mockElement) as unknown as ChainablePromiseElement<WebdriverIO.Element>
+    ),
 };
 
 export const mockElement = {
