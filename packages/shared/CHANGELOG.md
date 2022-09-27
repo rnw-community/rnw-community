@@ -7,10 +7,6 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 **Note:** Version bump only for package @rnw-community/shared
 
-
-
-
-
 # [0.38.0](https://github.com/rnw-community/rnw-community/compare/v0.37.0...v0.38.0) (2022-09-27)
 
 ### Features
