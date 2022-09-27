@@ -11,8 +11,15 @@
   ],
   "repository": "https://github.com/rnw-community/rnw-community/tree/master/packages/wdio",
   "license": "MIT",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/esm/index.js",
+      "require": "./dist/cjs/index.js"
+    }
+  },
+  "main": "dist/cjs/index.js",
+  "module": "dist/esm/index.js",
+  "types": "dist/esm/index.d.ts",
   "files": [
     "dist/**/*"
   ],
@@ -23,8 +30,9 @@
   "scripts": {
     "ts": "tsc --pretty -p tsconfig.json",
     "prebuild": "yarn clear",
-    "build": "tsc --pretty -p tsconfig.build.json",
-    "postbuild": "node ./build.js",
+    "build:esm": "tsc --pretty -p tsconfig.build-cjs.json",
+    "build:cjs": "tsc --pretty -p tsconfig.build-esm.json",
+    "build": "yarn build:esm && yarn build:cjs",
     "lint": "yarn eslint src",
     "lint:fix": "yarn lint --fix src",
     "test": "yarn jest",
@@ -40,7 +48,6 @@
   "devDependencies": {
     "@rnw-community/shared": "^0.38.1",
     "@wdio/types": "^7.20.7",
-    "concat": "^1.0.3",
     "expect-type": "^0.13.0",
     "webdriverio": "^7.20.7"
   },

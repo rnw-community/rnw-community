@@ -1,3 +1,3 @@
-export * from './is-android.capability';
-export * from './is-browser.capability';
-export * from './is-ios.capability';
+export { isAndroidCapability } from './is-android.capability';
+export { isBrowserCapability } from './is-browser.capability';
+export { isIOSCapability } from './is-ios.capability';
