@@ -1,6 +1,6 @@
 {
   "name": "@rnw-community/nestjs-rxjs-metrics",
-  "version": "0.38.3",
+  "version": "0.39.0",
   "private": false,
   "description": "NestJS RxJS logger",
   "keywords": [
@@ -50,7 +50,7 @@
     "@nestjs/common": "^8.0.6",
     "@willsoto/nestjs-prometheus": "^4.0.1",
     "prom-client": "^14.0.0",
-    "@rnw-community/shared": "^0.38.3",
+    "@rnw-community/shared": "^0.39.0",
     "rxjs": "^7.4.0"
   },
   "peerDependencies": {
