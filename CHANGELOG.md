@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.39.1](https://github.com/rnw-community/rnw-community/compare/v0.39.0...v0.39.1) (2022-09-28)
+
+
+### Bug Fixes
+
+* **wdio:** fixed addWdioCommands usage without $,$$ ([#95](https://github.com/rnw-community/rnw-community/issues/95)) ([e7cd2ce](https://github.com/rnw-community/rnw-community/commit/e7cd2ce0f5a6dc92c4e2663d7d4dfb513c3f0974))
+
+
+
+
+
 # [0.39.0](https://github.com/rnw-community/rnw-community/compare/v0.38.3...v0.39.0) (2022-09-28)
 
 
