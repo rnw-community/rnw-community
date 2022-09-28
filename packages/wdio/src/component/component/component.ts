@@ -19,6 +19,7 @@ export class Component<T = any> {
     protected elSelectorFn: ElSelectorFn;
     protected elsSelectorFn: ElsSelectorFn;
     protected elsIndexSelectorFn: ElsIndexSelectorFn;
+    protected parentComponents: Component[] = [];
 
     constructor(config: ComponentConfigInterface, public selectors: Enum<T>) {
         this.elSelectorFn = config.elSelectorFn;
@@ -35,6 +36,16 @@ export class Component<T = any> {
 
                 const selectorValue = client.selectors[field] as unknown as string;
                 if (!isDefined(selectorValue)) {
+                    for (const parentComponent of client.parentComponents) {
+                        const parentComponentValue = parentComponent.selectors[field] as unknown as string;
+
+                        if (isDefined(parentComponentValue)) {
+                            // @ts-expect-error TODO: Improve typings and eslint ignores
+                            // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+                            return parentComponent[field];
+                        }
+                    }
+
                     return undefined;
                 }
 
@@ -57,6 +68,10 @@ export class Component<T = any> {
                 };
             },
         });
+    }
+
+    addParentComponent(component: Component): void {
+        this.parentComponents.push(component);
     }
 
     async clickChildEl(selector: string, ...args: ClickArgs): Promise<void> {

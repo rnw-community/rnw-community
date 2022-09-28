@@ -10,6 +10,15 @@ export const mockDefaultConfig: ComponentConfigInterface = {
         () => Promise.resolve(mockElement) as unknown as ChainablePromiseElement<WebdriverIO.Element>
     ),
 };
+export const mockDefault$Config: ComponentConfigInterface = {
+    elSelectorFn: jest.fn(() => Promise.resolve(mockElement) as unknown as ChainablePromiseElement<WebdriverIO.Element>),
+    elsSelectorFn: jest.fn(
+        () => Promise.resolve([mockElement]) as unknown as ChainablePromiseArray<WebdriverIO.ElementArray>
+    ),
+    elsIndexSelectorFn: jest.fn(
+        () => Promise.resolve(mockElement) as unknown as ChainablePromiseElement<WebdriverIO.Element>
+    ),
+};
 
 export const mockElement = {
     click: jest.fn(() => Promise.resolve(void 0)),
@@ -24,5 +33,5 @@ export const mockElement = {
     getSize: jest.fn(() => Promise.resolve({ width: 0, height: 0 })),
 };
 
-jest.mock('./default$-component.config', () => ({ default$ComponentConfig: mockDefaultConfig }));
+jest.mock('./default$-component.config', () => ({ default$ComponentConfig: mockDefault$Config }));
 jest.mock('./default-component.config', () => ({ defaultComponentConfig: mockDefaultConfig }));

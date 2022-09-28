@@ -1,7 +1,8 @@
 import { defaultComponentConfig } from '../../default-component.config';
+import { findEnumRootSelector } from '../../util';
+import { RootedComponent } from '../rooted-component';
 
 import type { ComponentConfigInterface, ComponentInputArg, RootedComponentWithSelectorsCtor } from '../../type';
-import type { RootedComponent } from '../rooted-component';
 import type { ClassType } from '@rnw-community/shared';
 
 export const getExtendedRootedComponent = <T, P extends RootedComponent>(
@@ -10,15 +11,12 @@ export const getExtendedRootedComponent = <T, P extends RootedComponent>(
     config: ComponentConfigInterface = defaultComponentConfig
 ): RootedComponentWithSelectorsCtor<T, P> =>
     // @ts-expect-error We use proxy for dynamic fields
-    class extends ParentComponent {
-        constructor(...args: [ComponentConfigInterface, T, ComponentInputArg] | [ComponentInputArg]) {
-            // HINT: This condition is needed for nested extended creation of rooted components
-            if (args.length > 1) {
-                super(...args);
-            } else {
-                super(config, selectors, args[0]);
-            }
+    class extends RootedComponent {
+        constructor(selectorOrElement: ComponentInputArg | undefined = findEnumRootSelector(selectors)) {
+            super(config, selectors, selectorOrElement);
 
-            this.selectors = { ...selectors, ...this.selectors };
+            if (ParentComponent !== RootedComponent) {
+                this.addParentComponent(new ParentComponent(selectorOrElement));
+            }
         }
     };
