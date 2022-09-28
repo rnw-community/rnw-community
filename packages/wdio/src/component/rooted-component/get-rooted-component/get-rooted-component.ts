@@ -6,5 +6,5 @@ import type { ComponentConfigInterface, RootedComponentWithSelectorsCtor } from 
 
 export const getRootedComponent = <T>(
     selectors: T,
-    config: ComponentConfigInterface = defaultComponentConfig
+    config: ComponentConfigInterface = defaultComponentConfig()
 ): RootedComponentWithSelectorsCtor<T> => getExtendedRootedComponent(selectors, RootedComponent, config);

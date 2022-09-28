@@ -33,5 +33,5 @@ export const mockElement = {
     getSize: jest.fn(() => Promise.resolve({ width: 0, height: 0 })),
 };
 
-jest.mock('./default$-component.config', () => ({ default$ComponentConfig: mockDefault$Config }));
-jest.mock('./default-component.config', () => ({ defaultComponentConfig: mockDefaultConfig }));
+jest.mock('./default$-component.config', () => ({ default$ComponentConfig: () => mockDefault$Config }));
+jest.mock('./default-component.config', () => ({ defaultComponentConfig: () => mockDefaultConfig }));
