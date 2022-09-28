@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.39.0](https://github.com/rnw-community/rnw-community/compare/v0.38.3...v0.39.0) (2022-09-28)
+
+
+### Features
+
+* **wdio:** normalizes component extension and parents ([#94](https://github.com/rnw-community/rnw-community/issues/94)) ([ac3ce85](https://github.com/rnw-community/rnw-community/commit/ac3ce8514917c597cb7e8546419ad34b00cd4333))
+
+
+
+
+
 ## [0.38.3](https://github.com/rnw-community/rnw-community/compare/v0.38.2...v0.38.3) (2022-09-27)
 
 
