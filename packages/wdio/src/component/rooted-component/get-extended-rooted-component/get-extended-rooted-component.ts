@@ -8,7 +8,7 @@ import type { ClassType } from '@rnw-community/shared';
 export const getExtendedRootedComponent = <T, P extends RootedComponent>(
     selectors: T,
     ParentComponent: ClassType<P>,
-    config: ComponentConfigInterface = defaultComponentConfig
+    config: ComponentConfigInterface = defaultComponentConfig()
 ): RootedComponentWithSelectorsCtor<T, P> =>
     // @ts-expect-error We use proxy for dynamic fields
     class extends RootedComponent {
