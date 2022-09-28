@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.39.2](https://github.com/rnw-community/rnw-community/compare/v0.39.1...v0.39.2) (2022-09-28)
+
+
+### Bug Fixes
+
+* **wdio:** fixed rootedComponent promise chain ([#96](https://github.com/rnw-community/rnw-community/issues/96)) ([d4bcbb0](https://github.com/rnw-community/rnw-community/commit/d4bcbb00368716187d805e345b184ef35594fbd5))
+
+
+
+
+
 ## [0.39.1](https://github.com/rnw-community/rnw-community/compare/v0.39.0...v0.39.1) (2022-09-28)
 
 
