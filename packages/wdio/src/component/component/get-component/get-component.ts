@@ -6,5 +6,5 @@ import type { ComponentConfigInterface, ComponentWithSelectorsCtor } from '../..
 
 export const getComponent = <T>(
     selectors: T,
-    config: ComponentConfigInterface = defaultComponentConfig
+    config: ComponentConfigInterface = defaultComponentConfig()
 ): ComponentWithSelectorsCtor<T> => getExtendedComponent(selectors, Component, config);
