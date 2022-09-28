@@ -3,7 +3,7 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
-# [0.39.0](https://github.com/rnw-community/rnw-community/compare/v0.38.3...v0.39.0) (2022-09-28)
+## [0.39.2](https://github.com/rnw-community/rnw-community/compare/v0.39.1...v0.39.2) (2022-09-28)
 
 **Note:** Version bump only for package @rnw-community/platform
 
@@ -11,27 +11,29 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-## [0.38.3](https://github.com/rnw-community/rnw-community/compare/v0.38.2...v0.38.3) (2022-09-27)
+## [0.39.1](https://github.com/rnw-community/rnw-community/compare/v0.39.0...v0.39.1) (2022-09-28)
 
+**Note:** Version bump only for package @rnw-community/platform
+
+
+
+
+
+# [0.39.0](https://github.com/rnw-community/rnw-community/compare/v0.38.3...v0.39.0) (2022-09-28)
+
+**Note:** Version bump only for package @rnw-community/platform
+
+## [0.38.3](https://github.com/rnw-community/rnw-community/compare/v0.38.2...v0.38.3) (2022-09-27)
 
 ### Bug Fixes
 
-* **wdio:** added esm/cjs build config ([#92](https://github.com/rnw-community/rnw-community/issues/92)) ([02195a1](https://github.com/rnw-community/rnw-community/commit/02195a1da3dccc62f2fe9f19105769c237fee02a))
-
-
-
-
+-   **wdio:** added esm/cjs build config ([#92](https://github.com/rnw-community/rnw-community/issues/92)) ([02195a1](https://github.com/rnw-community/rnw-community/commit/02195a1da3dccc62f2fe9f19105769c237fee02a))
 
 ## [0.38.2](https://github.com/rnw-community/rnw-community/compare/v0.38.1...v0.38.2) (2022-09-27)
 
-
 ### Bug Fixes
 
-* **wdio:** fixed SelectorObject types to support ChainablePromiseElement/Array ([#91](https://github.com/rnw-community/rnw-community/issues/91)) ([c9fa5b7](https://github.com/rnw-community/rnw-community/commit/c9fa5b70d58ec42f9025336a512965c3d7ee5968))
-
-
-
-
+-   **wdio:** fixed SelectorObject types to support ChainablePromiseElement/Array ([#91](https://github.com/rnw-community/rnw-community/issues/91)) ([c9fa5b7](https://github.com/rnw-community/rnw-community/commit/c9fa5b70d58ec42f9025336a512965c3d7ee5968))
 
 ## [0.38.1](https://github.com/rnw-community/rnw-community/compare/v0.38.0...v0.38.1) (2022-09-27)
 
