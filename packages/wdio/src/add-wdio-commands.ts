@@ -9,9 +9,7 @@ import {
 } from './command';
 import { swipeCommand } from './command/swipe.command';
 
-import type { SelectorContextType } from './type';
-
-export const addWdioCommands = (context: SelectorContextType): void => {
+export const addWdioCommands = (context: WebdriverIO.Browser): void => {
     // HINT: Browser commands
     context.addCommand('testID$', testID$, false);
     context.addCommand('testID$$', testID$$, false);

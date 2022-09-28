@@ -67,20 +67,14 @@ export class RootedComponent<T = any> extends Component<T> {
     }
 
     override getChildEl(selector: string): ChainablePromiseElement<WebdriverIO.Element> {
-        return this.RootEl.then(rootEl =>
-            this.elSelectorFn(selector, rootEl)
-        ) as ChainablePromiseElement<WebdriverIO.Element>;
+        return this.elSelectorFn(selector, this.RootEl);
     }
 
     override getChildEls(selector: string): ChainablePromiseArray<WebdriverIO.ElementArray> {
-        return this.RootEl.then(rootEl =>
-            this.elsSelectorFn(selector, rootEl)
-        ) as ChainablePromiseArray<WebdriverIO.ElementArray>;
+        return this.elsSelectorFn(selector, this.RootEl);
     }
 
     override getChildElByIdx(selector: string, idx: number): ChainablePromiseElement<WebdriverIO.Element> {
-        return this.RootEl.then(rootEl =>
-            this.elsIndexSelectorFn(selector, idx, rootEl)
-        ) as ChainablePromiseElement<WebdriverIO.Element>;
+        return this.elsIndexSelectorFn(selector, idx, this.RootEl);
     }
 }

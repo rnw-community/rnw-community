@@ -15,7 +15,7 @@ describe('create-rooted-component', () => {
 
         await expect(component.Button.el()).resolves.toMatchObject(mockElement);
         expect(mockDefaultConfig.elSelectorFn).toHaveBeenNthCalledWith(1, Selectors.Button);
-        expect(mockDefaultConfig.elSelectorFn).toHaveBeenNthCalledWith(2, Selectors.Button, mockElement);
+        expect(mockDefaultConfig.elSelectorFn).toHaveBeenNthCalledWith(2, Selectors.Button, expect.objectContaining({}));
     });
     it('should create RootedComponent instance with selectors, using Root selector from enum', async () => {
         expect.assertions(1);
@@ -30,6 +30,6 @@ describe('create-rooted-component', () => {
         const component = createRootedComponent(Selectors, mockElement as unknown as WebdriverIO.Element);
 
         await expect(component.Button.el()).resolves.toMatchObject(mockElement);
-        expect(mockDefaultConfig.elSelectorFn).toHaveBeenCalledWith(Selectors.Button, mockElement);
+        expect(mockDefaultConfig.elSelectorFn).toHaveBeenCalledWith(Selectors.Button, expect.objectContaining({}));
     });
 });
