@@ -37,7 +37,7 @@ describe('get$RootedComponent', () => {
         expect(mockDefault$Config.elSelectorFn).toHaveBeenNthCalledWith(
             2,
             RootedSelectorsEnum.Button,
-            expect.objectContaining(mockElement)
+            expect.objectContaining({})
         );
 
         await expect(component.ExtendedButton.el()).resolves.toMatchObject(mockElement);
@@ -45,7 +45,7 @@ describe('get$RootedComponent', () => {
         expect(mockDefaultConfig.elSelectorFn).toHaveBeenNthCalledWith(
             2,
             ExtendedRootedSelectorsEnum.ExtendedButton,
-            expect.objectContaining(mockElement)
+            expect.objectContaining({})
         );
     });
 });

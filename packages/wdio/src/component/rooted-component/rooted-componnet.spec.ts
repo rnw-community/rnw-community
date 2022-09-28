@@ -34,11 +34,7 @@ describe('RootedComponent', () => {
 
         await expect(rootedComponent.getChildEl(Selectors.Button)).resolves.toMatchObject(mockElement);
         expect(mockDefaultConfig.elSelectorFn).toHaveBeenNthCalledWith(1, Selectors.Root);
-        expect(mockDefaultConfig.elSelectorFn).toHaveBeenNthCalledWith(
-            2,
-            Selectors.Button,
-            expect.objectContaining(mockElement)
-        );
+        expect(mockDefaultConfig.elSelectorFn).toHaveBeenNthCalledWith(2, Selectors.Button, expect.objectContaining({}));
     });
 
     it('should return array of wdio elements in Root by selector using getChildEls', async () => {
@@ -48,11 +44,7 @@ describe('RootedComponent', () => {
 
         await expect(rootedComponent.getChildEls(Selectors.Button)).resolves.toContain(mockElement);
         expect(mockDefaultConfig.elSelectorFn).toHaveBeenNthCalledWith(1, Selectors.Root);
-        expect(mockDefaultConfig.elsSelectorFn).toHaveBeenNthCalledWith(
-            1,
-            Selectors.Button,
-            expect.objectContaining(mockElement)
-        );
+        expect(mockDefaultConfig.elsSelectorFn).toHaveBeenNthCalledWith(1, Selectors.Button, expect.objectContaining({}));
     });
 
     it('should return nth wdio element in Root by selector using getChildElByIdx', async () => {
@@ -66,7 +58,7 @@ describe('RootedComponent', () => {
             1,
             Selectors.Button,
             1,
-            expect.objectContaining(mockElement)
+            expect.objectContaining({})
         );
     });
 
