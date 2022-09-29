@@ -11,7 +11,6 @@ import type {
     WaitForEnabledArgs,
     WaitForExistArgs,
 } from '../type';
-import type { Enum } from '@rnw-community/shared';
 import type { ChainablePromiseArray, ChainablePromiseElement } from 'webdriverio';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -20,7 +19,7 @@ export class RootedComponent<T = any> extends Component<T> {
 
     constructor(
         config: ComponentConfigInterface,
-        public override selectors: Enum<T>,
+        public override selectors: T,
         selectorOrElement: ComponentInputArg | undefined = findEnumRootSelector(selectors)
     ) {
         if (!isDefined(selectorOrElement)) {

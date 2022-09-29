@@ -9,7 +9,6 @@ import type {
     WaitForEnabledArgs,
     WaitForExistArgs,
 } from '../type';
-import type { Enum } from '@rnw-community/shared';
 import type { ChainablePromiseArray, ChainablePromiseElement } from 'webdriverio';
 import type { Location } from 'webdriverio/build/commands/element/getLocation';
 import type { Size } from 'webdriverio/build/commands/element/getSize';
@@ -21,7 +20,7 @@ export class Component<T = any> {
     protected elsIndexSelectorFn: ElsIndexSelectorFn;
     protected parentComponents: Component[] = [];
 
-    constructor(config: ComponentConfigInterface, public selectors: Enum<T>) {
+    constructor(config: ComponentConfigInterface, public selectors: T) {
         this.elSelectorFn = config.elSelectorFn;
         this.elsSelectorFn = config.elsSelectorFn;
         this.elsIndexSelectorFn = config.elsIndexSelectorFn;
@@ -34,9 +33,11 @@ export class Component<T = any> {
                     return Reflect.get(client, field, receiver);
                 }
 
+                // @ts-expect-error TODO: Can we improve this types? We need this to be T for IDE intellisense support
                 const selectorValue = client.selectors[field] as unknown as string;
                 if (!isDefined(selectorValue)) {
                     for (const parentComponent of client.parentComponents) {
+                        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
                         const parentComponentValue = parentComponent.selectors[field] as unknown as string;
 
                         if (field in parentComponent) {

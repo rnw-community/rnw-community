@@ -5,6 +5,8 @@ import { mockDefaultConfig, mockElement } from '../../element.mock';
 import { Component } from '../component';
 
 import { getExtendedComponent } from './get-extended-component';
+import { MockComponent } from './mock/mock-component';
+import { MockComponentSelectors } from './mock/mock-component.selectors';
 
 enum SelectorsEnum {
     Button = 'Selectors.Button',
@@ -227,5 +229,19 @@ describe('getExtendedComponent', () => {
 
         const component = new CustomComponent();
         expect(component.method()).toBe('Getter');
+    });
+
+    it('should support intellisense for external files', async () => {
+        expect.assertions(2);
+
+        const component = new MockComponent();
+
+        expectTypeOf(component.Button.el).toBeFunction();
+        await expect(component.Button.el()).resolves.toMatchObject(mockElement);
+        expect(mockDefaultConfig.elSelectorFn).toHaveBeenCalledWith(MockComponentSelectors.Button);
+
+        expectTypeOf(component.ParentButton.el).toBeFunction();
+        await expect(component.ParentButton.el()).resolves.toMatchObject(mockElement);
+        expect(mockDefaultConfig.elSelectorFn).toHaveBeenCalledWith(MockComponentSelectors.Button);
     });
 });
