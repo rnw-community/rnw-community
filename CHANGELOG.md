@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.41.0](https://github.com/rnw-community/rnw-community/compare/v0.40.0...v0.41.0) (2022-09-29)
+
+
+### Features
+
+* **wdio:** limited RootedComponent to not accept plain wdio element, added extended component to support parent methods/getters ([#97](https://github.com/rnw-community/rnw-community/issues/97)) ([2150baf](https://github.com/rnw-community/rnw-community/commit/2150bafd11712ea971f91624139068747c43f95a))
+
+
+
+
+
 # [0.40.0](https://github.com/rnw-community/rnw-community/compare/v0.39.2...v0.40.0) (2022-09-28)
 
 
