@@ -15,7 +15,17 @@ enum AdditionalSelectorsEnum {
     Toggle = 'AdditionalSelectorsEnum.Toggle',
 }
 
-class ParentComponent extends getExtendedComponent(AdditionalSelectorsEnum, Component) {}
+class ParentComponent extends getExtendedComponent(AdditionalSelectorsEnum, Component) {
+    getter = 'Getter';
+
+    get Getter(): string {
+        return this.getter;
+    }
+
+    method(): string {
+        return this.getter;
+    }
+}
 class CustomComponent extends getExtendedComponent(SelectorsEnum, ParentComponent) {}
 
 // eslint-disable-next-line max-lines-per-function,max-statements
@@ -203,5 +213,19 @@ describe('getExtendedComponent', () => {
         expectTypeOf(component.Button.getSize).toBeFunction();
         await expect(component.Button.getSize()).resolves.toMatchObject({ width: 0, height: 0 });
         expect(getSizeChildElSpy).toHaveBeenCalledWith(SelectorsEnum.Button);
+    });
+
+    it('should call extended component class getters', () => {
+        expect.assertions(1);
+
+        const component = new CustomComponent();
+        expect(component.Getter).toBe('Getter');
+    });
+
+    it('should call extended component class methods', () => {
+        expect.assertions(1);
+
+        const component = new CustomComponent();
+        expect(component.method()).toBe('Getter');
     });
 });

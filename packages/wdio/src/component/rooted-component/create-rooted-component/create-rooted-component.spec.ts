@@ -2,6 +2,8 @@ import { mockDefaultConfig, mockElement } from '../../element.mock';
 
 import { createRootedComponent } from './create-rooted-component';
 
+import type { ChainablePromiseElement } from 'webdriverio';
+
 enum Selectors {
     Button = 'Selectors.Button',
     Root = 'Selectors.Root',
@@ -24,10 +26,14 @@ describe('create-rooted-component', () => {
 
         await expect(component.Button.el()).resolves.toMatchObject(mockElement);
     });
+
     it('should create RootedComponent instance with selectors, using wdio element as root', async () => {
         expect.assertions(2);
 
-        const component = createRootedComponent(Selectors, mockElement as unknown as WebdriverIO.Element);
+        const component = createRootedComponent(
+            Selectors,
+            Promise.resolve(mockElement) as unknown as ChainablePromiseElement<WebdriverIO.Element>
+        );
 
         await expect(component.Button.el()).resolves.toMatchObject(mockElement);
         expect(mockDefaultConfig.elSelectorFn).toHaveBeenCalledWith(Selectors.Button, expect.objectContaining({}));

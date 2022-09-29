@@ -71,12 +71,13 @@ describe('RootedComponent', () => {
         expect(mockDefaultConfig.elSelectorFn).toHaveBeenNthCalledWith(1, Selectors.Root);
     });
 
-    it('should return Root wdio element from constructor wdio element', async () => {
+    it('should throw Error on Root wdio element from constructor wdio element', () => {
         expect.assertions(1);
 
+        // @ts-expect-error Needed for test
         const rootedComponent = new RootedComponent(mockDefaultConfig, Selectors, fakeRootEl);
 
-        await expect(rootedComponent.RootEl).resolves.toBe(fakeRootEl);
+        expect(() => rootedComponent.RootEl).toThrow('RootEl should be either string or ChainablePromiseElement');
     });
 
     it('should return Root wdio element from constructor ChainablePromiseElement wdio element', () => {

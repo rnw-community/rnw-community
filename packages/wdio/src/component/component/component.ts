@@ -39,7 +39,10 @@ export class Component<T = any> {
                     for (const parentComponent of client.parentComponents) {
                         const parentComponentValue = parentComponent.selectors[field] as unknown as string;
 
-                        if (isDefined(parentComponentValue)) {
+                        if (field in parentComponent) {
+                            // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+                            return Reflect.get(parentComponent, field, receiver);
+                        } else if (isDefined(parentComponentValue)) {
                             // @ts-expect-error TODO: Improve typings and eslint ignores
                             // eslint-disable-next-line @typescript-eslint/no-unsafe-return
                             return parentComponent[field];
