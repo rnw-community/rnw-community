@@ -39,7 +39,7 @@ export class RootedComponent<T = any> extends Component<T> {
             return this.parentElInput;
         }
 
-        throw new Error(`RootEl should be either string or ChainablePromiseElement`);
+        return $(this.parentElInput);
     }
 
     async waitForDisplayed(...args: WaitForDisplayedArgs): Promise<void> {

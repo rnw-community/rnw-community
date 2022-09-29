@@ -7,5 +7,5 @@ export const byIndex$$: ElsIndexSelectorFn = (testID, index, context = browser) 
             throw new Error(`Cannot get item by testID "${testID}" with index "${index}"`);
         }
 
-        return elements[index];
+        return $(elements[index]);
     }) as ChainablePromiseElement<WebdriverIO.Element>;
