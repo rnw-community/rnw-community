@@ -1,6 +1,6 @@
 {
   "name": "@rnw-community/wdio",
-  "version": "0.39.0",
+  "version": "0.39.2",
   "private": false,
   "description": "WDIO commands, page objects and utils",
   "keywords": [
@@ -30,9 +30,10 @@
   "scripts": {
     "ts": "tsc --pretty -p tsconfig.json",
     "prebuild": "yarn clear",
-    "build:esm": "tsc --pretty -p tsconfig.build-cjs.json",
-    "build:cjs": "tsc --pretty -p tsconfig.build-esm.json",
+    "build:esm": "tsc --pretty -p tsconfig.build-esm.json",
+    "build:cjs": "tsc --pretty -p tsconfig.build-cjs.json",
     "build": "yarn build:esm && yarn build:cjs",
+    "postbuild": "rm -rf ./dist/*.tsbuildinfo",
     "lint": "yarn eslint src",
     "lint:fix": "yarn lint --fix src",
     "test": "yarn jest",
@@ -52,7 +53,7 @@
     "webdriverio": "^7.20.7"
   },
   "peerDependencies": {
-    "@rnw-community/shared": "^0.37.0",
+    "@rnw-community/shared": "^0.38.3",
     "webdriverio": "^7.20.7"
   }
 }
