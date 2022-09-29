@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.41.1](https://github.com/rnw-community/rnw-community/compare/v0.41.0...v0.41.1) (2022-09-29)
+
+
+### Bug Fixes
+
+* **wdio:** fixed byIdx and Element as RootEl in constructor ([#101](https://github.com/rnw-community/rnw-community/issues/101)) ([3755c18](https://github.com/rnw-community/rnw-community/commit/3755c1827d1cc568bea50257c8dd66c87f5a99ed))
+
+
+
+
+
 # [0.41.0](https://github.com/rnw-community/rnw-community/compare/v0.40.0...v0.41.0) (2022-09-29)
 
 
