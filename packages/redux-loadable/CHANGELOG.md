@@ -3,16 +3,15 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
-# [0.40.0](https://github.com/rnw-community/rnw-community/compare/v0.39.2...v0.40.0) (2022-09-28)
+# [0.41.0](https://github.com/rnw-community/rnw-community/compare/v0.40.0...v0.41.0) (2022-09-29)
 
+**Note:** Version bump only for package @rnw-community/redux-loadable
+
+# [0.40.0](https://github.com/rnw-community/rnw-community/compare/v0.39.2...v0.40.0) (2022-09-28)
 
 ### Features
 
-* added esm/cjs build config ([#93](https://github.com/rnw-community/rnw-community/issues/93)) ([2bf46ac](https://github.com/rnw-community/rnw-community/commit/2bf46ac93103d5276059027bb21886dd712a9ca7))
-
-
-
-
+-   added esm/cjs build config ([#93](https://github.com/rnw-community/rnw-community/issues/93)) ([2bf46ac](https://github.com/rnw-community/rnw-community/commit/2bf46ac93103d5276059027bb21886dd712a9ca7))
 
 # [0.39.0](https://github.com/rnw-community/rnw-community/compare/v0.38.3...v0.39.0) (2022-09-28)
 
