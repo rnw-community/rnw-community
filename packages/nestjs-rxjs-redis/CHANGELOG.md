@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.42.0](https://github.com/rnw-community/rnw-community/compare/v0.41.1...v0.42.0) (2022-09-30)
+
+
+### Features
+
+* **wdio:** added test for external file ([#98](https://github.com/rnw-community/rnw-community/issues/98)) ([f7cce82](https://github.com/rnw-community/rnw-community/commit/f7cce826a19df23d4e4a2450d7300dcd8a458e95))
+
+
+
+
+
 # [0.41.0](https://github.com/rnw-community/rnw-community/compare/v0.40.0...v0.41.0) (2022-09-29)
 
 **Note:** Version bump only for package @rnw-community/nestjs-rxjs-redis
