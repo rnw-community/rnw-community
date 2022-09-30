@@ -4,9 +4,9 @@ import { expectTypeOf } from 'expect-type';
 import { mockDefaultConfig, mockElement } from '../../element.mock';
 import { Component } from '../component';
 
+import { MockComponent } from './__mocks__/mock-component';
+import { MockComponentSelectors } from './__mocks__/mock-component.selectors';
 import { getExtendedComponent } from './get-extended-component';
-import { MockComponent } from './mock/mock-component';
-import { MockComponentSelectors } from './mock/mock-component.selectors';
 
 enum SelectorsEnum {
     Button = 'Selectors.Button',
@@ -232,7 +232,7 @@ describe('getExtendedComponent', () => {
     });
 
     it('should support intellisense for external files', async () => {
-        expect.assertions(2);
+        expect.assertions(4);
 
         const component = new MockComponent();
 

@@ -1,3 +1,5 @@
+export { el$ } from './el.command';
+export { els$ } from './els.command';
 export { testID$ } from './test-id.command';
 export { testID$$ } from './test-ids.command';
 export { testID$$Index } from './test-id-index.command';

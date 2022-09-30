@@ -4,7 +4,7 @@ WDIO commands and utils.
 
 ## TODO
 
--   Add unit tests
+-   Add unit tests, increase coverage
 
 ## Installation
 

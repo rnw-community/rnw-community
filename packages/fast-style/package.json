@@ -44,7 +44,7 @@
   },
   "peerDependencies": {
     "@rnw-community/object-field-tree": "^0.37.0",
-    "@rnw-community/shared": "^0.37.0",
+    "@rnw-community/shared": "^0.41.0",
     "react-native": "^0.64.1"
   },
   "devDependencies": {

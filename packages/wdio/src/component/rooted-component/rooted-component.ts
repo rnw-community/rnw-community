@@ -1,5 +1,6 @@
 import { isDefined, isNotEmptyString } from '@rnw-community/shared';
 
+import { el$ } from '../../command';
 import { Component } from '../component/component';
 import { findEnumRootSelector } from '../util';
 
@@ -38,7 +39,8 @@ export class RootedComponent<T = any> extends Component<T> {
             return this.parentElInput;
         }
 
-        return $(this.parentElInput);
+        // @ts-expect-error Temp we need a way to create a chain from Webdriver.IO element
+        return el$(this.parentElInput);
     }
 
     async waitForDisplayed(...args: WaitForDisplayedArgs): Promise<void> {

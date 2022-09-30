@@ -5,5 +5,6 @@ module.exports = {
         'react/require-optimization': 'off',
         'react/sort-comp': 'off',
         'react/no-unused-class-component-methods': 'off',
+        'jest/no-mocks-import': 'off',
     },
 };

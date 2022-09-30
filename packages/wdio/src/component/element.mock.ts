@@ -36,7 +36,9 @@ export const mockElement = {
 jest.mock('./default$-component.config', () => ({ default$ComponentConfig: () => mockDefault$Config }));
 jest.mock('./default-component.config', () => ({ defaultComponentConfig: () => mockDefaultConfig }));
 
-// eslint-disable-next-line jest/prefer-spy-on,id-length
-global.$ = jest.fn(() => Promise.resolve(mockElement) as unknown as ChainablePromiseElement<WebdriverIO.Element>);
-// eslint-disable-next-line jest/prefer-spy-on,id-length
-global.$$ = jest.fn(() => Promise.resolve([mockElement]) as unknown as ChainablePromiseArray<WebdriverIO.ElementArray>);
+jest.mock('../command/el.command', () => ({
+    el$: jest.fn(() => Promise.resolve(mockElement) as unknown as ChainablePromiseElement<WebdriverIO.Element>),
+}));
+jest.mock('../command/els.command', () => ({
+    els$: jest.fn(() => Promise.resolve([mockElement]) as unknown as ChainablePromiseArray<WebdriverIO.ElementArray>),
+}));
