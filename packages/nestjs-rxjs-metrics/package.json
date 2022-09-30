@@ -55,7 +55,7 @@
   },
   "peerDependencies": {
     "@nestjs/common": "^8.0.6",
-    "@rnw-community/shared": "^0.38.3",
+    "@rnw-community/shared": "^0.41.0",
     "@willsoto/nestjs-prometheus": "^4.0.1",
     "prom-client": "^14.0.0",
     "rxjs": "^7.4.0"

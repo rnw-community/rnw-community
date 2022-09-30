@@ -18,11 +18,18 @@ class ExtendedRootedComponent extends getExtendedRootedComponent(ExtendedRootedS
 
 describe('get$RootedComponent', () => {
     it('should get RootedComponent instance with selectors and $* selector functions', async () => {
-        expect.assertions(3);
+        expect.assertions(5);
 
         const component = new CustomRootedComponent();
 
         await expect(component.Button.el()).resolves.toMatchObject(mockElement);
+        expect(mockDefault$Config.elSelectorFn).toHaveBeenNthCalledWith(1, RootedSelectorsEnum.Root);
+        expect(mockDefault$Config.elSelectorFn).toHaveBeenNthCalledWith(
+            2,
+            RootedSelectorsEnum.Button,
+            expect.objectContaining({})
+        );
+
         await expect(component.Button.els()).resolves.toMatchObject([mockElement]);
         await expect(component.Button.byIdx(1)).resolves.toMatchObject(mockElement);
     });

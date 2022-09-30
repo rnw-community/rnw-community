@@ -71,7 +71,7 @@ describe('RootedComponent', () => {
         expect(mockDefaultConfig.elSelectorFn).toHaveBeenNthCalledWith(1, Selectors.Root);
     });
 
-    it('should throw Error on Root wdio element from constructor wdio element', async () => {
+    it('should create Root wdio element chain from constructor wdio element', async () => {
         expect.assertions(1);
 
         const rootedComponent = new RootedComponent(mockDefaultConfig, Selectors, fakeRootEl);

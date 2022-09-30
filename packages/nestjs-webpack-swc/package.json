@@ -58,7 +58,7 @@
   },
   "peerDependencies": {
     "@nestjs/common": "^8.0.6",
-    "@rnw-community/shared": "^0.35.0",
+    "@rnw-community/shared": "^0.41.0",
     "@swc/cli": "^0.1.57",
     "@swc/core": "^1.2.239",
     "@swc/helpers": "^0.4.7",

@@ -53,7 +53,7 @@
     "webdriverio": "^7.20.7"
   },
   "peerDependencies": {
-    "@rnw-community/shared": "^0.38.3",
+    "@rnw-community/shared": "^0.41.0",
     "webdriverio": "^7.20.7"
   }
 }
