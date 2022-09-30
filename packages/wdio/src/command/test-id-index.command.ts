@@ -9,5 +9,5 @@ export const testID$$Index: ElsIndexSelectorFn = (testID, index, context = brows
             throw new Error(`Cannot get item by testID "${testID}" with index "${index}"`);
         }
 
-        return elements[index];
+        return $(elements[index]);
     }) as ChainablePromiseElement<WebdriverIO.Element>;
