@@ -16,47 +16,27 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 # [0.41.0](https://github.com/rnw-community/rnw-community/compare/v0.40.0...v0.41.0) (2022-09-29)
 
-
 ### Features
 
-* **wdio:** limited RootedComponent to not accept plain wdio element, added extended component to support parent methods/getters ([#97](https://github.com/rnw-community/rnw-community/issues/97)) ([2150baf](https://github.com/rnw-community/rnw-community/commit/2150bafd11712ea971f91624139068747c43f95a))
-
-
-
-
+-   **wdio:** limited RootedComponent to not accept plain wdio element, added extended component to support parent methods/getters ([#97](https://github.com/rnw-community/rnw-community/issues/97)) ([2150baf](https://github.com/rnw-community/rnw-community/commit/2150bafd11712ea971f91624139068747c43f95a))
 
 # [0.40.0](https://github.com/rnw-community/rnw-community/compare/v0.39.2...v0.40.0) (2022-09-28)
 
-
 ### Features
 
-* added esm/cjs build config ([#93](https://github.com/rnw-community/rnw-community/issues/93)) ([2bf46ac](https://github.com/rnw-community/rnw-community/commit/2bf46ac93103d5276059027bb21886dd712a9ca7))
-
-
-
-
+-   added esm/cjs build config ([#93](https://github.com/rnw-community/rnw-community/issues/93)) ([2bf46ac](https://github.com/rnw-community/rnw-community/commit/2bf46ac93103d5276059027bb21886dd712a9ca7))
 
 ## [0.39.2](https://github.com/rnw-community/rnw-community/compare/v0.39.1...v0.39.2) (2022-09-28)
 
-
 ### Bug Fixes
 
-* **wdio:** fixed rootedComponent promise chain ([#96](https://github.com/rnw-community/rnw-community/issues/96)) ([d4bcbb0](https://github.com/rnw-community/rnw-community/commit/d4bcbb00368716187d805e345b184ef35594fbd5))
-
-
-
-
+-   **wdio:** fixed rootedComponent promise chain ([#96](https://github.com/rnw-community/rnw-community/issues/96)) ([d4bcbb0](https://github.com/rnw-community/rnw-community/commit/d4bcbb00368716187d805e345b184ef35594fbd5))
 
 ## [0.39.1](https://github.com/rnw-community/rnw-community/compare/v0.39.0...v0.39.1) (2022-09-28)
 
-
 ### Bug Fixes
 
-* **wdio:** fixed addWdioCommands usage without $,$$ ([#95](https://github.com/rnw-community/rnw-community/issues/95)) ([e7cd2ce](https://github.com/rnw-community/rnw-community/commit/e7cd2ce0f5a6dc92c4e2663d7d4dfb513c3f0974))
-
-
-
-
+-   **wdio:** fixed addWdioCommands usage without $,$$ ([#95](https://github.com/rnw-community/rnw-community/issues/95)) ([e7cd2ce](https://github.com/rnw-community/rnw-community/commit/e7cd2ce0f5a6dc92c4e2663d7d4dfb513c3f0974))
 
 # [0.39.0](https://github.com/rnw-community/rnw-community/compare/v0.38.3...v0.39.0) (2022-09-28)
 
