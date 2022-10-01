@@ -28,3 +28,4 @@ junit.xml
 logs.txt
 __coverage__
 coverage
+.turbo
