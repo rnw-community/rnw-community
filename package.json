@@ -7,20 +7,20 @@
     ]
   },
   "scripts": {
-    "ts": "lerna run ts --parallel",
-    "build": "lerna run build --stream",
-    "lint": "lerna run lint --parallel",
-    "lint:fix": "lerna run lint:fix  --parallel",
+    "ts": "turbo run ts",
+    "build": "turbo run build",
+    "lint": "turbo run lint",
+    "lint:fix": "turbo run lint:fix",
     "test": "yarn jest",
     "test:coverage": "yarn jest --coverage",
     "cpd": "yarn jscpd packages",
-    "format": "lerna run format --parallel",
+    "format": "turbo run format",
     "find-deadcode": "ts-prune",
     "ci": "yarn build && yarn ts && yarn lint && yarn find-deadcode && yarn cpd && yarn test:coverage",
-    "clear": "lerna run clear --parallel",
-    "deps:clear": "lerna run clear:deps --parallel && yarn deps:clear:root",
+    "clear": "turbo run clear",
+    "deps:clear": "turbo run clear:deps && yarn deps:clear:root",
     "deps:clear:root": "rm -rf ./node_modules",
-    "postinstall": "lerna run build --stream",
+    "postinstall": "yarn build",
     "preversion": "yarn format",
     "version": "git add -A packages",
     "postversion": "git push && git push --tags"
@@ -29,6 +29,7 @@
     "node": ">=16.0.0"
   },
   "devDependencies": {
+    "turbo": "^1.5.5",
     "@babel/core": "^7.18.9",
     "@babel/plugin-proposal-decorators": "^7.18.9",
     "@babel/preset-env": "^7.18.9",
