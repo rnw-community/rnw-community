@@ -2,12 +2,13 @@
 import { expectTypeOf } from 'expect-type';
 
 import { mockDefaultConfig, mockElement } from '../../element.mock';
+import { ComponentSelectorsMock } from '../../mocks/component-selectors.mock';
+import { ComponentMock } from '../../mocks/component.mock';
 import { Component } from '../component';
 
-import { MockComponent } from './__mocks__/mock-component';
-import { MockComponentSelectors } from './__mocks__/mock-component.selectors';
 import { getExtendedComponent } from './get-extended-component';
 
+// TODO: Extract mocks from the test
 enum SelectorsEnum {
     Button = 'Selectors.Button',
 }
@@ -32,6 +33,7 @@ class CustomComponent extends getExtendedComponent(SelectorsEnum, ParentComponen
 
 // eslint-disable-next-line max-lines-per-function,max-statements
 describe('getExtendedComponent', () => {
+    // TODO: Move to component tests
     it('should work with css-like selector methods', async () => {
         expect.assertions(2);
 
@@ -234,14 +236,14 @@ describe('getExtendedComponent', () => {
     it('should support intellisense for external files', async () => {
         expect.assertions(4);
 
-        const component = new MockComponent();
+        const component = new ComponentMock();
 
         expectTypeOf(component.Button.el).toBeFunction();
         await expect(component.Button.el()).resolves.toMatchObject(mockElement);
-        expect(mockDefaultConfig.elSelectorFn).toHaveBeenCalledWith(MockComponentSelectors.Button);
+        expect(mockDefaultConfig.elSelectorFn).toHaveBeenCalledWith(ComponentSelectorsMock.Button);
 
         expectTypeOf(component.ParentButton.el).toBeFunction();
         await expect(component.ParentButton.el()).resolves.toMatchObject(mockElement);
-        expect(mockDefaultConfig.elSelectorFn).toHaveBeenCalledWith(MockComponentSelectors.Button);
+        expect(mockDefaultConfig.elSelectorFn).toHaveBeenCalledWith(ComponentSelectorsMock.Button);
     });
 });
