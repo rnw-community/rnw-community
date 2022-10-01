@@ -1,6 +1,6 @@
 {
   "name": "@rnw-community/wdio",
-  "version": "0.43.0",
+  "version": "0.43.1",
   "private": false,
   "description": "WDIO commands, page objects and utils",
   "keywords": [
@@ -46,7 +46,7 @@
   },
   "gitHead": "ed2cec449e634a16dc3a80b4a8cd2d1d28c9f9c4",
   "dependencies": {
-    "@rnw-community/shared": "^0.43.0"
+    "@rnw-community/shared": "^0.43.1"
   },
   "devDependencies": {
     "@wdio/types": "^7.20.7",
