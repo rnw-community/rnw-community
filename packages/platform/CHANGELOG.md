@@ -5,22 +5,13 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 # [0.43.0](https://github.com/rnw-community/rnw-community/compare/v0.42.1...v0.43.0) (2022-10-01)
 
-
 ### Features
 
-* added turbo ([2f1f514](https://github.com/rnw-community/rnw-community/commit/2f1f514c176484a37516592a89da7a07dbd11540))
-
-
-
-
+-   added turbo ([2f1f514](https://github.com/rnw-community/rnw-community/commit/2f1f514c176484a37516592a89da7a07dbd11540))
 
 ## [0.42.1](https://github.com/rnw-community/rnw-community/compare/v0.42.0...v0.42.1) (2022-10-01)
 
 **Note:** Version bump only for package @rnw-community/platform
-
-
-
-
 
 # [0.42.0](https://github.com/rnw-community/rnw-community/compare/v0.41.1...v0.42.0) (2022-09-30)
 
