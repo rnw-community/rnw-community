@@ -27,11 +27,10 @@
   },
   "scripts": {
     "ts": "tsc --pretty -p tsconfig.json",
-    "prebuild": "yarn clear",
     "build:esm": "tsc --pretty -p tsconfig.build-cjs.json",
     "build:cjs": "tsc --pretty -p tsconfig.build-esm.json",
     "build": "yarn build:esm && yarn build:cjs",
-    "postbuild": "rm -rf ./dist/*.tsbuildinfo",
+    "postbuild": "rm -rf ./dist/*/*.tsbuildinfo",
     "lint": "yarn eslint src",
     "lint:fix": "yarn lint --fix src",
     "test": "yarn jest",
