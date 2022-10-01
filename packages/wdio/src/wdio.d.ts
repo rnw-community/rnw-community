@@ -1,18 +1,19 @@
 declare namespace WebdriverIO {
     import type { SwipeDirectionType } from './type';
+    import type { ChainablePromiseArray, ChainablePromiseElement } from 'webdriverio';
 
     interface Browser {
         openDeepLink: (url: string, packageName?: string) => Promise<void>;
-        testID$: (testID: string) => Promise<Element>;
-        testID$$: (testID: string) => Promise<ElementArray>;
-        testID$$Index: (testID: string, idx: number) => Promise<Element>;
+        testID$: (testID: string) => ChainablePromiseElement<Element>;
+        testID$$: (testID: string) => ChainablePromiseArray<ElementArray>;
+        testID$$Index: (testID: string, idx: number) => ChainablePromiseElement<Element>;
     }
 
     interface MultiRemoteBrowser {
         openDeepLink: (url: string, packageName?: string) => Promise<void>;
-        testID$: (testID: string) => Promise<Element>;
-        testID$$: (testID: string) => Promise<ElementArray>;
-        testID$$Index: (testID: string, idx: number) => Promise<Element>;
+        testID$: (testID: string) => ChainablePromiseElement<Element>;
+        testID$$: (testID: string) => ChainablePromiseArray<ElementArray>;
+        testID$$Index: (testID: string, idx: number) => ChainablePromiseElement<Element>;
     }
 
     interface Element {
@@ -20,8 +21,8 @@ declare namespace WebdriverIO {
         relativeClick: (xPercent: number, yPercent: number) => Promise<void>;
         slowInput: (value: string, delay?: number) => Promise<void>;
         swipe: (direction: SwipeDirectionType, offset = { x: 0, y: 0 }) => Promise<void>;
-        testID$: (testID: string) => Promise<Element>;
-        testID$$: (testID: string) => Promise<ElementArray>;
-        testID$$Index: (testID: string, idx: number) => Promise<Element>;
+        testID$: (testID: string) => ChainablePromiseElement<Element>;
+        testID$$: (testID: string) => ChainablePromiseArray<ElementArray>;
+        testID$$Index: (testID: string, idx: number) => ChainablePromiseElement<Element>;
     }
 }

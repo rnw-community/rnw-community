@@ -1,11 +1,9 @@
 {
   "name": "rnw-community",
   "private": true,
-  "workspaces": {
-    "packages": [
+  "workspaces": [
       "packages/*"
-    ]
-  },
+  ],
   "scripts": {
     "ts": "turbo run ts",
     "build": "turbo run build",
