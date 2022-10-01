@@ -1,3 +1,5 @@
+import { wdioElementChainByRef } from '../util';
+
 import { testID$$ } from './test-ids.command';
 
 import type { ElsIndexSelectorFn } from '../type';
@@ -9,5 +11,5 @@ export const testID$$Index: ElsIndexSelectorFn = (testID, index, context = brows
             throw new Error(`Cannot get item by testID "${testID}" with index "${index}"`);
         }
 
-        return $(elements[index]);
+        return wdioElementChainByRef(elements[index]);
     }) as ChainablePromiseElement<WebdriverIO.Element>;

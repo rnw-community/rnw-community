@@ -1,6 +1,6 @@
 {
   "name": "@rnw-community/nestjs-rxjs-logger",
-  "version": "0.42.1",
+  "version": "0.43.1",
   "private": false,
   "description": "NestJS RxJS logger",
   "keywords": [
@@ -41,14 +41,15 @@
     "clear:deps": "rm -rf ./node_modules && rm -rf ./dist"
   },
   "gitHead": "b5608910319390f9773a9d42c3cc828e8e8a1d95",
+  "dependencies": {
+    "@rnw-community/shared": "^0.43.1"
+  },
   "devDependencies": {
     "@nestjs/common": "^8.0.6",
-    "@rnw-community/shared": "^0.6.0",
     "rxjs": "^7.4.0"
   },
   "peerDependencies": {
     "@nestjs/common": "^8.0.6",
-    "@rnw-community/shared": "^0.6.0",
     "rxjs": "^7.4.0"
   }
 }
