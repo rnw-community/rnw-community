@@ -41,7 +41,7 @@
   },
   "gitHead": "b5608910319390f9773a9d42c3cc828e8e8a1d95",
   "dependencies": {
-    "@rnw-community/wdio": "^0.42.1"
+    "@rnw-community/wdio": "^0.43.0"
   },
   "peerDependencies": {
     "rxjs": "^7.4.0"
