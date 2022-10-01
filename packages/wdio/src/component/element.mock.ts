@@ -1,25 +1,7 @@
 import type { ComponentConfigInterface } from './type';
 import type { ChainablePromiseArray, ChainablePromiseElement } from 'webdriverio';
 
-export const mockDefaultConfig: ComponentConfigInterface = {
-    elSelectorFn: jest.fn(() => Promise.resolve(mockElement) as unknown as ChainablePromiseElement<WebdriverIO.Element>),
-    elsSelectorFn: jest.fn(
-        () => Promise.resolve([mockElement]) as unknown as ChainablePromiseArray<WebdriverIO.ElementArray>
-    ),
-    elsIndexSelectorFn: jest.fn(
-        () => Promise.resolve(mockElement) as unknown as ChainablePromiseElement<WebdriverIO.Element>
-    ),
-};
-export const mockDefault$Config: ComponentConfigInterface = {
-    elSelectorFn: jest.fn(() => Promise.resolve(mockElement) as unknown as ChainablePromiseElement<WebdriverIO.Element>),
-    elsSelectorFn: jest.fn(
-        () => Promise.resolve([mockElement]) as unknown as ChainablePromiseArray<WebdriverIO.ElementArray>
-    ),
-    elsIndexSelectorFn: jest.fn(
-        () => Promise.resolve(mockElement) as unknown as ChainablePromiseElement<WebdriverIO.Element>
-    ),
-};
-
+// eslint-disable-next-line @typescript-eslint/consistent-type-assertions
 export const mockElement = {
     click: jest.fn(() => Promise.resolve(void 0)),
     getText: jest.fn(() => Promise.resolve('')),
@@ -31,14 +13,29 @@ export const mockElement = {
     setValue: jest.fn(() => Promise.resolve(void 0)),
     getLocation: jest.fn(() => Promise.resolve({ x: 0, y: 0 })),
     getSize: jest.fn(() => Promise.resolve({ width: 0, height: 0 })),
+} as unknown as WebdriverIO.Element;
+
+const elImplementation = (): ChainablePromiseElement<WebdriverIO.Element> =>
+    Promise.resolve(mockElement) as unknown as ChainablePromiseElement<WebdriverIO.Element>;
+const elsImplementation = (): ChainablePromiseArray<WebdriverIO.ElementArray> =>
+    Promise.resolve([mockElement]) as unknown as ChainablePromiseArray<WebdriverIO.ElementArray>;
+
+export const mockDefaultConfig: ComponentConfigInterface = {
+    elSelectorFn: jest.fn(elImplementation),
+    elsSelectorFn: jest.fn(elsImplementation),
+    elsIndexSelectorFn: jest.fn(elImplementation),
+};
+export const mockDefault$Config: ComponentConfigInterface = {
+    elSelectorFn: jest.fn(elImplementation),
+    elsSelectorFn: jest.fn(elsImplementation),
+    elsIndexSelectorFn: jest.fn(elImplementation),
 };
 
 jest.mock('./default$-component.config', () => ({ default$ComponentConfig: () => mockDefault$Config }));
 jest.mock('./default-component.config', () => ({ defaultComponentConfig: () => mockDefaultConfig }));
-
-jest.mock('../command/el.command', () => ({
-    el$: jest.fn(() => Promise.resolve(mockElement) as unknown as ChainablePromiseElement<WebdriverIO.Element>),
-}));
-jest.mock('../command/els.command', () => ({
-    els$: jest.fn(() => Promise.resolve([mockElement]) as unknown as ChainablePromiseArray<WebdriverIO.ElementArray>),
+jest.mock('../command/el.command', () => ({ el$: jest.fn(elImplementation) }));
+jest.mock('../command/els.command', () => ({ els$: jest.fn(elsImplementation) }));
+jest.mock('../command/by-index-command/by-index.command', () => ({ byIndex$$: jest.fn(elImplementation) }));
+jest.mock('../util/wdio-element-chain-by-ref/wdio-element-chain-by-ref.util', () => ({
+    wdioElementChainByRef: jest.fn(elImplementation),
 }));

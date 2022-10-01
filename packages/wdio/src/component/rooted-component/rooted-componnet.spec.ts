@@ -14,6 +14,7 @@ enum Selectors {
 // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
 const getRootElSpies = (parent: RootedComponent, method: keyof typeof mockElement) => {
     const getRootElSpy = jest.spyOn(parent, 'RootEl', 'get');
+    // @ts-expect-error We need to improve the typing
     const elementMethodSpy = jest.spyOn(mockElement, method);
 
     getRootElSpy.mockImplementation(

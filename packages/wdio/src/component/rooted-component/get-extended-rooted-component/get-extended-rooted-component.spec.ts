@@ -1,10 +1,10 @@
 // eslint-disable-next-line max-classes-per-file
 import { mockDefaultConfig } from '../../element.mock';
+import { RootedComponentSelectorsMock } from '../../mocks/rooted-component-selectors.mock';
+import { RootedComponentMock } from '../../mocks/rooted-component.mock';
+import { RootedParentComponentSelectorsMock } from '../../mocks/rooted-parent-component-selectors.mock';
 import { RootedComponent } from '../rooted-component';
 
-import { MockRootedComponent } from './__mocks__/mock-rooted-component';
-import { MockRootedComponentSelectors } from './__mocks__/mock-rooted-component.selectors';
-import { MockRootedParentComponentSelectors } from './__mocks__/mock-rooted-parent-component.selectors';
 import { getExtendedRootedComponent } from './get-extended-rooted-component';
 
 enum ParentRootedSelectorsEnum {
@@ -51,16 +51,16 @@ describe('getExtendedRootedComponent', () => {
     it('should use correct "latest" root selector from overloaded constructor in all parents chain', async () => {
         expect.assertions(3);
 
-        const component = new MockRootedComponent();
+        const component = new RootedComponentMock();
 
         await component.RootEl;
-        expect(mockDefaultConfig.elSelectorFn).toHaveBeenNthCalledWith(1, MockRootedComponentSelectors.CustomRoot);
+        expect(mockDefaultConfig.elSelectorFn).toHaveBeenNthCalledWith(1, RootedComponentSelectorsMock.CustomRoot);
 
         await component.ParentButton.el();
-        expect(mockDefaultConfig.elSelectorFn).toHaveBeenNthCalledWith(2, MockRootedComponentSelectors.CustomRoot);
+        expect(mockDefaultConfig.elSelectorFn).toHaveBeenNthCalledWith(2, RootedComponentSelectorsMock.CustomRoot);
         expect(mockDefaultConfig.elSelectorFn).toHaveBeenNthCalledWith(
             3,
-            MockRootedParentComponentSelectors.ParentButton,
+            RootedParentComponentSelectorsMock.ParentButton,
             expect.objectContaining({})
         );
     });
