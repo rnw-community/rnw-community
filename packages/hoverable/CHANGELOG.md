@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.43.1](https://github.com/rnw-community/rnw-community/compare/v0.43.0...v0.43.1) (2022-10-01)
+
+
+### Bug Fixes
+
+* **wdio:** added wdio.d.ts types, testID by index return chain ([#103](https://github.com/rnw-community/rnw-community/issues/103)) ([681b6ee](https://github.com/rnw-community/rnw-community/commit/681b6ee0897edec215868f30e560eb7d5c33eae3))
+
+
+
+
+
 # [0.43.0](https://github.com/rnw-community/rnw-community/compare/v0.42.1...v0.43.0) (2022-10-01)
 
 ### Features
