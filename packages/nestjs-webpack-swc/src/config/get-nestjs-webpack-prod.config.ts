@@ -5,6 +5,7 @@ import { getNestJSWebpackGenericConfig } from './get-nestjs-webpack-generic.conf
 import type { Configuration } from 'webpack';
 import type Webpack from 'webpack';
 
+// ts-prune-ignore-next
 export const getNestJSWebpackProdConfig = (options: Configuration, _webpack: typeof Webpack): Configuration => ({
     ...getNestJSWebpackGenericConfig(options, { minify: true }, '@rnw-community/nestjs-webpack-swc'),
     mode: 'production',
