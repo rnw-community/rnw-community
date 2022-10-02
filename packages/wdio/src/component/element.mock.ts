@@ -35,7 +35,6 @@ jest.mock('./default$-component.config', () => ({ default$ComponentConfig: () =>
 jest.mock('./default-component.config', () => ({ defaultComponentConfig: () => mockDefaultConfig }));
 jest.mock('../command/el.command', () => ({ el$: jest.fn(elImplementation) }));
 jest.mock('../command/els.command', () => ({ els$: jest.fn(elsImplementation) }));
-jest.mock('../command/by-index-command/by-index.command', () => ({ byIndex$$: jest.fn(elImplementation) }));
 jest.mock('../util/wdio-element-chain-by-ref/wdio-element-chain-by-ref.util', () => ({
     wdioElementChainByRef: jest.fn(elImplementation),
 }));

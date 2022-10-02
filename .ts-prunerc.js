@@ -1,3 +1,4 @@
 module.exports = {
-    ignore: /index.ts|dist|web.tsx?/,
+    ignore: /index.ts|dist|(mock|web|native).tsx?/,
+    error: true,
 };

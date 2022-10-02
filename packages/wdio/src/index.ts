@@ -27,7 +27,7 @@ export { testID$$ } from './command/test-ids.command';
 export { testID$$Index } from './command/test-id-index.command';
 export { slowInputCommand } from './command/slow-input.command';
 export { clearInputCommand } from './command/clear-input.command';
-export { byIndex$$ } from './command/by-index-command/by-index.command';
+export { byIndex$$ } from './command/by-index.command';
 export { openDeepLinkCommand } from './command/mobile/open-deep-link.command';
 export { relativeClickCommand } from './command/mobile/relative-click.command';
 
