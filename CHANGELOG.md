@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.43.3](https://github.com/rnw-community/rnw-community/compare/v0.43.2...v0.43.3) (2022-10-02)
+
+
+### Bug Fixes
+
+* **wdio:** fixed byIndex commands ([#104](https://github.com/rnw-community/rnw-community/issues/104)) ([be218bb](https://github.com/rnw-community/rnw-community/commit/be218bb1c3051cf8c707197516cd0000f7a4c4fa))
+
+
+
+
+
 ## [0.43.2](https://github.com/rnw-community/rnw-community/compare/v0.43.1...v0.43.2) (2022-10-01)
 
 **Note:** Version bump only for package rnw-community
