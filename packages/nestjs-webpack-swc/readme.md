@@ -29,8 +29,7 @@ NestJS webpack and SWC configuration helpers, this can speed up your local NestJ
 Create `webpack-dev.config.js` in root of the NestJS package:
 
 ```js
-module.exports =
-    require('@rnw-community/nestjs-webpack-swc/dist/config/get-nestjs-webpack-dev.config').getNestJSWebpackDevConfig;
+module.exports = require('@rnw-community/nestjs-webpack-swc/get-nestjs-webpack-dev.config').getNestJSWebpackDevConfig;
 ```
 
 ### Production webpack configuration
@@ -38,8 +37,7 @@ module.exports =
 Create `webpack-prod.config.js` in root of the NestJS package:
 
 ```js
-module.exports =
-    require('@rnw-community/nestjs-webpack-swc/dist/config/get-nestjs-webpack-prod.config').getNestJSWebpackProdConfig;
+module.exports = require('@rnw-community/nestjs-webpack-swc/get-nestjs-webpack-prod.config').getNestJSWebpackProdConfig;
 ```
 
 ### NestJS HMR
