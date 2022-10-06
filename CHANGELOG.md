@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.43.4](https://github.com/rnw-community/rnw-community/compare/v0.43.3...v0.43.4) (2022-10-06)
+
+
+### Bug Fixes
+
+* **nestjs-webpack-swc:** closes [#105](https://github.com/rnw-community/rnw-community/issues/105) ([#106](https://github.com/rnw-community/rnw-community/issues/106)) ([be428ba](https://github.com/rnw-community/rnw-community/commit/be428baa6c009a706c0157a4a33105b507e17311))
+
+
+
+
+
 ## [0.43.3](https://github.com/rnw-community/rnw-community/compare/v0.43.2...v0.43.3) (2022-10-02)
 
 
