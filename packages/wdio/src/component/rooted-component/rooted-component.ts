@@ -12,15 +12,19 @@ import type {
     WaitForEnabledArgs,
     WaitForExistArgs,
 } from '../type';
+import type { GetLocationArgs, GetSizeArgs, ScrollIntoViewArgs } from '../type/wdio-types.type';
+import type { Enum } from '@rnw-community/shared';
 import type { ChainablePromiseArray, ChainablePromiseElement } from 'webdriverio';
+import type { Location } from 'webdriverio/build/commands/element/getLocation';
 
+// TODO: All Root should have all methods from wdio element, can we do this through the proxy?
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export class RootedComponent<T = any> extends Component<T> {
     protected readonly parentElInput: ComponentInputArg;
 
     constructor(
         config: ComponentConfigInterface,
-        public override selectors: T,
+        public override selectors: Enum<T>,
         selectorOrElement: ComponentInputArg | undefined = findEnumRootSelector(selectors)
     ) {
         if (!isDefined(selectorOrElement)) {
@@ -64,6 +68,26 @@ export class RootedComponent<T = any> extends Component<T> {
 
     async click(...args: ClickArgs): Promise<void> {
         await (await this.RootEl).click(...args);
+    }
+
+    async scrollIntoView(...args: ScrollIntoViewArgs): Promise<void> {
+        await (await this.RootEl).scrollIntoView(...args);
+    }
+
+    async getLocation(...args: GetLocationArgs): Promise<Location | number> {
+        return await (await this.RootEl).getLocation(...args);
+    }
+
+    async getSize(...args: GetSizeArgs): Promise<Location | number> {
+        return await (await this.RootEl).getSize(...args);
+    }
+
+    async getText(): Promise<string> {
+        return await (await this.RootEl).getText();
+    }
+
+    parentElement(): ChainablePromiseElement<WebdriverIO.Element> {
+        return this.RootEl.parentElement();
     }
 
     override getChildEl(selector: string): ChainablePromiseElement<WebdriverIO.Element> {

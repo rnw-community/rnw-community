@@ -9,6 +9,8 @@ import type {
     WaitForEnabledArgs,
     WaitForExistArgs,
 } from '../type';
+import type { GetAttributeArgs, GetLocationArgs, GetSizeArgs, ScrollIntoViewArgs } from '../type/wdio-types.type';
+import type { Enum } from '@rnw-community/shared';
 import type { ChainablePromiseArray, ChainablePromiseElement } from 'webdriverio';
 import type { Location } from 'webdriverio/build/commands/element/getLocation';
 import type { Size } from 'webdriverio/build/commands/element/getSize';
@@ -20,7 +22,7 @@ export class Component<T = any> {
     protected elsIndexSelectorFn: ElsIndexSelectorFn;
     protected parentComponents: Component[] = [];
 
-    constructor(config: ComponentConfigInterface, public selectors: T) {
+    constructor(config: ComponentConfigInterface, public selectors: Enum<T>) {
         this.elSelectorFn = config.elSelectorFn;
         this.elsSelectorFn = config.elsSelectorFn;
         this.elsIndexSelectorFn = config.elsIndexSelectorFn;
@@ -28,47 +30,44 @@ export class Component<T = any> {
         // eslint-disable-next-line no-constructor-return
         return new Proxy(this, {
             get(client, field: string, receiver) {
-                if (field in client) {
+                if (Reflect.has(client, field)) {
                     // eslint-disable-next-line @typescript-eslint/no-unsafe-return
                     return Reflect.get(client, field, receiver);
                 }
 
-                // @ts-expect-error TODO: Can we improve this types? We need this to be T for IDE intellisense support
-                const selectorValue = client.selectors[field] as unknown as string;
-                if (!isDefined(selectorValue)) {
-                    for (const parentComponent of client.parentComponents) {
-                        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-                        const parentComponentValue = parentComponent.selectors[field] as unknown as string;
-
-                        if (field in parentComponent) {
-                            // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-                            return Reflect.get(parentComponent, field, receiver);
-                        } else if (isDefined(parentComponentValue)) {
-                            // @ts-expect-error TODO: Improve typings and eslint ignores
-                            // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-                            return parentComponent[field];
-                        }
-                    }
-
-                    return undefined;
+                const selector = client.selectors[field] as unknown as string;
+                if (!isDefined(selector)) {
+                    return client.callParentComponent(field, receiver);
                 }
 
+                /*
+                 * TODO: Modify returned value to include everything from ChainablePromiseElement and remove command overrides
+                 *  for this we need to call same methods that wdio is using to wrap element
+                 * And:
+                 * - To have component.Selector.getAttribute(...), this should somehow include RootedComponent support
+                 * - Leave el and els, byIdx to get element through correct selector
+                 * - Leave all useful custom methods that can be used in RootedComponent
+                 * - Fix getLocation|getSize usage to handle both signatures through variable args array
+                 */
                 return {
-                    el: () => client.getChildEl(selectorValue),
-                    els: () => client.getChildEls(selectorValue),
-                    byIdx: (idx: number) => client.getChildElByIdx(selectorValue, idx),
-                    waitForDisplayed: (...args: WaitForDisplayedArgs) =>
-                        client.waitForDisplayedChildEl(selectorValue, ...args),
-                    waitForExist: (...args: WaitForExistArgs) => client.waitForExistChildEl(selectorValue, ...args),
-                    waitForEnabled: (...args: WaitForEnabledArgs) => client.waitForEnabledChildEl(selectorValue, ...args),
-                    setValue: (...args: SetValueArgs) => client.setValueChildEl(selectorValue, ...args),
-                    click: (...args: ClickArgs) => client.clickChildEl(selectorValue, ...args),
-                    clickByIdx: (idx: number, ...args: ClickArgs) => client.clickByIdxChildEl(selectorValue, idx, ...args),
-                    getText: () => client.getTextChildEl(selectorValue),
-                    isDisplayed: () => client.isDisplayedChildEl(selectorValue),
-                    isExisting: () => client.isExistingChildEl(selectorValue),
-                    getLocation: () => client.getLocationChildEl(selectorValue),
-                    getSize: () => client.getSizeChildEl(selectorValue),
+                    el: () => client.getChildEl(selector),
+                    els: () => client.getChildEls(selector),
+                    byIdx: (idx: number) => client.getChildElByIdx(selector, idx),
+                    waitForDisplayed: (...args: WaitForDisplayedArgs) => client.waitForDisplayedChildEl(selector, ...args),
+                    waitForExist: (...args: WaitForExistArgs) => client.waitForExistChildEl(selector, ...args),
+                    waitForEnabled: (...args: WaitForEnabledArgs) => client.waitForEnabledChildEl(selector, ...args),
+                    setValue: (...args: SetValueArgs) => client.setValueChildEl(selector, ...args),
+                    click: (...args: ClickArgs) => client.clickChildEl(selector, ...args),
+                    clickByIdx: (idx: number, ...args: ClickArgs) => client.clickByIdxChildEl(selector, idx, ...args),
+                    getText: () => client.getTextChildEl(selector),
+                    isDisplayed: () => client.isDisplayedChildEl(selector),
+                    isExisting: () => client.isExistingChildEl(selector),
+                    getLocation: (...args: GetLocationArgs) => client.getLocationChildEl(selector, ...args),
+                    getSize: (...args: GetSizeArgs) => client.getSizeChildEl(selector, ...args),
+                    getValue: () => client.getChildEl(selector).getValue(),
+                    scrollIntoView: (...args: ScrollIntoViewArgs) => client.getChildEl(selector).scrollIntoView(...args),
+                    parentElement: () => client.getParentChildEl(selector),
+                    getAttribute: (...args: GetAttributeArgs) => client.getAttributeChildEl(selector, ...args),
                 };
             },
         });
@@ -114,12 +113,20 @@ export class Component<T = any> {
         await (await this.getChildEl(selector)).waitForEnabled(...args);
     }
 
-    async getLocationChildEl(selector: string): Promise<Location> {
-        return await (await this.getChildEl(selector)).getLocation();
+    async getLocationChildEl(selector: string, ...args: GetLocationArgs): Promise<Location | number> {
+        return await (await this.getChildEl(selector)).getLocation(...args);
     }
 
-    async getSizeChildEl(selector: string): Promise<Size> {
-        return await (await this.getChildEl(selector)).getSize();
+    async getSizeChildEl(selector: string, ...args: GetSizeArgs): Promise<Size | number> {
+        return await (await this.getChildEl(selector)).getSize(...args);
+    }
+
+    async getAttributeChildEl(selector: string, ...args: GetAttributeArgs): Promise<string> {
+        return await (await this.getChildEl(selector)).getAttribute(...args);
+    }
+
+    getParentChildEl(selector: string): ChainablePromiseElement<WebdriverIO.Element> {
+        return this.getChildEl(selector).parentElement();
     }
 
     getChildEl(selector: string): ChainablePromiseElement<WebdriverIO.Element> {
@@ -132,5 +139,16 @@ export class Component<T = any> {
 
     getChildElByIdx(selector: string, idx: number): ChainablePromiseElement<WebdriverIO.Element> {
         return this.elsIndexSelectorFn(selector, idx);
+    }
+
+    private callParentComponent(field: string, receiver: unknown): unknown {
+        for (const parentComponent of this.parentComponents) {
+            if (Reflect.has(parentComponent, field) || field in parentComponent.selectors) {
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+                return Reflect.get(parentComponent, field, receiver);
+            }
+        }
+
+        return undefined;
     }
 }
