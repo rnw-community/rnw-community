@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.44.0](https://github.com/rnw-community/rnw-community/compare/v0.43.4...v0.44.0) (2022-10-11)
+
+
+### Features
+
+* **wdio:** refactored, added support to all wdio methods to selector elements ([#108](https://github.com/rnw-community/rnw-community/issues/108)) ([bd6d941](https://github.com/rnw-community/rnw-community/commit/bd6d94101aeefd02592afea75203f5072a2faa86))
+
+
+
+
+
 ## [0.43.3](https://github.com/rnw-community/rnw-community/compare/v0.43.2...v0.43.3) (2022-10-02)
 
 
