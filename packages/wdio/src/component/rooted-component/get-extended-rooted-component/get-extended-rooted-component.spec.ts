@@ -44,22 +44,18 @@ describe('getExtendedRootedComponent', () => {
             ParentRootedSelectorsEnum.ParentButton,
             expect.objectContaining({})
         );
-
-        jest.resetAllMocks();
     });
 
     it('should use correct "latest" root selector from overloaded constructor in all parents chain', async () => {
-        expect.assertions(3);
+        expect.assertions(2);
 
         const component = new RootedComponentMock();
 
         await component.RootEl;
-        expect(mockDefaultConfig.elSelectorFn).toHaveBeenNthCalledWith(1, RootedComponentSelectorsMock.CustomRoot);
+        expect(mockDefaultConfig.elSelectorFn).toHaveBeenCalledWith(RootedComponentSelectorsMock.CustomRoot);
 
         await component.ParentButton.el();
-        expect(mockDefaultConfig.elSelectorFn).toHaveBeenNthCalledWith(2, RootedComponentSelectorsMock.CustomRoot);
-        expect(mockDefaultConfig.elSelectorFn).toHaveBeenNthCalledWith(
-            3,
+        expect(mockDefaultConfig.elSelectorFn).toHaveBeenCalledWith(
             RootedParentComponentSelectorsMock.ParentButton,
             expect.objectContaining({})
         );

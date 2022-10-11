@@ -1,3 +1,4 @@
+/* eslint-disable jest/unbound-method,@typescript-eslint/unbound-method */
 // eslint-disable-next-line max-classes-per-file
 import { expectTypeOf } from 'expect-type';
 
@@ -102,121 +103,100 @@ describe('getExtendedComponent', () => {
         expect.assertions(2);
 
         const component = new CustomComponent();
-        const clickChildElSpy = jest.spyOn(component, 'clickChildEl');
 
         expectTypeOf(component.Button.click).toBeFunction();
         await expect(component.Button.click()).resolves.toBe(void 0);
-        expect(clickChildElSpy).toHaveBeenCalledWith(SelectorsEnum.Button);
-    });
-
-    it('should add selectors enum methods for clicking element in array by index using clickByIdx', async () => {
-        expect.assertions(2);
-
-        const component = new CustomComponent();
-        const clickByIdxChildElSpy = jest.spyOn(component, 'clickByIdxChildEl');
-
-        expectTypeOf(component.Button.clickByIdx).toBeFunction();
-        await expect(component.Button.clickByIdx(1)).resolves.toBe(void 0);
-        expect(clickByIdxChildElSpy).toHaveBeenCalledWith(SelectorsEnum.Button, 1);
+        expect(mockDefaultConfig.elSelectorFn).toHaveBeenCalledWith(SelectorsEnum.Button);
     });
 
     it('should add selectors enum methods for getting element text using getText', async () => {
         expect.assertions(2);
 
         const component = new CustomComponent();
-        const getTextChildElSpy = jest.spyOn(component, 'getTextChildEl');
 
         expectTypeOf(component.Button.getText).toBeFunction();
         await expect(component.Button.getText()).resolves.toBe('');
-        expect(getTextChildElSpy).toHaveBeenCalledWith(SelectorsEnum.Button);
+        expect(mockDefaultConfig.elSelectorFn).toHaveBeenCalledWith(SelectorsEnum.Button);
     });
 
     it('should add selectors enum methods for getting element displayed status with suffix IsDisplayed', async () => {
         expect.assertions(2);
 
         const component = new CustomComponent();
-        const isDisplayedChildElSpy = jest.spyOn(component, 'isDisplayedChildEl');
 
         expectTypeOf(component.Button.isDisplayed).toBeFunction();
         await expect(component.Button.isDisplayed()).resolves.toBe(true);
-        expect(isDisplayedChildElSpy).toHaveBeenCalledWith(SelectorsEnum.Button);
+        expect(mockDefaultConfig.elSelectorFn).toHaveBeenCalledWith(SelectorsEnum.Button);
     });
 
     it('should add selectors enum methods for getting element existing status with suffix Exists', async () => {
         expect.assertions(2);
 
         const component = new CustomComponent();
-        const isExistingChildElSpy = jest.spyOn(component, 'isExistingChildEl');
 
         expectTypeOf(component.Button.isExisting).toBeFunction();
         await expect(component.Button.isExisting()).resolves.toBe(true);
-        expect(isExistingChildElSpy).toHaveBeenCalledWith(SelectorsEnum.Button);
+        expect(mockDefaultConfig.elSelectorFn).toHaveBeenCalledWith(SelectorsEnum.Button);
     });
 
     it('should add selectors enum methods for waiting element to exist with suffix WaitForExists', async () => {
         expect.assertions(2);
 
         const component = new CustomComponent();
-        const waitForExistChildElSpy = jest.spyOn(component, 'waitForExistChildEl');
 
         expectTypeOf(component.Button.waitForExist).toBeFunction();
         await expect(component.Button.waitForExist({ reverse: true })).resolves.toBe(void 0);
-        expect(waitForExistChildElSpy).toHaveBeenCalledWith(SelectorsEnum.Button, { reverse: true });
+        expect(mockDefaultConfig.elSelectorFn).toHaveBeenCalledWith(SelectorsEnum.Button);
     });
 
     it('should add selectors enum methods for waiting element to be displayed with suffix WaitForDisplayed', async () => {
         expect.assertions(2);
 
         const component = new CustomComponent();
-        const waitForDisplayedChildElSpy = jest.spyOn(component, 'waitForDisplayedChildEl');
 
         expectTypeOf(component.Button.waitForDisplayed).toBeFunction();
         await expect(component.Button.waitForDisplayed({ reverse: true })).resolves.toBe(void 0);
-        expect(waitForDisplayedChildElSpy).toHaveBeenCalledWith(SelectorsEnum.Button, { reverse: true });
+        expect(mockDefaultConfig.elSelectorFn).toHaveBeenCalledWith(SelectorsEnum.Button);
     });
 
     it('should add selectors enum methods for waiting element to be enabled with suffix WaitForEnabled', async () => {
         expect.assertions(2);
 
         const component = new CustomComponent();
-        const waitForEnabledChildElSpy = jest.spyOn(component, 'waitForEnabledChildEl');
 
         expectTypeOf(component.Button.waitForEnabled).toBeFunction();
         await expect(component.Button.waitForEnabled({ reverse: true })).resolves.toBe(void 0);
-        expect(waitForEnabledChildElSpy).toHaveBeenCalledWith(SelectorsEnum.Button, { reverse: true });
+        expect(mockDefaultConfig.elSelectorFn).toHaveBeenCalledWith(SelectorsEnum.Button);
     });
 
     it('should add selectors enum methods for setting element value with suffix SetValue', async () => {
         expect.assertions(2);
 
         const component = new CustomComponent();
-        const setValueChildElSpy = jest.spyOn(component, 'setValueChildEl');
 
         expectTypeOf(component.Button.setValue).toBeFunction();
         await expect(component.Button.setValue('')).resolves.toBe(void 0);
-        expect(setValueChildElSpy).toHaveBeenCalledWith(SelectorsEnum.Button, '');
+        expect(mockDefaultConfig.elSelectorFn).toHaveBeenCalledWith(SelectorsEnum.Button);
     });
 
     it('should add selectors enum methods for getting element location with getLocation', async () => {
         expect.assertions(2);
 
         const component = new CustomComponent();
-        const getLocationChildElSpy = jest.spyOn(component, 'getLocationChildEl');
 
         expectTypeOf(component.Button.getLocation).toBeFunction();
         await expect(component.Button.getLocation()).resolves.toMatchObject({ x: 0, y: 0 });
-        expect(getLocationChildElSpy).toHaveBeenCalledWith(SelectorsEnum.Button);
+        expect(mockDefaultConfig.elSelectorFn).toHaveBeenCalledWith(SelectorsEnum.Button);
     });
 
     it('should add selectors enum methods for getting element size with getSize', async () => {
         expect.assertions(2);
 
         const component = new CustomComponent();
-        const getSizeChildElSpy = jest.spyOn(component, 'getSizeChildEl');
 
         expectTypeOf(component.Button.getSize).toBeFunction();
         await expect(component.Button.getSize()).resolves.toMatchObject({ width: 0, height: 0 });
-        expect(getSizeChildElSpy).toHaveBeenCalledWith(SelectorsEnum.Button);
+        expect(mockDefaultConfig.elSelectorFn).toHaveBeenCalledWith(SelectorsEnum.Button);
     });
 
     it('should call extended component class getters', () => {
@@ -245,5 +225,17 @@ describe('getExtendedComponent', () => {
         expectTypeOf(component.ParentButton.el).toBeFunction();
         await expect(component.ParentButton.el()).resolves.toMatchObject(mockElement);
         expect(mockDefaultConfig.elSelectorFn).toHaveBeenCalledWith(ComponentSelectorsMock.Button);
+    });
+
+    it('should throw error on accessing not existing selector element/wdio element property', () => {
+        expect.assertions(1);
+
+        const component = new CustomComponent();
+
+        // @ts-expect-error Test
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+        expect(() => void component.Button.IDONOTEXISTS()).toThrow(
+            `Method/Property "IDONOTEXISTS" is not supported by SelectorElement(Selectors.Button)`
+        );
     });
 });

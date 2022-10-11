@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/explicit-function-return-type,class-methods-use-this,@typescript-eslint/explicit-module-boundary-types */
 import type { ComponentConfigInterface } from './type';
 import type { ChainablePromiseArray, ChainablePromiseElement } from 'webdriverio';
 
@@ -15,8 +16,62 @@ export const mockElement = {
     getSize: jest.fn(() => Promise.resolve({ width: 0, height: 0 })),
 } as unknown as WebdriverIO.Element;
 
+export class MockElement<T> extends Promise<T> {
+    click() {
+        return Promise.resolve(void 0);
+    }
+
+    getText() {
+        return Promise.resolve('');
+    }
+
+    isDisplayed() {
+        return Promise.resolve(true);
+    }
+
+    isExisting() {
+        return Promise.resolve(true);
+    }
+
+    waitForExist() {
+        return Promise.resolve(void 0);
+    }
+
+    waitForDisplayed() {
+        return Promise.resolve(void 0);
+    }
+
+    waitForEnabled() {
+        return Promise.resolve(void 0);
+    }
+
+    setValue() {
+        return Promise.resolve(void 0);
+    }
+
+    getLocation() {
+        return Promise.resolve({ x: 0, y: 0 });
+    }
+
+    getSize() {
+        return Promise.resolve({ width: 0, height: 0 });
+    }
+
+    scrollIntoView() {
+        return Promise.resolve(void 0);
+    }
+
+    parentElement() {
+        return Promise.resolve(mockElement);
+    }
+
+    getAttribute() {
+        return Promise.resolve('');
+    }
+}
+
 const elImplementation = (): ChainablePromiseElement<WebdriverIO.Element> =>
-    Promise.resolve(mockElement) as unknown as ChainablePromiseElement<WebdriverIO.Element>;
+    MockElement.resolve(mockElement) as ChainablePromiseElement<WebdriverIO.Element>;
 const elsImplementation = (): ChainablePromiseArray<WebdriverIO.ElementArray> =>
     Promise.resolve([mockElement]) as unknown as ChainablePromiseArray<WebdriverIO.ElementArray>;
 
