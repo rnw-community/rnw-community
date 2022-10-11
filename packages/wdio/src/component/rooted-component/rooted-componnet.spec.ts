@@ -1,8 +1,9 @@
-import { mockDefaultConfig, mockElement } from '../element.mock';
+import { MockElement, mockDefaultConfig, mockElement } from '../element.mock';
 
 import { RootedComponent } from './rooted-component';
 
 import type { ClickArgs, WaitForDisplayedArgs, WaitForEnabledArgs, WaitForExistArgs } from '../type';
+import type { GetLocationArgs, GetSizeArgs, ScrollIntoViewArgs } from '../type/wdio-types.type';
 import type { ChainablePromiseElement } from 'webdriverio';
 
 enum Selectors {
@@ -12,16 +13,16 @@ enum Selectors {
 
 // TODO: Can we call method on parent with proper types?
 // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
-const getRootElSpies = (parent: RootedComponent, method: keyof typeof mockElement) => {
+const getRootElSpies = <T extends keyof RootedComponent>(parent: RootedComponent, method: T) => {
+    const el = MockElement.resolve(mockElement);
+
     const getRootElSpy = jest.spyOn(parent, 'RootEl', 'get');
-    // @ts-expect-error We need to improve the typing
-    const elementMethodSpy = jest.spyOn(mockElement, method);
+    // @ts-expect-error We need to improve typings
+    const elementMethodSpy = jest.spyOn(el, method);
 
-    getRootElSpy.mockImplementation(
-        () => Promise.resolve(mockElement) as unknown as ChainablePromiseElement<WebdriverIO.Element>
-    );
+    getRootElSpy.mockImplementation(() => el as ChainablePromiseElement<WebdriverIO.Element>);
 
-    return [getRootElSpy, elementMethodSpy];
+    return [getRootElSpy, elementMethodSpy, el];
 };
 
 const fakeRootEl = { ...mockElement, iamRoot: true } as unknown as WebdriverIO.Element;
@@ -111,6 +112,7 @@ describe('RootedComponent', () => {
         const [getRootElSpy, elementMethodSpy] = getRootElSpies(rootedComponent, 'isDisplayed');
 
         await expect(rootedComponent.isDisplayed()).resolves.toBe(true);
+
         expect(getRootElSpy).toHaveBeenCalledWith();
         expect(elementMethodSpy).toHaveBeenCalledWith();
     });
@@ -167,6 +169,72 @@ describe('RootedComponent', () => {
 
         expect(getRootElSpy).toHaveBeenCalledWith();
         expect(elementMethodSpy).toHaveBeenCalledWith(...args);
+    });
+
+    it('should handle scrollIntoView Root wdio element', async () => {
+        expect.assertions(2);
+
+        const rootedComponent = new RootedComponent(mockDefaultConfig, Selectors, Selectors.Root);
+
+        const [getRootElSpy, elementMethodSpy] = getRootElSpies(rootedComponent, 'scrollIntoView');
+
+        const args: ScrollIntoViewArgs = [{ block: 'center' }];
+        await rootedComponent.scrollIntoView(...args);
+
+        expect(getRootElSpy).toHaveBeenCalledWith();
+        expect(elementMethodSpy).toHaveBeenCalledWith(...args);
+    });
+
+    it('should handle getLocation Root wdio element', async () => {
+        expect.assertions(2);
+
+        const rootedComponent = new RootedComponent(mockDefaultConfig, Selectors, Selectors.Root);
+
+        const [getRootElSpy, elementMethodSpy] = getRootElSpies(rootedComponent, 'getLocation');
+
+        const args: GetLocationArgs = ['x'];
+        await rootedComponent.getLocation(...args);
+
+        expect(getRootElSpy).toHaveBeenCalledWith();
+        expect(elementMethodSpy).toHaveBeenCalledWith(...args);
+    });
+
+    it('should handle getSize Root wdio element', async () => {
+        expect.assertions(2);
+
+        const rootedComponent = new RootedComponent(mockDefaultConfig, Selectors, Selectors.Root);
+
+        const [getRootElSpy, elementMethodSpy] = getRootElSpies(rootedComponent, 'getSize');
+
+        const args: GetSizeArgs = ['width'];
+        await rootedComponent.getSize(...args);
+
+        expect(getRootElSpy).toHaveBeenCalledWith();
+        expect(elementMethodSpy).toHaveBeenCalledWith(...args);
+    });
+
+    it('should have getText for Root wdio element', async () => {
+        expect.assertions(3);
+
+        const rootedComponent = new RootedComponent(mockDefaultConfig, Selectors, Selectors.Root);
+
+        const [getRootElSpy, elementMethodSpy] = getRootElSpies(rootedComponent, 'getText');
+
+        await expect(rootedComponent.getText()).resolves.toBe('');
+        expect(getRootElSpy).toHaveBeenCalledWith();
+        expect(elementMethodSpy).toHaveBeenCalledWith();
+    });
+
+    it('should return parentElement for Root wdio element', async () => {
+        expect.assertions(3);
+
+        const rootedComponent = new RootedComponent(mockDefaultConfig, Selectors, Selectors.Root);
+
+        const [getRootElSpy, elementMethodSpy] = getRootElSpies(rootedComponent, 'parentElement');
+
+        await expect(rootedComponent.parentElement()).resolves.toBe(mockElement);
+        expect(getRootElSpy).toHaveBeenCalledWith();
+        expect(elementMethodSpy).toHaveBeenCalledWith();
     });
 
     it('should throw an error if no root selector is passed nor Root enum key exists', () => {

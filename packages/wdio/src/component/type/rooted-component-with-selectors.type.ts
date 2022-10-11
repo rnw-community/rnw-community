@@ -1,4 +1,4 @@
 import type { RootedComponent } from '../rooted-component/rooted-component';
-import type { SelectorObject } from './selector-object.type';
+import type { SelectorElement } from '../selector-element/selector-element';
 
-export type RootedComponentWithSelectors<T> = Omit<Record<keyof T, SelectorObject>, 'Root'> & RootedComponent<T>;
+export type RootedComponentWithSelectors<T> = Omit<Record<keyof T, SelectorElement>, 'Root'> & RootedComponent<T>;

@@ -47,43 +47,43 @@ export class RootedComponent<T = any> extends Component<T> {
     }
 
     async waitForDisplayed(...args: WaitForDisplayedArgs): Promise<void> {
-        await (await this.RootEl).waitForDisplayed(...args);
+        await this.RootEl.waitForDisplayed(...args);
     }
 
     async waitForEnabled(...args: WaitForEnabledArgs): Promise<void> {
-        await (await this.RootEl).waitForEnabled(...args);
+        await this.RootEl.waitForEnabled(...args);
     }
 
     async waitForExist(...args: WaitForExistArgs): Promise<void> {
-        await (await this.RootEl).waitForExist(...args);
+        await this.RootEl.waitForExist(...args);
     }
 
     async isDisplayed(): Promise<boolean> {
-        return await (await this.RootEl).isDisplayed();
+        return await this.RootEl.isDisplayed();
     }
 
     async isExisting(): Promise<boolean> {
-        return await (await this.RootEl).isExisting();
+        return await this.RootEl.isExisting();
     }
 
     async click(...args: ClickArgs): Promise<void> {
-        await (await this.RootEl).click(...args);
+        await this.RootEl.click(...args);
     }
 
     async scrollIntoView(...args: ScrollIntoViewArgs): Promise<void> {
-        await (await this.RootEl).scrollIntoView(...args);
+        await this.RootEl.scrollIntoView(...args);
     }
 
     async getLocation(...args: GetLocationArgs): Promise<Location | number> {
-        return await (await this.RootEl).getLocation(...args);
+        return await this.RootEl.getLocation(...args);
     }
 
     async getSize(...args: GetSizeArgs): Promise<Location | number> {
-        return await (await this.RootEl).getSize(...args);
+        return await this.RootEl.getSize(...args);
     }
 
     async getText(): Promise<string> {
-        return await (await this.RootEl).getText();
+        return await this.RootEl.getText();
     }
 
     parentElement(): ChainablePromiseElement<WebdriverIO.Element> {

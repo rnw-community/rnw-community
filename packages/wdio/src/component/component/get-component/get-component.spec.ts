@@ -1,3 +1,4 @@
+/* eslint-disable jest/unbound-method,@typescript-eslint/unbound-method */
 import { expectTypeOf } from 'expect-type';
 
 import { mockDefaultConfig, mockElement } from '../../element.mock';
