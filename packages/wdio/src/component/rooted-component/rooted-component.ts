@@ -35,13 +35,8 @@ export class RootedComponent<T = any> extends Component<T> {
                     return returnValue;
                 }
 
-                const rootEl = client.RootEl;
-                if (isDefined(rootEl) && Reflect.has(rootEl, field)) {
-                    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-                    return Reflect.get(rootEl, field, receiver);
-                }
-
-                throw new Error(`Method/Property "${field}" is not supported by RootedComponent`);
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+                return Reflect.get(client.RootEl, field, receiver);
             },
         });
     }

@@ -14,13 +14,8 @@ export class SelectorElement {
                     return Reflect.get(client, field, receiver);
                 }
 
-                const element = component.getChildEl(enumSelector);
-                if (Reflect.has(element, field)) {
-                    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-                    return Reflect.get(element, field, receiver);
-                }
-
-                throw new Error(`Method/Property "${field}" is not supported by SelectorElement(${enumSelector})`);
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+                return Reflect.get(component.getChildEl(enumSelector), field, receiver);
             },
         });
     }
