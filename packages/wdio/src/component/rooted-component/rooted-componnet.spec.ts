@@ -125,8 +125,6 @@ describe('RootedComponent', () => {
 
         // @ts-expect-error Test
         // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-        expect(() => void component.IDONOTEXISTS()).toThrow(
-            `Method/Property "IDONOTEXISTS" is not supported by RootedComponent`
-        );
+        expect(() => void component.IDONOTEXISTS()).toThrow(TypeError);
     });
 });

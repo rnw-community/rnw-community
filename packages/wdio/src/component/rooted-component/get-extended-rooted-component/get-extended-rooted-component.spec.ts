@@ -60,4 +60,13 @@ describe('getExtendedRootedComponent', () => {
             expect.objectContaining({})
         );
     });
+
+    it('should have all wdio element methods accessible on RootEl', async () => {
+        expect.assertions(1);
+
+        const component = new RootedComponentMock();
+
+        await component.waitForDisplayed({ reverse: true });
+        expect(mockDefaultConfig.elSelectorFn).toHaveBeenCalledWith(RootedComponentSelectorsMock.CustomRoot);
+    });
 });

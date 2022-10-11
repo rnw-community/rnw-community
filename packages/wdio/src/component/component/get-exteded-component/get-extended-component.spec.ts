@@ -234,8 +234,6 @@ describe('getExtendedComponent', () => {
 
         // @ts-expect-error Test
         // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-        expect(() => void component.Button.IDONOTEXISTS()).toThrow(
-            `Method/Property "IDONOTEXISTS" is not supported by SelectorElement(Selectors.Button)`
-        );
+        expect(() => void component.Button.IDONOTEXISTS()).toThrow(TypeError);
     });
 });
