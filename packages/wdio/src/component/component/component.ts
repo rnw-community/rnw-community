@@ -25,17 +25,7 @@ export class Component<T = any> {
         // eslint-disable-next-line no-constructor-return
         return new Proxy(this, {
             get(client, field: string, receiver) {
-                if (Reflect.has(client, field)) {
-                    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-                    return Reflect.get(client, field, receiver);
-                }
-
-                const selector = client.selectors[field] as unknown as string;
-                if (isDefined(selector)) {
-                    return new SelectorElement(client, selector);
-                }
-
-                return client.callParentComponent(field, receiver);
+                return client.proxyGet(field, receiver);
             },
         });
     }
@@ -56,7 +46,21 @@ export class Component<T = any> {
         return this.elsIndexSelectorFn(selector, idx);
     }
 
-    private callParentComponent(field: string, receiver: unknown): unknown {
+    protected proxyGet(field: string, receiver: unknown): unknown {
+        if (Reflect.has(this, field)) {
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+            return Reflect.get(this, field, receiver);
+        }
+
+        const selector = this.selectors[field] as unknown as string;
+        if (isDefined(selector)) {
+            return new SelectorElement(this, selector);
+        }
+
+        return this.getParentComponent(field, receiver);
+    }
+
+    protected getParentComponent(field: string, receiver: unknown): unknown {
         for (const parentComponent of this.parentComponents) {
             if (Reflect.has(parentComponent, field) || field in parentComponent.selectors) {
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-return
