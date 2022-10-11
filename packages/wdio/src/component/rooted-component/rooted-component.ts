@@ -4,18 +4,9 @@ import { wdioElementChainByRef } from '../../util';
 import { Component } from '../component/component';
 import { findEnumRootSelector } from '../util';
 
-import type {
-    ClickArgs,
-    ComponentConfigInterface,
-    ComponentInputArg,
-    WaitForDisplayedArgs,
-    WaitForEnabledArgs,
-    WaitForExistArgs,
-} from '../type';
-import type { GetLocationArgs, GetSizeArgs, ScrollIntoViewArgs } from '../type/wdio-types.type';
+import type { ComponentConfigInterface, ComponentInputArg } from '../type';
 import type { Enum } from '@rnw-community/shared';
 import type { ChainablePromiseArray, ChainablePromiseElement } from 'webdriverio';
-import type { Location } from 'webdriverio/build/commands/element/getLocation';
 
 // TODO: All Root should have all methods from wdio element, can we do this through the proxy?
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -34,6 +25,25 @@ export class RootedComponent<T = any> extends Component<T> {
         super(config, selectors);
 
         this.parentElInput = selectorOrElement;
+
+        // eslint-disable-next-line no-constructor-return
+        return new Proxy(this, {
+            get(client, field: string, receiver) {
+                const returnValue = client.proxyGet(field, receiver);
+
+                if (returnValue !== undefined) {
+                    return returnValue;
+                }
+
+                const rootEl = client.RootEl;
+                if (isDefined(rootEl) && Reflect.has(rootEl, field)) {
+                    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+                    return Reflect.get(rootEl, field, receiver);
+                }
+
+                throw new Error(`Method/Property "${field}" is not supported by RootedComponent`);
+            },
+        });
     }
 
     get RootEl(): ChainablePromiseElement<WebdriverIO.Element> {
@@ -44,50 +54,6 @@ export class RootedComponent<T = any> extends Component<T> {
         }
 
         return wdioElementChainByRef(this.parentElInput);
-    }
-
-    async waitForDisplayed(...args: WaitForDisplayedArgs): Promise<void> {
-        await this.RootEl.waitForDisplayed(...args);
-    }
-
-    async waitForEnabled(...args: WaitForEnabledArgs): Promise<void> {
-        await this.RootEl.waitForEnabled(...args);
-    }
-
-    async waitForExist(...args: WaitForExistArgs): Promise<void> {
-        await this.RootEl.waitForExist(...args);
-    }
-
-    async isDisplayed(): Promise<boolean> {
-        return await this.RootEl.isDisplayed();
-    }
-
-    async isExisting(): Promise<boolean> {
-        return await this.RootEl.isExisting();
-    }
-
-    async click(...args: ClickArgs): Promise<void> {
-        await this.RootEl.click(...args);
-    }
-
-    async scrollIntoView(...args: ScrollIntoViewArgs): Promise<void> {
-        await this.RootEl.scrollIntoView(...args);
-    }
-
-    async getLocation(...args: GetLocationArgs): Promise<Location | number> {
-        return await this.RootEl.getLocation(...args);
-    }
-
-    async getSize(...args: GetSizeArgs): Promise<Location | number> {
-        return await this.RootEl.getSize(...args);
-    }
-
-    async getText(): Promise<string> {
-        return await this.RootEl.getText();
-    }
-
-    parentElement(): ChainablePromiseElement<WebdriverIO.Element> {
-        return this.RootEl.parentElement();
     }
 
     override getChildEl(selector: string): ChainablePromiseElement<WebdriverIO.Element> {

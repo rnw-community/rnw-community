@@ -1,6 +1,5 @@
 export type { ComponentWithSelectors } from './component-with-selectors.type';
 export type { RootedComponentWithSelectors } from './rooted-component-with-selectors.type';
-export type { WaitForDisplayedArgs, WaitForEnabledArgs, WaitForExistArgs, SetValueArgs, ClickArgs } from './wdio-types.type';
 export type { ComponentInputArg } from './component-input-arg.type';
 export type { ComponentWithSelectorsCtor } from './component-with-selectors-ctor.type';
 export type { RootedComponentWithSelectorsCtor } from './rooted-component-with-selectors-ctor.type';

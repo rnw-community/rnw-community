@@ -57,10 +57,6 @@ export class Component<T = any> {
             return new SelectorElement(this, selector);
         }
 
-        return this.getParentComponent(field, receiver);
-    }
-
-    protected getParentComponent(field: string, receiver: unknown): unknown {
         for (const parentComponent of this.parentComponents) {
             if (Reflect.has(parentComponent, field) || field in parentComponent.selectors) {
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-return
