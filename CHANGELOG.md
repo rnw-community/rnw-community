@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.44.1](https://github.com/rnw-community/rnw-community/compare/v0.44.0...v0.44.1) (2022-10-11)
+
+
+### Bug Fixes
+
+* **wdio:** fixed RootedComponent new types ([#109](https://github.com/rnw-community/rnw-community/issues/109)) ([036a576](https://github.com/rnw-community/rnw-community/commit/036a57613d226df5b867066c57ffaf345f520f60))
+
+
+
+
+
 # [0.44.0](https://github.com/rnw-community/rnw-community/compare/v0.43.4...v0.44.0) (2022-10-11)
 
 
