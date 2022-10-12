@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.44.2](https://github.com/rnw-community/rnw-community/compare/v0.44.1...v0.44.2) (2022-10-12)
+
+
+### Bug Fixes
+
+* **wdio:** refactored tests, extends cases ([#110](https://github.com/rnw-community/rnw-community/issues/110)) ([ca54ee2](https://github.com/rnw-community/rnw-community/commit/ca54ee2ce4ec0de870aea787035b0727870bed97))
+
+
+
+
+
 ## [0.44.1](https://github.com/rnw-community/rnw-community/compare/v0.44.0...v0.44.1) (2022-10-11)
 
 ### Bug Fixes
