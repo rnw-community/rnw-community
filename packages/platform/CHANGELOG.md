@@ -3,40 +3,27 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
-# [0.44.0](https://github.com/rnw-community/rnw-community/compare/v0.43.4...v0.44.0) (2022-10-11)
+## [0.44.1](https://github.com/rnw-community/rnw-community/compare/v0.44.0...v0.44.1) (2022-10-11)
 
 **Note:** Version bump only for package @rnw-community/platform
 
+# [0.44.0](https://github.com/rnw-community/rnw-community/compare/v0.43.4...v0.44.0) (2022-10-11)
 
-
-
+**Note:** Version bump only for package @rnw-community/platform
 
 ## [0.43.3](https://github.com/rnw-community/rnw-community/compare/v0.43.2...v0.43.3) (2022-10-02)
 
 **Note:** Version bump only for package @rnw-community/platform
 
-
-
-
-
 ## [0.43.2](https://github.com/rnw-community/rnw-community/compare/v0.43.1...v0.43.2) (2022-10-01)
 
 **Note:** Version bump only for package @rnw-community/platform
 
-
-
-
-
 ## [0.43.1](https://github.com/rnw-community/rnw-community/compare/v0.43.0...v0.43.1) (2022-10-01)
-
 
 ### Bug Fixes
 
-* **wdio:** added wdio.d.ts types, testID by index return chain ([#103](https://github.com/rnw-community/rnw-community/issues/103)) ([681b6ee](https://github.com/rnw-community/rnw-community/commit/681b6ee0897edec215868f30e560eb7d5c33eae3))
-
-
-
-
+-   **wdio:** added wdio.d.ts types, testID by index return chain ([#103](https://github.com/rnw-community/rnw-community/issues/103)) ([681b6ee](https://github.com/rnw-community/rnw-community/commit/681b6ee0897edec215868f30e560eb7d5c33eae3))
 
 # [0.43.0](https://github.com/rnw-community/rnw-community/compare/v0.42.1...v0.43.0) (2022-10-01)
 
