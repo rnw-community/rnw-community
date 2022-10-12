@@ -1,20 +1,24 @@
-import { Component } from '../component/component';
-import { getExtendedComponent } from '../component/get-exteded-component/get-extended-component';
+import { Component } from '../component';
+import { getExtendedComponent } from '../get-exteded-component/get-extended-component';
 
 import { ParentComponentSelectorsMock } from './parent-component-selectors.mock';
 
 export class ParentComponentMock extends getExtendedComponent(ParentComponentSelectorsMock, Component) {
-    private data = 'InitialParentData';
+    private parentData = 'parent-initial-data';
 
-    get ParentField(): string {
-        return this.data;
+    get ParentData(): string {
+        return this.parentData;
     }
 
-    set ParentField(newData: string) {
-        this.data = newData;
+    set ParentData(newData: string) {
+        this.parentData = newData;
     }
 
-    parentMethod(): string {
-        return this.data;
+    getParentData(): string {
+        return this.parentData;
+    }
+
+    setParentData(data: string): void {
+        this.parentData = data;
     }
 }

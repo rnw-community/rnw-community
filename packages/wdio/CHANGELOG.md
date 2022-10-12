@@ -5,55 +5,31 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 ## [0.44.1](https://github.com/rnw-community/rnw-community/compare/v0.44.0...v0.44.1) (2022-10-11)
 
-
 ### Bug Fixes
 
-* **wdio:** fixed RootedComponent new types ([#109](https://github.com/rnw-community/rnw-community/issues/109)) ([036a576](https://github.com/rnw-community/rnw-community/commit/036a57613d226df5b867066c57ffaf345f520f60))
-
-
-
-
+-   **wdio:** fixed RootedComponent new types ([#109](https://github.com/rnw-community/rnw-community/issues/109)) ([036a576](https://github.com/rnw-community/rnw-community/commit/036a57613d226df5b867066c57ffaf345f520f60))
 
 # [0.44.0](https://github.com/rnw-community/rnw-community/compare/v0.43.4...v0.44.0) (2022-10-11)
 
-
 ### Features
 
-* **wdio:** refactored, added support to all wdio methods to selector elements ([#108](https://github.com/rnw-community/rnw-community/issues/108)) ([bd6d941](https://github.com/rnw-community/rnw-community/commit/bd6d94101aeefd02592afea75203f5072a2faa86))
-
-
-
-
+-   **wdio:** refactored, added support to all wdio methods to selector elements ([#108](https://github.com/rnw-community/rnw-community/issues/108)) ([bd6d941](https://github.com/rnw-community/rnw-community/commit/bd6d94101aeefd02592afea75203f5072a2faa86))
 
 ## [0.43.3](https://github.com/rnw-community/rnw-community/compare/v0.43.2...v0.43.3) (2022-10-02)
 
-
 ### Bug Fixes
 
-* **wdio:** fixed byIndex commands ([#104](https://github.com/rnw-community/rnw-community/issues/104)) ([be218bb](https://github.com/rnw-community/rnw-community/commit/be218bb1c3051cf8c707197516cd0000f7a4c4fa))
-
-
-
-
+-   **wdio:** fixed byIndex commands ([#104](https://github.com/rnw-community/rnw-community/issues/104)) ([be218bb](https://github.com/rnw-community/rnw-community/commit/be218bb1c3051cf8c707197516cd0000f7a4c4fa))
 
 ## [0.43.2](https://github.com/rnw-community/rnw-community/compare/v0.43.1...v0.43.2) (2022-10-01)
 
 **Note:** Version bump only for package @rnw-community/wdio
 
-
-
-
-
 ## [0.43.1](https://github.com/rnw-community/rnw-community/compare/v0.43.0...v0.43.1) (2022-10-01)
-
 
 ### Bug Fixes
 
-* **wdio:** added wdio.d.ts types, testID by index return chain ([#103](https://github.com/rnw-community/rnw-community/issues/103)) ([681b6ee](https://github.com/rnw-community/rnw-community/commit/681b6ee0897edec215868f30e560eb7d5c33eae3))
-
-
-
-
+-   **wdio:** added wdio.d.ts types, testID by index return chain ([#103](https://github.com/rnw-community/rnw-community/issues/103)) ([681b6ee](https://github.com/rnw-community/rnw-community/commit/681b6ee0897edec215868f30e560eb7d5c33eae3))
 
 # [0.43.0](https://github.com/rnw-community/rnw-community/compare/v0.42.1...v0.43.0) (2022-10-01)
 
