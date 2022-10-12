@@ -6,7 +6,6 @@ WDIO commands and utils.
 
 -   Refactor tests to mock MockElement(rename to MockElementPromise), use it instead of mockElement object
 -   Rename all tests `its` properly after API stabilizes
--   Use only external mocks, enums to mimic real usage in the IDE
 -   Write docs with the examples
 
 ## Installation
