@@ -7,6 +7,7 @@ WDIO commands and utils.
 -   Refactor tests to mock MockElement(rename to MockElementPromise), use it instead of mockElement object
 -   Rename all tests `its` properly after API stabilizes
 -   Write docs with the examples
+-   Add tests for extended class instance ctor return from async function - it resolves to WDIO element =)
 
 ## Installation
 

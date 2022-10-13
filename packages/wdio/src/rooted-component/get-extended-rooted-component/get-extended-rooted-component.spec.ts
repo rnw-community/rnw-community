@@ -91,4 +91,29 @@ describe('getExtendedRootedComponent', () => {
         component.ParentData = parentTestData;
         expect(component.ParentData).toBe(parentTestData);
     });
+
+    it('should use override constructor selectorOrElement arg as RootEl', async () => {
+        expect.assertions(2);
+
+        const component = new RootedExtendedComponentMock();
+
+        await expect(component.Button.el()).resolves.toBe(mockElement);
+        expect(mockDefaultConfig.elSelectorFn).toHaveBeenCalledWith(RootedComponentSelectorsMock.CustomRoot);
+    });
+
+    it('should return component from async functions', async () => {
+        expect.assertions(2);
+
+        const asyncFn = async (): Promise<RootedExtendedComponentMock> => {
+            const component = new RootedExtendedComponentMock();
+
+            await expect(component.Button.el()).resolves.toBe(mockElement);
+
+            return component;
+        };
+
+        const awaitedComponent = await asyncFn();
+
+        await expect(awaitedComponent.Button.el()).resolves.toBe(mockElement);
+    });
 });
