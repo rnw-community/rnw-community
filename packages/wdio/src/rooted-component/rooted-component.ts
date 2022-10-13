@@ -28,8 +28,15 @@ export class RootedComponent<T = any> extends Component<T> {
         // eslint-disable-next-line no-constructor-return
         return new Proxy(this, {
             get(client, field: string, receiver) {
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-                return client.proxyGet(field, receiver, () => Reflect.get(client.getRootEl(), field, receiver));
+                return client.proxyGet(field, receiver, () => {
+                    if (!['then', 'catch', 'finally'].includes(field)) {
+                        // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+                        return Reflect.get(client.getRootEl(), field, receiver);
+                    }
+
+                    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+                    return Reflect.get(client, field, receiver);
+                });
             },
         });
     }
