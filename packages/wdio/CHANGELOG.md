@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.44.3](https://github.com/rnw-community/rnw-community/compare/v0.44.2...v0.44.3) (2022-10-13)
+
+
+### Bug Fixes
+
+* **wdio:** fixed returning Component/RootedComponent from async functions ([#111](https://github.com/rnw-community/rnw-community/issues/111)) ([8207a6d](https://github.com/rnw-community/rnw-community/commit/8207a6d8d9f7db21cc1123ae792a7754c179d80a))
+
+
+
+
+
 ## [0.44.2](https://github.com/rnw-community/rnw-community/compare/v0.44.1...v0.44.2) (2022-10-12)
 
 
