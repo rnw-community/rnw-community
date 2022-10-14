@@ -6,7 +6,7 @@ describe('getRootedComponent', () => {
     it('should call parent RootedComponent methods', async () => {
         expect.assertions(1);
 
-        const component = new RootedComponentMock();
+        const component = new RootedComponentMock(RootedComponentSelectorsMock.Root);
 
         await component.RootEl;
 

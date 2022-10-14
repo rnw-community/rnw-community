@@ -23,7 +23,7 @@ describe('create-rooted-component', () => {
     it('should create RootedComponent instance with selectors, using Root selector from enum', async () => {
         expect.assertions(1);
 
-        const component = createRootedComponent(RootedComponentSelectorsMock);
+        const component = createRootedComponent(RootedComponentSelectorsMock, RootedComponentSelectorsMock.Root);
 
         await expect(component.Button.el()).resolves.toMatchObject(mockElement);
     });

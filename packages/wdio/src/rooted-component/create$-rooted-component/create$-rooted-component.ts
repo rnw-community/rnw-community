@@ -4,5 +4,5 @@ import type { ComponentInputArg, RootedComponentWithSelectors } from '../../type
 
 export const create$RootedComponent = <T>(
     selectors: T,
-    selectorOrElement?: ComponentInputArg
+    selectorOrElement: ComponentInputArg
 ): RootedComponentWithSelectors<T> => new (get$RootedComponent<T>(selectors))(selectorOrElement);
