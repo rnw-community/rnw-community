@@ -4,6 +4,6 @@ import type { ComponentConfigInterface, ComponentInputArg, RootedComponentWithSe
 
 export const createRootedComponent = <T>(
     selectors: T,
-    selectorOrElement?: ComponentInputArg,
+    selectorOrElement: ComponentInputArg,
     config?: ComponentConfigInterface
 ): RootedComponentWithSelectors<T> => new (getRootedComponent<T>(selectors, config))(selectorOrElement);

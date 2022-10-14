@@ -9,7 +9,7 @@ describe('getExtendedRootedComponent', () => {
     it('should return RootEl using getter', async () => {
         expect.assertions(2);
 
-        const component = new RootedComponentMock();
+        const component = new RootedComponentMock(RootedComponentSelectorsMock.Root);
 
         await expect(component.RootEl).resolves.toBe(mockElement);
         expect(mockDefaultConfig.elSelectorFn).toHaveBeenNthCalledWith(1, RootedComponentSelectorsMock.Root);
@@ -20,7 +20,7 @@ describe('getExtendedRootedComponent', () => {
     it('should call parent RootedComponent methods', async () => {
         expect.assertions(4);
 
-        const component = new RootedComponentMock();
+        const component = new RootedComponentMock(RootedComponentSelectorsMock.Root);
 
         await component.Button.el();
         expect(mockDefaultConfig.elSelectorFn).toHaveBeenNthCalledWith(1, RootedComponentSelectorsMock.Root);
@@ -57,7 +57,7 @@ describe('getExtendedRootedComponent', () => {
     it('should have all wdio element methods accessible on RootEl', async () => {
         expect.assertions(1);
 
-        const component = new RootedComponentMock();
+        const component = new RootedComponentMock(RootedComponentSelectorsMock.Root);
 
         await component.waitForDisplayed({ reverse: true });
         expect(mockDefaultConfig.elSelectorFn).toHaveBeenCalledWith(RootedComponentSelectorsMock.CustomRoot);

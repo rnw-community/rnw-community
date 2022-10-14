@@ -1,5 +1,4 @@
 import { defaultComponentConfig } from '../../config/default-component.config';
-import { findEnumRootSelector } from '../../util';
 import { RootedComponent } from '../rooted-component';
 
 import type { ComponentConfigInterface, ComponentInputArg, RootedComponentWithSelectorsCtor } from '../../type';
@@ -12,7 +11,7 @@ export const getExtendedRootedComponent = <T, P extends RootedComponent>(
 ): RootedComponentWithSelectorsCtor<T, P> =>
     // @ts-expect-error We use proxy for dynamic fields
     class extends RootedComponent {
-        constructor(selectorOrElement: ComponentInputArg | undefined = findEnumRootSelector(selectors)) {
+        constructor(selectorOrElement: ComponentInputArg) {
             super(config, selectors, selectorOrElement);
 
             if (ParentComponent !== RootedComponent) {

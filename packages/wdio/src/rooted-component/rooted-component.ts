@@ -1,7 +1,7 @@
-import { isDefined, isNotEmptyString } from '@rnw-community/shared';
+import { isDefined, isNotEmptyString, isString } from '@rnw-community/shared';
 
 import { Component } from '../component/component';
-import { findEnumRootSelector, wdioElementChainByRef } from '../util';
+import { wdioElementChainByRef } from '../util';
 
 import type { ComponentConfigInterface, ComponentInputArg } from '../type';
 import type { Enum } from '@rnw-community/shared';
@@ -12,13 +12,13 @@ import type { ChainablePromiseArray, ChainablePromiseElement } from 'webdriverio
 export class RootedComponent<T = any> extends Component<T> {
     protected readonly parentElInput: ComponentInputArg;
 
-    constructor(
-        config: ComponentConfigInterface,
-        public override selectors: Enum<T>,
-        selectorOrElement: ComponentInputArg | undefined = findEnumRootSelector(selectors)
-    ) {
+    constructor(config: ComponentConfigInterface, public override selectors: Enum<T>, selectorOrElement: ComponentInputArg) {
         if (!isDefined(selectorOrElement)) {
             throw new Error('Cannot create RootedComponent - Neither root selector nor root element is passed');
+        }
+
+        if (!isString(selectorOrElement) && 'els' in selectorOrElement) {
+            throw new Error('Cannot create RootedComponent from SelectorElement, use .el()');
         }
 
         super(config, selectors);
