@@ -37,7 +37,7 @@
     "build": "yarn build:esm && yarn build:cjs",
     "postbuild": "rm -rf ./dist/*/*.tsbuildinfo",
     "lint": "run -T eslint src",
-    "lint:fix": "run -T lint --fix src",
+    "lint:fix": "run -T eslint --fix src",
     "test": "run -T jest",
     "test:coverage": "run -T jest --coverage",
     "format": "prettier --write \"./src/**/*.{ts,tsx,js}\"",
