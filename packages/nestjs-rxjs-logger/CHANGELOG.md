@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.46.0](https://github.com/rnw-community/rnw-community/compare/v0.45.0...v0.46.0) (2022-10-14)
+
+
+### Features
+
+* migrated to yarn2, changed local packages as peer deps ([#115](https://github.com/rnw-community/rnw-community/issues/115)) ([59c3493](https://github.com/rnw-community/rnw-community/commit/59c3493c43dccc54bf2824920c4b655b59bb3083))
+
+
+
+
+
 # [0.45.0](https://github.com/rnw-community/rnw-community/compare/v0.44.3...v0.45.0) (2022-10-14)
 
 **Note:** Version bump only for package @rnw-community/nestjs-rxjs-logger
