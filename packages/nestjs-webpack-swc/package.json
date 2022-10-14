@@ -1,7 +1,6 @@
 {
   "name": "@rnw-community/nestjs-webpack-swc",
   "version": "0.45.0",
-  "private": false,
   "description": "NestJS typed config",
   "keywords": [
     "nestjs",
@@ -36,16 +35,16 @@
     "access": "public"
   },
   "scripts": {
-    "ts": "tsc --pretty -p tsconfig.json",
-    "build:esm": "tsc --pretty -p tsconfig.build-cjs.json",
-    "build:cjs": "tsc --pretty -p tsconfig.build-esm.json",
+    "ts": "run -T tsc --pretty -p tsconfig.json",
+    "build:esm": "run -T tsc --pretty -p tsconfig.build-cjs.json",
+    "build:cjs": "run -T tsc --pretty -p tsconfig.build-esm.json",
     "build": "yarn build:esm && yarn build:cjs",
     "postbuild": "rm -rf ./dist/*/*.tsbuildinfo",
-    "lint": "yarn eslint src",
-    "lint:fix": "yarn lint --fix src",
-    "test": "yarn jest",
-    "test:coverage": "yarn jest --coverage",
-    "format": "prettier --write \"./src/**/*.{ts,tsx}\"",
+    "lint": "run -T eslint src",
+    "lint:fix": "run -T eslint --fix src",
+    "test": "run -T jest",
+    "test:coverage": "run -T jest --coverage",
+    "format": "run -T prettier --write \"./src/**/*.{ts,tsx}\"",
     "clear": "rm -rf coverage && rm -rf dist && rm -f *.tsbuildinfo",
     "clear:deps": "rm -rf ./node_modules && rm -rf ./dist"
   },
@@ -53,11 +52,9 @@
     "node": ">=14.0.0"
   },
   "gitHead": "b5608910319390f9773a9d42c3cc828e8e8a1d95",
-  "dependencies": {
-    "@rnw-community/shared": "^0.45.0"
-  },
   "devDependencies": {
     "@nestjs/common": "^8.0.6",
+    "@rnw-community/shared": "^0.45.0",
     "@types/webpack-env": "^1.18.0",
     "@types/webpack-node-externals": "^2.5.3",
     "run-script-webpack-plugin": "^0.1.1",
@@ -67,6 +64,7 @@
   },
   "peerDependencies": {
     "@nestjs/common": "^8.0.6",
+    "@rnw-community/shared": "^0.45.0",
     "@swc/cli": "^0.1.57",
     "@swc/core": "^1.2.239",
     "@swc/helpers": "^0.4.7",
