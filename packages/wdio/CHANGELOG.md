@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.45.0](https://github.com/rnw-community/rnw-community/compare/v0.44.3...v0.45.0) (2022-10-14)
+
+
+### Features
+
+* **wdio:** breaking change, no auto root element definition ([#114](https://github.com/rnw-community/rnw-community/issues/114)) ([749f0a4](https://github.com/rnw-community/rnw-community/commit/749f0a4099bb02f5db650f6584226bd947427dcf))
+
+
+
+
+
 ## [0.44.3](https://github.com/rnw-community/rnw-community/compare/v0.44.2...v0.44.3) (2022-10-13)
 
 
