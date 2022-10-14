@@ -138,7 +138,8 @@ describe('RootedComponent', () => {
             Button = 'Selectors.Button',
         }
 
-        expect(() => new RootedComponent(mockDefaultConfig, SelectorsWithoutRootEnum)).toThrow(
+        // @ts-expect-error Runtime checks
+        expect(() => new RootedComponent(mockDefaultConfig, SelectorsWithoutRootEnum, undefined)).toThrow(
             'Cannot create RootedComponent - Neither root selector nor root element is passed'
         );
     });
