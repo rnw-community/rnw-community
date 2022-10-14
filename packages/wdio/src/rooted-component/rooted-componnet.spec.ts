@@ -1,4 +1,5 @@
 import { MockElement, mockDefaultConfig, mockElement } from '../element.mock';
+import { SelectorElement } from '../selector-element/selector-element';
 
 import { RootedComponentSelectorsMock } from './mocks/rooted-component-selectors.mock';
 import { RootedComponent } from './rooted-component';
@@ -96,6 +97,15 @@ describe('RootedComponent', () => {
         expect(rootedComponent.RootEl).toBe(rootEl);
     });
 
+    it('should throw error if SelectorElement was passed as Root', () => {
+        expect.assertions(1);
+
+        // @ts-expect-error Runtime check
+        expect(() => new RootedComponent(mockDefaultConfig, RootedComponentSelectorsMock, new SelectorElement())).toThrow(
+            'Cannot create RootedComponent from SelectorElement, use .el()'
+        );
+    });
+
     it('should call WDIO element method on Root element', async () => {
         expect.assertions(2);
 
@@ -133,25 +143,14 @@ describe('RootedComponent', () => {
         );
     });
 
-    it('should use Root enum selector as Component RootEl', async () => {
-        expect.assertions(2);
-
-        const component = new RootedComponent(mockDefaultConfig, RootedComponentSelectorsMock);
-
-        await component.getChildEl(RootedComponentSelectorsMock.Button);
-
-        expect(mockDefaultConfig.elSelectorFn).toHaveBeenNthCalledWith(1, RootedComponentSelectorsMock.Root);
-        expect(mockDefaultConfig.elSelectorFn).toHaveBeenNthCalledWith(
-            2,
-            RootedComponentSelectorsMock.Button,
-            expect.objectContaining({})
-        );
-    });
-
     it('should throw error on accessing not existing selector element/wdio element property', () => {
         expect.assertions(1);
 
-        const component = new RootedComponent(mockDefaultConfig, RootedComponentSelectorsMock);
+        const component = new RootedComponent(
+            mockDefaultConfig,
+            RootedComponentSelectorsMock,
+            RootedComponentSelectorsMock.Root
+        );
 
         // @ts-expect-error Test
         // eslint-disable-next-line @typescript-eslint/no-unsafe-call

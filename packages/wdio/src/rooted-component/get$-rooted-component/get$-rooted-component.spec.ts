@@ -8,7 +8,7 @@ describe('get$RootedComponent', () => {
     it('should get RootedComponent instance with selectors and $* selector functions', async () => {
         expect.assertions(5);
 
-        const component = new RootedComponent$Mock();
+        const component = new RootedComponent$Mock(RootedComponentSelectorsMock.Root);
 
         await expect(component.Button.el()).resolves.toMatchObject(mockElement);
         expect(mockDefault$Config.elSelectorFn).toHaveBeenNthCalledWith(1, RootedComponentSelectorsMock.Root);

@@ -7,7 +7,7 @@ describe('create$-rooted-component', () => {
     it('should create RootedComponent instance with selectors and $* selector functions', async () => {
         expect.assertions(3);
 
-        const component = create$RootedComponent(RootedComponentSelectorsMock);
+        const component = create$RootedComponent(RootedComponentSelectorsMock, RootedComponentSelectorsMock.Root);
 
         await expect(component.Button.el()).resolves.toMatchObject(mockElement);
         await expect(component.Button.els()).resolves.toMatchObject([mockElement]);
