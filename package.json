@@ -2,15 +2,15 @@
   "name": "rnw-community",
   "private": true,
   "workspaces": [
-      "packages/*"
+    "packages/*"
   ],
   "scripts": {
     "ts": "turbo run ts",
     "build": "turbo run build",
     "lint": "turbo run lint",
     "lint:fix": "turbo run lint:fix",
-    "test": "yarn jest",
-    "test:coverage": "yarn jest --coverage",
+    "test": "run -T jest",
+    "test:coverage": "run -T jest --coverage",
     "cpd": "yarn jscpd packages",
     "format": "turbo run format",
     "find-deadcode": "ts-prune",
@@ -27,7 +27,6 @@
     "node": ">=16.0.0"
   },
   "devDependencies": {
-    "turbo": "^1.5.5",
     "@babel/core": "^7.18.9",
     "@babel/plugin-proposal-decorators": "^7.18.9",
     "@babel/preset-env": "^7.18.9",
@@ -40,6 +39,7 @@
     "@types/node": "^18.0.6",
     "@typescript-eslint/eslint-plugin": "5.29.0",
     "@typescript-eslint/parser": "^5.30.7",
+    "caniuse-lite": "^1.0.30001370",
     "eslint": "^8.20.0",
     "eslint-config-prettier": "^8.5.0",
     "eslint-config-standard-with-typescript": "^22.0.0",
@@ -62,9 +62,10 @@
     "lint-staged": "^13.0.3",
     "prettier": "^2.7.1",
     "reflect-metadata": "^0.1.13",
+    "rimraf": "^3.0.2",
     "ts-prune": "^0.10.3",
-    "typescript": "^4.7.4",
-    "caniuse-lite": "^1.0.30001370",
-    "rimraf": "^3.0.2"
-  }
+    "turbo": "^1.5.5",
+    "typescript": "^4.7.4"
+  },
+  "packageManager": "yarn@3.2.4"
 }

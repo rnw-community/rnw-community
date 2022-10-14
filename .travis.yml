@@ -1,11 +1,10 @@
 language: node_js
 node_js:
   - "16"
-cache: yarn
 
 install:
   - npm install codecov -g
-  - yarn install --ignore-scripts --frozen-lockfile --check-files
+  - yarn install
   - yarn build
 
 script:
