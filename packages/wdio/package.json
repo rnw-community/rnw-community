@@ -27,16 +27,16 @@
     "access": "public"
   },
   "scripts": {
-    "ts": "tsc --pretty -p tsconfig.json",
+    "ts": "run -T tsc --pretty -p tsconfig.json",
     "build:esm": "tsc --pretty -p tsconfig.build-esm.json",
     "build:cjs": "tsc --pretty -p tsconfig.build-cjs.json",
     "build": "yarn build:esm && yarn build:cjs",
     "postbuild": "rm -rf ./dist/*/*.tsbuildinfo",
-    "lint": "yarn eslint src",
+    "lint": "run -T eslint src",
     "lint:fix": "yarn lint --fix src",
-    "test": "yarn jest",
-    "test:coverage": "yarn jest --coverage",
-    "format": "prettier --write \"./src/**/*.{ts,tsx}\"",
+    "test": "run -T jest",
+    "test:coverage": "run -T jest --coverage",
+    "format": "run -T prettier --write \"./src/**/*.{ts,tsx}\"",
     "clear": "rm -rf coverage && rm -rf dist && rm -f *.tsbuildinfo",
     "clear:deps": "rm -rf ./node_modules && rm -rf ./dist"
   },
