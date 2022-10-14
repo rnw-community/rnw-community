@@ -1,7 +1,6 @@
 {
   "name": "@rnw-community/nestjs-typed-config",
   "version": "0.45.0",
-  "private": false,
   "description": "NestJS typed config",
   "keywords": [
     "nestjs",
@@ -45,18 +44,17 @@
     "node": ">=14.0.0"
   },
   "gitHead": "b5608910319390f9773a9d42c3cc828e8e8a1d95",
-  "dependencies": {
-    "@rnw-community/shared": "^0.45.0"
-  },
   "devDependencies": {
     "@nestjs/common": "^8.0.6",
     "@nestjs/config": "^1.1.7",
+    "@rnw-community/shared": "^0.45.0",
     "@types/hapi__joi": "^17.1.7",
     "joi": "^17.1.1"
   },
   "peerDependencies": {
     "@nestjs/common": "^8.0.6",
     "@nestjs/config": "^1.1.7",
+    "@rnw-community/shared": "^0.45.0",
     "joi": "^17.1.1"
   }
 }

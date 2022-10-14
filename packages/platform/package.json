@@ -1,7 +1,6 @@
 {
   "name": "@rnw-community/platform",
   "version": "0.45.0",
-  "private": false,
   "description": "React native web platform utils and helpers",
   "keywords": [
     "platform utils",
@@ -29,11 +28,9 @@
   "publishConfig": {
     "access": "public"
   },
-  "dependencies": {
-    "@rnw-community/wdio": "^0.45.0"
-  },
   "peerDependencies": {
     "@react-native-async-storage/async-storage": "^1.13.4",
+    "@rnw-community/wdio": "^0.45.0",
     "react": "^17.0.2",
     "react-native": "^0.64.1",
     "react-native-config": "^1.4.2",
@@ -41,6 +38,7 @@
   },
   "devDependencies": {
     "@react-native-async-storage/async-storage": "^1.13.4",
+    "@rnw-community/wdio": "^0.45.0",
     "react-native-config": "^1.4.2",
     "redux-persist": "^6.0.0"
   },
