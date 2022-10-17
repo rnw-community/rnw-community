@@ -41,15 +41,19 @@ export { relativeClickCommand } from './command/mobile/relative-click.command';
 export { Component } from './component/component';
 export { getExtendedComponent } from './component/get-exteded-component/get-extended-component';
 export { getComponent } from './component/get-component/get-component';
-export { get$Component } from './component/get$-component/get$-component';
 export { createComponent } from './component/create-component/create-component';
-export { create$Component } from './component/create$-component/create$-component';
+
+export { getExtendedComponent$ } from './component$/get-exteded-component$/get-extended-component$';
+export { getComponent$ } from './component$/get-component$/get-component$';
+export { createComponent$ } from './component$/create-component$/create-component$';
 
 export { RootedComponent } from './rooted-component/rooted-component';
 export { getExtendedRootedComponent } from './rooted-component/get-extended-rooted-component/get-extended-rooted-component';
 export { getRootedComponent } from './rooted-component/get-rooted-component/get-rooted-component';
-export { get$RootedComponent } from './rooted-component/get$-rooted-component/get$-rooted-component';
 export { createRootedComponent } from './rooted-component/create-rooted-component/create-rooted-component';
-export { create$RootedComponent } from './rooted-component/create$-rooted-component/create$-rooted-component';
+
+export { getExtendedRootedComponent$ } from './rooted-component$/get-extended-rooted-component$/get-extended-rooted-component$';
+export { getRootedComponent$ } from './rooted-component$/get-rooted-component$/get-rooted-component$';
+export { createRootedComponent$ } from './rooted-component$/create-rooted-component$/create-rooted-component$';
 
 export { addWdioCommands } from './add-wdio-commands';

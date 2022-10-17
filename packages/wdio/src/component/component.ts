@@ -2,25 +2,15 @@ import { isDefined } from '@rnw-community/shared';
 
 import { SelectorElement } from '../selector-element/selector-element';
 
-import type { ComponentConfigInterface, ElSelectorFn, ElsIndexSelectorFn, ElsSelectorFn } from '../type';
+import type { ComponentConfigInterface } from '../type';
 import type { Enum } from '@rnw-community/shared';
 import type { ChainablePromiseArray, ChainablePromiseElement } from 'webdriverio';
 
-/*
- * TODO: Fix getLocation|getSize usage to handle both signatures through variable args array
- */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export class Component<T = any> {
-    protected elSelectorFn: ElSelectorFn;
-    protected elsSelectorFn: ElsSelectorFn;
-    protected elsIndexSelectorFn: ElsIndexSelectorFn;
     protected parentComponents: Component[] = [];
 
-    constructor(config: ComponentConfigInterface, public selectors: Enum<T>) {
-        this.elSelectorFn = config.elSelectorFn;
-        this.elsSelectorFn = config.elsSelectorFn;
-        this.elsIndexSelectorFn = config.elsIndexSelectorFn;
-
+    constructor(protected config: ComponentConfigInterface, protected selectors: Enum<T>) {
         // eslint-disable-next-line no-constructor-return
         return new Proxy(this, {
             get(client, field: string, receiver) {
@@ -34,15 +24,15 @@ export class Component<T = any> {
     }
 
     getChildEl(selector: string): ChainablePromiseElement<WebdriverIO.Element> {
-        return this.elSelectorFn(selector);
+        return this.config.elSelectorFn(selector);
     }
 
     getChildEls(selector: string): ChainablePromiseArray<WebdriverIO.ElementArray> {
-        return this.elsSelectorFn(selector);
+        return this.config.elsSelectorFn(selector);
     }
 
     getChildElByIdx(selector: string, idx: number): ChainablePromiseElement<WebdriverIO.Element> {
-        return this.elsIndexSelectorFn(selector, idx);
+        return this.config.elsIndexSelectorFn(selector, idx);
     }
 
     protected proxyGet(field: string, receiver: unknown, notFoundFn?: () => unknown): unknown {

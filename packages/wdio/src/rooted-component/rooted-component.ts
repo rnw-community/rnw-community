@@ -1,29 +1,27 @@
 import { isDefined, isNotEmptyString, isString } from '@rnw-community/shared';
 
 import { Component } from '../component/component';
-import { wdioElementChainByRef } from '../util';
 
 import type { ComponentConfigInterface, ComponentInputArg } from '../type';
 import type { Enum } from '@rnw-community/shared';
 import type { ChainablePromiseArray, ChainablePromiseElement } from 'webdriverio';
 
-// TODO: All Root should have all methods from wdio element, can we do this through the proxy?
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export class RootedComponent<T = any> extends Component<T> {
-    protected readonly parentElInput: ComponentInputArg;
-
-    constructor(config: ComponentConfigInterface, public override selectors: Enum<T>, selectorOrElement: ComponentInputArg) {
-        if (!isDefined(selectorOrElement)) {
+    constructor(config: ComponentConfigInterface, selectors: Enum<T>, protected readonly parentElInput: ComponentInputArg) {
+        if (!isDefined(parentElInput)) {
             throw new Error('Cannot create RootedComponent - Neither root selector nor root element is passed');
         }
 
-        if (!isString(selectorOrElement) && 'els' in selectorOrElement) {
+        if (!isString(parentElInput) && 'els' in parentElInput) {
             throw new Error('Cannot create RootedComponent from SelectorElement, use .el()');
         }
 
-        super(config, selectors);
+        if (!isString(parentElInput) && 'elementId' in parentElInput) {
+            throw new Error('Cannot create RootedComponent from WebdriverIO.Element, use ChainablePromiseElement instead');
+        }
 
-        this.parentElInput = selectorOrElement;
+        super(config, selectors);
 
         // eslint-disable-next-line no-constructor-return
         return new Proxy(this, {
@@ -31,7 +29,7 @@ export class RootedComponent<T = any> extends Component<T> {
                 return client.proxyGet(field, receiver, () => {
                     if (!['then', 'catch', 'finally'].includes(field)) {
                         // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-                        return Reflect.get(client.getRootEl(), field, receiver);
+                        return Reflect.get(client.RootEl, field, receiver);
                     }
 
                     // eslint-disable-next-line @typescript-eslint/no-unsafe-return
@@ -42,34 +40,18 @@ export class RootedComponent<T = any> extends Component<T> {
     }
 
     get RootEl(): ChainablePromiseElement<WebdriverIO.Element> {
-        return this.getRootEl();
+        if (isNotEmptyString(this.parentElInput)) {
+            return this.config.elSelectorFn(this.parentElInput);
+        }
+
+        return this.parentElInput;
     }
 
     override getChildEl(selector: string): ChainablePromiseElement<WebdriverIO.Element> {
-        return this.getRootEl().then(rootEl =>
-            this.elSelectorFn(selector, rootEl)
-        ) as ChainablePromiseElement<WebdriverIO.Element>;
+        return this.config.elSelectorFn(selector, this.RootEl);
     }
 
     override getChildEls(selector: string): ChainablePromiseArray<WebdriverIO.ElementArray> {
-        return this.getRootEl().then(rootEl =>
-            this.elsSelectorFn(selector, rootEl)
-        ) as ChainablePromiseArray<WebdriverIO.ElementArray>;
-    }
-
-    override getChildElByIdx(selector: string, idx: number): ChainablePromiseElement<WebdriverIO.Element> {
-        return this.getRootEl().then(rootEl =>
-            this.elsIndexSelectorFn(selector, idx, rootEl)
-        ) as ChainablePromiseElement<WebdriverIO.Element>;
-    }
-
-    private getRootEl(): ChainablePromiseElement<WebdriverIO.Element> {
-        if (isNotEmptyString(this.parentElInput)) {
-            return this.elSelectorFn(this.parentElInput);
-        } else if ('then' in this.parentElInput) {
-            return this.parentElInput;
-        }
-
-        return wdioElementChainByRef(this.parentElInput);
+        return this.config.elsSelectorFn(selector, this.RootEl);
     }
 }

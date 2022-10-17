@@ -68,6 +68,24 @@ export class MockElement<T> extends Promise<T> {
     getAttribute() {
         return Promise.resolve('');
     }
+
+    testID$() {
+        return MockElement.resolve(mockElement);
+    }
+
+    testID$$() {
+        return MockElement.resolve([mockElement]);
+    }
+
+    // eslint-disable-next-line id-length
+    $() {
+        return MockElement.resolve(mockElement);
+    }
+
+    // eslint-disable-next-line id-length
+    $$() {
+        return MockElement.resolve([mockElement]);
+    }
 }
 
 const elImplementation = (): ChainablePromiseElement<WebdriverIO.Element> =>
@@ -90,6 +108,3 @@ jest.mock('./config/default$-component.config', () => ({ default$ComponentConfig
 jest.mock('./config/default-component.config', () => ({ defaultComponentConfig: () => mockDefaultConfig }));
 jest.mock('./command/el.command', () => ({ el$: jest.fn(elImplementation) }));
 jest.mock('./command/els.command', () => ({ els$: jest.fn(elsImplementation) }));
-jest.mock('./util/wdio-element-chain-by-ref/wdio-element-chain-by-ref.util', () => ({
-    wdioElementChainByRef: jest.fn(elImplementation),
-}));
