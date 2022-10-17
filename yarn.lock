@@ -4129,7 +4129,7 @@ __metadata:
   resolution: "@rnw-community/platform@workspace:packages/platform"
   dependencies:
     "@react-native-async-storage/async-storage": ^1.13.4
-    "@rnw-community/wdio": ^0.46.1
+    "@rnw-community/wdio": ^0.46.3
     react-native-config: ^1.4.2
     redux-persist: ^6.0.0
   peerDependencies:
@@ -4167,11 +4167,12 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@rnw-community/wdio@^0.46.1, @rnw-community/wdio@workspace:packages/wdio":
+"@rnw-community/wdio@^0.46.3, @rnw-community/wdio@workspace:packages/wdio":
   version: 0.0.0-use.local
   resolution: "@rnw-community/wdio@workspace:packages/wdio"
   dependencies:
     "@rnw-community/shared": ^0.46.0
+    "@wdio/protocols": ^7.20.6
     "@wdio/types": ^7.20.7
     expect-type: ^0.13.0
     webdriverio: ^7.20.7
@@ -5089,6 +5090,13 @@ __metadata:
   version: 7.20.6
   resolution: "@wdio/protocols@npm:7.20.6"
   checksum: e1425802eddd76b53cbf72f117c7c94d885f5c84d661a4cace605eb74cb048d249ff1df8f6663a53cf10773b9dec6cbee0f789aad5d9a97267ba1d5efaae7679
+  languageName: node
+  linkType: hard
+
+"@wdio/protocols@npm:^7.20.6":
+  version: 7.22.0
+  resolution: "@wdio/protocols@npm:7.22.0"
+  checksum: 5cc69f90032c4264dfb727007053c8f101ca50918f05cf1abf58f9a017dccade4e2e6fdaf5dc816901de8cf33e0cac14ff500858c193215631c82169f52d457b
   languageName: node
   linkType: hard
 
