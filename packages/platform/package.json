@@ -1,6 +1,6 @@
 {
   "name": "@rnw-community/platform",
-  "version": "0.46.1",
+  "version": "0.46.3",
   "description": "React native web platform utils and helpers",
   "keywords": [
     "platform utils",
@@ -38,7 +38,7 @@
   },
   "devDependencies": {
     "@react-native-async-storage/async-storage": "^1.13.4",
-    "@rnw-community/wdio": "^0.46.1",
+    "@rnw-community/wdio": "^0.46.3",
     "react-native-config": "^1.4.2",
     "redux-persist": "^6.0.0"
   },

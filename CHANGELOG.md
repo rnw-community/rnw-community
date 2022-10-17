@@ -3,6 +3,20 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.46.3](https://github.com/rnw-community/rnw-community/compare/v0.46.2...v0.46.3) (2022-10-17)
+
+
+### Bug Fixes
+
+* fixed deps ([11713ad](https://github.com/rnw-community/rnw-community/commit/11713ad72ca2ea6f61bd38445ab8c2f4a2e24134))
+* fixed deps ([f63a49e](https://github.com/rnw-community/rnw-community/commit/f63a49e7518850b1bc0e0d16877094553fab6ef9))
+* **wdio:** fixed RootedComponentWithSelectorsCtor type to have mandatory root selector ([64c725c](https://github.com/rnw-community/rnw-community/commit/64c725c2a22c68c0fbf72f837bffe38d89d97e7c))
+* **wdio:** fixed RootedComponentWithSelectorsCtor type to have mandatory root selector ([8109687](https://github.com/rnw-community/rnw-community/commit/8109687703cef106b51a1ca3fb0666f21008ca33))
+
+
+
+
+
 ## [0.46.2](https://github.com/rnw-community/rnw-community/compare/v0.46.1...v0.46.2) (2022-10-17)
 
 
