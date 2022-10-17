@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.46.2](https://github.com/rnw-community/rnw-community/compare/v0.46.1...v0.46.2) (2022-10-17)
+
+
+### Bug Fixes
+
+* fixed deps ([84339e6](https://github.com/rnw-community/rnw-community/commit/84339e65cf848951336982f96ec123294cd61b1c))
+
+
+
+
+
 # [0.46.0](https://github.com/rnw-community/rnw-community/compare/v0.45.0...v0.46.0) (2022-10-14)
 
 
