@@ -7,9 +7,9 @@ declare module 'webdriverio' {
         relativeClick: (xPercent: number, yPercent: number) => Promise<void>;
         slowInput: (value: string, delay?: number) => Promise<void>;
         swipe: (direction: SwipeDirectionType, offset = { x: 0, y: 0 }) => Promise<void>;
-        testID$: (testID: string) => ChainablePromiseElement<Element>;
+        testID$: (testID: string) => ChainablePromiseElement<T>;
         testID$$: (testID: string) => ChainablePromiseArray<ElementArray>;
-        testID$$Index: (testID: string, idx: number) => ChainablePromiseElement<Element>;
+        testID$$Index: (testID: string, idx: number) => ChainablePromiseElement<T | undefined>;
     }
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars

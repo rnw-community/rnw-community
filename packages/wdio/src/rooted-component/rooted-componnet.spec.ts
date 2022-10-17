@@ -6,8 +6,6 @@ import { RootedComponent } from './rooted-component';
 
 import type { ChainablePromiseElement } from 'webdriverio';
 
-const fakeRootEl = { ...mockElement, iamRoot: true } as unknown as WebdriverIO.Element;
-
 // eslint-disable-next-line max-lines-per-function,max-statements
 describe('RootedComponent', () => {
     it('should return wdio element by selector in Root element using getChildEl', async () => {
@@ -46,27 +44,6 @@ describe('RootedComponent', () => {
         );
     });
 
-    it('should return nth wdio element in Root by selector using getChildElByIdx', async () => {
-        expect.assertions(3);
-
-        const rootedComponent = new RootedComponent(
-            mockDefaultConfig,
-            RootedComponentSelectorsMock,
-            RootedComponentSelectorsMock.Root
-        );
-
-        await expect(rootedComponent.getChildElByIdx(RootedComponentSelectorsMock.Button, 1)).resolves.toMatchObject(
-            mockElement
-        );
-        expect(mockDefaultConfig.elSelectorFn).toHaveBeenNthCalledWith(1, RootedComponentSelectorsMock.Root);
-        expect(mockDefaultConfig.elsIndexSelectorFn).toHaveBeenNthCalledWith(
-            1,
-            RootedComponentSelectorsMock.Button,
-            1,
-            expect.objectContaining({})
-        );
-    });
-
     it('should return Root wdio element by constructor selector', async () => {
         expect.assertions(2);
 
@@ -80,21 +57,13 @@ describe('RootedComponent', () => {
         expect(mockDefaultConfig.elSelectorFn).toHaveBeenNthCalledWith(1, RootedComponentSelectorsMock.Root);
     });
 
-    it('should create Root wdio element chain from constructor wdio element', async () => {
+    it('should throw error if wdio element passed as Root', () => {
         expect.assertions(1);
 
-        const rootedComponent = new RootedComponent(mockDefaultConfig, RootedComponentSelectorsMock, fakeRootEl);
-
-        await expect(rootedComponent.RootEl).resolves.toMatchObject(mockElement);
-    });
-
-    it('should return Root wdio element from constructor ChainablePromiseElement wdio element', () => {
-        expect.assertions(1);
-
-        const rootEl = Promise.resolve(fakeRootEl) as ChainablePromiseElement<WebdriverIO.Element>;
-        const rootedComponent = new RootedComponent(mockDefaultConfig, RootedComponentSelectorsMock, rootEl);
-
-        expect(rootedComponent.RootEl).toBe(rootEl);
+        // @ts-expect-error Runtime check
+        expect(() => new RootedComponent(mockDefaultConfig, RootedComponentSelectorsMock, { elementId: 'test' })).toThrow(
+            'Cannot create RootedComponent from WebdriverIO.Element, use ChainablePromiseElement instead'
+        );
     });
 
     it('should throw error if SelectorElement was passed as Root', () => {
@@ -118,8 +87,7 @@ describe('RootedComponent', () => {
         const el = MockElement.resolve(mockElement) as ChainablePromiseElement<WebdriverIO.Element>;
         const elementMethodSpy = jest.spyOn(el, 'click');
 
-        // @ts-expect-error Spy on private method
-        const getRootElSpy = jest.spyOn(rootedComponent, 'getRootEl');
+        const getRootElSpy = jest.spyOn(rootedComponent, 'RootEl', 'get');
         getRootElSpy.mockImplementation(() => el);
 
         const args = [{ button: 1 }];

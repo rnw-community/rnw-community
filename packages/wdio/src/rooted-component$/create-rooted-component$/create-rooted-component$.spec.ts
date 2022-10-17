@@ -1,13 +1,13 @@
 import { mockElement } from '../../element.mock';
-import { RootedComponentSelectorsMock } from '../mocks/rooted-component-selectors.mock';
+import { RootedComponentSelectorsMock } from '../../rooted-component/mocks/rooted-component-selectors.mock';
 
-import { create$RootedComponent } from './create$-rooted-component';
+import { createRootedComponent$ } from './create-rooted-component$';
 
-describe('create$-rooted-component', () => {
+describe('createRootedComponent$', () => {
     it('should create RootedComponent instance with selectors and $* selector functions', async () => {
         expect.assertions(3);
 
-        const component = create$RootedComponent(RootedComponentSelectorsMock, RootedComponentSelectorsMock.Root);
+        const component = createRootedComponent$(RootedComponentSelectorsMock, RootedComponentSelectorsMock.Root);
 
         await expect(component.Button.el()).resolves.toMatchObject(mockElement);
         await expect(component.Button.els()).resolves.toMatchObject([mockElement]);
