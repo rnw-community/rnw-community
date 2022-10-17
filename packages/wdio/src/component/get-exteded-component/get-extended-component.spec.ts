@@ -55,16 +55,6 @@ describe('getExtendedComponent', () => {
         expect(getChildElsSpy).toHaveBeenCalledWith(ComponentSelectorsMock.Button);
     });
 
-    it('should get nth wdio element by selector using method byIdx', async () => {
-        expect.assertions(2);
-
-        const component = new ComponentMock();
-        const getChildElByIdxSpy = jest.spyOn(component, 'getChildElByIdx');
-
-        await expect(component.Button.byIdx(1)).resolves.toMatchObject(mockElement);
-        expect(getChildElByIdxSpy).toHaveBeenCalledWith(ComponentSelectorsMock.Button, 1);
-    });
-
     it('should add selectors enum methods for clicking element using click', async () => {
         expect.assertions(2);
 

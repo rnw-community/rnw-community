@@ -21,13 +21,4 @@ describe('Component', () => {
         await component.getChildEls('test-selector');
         expect(mockDefaultConfig.elsSelectorFn).toHaveBeenCalledWith('test-selector');
     });
-
-    it('should return nth wdio element by selector using getChildElByIdx', async () => {
-        expect.assertions(1);
-
-        const component = new Component(mockDefaultConfig, ComponentSelectorsMock);
-
-        await component.getChildElByIdx('test-selector', 1);
-        expect(mockDefaultConfig.elsIndexSelectorFn).toHaveBeenCalledWith('test-selector', 1);
-    });
 });
