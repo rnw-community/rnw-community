@@ -1,4 +1,5 @@
-import { testID$, testID$$, testID$$Index } from '../command';
+import { testID$, testID$$ } from '../command';
+import { testID$$Index } from '../command/test-id-index.command';
 
 import type { ComponentConfigInterface } from '../type';
 

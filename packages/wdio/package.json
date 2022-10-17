@@ -48,7 +48,8 @@
     "@rnw-community/shared": "^0.46.0",
     "@wdio/types": "^7.20.7",
     "expect-type": "^0.13.0",
-    "webdriverio": "^7.20.7"
+    "webdriverio": "^7.20.7",
+    "@wdio/protocols": "^7.20.6"
   },
   "peerDependencies": {
     "@rnw-community/shared": "^0.45.0",

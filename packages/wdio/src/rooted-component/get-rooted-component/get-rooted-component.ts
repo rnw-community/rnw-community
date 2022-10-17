@@ -1,10 +1,7 @@
-import { defaultComponentConfig } from '../../config/default-component.config';
 import { getExtendedRootedComponent } from '../get-extended-rooted-component/get-extended-rooted-component';
 import { RootedComponent } from '../rooted-component';
 
-import type { ComponentConfigInterface, RootedComponentWithSelectorsCtor } from '../../type';
+import type { RootedComponentWithSelectorsCtor } from '../../type';
 
-export const getRootedComponent = <T>(
-    selectors: T,
-    config: ComponentConfigInterface = defaultComponentConfig()
-): RootedComponentWithSelectorsCtor<T> => getExtendedRootedComponent(selectors, RootedComponent, config);
+export const getRootedComponent = <T>(selectors: T): RootedComponentWithSelectorsCtor<T> =>
+    getExtendedRootedComponent(selectors, RootedComponent);
