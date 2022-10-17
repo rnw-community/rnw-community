@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.46.1](https://github.com/rnw-community/rnw-community/compare/v0.46.0...v0.46.1) (2022-10-17)
+
+
+### Bug Fixes
+
+* **wdio:** fixed root el selector ([#118](https://github.com/rnw-community/rnw-community/issues/118)) ([3fd4e00](https://github.com/rnw-community/rnw-community/commit/3fd4e00c1edf1aaf5f4c976b093d4655f9c66b1a))
+
+
+
+
+
 # [0.46.0](https://github.com/rnw-community/rnw-community/compare/v0.45.0...v0.46.0) (2022-10-14)
 
 
