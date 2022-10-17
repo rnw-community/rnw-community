@@ -4119,6 +4119,8 @@ __metadata:
   resolution: "@rnw-community/object-field-tree@workspace:packages/object-field-tree"
   dependencies:
     "@rnw-community/shared": ^0.46.0
+  peerDependencies:
+    "@rnw-community/shared": ^0.46.0
   languageName: unknown
   linkType: soft
 
