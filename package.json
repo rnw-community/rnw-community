@@ -14,7 +14,7 @@
     "cpd": "yarn jscpd packages",
     "format": "turbo run format",
     "find-deadcode": "ts-prune",
-    "ci": "yarn build && yarn ts && yarn lint && yarn find-deadcode && yarn cpd && yarn test:coverage",
+    "ci": "yarn lint && yarn build && yarn find-deadcode && yarn cpd && yarn test:coverage",
     "clear": "turbo run clear",
     "deps:clear": "turbo run clear:deps && yarn deps:clear:root",
     "deps:clear:root": "rm -rf ./node_modules",
