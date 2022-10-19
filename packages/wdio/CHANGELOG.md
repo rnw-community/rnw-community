@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.47.0](https://github.com/rnw-community/rnw-community/compare/v0.46.4...v0.47.0) (2022-10-19)
+
+
+### Features
+
+* **wdio:** getExtendedComponent  predefined default root selector from the selectors enum ([#120](https://github.com/rnw-community/rnw-community/issues/120)) ([f6d19d6](https://github.com/rnw-community/rnw-community/commit/f6d19d64554ec311b47f84222fbcf857d3d56a76))
+
+
+
+
+
 ## [0.46.4](https://github.com/rnw-community/rnw-community/compare/v0.46.3...v0.46.4) (2022-10-17)
 
 **Note:** Version bump only for package @rnw-community/wdio
