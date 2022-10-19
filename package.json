@@ -19,7 +19,7 @@
     "deps:clear": "turbo run clear:deps && yarn deps:clear:root",
     "deps:clear:root": "rm -rf ./node_modules",
     "postinstall": "yarn build",
-    "preversion": "yarn format",
+    "prepublish": "yarn format",
     "version": "git add -A packages",
     "postversion": "git push && git push --tags"
   },
