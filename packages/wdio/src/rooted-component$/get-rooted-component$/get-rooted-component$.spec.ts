@@ -1,5 +1,6 @@
 import { mockDefault$Config, mockDefaultConfig, mockElement } from '../../element.mock';
 import { RootedComponentSelectorsMock } from '../../rooted-component/mocks/rooted-component-selectors.mock';
+import { DefaultRootRootedComponent$Mock } from '../mocks/default-root-rooted-component$.mock';
 import { RootedComponent$SelectorsMock } from '../mocks/rooted-component$-selectors.mock';
 import { RootedComponent$Mock } from '../mocks/rooted-component$.mock';
 import { RootedExtendedComponent$SelectorsMock } from '../mocks/rooted-extended-component$-selectors.mock';
@@ -76,5 +77,13 @@ describe('getRootedComponent$', () => {
             RootedComponentSelectorsMock.Button,
             expect.objectContaining({})
         );
+    });
+
+    it('can have default root selector from the selectors enum', async () => {
+        expect.assertions(1);
+
+        const component = new DefaultRootRootedComponent$Mock();
+        await component.waitForDisplayed({ reverse: true });
+        expect(mockDefault$Config.elSelectorFn).toHaveBeenNthCalledWith(1, RootedComponent$SelectorsMock.Root$);
     });
 });
