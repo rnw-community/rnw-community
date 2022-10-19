@@ -1,10 +1,12 @@
 import { mockDefaultConfig, mockElement } from '../../element.mock';
+import { DefaultRootRootedExtendedComponentMock } from '../mocks/default-root-rooted-extended-component.mock';
 import { RootedComponentSelectorsMock } from '../mocks/rooted-component-selectors.mock';
 import { RootedComponentMock } from '../mocks/rooted-component.mock';
 import { RootedExtendedComponentMock } from '../mocks/rooted-extended-component.mock';
 import { RootedOverrideComponentMock } from '../mocks/rooted-override-component.mock';
 import { RootedParentComponentSelectorsMock } from '../mocks/rooted-parent-component-selectors.mock';
 
+// eslint-disable-next-line max-lines-per-function
 describe('getExtendedRootedComponent', () => {
     it('should return RootEl using getter', async () => {
         expect.assertions(2);
@@ -115,5 +117,13 @@ describe('getExtendedRootedComponent', () => {
         const awaitedComponent = await asyncFn();
 
         await expect(awaitedComponent.Button.el()).resolves.toBe(mockElement);
+    });
+
+    it('can have default root selector from the selectors enum', async () => {
+        expect.assertions(1);
+
+        const component = new DefaultRootRootedExtendedComponentMock();
+        await component.waitForDisplayed({ reverse: true });
+        expect(mockDefaultConfig.elSelectorFn).toHaveBeenCalledWith(RootedComponentSelectorsMock.CustomRoot);
     });
 });

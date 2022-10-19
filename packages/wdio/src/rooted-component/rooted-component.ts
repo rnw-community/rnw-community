@@ -8,7 +8,9 @@ import type { ChainablePromiseArray, ChainablePromiseElement } from 'webdriverio
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export class RootedComponent<T = any> extends Component<T> {
-    constructor(config: ComponentConfigInterface, selectors: Enum<T>, protected readonly parentElInput: ComponentInputArg) {
+    protected readonly parentElInput: ComponentInputArg;
+
+    constructor(config: ComponentConfigInterface, selectors: Enum<T>, parentElInput: ComponentInputArg | undefined) {
         if (!isDefined(parentElInput)) {
             throw new Error('Cannot create RootedComponent - Neither root selector nor root element is passed');
         }
@@ -22,6 +24,8 @@ export class RootedComponent<T = any> extends Component<T> {
         }
 
         super(config, selectors);
+
+        this.parentElInput = parentElInput;
 
         // eslint-disable-next-line no-constructor-return
         return new Proxy(this, {
