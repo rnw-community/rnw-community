@@ -57,13 +57,13 @@ describe('RootedComponent', () => {
         expect(mockDefaultConfig.elSelectorFn).toHaveBeenNthCalledWith(1, RootedComponentSelectorsMock.Root);
     });
 
-    it('should throw error if wdio element passed as Root', () => {
+    it('should throw error if ChainablePromiseElement/Promise is passed as Root', () => {
         expect.assertions(1);
 
-        // @ts-expect-error Runtime check
-        expect(() => new RootedComponent(mockDefaultConfig, RootedComponentSelectorsMock, { elementId: 'test' })).toThrow(
-            'Cannot create RootedComponent from WebdriverIO.Element, use ChainablePromiseElement instead'
-        );
+        expect(
+            // @ts-expect-error Runtime check
+            () => new RootedComponent(mockDefaultConfig, RootedComponentSelectorsMock, Promise.resolve(mockElement))
+        ).toThrow('Cannot create RootedComponent from ChainablePromiseElement, use string selector or WebdriverIO.Element');
     });
 
     it('should throw error if SelectorElement was passed as Root', () => {
