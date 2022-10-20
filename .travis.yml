@@ -19,7 +19,7 @@ after_success:
 
 deploy:
   - provider: script
-    script: npx lerna publish --yes --conventional-commits --create-release=github
+    script: npx lerna publish --yes --conventional-commits --create-release=github && git push && git push --tags
     skip_cleanup: true
     keep_history: true
     on:

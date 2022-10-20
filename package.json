@@ -20,8 +20,7 @@
     "deps:clear:root": "rm -rf ./node_modules",
     "postinstall": "yarn build",
     "prepublish": "yarn format",
-    "version": "git add -A packages",
-    "postversion": "git push && git push --tags"
+    "version": "git add -A packages"
   },
   "engines": {
     "node": ">=16.0.0"
