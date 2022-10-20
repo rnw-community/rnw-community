@@ -4129,7 +4129,7 @@ __metadata:
   resolution: "@rnw-community/platform@workspace:packages/platform"
   dependencies:
     "@react-native-async-storage/async-storage": ^1.13.4
-    "@rnw-community/wdio": ^0.46.3
+    "@rnw-community/wdio": ^0.46.4
     react-native-config: ^1.4.2
     redux-persist: ^6.0.0
   peerDependencies:
@@ -4167,7 +4167,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@rnw-community/wdio@^0.46.3, @rnw-community/wdio@workspace:packages/wdio":
+"@rnw-community/wdio@^0.46.4, @rnw-community/wdio@workspace:packages/wdio":
   version: 0.0.0-use.local
   resolution: "@rnw-community/wdio@workspace:packages/wdio"
   dependencies:
