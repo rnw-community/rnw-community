@@ -35,6 +35,22 @@ export class Component<T = any> {
         return this.config.elsIndexSelectorFn(selector, idx);
     }
 
+    async getComponentFromEls<E>(
+        selector: string,
+        predicateFn: (component: E) => Promise<boolean>,
+        componentFn: (el: WebdriverIO.Element) => Promise<E> = el => Promise.resolve(el as unknown as E)
+    ): Promise<E> {
+        for await (const el of await this.getChildEls(selector)) {
+            const component = await componentFn(el);
+
+            if (await predicateFn(component)) {
+                return component;
+            }
+        }
+
+        throw new Error(`Failed finding component from elements array "${selector}"`);
+    }
+
     protected proxyGet(field: string, receiver: unknown, notFoundFn?: () => unknown): unknown {
         if (Reflect.has(this, field)) {
             // eslint-disable-next-line @typescript-eslint/no-unsafe-return
