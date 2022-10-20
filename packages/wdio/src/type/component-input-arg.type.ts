@@ -1,3 +1,1 @@
-import type { ChainablePromiseElement } from 'webdriverio';
-
-export type ComponentInputArg = ChainablePromiseElement<WebdriverIO.Element> | string;
+export type ComponentInputArg = WebdriverIO.Element | string;

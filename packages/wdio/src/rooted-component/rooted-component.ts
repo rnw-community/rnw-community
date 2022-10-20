@@ -19,8 +19,10 @@ export class RootedComponent<T = any> extends Component<T> {
             throw new Error('Cannot create RootedComponent from SelectorElement, use .el()');
         }
 
-        if (!isString(parentElInput) && 'elementId' in parentElInput) {
-            throw new Error('Cannot create RootedComponent from WebdriverIO.Element, use ChainablePromiseElement instead');
+        if (!isString(parentElInput) && 'then' in parentElInput) {
+            throw new Error(
+                'Cannot create RootedComponent from ChainablePromiseElement, use string selector or WebdriverIO.Element'
+            );
         }
 
         super(config, selectors);
@@ -48,7 +50,7 @@ export class RootedComponent<T = any> extends Component<T> {
             return this.config.elSelectorFn(this.parentElInput);
         }
 
-        return this.parentElInput;
+        return $(this.parentElInput);
     }
 
     override getChildEl(selector: string): ChainablePromiseElement<WebdriverIO.Element> {
