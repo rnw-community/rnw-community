@@ -37,8 +37,8 @@ export class Component<T = any> {
 
     async getComponentFromEls<E>(
         selector: string,
-        predicateFn: (component: E) => Promise<boolean>,
-        componentFn: (el: WebdriverIO.Element) => Promise<E> = el => Promise.resolve(el as unknown as E)
+        componentFn: (el: WebdriverIO.Element) => Promise<E>,
+        predicateFn: (component: E) => Promise<boolean>
     ): Promise<E> {
         for await (const el of await this.getChildEls(selector)) {
             const component = await componentFn(el);
