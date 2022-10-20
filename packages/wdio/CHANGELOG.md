@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.48.0](https://github.com/rnw-community/rnw-community/compare/v0.47.0...v0.48.0) (2022-10-20)
+
+
+### Features
+
+* **wdio:** added getComponentFromEls ([#123](https://github.com/rnw-community/rnw-community/issues/123)) ([b02f54f](https://github.com/rnw-community/rnw-community/commit/b02f54f5b6dda1a68cb156a7c006a5e88da76af3))
+* **wdio:** disabled using Promise as RootedComponent RootEl ([#121](https://github.com/rnw-community/rnw-community/issues/121)) ([36b4e65](https://github.com/rnw-community/rnw-community/commit/36b4e6565a65617df9cdbe92627920727cdb132a))
+
+
+
+
+
 # [0.47.0](https://github.com/rnw-community/rnw-community/compare/v0.46.4...v0.47.0) (2022-10-19)
 
 
