@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.48.1](https://github.com/rnw-community/rnw-community/compare/v0.48.0...v0.48.1) (2022-11-03)
+
+
+### Bug Fixes
+
+* **wdio:** rooted component getting selector element by index ([#124](https://github.com/rnw-community/rnw-community/issues/124)) ([875eb2f](https://github.com/rnw-community/rnw-community/commit/875eb2f95beae8932a8e4e4e8c5bd9ce4aee0f3c))
+
+
+
+
+
 # [0.48.0](https://github.com/rnw-community/rnw-community/compare/v0.47.0...v0.48.0) (2022-10-20)
 
 
