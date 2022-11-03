@@ -60,4 +60,8 @@ export class RootedComponent<T = any> extends Component<T> {
     override getChildEls(selector: string): ChainablePromiseArray<WebdriverIO.ElementArray> {
         return this.config.elsSelectorFn(selector, this.RootEl);
     }
+
+    override getChildElByIdx(selector: string, idx: number): ChainablePromiseElement<WebdriverIO.Element> {
+        return this.config.elsIndexSelectorFn(selector, idx, this.RootEl);
+    }
 }

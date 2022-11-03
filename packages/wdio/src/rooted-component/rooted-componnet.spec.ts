@@ -44,6 +44,25 @@ describe('RootedComponent', () => {
         );
     });
 
+    it('should get wdio element by index through the Root by selector using getChildElsByIndex', async () => {
+        expect.assertions(3);
+
+        const rootedComponent = new RootedComponent(
+            mockDefaultConfig,
+            RootedComponentSelectorsMock,
+            RootedComponentSelectorsMock.Root
+        );
+
+        await expect(rootedComponent.getChildElByIdx(RootedComponentSelectorsMock.Button, 1)).resolves.toBe(mockElement);
+        expect(mockDefaultConfig.elSelectorFn).toHaveBeenNthCalledWith(1, RootedComponentSelectorsMock.Root);
+        expect(mockDefaultConfig.elsIndexSelectorFn).toHaveBeenNthCalledWith(
+            1,
+            RootedComponentSelectorsMock.Button,
+            1,
+            expect.objectContaining({})
+        );
+    });
+
     it('should return Root wdio element by constructor selector', async () => {
         expect.assertions(2);
 
