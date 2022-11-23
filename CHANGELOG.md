@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.48.2](https://github.com/rnw-community/rnw-community/compare/v0.48.1...v0.48.2) (2022-11-23)
+
+
+### Bug Fixes
+
+* **nestjs-rxjs-metrics:** fixed types ([#125](https://github.com/rnw-community/rnw-community/issues/125)) ([893db3c](https://github.com/rnw-community/rnw-community/commit/893db3cc4dd1ac6edd53f55cf607ee653e477fd3))
+
+
+
+
+
 ## [0.48.1](https://github.com/rnw-community/rnw-community/compare/v0.48.0...v0.48.1) (2022-11-03)
 
 
