@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/explicit-function-return-type,class-methods-use-this,@typescript-eslint/explicit-module-boundary-types */
 import type { ComponentConfigInterface } from './type';
-import type { ChainablePromiseArray, ChainablePromiseElement } from 'webdriverio';
+import type { ChainablePromiseArray, ChainablePromiseElement, Element, ElementArray } from 'webdriverio';
 import './wdio.mock';
 
 // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
@@ -15,7 +15,7 @@ export const mockElement = {
     setValue: jest.fn(() => Promise.resolve(void 0)),
     getLocation: jest.fn(() => Promise.resolve({ x: 0, y: 0 })),
     getSize: jest.fn(() => Promise.resolve({ width: 0, height: 0 })),
-} as unknown as WebdriverIO.Element;
+} as unknown as Element;
 
 export class MockElement<T> extends Promise<T> {
     click() {
@@ -89,10 +89,10 @@ export class MockElement<T> extends Promise<T> {
     }
 }
 
-const elImplementation = (): ChainablePromiseElement<WebdriverIO.Element> =>
-    MockElement.resolve(mockElement) as ChainablePromiseElement<WebdriverIO.Element>;
-const elsImplementation = (): ChainablePromiseArray<WebdriverIO.ElementArray> =>
-    Promise.resolve([mockElement]) as unknown as ChainablePromiseArray<WebdriverIO.ElementArray>;
+const elImplementation = (): ChainablePromiseElement<Element> =>
+    MockElement.resolve(mockElement) as ChainablePromiseElement<Element>;
+const elsImplementation = (): ChainablePromiseArray<ElementArray> =>
+    Promise.resolve([mockElement]) as unknown as ChainablePromiseArray<ElementArray>;
 
 export const mockDefaultConfig: ComponentConfigInterface = {
     elSelectorFn: jest.fn(elImplementation),
