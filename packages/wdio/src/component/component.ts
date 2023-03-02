@@ -4,7 +4,7 @@ import { SelectorElement } from '../selector-element/selector-element';
 
 import type { ComponentConfigInterface } from '../type';
 import type { Enum } from '@rnw-community/shared';
-import type { ChainablePromiseArray, ChainablePromiseElement } from 'webdriverio';
+import type { ChainablePromiseArray, ChainablePromiseElement, Element, ElementArray } from 'webdriverio';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export class Component<T = any> {
@@ -23,21 +23,21 @@ export class Component<T = any> {
         this.parentComponents.push(component);
     }
 
-    getChildEl(selector: string): ChainablePromiseElement<WebdriverIO.Element> {
+    getChildEl(selector: string): ChainablePromiseElement<Element> {
         return this.config.elSelectorFn(selector);
     }
 
-    getChildEls(selector: string): ChainablePromiseArray<WebdriverIO.ElementArray> {
+    getChildEls(selector: string): ChainablePromiseArray<ElementArray> {
         return this.config.elsSelectorFn(selector);
     }
 
-    getChildElByIdx(selector: string, idx: number): ChainablePromiseElement<WebdriverIO.Element> {
+    getChildElByIdx(selector: string, idx: number): ChainablePromiseElement<Element> {
         return this.config.elsIndexSelectorFn(selector, idx);
     }
 
     async getComponentFromEls<E>(
         selector: string,
-        componentFn: (el: WebdriverIO.Element) => Promise<E>,
+        componentFn: (el: Element) => Promise<E>,
         predicateFn: (component: E) => Promise<boolean>
     ): Promise<E> {
         for await (const el of await this.getChildEls(selector)) {

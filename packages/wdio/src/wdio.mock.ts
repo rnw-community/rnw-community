@@ -1,5 +1,5 @@
 /* eslint-disable */
-import type { ChainablePromiseArray, ChainablePromiseElement } from 'webdriverio';
+import type { ChainablePromiseArray, ChainablePromiseElement, Element, ElementArray } from 'webdriverio';
 
 // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
 export const mockWdioElement = {
@@ -14,23 +14,18 @@ export const mockWdioElement = {
     setValue: jest.fn(() => Promise.resolve(void 0)),
     getLocation: jest.fn(() => Promise.resolve({ x: 0, y: 0 })),
     getSize: jest.fn(() => Promise.resolve({ width: 0, height: 0 })),
-} as unknown as WebdriverIO.Element;
+} as unknown as Element;
 
-global.$ = jest
-    .fn()
-    .mockImplementation(() => Promise.resolve(mockWdioElement) as unknown as ChainablePromiseElement<WebdriverIO.Element>);
-
-global.$$ = jest
-    .fn()
-    .mockImplementation(
-        () => Promise.resolve([mockWdioElement]) as unknown as ChainablePromiseArray<WebdriverIO.ElementArray>
-    );
-
-// @ts-ignore
-global.browser = {
-    $: jest.fn(() => Promise.resolve(mockWdioElement) as unknown as ChainablePromiseElement<WebdriverIO.Element>),
-    $$: jest.fn(() => Promise.resolve([mockWdioElement]) as unknown as ChainablePromiseArray<WebdriverIO.ElementArray>),
-    capabilities: {
-        browserName: 'test-browser-name',
+jest.mock('@wdio/globals', () => ({
+    $: jest.fn().mockImplementation(() => Promise.resolve(mockWdioElement) as unknown as ChainablePromiseElement<Element>),
+    $$: jest
+        .fn()
+        .mockImplementation(() => Promise.resolve([mockWdioElement]) as unknown as ChainablePromiseArray<ElementArray>),
+    browser: {
+        $: jest.fn(() => Promise.resolve(mockWdioElement) as unknown as ChainablePromiseElement<Element>),
+        $$: jest.fn(() => Promise.resolve([mockWdioElement]) as unknown as ChainablePromiseArray<ElementArray>),
+        capabilities: {
+            browserName: 'test-browser-name',
+        },
     },
-};
+}));

@@ -1,3 +1,5 @@
+import { browser } from '@wdio/globals';
+
 import { isNotEmptyString } from '@rnw-community/shared';
 
 import { testIDSelector } from '../selector';

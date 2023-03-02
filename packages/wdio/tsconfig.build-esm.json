@@ -1,7 +1,7 @@
 {
     "extends": "../../tsconfig.build-esm.json",
     "compilerOptions": {
-        "types": ["node", "webdriverio/async"],
+        "types": ["node"],
         "outDir": "./dist/esm"
     },
     "include": [
