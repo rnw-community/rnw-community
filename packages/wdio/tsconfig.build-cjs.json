@@ -1,7 +1,7 @@
 {
     "extends": "../../tsconfig.build-cjs.json",
     "compilerOptions": {
-        "types": ["node", "webdriverio/async"],
+        "types": ["node"],
         "outDir": "./dist/cjs"
     },
     "include": [

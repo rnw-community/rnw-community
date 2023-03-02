@@ -1,4 +1,4 @@
-declare namespace WebdriverIO {
+declare namespace webdriverio {
     import type { SwipeDirectionType } from './type';
     import type { ChainablePromiseArray, ChainablePromiseElement } from 'webdriverio';
 

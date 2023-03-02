@@ -1,10 +1,12 @@
+import { $ } from '@wdio/globals';
+
 import { isDefined, isNotEmptyString, isString } from '@rnw-community/shared';
 
 import { Component } from '../component/component';
 
 import type { ComponentConfigInterface, ComponentInputArg } from '../type';
 import type { Enum } from '@rnw-community/shared';
-import type { ChainablePromiseArray, ChainablePromiseElement } from 'webdriverio';
+import type { ChainablePromiseArray, ChainablePromiseElement, Element, ElementArray } from 'webdriverio';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export class RootedComponent<T = any> extends Component<T> {
@@ -20,9 +22,7 @@ export class RootedComponent<T = any> extends Component<T> {
         }
 
         if (!isString(parentElInput) && 'then' in parentElInput) {
-            throw new Error(
-                'Cannot create RootedComponent from ChainablePromiseElement, use string selector or WebdriverIO.Element'
-            );
+            throw new Error('Cannot create RootedComponent from ChainablePromiseElement, use string selector or Element');
         }
 
         super(config, selectors);
@@ -45,7 +45,7 @@ export class RootedComponent<T = any> extends Component<T> {
         });
     }
 
-    get RootEl(): ChainablePromiseElement<WebdriverIO.Element> {
+    get RootEl(): ChainablePromiseElement<Element> {
         if (isNotEmptyString(this.parentElInput)) {
             return this.config.elSelectorFn(this.parentElInput);
         }
@@ -53,15 +53,15 @@ export class RootedComponent<T = any> extends Component<T> {
         return $(this.parentElInput);
     }
 
-    override getChildEl(selector: string): ChainablePromiseElement<WebdriverIO.Element> {
+    override getChildEl(selector: string): ChainablePromiseElement<Element> {
         return this.config.elSelectorFn(selector, this.RootEl);
     }
 
-    override getChildEls(selector: string): ChainablePromiseArray<WebdriverIO.ElementArray> {
+    override getChildEls(selector: string): ChainablePromiseArray<ElementArray> {
         return this.config.elsSelectorFn(selector, this.RootEl);
     }
 
-    override getChildElByIdx(selector: string, idx: number): ChainablePromiseElement<WebdriverIO.Element> {
+    override getChildElByIdx(selector: string, idx: number): ChainablePromiseElement<Element> {
         return this.config.elsIndexSelectorFn(selector, idx, this.RootEl);
     }
 }
