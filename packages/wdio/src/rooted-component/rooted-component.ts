@@ -5,14 +5,13 @@ import { isDefined, isNotEmptyString, isString } from '@rnw-community/shared';
 import { Component } from '../component/component';
 
 import type { ComponentConfigInterface, ComponentInputArg } from '../type';
-import type { Enum } from '@rnw-community/shared';
 import type { ChainablePromiseArray, ChainablePromiseElement, Element, ElementArray } from 'webdriverio';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export class RootedComponent<T = any> extends Component<T> {
     protected readonly parentElInput: ComponentInputArg;
 
-    constructor(config: ComponentConfigInterface, selectors: Enum<T>, parentElInput: ComponentInputArg | undefined) {
+    constructor(config: ComponentConfigInterface, selectors: T, parentElInput: ComponentInputArg | undefined) {
         if (!isDefined(parentElInput)) {
             throw new Error('Cannot create RootedComponent - Neither root selector nor root element is passed');
         }

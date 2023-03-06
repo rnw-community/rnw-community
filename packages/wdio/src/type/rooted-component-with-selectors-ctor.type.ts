@@ -1,6 +1,6 @@
-import type { RootedComponent } from '../rooted-component/rooted-component';
 import type { ComponentInputArg } from './component-input-arg.type';
 import type { RootedComponentWithSelectors } from './rooted-component-with-selectors.type';
+import type { RootedComponent } from '../rooted-component/rooted-component';
 
 export type RootedComponentCtorWithoutDefaultRootSelector<T, Parent extends RootedComponent<T> = RootedComponent<T>> = new (
     selectorOrElement: ComponentInputArg
