@@ -3,14 +3,13 @@ import { isDefined } from '@rnw-community/shared';
 import { SelectorElement } from '../selector-element/selector-element';
 
 import type { ComponentConfigInterface } from '../type';
-import type { Enum } from '@rnw-community/shared';
 import type { ChainablePromiseArray, ChainablePromiseElement, Element, ElementArray } from 'webdriverio';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export class Component<T = any> {
     protected parentComponents: Component[] = [];
 
-    constructor(protected config: ComponentConfigInterface, protected selectors: Enum<T>) {
+    constructor(protected config: ComponentConfigInterface, protected selectors: T) {
         // eslint-disable-next-line no-constructor-return
         return new Proxy(this, {
             get(client, field: string, receiver) {
@@ -57,7 +56,7 @@ export class Component<T = any> {
             return Reflect.get(this, field, receiver);
         }
 
-        const selector = this.selectors[field] as unknown as string;
+        const selector = (this.selectors as Record<string, T>)[field] as unknown as string;
         if (isDefined(selector)) {
             return new SelectorElement(this, selector);
         }

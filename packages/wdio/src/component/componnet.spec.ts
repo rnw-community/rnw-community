@@ -30,7 +30,7 @@ describe('Component', () => {
         const componentFn = jest.fn();
         const predicateFn = jest.fn();
 
-        componentFn.mockImplementation(() => Promise.resolve(mockElement));
+        componentFn.mockResolvedValue(mockElement);
         predicateFn.mockImplementation(() => true);
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         const result = await component.getComponentFromEls(ComponentSelectorsMock.Button, componentFn, predicateFn);
@@ -46,7 +46,7 @@ describe('Component', () => {
         const componentFn = jest.fn();
         const predicateFn = jest.fn();
 
-        componentFn.mockImplementation(() => Promise.resolve(mockElement));
+        componentFn.mockResolvedValue(mockElement);
         predicateFn.mockImplementation(() => false);
 
         await expect(component.getComponentFromEls(ComponentSelectorsMock.Button, componentFn, predicateFn)).rejects.toThrow(
