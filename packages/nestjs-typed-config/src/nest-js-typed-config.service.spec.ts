@@ -4,9 +4,19 @@ import { ConfigService as NestConfigService } from '@nestjs/config';
 
 import { NestJSTypedConfigService } from './nest-js-typed-config.service';
 
-// eslint-disable-next-line @typescript-eslint/no-unsafe-return
-jest.mock('@nestjs/common', () => ({ ...jest.requireActual('@nestjs/common'), Logger: { debug: jest.fn() } }));
-jest.mock('@nestjs/config', () => ({ ConfigService: jest.fn().mockImplementation(() => ({ get: jest.fn() })) }));
+// eslint-disable-next-line jest/no-untyped-mock-factory
+jest.mock('@nestjs/common', () => {
+    const actual = jest.requireActual<typeof import('@nestjs/common')>('@nestjs/common');
+
+    return {
+        ...actual,
+        Logger: { ...actual.Logger, debug: jest.fn() },
+    };
+});
+jest.mock<typeof import('@nestjs/config')>('@nestjs/config', () => ({
+    ...jest.requireActual<typeof import('@nestjs/config')>('@nestjs/config'),
+    ConfigService: jest.fn().mockImplementation(() => ({ get: jest.fn() })),
+}));
 
 enum EnvironmentVariablesEnum {
     ENV_VARIABLE = 'ENV_VARIABLE',
