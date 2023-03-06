@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.49.1](https://github.com/rnw-community/rnw-community/compare/v0.49.0...v0.49.1) (2023-03-06)
+
+**Note:** Version bump only for package @rnw-community/nestjs-rxjs-redis
+
+
+
+
+
 # [0.49.0](https://github.com/rnw-community/rnw-community/compare/v0.48.2...v0.49.0) (2023-03-02)
 
 **Note:** Version bump only for package @rnw-community/nestjs-rxjs-redis
