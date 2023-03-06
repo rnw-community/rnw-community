@@ -25,333 +25,315 @@ const getRedisService = (redisClient?: Partial<Pick<IORedis.Redis, 'del' | 'get'
 
 // eslint-disable-next-line max-lines-per-function,max-statements
 describe('NestJSRxJSRedisService', () => {
-    it('get$ operation should create observable', () =>
-        new Promise(resolve => {
-            expect.assertions(2);
+    it('get$ operation should create observable', done => {
+        expect.assertions(2);
 
-            const get = jest.fn().mockResolvedValue(redisValue);
-            const redisService = getRedisService({ get });
-            const redis = new NestJSRxJSRedisService(redisService);
+        const get = jest.fn().mockResolvedValue(redisValue);
+        const redisService = getRedisService({ get });
+        const redis = new NestJSRxJSRedisService(redisService);
 
-            redis.get$(redisKey).subscribe(data => {
-                expect(get).toHaveBeenCalledWith(redisKey);
-                expect(data).toStrictEqual(redisValue);
-                resolve(true);
-            });
-        }));
+        redis.get$(redisKey).subscribe(data => {
+            expect(get).toHaveBeenCalledWith(redisKey);
+            expect(data).toStrictEqual(redisValue);
+            done();
+        });
+    });
 
-    it('get$ operation when redis clinet returns null', () =>
-        new Promise(resolve => {
-            expect.assertions(2);
+    it('get$ operation when redis clinet returns null', done => {
+        expect.assertions(2);
 
-            const get = jest.fn().mockResolvedValue(null);
-            const redisService = getRedisService({ get });
-            const redis = new NestJSRxJSRedisService(redisService);
+        const get = jest.fn().mockResolvedValue(null);
+        const redisService = getRedisService({ get });
+        const redis = new NestJSRxJSRedisService(redisService);
 
-            redis.get$(redisKey).subscribe({
-                next: emptyFn,
-                error(error: unknown) {
-                    expect(get).toHaveBeenCalledWith(redisKey);
-                    expect(getErrorMessage(error)).toBe(`Error getting ${redisKey} from redis`);
-                    resolve(true);
-                },
-            });
-        }));
-
-    it('get$ operation when redis client throws error', () =>
-        new Promise(resolve => {
-            expect.assertions(2);
-
-            const get = jest.fn().mockRejectedValue(null);
-            const redisService = getRedisService({ get });
-            const redis = new NestJSRxJSRedisService(redisService);
-
-            redis.get$(redisKey).subscribe(emptyFn, (error: unknown) => {
+        redis.get$(redisKey).subscribe({
+            next: emptyFn,
+            error(error: unknown) {
                 expect(get).toHaveBeenCalledWith(redisKey);
                 expect(getErrorMessage(error)).toBe(`Error getting ${redisKey} from redis`);
-                resolve(true);
-            });
-        }));
+                done();
+            },
+        });
+    });
 
-    it('set$ operation should create observable', () =>
-        new Promise(resolve => {
-            expect.assertions(2);
+    it('get$ operation when redis client throws error', done => {
+        expect.assertions(2);
 
-            const set = jest.fn().mockResolvedValue('OK');
-            const redisService = getRedisService({ set });
-            const redis = new NestJSRxJSRedisService(redisService);
+        const get = jest.fn().mockRejectedValue(null);
+        const redisService = getRedisService({ get });
+        const redis = new NestJSRxJSRedisService(redisService);
 
-            redis.set$(redisKey, redisValue, 1).subscribe(data => {
+        redis.get$(redisKey).subscribe(emptyFn, (error: unknown) => {
+            expect(get).toHaveBeenCalledWith(redisKey);
+            expect(getErrorMessage(error)).toBe(`Error getting ${redisKey} from redis`);
+            done();
+        });
+    });
+
+    it('set$ operation should create observable', done => {
+        expect.assertions(2);
+
+        const set = jest.fn().mockResolvedValue('OK');
+        const redisService = getRedisService({ set });
+        const redis = new NestJSRxJSRedisService(redisService);
+
+        redis.set$(redisKey, redisValue, 1).subscribe(data => {
+            expect(set).toHaveBeenCalledWith(redisKey, redisValue, 'EX', 1);
+            expect(data).toBe(true);
+            done();
+        });
+    });
+
+    it('set$ operation when redis client returns not OK', done => {
+        expect.assertions(2);
+
+        const set = jest.fn().mockResolvedValue('FAIL');
+        const redisService = getRedisService({ set });
+        const redis = new NestJSRxJSRedisService(redisService);
+
+        redis.set$(redisKey, redisValue, 1).subscribe({
+            next: emptyFn,
+            error(error: unknown) {
                 expect(set).toHaveBeenCalledWith(redisKey, redisValue, 'EX', 1);
-                expect(data).toBe(true);
-                resolve(true);
-            });
-        }));
+                expect(getErrorMessage(error)).toBe(`Error setting ${redisKey} to redis`);
+                done();
+            },
+        });
+    });
 
-    it('set$ operation when redis client returns not OK', () =>
-        new Promise(resolve => {
-            expect.assertions(2);
+    it('set$ operation when redis client throws error', done => {
+        expect.assertions(2);
 
-            const set = jest.fn().mockResolvedValue('FAIL');
-            const redisService = getRedisService({ set });
-            const redis = new NestJSRxJSRedisService(redisService);
+        const set = jest.fn().mockRejectedValue('FAIL');
+        const redisService = getRedisService({ set });
+        const redis = new NestJSRxJSRedisService(redisService);
 
-            redis.set$(redisKey, redisValue, 1).subscribe({
-                next: emptyFn,
-                error(error: unknown) {
-                    expect(set).toHaveBeenCalledWith(redisKey, redisValue, 'EX', 1);
-                    expect(getErrorMessage(error)).toBe(`Error setting ${redisKey} to redis`);
-                    resolve(true);
-                },
-            });
-        }));
+        redis.set$(redisKey, redisValue, 1).subscribe({
+            next: emptyFn,
+            error(error: unknown) {
+                expect(set).toHaveBeenCalledWith(redisKey, redisValue, 'EX', 1);
+                expect(getErrorMessage(error)).toBe(`Error setting ${redisKey} to redis`);
+                done();
+            },
+        });
+    });
 
-    it('set$ operation when redis client throws error', () =>
-        new Promise(resolve => {
-            expect.assertions(2);
+    it('del$ operation should create observable', done => {
+        expect.assertions(2);
 
-            const set = jest.fn().mockRejectedValue('FAIL');
-            const redisService = getRedisService({ set });
-            const redis = new NestJSRxJSRedisService(redisService);
+        const del = jest.fn().mockResolvedValue(1);
+        const redisService = getRedisService({ del });
+        const redis = new NestJSRxJSRedisService(redisService);
 
-            redis.set$(redisKey, redisValue, 1).subscribe({
-                next: emptyFn,
-                error(error: unknown) {
-                    expect(set).toHaveBeenCalledWith(redisKey, redisValue, 'EX', 1);
-                    expect(getErrorMessage(error)).toBe(`Error setting ${redisKey} to redis`);
-                    resolve(true);
-                },
-            });
-        }));
+        redis.del$(redisKey).subscribe(data => {
+            expect(del).toHaveBeenCalledWith(redisKey);
+            expect(data).toBe(1);
+            done();
+        });
+    });
 
-    it('del$ operation should create observable', () =>
-        new Promise(resolve => {
-            expect.assertions(2);
+    it('del$ operation when redis client throws error', done => {
+        expect.assertions(2);
 
-            const del = jest.fn().mockResolvedValue(1);
-            const redisService = getRedisService({ del });
-            const redis = new NestJSRxJSRedisService(redisService);
+        const del = jest.fn().mockRejectedValue(0);
+        const redisService = getRedisService({ del });
+        const redis = new NestJSRxJSRedisService(redisService);
 
-            redis.del$(redisKey).subscribe(data => {
+        redis.del$(redisKey).subscribe({
+            next: emptyFn,
+            error(error: unknown) {
                 expect(del).toHaveBeenCalledWith(redisKey);
-                expect(data).toBe(1);
-                resolve(true);
+                expect(getErrorMessage(error)).toBe(`Error deleting ${redisKey} from redis`);
+                done();
+            },
+        });
+    });
+
+    it('mget$ operation should create observable', done => {
+        expect.assertions(2);
+
+        const mget = jest.fn().mockResolvedValue([redisValue]);
+        const redisService = getRedisService({ mget });
+        const redis = new NestJSRxJSRedisService(redisService);
+
+        redis.mget$([redisKey]).subscribe(data => {
+            expect(mget).toHaveBeenCalledWith(expect.arrayContaining([redisKey]));
+            expect(data).toStrictEqual({ [redisKey]: redisValue });
+            done();
+        });
+    });
+
+    it('save operator', done => {
+        expect.assertions(3);
+
+        const stringRedisValue = `"${redisValue}"`;
+
+        const set = jest.fn().mockResolvedValue('OK');
+        const redisService = getRedisService({ set });
+        const redis = new NestJSRxJSRedisService(redisService);
+
+        // TODO: Check error function
+        const errorFn = jest.fn().mockReturnValue('Error');
+        const toValueFn = jest.fn().mockReturnValue(stringRedisValue);
+
+        of(redisValue)
+            .pipe(redis.save(() => redisKey, 1, errorFn, toValueFn))
+            .subscribe(data => {
+                expect(toValueFn).toHaveBeenCalledWith(redisValue);
+                expect(set).toHaveBeenCalledWith(redisKey, stringRedisValue, 'EX', 1);
+                expect(data).toStrictEqual(redisValue);
+                done();
             });
-        }));
+    });
 
-    it('del$ operation when redis client throws error', () =>
-        new Promise(resolve => {
-            expect.assertions(2);
+    it('save operator default value JSON.stringify', done => {
+        expect.assertions(2);
 
-            const del = jest.fn().mockRejectedValue(0);
-            const redisService = getRedisService({ del });
-            const redis = new NestJSRxJSRedisService(redisService);
+        const stringRedisValue = `"${redisValue}"`;
 
-            redis.del$(redisKey).subscribe({
-                next: emptyFn,
-                error(error: unknown) {
-                    expect(del).toHaveBeenCalledWith(redisKey);
-                    expect(getErrorMessage(error)).toBe(`Error deleting ${redisKey} from redis`);
-                    resolve(true);
-                },
+        const set = jest.fn().mockResolvedValue('OK');
+        const redisService = getRedisService({ set });
+        const redis = new NestJSRxJSRedisService(redisService);
+
+        of(redisValue)
+            .pipe(redis.save(() => redisKey, 1))
+            .subscribe(data => {
+                expect(set).toHaveBeenCalledWith(redisKey, stringRedisValue, 'EX', 1);
+                expect(data).toStrictEqual(redisValue);
+                done();
             });
-        }));
+    });
 
-    it('mget$ operation should create observable', () =>
-        new Promise(resolve => {
-            expect.assertions(2);
+    it('load operator', done => {
+        expect.assertions(3);
 
-            const mget = jest.fn().mockResolvedValue([redisValue]);
-            const redisService = getRedisService({ mget });
-            const redis = new NestJSRxJSRedisService(redisService);
+        const stringRedisValue = `"${redisValue}"`;
 
-            redis.mget$([redisKey]).subscribe(data => {
-                expect(mget).toHaveBeenCalledWith(expect.arrayContaining([redisKey]));
-                expect(data).toStrictEqual({ [redisKey]: redisValue });
-                resolve(true);
+        const get = jest.fn().mockResolvedValue(redisValue);
+        const redisService = getRedisService({ get });
+        const redis = new NestJSRxJSRedisService(redisService);
+
+        const keyFn = (key: string): string => `${key}-modified`;
+        const errorFn = jest.fn().mockReturnValue('Error');
+        const fromValueFn = jest.fn().mockReturnValue(stringRedisValue);
+
+        of(redisKey)
+            .pipe(redis.load(keyFn, errorFn, fromValueFn))
+            .subscribe(data => {
+                expect(get).toHaveBeenCalledWith(keyFn(redisKey));
+                expect(fromValueFn).toHaveBeenCalledWith(redisValue, 0);
+                expect(data).toStrictEqual(stringRedisValue);
+                done();
             });
-        }));
+    });
 
-    it('save operator', () =>
-        new Promise(resolve => {
-            expect.assertions(3);
+    it('load operator default value JSON.parse', done => {
+        expect.assertions(2);
 
-            const stringRedisValue = `"${redisValue}"`;
+        const get = jest.fn().mockResolvedValue(JSON.stringify(redisValue));
+        const redisService = getRedisService({ get });
+        const redis = new NestJSRxJSRedisService(redisService);
 
-            const set = jest.fn().mockResolvedValue('OK');
-            const redisService = getRedisService({ set });
-            const redis = new NestJSRxJSRedisService(redisService);
+        of(redisKey)
+            .pipe(redis.load())
+            .subscribe(data => {
+                expect(get).toHaveBeenCalledWith(redisKey);
+                expect(data).toStrictEqual(redisValue);
+                done();
+            });
+    });
 
-            // TODO: Check error function
-            const errorFn = jest.fn().mockReturnValue('Error');
-            const toValueFn = jest.fn().mockReturnValue(stringRedisValue);
+    it('remove operator', done => {
+        expect.assertions(2);
 
-            of(redisValue)
-                .pipe(redis.save(() => redisKey, 1, errorFn, toValueFn))
-                .subscribe(data => {
-                    expect(toValueFn).toHaveBeenCalledWith(redisValue);
-                    expect(set).toHaveBeenCalledWith(redisKey, stringRedisValue, 'EX', 1);
-                    expect(data).toStrictEqual(redisValue);
-                    resolve(true);
-                });
-        }));
+        const del = jest.fn().mockResolvedValue(1);
+        const redis = new NestJSRxJSRedisService(getRedisService({ del }));
 
-    it('save operator default value JSON.stringify', () =>
-        new Promise(resolve => {
-            expect.assertions(2);
+        const keyFn = (key: string): string => `${key}-modified`;
+        const errorFn = jest.fn().mockReturnValue('Error');
 
-            const stringRedisValue = `"${redisValue}"`;
+        of(redisKey)
+            .pipe(redis.remove(keyFn, errorFn))
+            .subscribe(data => {
+                expect(del).toHaveBeenCalledWith(keyFn(redisKey));
+                expect(data).toStrictEqual(redisKey);
+                done();
+            });
+    });
 
-            const set = jest.fn().mockResolvedValue('OK');
-            const redisService = getRedisService({ set });
-            const redis = new NestJSRxJSRedisService(redisService);
+    it('remove operator with default value from stream', done => {
+        expect.assertions(2);
 
-            of(redisValue)
-                .pipe(redis.save(() => redisKey, 1))
-                .subscribe(data => {
-                    expect(set).toHaveBeenCalledWith(redisKey, stringRedisValue, 'EX', 1);
-                    expect(data).toStrictEqual(redisValue);
-                    resolve(true);
-                });
-        }));
+        const del = jest.fn().mockResolvedValue(1);
+        const redis = new NestJSRxJSRedisService(getRedisService({ del }));
 
-    it('load operator', () =>
-        new Promise(resolve => {
-            expect.assertions(3);
+        of(redisKey)
+            .pipe(redis.remove())
+            .subscribe(data => {
+                expect(del).toHaveBeenCalledWith(redisKey);
+                expect(data).toStrictEqual(redisKey);
+                done();
+            });
+    });
 
-            const stringRedisValue = `"${redisValue}"`;
+    it('cache operator load existing value', done => {
+        expect.assertions(3);
 
-            const get = jest.fn().mockResolvedValue(redisValue);
-            const redisService = getRedisService({ get });
-            const redis = new NestJSRxJSRedisService(redisService);
+        const stringRedisValue = `"${redisValue}"`;
 
-            const keyFn = (key: string): string => `${key}-modified`;
-            const errorFn = jest.fn().mockReturnValue('Error');
-            const fromValueFn = jest.fn().mockReturnValue(stringRedisValue);
+        const get = jest.fn().mockResolvedValue(redisValue);
+        const redisService = getRedisService({ get });
+        const redis = new NestJSRxJSRedisService(redisService);
 
-            of(redisKey)
-                .pipe(redis.load(keyFn, errorFn, fromValueFn))
-                .subscribe(data => {
-                    expect(get).toHaveBeenCalledWith(keyFn(redisKey));
-                    expect(fromValueFn).toHaveBeenCalledWith(redisValue, 0);
-                    expect(data).toStrictEqual(stringRedisValue);
-                    resolve(true);
-                });
-        }));
+        const keyFn = (key: string): string => `${key}-modified`;
+        const toValueFn = jest.fn().mockReturnValue(stringRedisValue);
 
-    it('load operator default value JSON.parse', () =>
-        new Promise(resolve => {
-            expect.assertions(2);
+        of(redisKey)
+            .pipe(redis.cache(1, () => of(redisValue), keyFn, toValueFn))
+            .subscribe(data => {
+                expect(get).toHaveBeenCalledWith(keyFn(redisKey));
+                expect(data).toStrictEqual(stringRedisValue);
+                expect(toValueFn).toHaveBeenCalledWith(redisValue, 0);
+                done();
+            });
+    });
 
-            const get = jest.fn().mockResolvedValue(JSON.stringify(redisValue));
-            const redisService = getRedisService({ get });
-            const redis = new NestJSRxJSRedisService(redisService);
+    it('cache operator load existing value with default handlers', done => {
+        expect.assertions(2);
 
-            of(redisKey)
-                .pipe(redis.load())
-                .subscribe(data => {
-                    expect(get).toHaveBeenCalledWith(redisKey);
-                    expect(data).toStrictEqual(redisValue);
-                    resolve(true);
-                });
-        }));
+        const get = jest.fn().mockResolvedValue(redisValue);
+        const redisService = getRedisService({ get });
+        const redis = new NestJSRxJSRedisService(redisService);
 
-    it('remove operator', () =>
-        new Promise(resolve => {
-            expect.assertions(2);
+        of(redisKey)
+            .pipe(redis.cache(1, () => of(redisValue)))
+            .subscribe(data => {
+                expect(get).toHaveBeenCalledWith(redisKey);
+                expect(data).toStrictEqual(redisValue);
+                done();
+            });
+    });
 
-            const del = jest.fn().mockResolvedValue(1);
-            const redis = new NestJSRxJSRedisService(getRedisService({ del }));
+    it('cache operator prepare and save value', done => {
+        expect.assertions(3);
 
-            const keyFn = (key: string): string => `${key}-modified`;
-            const errorFn = jest.fn().mockReturnValue('Error');
+        const stringRedisValue = `"${redisValue}"`;
 
-            of(redisKey)
-                .pipe(redis.remove(keyFn, errorFn))
-                .subscribe(data => {
-                    expect(del).toHaveBeenCalledWith(keyFn(redisKey));
-                    expect(data).toStrictEqual(redisKey);
-                    resolve(true);
-                });
-        }));
+        const set = jest.fn().mockResolvedValue('OK');
+        const get = jest.fn().mockRejectedValue('');
+        const redis = new NestJSRxJSRedisService(getRedisService({ get, set }));
 
-    it('remove operator with default value from stream', () =>
-        new Promise(resolve => {
-            expect.assertions(2);
+        const keyFn = (key: string): string => `${key}-modified`;
+        const fromValueFn = jest.fn().mockReturnValue(stringRedisValue);
+        const toValueFn = jest.fn().mockReturnValue(stringRedisValue);
 
-            const del = jest.fn().mockResolvedValue(1);
-            const redis = new NestJSRxJSRedisService(getRedisService({ del }));
-
-            of(redisKey)
-                .pipe(redis.remove())
-                .subscribe(data => {
-                    expect(del).toHaveBeenCalledWith(redisKey);
-                    expect(data).toStrictEqual(redisKey);
-                    resolve(true);
-                });
-        }));
-
-    it('cache operator load existing value', () =>
-        new Promise(resolve => {
-            expect.assertions(3);
-
-            const stringRedisValue = `"${redisValue}"`;
-
-            const get = jest.fn().mockResolvedValue(redisValue);
-            const redisService = getRedisService({ get });
-            const redis = new NestJSRxJSRedisService(redisService);
-
-            const keyFn = (key: string): string => `${key}-modified`;
-            const toValueFn = jest.fn().mockReturnValue(stringRedisValue);
-
-            of(redisKey)
-                .pipe(redis.cache(1, () => of(redisValue), keyFn, toValueFn))
-                .subscribe(data => {
-                    expect(get).toHaveBeenCalledWith(keyFn(redisKey));
-                    expect(data).toStrictEqual(stringRedisValue);
-                    expect(toValueFn).toHaveBeenCalledWith(redisValue, 0);
-                    resolve(true);
-                });
-        }));
-
-    it('cache operator load existing value with default handlers', () =>
-        new Promise(resolve => {
-            expect.assertions(2);
-
-            const get = jest.fn().mockResolvedValue(redisValue);
-            const redisService = getRedisService({ get });
-            const redis = new NestJSRxJSRedisService(redisService);
-
-            of(redisKey)
-                .pipe(redis.cache(1, () => of(redisValue)))
-                .subscribe(data => {
-                    expect(get).toHaveBeenCalledWith(redisKey);
-                    expect(data).toStrictEqual(redisValue);
-                    resolve(true);
-                });
-        }));
-
-    it('cache operator prepare and save value', () =>
-        new Promise(resolve => {
-            expect.assertions(3);
-
-            const stringRedisValue = `"${redisValue}"`;
-
-            const set = jest.fn().mockResolvedValue('OK');
-            const get = jest.fn().mockRejectedValue('');
-            const redis = new NestJSRxJSRedisService(getRedisService({ get, set }));
-
-            const keyFn = (key: string): string => `${key}-modified`;
-            const fromValueFn = jest.fn().mockReturnValue(stringRedisValue);
-            const toValueFn = jest.fn().mockReturnValue(stringRedisValue);
-
-            of(redisKey)
-                .pipe(redis.cache(1, () => of(redisValue), keyFn, toValueFn, fromValueFn))
-                .subscribe(data => {
-                    expect(set).toHaveBeenCalledWith(keyFn(redisKey), stringRedisValue, 'EX', 1);
-                    expect(data).toStrictEqual(redisValue);
-                    expect(fromValueFn).toHaveBeenCalledWith(redisValue);
-                    resolve(true);
-                });
-        }));
+        of(redisKey)
+            .pipe(redis.cache(1, () => of(redisValue), keyFn, toValueFn, fromValueFn))
+            .subscribe(data => {
+                expect(set).toHaveBeenCalledWith(keyFn(redisKey), stringRedisValue, 'EX', 1);
+                expect(data).toStrictEqual(redisValue);
+                expect(fromValueFn).toHaveBeenCalledWith(redisValue);
+                done();
+            });
+    });
 });

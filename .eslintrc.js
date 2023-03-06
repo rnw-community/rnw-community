@@ -236,6 +236,7 @@ module.exports = {
         'prefer-named-capture-group': 'off',
         'jest/prefer-lowercase-title': ['error', { ignore: ['describe'] }],
         'jest/max-expects': 'off',
+        'jest/no-untyped-mock-factory': 'off',
     },
     overrides: [{ files: '*.d.ts', rules: { 'init-declarations': 'off' } }],
     settings: {
