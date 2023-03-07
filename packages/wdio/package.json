@@ -52,7 +52,8 @@
     "webdriverio": "^8.5.1"
   },
   "peerDependencies": {
-    "@rnw-community/shared": "^0.45.0",
+    "@rnw-community/shared": "^0.49.0",
+    "@wdio/globals": "^8.5.1",
     "webdriverio": "^8.5.1"
   }
 }
