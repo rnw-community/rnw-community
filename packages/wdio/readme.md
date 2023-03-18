@@ -258,6 +258,27 @@ describe('Card', () => {
     });
 });
 ```
+#### card.spec.ts
+```ts
+import { Card } from './card.component';
+
+describe('Card', () => {
+    it('should find component', async () => {
+        const card = new Card();
+        const cards = await card.els();
+        await expect(cards).toHaveLength(3);
+
+        const lastCard = await card.byIdx(2);
+        await expect(lastCard.Root).toBeDisplayed();
+        await expect(lastCard.Text).toHaveText('Card 3');
+        // no need to use lastCard.CloseButton.click();
+        await lastCard.close();
+        await expect(card.els()).resolves.toHaveLength(2);
+    });
+});
+```
+
+
 ### getRootedComponent
 
 `getRootedComponent` is a helper function to get wdio component class with testID support and root element
