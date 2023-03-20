@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.50.0](https://github.com/rnw-community/rnw-community/compare/v0.49.2...v0.50.0) (2023-03-20)
+
+
+### Features
+
+* update readme, add usage and recommendations ([#131](https://github.com/rnw-community/rnw-community/issues/131)) ([c5e8659](https://github.com/rnw-community/rnw-community/commit/c5e86594ffd9a3ff13f7443090f6c452798ce324))
+
+
+
+
+
 ## [0.49.2](https://github.com/rnw-community/rnw-community/compare/v0.49.1...v0.49.2) (2023-03-07)
 
 **Note:** Version bump only for package @rnw-community/wdio
