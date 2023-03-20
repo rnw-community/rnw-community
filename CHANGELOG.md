@@ -3,6 +3,23 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.50.0](https://github.com/rnw-community/rnw-community/compare/v0.49.2...v0.50.0) (2023-03-20)
+
+
+### Bug Fixes
+
+* update yarn.lock ([#134](https://github.com/rnw-community/rnw-community/issues/134)) ([56db726](https://github.com/rnw-community/rnw-community/commit/56db726ca3b55ac08d037ceabe063ba57a1c08c3))
+
+
+### Features
+
+* add getDefined util ([#133](https://github.com/rnw-community/rnw-community/issues/133)) ([98aceb1](https://github.com/rnw-community/rnw-community/commit/98aceb1c86697c88c3395b61e037bf835d6d6b5b))
+* update readme, add usage and recommendations ([#131](https://github.com/rnw-community/rnw-community/issues/131)) ([c5e8659](https://github.com/rnw-community/rnw-community/commit/c5e86594ffd9a3ff13f7443090f6c452798ce324))
+
+
+
+
+
 ## [0.49.2](https://github.com/rnw-community/rnw-community/compare/v0.49.1...v0.49.2) (2023-03-07)
 
 **Note:** Version bump only for package rnw-community

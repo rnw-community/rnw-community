@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.50.0](https://github.com/rnw-community/rnw-community/compare/v0.49.2...v0.50.0) (2023-03-20)
+
+
+### Features
+
+* add getDefined util ([#133](https://github.com/rnw-community/rnw-community/issues/133)) ([98aceb1](https://github.com/rnw-community/rnw-community/commit/98aceb1c86697c88c3395b61e037bf835d6d6b5b))
+
+
+
+
+
 # [0.49.0](https://github.com/rnw-community/rnw-community/compare/v0.48.2...v0.49.0) (2023-03-02)
 
 **Note:** Version bump only for package @rnw-community/shared
