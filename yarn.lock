@@ -16109,7 +16109,11 @@ __metadata:
     reflect-metadata: ^0.1.13
     rimraf: ^3.0.2
     ts-prune: ^0.10.3
-    turbo: ^1.5.5
+    turbo: ^1.8.4
+    turbo-darwin-64: ^1.8.4
+    turbo-darwin-arm64: ^1.8.4
+    turbo-linux-64: ^1.8.4
+    turbo-linux-arm64: ^1.8.4
     typescript: ^4.9.5
   languageName: unknown
   linkType: soft
@@ -17636,58 +17640,62 @@ __metadata:
   languageName: node
   linkType: hard
 
-"turbo-darwin-64@npm:1.5.5":
-  version: 1.5.5
-  resolution: "turbo-darwin-64@npm:1.5.5"
+"turbo-darwin-64@npm:1.8.4, turbo-darwin-64@npm:^1.8.4":
+  version: 1.8.4
+  resolution: "turbo-darwin-64@npm:1.8.4"
+  checksum: 0745d0c837ed4551b6f309235689de651afd99da6768e69def37f24d234c56288267b2bb2f1df4cc861b8c910f24ea30e4717c726b82716f6866c100b30f5337
   conditions: os=darwin & cpu=x64
   languageName: node
   linkType: hard
 
-"turbo-darwin-arm64@npm:1.5.5":
-  version: 1.5.5
-  resolution: "turbo-darwin-arm64@npm:1.5.5"
+"turbo-darwin-arm64@npm:1.8.4, turbo-darwin-arm64@npm:^1.8.4":
+  version: 1.8.4
+  resolution: "turbo-darwin-arm64@npm:1.8.4"
+  checksum: 459a412fe241693ef900f72e69094f39bb70ab3eb0dd7b602ca2acbbb385a184409ad4723ad15c92302f97c91e6f5a9d85e4ee41391ec021603a3fc5f899e303
   conditions: os=darwin & cpu=arm64
   languageName: node
   linkType: hard
 
-"turbo-linux-64@npm:1.5.5":
-  version: 1.5.5
-  resolution: "turbo-linux-64@npm:1.5.5"
+"turbo-linux-64@npm:1.8.4, turbo-linux-64@npm:^1.8.4":
+  version: 1.8.4
+  resolution: "turbo-linux-64@npm:1.8.4"
+  checksum: 0a5b0e031b9498273165d7f5c5b75ab1b074410ccb694edf4391abbb9ce72e3013c866b3b3cd3bafb6aa6f05e3c2323e972b20ae9237ef44deec02ccbda58b82
   conditions: os=linux & cpu=x64
   languageName: node
   linkType: hard
 
-"turbo-linux-arm64@npm:1.5.5":
-  version: 1.5.5
-  resolution: "turbo-linux-arm64@npm:1.5.5"
+"turbo-linux-arm64@npm:1.8.4, turbo-linux-arm64@npm:^1.8.4":
+  version: 1.8.4
+  resolution: "turbo-linux-arm64@npm:1.8.4"
+  checksum: 4a3f7e11fa0fed38ca788ea67a72ffa4014dae63815f05150aa934d4abee858aeec2f2e5c1d88761abf443f8e826f77dea5d7cfec6959ec8469ae04dd5856c65
   conditions: os=linux & cpu=arm64
   languageName: node
   linkType: hard
 
-"turbo-windows-64@npm:1.5.5":
-  version: 1.5.5
-  resolution: "turbo-windows-64@npm:1.5.5"
+"turbo-windows-64@npm:1.8.4":
+  version: 1.8.4
+  resolution: "turbo-windows-64@npm:1.8.4"
   conditions: os=win32 & cpu=x64
   languageName: node
   linkType: hard
 
-"turbo-windows-arm64@npm:1.5.5":
-  version: 1.5.5
-  resolution: "turbo-windows-arm64@npm:1.5.5"
+"turbo-windows-arm64@npm:1.8.4":
+  version: 1.8.4
+  resolution: "turbo-windows-arm64@npm:1.8.4"
   conditions: os=win32 & cpu=arm64
   languageName: node
   linkType: hard
 
-"turbo@npm:^1.5.5":
-  version: 1.5.5
-  resolution: "turbo@npm:1.5.5"
+"turbo@npm:^1.8.4":
+  version: 1.8.4
+  resolution: "turbo@npm:1.8.4"
   dependencies:
-    turbo-darwin-64: 1.5.5
-    turbo-darwin-arm64: 1.5.5
-    turbo-linux-64: 1.5.5
-    turbo-linux-arm64: 1.5.5
-    turbo-windows-64: 1.5.5
-    turbo-windows-arm64: 1.5.5
+    turbo-darwin-64: 1.8.4
+    turbo-darwin-arm64: 1.8.4
+    turbo-linux-64: 1.8.4
+    turbo-linux-arm64: 1.8.4
+    turbo-windows-64: 1.8.4
+    turbo-windows-arm64: 1.8.4
   dependenciesMeta:
     turbo-darwin-64:
       optional: true
@@ -17703,7 +17711,7 @@ __metadata:
       optional: true
   bin:
     turbo: bin/turbo
-  checksum: d804a624ea07277bbd0e9fb5af20538f184a1beefe8d6a9483b24dabc784d3a4ce526430d2ff47cfcc7cd1cfc66f80eef89ea289889c95036c3669c171ffee14
+  checksum: 7924a3cdeda4cbfdfd0c0544bd6860d040727eaeb600c21765b801e51a7d9b23daf0862eb6cf52dc44ea5d3dc01990486711237ed0d65e845976c9767b29f14c
   languageName: node
   linkType: hard
 
