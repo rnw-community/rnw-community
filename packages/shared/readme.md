@@ -95,6 +95,20 @@ try {...}
 catch(error: unknown) { console.log(getErrorMessage(error)); }
 ```
 
+### `getDefined`
+
+Checks if value is defined and returns it, otherwise returns a result of `defaultFn`
+
+#### Example
+
+```ts
+expect(getDefined(undefined, () => 'default value')).toEqual('default value');
+expect(getDefined(null, () => 'default value')).toEqual('default value');
+expect(getDefined('defined value', () => 'default value')).toEqual('defined value');
+
+```
+
+
 ## Type guards
 
 Convenient [typescript type guards](https://www.typescriptlang.org/docs/handbook/2/narrowing.html#using-type-predicates) for everyday usage.
