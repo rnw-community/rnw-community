@@ -4036,8 +4036,8 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@rnw-community/fast-style@workspace:packages/fast-style"
   dependencies:
-    "@rnw-community/object-field-tree": ^0.49.0
-    "@rnw-community/shared": ^0.49.0
+    "@rnw-community/object-field-tree": ^0.50.0
+    "@rnw-community/shared": ^0.50.0
     "@types/react-native": ^0.64.12
     react-native: ^0.64.1
   peerDependencies:
@@ -4051,7 +4051,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@rnw-community/hoverable@workspace:packages/hoverable"
   dependencies:
-    "@rnw-community/shared": ^0.49.0
+    "@rnw-community/shared": ^0.50.0
     "@testing-library/jest-native": ^4.0.1
     "@testing-library/react-native": ^8.0.0-rc.1
     "@types/react": ^17.0.14
@@ -4072,7 +4072,7 @@ __metadata:
   resolution: "@rnw-community/nestjs-rxjs-logger@workspace:packages/nestjs-rxjs-logger"
   dependencies:
     "@nestjs/common": ^8.0.6
-    "@rnw-community/shared": ^0.49.0
+    "@rnw-community/shared": ^0.50.0
     rxjs: ^7.4.0
   peerDependencies:
     "@nestjs/common": ^8.0.6
@@ -4086,7 +4086,7 @@ __metadata:
   resolution: "@rnw-community/nestjs-rxjs-metrics@workspace:packages/nestjs-rxjs-metrics"
   dependencies:
     "@nestjs/common": ^8.0.6
-    "@rnw-community/shared": ^0.49.0
+    "@rnw-community/shared": ^0.50.0
     "@willsoto/nestjs-prometheus": ^4.0.1
     prom-client: ^14.0.0
     rxjs: ^7.4.0
@@ -4104,7 +4104,7 @@ __metadata:
   resolution: "@rnw-community/nestjs-rxjs-redis@workspace:packages/nestjs-rxjs-redis"
   dependencies:
     "@nestjs/common": ^8.0.6
-    "@rnw-community/shared": ^0.49.0
+    "@rnw-community/shared": ^0.50.0
     ioredis: ^4.28.0
     nestjs-redis: ^1.3.3
     rxjs: ^7.4.0
@@ -4123,7 +4123,7 @@ __metadata:
   dependencies:
     "@nestjs/common": ^8.0.6
     "@nestjs/config": ^1.1.7
-    "@rnw-community/shared": ^0.49.0
+    "@rnw-community/shared": ^0.50.0
     "@types/hapi__joi": ^17.1.7
     joi: ^17.1.1
   peerDependencies:
@@ -4139,7 +4139,7 @@ __metadata:
   resolution: "@rnw-community/nestjs-webpack-swc@workspace:packages/nestjs-webpack-swc"
   dependencies:
     "@nestjs/common": ^8.0.6
-    "@rnw-community/shared": ^0.49.0
+    "@rnw-community/shared": ^0.50.0
     "@types/webpack-env": ^1.18.0
     "@types/webpack-node-externals": ^2.5.3
     run-script-webpack-plugin: ^0.1.1
@@ -4160,11 +4160,11 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@rnw-community/object-field-tree@^0.49.0, @rnw-community/object-field-tree@workspace:packages/object-field-tree":
+"@rnw-community/object-field-tree@^0.50.0, @rnw-community/object-field-tree@workspace:packages/object-field-tree":
   version: 0.0.0-use.local
   resolution: "@rnw-community/object-field-tree@workspace:packages/object-field-tree"
   dependencies:
-    "@rnw-community/shared": ^0.49.0
+    "@rnw-community/shared": ^0.50.0
   peerDependencies:
     "@rnw-community/shared": ^0.46.0
   languageName: unknown
@@ -4175,7 +4175,7 @@ __metadata:
   resolution: "@rnw-community/platform@workspace:packages/platform"
   dependencies:
     "@react-native-async-storage/async-storage": ^1.13.4
-    "@rnw-community/wdio": ^0.49.2
+    "@rnw-community/wdio": ^0.50.0
     react-native-config: ^1.4.2
     redux-persist: ^6.0.0
   peerDependencies:
@@ -4198,7 +4198,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@rnw-community/rxjs-errors@workspace:packages/rxjs-errors"
   dependencies:
-    "@rnw-community/shared": ^0.49.0
+    "@rnw-community/shared": ^0.50.0
     expect-type: ^0.13.0
     rxjs: ^7.4.0
   peerDependencies:
@@ -4207,17 +4207,17 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@rnw-community/shared@^0.49.0, @rnw-community/shared@workspace:packages/shared":
+"@rnw-community/shared@^0.50.0, @rnw-community/shared@workspace:packages/shared":
   version: 0.0.0-use.local
   resolution: "@rnw-community/shared@workspace:packages/shared"
   languageName: unknown
   linkType: soft
 
-"@rnw-community/wdio@^0.49.2, @rnw-community/wdio@workspace:packages/wdio":
+"@rnw-community/wdio@^0.50.0, @rnw-community/wdio@workspace:packages/wdio":
   version: 0.0.0-use.local
   resolution: "@rnw-community/wdio@workspace:packages/wdio"
   dependencies:
-    "@rnw-community/shared": ^0.49.0
+    "@rnw-community/shared": ^0.50.0
     "@wdio/globals": ^8.5.1
     "@wdio/protocols": ^8.3.11
     expect-type: ^0.13.0
@@ -8502,7 +8502,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"eslint-plugin-prettier@npm:^4.0.0":
+"eslint-plugin-prettier@npm:^4.0.0, eslint-plugin-prettier@npm:^4.2.1":
   version: 4.2.1
   resolution: "eslint-plugin-prettier@npm:4.2.1"
   dependencies:
@@ -9488,7 +9488,7 @@ __metadata:
 
 "fsevents@patch:fsevents@^2.1.2#~builtin<compat/fsevents>, fsevents@patch:fsevents@^2.3.2#~builtin<compat/fsevents>, fsevents@patch:fsevents@~2.3.2#~builtin<compat/fsevents>":
   version: 2.3.2
-  resolution: "fsevents@patch:fsevents@npm%3A2.3.2#~builtin<compat/fsevents>::version=2.3.2&hash=18f3a7"
+  resolution: "fsevents@patch:fsevents@npm%3A2.3.2#~builtin<compat/fsevents>::version=2.3.2&hash=df0bf1"
   dependencies:
     node-gyp: latest
   conditions: os=darwin
@@ -14807,12 +14807,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"prettier@npm:^2.7.1":
-  version: 2.7.1
-  resolution: "prettier@npm:2.7.1"
+"prettier@npm:^2.8.4":
+  version: 2.8.4
+  resolution: "prettier@npm:2.8.4"
   bin:
     prettier: bin-prettier.js
-  checksum: 55a4409182260866ab31284d929b3cb961e5fdb91fe0d2e099dac92eaecec890f36e524b4c19e6ceae839c99c6d7195817579cdffc8e2c80da0cb794463a748b
+  checksum: c173064bf3df57b6d93d19aa98753b9b9dd7657212e33b41ada8e2e9f9884066bb9ca0b4005b89b3ab137efffdf8fbe0b462785aba20364798ff4303aadda57e
   languageName: node
   linkType: hard
 
@@ -15909,7 +15909,7 @@ __metadata:
 
 "resolve@patch:resolve@^1.1.6#~builtin<compat/resolve>, resolve@patch:resolve@^1.10.0#~builtin<compat/resolve>, resolve@patch:resolve@^1.14.2#~builtin<compat/resolve>, resolve@patch:resolve@^1.20.0#~builtin<compat/resolve>, resolve@patch:resolve@^1.22.1#~builtin<compat/resolve>":
   version: 1.22.1
-  resolution: "resolve@patch:resolve@npm%3A1.22.1#~builtin<compat/resolve>::version=1.22.1&hash=07638b"
+  resolution: "resolve@patch:resolve@npm%3A1.22.1#~builtin<compat/resolve>::version=1.22.1&hash=c3c19d"
   dependencies:
     is-core-module: ^2.9.0
     path-parse: ^1.0.7
@@ -15922,7 +15922,7 @@ __metadata:
 
 "resolve@patch:resolve@^1.10.1#~builtin<compat/resolve>, resolve@patch:resolve@^1.15.1#~builtin<compat/resolve>":
   version: 1.20.0
-  resolution: "resolve@patch:resolve@npm%3A1.20.0#~builtin<compat/resolve>::version=1.20.0&hash=07638b"
+  resolution: "resolve@patch:resolve@npm%3A1.20.0#~builtin<compat/resolve>::version=1.20.0&hash=c3c19d"
   dependencies:
     is-core-module: ^2.2.0
     path-parse: ^1.0.6
@@ -15932,7 +15932,7 @@ __metadata:
 
 "resolve@patch:resolve@^2.0.0-next.3#~builtin<compat/resolve>":
   version: 2.0.0-next.3
-  resolution: "resolve@patch:resolve@npm%3A2.0.0-next.3#~builtin<compat/resolve>::version=2.0.0-next.3&hash=07638b"
+  resolution: "resolve@patch:resolve@npm%3A2.0.0-next.3#~builtin<compat/resolve>::version=2.0.0-next.3&hash=c3c19d"
   dependencies:
     is-core-module: ^2.2.0
     path-parse: ^1.0.6
@@ -15942,7 +15942,7 @@ __metadata:
 
 "resolve@patch:resolve@^2.0.0-next.4#~builtin<compat/resolve>":
   version: 2.0.0-next.4
-  resolution: "resolve@patch:resolve@npm%3A2.0.0-next.4#~builtin<compat/resolve>::version=2.0.0-next.4&hash=07638b"
+  resolution: "resolve@patch:resolve@npm%3A2.0.0-next.4#~builtin<compat/resolve>::version=2.0.0-next.4&hash=c3c19d"
   dependencies:
     is-core-module: ^2.9.0
     path-parse: ^1.0.7
@@ -16093,6 +16093,7 @@ __metadata:
     eslint-plugin-jest: ^27.2.1
     eslint-plugin-n: ^15.6.1
     eslint-plugin-node: ^11.1.0
+    eslint-plugin-prettier: ^4.2.1
     eslint-plugin-promise: ^6.1.1
     eslint-plugin-react: ^7.32.2
     eslint-plugin-react-native: ^4.0.0
@@ -16105,15 +16106,11 @@ __metadata:
     jscpd: ^3.4.5
     lerna: ^5.1.8
     lint-staged: ^13.0.3
-    prettier: ^2.7.1
+    prettier: ^2.8.4
     reflect-metadata: ^0.1.13
     rimraf: ^3.0.2
     ts-prune: ^0.10.3
     turbo: ^1.8.4
-    turbo-darwin-64: ^1.8.4
-    turbo-darwin-arm64: ^1.8.4
-    turbo-linux-64: ^1.8.4
-    turbo-linux-arm64: ^1.8.4
     typescript: ^4.9.5
   languageName: unknown
   linkType: soft
@@ -17640,34 +17637,30 @@ __metadata:
   languageName: node
   linkType: hard
 
-"turbo-darwin-64@npm:1.8.4, turbo-darwin-64@npm:^1.8.4":
+"turbo-darwin-64@npm:1.8.4":
   version: 1.8.4
   resolution: "turbo-darwin-64@npm:1.8.4"
-  checksum: 0745d0c837ed4551b6f309235689de651afd99da6768e69def37f24d234c56288267b2bb2f1df4cc861b8c910f24ea30e4717c726b82716f6866c100b30f5337
   conditions: os=darwin & cpu=x64
   languageName: node
   linkType: hard
 
-"turbo-darwin-arm64@npm:1.8.4, turbo-darwin-arm64@npm:^1.8.4":
+"turbo-darwin-arm64@npm:1.8.4":
   version: 1.8.4
   resolution: "turbo-darwin-arm64@npm:1.8.4"
-  checksum: 459a412fe241693ef900f72e69094f39bb70ab3eb0dd7b602ca2acbbb385a184409ad4723ad15c92302f97c91e6f5a9d85e4ee41391ec021603a3fc5f899e303
   conditions: os=darwin & cpu=arm64
   languageName: node
   linkType: hard
 
-"turbo-linux-64@npm:1.8.4, turbo-linux-64@npm:^1.8.4":
+"turbo-linux-64@npm:1.8.4":
   version: 1.8.4
   resolution: "turbo-linux-64@npm:1.8.4"
-  checksum: 0a5b0e031b9498273165d7f5c5b75ab1b074410ccb694edf4391abbb9ce72e3013c866b3b3cd3bafb6aa6f05e3c2323e972b20ae9237ef44deec02ccbda58b82
   conditions: os=linux & cpu=x64
   languageName: node
   linkType: hard
 
-"turbo-linux-arm64@npm:1.8.4, turbo-linux-arm64@npm:^1.8.4":
+"turbo-linux-arm64@npm:1.8.4":
   version: 1.8.4
   resolution: "turbo-linux-arm64@npm:1.8.4"
-  checksum: 4a3f7e11fa0fed38ca788ea67a72ffa4014dae63815f05150aa934d4abee858aeec2f2e5c1d88761abf443f8e826f77dea5d7cfec6959ec8469ae04dd5856c65
   conditions: os=linux & cpu=arm64
   languageName: node
   linkType: hard
@@ -17843,7 +17836,7 @@ __metadata:
 
 "typescript@patch:typescript@^4.6.4#~builtin<compat/typescript>":
   version: 4.7.4
-  resolution: "typescript@patch:typescript@npm%3A4.7.4#~builtin<compat/typescript>::version=4.7.4&hash=701156"
+  resolution: "typescript@patch:typescript@npm%3A4.7.4#~builtin<compat/typescript>::version=4.7.4&hash=65a307"
   bin:
     tsc: bin/tsc
     tsserver: bin/tsserver
@@ -17853,11 +17846,11 @@ __metadata:
 
 "typescript@patch:typescript@^4.9.5#~builtin<compat/typescript>":
   version: 4.9.5
-  resolution: "typescript@patch:typescript@npm%3A4.9.5#~builtin<compat/typescript>::version=4.9.5&hash=701156"
+  resolution: "typescript@patch:typescript@npm%3A4.9.5#~builtin<compat/typescript>::version=4.9.5&hash=23ec76"
   bin:
     tsc: bin/tsc
     tsserver: bin/tsserver
-  checksum: 2eee5c37cad4390385db5db5a8e81470e42e8f1401b0358d7390095d6f681b410f2c4a0c496c6ff9ebd775423c7785cdace7bcdad76c7bee283df3d9718c0f20
+  checksum: ab417a2f398380c90a6cf5a5f74badd17866adf57f1165617d6a551f059c3ba0a3e4da0d147b3ac5681db9ac76a303c5876394b13b3de75fdd5b1eaa06181c9d
   languageName: node
   linkType: hard
 
