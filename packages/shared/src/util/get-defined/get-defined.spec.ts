@@ -1,4 +1,4 @@
-import { getDefined } from ".";
+import { getDefined } from './get-defined';
 
 describe('getDefined', () => {
     it('should return value if defined', () => {
@@ -19,4 +19,4 @@ describe('getDefined', () => {
         const result = getDefined(null, () => defaultValue);
         expect(result).toBe(defaultValue);
     });
-})
+});

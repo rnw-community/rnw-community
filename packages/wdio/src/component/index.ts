@@ -1,4 +1,4 @@
-export * from './component';
-export * from './get-exteded-component/get-extended-component';
-export * from './get-component/get-component';
-export * from './create-component/create-component';
+export { Component } from './component';
+export { getExtendedComponent } from './get-exteded-component/get-extended-component';
+export { getComponent } from './get-component/get-component';
+export { createComponent } from './create-component/create-component';
