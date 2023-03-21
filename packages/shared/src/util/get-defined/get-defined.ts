@@ -1,7 +1,5 @@
 import { isDefined } from '../../type-guard/is-defined/is-defined';
 
-import type { Maybe } from '../../type/maybe.type';
-
 /**
  * Returns value if defined otherwise returns default value
  *
@@ -9,4 +7,5 @@ import type { Maybe } from '../../type/maybe.type';
  * @param defaultFn Function returning default value
  * @returns Value if defined otherwise default value
  */
-export const getDefined = <T>(value: Maybe<T>, defaultFn: () => T): T => (isDefined(value) ? value : defaultFn());
+export const getDefined = <T>(value: T | null | undefined, defaultFn: () => T): T =>
+    isDefined(value) ? value : defaultFn();
