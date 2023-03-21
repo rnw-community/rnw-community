@@ -1,1 +1,0 @@
-export {getDefined} from './get-defined';

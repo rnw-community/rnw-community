@@ -19,8 +19,8 @@ module.exports = {
         'plugin:promise/recommended',
         'plugin:rxjs/recommended',
         'standard-with-typescript',
-        'prettier',
         'plugin:typescript-sort-keys/recommended',
+        "plugin:prettier/recommended",
     ],
     globals: {
         Atomics: 'readonly',

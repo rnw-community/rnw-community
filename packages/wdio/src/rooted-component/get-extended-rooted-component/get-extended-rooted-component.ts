@@ -27,11 +27,11 @@ export function getExtendedRootedComponent<T, P extends RootedComponent>(
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
 ): any {
     return class extends RootedComponent {
-        constructor(selectorOrElement: ComponentInputArg | undefined = rootSelector) {
-            super(defaultComponentConfig(), selectors, selectorOrElement);
+        constructor(rootSelectorOrElement: ComponentInputArg | undefined = rootSelector) {
+            super(defaultComponentConfig(), selectors, rootSelectorOrElement);
 
             if (ParentComponent !== RootedComponent) {
-                this.addParentComponent(new ParentComponent(selectorOrElement));
+                this.addParentComponent(new ParentComponent(rootSelectorOrElement));
             }
         }
     };

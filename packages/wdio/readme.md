@@ -258,6 +258,7 @@ describe('Card', () => {
     });
 });
 ```
+
 ### getRootedComponent
 
 `getRootedComponent` is a helper function to get wdio component class with testID support and root element
