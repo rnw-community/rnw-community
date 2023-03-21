@@ -16111,10 +16111,6 @@ __metadata:
     rimraf: ^3.0.2
     ts-prune: ^0.10.3
     turbo: ^1.8.4
-    turbo-darwin-64: ^1.8.4
-    turbo-darwin-arm64: ^1.8.4
-    turbo-linux-64: ^1.8.4
-    turbo-linux-arm64: ^1.8.4
     typescript: ^4.9.5
   languageName: unknown
   linkType: soft
@@ -17641,34 +17637,30 @@ __metadata:
   languageName: node
   linkType: hard
 
-"turbo-darwin-64@npm:1.8.4, turbo-darwin-64@npm:^1.8.4":
+"turbo-darwin-64@npm:1.8.4":
   version: 1.8.4
   resolution: "turbo-darwin-64@npm:1.8.4"
-  checksum: 0745d0c837ed4551b6f309235689de651afd99da6768e69def37f24d234c56288267b2bb2f1df4cc861b8c910f24ea30e4717c726b82716f6866c100b30f5337
   conditions: os=darwin & cpu=x64
   languageName: node
   linkType: hard
 
-"turbo-darwin-arm64@npm:1.8.4, turbo-darwin-arm64@npm:^1.8.4":
+"turbo-darwin-arm64@npm:1.8.4":
   version: 1.8.4
   resolution: "turbo-darwin-arm64@npm:1.8.4"
-  checksum: 459a412fe241693ef900f72e69094f39bb70ab3eb0dd7b602ca2acbbb385a184409ad4723ad15c92302f97c91e6f5a9d85e4ee41391ec021603a3fc5f899e303
   conditions: os=darwin & cpu=arm64
   languageName: node
   linkType: hard
 
-"turbo-linux-64@npm:1.8.4, turbo-linux-64@npm:^1.8.4":
+"turbo-linux-64@npm:1.8.4":
   version: 1.8.4
   resolution: "turbo-linux-64@npm:1.8.4"
-  checksum: 0a5b0e031b9498273165d7f5c5b75ab1b074410ccb694edf4391abbb9ce72e3013c866b3b3cd3bafb6aa6f05e3c2323e972b20ae9237ef44deec02ccbda58b82
   conditions: os=linux & cpu=x64
   languageName: node
   linkType: hard
 
-"turbo-linux-arm64@npm:1.8.4, turbo-linux-arm64@npm:^1.8.4":
+"turbo-linux-arm64@npm:1.8.4":
   version: 1.8.4
   resolution: "turbo-linux-arm64@npm:1.8.4"
-  checksum: 4a3f7e11fa0fed38ca788ea67a72ffa4014dae63815f05150aa934d4abee858aeec2f2e5c1d88761abf443f8e826f77dea5d7cfec6959ec8469ae04dd5856c65
   conditions: os=linux & cpu=arm64
   languageName: node
   linkType: hard
