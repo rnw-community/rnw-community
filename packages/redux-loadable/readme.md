@@ -3,6 +3,9 @@
 Generic redux loading state, selectors and utils for sending requests and handling loading/error states.
 Library supports redux-toolkit and other class redux approaches.
 
+[![npm version](https://badge.fury.io/js/%40rnw-community%2Fredux-loadable.svg)](https://badge.fury.io/js/%40rnw-community%2Fredux-loadable)
+[![npm downloads](https://img.shields.io/npm/dm/%40rnw-community%2Fredux-loadable.svg)](https://www.npmjs.com/package/%40rnw-community%2Fredux-loadable)
+
 Supported loading states:
 
 -   `pristine` - nothing has happened to the state slice

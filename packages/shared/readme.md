@@ -2,6 +2,9 @@
 
 Generic types and utilities commonly used across packages.
 
+[![npm version](https://badge.fury.io/js/%40rnw-community%2Fshared.svg)](https://badge.fury.io/js/%40rnw-community%2Fshared)
+[![npm downloads](https://img.shields.io/npm/dm/%40rnw-community%2Fshared.svg)](https://www.npmjs.com/package/%40rnw-community%2Fshared)
+
 ## Types
 
 ### `Maybe<T>`
@@ -105,7 +108,6 @@ Checks if value is defined and returns it, otherwise returns a result of `defaul
 expect(getDefined(undefined, () => 'default value')).toEqual('default value');
 expect(getDefined(null, () => 'default value')).toEqual('default value');
 expect(getDefined('defined value', () => 'default value')).toEqual('defined value');
-
 ```
 
 ### `getDefinedAsync`
@@ -119,9 +121,6 @@ expect(await getDefinedAsync(undefined, async () => 'default value')).resolves.t
 expect(await getDefinedAsync(null, async () => 'default value')).resolves.toEqual('default value');
 expect(await getDefinedAsync('defined value', async () => 'default value')).resolves.toEqual('defined value');
 ```
-
-
-
 
 ## Type guards
 

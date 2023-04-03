@@ -4,6 +4,9 @@
 NestJS
 using [Redlock](https://github.com/mike-marcacci/node-redlock)
 
+[![npm version](https://badge.fury.io/js/%40rnw-community%2Fnestjs-rxjs-lock.svg)](https://badge.fury.io/js/%40rnw-community%2Fnestjs-rxjs-lock)
+[![npm downloads](https://img.shields.io/npm/dm/%40rnw-community%2Fnestjs-rxjs-lock.svg)](https://www.npmjs.com/package/%40rnw-community%2Fnestjs-rxjs-lock)
+
 ## TODO
 
 -   [] Add module tests

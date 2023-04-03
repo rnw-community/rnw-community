@@ -2,6 +2,9 @@
 
 NestJS default logger wrapper for using with RxJS streams.
 
+[![npm version](https://badge.fury.io/js/%40rnw-community%2Fnestjs-rxjs-logger.svg)](https://badge.fury.io/js/%40rnw-community%2Fnestjs-rxjs-logger)
+[![npm downloads](https://img.shields.io/npm/dm/%40rnw-community%2Fnestjs-rxjs-logger.svg)](https://www.npmjs.com/package/%40rnw-community%2Fnestjs-rxjs-logger)
+
 ## Supported log levels
 
 -   `error` - `error$` RxJS operator

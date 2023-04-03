@@ -3,7 +3,10 @@
 Utility for generating complex nested objects with data generation callback and full TypeScript support
 with IDE autocompletion.
 
-```combine((...keys) => data, ...objects)```
+[![npm version](https://badge.fury.io/js/%40rnw-community%2Fobject-field-tree.svg)](https://badge.fury.io/js/%40rnw-community%2Fobject-field-tree)
+[![npm downloads](https://img.shields.io/npm/dm/%40rnw-community%2Fobject-field-tree.svg)](https://www.npmjs.com/package/%40rnw-community%2Fobject-field-tree)
+
+`combine((...keys) => data, ...objects)`
 
 Real world usage examples:
 [@rnw-community/fast-style](https://github.com/rnw-community/rnw-community/tree/master/packages/fast-style)
@@ -23,19 +26,20 @@ import { WidgetStyles } from './widget.styles';
 enum ScienceEnum {
     'Mathematics' = 'Mathematics Science',
     'Physics' = 'Physics Science',
-    'Chemistry' = 'Chemistry Science'
+    'Chemistry' = 'Chemistry Science',
 }
 
 const complexityObject = {
     Easy: 'Easy',
     Medium: 'Medium',
     Hard: 'Hard',
-}
+};
 
-const tree = combine((science, complexity) => ({
+const tree = combine(
+    (science, complexity) => ({
         science: ScienceEnum[science],
         complexity: complexityObject[complexity],
-        complexData: `${science}_${complexity}`
+        complexData: `${science}_${complexity}`,
     }),
     ScienceEnum,
     complexityObject
@@ -62,26 +66,28 @@ enum WidgetHeightEnum {
 }
 
 const widgetWidthMap = {
-    'Third': WidgetStyles.thrirdWidth,
-    'TwoThirds': WidgetStyles.twoThrirdsWidth,
-    'Full': WidgetStyles.fullWidth
-}
+    Third: WidgetStyles.thrirdWidth,
+    TwoThirds: WidgetStyles.twoThrirdsWidth,
+    Full: WidgetStyles.fullWidth,
+};
 
 const widgetHeightStyleMap = {
     [WidgetHeightEnum.Small]: WidgetStyles.smallHeight,
     [WidgetHeightEnum.Medium]: WidgetStyles.MediumHeight,
-}
+};
 
 export const Widget = combine(
-    (height, width) => (props) => <View {...props} style={[widgetHeightStyleMap[height], widgetWidthMap[width]]} />,
+    (height, width) => props => <View {...props} style={[widgetHeightStyleMap[height], widgetWidthMap[width]]} />,
     WidgetHeightEnum,
     widgetWidthMap
 );
 
 // Widget usage
-const Component = () => <Widget.Small.Full>
-    <View>
-        <Text>Hello!</Text>
-    </View>
-</Widget.Small.Full>;
+const Component = () => (
+    <Widget.Small.Full>
+        <View>
+            <Text>Hello!</Text>
+        </View>
+    </Widget.Small.Full>
+);
 ```

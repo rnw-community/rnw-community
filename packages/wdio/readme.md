@@ -2,6 +2,9 @@
 
 WDIO commands and utils.
 
+[![npm version](https://badge.fury.io/js/%40rnw-community%2Fwdio.svg)](https://badge.fury.io/js/%40rnw-community%2Fwdio)
+[![npm downloads](https://img.shields.io/npm/dm/%40rnw-community%2Fwdio.svg)](https://www.npmjs.com/package/%40rnw-community%2Fwdio)
+
 ## TODO
 
 -   Refactor tests to mock MockElement(rename to MockElementPromise), use it instead of mockElement object
@@ -56,19 +59,19 @@ interface Props extends TestIDProps, React.PropsWithChildren {
 
 const defaultTestID = 'DynamicComponent.Root';
 
-export const DynamicComponent = ({children, ...props}:Props) => (
-    <View {...setPropTestID(defaultTestID, props)}>
-        {children}
-    </View>);
+export const DynamicComponent = ({ children, ...props }: Props) => (
+    <View {...setPropTestID(defaultTestID, props)}>{children}</View>
+);
 ```
 
 ## Commands
 
 ### Setup
+
 #### copy 2 d.ts files into root of your e2e project
 
-* [wdio.d.ts](https://github.com/rnw-community/rnw-community/blob/9294a867193951b8f37310ef0f7092c74f6b87f2/packages/wdio/src/wdio.d.ts)
-* [webdriverio.d.ts](https://github.com/rnw-community/rnw-community/blob/9294a867193951b8f37310ef0f7092c74f6b87f2/packages/wdio/src/wevdriverio.d.ts)
+-   [wdio.d.ts](https://github.com/rnw-community/rnw-community/blob/9294a867193951b8f37310ef0f7092c74f6b87f2/packages/wdio/src/wdio.d.ts)
+-   [webdriverio.d.ts](https://github.com/rnw-community/rnw-community/blob/9294a867193951b8f37310ef0f7092c74f6b87f2/packages/wdio/src/wevdriverio.d.ts)
 
 #### add wdio.config.js to your e2e project
 
@@ -76,13 +79,13 @@ export const DynamicComponent = ({children, ...props}:Props) => (
 import { addWdioCommands } from '@rnw-community/wdio';
 
 export const wdioBaseConfiguration = (): WebdriverIO.Config => ({
-  //...your config
-  before(_capabilities, _specs, browser: WebdriverIO.Browser) {
-    addWdioCommands(browser);
-  },
+    //...your config
+    before(_capabilities, _specs, browser: WebdriverIO.Browser) {
+        addWdioCommands(browser);
+    },
 });
-
 ```
+
 ### Usage
 
 #### openDeepLink
@@ -126,6 +129,7 @@ describe('DynamicComponent', () => {
     });
 });
 ```
+
 #### slowInput
 
 `slowInput` is the same as `setValue` but with support for typing speed
@@ -144,6 +148,7 @@ describe('Form', () => {
 #### clearInput
 
 `clearInput` does several things:
+
 -   clearValue which usually doesn't work
 -   setValue('') which usually doesn't work either
 -   gets text and deletes it character by character
@@ -173,7 +178,6 @@ describe('Form', () => {
     });
 });
 ```
-
 
 ## Components
 
@@ -205,6 +209,7 @@ describe('Card', () => {
 `getComponent` is a helper function to get wdio component class with testID support
 
 #### card.component.ts
+
 ```ts
 import { getComponent } from '@rnw-community/wdio';
 import { CardSelectors } from 'my-react-native-project/src/card.selectors';
@@ -215,7 +220,9 @@ export class Card extends getComponent(CardSelectors) {
     }
 }
 ```
+
 #### card.spec.ts
+
 ```ts
 import { Card } from './card.component';
 
@@ -264,6 +271,7 @@ describe('Card', () => {
 `getRootedComponent` is a helper function to get wdio component class with testID support and root element
 
 #### card.component.ts
+
 ```ts
 import { getRootedComponent } from '@rnw-community/wdio';
 import { CardSelectors } from 'my-react-native-project/src/card.selectors';
@@ -274,7 +282,9 @@ export class Card extends getRootedComponent(CardSelectors) {
     }
 }
 ```
+
 #### card.spec.ts
+
 ```ts
 import { Card } from './card.component';
 
@@ -294,11 +304,13 @@ describe('Card', () => {
     });
 });
 ```
+
 ## Recommendations
 
 ### Create Selectors enum for each component close to the component file
 
 #### card.selectors.ts
+
 ```tsx
 export enum CardSelectors {
     Root = 'Root',
@@ -307,7 +319,8 @@ export enum CardSelectors {
 ```
 
 #### card.tsx
-```tsx 
+
+```tsx
 import { CardSelectors as Selectors } from './card.selectors';
 export const Card = () => (
     <View {...setTestID(CardSelectors.Root)}>
@@ -315,10 +328,11 @@ export const Card = () => (
     </View>
 );
 ```
+
 ### Export all selectors from your project in selectors.ts file in your src folder
 
 #### selectors.ts
+
 ```tsx
 export * from './card/card.selectors';
 ```
-

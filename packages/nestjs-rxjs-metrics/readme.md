@@ -2,6 +2,9 @@
 
 NestJS prometheus metrics wrapper for using with RxJS streams with full TypeScript support.
 
+[![npm version](https://badge.fury.io/js/%40rnw-community%2Fnestjs-rxjs-metrics.svg)](https://badge.fury.io/js/%40rnw-community%2Fnestjs-rxjs-metrics)
+[![npm downloads](https://img.shields.io/npm/dm/%40rnw-community%2Fnestjs-rxjs-metrics.svg)](https://www.npmjs.com/package/%40rnw-community%2Fnestjs-rxjs-metrics)
+
 ## Installation
 
 Install additional peer dependencies:
