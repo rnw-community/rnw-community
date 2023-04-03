@@ -2,23 +2,26 @@
 
 NestJS typed configuration with full TypeScript support.
 
+[![npm version](https://badge.fury.io/js/%40rnw-community%2Fnestjs-typed-config.svg)](https://badge.fury.io/js/%40rnw-community%2Fnestjs-typed-config)
+[![npm downloads](https://img.shields.io/npm/dm/%40rnw-community%2Fnestjs-typed-config.svg)](https://www.npmjs.com/package/%40rnw-community%2Fnestjs-typed-config)
+
 ## Installation
 
 Install additional peer dependencies:
 
-- [@nestjs/config](https://github.com/nestjs/config)
-- [joi](https://github.com/sideway/joi)
+-   [@nestjs/config](https://github.com/nestjs/config)
+-   [joi](https://github.com/sideway/joi)
 
 ## Configuration
 
-- Create enum with names for all the required environment variable names, interface with type for every environment variable
-  and validation schema using joi.
+-   Create enum with names for all the required environment variable names, interface with type for every environment variable
+    and validation schema using joi.
 
 ```ts
 export enum EnvironmentVariablesEnum {
     POSTGRES_USERNAME = 'POSTGRES_USERNAME',
     POSTGRES_PASSWORD = 'POSTGRES_PASSWORD',
-    POSTGRES_HOST = 'POSTGRES_HOST'
+    POSTGRES_HOST = 'POSTGRES_HOST',
 }
 
 export interface EnvironmentVariablesInterface {
@@ -36,27 +39,27 @@ export const environmentVariablesValidationSchema = Joi.object({
 });
 ```
 
-- Create config module and service for NestJS DI, this module and service should be used in the project:
+-   Create config module and service for NestJS DI, this module and service should be used in the project:
 
 ```ts
 import { Inject, Injectable } from '@nestjs/common';
 
 import { NestJSTypedConfigModule } from '@rnw-community/nestjs-typed-config';
 
-const [BaseConfigModule, BaseConfigService] = NestJSTypedConfigModule.create<EnvironmentVariablesEnum,
-    EnvironmentVariablesInterface>(environmentVariablesValidationSchema);
+const [BaseConfigModule, BaseConfigService] = NestJSTypedConfigModule.create<
+    EnvironmentVariablesEnum,
+    EnvironmentVariablesInterface
+>(environmentVariablesValidationSchema);
 
 @Injectable()
-export class ConfigService extends BaseConfigService {
-}
+export class ConfigService extends BaseConfigService {}
 
 @Module({
     imports: [BaseConfigModule],
     providers: [ConfigService],
     exports: [ConfigService],
 })
-export class ConfigModule {
-}
+export class ConfigModule {}
 ```
 
 ## Usage
@@ -82,7 +85,7 @@ To read an environment variable from file, the environment variable name should 
 
 ```ts
 export enum EnvironmentVariablesEnum {
-    POSTGRES_PASSWORD_FILE = 'POSTGRES_PASSWORD_FILE'
+    POSTGRES_PASSWORD_FILE = 'POSTGRES_PASSWORD_FILE',
 }
 ```
 
@@ -95,4 +98,4 @@ echo $POSTGRES_PASSWORD_FILE
 
 ## TODO
 
-- Perform real-world checks
+-   Perform real-world checks

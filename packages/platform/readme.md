@@ -2,6 +2,9 @@
 
 Platform specific helpers and utils for react native web.
 
+[![npm version](https://badge.fury.io/js/%40rnw-community%2Fredux-loadable.svg)](https://badge.fury.io/js/%40rnw-community%2Fredux-loadable)
+[![npm downloads](https://img.shields.io/npm/dm/%40rnw-community%2Fredux-loadable.svg)](https://www.npmjs.com/package/%40rnw-community%2Fredux-loadable)
+
 ### Platform constants
 
 Global constants for simple identifying of the platform:
