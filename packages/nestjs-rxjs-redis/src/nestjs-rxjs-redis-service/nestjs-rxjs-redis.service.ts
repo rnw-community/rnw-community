@@ -12,7 +12,8 @@ export class NestJSRxJSRedisService {
     private readonly redisClient: Redis;
 
     constructor(readonly redisService: RedisService) {
-        this.redisClient = redisService.getClient();
+        // HINT: IORedis libs mismatch, we should migrate from the nestjs-redis
+        this.redisClient = redisService.getClient() as unknown as Redis;
     }
 
     /**
