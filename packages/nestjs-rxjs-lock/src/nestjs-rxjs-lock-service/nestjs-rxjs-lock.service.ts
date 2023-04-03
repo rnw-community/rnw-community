@@ -37,9 +37,18 @@ export abstract class NestJSRxJSLockService<E = string> {
     lock$<T>(name: string, prefix: E, handler$: () => Observable<T>, expireInMs = this.expireInMs): Observable<T> {
         const lockName = NestJSRxJSLockService.generateName(name, prefix);
 
+        const unlock = async (lock: Redlock.Lock): Promise<void> => {
+            // HINT: https://github.com/mike-marcacci/node-redlock/issues/65#issuecomment-1306774223
+            if (lock.expiration < Date.now() && lock.expiration !== 0) {
+                await lock.unlock();
+            }
+
+            return void 0;
+        };
+
         // TODO: Why do we have an array of locks here?
         return from(this.lock.acquire([lockName], expireInMs)).pipe(
-            concatMap(lock => handler$().pipe(finalize(() => void lock.unlock()))),
+            concatMap(lock => handler$().pipe(finalize(() => void unlock(lock)))),
             catchError((e: unknown) => throwError(() => `Lock for "${lockName}" failed: ${getErrorMessage(e)}`))
         );
     }
