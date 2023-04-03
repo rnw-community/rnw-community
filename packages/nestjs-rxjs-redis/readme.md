@@ -2,6 +2,10 @@
 
 NestJS redis wrapper for using with RxJS streams.
 
+## TODO
+
+-   [] Remove `nestjs-redis` dependency, use ioredis directly
+
 ## Configuration
 
 Import `NestJSRxJSRedisModule` into your module:
