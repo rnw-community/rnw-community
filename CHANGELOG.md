@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.52.0](https://github.com/rnw-community/rnw-community/compare/v0.51.0...v0.52.0) (2023-04-03)
+
+
+### Features
+
+* add getDefinedAsync ([#136](https://github.com/rnw-community/rnw-community/issues/136)) ([30a571d](https://github.com/rnw-community/rnw-community/commit/30a571d4f7d39d3133603a3660d1c1e74e1d0c85))
+* added nestjs-rxjs-lock package ([#137](https://github.com/rnw-community/rnw-community/issues/137)) ([afd74d3](https://github.com/rnw-community/rnw-community/commit/afd74d32679a497b54d725edbfe1dc8e660eb6b8))
+
+
+
+
+
 # [0.51.0](https://github.com/rnw-community/rnw-community/compare/v0.50.0...v0.51.0) (2023-03-21)
 
 
