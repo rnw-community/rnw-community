@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.52.4](https://github.com/rnw-community/rnw-community/compare/v0.52.3...v0.52.4) (2023-04-04)
+
+
+### Bug Fixes
+
+* **nestjs-rxjs-lock:** removed error rewriting ([c9820e8](https://github.com/rnw-community/rnw-community/commit/c9820e81bd0dcd51ff1e78e1a33281e5150993ea))
+
+
+
+
+
 ## [0.52.3](https://github.com/rnw-community/rnw-community/compare/v0.52.2...v0.52.3) (2023-04-03)
 
 **Note:** Version bump only for package @rnw-community/nestjs-rxjs-lock
