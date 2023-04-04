@@ -1,7 +1,7 @@
 import Redlock from 'redlock';
-import { type Observable, catchError, concatMap, finalize, from, throwError } from 'rxjs';
+import { type Observable, concatMap, finalize, from } from 'rxjs';
 
-import { getErrorMessage, isNotEmptyString } from '@rnw-community/shared';
+import { isNotEmptyString } from '@rnw-community/shared';
 
 import type { NestJSRxJSLockModuleOptions } from '../nestjs-rxjs-lock-module.options';
 import type { RedisService } from 'nestjs-redis';
@@ -48,8 +48,7 @@ export abstract class NestJSRxJSLockService<E = string> {
 
         // TODO: Why do we have an array of locks here?
         return from(this.lock.acquire([lockName], expireInMs)).pipe(
-            concatMap(lock => handler$().pipe(finalize(() => void unlock(lock)))),
-            catchError((e: unknown) => throwError(() => `Lock for "${lockName}" failed: ${getErrorMessage(e)}`))
+            concatMap(lock => handler$().pipe(finalize(() => void unlock(lock))))
         );
     }
 

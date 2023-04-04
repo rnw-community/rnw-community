@@ -72,7 +72,7 @@ describe('nestJSRxJSLockService', () => {
             nestJSRxJSLockService.lock$('test', LockCodesEnum.DB_CREATE_USER, handler$).subscribe(
                 done,
                 (e: unknown) => {
-                    expect(e).toBe(`Lock for "lock:DB_CREATE_USER:test" failed: ${acquireErrorText}`);
+                    expect((e as string).toString()).toBe(`Error: Lock failed`);
                     expect(handler$).toHaveBeenCalledTimes(0);
                     expect(mockUnlock).toHaveBeenCalledTimes(0);
                     done();
