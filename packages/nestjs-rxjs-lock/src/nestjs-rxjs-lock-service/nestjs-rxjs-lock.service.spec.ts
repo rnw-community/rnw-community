@@ -15,7 +15,7 @@ jest.mock('nestjs-redis', () =>
     }))
 );
 
-const mockUnlock = jest.fn();
+const mockUnlock = jest.fn().mockResolvedValue(true);
 const mockAcquire = jest.fn().mockResolvedValue({
     unlock: mockUnlock,
     expiration: 1,
