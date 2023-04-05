@@ -40,7 +40,7 @@ export abstract class NestJSRxJSLockService<E = string> {
         const unlock = async (lock: Redlock.Lock): Promise<void> => {
             // HINT: https://github.com/mike-marcacci/node-redlock/issues/65#issuecomment-1306774223
             if (lock.expiration < Date.now() && lock.expiration !== 0) {
-                await lock.unlock();
+                await lock.unlock().catch(() => void 0);
             }
 
             return void 0;
