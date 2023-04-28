@@ -3,7 +3,7 @@ import { Module } from '@nestjs/common';
 import { NestJSRxJSRedisCoreModule } from './nestjs-rxjs-redis-core.module';
 
 import type { DynamicModule } from '@nestjs/common';
-import type { RedisModuleAsyncOptions } from 'nestjs-redis';
+import type { RedisModuleAsyncOptions } from '@nestjs-modules/ioredis';
 
 @Module({})
 export class NestJSRxJSRedisModule {
