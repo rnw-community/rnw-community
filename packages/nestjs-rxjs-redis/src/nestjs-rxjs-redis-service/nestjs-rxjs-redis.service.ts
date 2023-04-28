@@ -1,20 +1,16 @@
 import { Injectable } from '@nestjs/common';
-import { RedisService } from 'nestjs-redis';
+import { InjectRedis } from '@nestjs-modules/ioredis';
+// eslint-disable-next-line @typescript-eslint/no-import-type-side-effects
+import { type Redis } from 'ioredis';
 import { catchError, concatMap, from, map, of, throwError } from 'rxjs';
 
 import { isDefined } from '@rnw-community/shared';
 
-import type { Redis } from 'ioredis';
 import type { MonoTypeOperatorFunction, Observable, OperatorFunction } from 'rxjs';
 
 @Injectable()
 export class NestJSRxJSRedisService {
-    private readonly redisClient: Redis;
-
-    constructor(readonly redisService: RedisService) {
-        // HINT: IORedis libs mismatch, we should migrate from the nestjs-redis
-        this.redisClient = redisService.getClient() as unknown as Redis;
-    }
+    constructor(@InjectRedis() private readonly redisClient: Redis) {}
 
     /**
      * RxJS wrapper for redis set operation.
