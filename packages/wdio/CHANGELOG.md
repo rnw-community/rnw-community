@@ -7,182 +7,98 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 **Note:** Version bump only for package @rnw-community/wdio
 
-
-
-
-
 ## [0.52.3](https://github.com/rnw-community/rnw-community/compare/v0.52.2...v0.52.3) (2023-04-03)
 
 **Note:** Version bump only for package @rnw-community/wdio
-
-
-
-
 
 # [0.52.0](https://github.com/rnw-community/rnw-community/compare/v0.51.0...v0.52.0) (2023-04-03)
 
 **Note:** Version bump only for package @rnw-community/wdio
 
-
-
-
-
 # [0.51.0](https://github.com/rnw-community/rnw-community/compare/v0.50.0...v0.51.0) (2023-03-21)
-
 
 ### Features
 
-* add internal barrel exports and fix eslint prettier ([#132](https://github.com/rnw-community/rnw-community/issues/132)) ([0f90572](https://github.com/rnw-community/rnw-community/commit/0f9057279f3c67fcf062ee5fd035725142be3528))
-
-
-
-
+-   add internal barrel exports and fix eslint prettier ([#132](https://github.com/rnw-community/rnw-community/issues/132)) ([0f90572](https://github.com/rnw-community/rnw-community/commit/0f9057279f3c67fcf062ee5fd035725142be3528))
 
 # [0.50.0](https://github.com/rnw-community/rnw-community/compare/v0.49.2...v0.50.0) (2023-03-20)
 
-
 ### Features
 
-* update readme, add usage and recommendations ([#131](https://github.com/rnw-community/rnw-community/issues/131)) ([c5e8659](https://github.com/rnw-community/rnw-community/commit/c5e86594ffd9a3ff13f7443090f6c452798ce324))
-
-
-
-
+-   update readme, add usage and recommendations ([#131](https://github.com/rnw-community/rnw-community/issues/131)) ([c5e8659](https://github.com/rnw-community/rnw-community/commit/c5e86594ffd9a3ff13f7443090f6c452798ce324))
 
 ## [0.49.2](https://github.com/rnw-community/rnw-community/compare/v0.49.1...v0.49.2) (2023-03-07)
 
 **Note:** Version bump only for package @rnw-community/wdio
 
-
-
-
-
 ## [0.49.1](https://github.com/rnw-community/rnw-community/compare/v0.49.0...v0.49.1) (2023-03-06)
 
 **Note:** Version bump only for package @rnw-community/wdio
 
-
-
-
-
 # [0.49.0](https://github.com/rnw-community/rnw-community/compare/v0.48.2...v0.49.0) (2023-03-02)
-
 
 ### Features
 
-* **wdio:** migration to wdio v8 ([#128](https://github.com/rnw-community/rnw-community/issues/128)) ([15a970a](https://github.com/rnw-community/rnw-community/commit/15a970ad66d290f3d985773af3fd6908bc9045b4))
-
-
-
-
+-   **wdio:** migration to wdio v8 ([#128](https://github.com/rnw-community/rnw-community/issues/128)) ([15a970a](https://github.com/rnw-community/rnw-community/commit/15a970ad66d290f3d985773af3fd6908bc9045b4))
 
 ## [0.48.1](https://github.com/rnw-community/rnw-community/compare/v0.48.0...v0.48.1) (2022-11-03)
 
-
 ### Bug Fixes
 
-* **wdio:** rooted component getting selector element by index ([#124](https://github.com/rnw-community/rnw-community/issues/124)) ([875eb2f](https://github.com/rnw-community/rnw-community/commit/875eb2f95beae8932a8e4e4e8c5bd9ce4aee0f3c))
-
-
-
-
+-   **wdio:** rooted component getting selector element by index ([#124](https://github.com/rnw-community/rnw-community/issues/124)) ([875eb2f](https://github.com/rnw-community/rnw-community/commit/875eb2f95beae8932a8e4e4e8c5bd9ce4aee0f3c))
 
 # [0.48.0](https://github.com/rnw-community/rnw-community/compare/v0.47.0...v0.48.0) (2022-10-20)
 
-
 ### Features
 
-* **wdio:** added getComponentFromEls ([#123](https://github.com/rnw-community/rnw-community/issues/123)) ([b02f54f](https://github.com/rnw-community/rnw-community/commit/b02f54f5b6dda1a68cb156a7c006a5e88da76af3))
-* **wdio:** disabled using Promise as RootedComponent RootEl ([#121](https://github.com/rnw-community/rnw-community/issues/121)) ([36b4e65](https://github.com/rnw-community/rnw-community/commit/36b4e6565a65617df9cdbe92627920727cdb132a))
-
-
-
-
+-   **wdio:** added getComponentFromEls ([#123](https://github.com/rnw-community/rnw-community/issues/123)) ([b02f54f](https://github.com/rnw-community/rnw-community/commit/b02f54f5b6dda1a68cb156a7c006a5e88da76af3))
+-   **wdio:** disabled using Promise as RootedComponent RootEl ([#121](https://github.com/rnw-community/rnw-community/issues/121)) ([36b4e65](https://github.com/rnw-community/rnw-community/commit/36b4e6565a65617df9cdbe92627920727cdb132a))
 
 # [0.47.0](https://github.com/rnw-community/rnw-community/compare/v0.46.4...v0.47.0) (2022-10-19)
 
-
 ### Features
 
-* **wdio:** getExtendedComponent  predefined default root selector from the selectors enum ([#120](https://github.com/rnw-community/rnw-community/issues/120)) ([f6d19d6](https://github.com/rnw-community/rnw-community/commit/f6d19d64554ec311b47f84222fbcf857d3d56a76))
-
-
-
-
+-   **wdio:** getExtendedComponent predefined default root selector from the selectors enum ([#120](https://github.com/rnw-community/rnw-community/issues/120)) ([f6d19d6](https://github.com/rnw-community/rnw-community/commit/f6d19d64554ec311b47f84222fbcf857d3d56a76))
 
 ## [0.46.4](https://github.com/rnw-community/rnw-community/compare/v0.46.3...v0.46.4) (2022-10-17)
 
 **Note:** Version bump only for package @rnw-community/wdio
 
-
-
-
-
 ## [0.46.3](https://github.com/rnw-community/rnw-community/compare/v0.46.2...v0.46.3) (2022-10-17)
-
 
 ### Bug Fixes
 
-* **wdio:** fixed RootedComponentWithSelectorsCtor type to have mandatory root selector ([8109687](https://github.com/rnw-community/rnw-community/commit/8109687703cef106b51a1ca3fb0666f21008ca33))
-
-
-
-
+-   **wdio:** fixed RootedComponentWithSelectorsCtor type to have mandatory root selector ([8109687](https://github.com/rnw-community/rnw-community/commit/8109687703cef106b51a1ca3fb0666f21008ca33))
 
 ## [0.46.1](https://github.com/rnw-community/rnw-community/compare/v0.46.0...v0.46.1) (2022-10-17)
 
-
 ### Bug Fixes
 
-* **wdio:** fixed root el selector ([#118](https://github.com/rnw-community/rnw-community/issues/118)) ([3fd4e00](https://github.com/rnw-community/rnw-community/commit/3fd4e00c1edf1aaf5f4c976b093d4655f9c66b1a))
-
-
-
-
+-   **wdio:** fixed root el selector ([#118](https://github.com/rnw-community/rnw-community/issues/118)) ([3fd4e00](https://github.com/rnw-community/rnw-community/commit/3fd4e00c1edf1aaf5f4c976b093d4655f9c66b1a))
 
 # [0.46.0](https://github.com/rnw-community/rnw-community/compare/v0.45.0...v0.46.0) (2022-10-14)
 
-
 ### Features
 
-* migrated to yarn2, changed local packages as peer deps ([#115](https://github.com/rnw-community/rnw-community/issues/115)) ([59c3493](https://github.com/rnw-community/rnw-community/commit/59c3493c43dccc54bf2824920c4b655b59bb3083))
-
-
-
-
+-   migrated to yarn2, changed local packages as peer deps ([#115](https://github.com/rnw-community/rnw-community/issues/115)) ([59c3493](https://github.com/rnw-community/rnw-community/commit/59c3493c43dccc54bf2824920c4b655b59bb3083))
 
 # [0.45.0](https://github.com/rnw-community/rnw-community/compare/v0.44.3...v0.45.0) (2022-10-14)
 
-
 ### Features
 
-* **wdio:** breaking change, no auto root element definition ([#114](https://github.com/rnw-community/rnw-community/issues/114)) ([749f0a4](https://github.com/rnw-community/rnw-community/commit/749f0a4099bb02f5db650f6584226bd947427dcf))
-
-
-
-
+-   **wdio:** breaking change, no auto root element definition ([#114](https://github.com/rnw-community/rnw-community/issues/114)) ([749f0a4](https://github.com/rnw-community/rnw-community/commit/749f0a4099bb02f5db650f6584226bd947427dcf))
 
 ## [0.44.3](https://github.com/rnw-community/rnw-community/compare/v0.44.2...v0.44.3) (2022-10-13)
 
-
 ### Bug Fixes
 
-* **wdio:** fixed returning Component/RootedComponent from async functions ([#111](https://github.com/rnw-community/rnw-community/issues/111)) ([8207a6d](https://github.com/rnw-community/rnw-community/commit/8207a6d8d9f7db21cc1123ae792a7754c179d80a))
-
-
-
-
+-   **wdio:** fixed returning Component/RootedComponent from async functions ([#111](https://github.com/rnw-community/rnw-community/issues/111)) ([8207a6d](https://github.com/rnw-community/rnw-community/commit/8207a6d8d9f7db21cc1123ae792a7754c179d80a))
 
 ## [0.44.2](https://github.com/rnw-community/rnw-community/compare/v0.44.1...v0.44.2) (2022-10-12)
 
-
 ### Bug Fixes
 
-* **wdio:** refactored tests, extends cases ([#110](https://github.com/rnw-community/rnw-community/issues/110)) ([ca54ee2](https://github.com/rnw-community/rnw-community/commit/ca54ee2ce4ec0de870aea787035b0727870bed97))
-
-
-
-
+-   **wdio:** refactored tests, extends cases ([#110](https://github.com/rnw-community/rnw-community/issues/110)) ([ca54ee2](https://github.com/rnw-community/rnw-community/commit/ca54ee2ce4ec0de870aea787035b0727870bed97))
 
 ## [0.44.1](https://github.com/rnw-community/rnw-community/compare/v0.44.0...v0.44.1) (2022-10-11)
 
