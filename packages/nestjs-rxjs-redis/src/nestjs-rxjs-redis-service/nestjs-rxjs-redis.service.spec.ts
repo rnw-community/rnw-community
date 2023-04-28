@@ -5,23 +5,20 @@ import { emptyFn, getErrorMessage } from '@rnw-community/shared';
 
 import { NestJSRxJSRedisService } from './nestjs-rxjs-redis.service';
 
-import type IORedis from 'ioredis';
-import type { RedisService } from 'nestjs-redis';
+import type { Redis } from 'ioredis';
 
 const redisKey = 'testKey';
 const redisValue = 'testValue';
 
-const getRedisService = (redisClient?: Partial<Pick<IORedis.Redis, 'del' | 'get' | 'mget' | 'set'>>): RedisService =>
+const getRedisService = (redisClient?: Partial<Pick<Redis, 'del' | 'get' | 'mget' | 'set'>>): Redis =>
     // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
     ({
-        getClient: () => ({
-            get: jest.fn().mockResolvedValue(redisValue),
-            set: jest.fn().mockResolvedValue('OK'),
-            del: jest.fn().mockResolvedValue(1),
-            mget: jest.fn().mockResolvedValue([redisValue]),
-            ...redisClient,
-        }),
-    } as RedisService);
+        get: jest.fn().mockResolvedValue(redisValue),
+        set: jest.fn().mockResolvedValue('OK'),
+        del: jest.fn().mockResolvedValue(1),
+        mget: jest.fn().mockResolvedValue([redisValue]),
+        ...redisClient,
+    } as Redis);
 
 // eslint-disable-next-line max-lines-per-function,max-statements
 describe('NestJSRxJSRedisService', () => {
@@ -87,7 +84,7 @@ describe('NestJSRxJSRedisService', () => {
     it('set$ operation when redis client returns not OK', done => {
         expect.assertions(2);
 
-        const set = jest.fn().mockResolvedValue('FAIL');
+        const set = jest.fn().mockRejectedValue('FAIL');
         const redisService = getRedisService({ set });
         const redis = new NestJSRxJSRedisService(redisService);
 
