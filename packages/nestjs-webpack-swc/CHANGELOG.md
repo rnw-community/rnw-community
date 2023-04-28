@@ -7,152 +7,79 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 **Note:** Version bump only for package @rnw-community/nestjs-webpack-swc
 
-
-
-
-
 ## [0.52.3](https://github.com/rnw-community/rnw-community/compare/v0.52.2...v0.52.3) (2023-04-03)
 
 **Note:** Version bump only for package @rnw-community/nestjs-webpack-swc
-
-
-
-
 
 # [0.52.0](https://github.com/rnw-community/rnw-community/compare/v0.51.0...v0.52.0) (2023-04-03)
 
 **Note:** Version bump only for package @rnw-community/nestjs-webpack-swc
 
-
-
-
-
 # [0.51.0](https://github.com/rnw-community/rnw-community/compare/v0.50.0...v0.51.0) (2023-03-21)
 
 **Note:** Version bump only for package @rnw-community/nestjs-webpack-swc
-
-
-
-
 
 # [0.50.0](https://github.com/rnw-community/rnw-community/compare/v0.49.2...v0.50.0) (2023-03-20)
 
 **Note:** Version bump only for package @rnw-community/nestjs-webpack-swc
 
-
-
-
-
 ## [0.49.2](https://github.com/rnw-community/rnw-community/compare/v0.49.1...v0.49.2) (2023-03-07)
 
 **Note:** Version bump only for package @rnw-community/nestjs-webpack-swc
-
-
-
-
 
 # [0.49.0](https://github.com/rnw-community/rnw-community/compare/v0.48.2...v0.49.0) (2023-03-02)
 
 **Note:** Version bump only for package @rnw-community/nestjs-webpack-swc
 
-
-
-
-
 ## [0.48.2](https://github.com/rnw-community/rnw-community/compare/v0.48.1...v0.48.2) (2022-11-23)
-
 
 ### Bug Fixes
 
-* **nestjs-rxjs-metrics:** fixed types ([#125](https://github.com/rnw-community/rnw-community/issues/125)) ([893db3c](https://github.com/rnw-community/rnw-community/commit/893db3cc4dd1ac6edd53f55cf607ee653e477fd3))
-
-
-
-
+-   **nestjs-rxjs-metrics:** fixed types ([#125](https://github.com/rnw-community/rnw-community/issues/125)) ([893db3c](https://github.com/rnw-community/rnw-community/commit/893db3cc4dd1ac6edd53f55cf607ee653e477fd3))
 
 # [0.48.0](https://github.com/rnw-community/rnw-community/compare/v0.47.0...v0.48.0) (2022-10-20)
 
 **Note:** Version bump only for package @rnw-community/nestjs-webpack-swc
 
-
-
-
-
 # [0.47.0](https://github.com/rnw-community/rnw-community/compare/v0.46.4...v0.47.0) (2022-10-19)
 
 **Note:** Version bump only for package @rnw-community/nestjs-webpack-swc
 
-
-
-
-
 # [0.46.0](https://github.com/rnw-community/rnw-community/compare/v0.45.0...v0.46.0) (2022-10-14)
-
 
 ### Features
 
-* migrated to yarn2, changed local packages as peer deps ([#115](https://github.com/rnw-community/rnw-community/issues/115)) ([59c3493](https://github.com/rnw-community/rnw-community/commit/59c3493c43dccc54bf2824920c4b655b59bb3083))
-
-
-
-
+-   migrated to yarn2, changed local packages as peer deps ([#115](https://github.com/rnw-community/rnw-community/issues/115)) ([59c3493](https://github.com/rnw-community/rnw-community/commit/59c3493c43dccc54bf2824920c4b655b59bb3083))
 
 # [0.45.0](https://github.com/rnw-community/rnw-community/compare/v0.44.3...v0.45.0) (2022-10-14)
 
 **Note:** Version bump only for package @rnw-community/nestjs-webpack-swc
 
-
-
-
-
 # [0.44.0](https://github.com/rnw-community/rnw-community/compare/v0.43.4...v0.44.0) (2022-10-11)
 
 **Note:** Version bump only for package @rnw-community/nestjs-webpack-swc
 
-
-
-
-
 ## [0.43.4](https://github.com/rnw-community/rnw-community/compare/v0.43.3...v0.43.4) (2022-10-06)
-
 
 ### Bug Fixes
 
-* **nestjs-webpack-swc:** closes [#105](https://github.com/rnw-community/rnw-community/issues/105) ([#106](https://github.com/rnw-community/rnw-community/issues/106)) ([be428ba](https://github.com/rnw-community/rnw-community/commit/be428baa6c009a706c0157a4a33105b507e17311))
-
-
-
-
+-   **nestjs-webpack-swc:** closes [#105](https://github.com/rnw-community/rnw-community/issues/105) ([#106](https://github.com/rnw-community/rnw-community/issues/106)) ([be428ba](https://github.com/rnw-community/rnw-community/commit/be428baa6c009a706c0157a4a33105b507e17311))
 
 ## [0.43.3](https://github.com/rnw-community/rnw-community/compare/v0.43.2...v0.43.3) (2022-10-02)
 
-
 ### Bug Fixes
 
-* **wdio:** fixed byIndex commands ([#104](https://github.com/rnw-community/rnw-community/issues/104)) ([be218bb](https://github.com/rnw-community/rnw-community/commit/be218bb1c3051cf8c707197516cd0000f7a4c4fa))
-
-
-
-
+-   **wdio:** fixed byIndex commands ([#104](https://github.com/rnw-community/rnw-community/issues/104)) ([be218bb](https://github.com/rnw-community/rnw-community/commit/be218bb1c3051cf8c707197516cd0000f7a4c4fa))
 
 ## [0.43.2](https://github.com/rnw-community/rnw-community/compare/v0.43.1...v0.43.2) (2022-10-01)
 
 **Note:** Version bump only for package @rnw-community/nestjs-webpack-swc
 
-
-
-
-
 ## [0.43.1](https://github.com/rnw-community/rnw-community/compare/v0.43.0...v0.43.1) (2022-10-01)
-
 
 ### Bug Fixes
 
-* **wdio:** added wdio.d.ts types, testID by index return chain ([#103](https://github.com/rnw-community/rnw-community/issues/103)) ([681b6ee](https://github.com/rnw-community/rnw-community/commit/681b6ee0897edec215868f30e560eb7d5c33eae3))
-
-
-
-
+-   **wdio:** added wdio.d.ts types, testID by index return chain ([#103](https://github.com/rnw-community/rnw-community/issues/103)) ([681b6ee](https://github.com/rnw-community/rnw-community/commit/681b6ee0897edec215868f30e560eb7d5c33eae3))
 
 # [0.43.0](https://github.com/rnw-community/rnw-community/compare/v0.42.1...v0.43.0) (2022-10-01)
 

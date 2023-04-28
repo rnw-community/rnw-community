@@ -7,22 +7,16 @@ import { type NestJSRxJSLockModuleOptions, defaultNestJSRxJSLockModuleOptions } 
 
 import { NestJSRxJSLockService } from './nestjs-rxjs-lock.service';
 
-import type { RedisService } from 'nestjs-redis';
+import type Redis from 'ioredis';
 
-jest.mock('nestjs-redis', () =>
-    jest.fn().mockImplementation(() => ({
-        getClients: jest.fn(() => new Map([['default', {}]])),
-    }))
-);
-
-const mockUnlock = jest.fn().mockResolvedValue(true);
+const mockRelease = jest.fn().mockResolvedValue(true);
 const mockAcquire = jest.fn().mockResolvedValue({
-    unlock: mockUnlock,
+    release: mockRelease,
 });
 jest.mock('redlock', () =>
     jest.fn().mockImplementation(() => ({
         acquire: mockAcquire,
-        unlock: mockUnlock,
+        release: mockRelease,
     }))
 );
 enum LockCodesEnum {
@@ -31,13 +25,12 @@ enum LockCodesEnum {
 
 class LockService extends NestJSRxJSLockService<LockCodesEnum> {
     // eslint-disable-next-line @typescript-eslint/no-useless-constructor
-    constructor(redisService: RedisService, options: NestJSRxJSLockModuleOptions) {
+    constructor(redisService: Redis, options: NestJSRxJSLockModuleOptions) {
         super(redisService, options);
     }
 }
 
-const getRedisService = (): RedisService =>
-    ({ getClients: jest.fn(() => new Map([['default', {}]])) } as unknown as RedisService);
+const getRedisService = (): Redis => jest.fn() as unknown as Redis;
 
 describe('nestJSRxJSLockService', () => {
     describe('lock$', () => {
@@ -53,7 +46,7 @@ describe('nestJSRxJSLockService', () => {
                     defaultNestJSRxJSLockModuleOptions.defaultExpireMs
                 );
                 expect(handler$).toHaveBeenCalledWith();
-                expect(mockUnlock).toHaveBeenCalledWith();
+                expect(mockRelease).toHaveBeenCalledWith();
                 done();
             });
         });
@@ -73,7 +66,7 @@ describe('nestJSRxJSLockService', () => {
                 (e: unknown) => {
                     expect((e as string).toString()).toBe(`Error: Lock failed`);
                     expect(handler$).toHaveBeenCalledTimes(0);
-                    expect(mockUnlock).toHaveBeenCalledTimes(0);
+                    expect(mockRelease).toHaveBeenCalledTimes(0);
                     done();
                 },
                 done
