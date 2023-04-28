@@ -25,7 +25,7 @@ export class NestJSRxJSRedisService {
      */
     set$(key: string, value: string, ttlInSeconds: number, error = `Error setting ${key} to redis`): Observable<boolean> {
         return from(this.redisClient.set(key, value, 'EX', ttlInSeconds)).pipe(
-            concatMap(result => (result === 'OK' ? of(true) : throwError(() => new Error(error)))),
+            map(() => true),
             catchError(() => throwError(() => new Error(error)))
         );
     }

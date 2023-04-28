@@ -2076,6 +2076,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@ioredis/commands@npm:^1.1.1":
+  version: 1.2.0
+  resolution: "@ioredis/commands@npm:1.2.0"
+  checksum: 9b20225ba36ef3e5caf69b3c0720597c3016cc9b1e157f519ea388f621dd9037177f84cfe7e25c4c32dad7dd90c70ff9123cd411f747e053cf292193c9c461e2
+  languageName: node
+  linkType: hard
+
 "@isaacs/string-locale-compare@npm:^1.1.0":
   version: 1.1.0
   resolution: "@isaacs/string-locale-compare@npm:1.1.0"
@@ -4136,13 +4143,13 @@ __metadata:
     "@nestjs-modules/ioredis": ^1.0.1
     "@nestjs/common": ^8.0.6
     "@rnw-community/shared": ^0.52.3
-    ioredis: ^4.28.5
+    ioredis: ^5.3.2
     rxjs: ^7.4.0
   peerDependencies:
     "@nestjs-modules/ioredis": ^1.0.1
     "@nestjs/common": ^8.0.6
     "@rnw-community/shared": ^0.49.0
-    ioredis: ^4.28.5
+    ioredis: ^5.3.2
     rxjs: ^7.4.0
   languageName: unknown
   linkType: soft
@@ -7821,6 +7828,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"denque@npm:^2.1.0":
+  version: 2.1.0
+  resolution: "denque@npm:2.1.0"
+  checksum: 1d4ae1d05e59ac3a3481e7b478293f4b4c813819342273f3d5b826c7ffa9753c520919ba264f377e09108d24ec6cf0ec0ac729a5686cbb8f32d797126c5dae74
+  languageName: node
+  linkType: hard
+
 "depd@npm:2.0.0":
   version: 2.0.0
   resolution: "depd@npm:2.0.0"
@@ -10558,22 +10572,20 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ioredis@npm:^4.28.5":
-  version: 4.28.5
-  resolution: "ioredis@npm:4.28.5"
+"ioredis@npm:^5.3.2":
+  version: 5.3.2
+  resolution: "ioredis@npm:5.3.2"
   dependencies:
+    "@ioredis/commands": ^1.1.1
     cluster-key-slot: ^1.1.0
-    debug: ^4.3.1
-    denque: ^1.1.0
+    debug: ^4.3.4
+    denque: ^2.1.0
     lodash.defaults: ^4.2.0
-    lodash.flatten: ^4.4.0
     lodash.isarguments: ^3.1.0
-    p-map: ^2.1.0
-    redis-commands: 1.7.0
     redis-errors: ^1.2.0
     redis-parser: ^3.0.0
     standard-as-callback: ^2.1.0
-  checksum: a8793c3324cd69fa55b4baacbda118ce6724e574260157761276b31411dd3e168c75490f7155c6ce34d79e01488efa98e0cdb162991970fd56da7cbcdafb8fb8
+  checksum: 9a23559133e862a768778301efb68ae8c2af3c33562174b54a4c2d6574b976e85c75a4c34857991af733e35c48faf4c356e7daa8fb0a3543d85ff1768c8754bc
   languageName: node
   linkType: hard
 
