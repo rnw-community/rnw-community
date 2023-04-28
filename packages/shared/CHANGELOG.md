@@ -3,121 +3,71 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.53.0](https://github.com/rnw-community/rnw-community/compare/v0.52.7...v0.53.0) (2023-04-28)
+
+**Note:** Version bump only for package @rnw-community/shared
+
 ## [0.52.3](https://github.com/rnw-community/rnw-community/compare/v0.52.2...v0.52.3) (2023-04-03)
 
 **Note:** Version bump only for package @rnw-community/shared
 
-
-
-
-
 # [0.52.0](https://github.com/rnw-community/rnw-community/compare/v0.51.0...v0.52.0) (2023-04-03)
-
 
 ### Features
 
-* add getDefinedAsync ([#136](https://github.com/rnw-community/rnw-community/issues/136)) ([30a571d](https://github.com/rnw-community/rnw-community/commit/30a571d4f7d39d3133603a3660d1c1e74e1d0c85))
-
-
-
-
+-   add getDefinedAsync ([#136](https://github.com/rnw-community/rnw-community/issues/136)) ([30a571d](https://github.com/rnw-community/rnw-community/commit/30a571d4f7d39d3133603a3660d1c1e74e1d0c85))
 
 # [0.51.0](https://github.com/rnw-community/rnw-community/compare/v0.50.0...v0.51.0) (2023-03-21)
 
-
 ### Bug Fixes
 
-* add export getDefined from the package ([#135](https://github.com/rnw-community/rnw-community/issues/135)) ([967749f](https://github.com/rnw-community/rnw-community/commit/967749f17f4133bf5975c9aaaa8f136c512cdd1b))
-
+-   add export getDefined from the package ([#135](https://github.com/rnw-community/rnw-community/issues/135)) ([967749f](https://github.com/rnw-community/rnw-community/commit/967749f17f4133bf5975c9aaaa8f136c512cdd1b))
 
 ### Features
 
-* add internal barrel exports and fix eslint prettier ([#132](https://github.com/rnw-community/rnw-community/issues/132)) ([0f90572](https://github.com/rnw-community/rnw-community/commit/0f9057279f3c67fcf062ee5fd035725142be3528))
-
-
-
-
+-   add internal barrel exports and fix eslint prettier ([#132](https://github.com/rnw-community/rnw-community/issues/132)) ([0f90572](https://github.com/rnw-community/rnw-community/commit/0f9057279f3c67fcf062ee5fd035725142be3528))
 
 # [0.50.0](https://github.com/rnw-community/rnw-community/compare/v0.49.2...v0.50.0) (2023-03-20)
 
-
 ### Features
 
-* add getDefined util ([#133](https://github.com/rnw-community/rnw-community/issues/133)) ([98aceb1](https://github.com/rnw-community/rnw-community/commit/98aceb1c86697c88c3395b61e037bf835d6d6b5b))
-
-
-
-
+-   add getDefined util ([#133](https://github.com/rnw-community/rnw-community/issues/133)) ([98aceb1](https://github.com/rnw-community/rnw-community/commit/98aceb1c86697c88c3395b61e037bf835d6d6b5b))
 
 # [0.49.0](https://github.com/rnw-community/rnw-community/compare/v0.48.2...v0.49.0) (2023-03-02)
 
 **Note:** Version bump only for package @rnw-community/shared
 
-
-
-
-
 # [0.48.0](https://github.com/rnw-community/rnw-community/compare/v0.47.0...v0.48.0) (2022-10-20)
 
 **Note:** Version bump only for package @rnw-community/shared
-
-
-
-
 
 # [0.47.0](https://github.com/rnw-community/rnw-community/compare/v0.46.4...v0.47.0) (2022-10-19)
 
 **Note:** Version bump only for package @rnw-community/shared
 
-
-
-
-
 # [0.46.0](https://github.com/rnw-community/rnw-community/compare/v0.45.0...v0.46.0) (2022-10-14)
-
 
 ### Features
 
-* migrated to yarn2, changed local packages as peer deps ([#115](https://github.com/rnw-community/rnw-community/issues/115)) ([59c3493](https://github.com/rnw-community/rnw-community/commit/59c3493c43dccc54bf2824920c4b655b59bb3083))
-
-
-
-
+-   migrated to yarn2, changed local packages as peer deps ([#115](https://github.com/rnw-community/rnw-community/issues/115)) ([59c3493](https://github.com/rnw-community/rnw-community/commit/59c3493c43dccc54bf2824920c4b655b59bb3083))
 
 # [0.45.0](https://github.com/rnw-community/rnw-community/compare/v0.44.3...v0.45.0) (2022-10-14)
 
 **Note:** Version bump only for package @rnw-community/shared
 
-
-
-
-
 # [0.44.0](https://github.com/rnw-community/rnw-community/compare/v0.43.4...v0.44.0) (2022-10-11)
 
 **Note:** Version bump only for package @rnw-community/shared
-
-
-
-
 
 ## [0.43.2](https://github.com/rnw-community/rnw-community/compare/v0.43.1...v0.43.2) (2022-10-01)
 
 **Note:** Version bump only for package @rnw-community/shared
 
-
-
-
-
 ## [0.43.1](https://github.com/rnw-community/rnw-community/compare/v0.43.0...v0.43.1) (2022-10-01)
-
 
 ### Bug Fixes
 
-* **wdio:** added wdio.d.ts types, testID by index return chain ([#103](https://github.com/rnw-community/rnw-community/issues/103)) ([681b6ee](https://github.com/rnw-community/rnw-community/commit/681b6ee0897edec215868f30e560eb7d5c33eae3))
-
-
-
-
+-   **wdio:** added wdio.d.ts types, testID by index return chain ([#103](https://github.com/rnw-community/rnw-community/issues/103)) ([681b6ee](https://github.com/rnw-community/rnw-community/commit/681b6ee0897edec215868f30e560eb7d5c33eae3))
 
 # [0.43.0](https://github.com/rnw-community/rnw-community/compare/v0.42.1...v0.43.0) (2022-10-01)
 

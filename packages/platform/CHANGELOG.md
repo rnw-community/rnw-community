@@ -3,147 +3,81 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
-## [0.52.3](https://github.com/rnw-community/rnw-community/compare/v0.52.2...v0.52.3) (2023-04-03)
+# [0.53.0](https://github.com/rnw-community/rnw-community/compare/v0.52.7...v0.53.0) (2023-04-28)
 
 **Note:** Version bump only for package @rnw-community/platform
 
+## [0.52.3](https://github.com/rnw-community/rnw-community/compare/v0.52.2...v0.52.3) (2023-04-03)
 
-
-
+**Note:** Version bump only for package @rnw-community/platform
 
 # [0.52.0](https://github.com/rnw-community/rnw-community/compare/v0.51.0...v0.52.0) (2023-04-03)
 
 **Note:** Version bump only for package @rnw-community/platform
 
-
-
-
-
 # [0.51.0](https://github.com/rnw-community/rnw-community/compare/v0.50.0...v0.51.0) (2023-03-21)
 
 **Note:** Version bump only for package @rnw-community/platform
-
-
-
-
 
 # [0.50.0](https://github.com/rnw-community/rnw-community/compare/v0.49.2...v0.50.0) (2023-03-20)
 
 **Note:** Version bump only for package @rnw-community/platform
 
-
-
-
-
 ## [0.49.2](https://github.com/rnw-community/rnw-community/compare/v0.49.1...v0.49.2) (2023-03-07)
 
 **Note:** Version bump only for package @rnw-community/platform
-
-
-
-
 
 ## [0.49.1](https://github.com/rnw-community/rnw-community/compare/v0.49.0...v0.49.1) (2023-03-06)
 
 **Note:** Version bump only for package @rnw-community/platform
 
-
-
-
-
 # [0.49.0](https://github.com/rnw-community/rnw-community/compare/v0.48.2...v0.49.0) (2023-03-02)
 
 **Note:** Version bump only for package @rnw-community/platform
-
-
-
-
 
 ## [0.48.1](https://github.com/rnw-community/rnw-community/compare/v0.48.0...v0.48.1) (2022-11-03)
 
 **Note:** Version bump only for package @rnw-community/platform
 
-
-
-
-
 # [0.48.0](https://github.com/rnw-community/rnw-community/compare/v0.47.0...v0.48.0) (2022-10-20)
 
 **Note:** Version bump only for package @rnw-community/platform
-
-
-
-
 
 # [0.47.0](https://github.com/rnw-community/rnw-community/compare/v0.46.4...v0.47.0) (2022-10-19)
 
 **Note:** Version bump only for package @rnw-community/platform
 
-
-
-
-
 ## [0.46.4](https://github.com/rnw-community/rnw-community/compare/v0.46.3...v0.46.4) (2022-10-17)
 
 **Note:** Version bump only for package @rnw-community/platform
-
-
-
-
 
 ## [0.46.3](https://github.com/rnw-community/rnw-community/compare/v0.46.2...v0.46.3) (2022-10-17)
 
 **Note:** Version bump only for package @rnw-community/platform
 
-
-
-
-
 ## [0.46.1](https://github.com/rnw-community/rnw-community/compare/v0.46.0...v0.46.1) (2022-10-17)
 
 **Note:** Version bump only for package @rnw-community/platform
 
-
-
-
-
 # [0.46.0](https://github.com/rnw-community/rnw-community/compare/v0.45.0...v0.46.0) (2022-10-14)
-
 
 ### Features
 
-* migrated to yarn2, changed local packages as peer deps ([#115](https://github.com/rnw-community/rnw-community/issues/115)) ([59c3493](https://github.com/rnw-community/rnw-community/commit/59c3493c43dccc54bf2824920c4b655b59bb3083))
-
-
-
-
+-   migrated to yarn2, changed local packages as peer deps ([#115](https://github.com/rnw-community/rnw-community/issues/115)) ([59c3493](https://github.com/rnw-community/rnw-community/commit/59c3493c43dccc54bf2824920c4b655b59bb3083))
 
 # [0.45.0](https://github.com/rnw-community/rnw-community/compare/v0.44.3...v0.45.0) (2022-10-14)
 
 **Note:** Version bump only for package @rnw-community/platform
 
-
-
-
-
 ## [0.44.3](https://github.com/rnw-community/rnw-community/compare/v0.44.2...v0.44.3) (2022-10-13)
 
 **Note:** Version bump only for package @rnw-community/platform
 
-
-
-
-
 ## [0.44.2](https://github.com/rnw-community/rnw-community/compare/v0.44.1...v0.44.2) (2022-10-12)
-
 
 ### Bug Fixes
 
-* **wdio:** refactored tests, extends cases ([#110](https://github.com/rnw-community/rnw-community/issues/110)) ([ca54ee2](https://github.com/rnw-community/rnw-community/commit/ca54ee2ce4ec0de870aea787035b0727870bed97))
-
-
-
-
+-   **wdio:** refactored tests, extends cases ([#110](https://github.com/rnw-community/rnw-community/issues/110)) ([ca54ee2](https://github.com/rnw-community/rnw-community/commit/ca54ee2ce4ec0de870aea787035b0727870bed97))
 
 ## [0.44.1](https://github.com/rnw-community/rnw-community/compare/v0.44.0...v0.44.1) (2022-10-11)
 
