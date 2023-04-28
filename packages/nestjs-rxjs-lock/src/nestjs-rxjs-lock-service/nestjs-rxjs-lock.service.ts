@@ -1,26 +1,22 @@
+import { InjectRedis } from '@nestjs-modules/ioredis';
+import { Redis } from 'ioredis';
 import Redlock from 'redlock';
 import { type Observable, concatMap, finalize, from } from 'rxjs';
 
 import { isNotEmptyString } from '@rnw-community/shared';
 
+// eslint-disable-next-line @typescript-eslint/consistent-type-imports
 import type { NestJSRxJSLockModuleOptions } from '../nestjs-rxjs-lock-module.options';
-import type { RedisService } from 'nestjs-redis';
 
 export abstract class NestJSRxJSLockService<E = string> {
     private readonly lock: Redlock;
     private readonly expireInMs: number;
 
-    protected constructor(
-        // TODO: Can we avoid nestjs-redis dependency?
-        readonly redis: RedisService,
-        readonly options: NestJSRxJSLockModuleOptions
-    ) {
+    protected constructor(@InjectRedis() readonly redis: Redis, readonly options: NestJSRxJSLockModuleOptions) {
         const { defaultExpireMs, ...redlockOptions } = options;
         this.expireInMs = options.defaultExpireMs;
 
-        const redisInstances = Array.from(redis.getClients().values());
-
-        this.lock = new Redlock(redisInstances, redlockOptions);
+        this.lock = new Redlock([redis], redlockOptions);
     }
 
     /**
@@ -38,7 +34,7 @@ export abstract class NestJSRxJSLockService<E = string> {
         const lockName = NestJSRxJSLockService.generateName(name, prefix);
 
         return from(this.lock.acquire([lockName], expireInMs)).pipe(
-            concatMap(lock => handler$().pipe(finalize(() => void lock.unlock().catch(() => void 0))))
+            concatMap(lock => handler$().pipe(finalize(() => void lock.release().catch(() => void 0))))
         );
     }
 
