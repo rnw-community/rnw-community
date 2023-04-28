@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.54.0](https://github.com/rnw-community/rnw-community/compare/v0.53.0...v0.54.0) (2023-04-28)
+
+
+### Features
+
+* **nestjs-rxjs-lock:** migration to ioredis ([#140](https://github.com/rnw-community/rnw-community/issues/140)) ([846a060](https://github.com/rnw-community/rnw-community/commit/846a06025d46f0bc8a80ad010d1aaaa47b15d933))
+
+
+
+
+
 # [0.53.0](https://github.com/rnw-community/rnw-community/compare/v0.52.7...v0.53.0) (2023-04-28)
 
 **Note:** Version bump only for package @rnw-community/fast-style
