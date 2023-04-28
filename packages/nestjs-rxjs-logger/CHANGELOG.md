@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.53.0](https://github.com/rnw-community/rnw-community/compare/v0.52.7...v0.53.0) (2023-04-28)
+
+**Note:** Version bump only for package @rnw-community/nestjs-rxjs-logger
+
+
+
+
+
 ## [0.52.3](https://github.com/rnw-community/rnw-community/compare/v0.52.2...v0.52.3) (2023-04-03)
 
 **Note:** Version bump only for package @rnw-community/nestjs-rxjs-logger

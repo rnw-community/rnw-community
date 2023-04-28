@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.53.0](https://github.com/rnw-community/rnw-community/compare/v0.52.7...v0.53.0) (2023-04-28)
+
+
+### Features
+
+* **nestjs-rxjs-redis:** migrated to @nestjs-modules/ioredis ([#139](https://github.com/rnw-community/rnw-community/issues/139)) ([52bcf2e](https://github.com/rnw-community/rnw-community/commit/52bcf2e43820b155ca5adf5d7bee371fd18dd9d9))
+
+
+
+
+
 ## [0.52.3](https://github.com/rnw-community/rnw-community/compare/v0.52.2...v0.52.3) (2023-04-03)
 
 **Note:** Version bump only for package @rnw-community/nestjs-rxjs-redis
