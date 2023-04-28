@@ -84,7 +84,7 @@ describe('NestJSRxJSRedisService', () => {
     it('set$ operation when redis client returns not OK', done => {
         expect.assertions(2);
 
-        const set = jest.fn().mockResolvedValue('FAIL');
+        const set = jest.fn().mockRejectedValue('FAIL');
         const redisService = getRedisService({ set });
         const redis = new NestJSRxJSRedisService(redisService);
 
