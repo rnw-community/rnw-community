@@ -9,14 +9,20 @@ import type { Redis } from 'ioredis';
 
 const redisKey = 'testKey';
 const redisValue = 'testValue';
+const redisTTLValue = 100;
 
-const getRedisService = (redisClient?: Partial<Pick<Redis, 'del' | 'get' | 'mget' | 'set'>>): Redis =>
+const getRedisService = (
+    redisClient?: Partial<Pick<Redis, 'del' | 'expire' | 'get' | 'incr' | 'mget' | 'set' | 'ttl'>>
+): Redis =>
     // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
     ({
         get: jest.fn().mockResolvedValue(redisValue),
         set: jest.fn().mockResolvedValue('OK'),
         del: jest.fn().mockResolvedValue(1),
         mget: jest.fn().mockResolvedValue([redisValue]),
+        incr: jest.fn().mockResolvedValue(2),
+        ttl: jest.fn().mockResolvedValue(redisTTLValue),
+        expire: jest.fn().mockResolvedValue(1),
         ...redisClient,
     } as Redis);
 
@@ -332,5 +338,93 @@ describe('NestJSRxJSRedisService', () => {
                 expect(fromValueFn).toHaveBeenCalledWith(redisValue);
                 done();
             });
+    });
+
+    it('increment value in redis', done => {
+        expect.assertions(2);
+
+        const incrValue = 3;
+        const incr = jest.fn().mockResolvedValue(incrValue);
+        const redis = new NestJSRxJSRedisService(getRedisService({ incr }));
+
+        redis.incr$(redisKey).subscribe(data => {
+            expect(incr).toHaveBeenCalledWith(redisKey);
+            expect(data).toStrictEqual(incrValue);
+            done();
+        });
+    });
+
+    it('incr$ operation when redis client throws error', done => {
+        expect.assertions(2);
+
+        const incr = jest.fn().mockRejectedValue(0);
+        const redis = new NestJSRxJSRedisService(getRedisService({ incr }));
+
+        redis.incr$(redisKey, `Error increment ${redisKey} from redis`).subscribe({
+            next: emptyFn,
+            error(error: unknown) {
+                expect(incr).toHaveBeenCalledWith(redisKey);
+                expect(getErrorMessage(error)).toBe(`Error increment ${redisKey} from redis`);
+                done();
+            },
+        });
+    });
+
+    it('check the remaining time to live of a key that has a timeout', done => {
+        expect.assertions(2);
+
+        const ttl = jest.fn().mockResolvedValue(redisTTLValue);
+        const redis = new NestJSRxJSRedisService(getRedisService({ ttl }));
+
+        redis.ttl$(redisKey).subscribe(data => {
+            expect(ttl).toHaveBeenCalledWith(redisKey);
+            expect(data).toStrictEqual(redisTTLValue);
+            done();
+        });
+    });
+
+    it('ttl$ operation when redis client throws error', done => {
+        expect.assertions(2);
+
+        const ttl = jest.fn().mockRejectedValue(0);
+        const redis = new NestJSRxJSRedisService(getRedisService({ ttl }));
+
+        redis.ttl$(redisKey, `Error ttl ${redisKey} from redis`).subscribe({
+            next: emptyFn,
+            error(error: unknown) {
+                expect(ttl).toHaveBeenCalledWith(redisKey);
+                expect(getErrorMessage(error)).toBe(`Error ttl ${redisKey} from redis`);
+                done();
+            },
+        });
+    });
+
+    it('setting timeout for key', done => {
+        expect.assertions(2);
+
+        const expire = jest.fn().mockResolvedValue(1);
+        const redis = new NestJSRxJSRedisService(getRedisService({ expire }));
+
+        redis.expire$(redisKey, redisTTLValue).subscribe(data => {
+            expect(expire).toHaveBeenCalledWith(redisKey, redisTTLValue);
+            expect(data).toBe(1);
+            done();
+        });
+    });
+
+    it('expire$ operation when redis client throws error', done => {
+        expect.assertions(2);
+
+        const expire = jest.fn().mockRejectedValue(0);
+        const redis = new NestJSRxJSRedisService(getRedisService({ expire }));
+
+        redis.expire$(redisKey, redisTTLValue, `Error setting timeout for ${redisKey} in redis`).subscribe({
+            next: emptyFn,
+            error(error: unknown) {
+                expect(expire).toHaveBeenCalledWith(redisKey, redisTTLValue);
+                expect(getErrorMessage(error)).toBe(`Error setting timeout for ${redisKey} in redis`);
+                done();
+            },
+        });
     });
 });
