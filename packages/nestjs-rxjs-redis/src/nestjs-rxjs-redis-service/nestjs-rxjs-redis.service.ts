@@ -61,6 +61,46 @@ export class NestJSRxJSRedisService {
     }
 
     /**
+     * RxJS wrapper for redis ttl operation.
+     *
+     * @see https://redis.io/commands/ttl
+     *
+     * @param key Redis key
+     * @param error Error string
+     * @returns Observable<number> TTL in seconds, or a negative value in order to signal an error
+     */
+    ttl$(key: string, error = `Error ttl ${key} from redis`): Observable<number> {
+        return from(this.redisClient.ttl(key)).pipe(catchError(() => throwError(() => new Error(error))));
+    }
+
+    /**
+     * RxJS wrapper for redis expire operation.
+     *
+     * @see https://redis.io/commands/expire
+     *
+     * @param key Redis key
+     * @param seconds string or number
+     * @param error Error string
+     * @returns Observable<number> 1 if the timeout was set or 0 if the timeout was not set
+     */
+    expire$(key: string, seconds: number | string, error = `Error setting timeout for ${key} in redis`): Observable<number> {
+        return from(this.redisClient.expire(key, seconds)).pipe(catchError(() => throwError(() => new Error(error))));
+    }
+
+    /**
+     * RxJS wrapper for redis incr operation.
+     *
+     * @see https://redis.io/commands/incr
+     *
+     * @param key Redis key
+     * @param error Error string
+     * @returns Observable<number> increased value
+     */
+    incr$(key: string, error = `Error increment ${key} from redis`): Observable<number> {
+        return from(this.redisClient.incr(key)).pipe(catchError(() => throwError(() => new Error(error))));
+    }
+
+    /**
      * RxJS wrapper for redis mget operation.
      *
      * @see https://redis.io/commands/mget
