@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.54.2](https://github.com/rnw-community/rnw-community/compare/v0.54.1...v0.54.2) (2023-06-30)
+
+
+### Bug Fixes
+
+* removed wrong old redlock types ([#142](https://github.com/rnw-community/rnw-community/issues/142)) ([b00b3cb](https://github.com/rnw-community/rnw-community/commit/b00b3cb2151aacfc1ea2d952b06f77739ba55577))
+
+
+
+
+
 # [0.54.0](https://github.com/rnw-community/rnw-community/compare/v0.53.0...v0.54.0) (2023-04-28)
 
 
