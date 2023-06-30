@@ -44,7 +44,6 @@
     "@nestjs-modules/ioredis": "^1.0.1",
     "@nestjs/common": "^8.0.6",
     "@rnw-community/shared": "^0.54.0",
-    "@types/redlock": "^4.0.4",
     "ioredis": "^5.3.2",
     "redlock": "^5.0.0-beta.2",
     "rxjs": "^7.4.0"

@@ -4025,7 +4025,6 @@ __metadata:
     "@nestjs-modules/ioredis": ^1.0.1
     "@nestjs/common": ^8.0.6
     "@rnw-community/shared": ^0.54.0
-    "@types/redlock": ^4.0.4
     ioredis: ^5.3.2
     redlock: ^5.0.0-beta.2
     rxjs: ^7.4.0
@@ -4394,13 +4393,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/bluebird@npm:*":
-  version: 3.5.38
-  resolution: "@types/bluebird@npm:3.5.38"
-  checksum: 8d1b04261e8e58816ec84ffa616c9e641c9416d0ab10c915ddb9cd8a0e7070af16df4f2eec243a3809cbed8ecee2fb3f45600ae43b3ab0ceea563aa18ceb6ab1
-  languageName: node
-  linkType: hard
-
 "@types/eslint-scope@npm:^3.7.3":
   version: 3.7.4
   resolution: "@types/eslint-scope@npm:3.7.4"
@@ -4455,15 +4447,6 @@ __metadata:
   version: 4.0.1
   resolution: "@types/http-cache-semantics@npm:4.0.1"
   checksum: 1048aacf627829f0d5f00184e16548205cd9f964bf0841c29b36bc504509230c40bc57c39778703a1c965a6f5b416ae2cbf4c1d4589c889d2838dd9dbfccf6e9
-  languageName: node
-  linkType: hard
-
-"@types/ioredis@npm:^4.28.10":
-  version: 4.28.10
-  resolution: "@types/ioredis@npm:4.28.10"
-  dependencies:
-    "@types/node": "*"
-  checksum: 0f2788cf25f490d3b345db8c5f8b8ce3f6c92cc99abcf744c8f974f02b9b3875233b3d22098614c462a0d6c41c523bd655509418ea88eb6249db6652290ce7cf
   languageName: node
   linkType: hard
 
@@ -4612,26 +4595,6 @@ __metadata:
     "@types/scheduler": "*"
     csstype: ^3.0.2
   checksum: 2e7fe0eb630cb77da03b6da308c58728c01b38e878118e9ff5cd8045181c8d4f32dc936e328f46a62cadb56e1fe4c5a911b5113584f93a99e1f35df7f059246b
-  languageName: node
-  linkType: hard
-
-"@types/redis@npm:^2.8.0":
-  version: 2.8.32
-  resolution: "@types/redis@npm:2.8.32"
-  dependencies:
-    "@types/node": "*"
-  checksum: 2b12103e05977941870c9a248f6ea51f4b7ad7e0f16a7403799c2ed1b3e63b60f693c39f9186be0ea02776934c4595ddcd2a5bde41e530aaad42d26449f6a669
-  languageName: node
-  linkType: hard
-
-"@types/redlock@npm:^4.0.4":
-  version: 4.0.4
-  resolution: "@types/redlock@npm:4.0.4"
-  dependencies:
-    "@types/bluebird": "*"
-    "@types/ioredis": ^4.28.10
-    "@types/redis": ^2.8.0
-  checksum: dc43db8e84f904c4d6bb9561e442f2c8c534dc3bf8ae1b2e4e75b803c0dac9df73ae4a46dd6eb1028e22582868bacd58025984e9fbb7fe3040fd275d6475919f
   languageName: node
   linkType: hard
 
