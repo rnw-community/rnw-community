@@ -1,6 +1,6 @@
 {
   "name": "@rnw-community/nestjs-rxjs-lock",
-  "version": "0.54.0",
+  "version": "0.54.2",
   "description": "NestJS RxJS lock",
   "keywords": [
     "nestjs",
