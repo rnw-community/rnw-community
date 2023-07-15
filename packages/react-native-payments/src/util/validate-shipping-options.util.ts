@@ -2,10 +2,10 @@ import { type ClassType, isDefined } from '@rnw-community/shared';
 
 import { MODULE_NAME } from '../constants';
 
-import { isValidDecimalMonetaryValue } from './index';
+import { isValidDecimalMonetaryValue } from './is-valid-decimal-monetary-value.util';
 
 import type { PaymentsError } from '../error/payments.error';
-import type { PaymentDetailsBase } from '../interface/payment-details-base';
+import type { PaymentDetailsBase } from '../interface/payment-details/payment-details-base';
 
 // TODO: Why not receive shippingOptions directly?
 export const validateShippingOptions = (details: PaymentDetailsBase, ErrorType: ClassType<PaymentsError> = Error): void => {
@@ -48,4 +48,6 @@ export const validateShippingOptions = (details: PaymentDetailsBase, ErrorType: 
             seenIDs.push(shippingOption.id);
         }
     });
+
+    return void 0;
 };

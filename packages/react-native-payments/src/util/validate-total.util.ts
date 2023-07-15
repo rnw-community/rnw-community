@@ -1,9 +1,14 @@
 import { type ClassType, isDefined } from '@rnw-community/shared';
 
-import { isNegative, isValidDecimalMonetaryValue } from './index';
+import { isNumber } from './is-number.util';
+import { isValidDecimalMonetaryValue } from './is-valid-decimal-monetary-value.util';
 
 import type { PaymentsError } from '../error/payments.error';
 import type { PaymentItem } from '../interface/payment-item';
+import type { AmountValue } from '../type/amount-value.type';
+
+const isNegative = (amountValue: AmountValue): boolean =>
+    isNumber(amountValue) ? amountValue < 0 : amountValue.startsWith('-');
 
 export const validateTotal = (total: PaymentItem, ErrorType: ClassType<PaymentsError> = Error): void => {
     // Should Validator take an errorType to pre populate "Failed to construct 'PaymentRequest'"

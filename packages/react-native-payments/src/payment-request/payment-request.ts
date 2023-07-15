@@ -14,48 +14,44 @@ import { GatewayError } from '../error/gateway.error';
 import { type PaymentOptions, emptyPaymentOptions } from '../interface/payment-options';
 import { NativePayments } from '../native-bridge/native-payments';
 import { PaymentResponse } from '../payment-response/payment-response';
-import { convertDetailAmountsToString, getSelectedShippingOption } from '../util';
+import { convertDetailAmountsToString } from '../util/convert-detail-amounts-to-string.util';
+import { getSelectedShippingOption } from '../util/get-selected-shipping-option.util';
 import { validateDisplayItems } from '../util/validate-display-items.util';
 import { validatePaymentMethods } from '../util/validate-payment-methods.util';
 import { validatePlatformMethodData } from '../util/validate-platform-method-data.util';
 import { validateShippingOptions } from '../util/validate-shipping-options.util';
 import { validateTotal } from '../util/validate-total.util';
 
-import type { AndroidRawPaymentDetailsInterface } from '../interface/payment-details/android-raw-payment-details.interface';
-import type { IOSRawPaymentDetailsInterface } from '../interface/payment-details/ios-raw-payment-details.interface';
+import type { AndroidRawPaymentDetailsInterface } from '../interface/payment-details/android/android-raw-payment-details.interface';
+import type { IOSRawPaymentDetailsInterface } from '../interface/payment-details/ios/ios-raw-payment-details.interface';
 import type { NativePaymentDetailsInterface } from '../interface/payment-details/native-payment-details.interface';
-import type { PaymentDetailsInit } from '../interface/payment-details-init';
+import type { PaymentDetailsInit } from '../interface/payment-details/payment-details-init';
 import type { PaymentMethodData } from '../interface/payment-method-data/payment-method-data';
 
 export class PaymentRequest {
     // https://www.w3.org/TR/payment-request/#id-attribute
     readonly id: string;
+    updating = false;
+    state: 'closed' | 'created' | 'interactive' = 'created';
 
     // Internal Slots https://www.w3.org/TR/payment-request/#internal-slots
     private readonly serializedMethodData: string;
     private readonly normalizedDetails: PaymentDetailsInit;
-
-    private state: 'closed' | 'created' | 'interactive' = 'created';
-    private readonly updating = false;
 
     private readonly userDismissSubscription: EmitterSubscription;
     private readonly userAcceptSubscription: EmitterSubscription;
     private readonly gatewayErrorSubscription: EmitterSubscription;
 
     // TODO: Do we need it? Is is not in the spec
-    private readonly shippingOption: string | null;
+    private readonly shippingOption: string;
 
-    /*
-     * TODO: Can we use acceptPromise to resolve/reject?
-     * initialize acceptPromiseResolver/Rejecter
-     * mainly for unit tests to work without going through the complete flow.
-     */
     private acceptPromiseResolver: (value: PaymentResponse) => void = emptyFn;
     private acceptPromiseRejecter: (reason: unknown) => void = emptyFn;
 
+    // eslint-disable-next-line max-statements
     constructor(
         readonly methodData: PaymentMethodData[],
-        readonly details: PaymentDetailsInit,
+        public details: PaymentDetailsInit,
         private readonly options: PaymentOptions = emptyPaymentOptions
     ) {
         // 3. Establish the request's id:
@@ -108,7 +104,7 @@ export class PaymentRequest {
 
         // TODO: Currently this is supported only by the IOS - should we implement it for the Android?
         NativePayments.createPaymentRequest(
-            JSON.parse(this.serializedMethodData),
+            JSON.parse(this.serializedMethodData) as PaymentMethodData,
             this.normalizedDetails,
             this.options
         ).catch(() => {
@@ -130,9 +126,11 @@ export class PaymentRequest {
                  * TODO: Maybe we should? =)
                  * HINT: resolve will be triggered via acceptPromiseResolver() from onuseraccpet event
                  */
-                NativePayments.show(JSON.parse(this.serializedMethodData), this.normalizedDetails, this.options).catch(
-                    reject
-                );
+                NativePayments.show(
+                    JSON.parse(this.serializedMethodData) as PaymentMethodData,
+                    this.normalizedDetails,
+                    this.options
+                ).catch(reject);
             } else {
                 reject(new DOMException(PaymentsErrorEnum.InvalidStateError));
             }
@@ -160,7 +158,7 @@ export class PaymentRequest {
                 // TODO: We need to return normalized response from the IOS and Android
                 isIOS
                     ? this.getPlatformDetailsIOS(details as unknown as IOSRawPaymentDetailsInterface)
-                    : this.getPlatformDetailsAndroid(details)
+                    : this.getPlatformDetailsAndroid(details as unknown as AndroidRawPaymentDetailsInterface)
             )
         );
     }
@@ -208,6 +206,7 @@ export class PaymentRequest {
             paymentData: isSimulator ? {} : (JSON.parse(serializedPaymentData) as Record<string, string>),
             billingContact: parseField(serializedBillingContact),
             shippingContact: parseField(serializedShippingContact),
+            shippingOption: this.shippingOption,
             paymentToken,
             transactionIdentifier,
             paymentMethod,
@@ -221,6 +220,7 @@ export class PaymentRequest {
         // TODO: Do we need to process android data in some way?
         return {
             ...details,
+            shippingOption: this.shippingOption,
             paymentData: {},
             transactionIdentifier: '',
             paymentMethod: {},

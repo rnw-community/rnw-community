@@ -1,5 +1,6 @@
 import { isAndroid } from '@rnw-community/platform';
-import { isDefined } from '@rnw-community/shared';
+
+import { handleNativeCallback } from './handle-callback';
 
 import type { Spec } from '../NativePayments';
 
@@ -9,12 +10,6 @@ export const abortPayment = (nativePayments: Spec) => (): Promise<boolean> =>
             // TODO: Implement android
             resolve(true);
         } else {
-            nativePayments.abort(err => {
-                if (isDefined(err)) {
-                    reject(err);
-                } else {
-                    resolve(true);
-                }
-            });
+            nativePayments.abort(handleNativeCallback(resolve, reject, true));
         }
     });

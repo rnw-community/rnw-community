@@ -1,4 +1,4 @@
-package com.rtnpayments;
+package com.rnpayments;
 
 import androidx.annotation.Nullable;
 import com.facebook.react.bridge.NativeModule;

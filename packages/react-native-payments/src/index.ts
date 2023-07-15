@@ -1,1 +1,2 @@
-export { canMakePayments } from './can-make-payments/can-make-payments';
+export { PaymentRequest } from './payment-request/payment-request';
+export { PaymentResponse } from './payment-response/payment-response';

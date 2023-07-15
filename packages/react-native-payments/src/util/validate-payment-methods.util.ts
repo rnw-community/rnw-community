@@ -21,6 +21,7 @@ export const validatePaymentMethods = (methodData: PaymentMethodData[]): Array<[
             throw new ConstructorError(`required member supportedMethods is not iterable.`);
         }
 
+        // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
         if (paymentMethod.supportedMethods.length < 1) {
             throw new ConstructorError(`Each payment method needs to include at least one payment method identifier`);
         }

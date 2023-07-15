@@ -1,7 +1,8 @@
 import { isAndroid } from '@rnw-community/platform';
-import { isDefined } from '@rnw-community/shared';
 
-import type { PaymentDetailsUpdate } from '../interface/payment-details-update';
+import { handleNativeCallback } from './handle-callback';
+
+import type { PaymentDetailsUpdate } from '../interface/payment-details/payment-details-update';
 import type { Spec } from '../NativePayments';
 
 export const handleDetailsUpdate =
@@ -16,12 +17,6 @@ export const handleDetailsUpdate =
             if (isAndroid) {
                 resolve();
             } else {
-                nativePayments.handleDetailsUpdate(details, err => {
-                    if (isDefined(err)) {
-                        reject(err);
-                    } else {
-                        resolve();
-                    }
-                });
+                nativePayments.handleDetailsUpdate(details, handleNativeCallback(resolve, reject, void 0));
             }
         });

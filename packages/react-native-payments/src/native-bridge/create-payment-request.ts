@@ -1,10 +1,11 @@
 // TODO: Android has no implementation, do we need it? Can we improve the API?
 import { isAndroid } from '@rnw-community/platform';
-import { isDefined } from '@rnw-community/shared';
 
 import { type PaymentOptions, emptyPaymentOptions } from '../interface/payment-options';
 
-import type { PaymentDetailsInit } from '../interface/payment-details-init';
+import { handleNativeCallback } from './handle-callback';
+
+import type { PaymentDetailsInit } from '../interface/payment-details/payment-details-init';
 import type { PaymentMethodData } from '../interface/payment-method-data/payment-method-data';
 import type { Spec } from '../NativePayments';
 
@@ -24,12 +25,11 @@ export const createPaymentRequest =
             if (isAndroid) {
                 resolve();
             } else {
-                nativePayments.createPaymentRequest(methodData, details, options, err => {
-                    if (isDefined(err)) {
-                        reject(err);
-                    } else {
-                        resolve();
-                    }
-                });
+                nativePayments.createPaymentRequest(
+                    methodData,
+                    details,
+                    options,
+                    handleNativeCallback(resolve, reject, void 0)
+                );
             }
         });

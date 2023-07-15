@@ -1,14 +1,16 @@
 import { isAndroid } from '@rnw-community/platform';
 
-import type { CanMakePaymentsMethodDataInterface } from '../interface/can-make-payments-method-data.interface';
+import { handleNativeCallback } from './handle-callback';
+
+import type { PaymentMethodData } from '../interface/payment-method-data/payment-method-data';
 import type { Spec } from '../NativePayments';
 
 export const canMakePayments =
     (nativePayments: Spec) =>
-    (methodData?: CanMakePaymentsMethodDataInterface): Promise<boolean> =>
+    (methodData: PaymentMethodData): Promise<boolean> =>
         new Promise((resolve, reject) => {
             if (isAndroid) {
-                nativePayments.canMakePayments(methodData, reject, () => void resolve(true));
+                nativePayments.canMakePayments(methodData, handleNativeCallback(resolve, reject, true));
             } else {
                 /*
                  * On iOS, canMakePayments is exposed as a constant.

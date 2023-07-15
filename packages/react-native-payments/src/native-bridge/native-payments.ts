@@ -6,7 +6,6 @@ import { abortPayment } from './abort-payment';
 import { canMakePayments } from './can-make-payment';
 import { createPaymentRequest } from './create-payment-request';
 import { finishPayment } from './finish-payment';
-import { getSupportedGateways } from './get-supported-gateways';
 import { handleDetailsUpdate } from './handle-details-update';
 import { startPayment } from './start-payment';
 
@@ -36,8 +35,6 @@ const nativePayments = isDefined(PaymentsModule) ? PaymentsModule : PaymentsProx
 
 // TODO: This object could be eliminated and all logic should be called in used classes?
 export const NativePayments = {
-    // TODO: Do we need it the API? We can throw an error if wrong gateway was passed? And this is only android specific
-    supportedGateways: getSupportedGateways(nativePayments),
     canMakePayments: canMakePayments(nativePayments),
     // TODO: Do we need it the API as android is not doing anything?
     createPaymentRequest: createPaymentRequest(nativePayments),

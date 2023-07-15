@@ -1,5 +1,6 @@
 import { isAndroid } from '@rnw-community/platform';
-import { isDefined } from '@rnw-community/shared';
+
+import { handleNativeCallback } from './handle-callback';
 
 import type { PaymentComplete } from '../enum/payment-complete.enum';
 import type { Spec } from '../NativePayments';
@@ -12,12 +13,6 @@ export const finishPayment =
             if (isAndroid) {
                 resolve();
             } else {
-                nativePayments.complete(paymentStatus, err => {
-                    if (isDefined(err)) {
-                        reject(err);
-                    } else {
-                        resolve();
-                    }
-                });
+                nativePayments.complete(paymentStatus, handleNativeCallback(resolve, reject, void 0));
             }
         });

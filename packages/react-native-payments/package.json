@@ -79,11 +79,11 @@
     "react-native": ">=0.64"
   },
   "codegenConfig": {
-    "name": "RTNPaymentsSpec",
+    "name": "RNPaymentsSpec",
     "type": "modules",
     "jsSrcsDir": "src",
     "android": {
-      "javaPackageName": "com.rtnpayments"
+      "javaPackageName": "com.rnpayments"
     }
   }
 }
