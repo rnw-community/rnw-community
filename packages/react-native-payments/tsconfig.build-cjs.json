@@ -1,15 +1,12 @@
 {
     "extends": "../../tsconfig.build-cjs.json",
-    "compilerOptions": {
-        "outDir": "./dist/cjs",
-        "types": ["@types/webpack-env", "node"]
-    },
     "include": [
         "./src"
     ],
     "exclude": [
         "node_modules",
         "dist",
+        "lib",
         "**/*.spec.*"
     ]
 }

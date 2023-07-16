@@ -1,6 +1,6 @@
 /* eslint-disable no-underscore-dangle,max-lines */
 import { DeviceEventEmitter, type EmitterSubscription } from 'react-native';
-import { v4 as uuid } from 'uuid';
+import uuid from 'react-native-uuid';
 
 import { isIOS } from '@rnw-community/platform';
 import { emptyFn, isNotEmptyString } from '@rnw-community/shared';
@@ -10,12 +10,9 @@ import { PaymentMethodNameEnum } from '../enum/payment-method-name.enum';
 import { PaymentsErrorEnum } from '../enum/payments-error.enum';
 import { ConstructorError } from '../error/constructor.error';
 import { DOMException } from '../error/dom.exception';
-import { GatewayError } from '../error/gateway.error';
-import { type PaymentOptions, emptyPaymentOptions } from '../interface/payment-options';
-import { NativePayments } from '../native-bridge/native-payments';
+import { NativePayments } from '../native-payments/native-payments';
 import { PaymentResponse } from '../payment-response/payment-response';
 import { convertDetailAmountsToString } from '../util/convert-detail-amounts-to-string.util';
-import { getSelectedShippingOption } from '../util/get-selected-shipping-option.util';
 import { validateDisplayItems } from '../util/validate-display-items.util';
 import { validatePaymentMethods } from '../util/validate-payment-methods.util';
 import { validatePlatformMethodData } from '../util/validate-platform-method-data.util';
@@ -40,23 +37,15 @@ export class PaymentRequest {
 
     private readonly userDismissSubscription: EmitterSubscription;
     private readonly userAcceptSubscription: EmitterSubscription;
-    private readonly gatewayErrorSubscription: EmitterSubscription;
-
-    // TODO: Do we need it? Is is not in the spec
-    private readonly shippingOption: string;
 
     private acceptPromiseResolver: (value: PaymentResponse) => void = emptyFn;
     private acceptPromiseRejecter: (reason: unknown) => void = emptyFn;
 
     // eslint-disable-next-line max-statements
-    constructor(
-        readonly methodData: PaymentMethodData[],
-        public details: PaymentDetailsInit,
-        private readonly options: PaymentOptions = emptyPaymentOptions
-    ) {
+    constructor(readonly methodData: PaymentMethodData[], public details: PaymentDetailsInit) {
         // 3. Establish the request's id:
         if (!isNotEmptyString(details.id)) {
-            details.id = uuid();
+            details.id = uuid.v4() as string;
         }
 
         // 4. Process payment methods
@@ -83,12 +72,6 @@ export class PaymentRequest {
         this.normalizedDetails = convertDetailAmountsToString(details);
         this.id = details.id;
 
-        /*
-         * React Native Payments specific 👇
-         * ---------------------------------
-         */
-        this.shippingOption = getSelectedShippingOption(details.shippingOptions);
-
         this.userAcceptSubscription = DeviceEventEmitter.addListener(
             `${MODULE_SCOPING}:onuseraccept`,
             this.handleAcceptPayment.bind(this)
@@ -97,19 +80,6 @@ export class PaymentRequest {
             `${MODULE_SCOPING}:onuserdismiss`,
             this.handleDismissPayment.bind(this)
         );
-        this.gatewayErrorSubscription = DeviceEventEmitter.addListener(
-            `${MODULE_SCOPING}:ongatewayerror`,
-            this.handleGatewayError.bind(this)
-        );
-
-        // TODO: Currently this is supported only by the IOS - should we implement it for the Android?
-        NativePayments.createPaymentRequest(
-            JSON.parse(this.serializedMethodData) as PaymentMethodData,
-            this.normalizedDetails,
-            this.options
-        ).catch(() => {
-            throw new ConstructorError(`Cannot create payment request`);
-        });
     }
 
     // https://www.w3.org/TR/payment-request/#show-method
@@ -121,15 +91,10 @@ export class PaymentRequest {
             if (this.state === 'created') {
                 this.state = 'interactive';
 
-                /*
-                 * These arguments are passed because on Android we don't call createPaymentRequest.
-                 * TODO: Maybe we should? =)
-                 * HINT: resolve will be triggered via acceptPromiseResolver() from onuseraccpet event
-                 */
+                // HINT: resolve will be triggered via acceptPromiseResolver() from onuseraccpet event
                 NativePayments.show(
                     JSON.parse(this.serializedMethodData) as PaymentMethodData,
-                    this.normalizedDetails,
-                    this.options
+                    this.normalizedDetails
                 ).catch(reject);
             } else {
                 reject(new DOMException(PaymentsErrorEnum.InvalidStateError));
@@ -163,16 +128,11 @@ export class PaymentRequest {
         );
     }
 
-    private handleGatewayError(details: { error: string }): void {
-        this.acceptPromiseRejecter(new GatewayError(details.error));
-    }
-
     private handleDismissPayment(): void {
         this.state = 'closed';
 
         this.userDismissSubscription.remove();
         this.userAcceptSubscription.remove();
-        this.gatewayErrorSubscription.remove();
 
         this.acceptPromiseRejecter(new DOMException(PaymentsErrorEnum.AbortError));
     }
@@ -206,7 +166,6 @@ export class PaymentRequest {
             paymentData: isSimulator ? {} : (JSON.parse(serializedPaymentData) as Record<string, string>),
             billingContact: parseField(serializedBillingContact),
             shippingContact: parseField(serializedShippingContact),
-            shippingOption: this.shippingOption,
             paymentToken,
             transactionIdentifier,
             paymentMethod,
@@ -220,7 +179,6 @@ export class PaymentRequest {
         // TODO: Do we need to process android data in some way?
         return {
             ...details,
-            shippingOption: this.shippingOption,
             paymentData: {},
             transactionIdentifier: '',
             paymentMethod: {},

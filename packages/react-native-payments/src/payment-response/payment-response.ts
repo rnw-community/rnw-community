@@ -1,5 +1,5 @@
 /* eslint-disable no-underscore-dangle */
-import { NativePayments } from '../native-bridge/native-payments';
+import { NativePayments } from '../native-payments/native-payments';
 
 import type { PaymentComplete } from '../enum/payment-complete.enum';
 import type { NativePaymentDetailsInterface } from '../interface/payment-details/native-payment-details.interface';

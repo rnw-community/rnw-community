@@ -20,7 +20,7 @@ module.exports = {
         'plugin:rxjs/recommended',
         'standard-with-typescript',
         'plugin:typescript-sort-keys/recommended',
-        "plugin:prettier/recommended",
+        'plugin:prettier/recommended',
     ],
     globals: {
         Atomics: 'readonly',

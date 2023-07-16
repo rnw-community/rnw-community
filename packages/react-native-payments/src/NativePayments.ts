@@ -1,31 +1,18 @@
+/* eslint-disable @typescript-eslint/ban-types */
 import { TurboModuleRegistry } from 'react-native';
 
-import type { PaymentComplete } from './enum/payment-complete.enum';
-import type { NativeErrorInterface } from './interface/native-error.interface';
-import type { PaymentDetailsInit } from './interface/payment-details/payment-details-init';
-import type { PaymentDetailsUpdate } from './interface/payment-details/payment-details-update';
-import type { PaymentMethodData } from './interface/payment-method-data/payment-method-data';
-import type { PaymentOptions } from './interface/payment-options';
 import type { TurboModule } from 'react-native';
 
-// TODO: Platform implementation differs significantly - we need improving it
+/*
+ * TODO: Codegen does not support anything from TS unfortunately
+ * https://reactnative.dev/docs/new-architecture-appendix#iii-typescript-to-native-type-mapping
+ * Unions do not work, objects do not work, generics do not work, etc.
+ */
 export interface Spec extends TurboModule {
-    abort: (callback: (error?: NativeErrorInterface) => void) => void;
-    canMakePayments: (methodData: PaymentMethodData, callback: (error?: NativeErrorInterface) => void) => void;
-    complete: (paymentComplete: PaymentComplete, callback: (error?: NativeErrorInterface) => void) => void;
-    createPaymentRequest: (
-        methodData: PaymentMethodData,
-        details: PaymentDetailsInit,
-        options: PaymentOptions,
-        callback: (error?: NativeErrorInterface) => void
-    ) => void;
-    handleDetailsUpdate: (details: PaymentDetailsUpdate, callback: (error?: NativeErrorInterface) => void) => void;
-    show: (
-        methodData: PaymentMethodData,
-        details: PaymentDetailsInit,
-        options: PaymentOptions,
-        callback: (error?: NativeErrorInterface) => void
-    ) => void;
+    abort: () => Promise<void>;
+    canMakePayments: (methodData: Object) => Promise<boolean>;
+    complete: (paymentComplete: string) => Promise<void>;
+    show: (methodData: Object, details: Object) => Promise<void>;
 }
 
 export default TurboModuleRegistry.getEnforcing<Spec>('Payments');

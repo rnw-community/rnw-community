@@ -20,7 +20,4 @@ export const convertDetailAmountsToString = <T extends PaymentDetailsBase>(detai
     displayItems: details.displayItems.map(paymentItemOrShippingOption =>
         convertObjectAmountToString(paymentItemOrShippingOption)
     ),
-    shippingOptions: details.shippingOptions.map(paymentItemOrShippingOption =>
-        convertObjectAmountToString(paymentItemOrShippingOption)
-    ),
 });

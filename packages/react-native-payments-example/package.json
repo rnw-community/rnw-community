@@ -1,0 +1,25 @@
+{
+  "name": "@rnw-community/react-native-payments-example",
+  "version": "0.54.0",
+  "scripts": {
+    "android": "react-native run-android",
+    "ios": "react-native run-ios",
+    "ts": "run -T tsc --pretty -p tsconfig.json",
+    "lint": "run -T eslint src",
+    "lint:fix": "run -T eslint --fix src",
+    "start": "react-native start",
+    "test": "jest",
+    "deps": "pod-install --quiet"
+  },
+  "dependencies": {
+    "@rnw-community/react-native-payments": "^0.54.0",
+    "react": "^18.2.0",
+    "react-native": "^0.72.3"
+  },
+  "devDependencies": {
+    "@react-native/metro-config": "^0.72.9",
+    "@tsconfig/react-native": "^3.0.0",
+    "ios-deploy": "^1.12.2",
+    "pod-install": "^0.1.38"
+  }
+}

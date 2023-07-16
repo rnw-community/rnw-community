@@ -24,19 +24,13 @@
     "url": "https://github.com/rnw-community/rnw-community/issues"
   },
   "license": "MIT",
-  "exports": {
-    ".": {
-      "import": "./dist/esm/index.js",
-      "require": "./dist/cjs/index.js"
-    }
-  },
-  "source": "src/index",
-  "react-native": "src/index",
-  "main": "dist/cjs/index.js",
-  "module": "dist/esm/index.js",
-  "types": "dist/esm/index.d.ts",
+  "main": "lib/commonjs/index.js",
+  "module": "lib/module/index.js",
+  "react-native": "src/index.ts",
+  "types": "lib/typescript/index.d.ts",
   "files": [
-    "dist/**/*"
+    "lib/",
+    "src/"
   ],
   "sideEffects": "false",
   "publishConfig": {
@@ -53,15 +47,20 @@
     "test": "run -T jest",
     "test:coverage": "run -T jest --coverage",
     "format": "run -T prettier --write \"./src/**/*.{ts,tsx}\"",
-    "clear": "rm -rf coverage && rm -rf dist && rm -f *.tsbuildinfo",
-    "clear:deps": "rm -rf ./node_modules && rm -rf ./dist"
+    "clear": "rm -rf coverage && rm -rf dist && rm -f *.tsbuildinfo && yarn run clear:native",
+    "clear:deps": "rm -rf ./node_modules && rm -rf ./dist",
+    "clear:native": "rm -rf android/build example/android/build example/android/app/build example/ios/build",
+    "example": "yarn --cwd example",
+    "build:android": "cd example/android && ./gradlew assembleDebug --no-daemon --console=plain -PreactNativeArchitectures=arm64-v8a",
+    "build:ios": "cd example/ios && xcodebuild -workspace PaymentsExample.xcworkspace -scheme PaymentsExample -configuration Debug -sdk iphonesimulator CC=clang CPLUSPLUS=clang++ LD=clang LDPLUSPLUS=clang++ GCC_OPTIMIZATION_LEVEL=0 GCC_PRECOMPILE_PREFIX_HEADER=YES ASSETCATALOG_COMPILER_OPTIMIZATION=time DEBUG_INFORMATION_FORMAT=dwarf COMPILER_INDEX_STORE_ENABLE=NO",
+    "prepack": "bob build"
   },
   "engines": {
     "node": ">=14.0.0"
   },
   "gitHead": "b5608910319390f9773a9d42c3cc828e8e8a1d95",
   "dependencies": {
-    "uuid": "^9.0.0",
+    "react-native-uuid": "^2.0.1",
     "validator": "^13.9.0"
   },
   "devDependencies": {
@@ -69,14 +68,30 @@
     "@rnw-community/shared": "^0.54.0",
     "@types/uuid": "^9.0.2",
     "@types/validator": "^13.7.17",
-    "react": "^18.0.2",
-    "react-native": "^0.72.3"
+    "react": "^18.2.0",
+    "react-native": "^0.72.3",
+    "react-native-builder-bob": "^0.21.2"
   },
   "peerDependencies": {
     "@rnw-community/platform": ">=0.49",
     "@rnw-community/shared": ">=0.49",
     "react": ">=17",
     "react-native": ">=0.64"
+  },
+  "react-native-builder-bob": {
+    "source": "src",
+    "output": "lib",
+    "targets": [
+      "commonjs",
+      "module",
+      [
+        "typescript",
+        {
+          "project": "tsconfig.build-esm.json",
+          "tsc": "../../node_modules/.bin/tsc"
+        }
+      ]
+    ]
   },
   "codegenConfig": {
     "name": "RNPaymentsSpec",
