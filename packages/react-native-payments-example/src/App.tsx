@@ -89,7 +89,7 @@ export const App = (): JSX.Element => {
             <Button onPress={handlePay} title="ApplePay" />
             <Button onPress={handlePayWithAbort} title="ApplePay with delayed abort" />
             <Text>{error}</Text>
-            {isDefined(response) && <Text>Response:</Text>}
+            {isDefined(response) && <Text>Response:{JSON.stringify(response)}</Text>}
         </SafeAreaView>
     );
 };

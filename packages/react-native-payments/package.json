@@ -33,6 +33,7 @@
   "main": "dist/cjs/index.js",
   "module": "dist/esm/index.js",
   "types": "dist/esm/index.d.ts",
+  "react-native": "src/index.ts",
   "files": [
     "dist/**/*"
   ],
@@ -70,7 +71,6 @@
   "devDependencies": {
     "@rnw-community/platform": "^0.54.0",
     "@rnw-community/shared": "^0.54.0",
-    "@types/uuid": "^9.0.2",
     "@types/validator": "^13.7.17",
     "react": "^18.2.0",
     "react-native": "^0.72.3"

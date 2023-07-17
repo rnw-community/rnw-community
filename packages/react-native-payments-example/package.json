@@ -9,7 +9,12 @@
     "lint:fix": "run -T eslint --fix src",
     "start": "react-native start",
     "test": "jest",
-    "deps": "pod-install --quiet"
+    "deps": "pod-install --quiet",
+    "clear": "yarn clear:metro && yarn clear:watchman && yarn clear:android && yarn clear:babel",
+    "clear:android": "cd android && ./gradlew clean",
+    "clear:babel": "rm -rf ./node_modules/.cache/babel-loader/ && rm -rf ./build || true",
+    "clear:metro": "rm -rf $TMPDIR/haste-map-* || true && rm -rf $TMPDIR/metro-* || true",
+    "clear:watchman": "watchman watch-del-all"
   },
   "dependencies": {
     "@rnw-community/react-native-payments": "^0.54.0",

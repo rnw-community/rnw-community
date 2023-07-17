@@ -4339,7 +4339,6 @@ __metadata:
   dependencies:
     "@rnw-community/platform": ^0.54.0
     "@rnw-community/shared": ^0.54.0
-    "@types/uuid": ^9.0.2
     "@types/validator": ^13.7.17
     react: ^18.2.0
     react-native: ^0.72.3
@@ -4805,13 +4804,6 @@ __metadata:
   version: 2.0.1
   resolution: "@types/stack-utils@npm:2.0.1"
   checksum: 205fdbe3326b7046d7eaf5e494d8084f2659086a266f3f9cf00bccc549c8e36e407f88168ad4383c8b07099957ad669f75f2532ed4bc70be2b037330f7bae019
-  languageName: node
-  linkType: hard
-
-"@types/uuid@npm:^9.0.2":
-  version: 9.0.2
-  resolution: "@types/uuid@npm:9.0.2"
-  checksum: 1754bcf3444e1e3aeadd6e774fc328eb53bc956665e2e8fb6ec127aa8e1f43d9a224c3d22a9a6233dca8dd81a12dc7fed4d84b8876dd5ec82d40f574f7ff8b68
   languageName: node
   linkType: hard
 

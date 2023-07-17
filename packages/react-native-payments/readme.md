@@ -18,7 +18,7 @@ Full refactoring of the [react-native-payments](https://github.com/naoufal/react
 - [ ] Add lib.dom and comply with the spec
 - [ ] External dependencies:
     - [ ] Do we need validator lib?
-    - [ ] Do we need uuid lib?
+    - [x] Do we need uuid lib?
 - [ ] Add web support
 - [ ] Check `package.json` files and react-native config, can we use `dist/esm` for metro?
 - [ ] CI/CD:

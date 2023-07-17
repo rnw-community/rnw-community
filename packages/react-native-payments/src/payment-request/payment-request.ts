@@ -19,8 +19,6 @@ import { validatePlatformMethodData } from '../util/validate-platform-method-dat
 import { validateShippingOptions } from '../util/validate-shipping-options.util';
 import { validateTotal } from '../util/validate-total.util';
 
-import type { AndroidRawPaymentDetailsInterface } from '../interface/payment-details/android/android-raw-payment-details.interface';
-import type { IOSRawPaymentDetailsInterface } from '../interface/payment-details/ios/ios-raw-payment-details.interface';
 import type { NativePaymentDetailsInterface } from '../interface/payment-details/native-payment-details.interface';
 import type { PaymentDetailsInit } from '../interface/payment-details/payment-details-init';
 import type { PaymentMethodData } from '../interface/payment-method-data/payment-method-data';
@@ -113,16 +111,11 @@ export class PaymentRequest {
     }
 
     private handleAcceptPayment(details: NativePaymentDetailsInterface): void {
-        this.acceptPromiseResolver(
-            new PaymentResponse(
-                this.id,
-                isIOS ? PaymentMethodNameEnum.ApplePay : PaymentMethodNameEnum.AndroidPay,
-                // TODO: We need to return normalized response from the IOS and Android
-                isIOS
-                    ? this.getPlatformDetailsIOS(details as unknown as IOSRawPaymentDetailsInterface)
-                    : this.getPlatformDetailsAndroid(details as unknown as AndroidRawPaymentDetailsInterface)
-            )
-        );
+        const methodName = isIOS ? PaymentMethodNameEnum.ApplePay : PaymentMethodNameEnum.AndroidPay;
+
+        // TODO: Convert details to unified interface
+
+        this.acceptPromiseResolver(new PaymentResponse(this.id, methodName, details));
     }
 
     private handleDismissPayment(): void {
@@ -133,54 +126,5 @@ export class PaymentRequest {
         this.acceptSubscription.remove();
 
         this.acceptPromiseRejecter(new DOMException(PaymentsErrorEnum.AbortError));
-    }
-
-    // eslint-disable-next-line class-methods-use-this
-    private getPlatformDetailsIOS(details: IOSRawPaymentDetailsInterface): NativePaymentDetailsInterface {
-        const {
-            paymentData: serializedPaymentData,
-            billingContact: serializedBillingContact,
-            shippingContact: serializedShippingContact,
-            paymentToken = '',
-            transactionIdentifier,
-            paymentMethod,
-        } = details;
-
-        const isSimulator = transactionIdentifier === 'Simulated Identifier';
-
-        const parseField = (input: string | null | undefined): Record<string, string> | undefined => {
-            if (isNotEmptyString(input)) {
-                try {
-                    return JSON.parse(input) as Record<string, string>;
-                } catch (e) {
-                    return undefined;
-                }
-            }
-
-            return undefined;
-        };
-
-        return {
-            paymentData: isSimulator ? {} : (JSON.parse(serializedPaymentData) as Record<string, string>),
-            billingContact: parseField(serializedBillingContact),
-            shippingContact: parseField(serializedShippingContact),
-            paymentToken,
-            transactionIdentifier,
-            paymentMethod,
-            cardInfo: {},
-            googleTransactionId: '',
-        };
-    }
-
-    // eslint-disable-next-line class-methods-use-this
-    private getPlatformDetailsAndroid(details: AndroidRawPaymentDetailsInterface): NativePaymentDetailsInterface {
-        // TODO: Do we need to process android data in some way?
-        return {
-            ...details,
-            paymentData: {},
-            transactionIdentifier: '',
-            paymentMethod: {},
-            paymentToken: '',
-        };
     }
 }

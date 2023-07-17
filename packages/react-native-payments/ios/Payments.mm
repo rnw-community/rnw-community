@@ -1,4 +1,5 @@
 #import "Payments.h"
+#import <objc/runtime.h>
 
 // TODO: Rewrite according to recent docs https://developer.apple.com/documentation/passkit/apple_pay/offering_apple_pay_in_your_app?language=objc
 @implementation Payments
@@ -31,6 +32,8 @@ RCT_EXPORT_METHOD(show:(NSDictionary *)methodData
         return;
     }
 
+    // TODO: Should we add supportedCountries config, if android has the same?
+    // https://developer.apple.com/documentation/passkit/pkpaymentrequest/2865929-supportedcountries?language=objc
     if(!countryCode) {
         reject(@"no_country_code", @"No country code provided", nil);
         return;
@@ -39,6 +42,27 @@ RCT_EXPORT_METHOD(show:(NSDictionary *)methodData
     if(!currencyCode) {
         reject(@"no_currency_code", @"No currency code provided", nil);
         return;
+    }
+
+    // HINT: Validating supportedNetworks
+    // This should match SupportedNetworkEnum from the TS
+    // TODO: Should we add other PaymentNetworks? Lets wait for PRs =)
+    NSDictionary *availableNetworks = @{
+        @"visa" : PKPaymentNetworkVisa,
+        @"mastercard" : PKPaymentNetworkMasterCard,
+        @"amex" : PKPaymentNetworkAmex,
+        @"unionpay" : PKPaymentNetworkChinaUnionPay
+    };
+    NSMutableArray *supportedNetworks =  [NSMutableArray array];
+
+    for (NSString *supportedNetwork in methodData[@"supportedNetworks"]) {
+        PKPaymentNetwork foundNetwork = [availableNetworks objectForKey:supportedNetwork];
+        if (foundNetwork == nil) {
+            reject(@"invalid_supported_network", [NSString stringWithFormat:@"Invalid supportedNetwork passed '%@'", supportedNetwork], nil);
+            return;
+        }
+
+        [supportedNetworks addObject:foundNetwork];
     }
 
     PKPaymentRequest *paymentRequest = [[PKPaymentRequest alloc] init];
@@ -50,9 +74,6 @@ RCT_EXPORT_METHOD(show:(NSDictionary *)methodData
     // https://developer.apple.com/documentation/passkit/pkpaymentrequest/1619305-merchantidentifier?language=objc
     paymentRequest.merchantIdentifier = merchantId;
 
-    // TODO: Should we add supportedCountries config if matched by the android config?
-    // https://developer.apple.com/documentation/passkit/pkpaymentrequest/2865929-supportedcountries?language=objc
-
     // https://developer.apple.com/documentation/passkit/pkpaymentrequest/1619246-countrycode?language=objc
     paymentRequest.countryCode = countryCode;
     // https://developer.apple.com/documentation/passkit/pkpaymentrequest/1619248-currencycode?language=objc
@@ -60,40 +81,43 @@ RCT_EXPORT_METHOD(show:(NSDictionary *)methodData
 
     // https://developer.apple.com/documentation/passkit/pkpaymentrequest/1833288-availablenetworks?language=objc
     // https://developer.apple.com/documentation/passkit/pkpaymentrequest/1619329-supportednetworks?language=objc
-    paymentRequest.supportedNetworks = @[PKPaymentNetworkVisa, PKPaymentNetworkMasterCard, PKPaymentNetworkAmex];
+    paymentRequest.supportedNetworks = supportedNetworks;
 
     // https://developer.apple.com/documentation/passkit/pkpaymentrequest/1619231-paymentsummaryitems?language=objc
     paymentRequest.paymentSummaryItems = [self getPaymentSummaryItemsFromDetails:details];
 
+    // HINT: ShippingOptions is not a part of the W3C Spec anymore
+    // https://developer.mozilla.org/en-US/docs/Web/API/PaymentRequest/shippingOption
+    // https://developer.mozilla.org/en-US/docs/Web/API/PaymentRequest/shippingAddress
+
+    // Though it is still available in the ApplePay:
     // https://developer.apple.com/documentation/passkit/pkpaymentrequest/2865928-requiredbillingcontactfields?language=objc
+    // paymentRequest.requiredBillingContactFields = [NSSet setWithArray:@[PKContactFieldPostalAddress, PKContactFieldName]];
+
     // https://developer.apple.com/documentation/passkit/pkpaymentrequest/2865927-requiredshippingcontactfields?language=objc
-    paymentRequest.shippingMethods = [self getShippingMethodsFromDetails:details];
+    // paymentRequest.requiredShippingContactFields = [NSSet setWithArray:@[PKContactFieldPostalAddress, PKContactFieldName, PKContactFieldEmailAddress, PKContactFieldPhoneNumber]];
 
     // https://developer.apple.com/documentation/passkit/pkpaymentauthorizationviewcontroller/1616178-initwithpaymentrequest?language=objc
     self.viewController = [[PKPaymentAuthorizationViewController alloc] initWithPaymentRequest: paymentRequest];
     self.viewController.delegate = self;
 
     if (!self.viewController) {
-        reject(@"no_view_controller", @"Failed initializing PKPaymentAuthorizationViewController, check you app ApplePay capabilities and merchantIdentifier, check supportedNetworks/availableNetworks", nil);
+        reject(@"no_view_controller", @"Failed initializing PKPaymentAuthorizationViewController, check you app ApplePay capabilities and merchantIdentifier", nil);
         return;
     }
 
-    // https://reactnative.dev/docs/native-modules-ios#threading
-    dispatch_async(dispatch_get_main_queue(), ^{
-        UIViewController *rootViewController = RCTPresentedViewController();
-
-        [rootViewController presentViewController:self.viewController animated:YES completion:nil];
-
+    UIViewController *rootViewController = RCTPresentedViewController();
+    [rootViewController presentViewController:self.viewController animated:YES completion:^{
         resolve(nil);
-    });
+    }];
 }
 
 RCT_EXPORT_METHOD(abort: (RCTPromiseResolveBlock)resolve
                           reject:(RCTPromiseRejectBlock)reject)
 {
-    [self.viewController dismissViewControllerAnimated:YES completion:nil];
-
-    resolve(nil);
+    [self.viewController dismissViewControllerAnimated:YES completion:^{
+        resolve(nil);
+    }];
 }
 
 RCT_EXPORT_METHOD(complete: (NSString *)paymentStatus
@@ -101,12 +125,13 @@ RCT_EXPORT_METHOD(complete: (NSString *)paymentStatus
                   reject:(RCTPromiseRejectBlock)reject)
 {
     PKPaymentAuthorizationStatus status = PKPaymentAuthorizationStatusFailure;
+
     if ([paymentStatus isEqualToString: @"success"]) {
         status = PKPaymentAuthorizationStatusSuccess;
     }
 
     self.completion([[PKPaymentAuthorizationResult alloc] initWithStatus:status errors:nil]);
-    
+
     resolve(nil);
 }
 
@@ -134,7 +159,7 @@ RCT_EXPORT_METHOD(canMakePayments: (NSDictionary *)methodData
 {
     self.completion = completion;
 
-    [self handleUserAccept:payment paymentToken:nil];
+    [self sendEventWithName:@"ReactNativePayments:accept" body:[self objectToDictionary:payment ignoredKeys:@[@"billingAddress", @"shippingAddress"]]];
 }
 
 // PRIVATE METHODS
@@ -147,12 +172,11 @@ RCT_EXPORT_METHOD(canMakePayments: (NSDictionary *)methodData
     return paymentSummaryItem;
 }
 
+// https://developer.apple.com/documentation/passkit/pkpaymentrequest/1619231-paymentsummaryitems?language=objc
 - (NSArray<PKPaymentSummaryItem *> *_Nonnull)getPaymentSummaryItemsFromDetails:(NSDictionary *_Nonnull)details
 {
-    // Setup `paymentSummaryItems` array
-    NSMutableArray <PKPaymentSummaryItem *> * paymentSummaryItems = [NSMutableArray array];
+    NSMutableArray <PKPaymentSummaryItem *> *paymentSummaryItems = [NSMutableArray array];
 
-    // Add `displayItems` to `paymentSummaryItems`
     NSArray *displayItems = details[@"displayItems"];
     if (displayItems.count > 0) {
         for (NSDictionary *displayItem in displayItems) {
@@ -160,174 +184,54 @@ RCT_EXPORT_METHOD(canMakePayments: (NSDictionary *)methodData
         }
     }
 
-    // Add total to `paymentSummaryItems`
     NSDictionary *total = details[@"total"];
     [paymentSummaryItems addObject: [self convertDisplayItemToPaymentSummaryItem:total]];
 
     return paymentSummaryItems;
 }
 
-- (PKShippingMethod *_Nonnull)convertShippingOptionToShippingMethod:(NSDictionary *_Nonnull)shippingOption
-{
-    PKShippingMethod *shippingMethod = [PKShippingMethod summaryItemWithLabel:shippingOption[@"label"] amount:[NSDecimalNumber decimalNumberWithString: shippingOption[@"amount"][@"value"]]];
-    shippingMethod.identifier = shippingOption[@"id"];
+- (NSDictionary *)objectToDictionary:(NSObject *)object ignoredKeys:(NSArray<NSString *> *)ignoredKeys {
+    NSMutableDictionary *dictionary = [NSMutableDictionary dictionary];
 
-    // shippingOption.detail is not part of the PaymentRequest spec.
-    if ([shippingOption[@"detail"] isKindOfClass:[NSString class]]) {
-        shippingMethod.detail = shippingOption[@"detail"];
-    } else {
-        shippingMethod.detail = @"";
-    }
+    // Get the class of the object
+    Class objectClass = [object class];
 
-    return shippingMethod;
-}
+    // Enumerate through the properties of the object using KVC
+    unsigned int propertyCount;
+    objc_property_t *properties = class_copyPropertyList(objectClass, &propertyCount);
 
-- (NSArray<PKShippingMethod *> *_Nonnull)getShippingMethodsFromDetails:(NSDictionary *_Nonnull)details
-{
-    // Setup `shippingMethods` array
-    NSMutableArray <PKShippingMethod *> * shippingMethods = [NSMutableArray array];
+    for (unsigned int i = 0; i < propertyCount; i++) {
+        objc_property_t property = properties[i];
 
-    // Add `shippingOptions` to `shippingMethods`
-    NSArray *shippingOptions = details[@"shippingOptions"];
-    if (shippingOptions.count > 0) {
-        for (NSDictionary *shippingOption in shippingOptions) {
-            [shippingMethods addObject: [self convertShippingOptionToShippingMethod:shippingOption]];
+        // Get the property name
+        const char *propertyName = property_getName(property);
+        NSString *propertyNameString = [NSString stringWithUTF8String:propertyName];
+
+        // Check if the property name is in the ignoredKeys array
+        if ([ignoredKeys containsObject:propertyNameString]) {
+            // Skip this property if it's in the ignoredKeys array
+            continue;
+        }
+
+        // Get the property value using KVC
+        id propertyValue = [object valueForKey:propertyNameString];
+
+        // Check if the property value is an object
+        if ([propertyValue isKindOfClass:[NSObject class]]) {
+            // Recursively convert the nested object to a dictionary
+            NSDictionary *nestedDictionary = [self objectToDictionary:propertyValue ignoredKeys:ignoredKeys];
+
+            // Set the nested dictionary as the value for the property
+            dictionary[propertyNameString] = nestedDictionary;
+        } else {
+            // Set the property value directly
+            dictionary[propertyNameString] = propertyValue;
         }
     }
 
-    return shippingMethods;
-}
+    free(properties);
 
-- (NSString *_Nonnull)contactToString:(PKContact *_Nonnull)contact
-{
-    NSString *namePrefix = contact.name.namePrefix;
-    NSString *givenName = contact.name.givenName;
-    NSString *middleName = contact.name.middleName;
-    NSString *familyName = contact.name.familyName;
-    NSString *nameSuffix = contact.name.nameSuffix;
-    NSString *nickname = contact.name.nickname;
-    NSString *street = contact.postalAddress.street;
-    NSString *subLocality = contact.postalAddress.subLocality;
-    NSString *city = contact.postalAddress.city;
-    NSString *subAdministrativeArea = contact.postalAddress.subAdministrativeArea;
-    NSString *state = contact.postalAddress.state;
-    NSString *postalCode = contact.postalAddress.postalCode;
-    NSString *country = contact.postalAddress.country;
-    NSString *ISOCountryCode = contact.postalAddress.ISOCountryCode;
-    NSString *phoneNumber = contact.phoneNumber.stringValue;
-    NSString *emailAddress = contact.emailAddress;
-
-    NSDictionary *contactDict = @{
-         @"name" : @{
-                 @"namePrefix" : namePrefix ?: @"",
-                 @"givenName" : givenName ?: @"",
-                 @"middleName" : middleName ?: @"",
-                 @"familyName" : familyName ?: @"",
-                 @"nameSuffix" : nameSuffix ?: @"",
-                 @"nickname" : nickname ?: @"",
-         },
-         @"postalAddress" : @{
-                 @"street" : street ?: @"",
-                 @"subLocality" : subLocality ?: @"",
-                 @"city" : city ?: @"",
-                 @"subAdministrativeArea" : subAdministrativeArea ?: @"",
-                 @"state" : state ?: @"",
-                 @"postalCode" : postalCode ?: @"",
-                 @"country" : country ?: @"",
-                 @"ISOCountryCode" : ISOCountryCode ?: @""
-         },
-         @"phoneNumber" : phoneNumber ?: @"",
-         @"emailAddress" : emailAddress ?: @""
-    };
-
-    NSError *error;
-    NSData *jsonData = [NSJSONSerialization dataWithJSONObject:contactDict options:0 error:&error];
-
-    if (! jsonData) {
-       return @"";
-    } else {
-       return [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
-    }
-
-}
-
-- (NSDictionary *_Nonnull)paymentMethodToString:(PKPaymentMethod *_Nonnull)paymentMethod
-{
-    NSMutableDictionary *result = [[NSMutableDictionary alloc]initWithCapacity:4];
-
-    if(paymentMethod.displayName) {
-        [result setObject:paymentMethod.displayName forKey:@"displayName"];
-    }
-    if (paymentMethod.network) {
-        [result setObject:paymentMethod.network forKey:@"network"];
-    }
-    NSString *type = [self paymentMethodTypeToString:paymentMethod.type];
-    [result setObject:type forKey:@"type"];
-    if(paymentMethod.paymentPass) {
-        NSDictionary *paymentPass = [self paymentPassToDictionary:paymentMethod.paymentPass];
-        [result setObject:paymentPass forKey:@"paymentPass"];
-    }
-
-    return result;
-}
-
-- (NSString *_Nonnull)paymentMethodTypeToString:(PKPaymentMethodType)paymentMethodType
-{
-    NSArray *arr = @[@"PKPaymentMethodTypeUnknown",
-                     @"PKPaymentMethodTypeDebit",
-                     @"PKPaymentMethodTypeCredit",
-                     @"PKPaymentMethodTypePrepaid",
-                     @"PKPaymentMethodTypeStore"];
-    return (NSString *)[arr objectAtIndex:paymentMethodType];
-}
-
-- (NSDictionary *_Nonnull)paymentPassToDictionary:(PKPaymentPass *_Nonnull)paymentPass
-{
-    return @{
-        @"primaryAccountIdentifier" : paymentPass.primaryAccountIdentifier,
-        @"primaryAccountNumberSuffix" : paymentPass.primaryAccountNumberSuffix,
-        @"deviceAccountIdentifier" : paymentPass.deviceAccountIdentifier,
-        @"deviceAccountNumberSuffix" : paymentPass.deviceAccountNumberSuffix,
-        @"activationState" : [self paymentPassActivationStateToString:paymentPass.activationState]
-    };
-}
-
-- (NSString *_Nonnull)paymentPassActivationStateToString:(PKPaymentPassActivationState)paymentPassActivationState
-{
-    NSArray *arr = @[@"PKPaymentPassActivationStateActivated",
-                     @"PKPaymentPassActivationStateRequiresActivation",
-                     @"PKPaymentPassActivationStateActivating",
-                     @"PKPaymentPassActivationStateSuspended",
-                     @"PKPaymentPassActivationStateDeactivated"];
-    return (NSString *)[arr objectAtIndex:paymentPassActivationState];
-}
-
-- (void)handleUserAccept:(PKPayment *_Nonnull)payment paymentToken:(NSString *_Nullable)token
-{
-    NSMutableDictionary *paymentResponse = [[NSMutableDictionary alloc]initWithCapacity:6];
-
-    NSString *transactionId = payment.token.transactionIdentifier;
-    [paymentResponse setObject:transactionId forKey:@"transactionIdentifier"];
-
-    NSString *paymentData = [[NSString alloc] initWithData:payment.token.paymentData encoding:NSUTF8StringEncoding];
-    [paymentResponse setObject:paymentData forKey:@"paymentData"];
-
-    NSDictionary *paymentMethod = [self paymentMethodToString:payment.token.paymentMethod];
-    [paymentResponse setObject:paymentMethod forKey:@"paymentMethod"];
-
-    if (token) {
-        [paymentResponse setObject:token forKey:@"paymentToken"];
-    }
-
-    if (payment.billingContact) {
-        paymentResponse[@"billingContact"] = [self contactToString:payment.billingContact];
-    }
-
-    if (payment.shippingContact) {
-        paymentResponse[@"shippingContact"] = [self contactToString:payment.shippingContact];
-    }
-
-    [self sendEventWithName:@"ReactNativePayments:accept" body:paymentResponse];
+    return [dictionary copy];
 }
 
 // Don't compile this code when we build for the old architecture.
