@@ -1,6 +1,7 @@
 import type { IosPKContact } from './ios-pk-contact';
 import type { IosPKShippingMethod } from './ios-pk-shipping-method';
 
+// TODO: Check returned fields in the real app, to get full data
 export interface IosPKPayment {
     /*
      * TODO: This data should additionally requested, should we add this possibility, how to handle on android?
