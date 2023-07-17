@@ -19,8 +19,7 @@
 #endif
 
 @property (nonatomic, strong) PKPaymentAuthorizationViewController * _Nullable viewController;
-@property(nonatomic, copy) NSArray<PKPaymentNetwork> * _Nonnull supportedNetworks;
-@property (nonatomic, copy) void (^ _Nonnull completion)(PKPaymentAuthorizationStatus);
+@property (nonatomic, copy) void (^__strong _Nonnull completion)(PKPaymentAuthorizationResult * _Nonnull __strong);
 
 - (NSArray<PKPaymentSummaryItem *> *_Nonnull)getPaymentSummaryItemsFromDetails:(NSDictionary *_Nonnull)details;
 - (NSArray<PKShippingMethod *> *_Nonnull)getShippingMethodsFromDetails:(NSDictionary *_Nonnull)details;

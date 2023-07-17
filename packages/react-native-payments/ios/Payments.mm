@@ -11,10 +11,10 @@ RCT_EXPORT_MODULE()
     return dispatch_get_main_queue();
 }
 
-// TODO: Do we need it?
-+ (BOOL)requiresMainQueueSetup
+// https://reactnative.dev/docs/native-modules-ios#sending-events-to-javascript
+- (NSArray<NSString *> *)supportedEvents;
 {
-    return YES;
+    return @[@"ReactNativePayments:accept", @"ReactNativePayments:dismiss"];
 }
 
 RCT_EXPORT_METHOD(show:(NSDictionary *)methodData
@@ -60,7 +60,7 @@ RCT_EXPORT_METHOD(show:(NSDictionary *)methodData
 
     // https://developer.apple.com/documentation/passkit/pkpaymentrequest/1833288-availablenetworks?language=objc
     // https://developer.apple.com/documentation/passkit/pkpaymentrequest/1619329-supportednetworks?language=objc
-    paymentRequest.supportedNetworks = self.supportedNetworks;
+    paymentRequest.supportedNetworks = @[PKPaymentNetworkVisa, PKPaymentNetworkMasterCard, PKPaymentNetworkAmex];
 
     // https://developer.apple.com/documentation/passkit/pkpaymentrequest/1619231-paymentsummaryitems?language=objc
     paymentRequest.paymentSummaryItems = [self getPaymentSummaryItemsFromDetails:details];
@@ -69,8 +69,14 @@ RCT_EXPORT_METHOD(show:(NSDictionary *)methodData
     // https://developer.apple.com/documentation/passkit/pkpaymentrequest/2865927-requiredshippingcontactfields?language=objc
     paymentRequest.shippingMethods = [self getShippingMethodsFromDetails:details];
 
+    // https://developer.apple.com/documentation/passkit/pkpaymentauthorizationviewcontroller/1616178-initwithpaymentrequest?language=objc
     self.viewController = [[PKPaymentAuthorizationViewController alloc] initWithPaymentRequest: paymentRequest];
     self.viewController.delegate = self;
+
+    if (!self.viewController) {
+        reject(@"no_view_controller", @"Failed initializing PKPaymentAuthorizationViewController, check you app ApplePay capabilities and merchantIdentifier, check supportedNetworks/availableNetworks", nil);
+        return;
+    }
 
     // https://reactnative.dev/docs/native-modules-ios#threading
     dispatch_async(dispatch_get_main_queue(), ^{
@@ -94,12 +100,13 @@ RCT_EXPORT_METHOD(complete: (NSString *)paymentStatus
                   resolve:(RCTPromiseResolveBlock)resolve
                   reject:(RCTPromiseRejectBlock)reject)
 {
+    PKPaymentAuthorizationStatus status = PKPaymentAuthorizationStatusFailure;
     if ([paymentStatus isEqualToString: @"success"]) {
-        self.completion(PKPaymentAuthorizationStatusSuccess);
-    } else {
-        self.completion(PKPaymentAuthorizationStatusFailure);
+        status = PKPaymentAuthorizationStatusSuccess;
     }
 
+    self.completion([[PKPaymentAuthorizationResult alloc] initWithStatus:status errors:nil]);
+    
     resolve(nil);
 }
 
@@ -115,16 +122,15 @@ RCT_EXPORT_METHOD(canMakePayments: (NSDictionary *)methodData
 // https://developer.apple.com/documentation/passkit/pkpaymentauthorizationviewcontrollerdelegate/1616180-paymentauthorizationviewcontroll?language=objc
 - (void) paymentAuthorizationViewControllerDidFinish:(PKPaymentAuthorizationViewController *)controller
 {
-    [controller dismissViewControllerAnimated:YES completion:nil];
-
-    [self sendEventWithName:@"Payments:dismiss" body:nil];
+    [controller dismissViewControllerAnimated:YES completion:^{
+        [self sendEventWithName:@"ReactNativePayments:dismiss" body:nil];
+    }];
 }
 
-// TODO: Fix deprecated delegate usage
 // https://developer.apple.com/documentation/passkit/pkpaymentauthorizationviewcontrollerdelegate/2865759-paymentauthorizationviewcontroll?language=objc
 - (void) paymentAuthorizationViewController:(PKPaymentAuthorizationViewController *)controller
                         didAuthorizePayment:(PKPayment *)payment
-                                 completion:(void (^)(PKPaymentAuthorizationStatus))completion
+                                    handler:(void (^)(PKPaymentAuthorizationResult *result))completion
 {
     self.completion = completion;
 
@@ -321,7 +327,7 @@ RCT_EXPORT_METHOD(canMakePayments: (NSDictionary *)methodData
         paymentResponse[@"shippingContact"] = [self contactToString:payment.shippingContact];
     }
 
-    [self sendEventWithName:@"Payments:accept" body:paymentResponse];
+    [self sendEventWithName:@"ReactNativePayments:accept" body:paymentResponse];
 }
 
 // Don't compile this code when we build for the old architecture.

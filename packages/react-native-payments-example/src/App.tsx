@@ -1,19 +1,27 @@
-import React, { useEffect } from 'react';
-import { SafeAreaView, Text } from 'react-native';
+import React, { useState } from 'react';
+import { Button, SafeAreaView, Text } from 'react-native';
 
-import { PaymentRequest } from '@rnw-community/react-native-payments';
-
-import type { PaymentDetailsInit, PaymentMethodData } from '@rnw-community/react-native-payments';
+import {
+    type NativePaymentDetailsInterface,
+    PaymentComplete,
+    type PaymentDetailsInit,
+    type PaymentMethodData,
+    PaymentMethodNameEnum,
+    PaymentRequest,
+    SupportedNetworkEnum,
+} from '@rnw-community/react-native-payments';
+import { getErrorMessage, isDefined } from '@rnw-community/shared';
 
 const paymentMethodData: PaymentMethodData[] = [
     {
         data: {
             currencyCode: 'USD',
             countryCode: 'US',
-            supportedNetworks: ['visa'],
-            merchantIdentifier: 'test',
+            supportedNetworks: [SupportedNetworkEnum.visa, SupportedNetworkEnum.mastercard],
+            // HINT: This should match your Apple Developer Merchant ID(in XCode Apple Pay Capabilities)
+            merchantIdentifier: 'merchant.react-native-payments',
         },
-        supportedMethods: ['apple-pay'],
+        supportedMethods: [PaymentMethodNameEnum.ApplePay],
     },
 ];
 const paymentDetails: PaymentDetailsInit = {
@@ -42,15 +50,46 @@ const paymentDetails: PaymentDetailsInit = {
     },
 };
 
+// TODO: Add UI to add items
 export const App = (): JSX.Element => {
-    useEffect(() => {
-        const paymentRequest = new PaymentRequest(paymentMethodData, paymentDetails);
-        void paymentRequest.show().then(paymentResponse => void console.log(paymentResponse));
-    }, []);
+    const [error, setError] = useState('');
+    const [response, setResponse] = useState<NativePaymentDetailsInterface>();
+
+    const createPaymentRequest = (): PaymentRequest => {
+        setError('');
+        setResponse(undefined);
+
+        return new PaymentRequest(paymentMethodData, paymentDetails);
+    };
+    const handlePay = (): void => {
+        void createPaymentRequest()
+            .show()
+            .then(paymentResponse => {
+                setResponse(paymentResponse.details);
+
+                return paymentResponse.complete(PaymentComplete.SUCCESS);
+            })
+            .catch((err: unknown) => {
+                setError(getErrorMessage(err));
+            });
+    };
+
+    const handlePayWithAbort = (): void => {
+        const paymentRequest = createPaymentRequest();
+
+        paymentRequest.show().catch((err: unknown) => {
+            setError(getErrorMessage(err));
+        });
+
+        setTimeout(() => void paymentRequest.abort(), 1000);
+    };
 
     return (
         <SafeAreaView>
-            <Text>React native payments</Text>
+            <Button onPress={handlePay} title="ApplePay" />
+            <Button onPress={handlePayWithAbort} title="ApplePay with delayed abort" />
+            <Text>{error}</Text>
+            {isDefined(response) && <Text>Response:</Text>}
         </SafeAreaView>
     );
 };

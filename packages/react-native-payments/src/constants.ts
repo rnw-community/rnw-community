@@ -1,5 +1,2 @@
-// TODO: Can we get it from other place?
+// TODO: Can we get it from other place? And avoid having this constant.
 export const MODULE_NAME = 'ReactNativePayments';
-
-/** @deprecated TODO: Is this correct? Can we remove it? */
-export const MODULE_SCOPING = 'NativePayments';

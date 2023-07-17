@@ -26,10 +26,10 @@ export class NestJSRxJSMetricsService<
     protected readonly startedSummaryMetrics: SummaryRecord<S>;
 
     constructor(
-        protected readonly counterMetrics: Record<keyof C, Counter<string>>,
-        protected readonly gaugeMetrics: Record<keyof G, Gauge<string>>,
-        protected readonly histogramMetrics: Record<keyof H, Histogram<string>>,
-        protected readonly summaryMetrics: Record<keyof S, Summary<string>>
+        protected readonly counterMetrics: Record<keyof C, Counter>,
+        protected readonly gaugeMetrics: Record<keyof G, Gauge>,
+        protected readonly histogramMetrics: Record<keyof H, Histogram>,
+        protected readonly summaryMetrics: Record<keyof S, Summary>
     ) {
         this.startedHistogramMetrics = Object.fromEntries(
             Object.entries(this.histogramMetrics).map(([key]) => [key, []])
@@ -45,7 +45,7 @@ export class NestJSRxJSMetricsService<
         });
     }
 
-    gauge<T>(metric: keyof G, handler: (gauge: Gauge<string>) => void): MonoTypeOperatorFunction<T> {
+    gauge<T>(metric: keyof G, handler: (gauge: Gauge) => void): MonoTypeOperatorFunction<T> {
         return rxjsOperator(() => {
             handler(this.gaugeMetrics[metric]);
         });

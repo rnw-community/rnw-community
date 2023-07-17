@@ -24,13 +24,17 @@
     "url": "https://github.com/rnw-community/rnw-community/issues"
   },
   "license": "MIT",
-  "main": "lib/commonjs/index.js",
-  "module": "lib/module/index.js",
-  "react-native": "src/index.ts",
-  "types": "lib/typescript/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/esm/index.js",
+      "require": "./dist/cjs/index.js"
+    }
+  },
+  "main": "dist/cjs/index.js",
+  "module": "dist/esm/index.js",
+  "types": "dist/esm/index.d.ts",
   "files": [
-    "lib/",
-    "src/"
+    "dist/**/*"
   ],
   "sideEffects": "false",
   "publishConfig": {
@@ -69,29 +73,13 @@
     "@types/uuid": "^9.0.2",
     "@types/validator": "^13.7.17",
     "react": "^18.2.0",
-    "react-native": "^0.72.3",
-    "react-native-builder-bob": "^0.21.2"
+    "react-native": "^0.72.3"
   },
   "peerDependencies": {
     "@rnw-community/platform": ">=0.49",
     "@rnw-community/shared": ">=0.49",
     "react": ">=17",
     "react-native": ">=0.64"
-  },
-  "react-native-builder-bob": {
-    "source": "src",
-    "output": "lib",
-    "targets": [
-      "commonjs",
-      "module",
-      [
-        "typescript",
-        {
-          "project": "tsconfig.build-esm.json",
-          "tsc": "../../node_modules/.bin/tsc"
-        }
-      ]
-    ]
   },
   "codegenConfig": {
     "name": "RNPaymentsSpec",

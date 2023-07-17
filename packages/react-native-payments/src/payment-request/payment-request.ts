@@ -1,11 +1,11 @@
 /* eslint-disable no-underscore-dangle,max-lines */
-import { DeviceEventEmitter, type EmitterSubscription } from 'react-native';
+import { type EmitterSubscription, NativeEventEmitter, NativeModules } from 'react-native';
 import uuid from 'react-native-uuid';
 
 import { isIOS } from '@rnw-community/platform';
 import { emptyFn, isNotEmptyString } from '@rnw-community/shared';
 
-import { MODULE_SCOPING } from '../constants';
+import { MODULE_NAME } from '../constants';
 import { PaymentMethodNameEnum } from '../enum/payment-method-name.enum';
 import { PaymentsErrorEnum } from '../enum/payments-error.enum';
 import { ConstructorError } from '../error/constructor.error';
@@ -35,8 +35,8 @@ export class PaymentRequest {
     private readonly serializedMethodData: string;
     private readonly normalizedDetails: PaymentDetailsInit;
 
-    private readonly userDismissSubscription: EmitterSubscription;
-    private readonly userAcceptSubscription: EmitterSubscription;
+    private readonly dismissSubscription: EmitterSubscription;
+    private readonly acceptSubscription: EmitterSubscription;
 
     private acceptPromiseResolver: (value: PaymentResponse) => void = emptyFn;
     private acceptPromiseRejecter: (reason: unknown) => void = emptyFn;
@@ -72,14 +72,11 @@ export class PaymentRequest {
         this.normalizedDetails = convertDetailAmountsToString(details);
         this.id = details.id;
 
-        this.userAcceptSubscription = DeviceEventEmitter.addListener(
-            `${MODULE_SCOPING}:onuseraccept`,
-            this.handleAcceptPayment.bind(this)
-        );
-        this.userDismissSubscription = DeviceEventEmitter.addListener(
-            `${MODULE_SCOPING}:onuserdismiss`,
-            this.handleDismissPayment.bind(this)
-        );
+        // TODO: Is there a more type-safe way to do this?
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+        const eventEmitter = new NativeEventEmitter(NativeModules['Payments']);
+        this.acceptSubscription = eventEmitter.addListener(`${MODULE_NAME}:accept`, this.handleAcceptPayment.bind(this));
+        this.dismissSubscription = eventEmitter.addListener(`${MODULE_NAME}:dismiss`, this.handleDismissPayment.bind(this));
     }
 
     // https://www.w3.org/TR/payment-request/#show-method
@@ -91,7 +88,7 @@ export class PaymentRequest {
             if (this.state === 'created') {
                 this.state = 'interactive';
 
-                // HINT: resolve will be triggered via acceptPromiseResolver() from onuseraccpet event
+                // HINT: resolve will be triggered via acceptPromiseResolver() from ReactNativePayments:accept event
                 NativePayments.show(
                     JSON.parse(this.serializedMethodData) as PaymentMethodData,
                     this.normalizedDetails
@@ -131,8 +128,9 @@ export class PaymentRequest {
     private handleDismissPayment(): void {
         this.state = 'closed';
 
-        this.userDismissSubscription.remove();
-        this.userAcceptSubscription.remove();
+        // TODO: Should we check if this subscription is already removed? Maybe someone will decide to cache PaymentRequest instance?
+        this.dismissSubscription.remove();
+        this.acceptSubscription.remove();
 
         this.acceptPromiseRejecter(new DOMException(PaymentsErrorEnum.AbortError));
     }
