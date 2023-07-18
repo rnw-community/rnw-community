@@ -12,7 +12,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class PaymentsPackage extends TurboReactPackage {
-
   @Nullable
   @Override
   public NativeModule getModule(String name, ReactApplicationContext reactContext) {

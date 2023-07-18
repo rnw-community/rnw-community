@@ -46,12 +46,12 @@ RCT_EXPORT_METHOD(show:(NSDictionary *)methodData
 
     // HINT: Validating supportedNetworks
     // This should match SupportedNetworkEnum from the TS
+    // https://developer.apple.com/documentation/passkit/pkpaymentnetwork?language=objc
     // TODO: Should we add other PaymentNetworks? Lets wait for PRs =)
     NSDictionary *availableNetworks = @{
         @"visa" : PKPaymentNetworkVisa,
         @"mastercard" : PKPaymentNetworkMasterCard,
-        @"amex" : PKPaymentNetworkAmex,
-        @"unionpay" : PKPaymentNetworkChinaUnionPay
+        @"amex" : PKPaymentNetworkAmex
     };
     NSMutableArray *supportedNetworks =  [NSMutableArray array];
 

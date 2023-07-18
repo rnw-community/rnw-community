@@ -86,7 +86,7 @@
     "type": "modules",
     "jsSrcsDir": "src",
     "android": {
-      "javaPackageName": "com.rnpayments"
+      "javaPackageName": "com.payments"
     }
   }
 }
