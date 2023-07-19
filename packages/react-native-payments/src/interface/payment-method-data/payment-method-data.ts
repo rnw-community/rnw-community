@@ -1,8 +1,13 @@
-import type { AndroidPaymentMethodData } from './android/android-payment-method-data';
+import type { AndroidPaymentDataRequest } from './android/android-payment-data-request';
 import type { IOSPaymentMethodData } from './ios/ios-payment-method-data';
+import type { PaymentMethodNameEnum } from '../../enum/payment-method-name.enum';
 
-/*
- * TODO: Merge and unify interface?
- * https://www.w3.org/TR/payment-request/#paymentmethoddata-dictionary
- */
-export type PaymentMethodData = AndroidPaymentMethodData | IOSPaymentMethodData;
+// https://www.w3.org/TR/payment-request/#paymentmethoddata-dictionary
+export interface NativePaymentMethodData<T> {
+    data: T;
+    supportedMethods: PaymentMethodNameEnum[];
+}
+
+export type PaymentMethodData =
+    | NativePaymentMethodData<AndroidPaymentDataRequest>
+    | NativePaymentMethodData<IOSPaymentMethodData>;

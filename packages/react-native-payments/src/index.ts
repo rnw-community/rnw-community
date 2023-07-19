@@ -1,5 +1,4 @@
 export { PaymentMethodNameEnum } from './enum/payment-method-name.enum';
-export { AllowedPaymentMethodsEnum } from './enum/allowed-payment-methods.enum';
 export { EnvironmentEnum } from './enum/environment.enum';
 export { PaymentComplete } from './enum/payment-complete.enum';
 export { PaymentsErrorEnum } from './enum/payments-error.enum';

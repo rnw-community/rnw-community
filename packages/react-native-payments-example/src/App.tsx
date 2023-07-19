@@ -23,8 +23,64 @@ const paymentMethodData: PaymentMethodData[] = [
         },
         supportedMethods: [PaymentMethodNameEnum.ApplePay],
     },
+    {
+        data: {
+            allowedPaymentMethods: [
+                {
+                    parameters: {
+                        allowedAuthMethods: ['PAN_ONLY', 'CRYPTOGRAM_3DS'],
+                        allowedCardNetworks: ['AMEX', 'MASTERCARD', 'VISA'],
+                        /*
+                         * allowCreditCards: true,
+                         * allowPrepaidCards: true,
+                         * assuranceDetailsRequired: true,
+                         * billingAddressParameters: {
+                         *     format: 'FULL',
+                         *     phoneNumberRequired: true,
+                         * },
+                         * billingAddressRequired: true,
+                         */
+                    },
+                    tokenizationSpecification: {
+                        parameters: {
+                            gateway: 'firstdata',
+                            gatewayMerchantId: '12022224648',
+                        },
+                        type: 'PAYMENT_GATEWAY',
+                    },
+                    type: 'CARD',
+                },
+            ],
+            apiVersion: 2,
+            apiVersionMinor: 0,
+            emailRequired: true,
+            // merchantInfo: { merchantName: 'Example merchant' },
+            transactionInfo: {
+                /*
+                 * checkoutOption: 'COMPLETE_IMMEDIATE_PURCHASE',
+                 */
+                countryCode: 'US',
+                currencyCode: 'USD',
+                totalPrice: '111',
+                totalPriceStatus: 'FINAL',
+                /*
+                 * totalPriceLabel: 'TestPurchase',
+                 * transactionId: '123',
+                 */
+            },
+            /*
+             * shippingAddressRequired: true,
+             * shippingAddressParameters: {
+             *     allowedCountryCodes: ['US'],
+             *     phoneNumberRequired: true,
+             * },
+             */
+        },
+        supportedMethods: [PaymentMethodNameEnum.AndroidPay],
+    },
 ];
 const paymentDetails: PaymentDetailsInit = {
+    environment: 'TEST',
     displayItems: [
         {
             amount: {
@@ -86,7 +142,7 @@ export const App = (): JSX.Element => {
 
     return (
         <SafeAreaView>
-            <Button onPress={handlePay} title="ApplePay" />
+            <Button onPress={handlePay} title="AndroidPay/ApplePay" />
             <Button onPress={handlePayWithAbort} title="ApplePay with delayed abort" />
             <Text>{error}</Text>
             {isDefined(response) && <Text>Response:{JSON.stringify(response)}</Text>}

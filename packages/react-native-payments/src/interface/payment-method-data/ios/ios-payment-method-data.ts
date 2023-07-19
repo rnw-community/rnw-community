@@ -1,7 +1,9 @@
-import type { GenericPaymentMethodData } from '../generic-payment-method-data.interface';
+import type { SupportedNetworkEnum } from '../../../enum/supported-networks.enum';
 
-export interface IOSPaymentMethodData
-    extends GenericPaymentMethodData<{
-        countryCode: string;
-        merchantIdentifier: string;
-    }> {}
+// TODO: Add correct types and links to them, rename?
+export interface IOSPaymentMethodData {
+    countryCode: string;
+    currencyCode: string;
+    merchantIdentifier: string;
+    supportedNetworks: SupportedNetworkEnum[];
+}

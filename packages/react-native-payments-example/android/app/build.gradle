@@ -8,7 +8,7 @@ apply plugin: "com.facebook.react"
 react {
     /* Folders */
     //   The root of your project, i.e. where "package.json" lives. Default is '..'
-    // root = file("../")
+    root = file("../")
     //   The folder where the react-native NPM package is. Default is ../node_modules/react-native
     reactNativeDir = file("../../../../node_modules/react-native")
     //   The folder where the react-native Codegen package is. Default is ../node_modules/@react-native/codegen
@@ -106,6 +106,8 @@ android {
 dependencies {
     // The version of react-native is set by the React Native Gradle Plugin
     implementation("com.facebook.react:react-android")
+
+    implementation 'com.google.android.gms:play-services-wallet:19.2.0'
 
     debugImplementation("com.facebook.flipper:flipper:${FLIPPER_VERSION}")
     debugImplementation("com.facebook.flipper:flipper-network-plugin:${FLIPPER_VERSION}") {

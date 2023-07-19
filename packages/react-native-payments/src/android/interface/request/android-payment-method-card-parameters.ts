@@ -1,13 +1,13 @@
 import type { AndroidBillingAddressParameters } from './android-billing-address-parameters';
+import type { AndroidAllowedCardNetworksEnum } from '../../enum/android-allowed-card-networks.enum';
 
 // https://developers.google.com/pay/api/android/reference/request-objects#CardParameters
 export interface AndroidPaymentMethodCardParameters {
     // Required for UK Gambling merchants
     allowCreditCards?: boolean;
     allowPrepaidCards?: boolean;
-    allowedAuthMethods: Array<'CRYPTOGRAM_3DS' | 'PAN_ONLY'>;
-    // TODO: This should match SupportedNetworkEnum, register is different between IOS and Android
-    allowedCardNetworks: Array<'AMEX' | 'MASTERCARD' | 'VISA'>;
+    allowedAuthMethods: AndroidAllowedCardNetworksEnum[];
+    allowedCardNetworks: AndroidAllowedCardNetworksEnum[];
     assuranceDetailsRequired?: boolean;
     billingAddressParameters?: AndroidBillingAddressParameters;
     billingAddressRequired?: boolean;

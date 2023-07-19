@@ -1,4 +1,6 @@
 /* eslint-disable no-underscore-dangle */
+import { isIOS } from '@rnw-community/platform/src';
+
 import { NativePayments } from '../native-payments/native-payments';
 
 import type { PaymentComplete } from '../enum/payment-complete.enum';

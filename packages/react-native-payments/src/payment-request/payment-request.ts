@@ -1,11 +1,9 @@
 /* eslint-disable no-underscore-dangle,max-lines */
-import { type EmitterSubscription, NativeEventEmitter, NativeModules } from 'react-native';
 import uuid from 'react-native-uuid';
 
 import { isIOS } from '@rnw-community/platform';
-import { emptyFn, isNotEmptyString } from '@rnw-community/shared';
+import { emptyFn, isDefined, isNotEmptyString } from '@rnw-community/shared';
 
-import { MODULE_NAME } from '../constants';
 import { PaymentMethodNameEnum } from '../enum/payment-method-name.enum';
 import { PaymentsErrorEnum } from '../enum/payments-error.enum';
 import { ConstructorError } from '../error/constructor.error';
@@ -15,14 +13,19 @@ import { PaymentResponse } from '../payment-response/payment-response';
 import { convertDetailAmountsToString } from '../util/convert-detail-amounts-to-string.util';
 import { validateDisplayItems } from '../util/validate-display-items.util';
 import { validatePaymentMethods } from '../util/validate-payment-methods.util';
-import { validatePlatformMethodData } from '../util/validate-platform-method-data.util';
 import { validateShippingOptions } from '../util/validate-shipping-options.util';
 import { validateTotal } from '../util/validate-total.util';
 
 import type { NativePaymentDetailsInterface } from '../interface/payment-details/native-payment-details.interface';
 import type { PaymentDetailsInit } from '../interface/payment-details/payment-details-init';
+import type { AndroidPaymentDataRequest } from '../interface/payment-method-data/android/android-payment-data-request';
+import type { IOSPaymentMethodData } from '../interface/payment-method-data/ios/ios-payment-method-data';
 import type { PaymentMethodData } from '../interface/payment-method-data/payment-method-data';
 
+/*
+ * HINT: Troubleshooting: https://developers.google.com/pay/api/android/support/troubleshooting
+ * HINT: Google Pay API Errors: https://developers.google.com/pay/api/web/reference/error-objects
+ */
 export class PaymentRequest {
     // https://www.w3.org/TR/payment-request/#id-attribute
     readonly id: string;
@@ -33,18 +36,16 @@ export class PaymentRequest {
     private readonly serializedMethodData: string;
     private readonly normalizedDetails: PaymentDetailsInit;
 
-    private readonly dismissSubscription: EmitterSubscription;
-    private readonly acceptSubscription: EmitterSubscription;
-
-    private acceptPromiseResolver: (value: PaymentResponse) => void = emptyFn;
     private acceptPromiseRejecter: (reason: unknown) => void = emptyFn;
 
     // eslint-disable-next-line max-statements
     constructor(readonly methodData: PaymentMethodData[], public details: PaymentDetailsInit) {
         // 3. Establish the request's id:
         if (!isNotEmptyString(details.id)) {
+            // TODO: Can we avoid using external lib? Use Math.random?
             details.id = uuid.v4() as string;
         }
+        this.id = details.id;
 
         // 4. Process payment methods
         validatePaymentMethods(methodData);
@@ -65,32 +66,38 @@ export class PaymentRequest {
          * processPaymentDetailsModifiers(details, serializedModifierData)
          */
 
-        // 17. Set request.[[serializedMethodData]] to serializedMethodData.
-        this.serializedMethodData = validatePlatformMethodData(methodData);
-        this.normalizedDetails = convertDetailAmountsToString(details);
-        this.id = details.id;
+        // TODO: Create single user PaymentMethodData interface for lib usage, make it as unified as possible to simplify usage
+        const platformMethodData = this.findPlatformPaymentMethodData();
 
-        // TODO: Is there a more type-safe way to do this?
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-        const eventEmitter = new NativeEventEmitter(NativeModules['Payments']);
-        this.acceptSubscription = eventEmitter.addListener(`${MODULE_NAME}:accept`, this.handleAcceptPayment.bind(this));
-        this.dismissSubscription = eventEmitter.addListener(`${MODULE_NAME}:dismiss`, this.handleDismissPayment.bind(this));
+        // TODO: Modify payment data per platform
+
+        // 17. Set request.[[serializedMethodData]] to serializedMethodData.
+        this.serializedMethodData = JSON.stringify(platformMethodData);
+
+        // TODO: improve this validation/converter - move to class
+        this.normalizedDetails = convertDetailAmountsToString(details);
     }
 
     // https://www.w3.org/TR/payment-request/#show-method
     show(): Promise<PaymentResponse> {
         return new Promise<PaymentResponse>((resolve, reject) => {
-            this.acceptPromiseResolver = resolve;
             this.acceptPromiseRejecter = reject;
 
             if (this.state === 'created') {
                 this.state = 'interactive';
 
                 // HINT: resolve will be triggered via acceptPromiseResolver() from ReactNativePayments:accept event
-                NativePayments.show(
-                    JSON.parse(this.serializedMethodData) as PaymentMethodData,
-                    this.normalizedDetails
-                ).catch(reject);
+                NativePayments.show(this.serializedMethodData, this.normalizedDetails)
+                    .then(details => {
+                        const methodName = isIOS ? PaymentMethodNameEnum.ApplePay : PaymentMethodNameEnum.AndroidPay;
+
+                        // TODO: Add conversion from native details to unified interface - PaymentDetailsUpdate?
+
+                        resolve(new PaymentResponse(this.id, methodName, details as NativePaymentDetailsInterface));
+
+                        return void 0;
+                    })
+                    .catch(reject);
             } else {
                 reject(new DOMException(PaymentsErrorEnum.InvalidStateError));
             }
@@ -107,24 +114,22 @@ export class PaymentRequest {
             throw new DOMException(PaymentsErrorEnum.InvalidStateError);
         });
 
-        this.handleDismissPayment();
-    }
-
-    private handleAcceptPayment(details: NativePaymentDetailsInterface): void {
-        const methodName = isIOS ? PaymentMethodNameEnum.ApplePay : PaymentMethodNameEnum.AndroidPay;
-
-        // TODO: Convert details to unified interface
-
-        this.acceptPromiseResolver(new PaymentResponse(this.id, methodName, details));
-    }
-
-    private handleDismissPayment(): void {
         this.state = 'closed';
 
-        // TODO: Should we check if this subscription is already removed? Maybe someone will decide to cache PaymentRequest instance?
-        this.dismissSubscription.remove();
-        this.acceptSubscription.remove();
-
         this.acceptPromiseRejecter(new DOMException(PaymentsErrorEnum.AbortError));
+    }
+
+    private findPlatformPaymentMethodData(): AndroidPaymentDataRequest | IOSPaymentMethodData {
+        const platformSupportedMethod = isIOS ? PaymentMethodNameEnum.ApplePay : PaymentMethodNameEnum.AndroidPay;
+
+        const platformMethod = this.methodData.find(paymentMethodData =>
+            paymentMethodData.supportedMethods.includes(platformSupportedMethod)
+        );
+
+        if (!isDefined(platformMethod)) {
+            throw new DOMException(PaymentsErrorEnum.NotSupportedError);
+        }
+
+        return platformMethod.data;
     }
 }
