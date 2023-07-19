@@ -1,4 +1,5 @@
 /* eslint-disable no-underscore-dangle,max-lines */
+import { isAndroid } from '@rnw-community/platform/src';
 import uuid from 'react-native-uuid';
 
 import { isIOS } from '@rnw-community/platform';
@@ -16,11 +17,14 @@ import { validatePaymentMethods } from '../util/validate-payment-methods.util';
 import { validateShippingOptions } from '../util/validate-shipping-options.util';
 import { validateTotal } from '../util/validate-total.util';
 
-import type { NativePaymentDetailsInterface } from '../interface/payment-details/native-payment-details.interface';
+import type { AndroidMandatoryPaymentDataRequest } from '../android/interface/request/android-mandatory-payment-data-request';
+import type { AndroidPaymentDataRequest } from '../android/interface/request/android-payment-data-request';
+import type { AndroidPaymentDataToken } from '../android/interface/response/android-payment-data-token';
 import type { PaymentDetailsInit } from '../interface/payment-details/payment-details-init';
-import type { AndroidPaymentDataRequest } from '../interface/payment-method-data/android/android-payment-data-request';
+import type { PaymentMethodData } from '../interface/payment-method-data';
 import type { IOSPaymentMethodData } from '../interface/payment-method-data/ios/ios-payment-method-data';
-import type { PaymentMethodData } from '../interface/payment-method-data/payment-method-data';
+import type { PaymentOptionsInterface } from '../interface/payment-options.interface';
+import type { PaymentResponseInterface } from '../interface/payment-response.interface';
 
 /*
  * HINT: Troubleshooting: https://developers.google.com/pay/api/android/support/troubleshooting
@@ -39,7 +43,11 @@ export class PaymentRequest {
     private acceptPromiseRejecter: (reason: unknown) => void = emptyFn;
 
     // eslint-disable-next-line max-statements
-    constructor(readonly methodData: PaymentMethodData[], public details: PaymentDetailsInit) {
+    constructor(
+        readonly methodData: PaymentMethodData[],
+        public details: PaymentDetailsInit,
+        public options?: PaymentOptionsInterface
+    ) {
         // 3. Establish the request's id:
         if (!isNotEmptyString(details.id)) {
             // TODO: Can we avoid using external lib? Use Math.random?
@@ -66,13 +74,15 @@ export class PaymentRequest {
          * processPaymentDetailsModifiers(details, serializedModifierData)
          */
 
-        // TODO: Create single user PaymentMethodData interface for lib usage, make it as unified as possible to simplify usage
+        /*
+         * 17. Set request.[[serializedMethodData]] to serializedMethodData.
+         * TODO: Create single user PaymentMethodData interface for lib usage, make it as unified as possible to simplify usage
+         */
         const platformMethodData = this.findPlatformPaymentMethodData();
-
-        // TODO: Modify payment data per platform
-
-        // 17. Set request.[[serializedMethodData]] to serializedMethodData.
-        this.serializedMethodData = JSON.stringify(platformMethodData);
+        const nativePlatformMethodData = isAndroid
+            ? this.getAndroidPaymentMethodData(platformMethodData as AndroidMandatoryPaymentDataRequest, options)
+            : platformMethodData;
+        this.serializedMethodData = JSON.stringify(nativePlatformMethodData);
 
         // TODO: improve this validation/converter - move to class
         this.normalizedDetails = convertDetailAmountsToString(details);
@@ -89,11 +99,7 @@ export class PaymentRequest {
                 // HINT: resolve will be triggered via acceptPromiseResolver() from ReactNativePayments:accept event
                 NativePayments.show(this.serializedMethodData, this.normalizedDetails)
                     .then(details => {
-                        const methodName = isIOS ? PaymentMethodNameEnum.ApplePay : PaymentMethodNameEnum.AndroidPay;
-
-                        // TODO: Add conversion from native details to unified interface - PaymentDetailsUpdate?
-
-                        resolve(new PaymentResponse(this.id, methodName, details as NativePaymentDetailsInterface));
+                        resolve(this.handleAccept(details));
 
                         return void 0;
                     })
@@ -119,7 +125,27 @@ export class PaymentRequest {
         this.acceptPromiseRejecter(new DOMException(PaymentsErrorEnum.AbortError));
     }
 
-    private findPlatformPaymentMethodData(): AndroidPaymentDataRequest | IOSPaymentMethodData {
+    private handleAccept(details: string): PaymentResponse {
+        const methodName = isIOS ? PaymentMethodNameEnum.ApplePay : PaymentMethodNameEnum.AndroidPay;
+        const platformDetails = isIOS ? (JSON.parse(details) as object) : (JSON.parse(details) as AndroidPaymentDataToken);
+
+        const response: PaymentResponseInterface = {
+            details: platformDetails,
+            requestId: this.id,
+            /*
+             * TODO: Add implementation to request and receive following data
+             * payerEmail: '',
+             * payerName: '',
+             * payerPhone: '',
+             * shippingAddress: {};
+             * billingAddress: {};
+             */
+        };
+
+        return new PaymentResponse(this.id, methodName, response);
+    }
+
+    private findPlatformPaymentMethodData(): AndroidMandatoryPaymentDataRequest | IOSPaymentMethodData {
         const platformSupportedMethod = isIOS ? PaymentMethodNameEnum.ApplePay : PaymentMethodNameEnum.AndroidPay;
 
         const platformMethod = this.methodData.find(paymentMethodData =>
@@ -131,5 +157,28 @@ export class PaymentRequest {
         }
 
         return platformMethod.data;
+    }
+
+    // eslint-disable-next-line class-methods-use-this
+    private getAndroidPaymentMethodData(
+        androidData: AndroidMandatoryPaymentDataRequest,
+        options?: PaymentOptionsInterface
+    ): AndroidPaymentDataRequest {
+        return {
+            ...androidData,
+            allowedPaymentMethods: androidData.allowedPaymentMethods.map(paymentMethod => ({
+                ...paymentMethod,
+                parameters: {
+                    ...paymentMethod.parameters,
+                    // TODO: Should add configuration for AndroidBillingAddressParameters, is it the same for the IOS?
+                    ...(options?.requestBilling === true && { billingAddressRequired: true }),
+                },
+            })),
+            apiVersion: 2,
+            apiVersionMinor: 0,
+            ...(options?.requestEmail === true && { emailRequired: true }),
+            // TODO: Should add configuration for AndroidShippingAddressParameters, is it the same for the IOS?
+            ...(options?.requestShipping === true && { shippingAddressRequired: true }),
+        };
     }
 }

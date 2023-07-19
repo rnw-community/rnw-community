@@ -12,7 +12,7 @@ export interface Spec extends TurboModule {
     abort: () => Promise<void>;
     canMakePayments: (methodData: Object) => Promise<boolean>;
     complete: (paymentComplete: string) => Promise<void>;
-    show: (methodData: Object, details: Object) => Promise<Object>;
+    show: (methodData: Object, details: Object) => Promise<string>;
 }
 
 export default TurboModuleRegistry.getEnforcing<Spec>('Payments');

@@ -1,10 +1,8 @@
 /* eslint-disable no-underscore-dangle */
-import { isIOS } from '@rnw-community/platform/src';
-
 import { NativePayments } from '../native-payments/native-payments';
 
 import type { PaymentComplete } from '../enum/payment-complete.enum';
-import type { NativePaymentDetailsInterface } from '../interface/payment-details/native-payment-details.interface';
+import type { PaymentResponseInterface } from '../interface/payment-response.interface';
 import type { PaymentValidationErrors } from '../interface/payment-validation-errors';
 
 /*
@@ -21,7 +19,7 @@ export class PaymentResponse {
         // https://www.w3.org/TR/payment-request/#dom-paymentresponse-methodname
         readonly methodName: string,
         // https://www.w3.org/TR/payment-request/#dom-paymentresponse-details
-        readonly details: NativePaymentDetailsInterface
+        readonly details: PaymentResponseInterface
     ) {}
 
     // https://www.w3.org/TR/payment-request/#complete-method

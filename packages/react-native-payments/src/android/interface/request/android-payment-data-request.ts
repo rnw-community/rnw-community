@@ -9,7 +9,7 @@ export interface AndroidPaymentDataRequest {
     apiVersion: 2;
     apiVersionMinor: 0;
     emailRequired?: boolean;
-    merchantInfo: AndroidMerchantInfo;
+    merchantInfo?: AndroidMerchantInfo;
     shippingAddressParameters?: AndroidShippingAddressParameters;
     shippingAddressRequired?: boolean;
     transactionInfo: AndroidTransactionInfo;
