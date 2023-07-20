@@ -15,8 +15,7 @@ import { getErrorMessage, isDefined } from '@rnw-community/shared';
 
 const androidPaymentMethodData: AndroidPaymentMethodDataInterface = {
     data: {
-        currencyCode: 'USD',
-        countryCode: 'US',
+        currencyCode: 'EUR',
         supportedNetworks: [SupportedNetworkEnum.Visa, SupportedNetworkEnum.Mastercard],
         /*
          * HINT: Android gateway configuration, ask you payment provider, Google Pay should support it
@@ -34,7 +33,6 @@ const androidPaymentMethodData: AndroidPaymentMethodDataInterface = {
 const iosPaymentMethodData: IosPaymentMethodDataInterface = {
     data: {
         currencyCode: 'USD',
-        countryCode: 'US',
         supportedNetworks: [SupportedNetworkEnum.Visa, SupportedNetworkEnum.Mastercard],
         // HINT: This should match your Apple Developer Merchant ID(in XCode Apple Pay Capabilities)
         merchantIdentifier: 'merchant.react-native-payments',
@@ -47,14 +45,14 @@ const paymentDetails: PaymentDetailsInterface = {
     displayItems: [
         {
             amount: {
-                currency: 'USD',
+                currency: 'EUR',
                 value: '10.00',
             },
             label: 'First item',
         },
         {
             amount: {
-                currency: 'USD',
+                currency: 'EUR',
                 value: '10.00',
             },
             label: 'Second item',
@@ -62,7 +60,7 @@ const paymentDetails: PaymentDetailsInterface = {
     ],
     total: {
         amount: {
-            currency: 'USD',
+            currency: 'EUR',
             value: '20.00',
         },
         label: 'Total',
