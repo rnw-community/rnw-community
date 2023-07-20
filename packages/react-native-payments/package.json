@@ -33,7 +33,6 @@
   "main": "dist/cjs/index.js",
   "module": "dist/esm/index.js",
   "types": "dist/esm/index.d.ts",
-  "react-native": "src/index.ts",
   "files": [
     "dist/**/*"
   ],
@@ -59,9 +58,6 @@
     "build:android": "cd example/android && ./gradlew assembleDebug --no-daemon --console=plain -PreactNativeArchitectures=arm64-v8a",
     "build:ios": "cd example/ios && xcodebuild -workspace PaymentsExample.xcworkspace -scheme PaymentsExample -configuration Debug -sdk iphonesimulator CC=clang CPLUSPLUS=clang++ LD=clang LDPLUSPLUS=clang++ GCC_OPTIMIZATION_LEVEL=0 GCC_PRECOMPILE_PREFIX_HEADER=YES ASSETCATALOG_COMPILER_OPTIMIZATION=time DEBUG_INFORMATION_FORMAT=dwarf COMPILER_INDEX_STORE_ENABLE=NO",
     "prepack": "bob build"
-  },
-  "engines": {
-    "node": ">=14.0.0"
   },
   "gitHead": "b5608910319390f9773a9d42c3cc828e8e8a1d95",
   "dependencies": {

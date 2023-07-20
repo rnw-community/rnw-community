@@ -2,15 +2,14 @@ import { isDefined } from '@rnw-community/shared';
 
 import { ConstructorError } from '../error/constructor.error';
 
-import type { PaymentMethodData } from '../interface/payment-method-data/payment-method-data';
+import type { PaymentMethodData } from '../@standard/w3c/payment-method-data';
 
-export const validatePaymentMethods = (methodData: PaymentMethodData[]): Array<[string[], string | null]> => {
+export const validatePaymentMethods = (methodData: PaymentMethodData[]): void => {
     // Check that at least one payment method is passed in
     if (methodData.length < 1) {
         throw new ConstructorError(`At least one payment method is required`);
     }
 
-    const serializedMethodData: Array<[string[], string | null]> = [];
     // Check that each payment method has at least one payment method identifier
     methodData.forEach(paymentMethod => {
         if (!isDefined(paymentMethod.supportedMethods)) {
@@ -25,11 +24,5 @@ export const validatePaymentMethods = (methodData: PaymentMethodData[]): Array<[
         if (paymentMethod.supportedMethods.length < 1) {
             throw new ConstructorError(`Each payment method needs to include at least one payment method identifier`);
         }
-
-        const serializedData = isDefined(paymentMethod.data) ? JSON.stringify(paymentMethod.data) : null;
-
-        serializedMethodData.push([paymentMethod.supportedMethods, serializedData]);
     });
-
-    return serializedMethodData;
 };

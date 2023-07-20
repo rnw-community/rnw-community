@@ -1,4 +1,4 @@
-import type { AndroidPaymentDataToken } from '../android/interface/response/android-payment-data-token';
+import type { AndroidPaymentDataToken } from '../@standard/android/response/android-payment-data-token';
 
 export interface PaymentResponseInterface {
     // TODO: Add generic address type
@@ -8,7 +8,6 @@ export interface PaymentResponseInterface {
     payerEmail?: string;
     payerName?: string;
     payerPhone?: string;
-    requestId: string;
     // TODO: Add generic address type
     shippingAddress?: {};
 }

@@ -4,9 +4,10 @@ export { PaymentComplete } from './enum/payment-complete.enum';
 export { PaymentsErrorEnum } from './enum/payments-error.enum';
 export { SupportedNetworkEnum } from './enum/supported-networks.enum';
 
-export type { PaymentMethodData } from './interface/payment-method-data/payment-method-data';
-export type { PaymentDetailsInit } from './interface/payment-details/payment-details-init';
-export type { NativePaymentDetailsInterface } from './interface/payment-details/native-payment-details.interface';
+export type { AndroidPaymentMethodDataInterface } from './@standard/android/mapping/android-payment-method-data.interface';
+export type { IosPaymentMethodDataInterface } from './@standard/ios/mapping/ios-payment-method-data.interface';
+export type { PaymentMethodData } from './@standard/w3c/payment-method-data';
+export type { PaymentDetailsInterface } from './interface/payment-details.interface';
 
-export { PaymentRequest } from './payment-request/payment-request';
-export { PaymentResponse } from './payment-response/payment-response';
+export { PaymentRequest } from './class/payment-request/payment-request';
+export { PaymentResponse } from './class/payment-response/payment-response';

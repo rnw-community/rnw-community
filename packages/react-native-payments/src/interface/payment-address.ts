@@ -1,3 +1,4 @@
+// TODO: Validate/map with data returned from the platforms
 export interface PaymentAddress {
     addressLine: string | null;
     city: string;

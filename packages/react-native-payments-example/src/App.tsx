@@ -2,85 +2,48 @@ import React, { useState } from 'react';
 import { Button, SafeAreaView, Text } from 'react-native';
 
 import {
-    type NativePaymentDetailsInterface,
+    type AndroidPaymentMethodDataInterface,
+    EnvironmentEnum,
+    type IosPaymentMethodDataInterface,
     PaymentComplete,
-    type PaymentDetailsInit,
-    type PaymentMethodData,
+    type PaymentDetailsInterface,
     PaymentMethodNameEnum,
     PaymentRequest,
     SupportedNetworkEnum,
 } from '@rnw-community/react-native-payments';
 import { getErrorMessage, isDefined } from '@rnw-community/shared';
 
-const paymentMethodData: PaymentMethodData[] = [
-    {
-        data: {
-            currencyCode: 'USD',
-            countryCode: 'US',
-            supportedNetworks: [SupportedNetworkEnum.visa, SupportedNetworkEnum.mastercard],
-            // HINT: This should match your Apple Developer Merchant ID(in XCode Apple Pay Capabilities)
-            merchantIdentifier: 'merchant.react-native-payments',
+const androidPaymentMethodData: AndroidPaymentMethodDataInterface = {
+    data: {
+        currencyCode: 'USD',
+        countryCode: 'US',
+        supportedNetworks: [SupportedNetworkEnum.Visa, SupportedNetworkEnum.Mastercard],
+        /*
+         * HINT: Android gateway configuration, ask you payment provider, Google Pay should support it
+         * https://developers.google.com/pay/api/android/reference/request-objects#gateway
+         */
+        gatewayConfig: {
+            gateway: 'firstdata',
+            gatewayMerchantId: '12022224648',
         },
-        supportedMethods: [PaymentMethodNameEnum.ApplePay],
+        merchantInfo: { merchantName: 'Example merchant' },
     },
-    {
-        data: {
-            allowedPaymentMethods: [
-                {
-                    parameters: {
-                        allowedAuthMethods: ['PAN_ONLY', 'CRYPTOGRAM_3DS'],
-                        allowedCardNetworks: ['AMEX', 'MASTERCARD', 'VISA'],
-                        /*
-                         * allowCreditCards: true,
-                         * allowPrepaidCards: true,
-                         * assuranceDetailsRequired: true,
-                         * billingAddressParameters: {
-                         *     format: 'FULL',
-                         *     phoneNumberRequired: true,
-                         * },
-                         * billingAddressRequired: true,
-                         */
-                    },
-                    tokenizationSpecification: {
-                        parameters: {
-                            gateway: 'firstdata',
-                            gatewayMerchantId: '12022224648',
-                        },
-                        type: 'PAYMENT_GATEWAY',
-                    },
-                    type: 'CARD',
-                },
-            ],
-            apiVersion: 2,
-            apiVersionMinor: 0,
-            emailRequired: true,
-            // merchantInfo: { merchantName: 'Example merchant' },
-            transactionInfo: {
-                /*
-                 * checkoutOption: 'COMPLETE_IMMEDIATE_PURCHASE',
-                 */
-                countryCode: 'US',
-                currencyCode: 'USD',
-                totalPrice: '111',
-                totalPriceStatus: 'FINAL',
-                /*
-                 * totalPriceLabel: 'TestPurchase',
-                 * transactionId: '123',
-                 */
-            },
-            /*
-             * shippingAddressRequired: true,
-             * shippingAddressParameters: {
-             *     allowedCountryCodes: ['US'],
-             *     phoneNumberRequired: true,
-             * },
-             */
-        },
-        supportedMethods: [PaymentMethodNameEnum.AndroidPay],
+    supportedMethods: [PaymentMethodNameEnum.AndroidPay],
+};
+
+const iosPaymentMethodData: IosPaymentMethodDataInterface = {
+    data: {
+        currencyCode: 'USD',
+        countryCode: 'US',
+        supportedNetworks: [SupportedNetworkEnum.Visa, SupportedNetworkEnum.Mastercard],
+        // HINT: This should match your Apple Developer Merchant ID(in XCode Apple Pay Capabilities)
+        merchantIdentifier: 'merchant.react-native-payments',
     },
-];
-const paymentDetails: PaymentDetailsInit = {
-    environment: 'TEST',
+    supportedMethods: [PaymentMethodNameEnum.ApplePay],
+};
+
+const paymentDetails: PaymentDetailsInterface = {
+    environment: EnvironmentEnum.TEST,
     displayItems: [
         {
             amount: {
@@ -109,13 +72,13 @@ const paymentDetails: PaymentDetailsInit = {
 // TODO: Add UI to add items
 export const App = (): JSX.Element => {
     const [error, setError] = useState('');
-    const [response, setResponse] = useState<NativePaymentDetailsInterface>();
+    const [response, setResponse] = useState<object>();
 
     const createPaymentRequest = (): PaymentRequest => {
         setError('');
         setResponse(undefined);
 
-        return new PaymentRequest(paymentMethodData, paymentDetails);
+        return new PaymentRequest([iosPaymentMethodData, androidPaymentMethodData], paymentDetails);
     };
     const handlePay = (): void => {
         void createPaymentRequest()

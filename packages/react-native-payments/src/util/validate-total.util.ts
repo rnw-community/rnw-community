@@ -3,8 +3,8 @@ import { type ClassType, isDefined } from '@rnw-community/shared';
 import { isNumber } from './is-number.util';
 import { isValidDecimalMonetaryValue } from './is-valid-decimal-monetary-value.util';
 
+import type { PaymentItem } from '../@standard/w3c/payment-item';
 import type { PaymentsError } from '../error/payments.error';
-import type { PaymentItem } from '../interface/payment-item';
 import type { AmountValue } from '../type/amount-value.type';
 
 const isNegative = (amountValue: AmountValue): boolean =>
