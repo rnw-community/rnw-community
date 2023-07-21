@@ -1,16 +1,15 @@
-/* eslint-disable no-underscore-dangle */
 import { NativePayments } from '../native-payments/native-payments';
 
 import type { PaymentValidationErrors } from '../../@standard/w3c/payment-validation-errors';
 import type { PaymentComplete } from '../../enum/payment-complete.enum';
-import type { PaymentResponseInterface } from '../../interface/payment-response.interface';
+import type { PaymentResponseDetailsInterface } from '../../interface/payment-response-details.interface';
 
 /*
  * https://www.w3.org/TR/payment-request/#paymentresponse-interface
  * TODO: Many of fields and methods of this class does not correspond to the spec, should we change it?
  */
-export class PaymentResponse {
-    private _completeCalled = false;
+export class PaymentResponse<TokenDetails> {
+    private completeCalled = false;
 
     // TODO: Should we extract type? Spec does not provide such data
     constructor(
@@ -19,16 +18,16 @@ export class PaymentResponse {
         // https://www.w3.org/TR/payment-request/#dom-paymentresponse-methodname
         readonly methodName: string,
         // https://www.w3.org/TR/payment-request/#dom-paymentresponse-details
-        readonly details: PaymentResponseInterface
+        readonly details: PaymentResponseDetailsInterface<TokenDetails>
     ) {}
 
     // https://www.w3.org/TR/payment-request/#complete-method
     complete(result: PaymentComplete): Promise<void> {
-        if (this._completeCalled) {
+        if (this.completeCalled) {
             throw new Error('InvalidStateError');
         }
 
-        this._completeCalled = true;
+        this.completeCalled = true;
 
         // TODO: Implement logic https://www.w3.org/TR/payment-request/#complete-method
 
@@ -37,7 +36,7 @@ export class PaymentResponse {
 
     // https://www.w3.org/TR/payment-request/#dom-paymentresponse-retry
     retry(_errorFields?: PaymentValidationErrors): Promise<undefined> {
-        if (this._completeCalled) {
+        if (this.completeCalled) {
             throw new Error('InvalidStateError');
         }
 

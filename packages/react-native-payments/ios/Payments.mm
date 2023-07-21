@@ -49,9 +49,10 @@ RCT_EXPORT_METHOD(show:(NSDictionary *)methodData
     // https://developer.apple.com/documentation/passkit/pkpaymentnetwork?language=objc
     // TODO: Should we add other PaymentNetworks? Lets wait for PRs =)
     NSDictionary *availableNetworks = @{
-        @"visa" : PKPaymentNetworkVisa,
-        @"mastercard" : PKPaymentNetworkMasterCard,
-        @"amex" : PKPaymentNetworkAmex
+        // TODO: Can we map strings to consts in ObjC? This will eliminate manual mapping
+        @"PKPaymentNetworkVisa" : PKPaymentNetworkVisa,
+        @"PKPaymentNetworkMasterCard" : PKPaymentNetworkMasterCard,
+        @"PKPaymentNetworkAmex" : PKPaymentNetworkAmex
     };
     NSMutableArray *supportedNetworks =  [NSMutableArray array];
 
@@ -64,6 +65,8 @@ RCT_EXPORT_METHOD(show:(NSDictionary *)methodData
 
         [supportedNetworks addObject:foundNetwork];
     }
+
+    // TODO: Add merchantCapabilities parsing
 
     PKPaymentRequest *paymentRequest = [[PKPaymentRequest alloc] init];
 

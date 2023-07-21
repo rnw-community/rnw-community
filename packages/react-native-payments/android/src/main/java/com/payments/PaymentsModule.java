@@ -157,7 +157,7 @@ public class PaymentsModule extends PaymentsSpec {
             return;
         }
 
-        Log.d(NAME, "Successfully received paymentData" + getCurrentActivity().toString() + " " + paymentData);
+        Log.d(NAME, "Successfully received paymentData: " + getCurrentActivity().toString() + " " + paymentData);
 
         mPromise.resolve(paymentInfo);
         mPromise = null;

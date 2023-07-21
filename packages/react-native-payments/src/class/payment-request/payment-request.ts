@@ -1,32 +1,35 @@
-/* eslint-disable no-underscore-dangle,max-lines */
+/* eslint-disable max-lines */
 import { isAndroid } from '@rnw-community/platform/src';
 import uuid from 'react-native-uuid';
 
 import { isIOS } from '@rnw-community/platform';
-import { emptyFn, isDefined, isNotEmptyString } from '@rnw-community/shared';
+import { emptyFn, getErrorMessage, isDefined, isNotEmptyString } from '@rnw-community/shared';
 
 import { AndroidPaymentMethodTokenizationType } from '../../@standard/android/enum/android-payment-method-tokenization-type.enum';
 import { defaultAndroidPaymentDataRequest } from '../../@standard/android/request/android-payment-data-request';
 import { defaultAndroidPaymentMethod } from '../../@standard/android/request/android-payment-method';
 import { defaultAndroidTransactionInfo } from '../../@standard/android/request/android-transaction-info';
+import { IosPKPaymentNetworksEnum } from '../../@standard/ios/enum/ios-pk-payment-networks.enum';
 import { PaymentMethodNameEnum } from '../../enum/payment-method-name.enum';
 import { PaymentsErrorEnum } from '../../enum/payments-error.enum';
+import { SupportedNetworkEnum } from '../../enum/supported-networks.enum';
 import { ConstructorError } from '../../error/constructor.error';
 import { DOMException } from '../../error/dom.exception';
+import { PaymentsError } from '../../error/payments.error';
 import { validateDisplayItems } from '../../util/validate-display-items.util';
 import { validatePaymentMethods } from '../../util/validate-payment-methods.util';
 import { validateTotal } from '../../util/validate-total.util';
 import { NativePayments } from '../native-payments/native-payments';
-import { PaymentResponse } from '../payment-response/payment-response';
+import { AndroidPaymentResponse } from '../payment-response/android-payment-response';
+import { IosPaymentResponse } from '../payment-response/ios-payment-response';
 
 import type { AndroidAllowedCardNetworksEnum } from '../../@standard/android/enum/android-allowed-card-networks.enum';
 import type { AndroidPaymentMethodDataDataInterface } from '../../@standard/android/mapping/android-payment-method-data-data.interface';
 import type { AndroidPaymentDataRequest } from '../../@standard/android/request/android-payment-data-request';
-import type { AndroidPaymentDataToken } from '../../@standard/android/response/android-payment-data-token';
 import type { IosPaymentMethodDataDataInterface } from '../../@standard/ios/mapping/ios-payment-method-data-data.interface';
+import type { IosPaymentDataRequest } from '../../@standard/ios/request/ios-payment-data-request';
 import type { PaymentMethodData } from '../../@standard/w3c/payment-method-data';
 import type { PaymentDetailsInterface } from '../../interface/payment-details.interface';
-import type { PaymentResponseInterface } from '../../interface/payment-response.interface';
 
 /*
  * HINT: Troubleshooting: https://developers.google.com/pay/api/android/support/troubleshooting
@@ -63,23 +66,25 @@ export class PaymentRequest {
 
         // 17. Set request.[[serializedMethodData]] to serializedMethodData.         */
         const platformMethodData = this.findPlatformPaymentMethodData();
+
         const nativePlatformMethodData = isAndroid
             ? this.getAndroidPaymentMethodData(platformMethodData as AndroidPaymentMethodDataDataInterface, details)
-            : platformMethodData;
+            : this.getIosPaymentMethodData(platformMethodData as IosPaymentMethodDataDataInterface, details);
+
         this.serializedMethodData = JSON.stringify(nativePlatformMethodData);
     }
 
     // https://www.w3.org/TR/payment-request/#show-method
-    show(): Promise<PaymentResponse> {
-        return new Promise<PaymentResponse>((resolve, reject) => {
+    show(): Promise<AndroidPaymentResponse | IosPaymentResponse> {
+        return new Promise<AndroidPaymentResponse | IosPaymentResponse>((resolve, reject) => {
             this.acceptPromiseRejecter = reject;
 
             if (this.state === 'created') {
                 this.state = 'interactive';
 
                 NativePayments.show(this.serializedMethodData, this.details)
-                    .then(details => {
-                        resolve(this.handleAccept(details));
+                    .then(jsonDetails => {
+                        resolve(this.handleAccept(jsonDetails));
 
                         return void 0;
                     })
@@ -105,23 +110,14 @@ export class PaymentRequest {
         this.acceptPromiseRejecter(new DOMException(PaymentsErrorEnum.AbortError));
     }
 
-    private handleAccept(details: string): PaymentResponse {
-        const methodName = isIOS ? PaymentMethodNameEnum.ApplePay : PaymentMethodNameEnum.AndroidPay;
-        const platformDetails = isIOS ? (JSON.parse(details) as object) : (JSON.parse(details) as AndroidPaymentDataToken);
-
-        const response: PaymentResponseInterface = {
-            details: platformDetails as AndroidPaymentDataToken,
-            /*
-             * TODO: Add implementation to request and receive following data
-             * payerEmail: '',
-             * payerName: '',
-             * payerPhone: '',
-             * shippingAddress: {};
-             * billingAddress: {};
-             */
-        };
-
-        return new PaymentResponse(this.id, methodName, response);
+    private handleAccept(details: string): AndroidPaymentResponse | IosPaymentResponse {
+        try {
+            return isAndroid
+                ? new AndroidPaymentResponse(this.id, PaymentMethodNameEnum.AndroidPay, details)
+                : new IosPaymentResponse(this.id, PaymentMethodNameEnum.ApplePay, details);
+        } catch (e) {
+            throw new PaymentsError(`Failed creating AndroidPaymentResponse: ${getErrorMessage(e)}`);
+        }
     }
 
     private findPlatformPaymentMethodData(): AndroidPaymentMethodDataDataInterface | IosPaymentMethodDataDataInterface {
@@ -138,13 +134,6 @@ export class PaymentRequest {
         return platformMethod.data;
     }
 
-    /**
-     * Convert ReactNativePayments methodData configuration to Android specification
-     *
-     * @param methodData
-     * @param details
-     * @private
-     */
     // eslint-disable-next-line class-methods-use-this
     private getAndroidPaymentMethodData(
         methodData: AndroidPaymentMethodDataDataInterface,
@@ -168,8 +157,13 @@ export class PaymentRequest {
                         allowedCardNetworks: methodData.supportedNetworks.map(
                             network => network.toUpperCase() as AndroidAllowedCardNetworksEnum
                         ),
-                        // TODO: Should add configuration for AndroidBillingAddressParameters, is it the same for the IOS?
-                        ...(details.requestBilling === true && { billingAddressRequired: true }),
+                        ...(details.requestBilling === true && {
+                            billingAddressRequired: true,
+                            billingAddressParameters: {
+                                format: 'FULL',
+                                phoneNumberRequired: true,
+                            },
+                        }),
                     },
                     ...(isDefined(methodData.gatewayConfig) && {
                         tokenizationSpecification: {
@@ -186,8 +180,35 @@ export class PaymentRequest {
                 },
             ],
             ...(details.requestEmail === true && { emailRequired: true }),
-            // TODO: Should add configuration for AndroidShippingAddressParameters, is it the same for the IOS?
-            ...(details.requestShipping === true && { shippingAddressRequired: true }),
+            ...(details.requestShipping === true && {
+                shippingAddressRequired: true,
+                shippingAddressParameters: {
+                    phoneNumberRequired: true,
+                },
+            }),
+        };
+    }
+
+    // eslint-disable-next-line class-methods-use-this
+    private getIosPaymentMethodData(
+        methodData: IosPaymentMethodDataDataInterface,
+        details: PaymentDetailsInterface
+    ): IosPaymentDataRequest {
+        // TODO: Add mappings for other systems if needed
+        const supportedNetworkMap: Record<SupportedNetworkEnum, IosPKPaymentNetworksEnum> = {
+            [SupportedNetworkEnum.Amex]: IosPKPaymentNetworksEnum.PKPaymentNetworkAmex,
+            [SupportedNetworkEnum.Mastercard]: IosPKPaymentNetworksEnum.PKPaymentNetworkMasterCard,
+            [SupportedNetworkEnum.Visa]: IosPKPaymentNetworksEnum.PKPaymentNetworkVisa,
+        };
+
+        return {
+            countryCode: methodData.countryCode,
+            currencyCode: methodData.currencyCode,
+            merchantCapabilities: methodData.merchantCapabilities,
+            merchantIdentifier: methodData.merchantIdentifier,
+            requiredBillingContactFields: details.requestBilling ?? false,
+            requiredShippingContactFields: details.requestShipping ?? false,
+            supportedNetworks: methodData.supportedNetworks.map(network => supportedNetworkMap[network]),
         };
     }
 }

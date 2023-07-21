@@ -2,6 +2,6 @@
 export interface AndroidMinAddress {
     countryCode: string;
     name: string;
-    phoneNumber: string;
+    phoneNumber?: string;
     postalCode: string;
 }

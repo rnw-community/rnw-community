@@ -1,4 +1,4 @@
-import type { AndroidAddress } from './android-address';
+import type { AndroidFullAddress } from './android-full-address';
 import type { AndroidPaymentMethodData } from './android-payment-method-data';
 
 /*
@@ -10,5 +10,6 @@ export interface AndroidPaymentData {
     apiVersionMinor: number;
     email?: string;
     paymentMethodData: AndroidPaymentMethodData;
-    shippingAddress?: AndroidAddress;
+    // HINT: This field will be returned if request in the payment request
+    shippingAddress?: AndroidFullAddress;
 }
