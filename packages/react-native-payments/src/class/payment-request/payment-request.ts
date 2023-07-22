@@ -206,9 +206,9 @@ export class PaymentRequest {
             currencyCode: methodData.currencyCode,
             merchantCapabilities: methodData.merchantCapabilities,
             merchantIdentifier: methodData.merchantIdentifier,
-            requiredBillingContactFields: details.requestBilling ?? false,
-            requiredShippingContactFields: details.requestShipping ?? false,
             supportedNetworks: methodData.supportedNetworks.map(network => supportedNetworkMap[network]),
+            ...(details.requestBilling && { requiredBillingContactFields: true }),
+            ...(details.requestShipping && { requiredShippingContactFields: true }),
         };
     }
 }

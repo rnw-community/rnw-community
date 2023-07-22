@@ -1,3 +1,4 @@
+import { IosPKMerchantCapability } from '@rnw-community/react-native-payments/src/@standard/ios/enum/ios-pk-merchant-capability.enum';
 import React, { useState } from 'react';
 import { Button, SafeAreaView, Text } from 'react-native';
 
@@ -32,7 +33,9 @@ const androidPaymentMethodData: AndroidPaymentMethodDataInterface = {
 
 const iosPaymentMethodData: IosPaymentMethodDataInterface = {
     data: {
+        countryCode: 'US',
         currencyCode: 'USD',
+        merchantCapabilities: [IosPKMerchantCapability.PKMerchantCapability3DS],
         supportedNetworks: [SupportedNetworkEnum.Visa, SupportedNetworkEnum.Mastercard],
         // HINT: This should match your Apple Developer Merchant ID(in XCode Apple Pay Capabilities)
         merchantIdentifier: 'merchant.react-native-payments',

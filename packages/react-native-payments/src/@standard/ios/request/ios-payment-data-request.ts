@@ -12,9 +12,9 @@ export interface IosPaymentDataRequest {
     // https://developer.apple.com/documentation/passkit/pkpaymentrequest/1619305-merchantidentifier?language=objc
     merchantIdentifier: string;
     // https://developer.apple.com/documentation/passkit/pkpaymentrequest/2865928-requiredbillingcontactfields?language=objc
-    requiredBillingContactFields: boolean;
+    requiredBillingContactFields?: boolean;
     // https://developer.apple.com/documentation/passkit/pkpaymentrequest/2865927-requiredshippingcontactfields?language=objc
-    requiredShippingContactFields: boolean;
+    requiredShippingContactFields?: boolean;
     // https://developer.apple.com/documentation/passkit/pkpaymentrequest/1619329-supportednetworks?language=objc
     supportedNetworks: IosPKPaymentNetworksEnum[];
 }

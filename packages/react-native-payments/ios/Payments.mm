@@ -6,85 +6,94 @@
 
 RCT_EXPORT_MODULE()
 
+static const PKMerchantCapability PKMerchantCapabilityUnknown = 9999;
+static const PKPaymentNetwork PKPaymentNetworkUnknown = 0;
+
 // https://reactnative.dev/docs/native-modules-ios#threading
 - (dispatch_queue_t)methodQueue
 {
     return dispatch_get_main_queue();
 }
 
-// https://reactnative.dev/docs/native-modules-ios#sending-events-to-javascript
-- (NSArray<NSString *> *)supportedEvents;
-{
-    return @[@"ReactNativePayments:accept", @"ReactNativePayments:dismiss"];
-}
-
-RCT_EXPORT_METHOD(show:(NSDictionary *)methodData
+RCT_EXPORT_METHOD(show:(NSString *)methodDataString
                         details:(NSDictionary *)details
                         resolve:(RCTPromiseResolveBlock)resolve
                         reject:(RCTPromiseRejectBlock)reject)
 {
+    self.paymentResolve = resolve;
+    self.paymentReject = reject;
+
+    NSData *jsonData = [methodDataString dataUsingEncoding:NSUTF8StringEncoding];
+
+    NSError *error;
+    NSDictionary *methodData = [NSJSONSerialization JSONObjectWithData:jsonData options:kNilOptions error:&error];
+    if (error) {
+        [self rejectPromise:@"wrong_payment_data" message:@"Invalid JSON payment methodData passed" error:nil];
+        return;
+    }
+
     NSString *merchantId = methodData[@"merchantIdentifier"];
     NSString *countryCode = methodData[@"countryCode"];
     NSString *currencyCode = methodData[@"currencyCode"];
 
     if (!merchantId) {
-        reject(@"no_merchant_id", @"No merchant identifier provided", nil);
+        [self rejectPromise:@"no_merchant_id" message:@"No merchant identifier provided" error:nil];
         return;
     }
 
     // TODO: Should we add supportedCountries config, if android has the same?
     // https://developer.apple.com/documentation/passkit/pkpaymentrequest/2865929-supportedcountries?language=objc
     if(!countryCode) {
-        reject(@"no_country_code", @"No country code provided", nil);
+        [self rejectPromise:@"no_country_code" message:@"No country code provided" error:nil];
         return;
     }
 
     if(!currencyCode) {
-        reject(@"no_currency_code", @"No currency code provided", nil);
+        [self rejectPromise:@"no_currency_code" message:@"No currency code provided" error:nil];
         return;
     }
 
-    // HINT: Validating supportedNetworks
-    // This should match SupportedNetworkEnum from the TS
+    // https://developer.apple.com/documentation/passkit/pkpaymentrequest/1833288-availablenetworks?language=objc
+    // https://developer.apple.com/documentation/passkit/pkpaymentrequest/1619329-supportednetworks?language=objc
     // https://developer.apple.com/documentation/passkit/pkpaymentnetwork?language=objc
-    // TODO: Should we add other PaymentNetworks? Lets wait for PRs =)
-    NSDictionary *availableNetworks = @{
-        // TODO: Can we map strings to consts in ObjC? This will eliminate manual mapping
-        @"PKPaymentNetworkVisa" : PKPaymentNetworkVisa,
-        @"PKPaymentNetworkMasterCard" : PKPaymentNetworkMasterCard,
-        @"PKPaymentNetworkAmex" : PKPaymentNetworkAmex
-    };
     NSMutableArray *supportedNetworks =  [NSMutableArray array];
-
     for (NSString *supportedNetwork in methodData[@"supportedNetworks"]) {
-        PKPaymentNetwork foundNetwork = [availableNetworks objectForKey:supportedNetwork];
-        if (foundNetwork == nil) {
-            reject(@"invalid_supported_network", [NSString stringWithFormat:@"Invalid supportedNetwork passed '%@'", supportedNetwork], nil);
+        PKPaymentNetwork paymentNetwork = [self paymentNetworkFromString:supportedNetwork];
+        if (paymentNetwork != PKPaymentNetworkUnknown) {
+            [supportedNetworks addObject:paymentNetwork];
+        } else {
+            [self rejectPromise:@"invalid_supported_network" message:[NSString stringWithFormat:@"Invalid supportedNetwork passed '%@'", supportedNetwork] error:nil];
             return;
         }
-
-        [supportedNetworks addObject:foundNetwork];
     }
 
-    // TODO: Add merchantCapabilities parsing
+    // https://developer.apple.com/documentation/passkit/pkpaymentrequest/1619257-merchantcapabilities?language=objc
+    NSArray *merchantCapabilitiesArray = methodData[@"merchantCapabilities"];
+    PKMerchantCapability merchantCapabilities = 0;
+    if (merchantCapabilitiesArray.count > 0) {
+        for (NSString *capabilityString in merchantCapabilitiesArray) {
+            PKMerchantCapability capability = [self merchantCapabilityFromString:capabilityString];
+            if (capability != PKMerchantCapabilityUnknown) {
+                merchantCapabilities |= capability;
+            } else {
+                [self rejectPromise:@"invalid_merchant_capability" message:[NSString stringWithFormat:@"Invalid merchant capability passed '%@'", capabilityString] error:nil];
+                return;
+            }
+        }
+    }
 
     PKPaymentRequest *paymentRequest = [[PKPaymentRequest alloc] init];
-
-    // https://developer.apple.com/documentation/passkit/pkpaymentrequest/1619257-merchantcapabilities?language=objc
-    // TODO: Should we add other capabilities or make it configurable? https://developer.apple.com/documentation/passkit/pkmerchantcapability?language=objc
-    paymentRequest.merchantCapabilities = PKMerchantCapability3DS;
+    paymentRequest.merchantCapabilities = merchantCapabilities;
+    paymentRequest.supportedNetworks = supportedNetworks;
 
     // https://developer.apple.com/documentation/passkit/pkpaymentrequest/1619305-merchantidentifier?language=objc
     paymentRequest.merchantIdentifier = merchantId;
 
     // https://developer.apple.com/documentation/passkit/pkpaymentrequest/1619246-countrycode?language=objc
     paymentRequest.countryCode = countryCode;
+
     // https://developer.apple.com/documentation/passkit/pkpaymentrequest/1619248-currencycode?language=objc
     paymentRequest.currencyCode = currencyCode;
-
-    // https://developer.apple.com/documentation/passkit/pkpaymentrequest/1833288-availablenetworks?language=objc
-    // https://developer.apple.com/documentation/passkit/pkpaymentrequest/1619329-supportednetworks?language=objc
-    paymentRequest.supportedNetworks = supportedNetworks;
 
     // https://developer.apple.com/documentation/passkit/pkpaymentrequest/1619231-paymentsummaryitems?language=objc
     paymentRequest.paymentSummaryItems = [self getPaymentSummaryItemsFromDetails:details];
@@ -93,26 +102,27 @@ RCT_EXPORT_METHOD(show:(NSDictionary *)methodData
     // https://developer.mozilla.org/en-US/docs/Web/API/PaymentRequest/shippingOption
     // https://developer.mozilla.org/en-US/docs/Web/API/PaymentRequest/shippingAddress
 
-    // Though it is still available in the ApplePay:
     // https://developer.apple.com/documentation/passkit/pkpaymentrequest/2865928-requiredbillingcontactfields?language=objc
-    // paymentRequest.requiredBillingContactFields = [NSSet setWithArray:@[PKContactFieldPostalAddress, PKContactFieldName]];
+    if(methodData[@"requiredBillingContactFields"]) {
+        paymentRequest.requiredBillingContactFields = [NSSet setWithArray:@[PKContactFieldName, PKContactFieldEmailAddress, PKContactFieldPostalAddress, PKContactFieldPhoneNumber]];
+    }
 
     // https://developer.apple.com/documentation/passkit/pkpaymentrequest/2865927-requiredshippingcontactfields?language=objc
-    // paymentRequest.requiredShippingContactFields = [NSSet setWithArray:@[PKContactFieldPostalAddress, PKContactFieldName, PKContactFieldEmailAddress, PKContactFieldPhoneNumber]];
+    if(methodData[@"requiredShippingContactFields"]) {
+        paymentRequest.requiredShippingContactFields = [NSSet setWithArray:@[PKContactFieldPostalAddress, PKContactFieldName, PKContactFieldEmailAddress, PKContactFieldPhoneNumber]];
+    }
 
     // https://developer.apple.com/documentation/passkit/pkpaymentauthorizationviewcontroller/1616178-initwithpaymentrequest?language=objc
     self.viewController = [[PKPaymentAuthorizationViewController alloc] initWithPaymentRequest: paymentRequest];
     self.viewController.delegate = self;
 
     if (!self.viewController) {
-        reject(@"no_view_controller", @"Failed initializing PKPaymentAuthorizationViewController, check you app ApplePay capabilities and merchantIdentifier", nil);
+        [self rejectPromise:@"no_view_controller" message:@"Failed initializing PKPaymentAuthorizationViewController, check you app ApplePay capabilities and merchantIdentifier" error:nil];
         return;
     }
 
     UIViewController *rootViewController = RCTPresentedViewController();
-    [rootViewController presentViewController:self.viewController animated:YES completion:^{
-        resolve(nil);
-    }];
+    [rootViewController presentViewController:self.viewController animated:YES completion:nil];
 }
 
 RCT_EXPORT_METHOD(abort: (RCTPromiseResolveBlock)resolve
@@ -151,7 +161,7 @@ RCT_EXPORT_METHOD(canMakePayments: (NSDictionary *)methodData
 - (void) paymentAuthorizationViewControllerDidFinish:(PKPaymentAuthorizationViewController *)controller
 {
     [controller dismissViewControllerAnimated:YES completion:^{
-        [self sendEventWithName:@"ReactNativePayments:dismiss" body:nil];
+        [self rejectPromise:@"payment_error" message:@"Payment process canceled by user." error:nil];
     }];
 }
 
@@ -162,7 +172,20 @@ RCT_EXPORT_METHOD(canMakePayments: (NSDictionary *)methodData
 {
     self.completion = completion;
 
-    [self sendEventWithName:@"ReactNativePayments:accept" body:[self objectToDictionary:payment ignoredKeys:@[@"billingAddress", @"shippingAddress"]]];
+    NSDictionary *paymentDict = [self objectToDictionary:payment ignoredKeys:@[@"billingAddress", @"shippingAddress"]];
+
+    NSError *error;
+    NSData *jsonData = [NSJSONSerialization dataWithJSONObject:paymentDict options:NSJSONWritingPrettyPrinted error:&error];
+
+    if (!jsonData) {
+        [self rejectPromise:@"json_serialization_error" message:@"Failed to serialize PKPayment to JSON." error:error];
+    } else {
+        NSString *jsonString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
+        self.paymentResolve(jsonString);
+    }
+
+    self.paymentReject = nil;
+    self.paymentResolve = nil;
 }
 
 // PRIVATE METHODS
@@ -236,6 +259,70 @@ RCT_EXPORT_METHOD(canMakePayments: (NSDictionary *)methodData
 
     return [dictionary copy];
 }
+
+- (PKPaymentNetwork)paymentNetworkFromString:(NSString *)paymentNetworkString {
+    if ([paymentNetworkString isEqualToString:@"PKPaymentNetworkAmex"]) {
+        return PKPaymentNetworkAmex;
+    } else if ([paymentNetworkString isEqualToString:@"PKPaymentNetworkDiscover"]) {
+        return PKPaymentNetworkDiscover;
+    } else if ([paymentNetworkString isEqualToString:@"PKPaymentNetworkMasterCard"]) {
+        return PKPaymentNetworkMasterCard;
+    } else if ([paymentNetworkString isEqualToString:@"PKPaymentNetworkVisa"]) {
+        return PKPaymentNetworkVisa;
+    } else if ([paymentNetworkString isEqualToString:@"PKPaymentNetworkChinaUnionPay"]) {
+        return PKPaymentNetworkChinaUnionPay;
+    } else if ([paymentNetworkString isEqualToString:@"PKPaymentNetworkInterac"]) {
+        return PKPaymentNetworkInterac;
+    } else if ([paymentNetworkString isEqualToString:@"PKPaymentNetworkPrivateLabel"]) {
+        return PKPaymentNetworkPrivateLabel;
+    } else if ([paymentNetworkString isEqualToString:@"PKPaymentNetworkSuica"]) {
+        return PKPaymentNetworkSuica;
+    } else if ([paymentNetworkString isEqualToString:@"PKPaymentNetworkIDCredit"]) {
+        return PKPaymentNetworkIDCredit;
+    } else if ([paymentNetworkString isEqualToString:@"PKPaymentNetworkQuicPay"]) {
+        return PKPaymentNetworkQuicPay;
+    } else if ([paymentNetworkString isEqualToString:@"PKPaymentNetworkJCB"]) {
+        return PKPaymentNetworkJCB;
+    } else if (@available(iOS 12.0, *)) {
+        if ([paymentNetworkString isEqualToString:@"PKPaymentNetworkCartesBancaires"]) {
+            return PKPaymentNetworkCartesBancaires;
+        } else if ([paymentNetworkString isEqualToString:@"PKPaymentNetworkVPay"]) {
+            return PKPaymentNetworkVPay;
+        } else if ([paymentNetworkString isEqualToString:@"PKPaymentNetworkEftpos"]) {
+            return PKPaymentNetworkEftpos;
+        } else if ([paymentNetworkString isEqualToString:@"PKPaymentNetworkMaestro"]) {
+            return PKPaymentNetworkMaestro;
+        }
+    }
+
+    return PKPaymentNetworkUnknown;
+}
+
+- (PKMerchantCapability)merchantCapabilityFromString:(NSString *)capabilityString {
+    NSDictionary *capabilityMap = @{
+        @"PKMerchantCapability3DS": @(PKMerchantCapability3DS),
+        @"PKMerchantCapabilityEMV": @(PKMerchantCapabilityEMV),
+        @"PKMerchantCapabilityCredit": @(PKMerchantCapabilityCredit),
+        @"PKMerchantCapabilityDebit": @(PKMerchantCapabilityDebit)
+    };
+
+    NSNumber *mappedCapabilityNumber = capabilityMap[capabilityString];
+    if (mappedCapabilityNumber != nil) {
+        return (PKMerchantCapability)mappedCapabilityNumber.unsignedLongValue;
+    } else {
+        return PKMerchantCapabilityUnknown;
+    }
+}
+
+- (void)rejectPromise:(NSString *)errorCode message:(NSString *)message  error:(NSError *)error {
+    if (self.paymentReject) {
+        self.paymentReject(errorCode, message, error);
+    }
+
+    self.paymentReject = nil;
+    self.paymentResolve = nil;
+}
+
 
 // Don't compile this code when we build for the old architecture.
 #ifdef RCT_NEW_ARCH_ENABLED
