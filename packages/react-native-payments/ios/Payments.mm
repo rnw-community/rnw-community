@@ -148,10 +148,14 @@ RCT_EXPORT_METHOD(complete: (NSString *)paymentStatus
     resolve(nil);
 }
 
-RCT_EXPORT_METHOD(canMakePayments: (NSDictionary *)methodData
+RCT_EXPORT_METHOD(canMakePayments: (NSString *)methodDataString
                                    resolve:(RCTPromiseResolveBlock)resolve
                                    reject:(RCTPromiseRejectBlock)reject)
 {
+    // TODO: We can implement https://developer.apple.com/documentation/passkit/pkpaymentauthorizationviewcontroller/1616181-canmakepaymentsusingnetworks?language=objc
+    // for this we need to extract parsing and validating methods from the show method and reuse in both places.
+
+    // https://developer.apple.com/documentation/passkit/pkpaymentauthorizationviewcontroller/1616192-canmakepayments?language=objc
     resolve(@([PKPaymentAuthorizationViewController canMakePayments]));
 }
 

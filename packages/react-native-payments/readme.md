@@ -3,10 +3,11 @@
 Implementation of [W3C Payment Request API(version 08 September 2022)](https://www.w3.org/TR/payment-request/) for React Native.
 
 This library is a full refactoring of the [react-native-payments](https://github.com/naoufal/react-native-payments):
-- fully rewritten in TypeScript, removed deprecated and unsupported code for [W3C Payment Request API](https://www.w3.org/TR/payment-request/)
-- unified API for IOS and Android, no more code dependant code when using the lib, unified interfaces/enums.
-- updated and refactored and simplified IOS native code, removed all deprecated code
-- added all types for IOS ApplePay entities
+- fully rewritten in TypeScript
+- added native types for IOS and Android, fully typed and documented
+- removed deprecated and unsupported code for [W3C Payment Request API](https://www.w3.org/TR/payment-request/).
+- unified API for IOS and Android, no more code dependant code when using the lib, unified interfaces/enums/types.
+- updated and refactored and simplified IOS and JAVA native code, removed all deprecated code.
 - removed Stripe/Braintree built-in gateway support, only custom gateways are supported as aforementioned have their own libs.
 - ReactNative new architecture support([turbomodules](https://reactnative.dev/docs/the-new-architecture/pillars-turbomodules))
 
@@ -16,9 +17,9 @@ This library is a full refactoring of the [react-native-payments](https://github
 > Apple pay and Google pay for react-native
 
 ## TODO
-- [ ] Implement Android implementation
-- [ ] Transfer and refactor tests
-- [ ] Improve, update and finish the docs, add android examples for custom gateways
+- [ ] Implement canMakePayments
+- [ ] Add unit tests
+- [ ] Improve, update and finish the docs
 - [ ] Add web support
 - [ ] Improve and unify errors according to the spec
 - [ ] CI/CD:
@@ -27,6 +28,7 @@ This library is a full refactoring of the [react-native-payments](https://github
     - [ ] add e2e via maestro for IOS
     - [ ] add e2e via maestro for Android
 - [ ] Rewrite IOS to swift?
+- [x] Implement Android implementation
 - [x] Add lib.dom and comply with the spec - We do not need it
 - [x] Create TurboModule
 - [x] Transfer JS and convert to TS
@@ -42,3 +44,5 @@ This library is a full refactoring of the [react-native-payments](https://github
 1. Install package `@rnw-community/react-native-payments` using your package manager
 
 ## Configuration
+
+

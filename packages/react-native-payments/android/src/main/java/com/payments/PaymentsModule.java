@@ -88,6 +88,9 @@ public class PaymentsModule extends PaymentsSpec {
 
     // TODO: canMakePayment https://developers.google.com/android/reference/com/google/android/gms/wallet/PaymentsClient#isReadyToPay(com.google.android.gms.wallet.IsReadyToPayRequest)
     // https://developers.google.com/pay/api/android/guides/tutorial#java
+    @ReactMethod
+    public void canMakePayment(String paymentMethodData, ReadableMap details, final Promise promise) {
+    }
 
     @ReactMethod
     public void show(String paymentMethodData, ReadableMap details, final Promise promise) {

@@ -75,24 +75,33 @@ export class PaymentRequest {
         this.serializedMethodData = JSON.stringify(nativePlatformMethodData);
     }
 
+    // https://www.w3.org/TR/payment-request/#canmakepayment-method
+    async canMakePayment(): Promise<boolean> {
+        if (this.state !== 'created') {
+            throw new DOMException(PaymentsErrorEnum.InvalidStateError);
+        }
+
+        return await NativePayments.canMakePayments(this.serializedMethodData);
+    }
+
     // https://www.w3.org/TR/payment-request/#show-method
     show(): Promise<AndroidPaymentResponse | IosPaymentResponse> {
         return new Promise<AndroidPaymentResponse | IosPaymentResponse>((resolve, reject) => {
             this.acceptPromiseRejecter = reject;
 
-            if (this.state === 'created') {
-                this.state = 'interactive';
-
-                NativePayments.show(this.serializedMethodData, this.details)
-                    .then(jsonDetails => {
-                        resolve(this.handleAccept(jsonDetails));
-
-                        return void 0;
-                    })
-                    .catch(reject);
-            } else {
+            if (this.state !== 'created') {
                 reject(new DOMException(PaymentsErrorEnum.InvalidStateError));
             }
+
+            this.state = 'interactive';
+
+            NativePayments.show(this.serializedMethodData, this.details)
+                .then(jsonDetails => {
+                    resolve(this.handleAccept(jsonDetails));
+
+                    return void 0;
+                })
+                .catch(reject);
         });
     }
 
