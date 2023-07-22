@@ -35,7 +35,19 @@
   "types": "dist/esm/index.d.ts",
   "react-native": "src/index.ts",
   "files": [
-    "dist/**/*"
+    "dist",
+    "src",
+    "android",
+    "ios",
+    "cpp",
+    "*.podspec",
+    "!ios/build",
+    "!android/build",
+    "!android/gradle",
+    "!android/gradlew",
+    "!android/gradlew.bat",
+    "!android/local.properties",
+    "!**/.*"
   ],
   "sideEffects": "false",
   "publishConfig": {

@@ -3,12 +3,13 @@ import { isAndroid } from '@rnw-community/platform/src';
 import uuid from 'react-native-uuid';
 
 import { isIOS } from '@rnw-community/platform';
-import { emptyFn, getErrorMessage, isDefined, isNotEmptyString } from '@rnw-community/shared';
+import { emptyFn, getErrorMessage, isDefined, isNotEmptyArray, isNotEmptyString } from '@rnw-community/shared';
 
 import { AndroidPaymentMethodTokenizationType } from '../../@standard/android/enum/android-payment-method-tokenization-type.enum';
 import { defaultAndroidPaymentDataRequest } from '../../@standard/android/request/android-payment-data-request';
 import { defaultAndroidPaymentMethod } from '../../@standard/android/request/android-payment-method';
 import { defaultAndroidTransactionInfo } from '../../@standard/android/request/android-transaction-info';
+import { IosPKMerchantCapability } from '../../@standard/ios/enum/ios-pk-merchant-capability.enum';
 import { IosPKPaymentNetworksEnum } from '../../@standard/ios/enum/ios-pk-payment-networks.enum';
 import { PaymentMethodNameEnum } from '../../enum/payment-method-name.enum';
 import { PaymentsErrorEnum } from '../../enum/payments-error.enum';
@@ -201,12 +202,20 @@ export class PaymentRequest {
             [SupportedNetworkEnum.Visa]: IosPKPaymentNetworksEnum.PKPaymentNetworkVisa,
         };
 
+        const defaultMerchantCapabilities = [
+            IosPKMerchantCapability.PKMerchantCapability3DS,
+            IosPKMerchantCapability.PKMerchantCapabilityDebit,
+            IosPKMerchantCapability.PKMerchantCapabilityCredit,
+        ];
+
         return {
             countryCode: methodData.countryCode,
             currencyCode: methodData.currencyCode,
-            merchantCapabilities: methodData.merchantCapabilities,
             merchantIdentifier: methodData.merchantIdentifier,
             supportedNetworks: methodData.supportedNetworks.map(network => supportedNetworkMap[network]),
+            merchantCapabilities: isNotEmptyArray(methodData.merchantCapabilities)
+                ? methodData.merchantCapabilities
+                : defaultMerchantCapabilities,
             ...(details.requestBilling && { requiredBillingContactFields: true }),
             ...(details.requestShipping && { requiredShippingContactFields: true }),
         };
