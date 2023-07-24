@@ -70,7 +70,10 @@ const paymentDetails: PaymentDetailsInterface = {
     },
 };
 
-// TODO: Add UI to add items
+/*
+ * TODO: Add UI to add items
+ * ts-prune-ignore-next
+ */
 export const App = (): JSX.Element => {
     const [error, setError] = useState('');
     const [response, setResponse] = useState<object>();

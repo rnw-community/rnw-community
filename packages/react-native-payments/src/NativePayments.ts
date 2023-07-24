@@ -15,4 +15,5 @@ export interface Spec extends TurboModule {
     show: (methodData: Object, details: Object) => Promise<string>;
 }
 
+// ts-prune-ignore-next
 export default TurboModuleRegistry.getEnforcing<Spec>('Payments');
