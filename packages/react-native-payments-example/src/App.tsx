@@ -77,16 +77,7 @@ const paymentDetails: PaymentDetailsInterface = {
 export const App = (): JSX.Element => {
     const [error, setError] = useState('');
     const [response, setResponse] = useState<object>();
-
-    const [isApplePayAvailable, setIsApplePayAvailable] = useState(false);
-
-    useEffect(() => {
-        const paymentRequest = createPaymentRequest();
-        paymentRequest
-            .canMakePayment()
-            .then(result => void setIsApplePayAvailable(result))
-            .catch(() => void setIsApplePayAvailable(false));
-    }, []);
+    const [isWalletAvailable, setIsWalletAvailable] = useState(false);
 
     const createPaymentRequest = (): PaymentRequest => {
         setError('');
@@ -94,8 +85,9 @@ export const App = (): JSX.Element => {
 
         return new PaymentRequest([iosPaymentMethodData, androidPaymentMethodData], paymentDetails);
     };
+
     const handlePay = (): void => {
-        void createPaymentRequest()
+        createPaymentRequest()
             .show()
             .then(paymentResponse => {
                 setResponse(paymentResponse.details);
@@ -106,7 +98,6 @@ export const App = (): JSX.Element => {
                 setError(getErrorMessage(err));
             });
     };
-
     const handlePayWithAbort = (): void => {
         const paymentRequest = createPaymentRequest();
 
@@ -117,9 +108,16 @@ export const App = (): JSX.Element => {
         setTimeout(() => void paymentRequest.abort(), 1000);
     };
 
+    useEffect(() => {
+        createPaymentRequest()
+            .canMakePayment()
+            .then(result => void setIsWalletAvailable(result))
+            .catch(() => void setIsWalletAvailable(false));
+    }, []);
+
     return (
         <SafeAreaView>
-            {isApplePayAvailable ? (
+            {isWalletAvailable ? (
                 <>
                     <Button onPress={handlePay} title="AndroidPay/ApplePay" />
                     <Button onPress={handlePayWithAbort} title="ApplePay with delayed abort" />
