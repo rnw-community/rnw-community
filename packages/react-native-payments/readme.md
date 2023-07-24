@@ -1,4 +1,8 @@
 # ReactNative Payments
+[![npm version](https://badge.fury.io/js/%40rnw-community%2Fnestjs-webpack-swc.svg)](https://badge.fury.io/js/%40rnw-community%2Freact-native-payments)
+[![npm downloads](https://img.shields.io/npm/dm/%40rnw-community%2Freact-native-payments.svg)](https://www.npmjs.com/package/%40rnw-community%2Freact-native-payments)
+
+> Apple pay and Google pay for react-native
 
 Implementation of [W3C Payment Request API(version 08 September 2022)](https://www.w3.org/TR/payment-request/) for React Native.
 
@@ -10,11 +14,6 @@ This library is a full refactoring of the [react-native-payments](https://github
 - updated and refactored and simplified IOS and JAVA native code, removed all deprecated code.
 - removed Stripe/Braintree built-in gateway support, only custom gateways are supported as aforementioned have their own libs.
 - ReactNative new architecture support([turbomodules](https://reactnative.dev/docs/the-new-architecture/pillars-turbomodules))
-
-[![npm version](https://badge.fury.io/js/%40rnw-community%2Fnestjs-webpack-swc.svg)](https://badge.fury.io/js/%40rnw-community%2Freact-native-payments)
-[![npm downloads](https://img.shields.io/npm/dm/%40rnw-community%2Freact-native-payments.svg)](https://www.npmjs.com/package/%40rnw-community%2Freact-native-payments)
-
-> Apple pay and Google pay for react-native
 
 ## TODO
 - [ ] Implement canMakePayments
@@ -44,6 +43,15 @@ This library is a full refactoring of the [react-native-payments](https://github
 
 1. Install package `@rnw-community/react-native-payments` using your package manager
 
-## Configuration
+## Example
+
+You can find working example in the App [react-native-payments-example](../react-native-payments-example/README.md) package.
+
+Detailed guide should be found at [developer.mozilla.org](https://developer.mozilla.org/en-US/docs/Web/API/Payment_Request_API/Using_the_Payment_Request_API)
+as API is fully compliant.
+
+> Not all the features described for the browsers are supported by this lib. Please feel free to open a PR.
+
+
 
 
