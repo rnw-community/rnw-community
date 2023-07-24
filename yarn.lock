@@ -4298,12 +4298,12 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@rnw-community/platform@^0.54.0, @rnw-community/platform@workspace:packages/platform":
+"@rnw-community/platform@^0.54.3, @rnw-community/platform@workspace:packages/platform":
   version: 0.0.0-use.local
   resolution: "@rnw-community/platform@workspace:packages/platform"
   dependencies:
     "@react-native-async-storage/async-storage": ^1.13.4
-    "@rnw-community/wdio": ^0.54.0
+    "@rnw-community/wdio": ^0.54.3
     react-native-config: ^1.4.2
     redux-persist: ^6.0.0
   peerDependencies:
@@ -4321,7 +4321,7 @@ __metadata:
   resolution: "@rnw-community/react-native-payments-example@workspace:packages/react-native-payments-example"
   dependencies:
     "@react-native/metro-config": ^0.72.9
-    "@rnw-community/react-native-payments": ^0.54.0
+    "@rnw-community/react-native-payments": ^0.54.3
     "@rnw-community/shared": ^0.54.0
     "@tsconfig/react-native": ^3.0.0
     ios-deploy: ^1.12.2
@@ -4331,11 +4331,11 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@rnw-community/react-native-payments@^0.54.0, @rnw-community/react-native-payments@workspace:packages/react-native-payments":
+"@rnw-community/react-native-payments@^0.54.3, @rnw-community/react-native-payments@workspace:packages/react-native-payments":
   version: 0.0.0-use.local
   resolution: "@rnw-community/react-native-payments@workspace:packages/react-native-payments"
   dependencies:
-    "@rnw-community/platform": ^0.54.0
+    "@rnw-community/platform": ^0.54.3
     "@rnw-community/shared": ^0.54.0
     "@types/validator": ^13.7.17
     react: ^18.2.0
@@ -4375,7 +4375,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@rnw-community/wdio@^0.54.0, @rnw-community/wdio@workspace:packages/wdio":
+"@rnw-community/wdio@^0.54.3, @rnw-community/wdio@workspace:packages/wdio":
   version: 0.0.0-use.local
   resolution: "@rnw-community/wdio@workspace:packages/wdio"
   dependencies:
