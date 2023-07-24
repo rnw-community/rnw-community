@@ -20,7 +20,7 @@ module.exports = {
         'plugin:rxjs/recommended',
         'standard-with-typescript',
         'plugin:typescript-sort-keys/recommended',
-        "plugin:prettier/recommended",
+        'plugin:prettier/recommended',
     ],
     globals: {
         Atomics: 'readonly',
@@ -196,7 +196,7 @@ module.exports = {
         ],
         'node/no-unsupported-features/es-syntax': 'off',
         'react/react-in-jsx-scope': 'off',
-        'no-magic-numbers': ['error', { ignore: [-1, 0, 1, 2, 3, 4, 5, 6] }],
+        'no-magic-numbers': ['error', { ignore: [-1, 0, 1, 2, 3, 4, 5, 6, 1000] }],
         'sort-imports': [
             'error',
             {
