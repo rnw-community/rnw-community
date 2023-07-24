@@ -225,8 +225,8 @@ export class PaymentRequest {
             merchantCapabilities: isNotEmptyArray(methodData.merchantCapabilities)
                 ? methodData.merchantCapabilities
                 : defaultMerchantCapabilities,
-            ...(details.requestBilling && { requiredBillingContactFields: true }),
-            ...(details.requestShipping && { requiredShippingContactFields: true }),
+            ...(details.requestBilling === true && { requiredBillingContactFields: true }),
+            ...(details.requestShipping === true && { requiredShippingContactFields: true }),
         };
     }
 }

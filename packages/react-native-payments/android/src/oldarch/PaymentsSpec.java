@@ -11,5 +11,6 @@ abstract class PaymentsSpec extends ReactContextBaseJavaModule {
   }
 
   public abstract void show(String paymentMethodData, ReadableMap details, Promise promise);
+  public abstract void canMakePayment(String paymentMethodData, ReadableMap details, Promise promise);
   public abstract void abort(Promise promise);
 }

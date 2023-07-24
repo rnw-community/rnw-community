@@ -26,6 +26,7 @@ public class PaymentsModule extends PaymentsSpec {
     public static final String NAME = "Payments";
 
     private static final String E_FAILED_SHOWING_ANDROID_PAY = "E_FAILED_SHOWING_ANDROID_PAY";
+    private static final String E_UNSUPPORTED_ANDROID_PAY = "E_UNSUPPORTED_ANDROID_PAY";
     private static final String E_FAILED_CREATING_PAYMENT_REQUEST = "E_FAILED_CREATING_PAYMENT_REQUEST";
     private static final String E_FAILED_PROCESSING = "E_FAILED_PROCESSING";
     private static final String E_FAILED_UNHANDLED = "E_FAILED_UNHANDLED";
@@ -86,10 +87,49 @@ public class PaymentsModule extends PaymentsSpec {
 
     // Implementation See https://reactnative.dev/docs/native-modules-android
 
-    // TODO: canMakePayment https://developers.google.com/android/reference/com/google/android/gms/wallet/PaymentsClient#isReadyToPay(com.google.android.gms.wallet.IsReadyToPayRequest)
+    // https://developers.google.com/android/reference/com/google/android/gms/wallet/PaymentsClient#isReadyToPay(com.google.android.gms.wallet.IsReadyToPayRequest)
     // https://developers.google.com/pay/api/android/guides/tutorial#java
     @ReactMethod
     public void canMakePayment(String paymentMethodData, ReadableMap details, final Promise promise) {
+        Log.d(NAME, "Checking if AndroidPay is available " + currentActivity.toString() + details.toString());
+
+        validatePaymentRequestJSON(paymentMethodData);
+
+        try {
+            // https://developers.google.com/android/reference/com/google/android/gms/wallet/PaymentDataRequest#fromJson(java.lang.String)
+            PaymentDataRequest request = PaymentDataRequest.fromJson(paymentMethodData);
+
+            if(request == null) {
+                rejectPromise(E_UNSUPPORTED_ANDROID_PAY, "AndroidPay is not supported");
+                return;
+            }
+
+            // https://developers.google.com/android/reference/com/google/android/gms/wallet/Wallet.WalletOptions.Builder#setEnvironment(int)
+            Wallet.WalletOptions options = new Wallet.WalletOptions.Builder().setEnvironment(getEnvironment(details)).build();
+
+            // https://developers.google.com/android/reference/com/google/android/gms/wallet/PaymentsClient
+            PaymentsClient paymentsClient = Wallet.getPaymentsClient(currentActivity, options);
+
+            Task<Boolean> task = paymentsClient.isReadyToPay(request);
+
+            task.addOnCompleteListener(
+                new OnCompleteListener<Boolean>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Boolean> task) {
+                        try {
+                            boolean result = task.getResult(ApiException.class);
+                            if (result) {
+                                resolve(true);
+                            }
+                        } catch (ApiException e) {
+                            reject(false, e);
+                        }
+                    }
+                });
+        } catch (JSONException e) {
+            rejectPromise(E_FAILED_PARSING_PAYMENT_REQUEST, "Failed parsing PaymentRequest JSON string");
+            return;
+        }
     }
 
     @ReactMethod
