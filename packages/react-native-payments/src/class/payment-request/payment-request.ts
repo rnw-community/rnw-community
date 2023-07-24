@@ -89,19 +89,19 @@ export class PaymentRequest {
         return new Promise<AndroidPaymentResponse | IosPaymentResponse>((resolve, reject) => {
             this.acceptPromiseRejecter = reject;
 
-            if (this.state !== 'created') {
+            if (this.state === 'created') {
+                this.state = 'interactive';
+
+                NativePayments.show(this.serializedMethodData, this.details)
+                    .then(jsonDetails => {
+                        resolve(this.handleAccept(jsonDetails));
+
+                        return void 0;
+                    })
+                    .catch(reject);
+            } else {
                 reject(new DOMException(PaymentsErrorEnum.InvalidStateError));
             }
-
-            this.state = 'interactive';
-
-            NativePayments.show(this.serializedMethodData, this.details)
-                .then(jsonDetails => {
-                    resolve(this.handleAccept(jsonDetails));
-
-                    return void 0;
-                })
-                .catch(reject);
         });
     }
 

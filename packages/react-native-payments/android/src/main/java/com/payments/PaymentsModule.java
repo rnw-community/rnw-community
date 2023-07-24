@@ -33,7 +33,6 @@ public class PaymentsModule extends PaymentsSpec {
     private static final String E_FAILED_PARSING_PAYMENT_REQUEST = "E_FAILED_PARSING_PAYMENT_REQUEST";
     private static final String E_FAILED_PARSING_PAYMENT_RESPONSE = "E_FAILED_PARSING_PAYMENT_RESPONSE";
     private static final String E_CANCELLED_BY_USER = "E_CANCELLED_BY_USER";
-    private static final String E_ABORTED = "E_ABORTED";
 
     // Arbitrarily-picked constant integer you define to track a request for payment data activity.
     private static final int LOAD_MASKED_WALLET_REQUEST_CODE = 88;
@@ -64,11 +63,11 @@ public class PaymentsModule extends PaymentsSpec {
                           Status status = AutoResolveHelper.getStatusFromIntent(intent);
                           handleError(status.getStatusCode());
                           break;
-
-                      default:
-                          rejectPromise(E_FAILED_UNHANDLED, "Unhandled AndroidPay resultCode: " + resultCode);
-                          break;
                   }
+
+                default:
+                    rejectPromise(E_FAILED_UNHANDLED, "Unhandled AndroidPay resultCode: " + resultCode);
+                    break;
             }
         }
       };
@@ -234,7 +233,7 @@ public class PaymentsModule extends PaymentsSpec {
                 break;
         }
 
-        rejectPromise(E_FAILED_PROCESSING, "Failed parsing PaymentRequest JSON string");
+        rejectPromise(E_FAILED_PROCESSING, errorMessage);
     }
 
     private void validatePaymentRequestJSON(String paymentRequestJSON){
