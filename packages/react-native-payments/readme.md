@@ -22,6 +22,7 @@ This library is a full refactoring of the [react-native-payments](https://github
 - [ ] Improve, update and finish the docs
 - [ ] Add web support
 - [ ] Improve and unify errors according to the spec
+- [ ] Merge react-native-payments-example into this package, and setup it properly
 - [ ] CI/CD:
     - [ ] check/setup pull request
     - [ ] check/setup push to master and release to NPM
