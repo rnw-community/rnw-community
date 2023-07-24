@@ -28,17 +28,13 @@ public class PaymentsModule extends PaymentsSpec {
     private static final String E_ACTIVITY_DOES_NOT_EXIST = "E_ACTIVITY_DOES_NOT_EXIST";
     // TODO: Improve this error
     private static final String E_FAILED_SHOWING_ANDROID_PAY = "E_FAILED_SHOWING_ANDROID_PAY";
-    private static final String E_ABORTED = "E_ABORTED";
     private static final String E_FAILED_ABORTING = "E_FAILED_ABORTING";
     private static final String E_CANCELLED_BY_USER = "E_CANCELLED_BY_USER";
     private static final String E_FAILED_PROCESSING = "E_FAILED_PROCESSING";
     private static final String E_FAILED_UNHANDLED = "E_FAILED_UNHANDLED";
 
-    // TODO: Find google docs href for this
     private static final int LOAD_MASKED_WALLET_REQUEST_CODE = 88;
 
-    // https://developers.google.com/android/reference/com/google/android/gms/wallet/PaymentsClient
-    private PaymentsClient mPaymentsClient;
     // TODO: Promise ref, should resolve/reject when the payment is done/cancelled/error
     private Promise mPromise;
     // https://reactnative.dev/docs/native-modules-android#getting-activity-result-from-startactivityforresult
@@ -116,10 +112,11 @@ public class PaymentsModule extends PaymentsSpec {
 
             // https://developers.google.com/android/reference/com/google/android/gms/wallet/Wallet.WalletOptions.Builder#setEnvironment(int)
             Wallet.WalletOptions options = new Wallet.WalletOptions.Builder().setEnvironment(environment).build();
-            mPaymentsClient = Wallet.getPaymentsClient(currentActivity, options);
+            // https://developers.google.com/android/reference/com/google/android/gms/wallet/PaymentsClient
+            PaymentsClient paymentsClient = Wallet.getPaymentsClient(currentActivity, options);
 
             // https://developers.google.com/android/reference/com/google/android/gms/wallet/PaymentsClient#public-taskpaymentdata-loadpaymentdata-paymentdatarequest-request
-            Task<PaymentData> loadPaymentDataTask = mPaymentsClient.loadPaymentData(request);
+            Task<PaymentData> loadPaymentDataTask = paymentsClient.loadPaymentData(request);
             // https://developers.google.com/android/reference/com/google/android/gms/wallet/AutoResolveHelper
             AutoResolveHelper.resolveTask(loadPaymentDataTask, currentActivity, LOAD_MASKED_WALLET_REQUEST_CODE);
         } catch (Exception e) {
