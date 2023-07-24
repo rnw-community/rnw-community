@@ -1,5 +1,5 @@
 import { IosPKMerchantCapability } from '@rnw-community/react-native-payments/src/@standard/ios/enum/ios-pk-merchant-capability.enum';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Button, SafeAreaView, Text } from 'react-native';
 
 import {
@@ -78,6 +78,13 @@ export const App = (): JSX.Element => {
     const [error, setError] = useState('');
     const [response, setResponse] = useState<object>();
 
+    const [isApplePayAvailable, setIsApplePayAvailable] = useState(false);
+
+    useEffect(() => {
+        const paymentRequest = createPaymentRequest();
+        paymentRequest.canMakePayment().then(result => void setIsApplePayAvailable(result));
+    }, []);
+
     const createPaymentRequest = (): PaymentRequest => {
         setError('');
         setResponse(undefined);
@@ -109,10 +116,16 @@ export const App = (): JSX.Element => {
 
     return (
         <SafeAreaView>
-            <Button onPress={handlePay} title="AndroidPay/ApplePay" />
-            <Button onPress={handlePayWithAbort} title="ApplePay with delayed abort" />
-            <Text>{error}</Text>
-            {isDefined(response) && <Text>Response:{JSON.stringify(response)}</Text>}
+            {isApplePayAvailable ? (
+                <>
+                    <Button onPress={handlePay} title="AndroidPay/ApplePay" />
+                    <Button onPress={handlePayWithAbort} title="ApplePay with delayed abort" />
+                    <Text>{error}</Text>
+                    {isDefined(response) && <Text>Response:{JSON.stringify(response)}</Text>}
+                </>
+            ) : (
+                <Text>Unfortunately Apple/Google pay is not available</Text>
+            )}
         </SafeAreaView>
     );
 };
