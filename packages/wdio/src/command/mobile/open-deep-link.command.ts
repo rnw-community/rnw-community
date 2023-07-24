@@ -4,15 +4,15 @@ import { isEmptyString } from '@rnw-community/shared';
 
 import { isAndroidCapability, isIOSCapability } from '../../capability';
 
-import type { Browser } from 'webdriverio';
-
-const getPackageNameFromCapabilities = (context: Browser): string =>
+const getPackageNameFromCapabilities = (context: WebdriverIO.Browser): string =>
+    // @ts-expect-error TODO: Validate if it is working?
     'appPackage' in context.capabilities ? `${context.capabilities.appPackage as string}` : '';
 
 /**
  * Create a  cross platform solution for opening a deep link
  *
  * @param {string} url
+ * @param packageName App name for Android
  */
 export const openDeepLinkCommand = async (
     url: string,

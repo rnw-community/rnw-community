@@ -7,11 +7,15 @@
     "ignore": [
         "**/*.json",
         "**/dist/**",
+        "**/.idea/**",
+        "**/build/**",
+        "**/vendor/**",
         "**/__snapshots__/**",
         "**/__coverage__/**",
         "**/coverage/**",
         "**/node_modules/**",
-        "**/CHANGELOG.md"
+        "**/CHANGELOG.md",
+        "**/Pods/**"
     ],
     "absolute": true,
     "gitignore": true,

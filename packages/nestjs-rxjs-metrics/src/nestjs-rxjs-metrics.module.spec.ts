@@ -32,13 +32,10 @@ describe('NestJSRxJSMetricsModule', () => {
             summaryMetrics,
         });
 
-        const counterRecord = createMetricsRecord<Counter<string>, typeof counterMetrics>('Counter', counterMetrics);
-        const gaugeRecord = createMetricsRecord<Gauge<string>, typeof gaugeMetrics>('Gauge', gaugeMetrics);
-        const histogramRecord = createMetricsRecord<Histogram<string>, typeof histogramMetrics>(
-            'Histogram',
-            histogramMetrics
-        );
-        const summaryRecord = createMetricsRecord<Summary<string>, typeof summaryMetrics>('Summary', summaryMetrics);
+        const counterRecord = createMetricsRecord<Counter, typeof counterMetrics>('Counter', counterMetrics);
+        const gaugeRecord = createMetricsRecord<Gauge, typeof gaugeMetrics>('Gauge', gaugeMetrics);
+        const histogramRecord = createMetricsRecord<Histogram, typeof histogramMetrics>('Histogram', histogramMetrics);
+        const summaryRecord = createMetricsRecord<Summary, typeof summaryMetrics>('Summary', summaryMetrics);
 
         const metrics = new MetricsService(counterRecord, gaugeRecord, histogramRecord, summaryRecord);
 
@@ -62,18 +59,14 @@ describe('NestJSRxJSMetricsModule', () => {
             summaryLabels,
         });
 
-        const counterRecord = createMetricsRecord<Counter<string>, typeof counterMetrics>('Counter', counterMetrics);
-        const gaugeRecord = createMetricsRecord<Gauge<string>, typeof gaugeMetrics>('Gauge', gaugeMetrics);
-        const histogramRecord = createMetricsRecord<Histogram<string>, typeof histogramMetrics>(
+        const counterRecord = createMetricsRecord<Counter, typeof counterMetrics>('Counter', counterMetrics);
+        const gaugeRecord = createMetricsRecord<Gauge, typeof gaugeMetrics>('Gauge', gaugeMetrics);
+        const histogramRecord = createMetricsRecord<Histogram, typeof histogramMetrics>(
             'Histogram',
             histogramMetrics,
             histogramLabels
         );
-        const summaryRecord = createMetricsRecord<Summary<string>, typeof summaryMetrics>(
-            'Summary',
-            summaryMetrics,
-            summaryLabels
-        );
+        const summaryRecord = createMetricsRecord<Summary, typeof summaryMetrics>('Summary', summaryMetrics, summaryLabels);
 
         const metrics = new MetricsService(counterRecord, gaugeRecord, histogramRecord, summaryRecord);
 

@@ -20,14 +20,14 @@ const summaryLabels = {
     my_summary_metric: ['my_summary_label'] as const,
 };
 
-const counterRecord = createMetricsRecord<Counter<string>, typeof counterMetrics>('Counter', counterMetrics);
-const gaugeRecord = createMetricsRecord<Gauge<string>, typeof gaugeMetrics>('Gauge', gaugeMetrics);
-const histogramRecord = createMetricsRecord<Histogram<string>, typeof histogramMetrics>(
+const counterRecord = createMetricsRecord<Counter, typeof counterMetrics>('Counter', counterMetrics);
+const gaugeRecord = createMetricsRecord<Gauge, typeof gaugeMetrics>('Gauge', gaugeMetrics);
+const histogramRecord = createMetricsRecord<Histogram, typeof histogramMetrics>(
     'Histogram',
     histogramMetrics,
     histogramLabels
 );
-const summaryRecord = createMetricsRecord<Summary<string>, typeof summaryMetrics>('Summary', summaryMetrics, summaryLabels);
+const summaryRecord = createMetricsRecord<Summary, typeof summaryMetrics>('Summary', summaryMetrics, summaryLabels);
 
 class MetricsService extends NestJSRxJSMetricsService<
     typeof counterMetrics,
