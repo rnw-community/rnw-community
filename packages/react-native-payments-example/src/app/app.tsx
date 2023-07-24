@@ -32,9 +32,7 @@ export const App = (): JSX.Element => {
 
                 return paymentResponse.complete(PaymentComplete.SUCCESS);
             })
-            .catch((err: unknown) => {
-                setError(getErrorMessage(err));
-            });
+            .catch((err: unknown) => void setError(getErrorMessage(err)));
     };
     const handlePayWithAbort = (): void => {
         const paymentRequest = createPaymentRequest();
