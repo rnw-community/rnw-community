@@ -82,7 +82,10 @@ export const App = (): JSX.Element => {
 
     useEffect(() => {
         const paymentRequest = createPaymentRequest();
-        paymentRequest.canMakePayment().then(result => void setIsApplePayAvailable(result));
+        paymentRequest
+            .canMakePayment()
+            .then(result => void setIsApplePayAvailable(result))
+            .catch(() => void setIsApplePayAvailable(false));
     }, []);
 
     const createPaymentRequest = (): PaymentRequest => {
