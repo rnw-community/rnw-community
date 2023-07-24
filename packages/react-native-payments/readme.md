@@ -182,7 +182,7 @@ You can find working example in the `App` component of
 the [react-native-payments-example](../react-native-payments-example/README.md) package.
 
 ## TODO
-
+- [ ] Add gifs to the docs showing payment sheets appearing on IOS and Android.
 - [ ] Investigate and implement unified shipping option selection between IOS and Android.(PR are welcome =)) W3C Payment
   Request does not provide anything related to the Shipping options selection, only mentiones
   it [here](https://www.w3.org/TR/payment-request/#describing-what-is-being-paid-for) as a part of the `PaymentRequest`
