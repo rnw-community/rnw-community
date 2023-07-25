@@ -36,7 +36,8 @@ integration experience for your applications.
 
 - Streamlined. Say goodbye to complicated checkout forms.
 - Efficient. Accelerate checkouts for higher conversion rates.
-- Forward-looking. Utilize a [W3C Standards API](https://www.w3.org/) endorsed by major companies such as Google, Firefox, and more.
+- Forward-looking. Utilize a [W3C Standards API](https://www.w3.org/) endorsed by major companies such as Google, Firefox,
+  and more.
 - Versatile. Share payment code seamlessly across iOS, Android, and web applications.
 
 ## Installation
@@ -58,7 +59,8 @@ integration experience for your applications.
 ## Usage
 
 > Detailed guide should be found
-> at [developer.mozilla.org](https://developer.mozilla.org/en-US/docs/Web/API/Payment_Request_API/Using_the_Payment_Request_API)
+>
+at [developer.mozilla.org](https://developer.mozilla.org/en-US/docs/Web/API/Payment_Request_API/Using_the_Payment_Request_API)
 > as API is fully compliant.
 
 The PaymentRequest class is designed to facilitate the integration of payment processing into your React Native application.
@@ -94,7 +96,8 @@ const paymentRequest = new PaymentRequest(methodData, paymentDetails);
 #### 2.1 PaymentDetailsInterface
 
 The `PaymentDetailsInterface` is a mapping interface used in React Native Payments to represent the payment details required
-for initiating a payment request. It extends the `PaymentDetailsInit` interface from the [W3C Payment Request API(version 08 September 2022)](https://www.w3.org/TR/payment-request/)
+for initiating a payment request. It extends the `PaymentDetailsInit` interface from
+the [W3C Payment Request API(version 08 September 2022)](https://www.w3.org/TR/payment-request/)
 specification and includes additional fields specific to React Native Payments.
 
 The `PaymentDetailsInterface` includes the following additional properties:
@@ -159,7 +162,8 @@ const paymentResponse = paymentRequest.show().then((paymentResponse) => {
 ### 6. Closing the Payment Sheet
 
 Once the payment process is successfully completed, it's essential to close the payment sheet by calling the
-`PaymentResponse.complete()` method. This method takes a parameter from the `PaymentComplete` enum to indicate the outcome of the
+`PaymentResponse.complete()` method. This method takes a parameter from the `PaymentComplete` enum to indicate the outcome of
+the
 payment and hide the payment sheet accordingly.
 
 ```ts
@@ -169,12 +173,14 @@ paymentResponse.complete(PaymentComplete.Success) // OR PaymentComplete.Fail
 > This will have no affect in the Android platform due to AndroidPay implementation.
 
 ### 7. Aborting the Payment
-The `PaymentRequset.abort()` method in the Payment Request API allows developers to programmatically cancel an ongoing payment request or dismiss
-the payment sheet when it is in an interactive state. This method is used to handle scenarios where the user decides to cancel the
+
+The `PaymentRequset.abort()` method in the Payment Request API allows developers to programmatically cancel an ongoing
+payment request or dismiss
+the payment sheet when it is in an interactive state. This method is used to handle scenarios where the user decides to
+cancel the
 payment process or when specific conditions require the payment request to be aborted.
 
 > This will have no affect in the Android platform due to AndroidPay implementation.
-
 
 ## Example
 
@@ -182,38 +188,35 @@ You can find working example in the `App` component of
 the [react-native-payments-example](../react-native-payments-example/README.md) package.
 
 ## TODO
+
+### Docs
+
 - [ ] Add gifs to the docs showing payment sheets appearing on IOS and Android.
+
+### Native
+
 - [ ] Investigate and implement unified shipping option selection between IOS and Android.(PR are welcome =)) W3C Payment
-  Request does not provide anything related to the Shipping options selection, only mentiones
+  Request does not provide anything related to the Shipping options selection, only mentions
   it [here](https://www.w3.org/TR/payment-request/#describing-what-is-being-paid-for) as a part of the `PaymentRequest`
   details.
+- [ ] Rewrite IOS to swift?
+- [ ] Rewrite Android to Kotlin?
+
+### W3C spec:
+
 - [ ] Implement events:
     - [ ] [PaymentRequestUpdateEvent](https://www.w3.org/TR/payment-request/#dom-paymentrequestupdateevent)
     - [ ] [PaymentMethodChangeEvent](https://www.w3.org/TR/payment-request/#dom-paymentmethodchangeevent)
+- [ ] Implement [PaymentDetailsModifier](https://www.w3.org/TR/payment-request/#dom-paymentdetailsmodifier)
+- [ ] Improve and unify errors according to the spec
+
+### Other
+
 - [ ] Add unit tests
 - [ ] Add web support
-- [ ] Improve and unify errors according to the spec
 - [ ] Merge react-native-payments-example into this package, and setup it properly
 - [ ] CI/CD:
     - [ ] check/setup pull request
     - [ ] check/setup push to master and release to NPM
     - [ ] add e2e via maestro for IOS
     - [ ] add e2e via maestro for Android
-- [ ] Rewrite IOS to swift?
-- [ ] Rewrite Android to Kotlin?
-- [x] Improve, update and finish the docs
-- [x] Implement canMakePayments
-- [x] Implement Android implementation
-- [x] Add lib.dom and comply with the spec - We do not need it
-- [x] Create TurboModule
-- [x] Transfer JS and convert to TS
-- [x] Implement iOS implementation
-- [x] Improve PaymentRequest usage, no index.js changes
-- [x] External dependencies:
-    - [x] Do we need validator lib? - Yes, for now
-    - [x] Do we need uuid lib? - Yes, for now
-- [x] Check `package.json` files and react-native config, can we use `dist/esm` for metro?
-
-
-
-
