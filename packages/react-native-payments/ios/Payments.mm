@@ -1,7 +1,7 @@
 #import "Payments.h"
 
-#import <objc/runtime.h>
 #import <React/RCTLog.h>
+#import <Foundation/Foundation.h>
 
 // TODO: Add logs
 @implementation Payments
@@ -178,7 +178,83 @@ RCT_EXPORT_METHOD(canMakePayments: (NSString *)methodDataString
 {
     self.completion = completion;
 
-    NSDictionary *paymentDict = [self objectToDictionary:payment ignoredKeys:@[@"billingAddress", @"shippingAddress"]];
+    NSMutableDictionary *paymentDict = [NSMutableDictionary dictionary];
+
+    NSMutableDictionary *tokenDict = [NSMutableDictionary dictionary];
+    tokenDict[@"transactionIdentifier"] = payment.token.transactionIdentifier;
+
+    NSString *paymentData64 = [payment.token.paymentData base64EncodedStringWithOptions:0];
+    NSData *decodedPaymentData = [[NSData alloc] initWithBase64EncodedString:paymentData64 options:0];
+    tokenDict[@"paymentData"] = [[NSString alloc] initWithData:decodedPaymentData encoding:NSUTF8StringEncoding];
+
+    NSMutableDictionary *paymentMethodDict = [NSMutableDictionary dictionary];
+    paymentMethodDict[@"displayName"] = payment.token.paymentMethod.displayName;
+    paymentMethodDict[@"network"] = payment.token.paymentMethod.network;
+    paymentMethodDict[@"type"] = [self stringFromPaymentMethodType:payment.token.paymentMethod.type];
+
+    tokenDict[@"paymentMethod"] = paymentMethodDict;
+
+    paymentDict[@"token"] = tokenDict;
+
+    PKContact *billingContact = payment.billingContact;
+    if (billingContact) {
+        NSMutableDictionary *billingContactDict = [NSMutableDictionary dictionary];
+
+        CNPostalAddress *postalAddress = billingContact.postalAddress;
+        NSMutableDictionary *postalAddressDict = [NSMutableDictionary dictionary];
+        if (postalAddress) {
+            postalAddressDict[@"street"] = postalAddress.street;
+            postalAddressDict[@"city"] = postalAddress.city;
+            postalAddressDict[@"state"] = postalAddress.state;
+            postalAddressDict[@"postalCode"] = postalAddress.postalCode;
+            postalAddressDict[@"country"] = postalAddress.country;
+            postalAddressDict[@"isoCountryCode"] = postalAddress.ISOCountryCode;
+        }
+
+        billingContactDict[@"postalAddress"] = postalAddressDict;
+
+        paymentDict[@"billingContact"] = billingContactDict;
+    }
+
+    PKContact *shippingContact = payment.shippingContact;
+    if (shippingContact) {
+        NSMutableDictionary *shippingContactDict = [NSMutableDictionary dictionary];
+        shippingContactDict[@"emailAddress"] = shippingContact.emailAddress;
+
+        CNPhoneNumber *phoneNumber = shippingContact.phoneNumber;
+        NSMutableDictionary *phoneNumberDict = [NSMutableDictionary dictionary];
+        phoneNumberDict[@"stringValue"] = phoneNumber.stringValue;
+        shippingContactDict[@"phoneNumber"] = phoneNumberDict;
+
+        CNPostalAddress *postalAddress = shippingContact.postalAddress;
+        NSMutableDictionary *postalAddressDict = [NSMutableDictionary dictionary];
+        if (postalAddress) {
+            postalAddressDict[@"street"] = postalAddress.street;
+            postalAddressDict[@"city"] = postalAddress.city;
+            postalAddressDict[@"state"] = postalAddress.state;
+            postalAddressDict[@"postalCode"] = postalAddress.postalCode;
+            postalAddressDict[@"country"] = postalAddress.country;
+            postalAddressDict[@"isoCountryCode"] = postalAddress.ISOCountryCode;
+        }
+        shippingContactDict[@"postalAddress"] = postalAddressDict;
+
+        NSPersonNameComponents *nameComponents = shippingContact.name;
+        NSMutableDictionary *nameDict = [NSMutableDictionary dictionary];
+        if (nameComponents) {
+            nameDict[@"givenName"] = nameComponents.givenName;
+            nameDict[@"familyName"] = nameComponents.familyName;
+            nameDict[@"middleName"] = nameComponents.middleName;
+            nameDict[@"namePrefix"] = nameComponents.namePrefix;
+            nameDict[@"nameSuffix"] = nameComponents.nameSuffix;
+            nameDict[@"nickname"] = nameComponents.nickname;
+            nameDict[@"phoneticRepresentation"] = nameComponents.phoneticRepresentation;
+        }
+        shippingContactDict[@"name"] = nameDict;
+
+        paymentDict[@"shippingContact"] = shippingContactDict;
+    }
+
+    // TODO: Add shippingMethod
 
     NSError *error;
     NSData *jsonData = [NSJSONSerialization dataWithJSONObject:paymentDict options:NSJSONWritingPrettyPrinted error:&error];
@@ -220,50 +296,6 @@ RCT_EXPORT_METHOD(canMakePayments: (NSString *)methodDataString
     [paymentSummaryItems addObject: [self convertDisplayItemToPaymentSummaryItem:total]];
 
     return paymentSummaryItems;
-}
-
-- (NSDictionary *)objectToDictionary:(NSObject *)object ignoredKeys:(NSArray<NSString *> *)ignoredKeys {
-    NSMutableDictionary *dictionary = [NSMutableDictionary dictionary];
-
-    // Get the class of the object
-    Class objectClass = [object class];
-
-    // Enumerate through the properties of the object using KVC
-    unsigned int propertyCount;
-    objc_property_t *properties = class_copyPropertyList(objectClass, &propertyCount);
-
-    for (unsigned int i = 0; i < propertyCount; i++) {
-        objc_property_t property = properties[i];
-
-        // Get the property name
-        const char *propertyName = property_getName(property);
-        NSString *propertyNameString = [NSString stringWithUTF8String:propertyName];
-
-        // Check if the property name is in the ignoredKeys array
-        if ([ignoredKeys containsObject:propertyNameString]) {
-            // Skip this property if it's in the ignoredKeys array
-            continue;
-        }
-
-        // Get the property value using KVC
-        id propertyValue = [object valueForKey:propertyNameString];
-
-        // Check if the property value is an object
-        if ([propertyValue isKindOfClass:[NSObject class]]) {
-            // Recursively convert the nested object to a dictionary
-            NSDictionary *nestedDictionary = [self objectToDictionary:propertyValue ignoredKeys:ignoredKeys];
-
-            // Set the nested dictionary as the value for the property
-            dictionary[propertyNameString] = nestedDictionary;
-        } else {
-            // Set the property value directly
-            dictionary[propertyNameString] = propertyValue;
-        }
-    }
-
-    free(properties);
-
-    return [dictionary copy];
 }
 
 - (PKPaymentNetwork)paymentNetworkFromString:(NSString *)paymentNetworkString {
@@ -317,6 +349,23 @@ RCT_EXPORT_METHOD(canMakePayments: (NSString *)methodDataString
         return (PKMerchantCapability)mappedCapabilityNumber.unsignedLongValue;
     } else {
         return PKMerchantCapabilityUnknown;
+    }
+}
+
+- (NSString *)stringFromPaymentMethodType:(PKPaymentMethodType)type {
+    switch (type) {
+        case PKPaymentMethodTypeUnknown:
+            return @"PKPaymentMethodTypeUnknown";
+        case PKPaymentMethodTypeDebit:
+            return @"PKPaymentMethodTypeDebit";
+        case PKPaymentMethodTypeCredit:
+            return @"PKPaymentMethodTypeCredit";
+        case PKPaymentMethodTypePrepaid:
+            return @"PKPaymentMethodTypePrepaid";
+        case PKPaymentMethodTypeStore:
+            return @"PKPaymentMethodTypeStore";
+        default:
+            return @"PKPaymentMethodTypeUnknown";
     }
 }
 
