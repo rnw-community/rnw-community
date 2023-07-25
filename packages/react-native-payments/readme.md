@@ -176,16 +176,28 @@ including the payment method used, the payer's information, and transaction-rela
 
 ```ts
 const paymentResponse = paymentRequest.show().then((paymentResponse) => {
-    // This field will have all plaform related information needed for transaction processing
-    paymentDetails.details;
+    // This field will have all Android payment token info AndroidPaymentMethodToken
+    paymentDetails.details.AndroidPay;
+    // This field will have all IOS payment token info IosPKToken
+    paymentDetails.details.ApplePay;
     // Aditionally if was requested, shipping, billing and payer info would be available
     paymentDetails.billingAddress;
     paymentDetails.payerEmail;
     paymentDetails.payerName;
     paymentDetails.payerPhone;
     paymentDetails.shippingAddress;
+    // Send data to your BE
+    // Close paymnet sheet
 }).catch(...);
 ```
+
+The `PaymentResponseDetailsInterface` includes the following additional properties:
+
+- `billingAddress`: This property represents user billing details `PaymentResponseAddressInterface` and available if was requested in the `PaymentRequest`.
+- `shippingAddress`: This property represents user shipping details `PaymentResponseAddressInterface` and available if was requested in the `PaymentRequest`.
+- `payerEmail`: This property represents user email and available if was requested in the `PaymentRequest`.
+- `payerPhone`: This property represents user phone and available if was requested in the `PaymentRequest`.
+- `details`: This property represents PaymentToken information returned by `ApplePay` or `AndroidPay`, this should be sent to your payment provider.
 
 ### 6. Closing the Payment Sheet
 
