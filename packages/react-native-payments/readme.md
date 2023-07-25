@@ -209,6 +209,8 @@ the [react-native-payments-example](../react-native-payments-example/README.md) 
     - [ ] [PaymentMethodChangeEvent](https://www.w3.org/TR/payment-request/#dom-paymentmethodchangeevent)
 - [ ] Implement [PaymentDetailsModifier](https://www.w3.org/TR/payment-request/#dom-paymentdetailsmodifier)
 - [ ] Improve and unify errors according to the spec
+- [ ] Implement `PaymentResponse` `retry()` method
+- [ ] Implement `PaymentResponse` `toJSON()` method
 
 ### Other
 
