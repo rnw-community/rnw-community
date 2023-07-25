@@ -51,6 +51,8 @@ export const App = (): JSX.Element => {
             .catch(() => void setIsWalletAvailable(false));
     }, []);
 
+    const responseTextStyle = { color: 'red' };
+
     return (
         <SafeAreaView>
             {isWalletAvailable ? (
@@ -58,7 +60,7 @@ export const App = (): JSX.Element => {
                     <Button onPress={handlePay} title="AndroidPay/ApplePay" />
                     <Button onPress={handlePayWithAbort} title="ApplePay with delayed abort" />
                     <Text>{error}</Text>
-                    {isDefined(response) && <Text style={{ color: 'red' }}>Response:{JSON.stringify(response)}</Text>}
+                    {isDefined(response) && <Text style={responseTextStyle}>Response:{JSON.stringify(response)}</Text>}
                 </>
             ) : (
                 <Text>Unfortunately Apple/Google pay is not available</Text>

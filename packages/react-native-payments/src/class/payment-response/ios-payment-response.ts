@@ -1,21 +1,25 @@
 import { isNotEmptyString } from '@rnw-community/shared';
 
+import { emptyAndroidPaymentMethodToken } from '../../@standard/android/response/android-payment-method-token';
+
 import { PaymentResponse } from './payment-response';
 
 import type { IosCNPhoneNumber } from '../../@standard/ios/response/ios-cn-phone-number';
 import type { IosCNPostalAddress } from '../../@standard/ios/response/ios-cn-postal-address';
 import type { IosNSPersonNameComponents } from '../../@standard/ios/response/ios-ns-person-name-components';
 import type { IosPKPayment } from '../../@standard/ios/response/ios-pk-payment';
-import type { IosPKToken } from '../../@standard/ios/response/ios-pk-token';
 import type { PaymentResponseAddressInterface } from '../../interface/payment-response-address.interface';
 
-export class IosPaymentResponse extends PaymentResponse<IosPKToken> {
+export class IosPaymentResponse extends PaymentResponse {
     constructor(requestId: string, methodName: string, jsonData: string) {
         const data = JSON.parse(jsonData) as IosPKPayment;
 
         super(requestId, methodName, {
             billingAddress: IosPaymentResponse.parsePKContact(data.billingContact?.postalAddress),
-            details: data.token,
+            details: {
+                ApplePay: data.token,
+                AndroidPay: emptyAndroidPaymentMethodToken,
+            },
             payerEmail: data.shippingContact?.emailAddress ?? '',
             payerName: IosPaymentResponse.parseNSPersonNameComponents(data.shippingContact?.name),
             payerPhone: IosPaymentResponse.parseCNPhoneNumber(data.shippingContact?.phoneNumber),
