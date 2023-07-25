@@ -38,7 +38,6 @@ export class IosPaymentResponse extends PaymentResponse {
         };
     }
 
-    // TODO: Validate if this mapping is correct
     private static parsePKContact(input?: IosCNPostalAddress): PaymentResponseAddressInterface {
         return {
             countryCode: input?.ISOCountryCode ?? '',
@@ -52,12 +51,10 @@ export class IosPaymentResponse extends PaymentResponse {
         };
     }
 
-    // TODO: Validate if this is correct
     private static parseNSPersonNameComponents(input?: IosNSPersonNameComponents): string {
         return [input?.familyName, input?.middleName, input?.givenName].filter(isNotEmptyString).join('');
     }
 
-    // TODO: Validate if this is correct
     private static parseCNPhoneNumber(input?: IosCNPhoneNumber): string {
         return input?.stringValue ?? '';
     }
