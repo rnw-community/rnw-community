@@ -1,3 +1,5 @@
+import { IosPKPaymentMethodType } from '../enum/ios-pk-payment-method-type.enum';
+
 import { emptyIosPaymentData } from './ios-payment-data';
 
 import type { IosPaymentData } from './ios-payment-data';
@@ -8,7 +10,7 @@ export interface IosPKToken {
     paymentMethod: {
         displayName: string;
         network: string;
-        type: string;
+        type: IosPKPaymentMethodType;
     };
     transactionIdentifier: string;
 }
@@ -18,7 +20,7 @@ export const emptyIosPKToken: IosPKToken = {
     paymentMethod: {
         displayName: '',
         network: '',
-        type: '',
+        type: IosPKPaymentMethodType.PKPaymentMethodTypeUnknown,
     },
     transactionIdentifier: '',
 };
