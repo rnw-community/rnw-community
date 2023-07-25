@@ -1,6 +1,6 @@
 import type { IosPKContact } from './ios-pk-contact';
 import type { IosPKShippingMethod } from './ios-pk-shipping-method';
-import type { IosPKToken } from './ios-pk-token';
+import type { IosRawPKToken } from './ios-raw-pk-token';
 
 // https://developer.apple.com/documentation/passkit/pkpayment
 export interface IosPKPayment {
@@ -8,5 +8,5 @@ export interface IosPKPayment {
     billingContact?: Pick<IosPKContact, 'postalAddress'>;
     shippingContact?: IosPKContact;
     shippingMethod?: IosPKShippingMethod;
-    token: IosPKToken;
+    token: IosRawPKToken;
 }

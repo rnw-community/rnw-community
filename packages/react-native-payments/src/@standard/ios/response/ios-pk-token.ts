@@ -1,9 +1,10 @@
+import { emptyIosPaymentData } from './ios-payment-data';
+
+import type { IosPaymentData } from './ios-payment-data';
+
+// https://developer.apple.com/documentation/passkit/pkpayment?language=objc
 export interface IosPKToken {
-    /*
-     * https://developer.apple.com/documentation/passkit/pkpaymenttoken/1617000-paymentdata?language=objc
-     * Send this data to your e-commerce back-end system, where it can be decrypted and submitted to your payment processor.
-     */
-    paymentData: string;
+    paymentData: IosPaymentData;
     paymentMethod: {
         displayName: string;
         network: string;
@@ -13,7 +14,7 @@ export interface IosPKToken {
 }
 
 export const emptyIosPKToken: IosPKToken = {
-    paymentData: '',
+    paymentData: emptyIosPaymentData,
     paymentMethod: {
         displayName: '',
         network: '',
