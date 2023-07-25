@@ -3,6 +3,13 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.54.7](https://github.com/rnw-community/rnw-community/compare/v0.54.6...v0.54.7) (2023-07-25)
+
+### Bug Fixes
+
+-   **react-native-payments:** ios native fixes ([ec59bfe](https://github.com/rnw-community/rnw-community/commit/ec59bfe1580304de58636d78c32a92025ccdbd84))
+-   **react-native-payments:** ios native fixes, updated android docs ([efb746d](https://github.com/rnw-community/rnw-community/commit/efb746d0d32d672b50c31862a461bf712239cb90))
+
 ## [0.54.6](https://github.com/rnw-community/rnw-community/compare/v0.54.5...v0.54.6) (2023-07-25)
 
 ### Bug Fixes
