@@ -6,10 +6,18 @@ export { SupportedNetworkEnum } from './enum/supported-networks.enum';
 
 export { IosPKMerchantCapability } from './@standard/ios/enum/ios-pk-merchant-capability.enum';
 
-export type { AndroidPaymentMethodDataInterface } from './@standard/android/mapping/android-payment-method-data.interface';
-export type { IosPaymentMethodDataInterface } from './@standard/ios/mapping/ios-payment-method-data.interface';
 export type { PaymentMethodData } from './@standard/w3c/payment-method-data';
 export type { PaymentDetailsInterface } from './interface/payment-details.interface';
+
+export type { AndroidPaymentMethodDataDataInterface } from './@standard/android/mapping/android-payment-method-data-data.interface';
+export type { AndroidPaymentMethodDataInterface } from './@standard/android/mapping/android-payment-method-data.interface';
+export type { AndroidPaymentMethodToken } from './@standard/android/response/android-payment-method-token';
+export { AndroidPaymentResponse } from './class/payment-response/android-payment-response';
+
+export type { IosPaymentMethodDataDataInterface } from './@standard/ios/mapping/ios-payment-method-data-data.interface';
+export type { IosPaymentMethodDataInterface } from './@standard/ios/mapping/ios-payment-method-data.interface';
+export type { IosPKToken } from './@standard/ios/response/ios-pk-token';
+export { IosPaymentResponse } from './class/payment-response/ios-payment-response';
 
 export { PaymentRequest } from './class/payment-request/payment-request';
 export { PaymentResponse } from './class/payment-response/payment-response';

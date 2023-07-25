@@ -2,6 +2,7 @@ import { isDefined } from '@rnw-community/shared';
 
 import { emptyAndroidIntermediateSigningKey } from '../../@standard/android/response/android-intermediate-signing-key';
 import { emptyAndroidPaymentMethodToken } from '../../@standard/android/response/android-payment-method-token';
+import { emptyIosPKToken } from '../../@standard/ios/response/ios-pk-token';
 
 import { PaymentResponse } from './payment-response';
 
@@ -14,13 +15,16 @@ import type { AndroidSignedKey } from '../../@standard/android/response/android-
 import type { AndroidSignedMessage } from '../../@standard/android/response/android-signed-message';
 import type { PaymentResponseAddressInterface } from '../../interface/payment-response-address.interface';
 
-export class AndroidPaymentResponse extends PaymentResponse<AndroidPaymentMethodToken> {
+export class AndroidPaymentResponse extends PaymentResponse {
     constructor(requestId: string, methodName: string, jsonData: string) {
         const data = JSON.parse(jsonData) as AndroidPaymentData;
 
         super(requestId, methodName, {
             billingAddress: AndroidPaymentResponse.parseFullAddress(data.paymentMethodData.info.billingAddress),
-            details: AndroidPaymentResponse.parseToken(data.paymentMethodData.tokenizationData.token),
+            details: {
+                AndroidPay: AndroidPaymentResponse.parseToken(data.paymentMethodData.tokenizationData.token),
+                ApplePay: emptyIosPKToken,
+            },
             payerEmail: data.email,
             ...(isDefined(data.shippingAddress) && {
                 payerName: (data.shippingAddress as AndroidMinAddress).name,

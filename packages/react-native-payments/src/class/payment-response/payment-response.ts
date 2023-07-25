@@ -6,19 +6,17 @@ import type { PaymentResponseDetailsInterface } from '../../interface/payment-re
 
 /*
  * https://www.w3.org/TR/payment-request/#paymentresponse-interface
- * TODO: Many of fields and methods of this class does not correspond to the spec, should we change it?
  */
-export class PaymentResponse<TokenDetails> {
+export class PaymentResponse {
     private completeCalled = false;
 
-    // TODO: Should we extract type? Spec does not provide such data
     constructor(
         // https://www.w3.org/TR/payment-request/#dom-paymentresponse-requestid
         readonly requestId: string,
         // https://www.w3.org/TR/payment-request/#dom-paymentresponse-methodname
         readonly methodName: string,
         // https://www.w3.org/TR/payment-request/#dom-paymentresponse-details
-        readonly details: PaymentResponseDetailsInterface<TokenDetails>
+        readonly details: PaymentResponseDetailsInterface
     ) {}
 
     // https://www.w3.org/TR/payment-request/#complete-method

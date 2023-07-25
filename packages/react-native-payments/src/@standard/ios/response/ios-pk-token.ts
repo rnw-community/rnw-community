@@ -11,3 +11,13 @@ export interface IosPKToken {
     };
     transactionIdentifier: string;
 }
+
+export const emptyIosPKToken: IosPKToken = {
+    paymentData: '',
+    paymentMethod: {
+        displayName: '',
+        network: '',
+        type: '',
+    },
+    transactionIdentifier: '',
+};
