@@ -247,7 +247,6 @@ RCT_EXPORT_METHOD(canMakePayments: (NSString *)methodDataString
             nameDict[@"namePrefix"] = nameComponents.namePrefix;
             nameDict[@"nameSuffix"] = nameComponents.nameSuffix;
             nameDict[@"nickname"] = nameComponents.nickname;
-            nameDict[@"phoneticRepresentation"] = nameComponents.phoneticRepresentation;
         }
         shippingContactDict[@"name"] = nameDict;
 

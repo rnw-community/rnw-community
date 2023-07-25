@@ -6,5 +6,4 @@ export interface IosNSPersonNameComponents {
     namePrefix: string;
     nameSuffix: string;
     nickname: string;
-    phoneticRepresentation: string;
 }
