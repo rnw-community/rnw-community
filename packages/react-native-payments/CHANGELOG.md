@@ -3,6 +3,13 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.54.9](https://github.com/rnw-community/rnw-community/compare/v0.54.8...v0.54.9) (2023-07-25)
+
+### Bug Fixes
+
+-   **react-native-payments:** fixed ios token and paymentData parsing ([e55967d](https://github.com/rnw-community/rnw-community/commit/e55967d23553364afe2c4b4ab00c5bac44d049bc))
+-   **react-native-payments:** fixed ios token and paymentData parsing ([579b4ce](https://github.com/rnw-community/rnw-community/commit/579b4cea4b0c5874f32d47dbbfa461e40a4e8580))
+
 ## [0.54.8](https://github.com/rnw-community/rnw-community/compare/v0.54.7...v0.54.8) (2023-07-25)
 
 ### Bug Fixes
