@@ -1,5 +1,8 @@
 import { isDefined } from '@rnw-community/shared';
 
+import { emptyAndroidIntermediateSigningKey } from '../../@standard/android/response/android-intermediate-signing-key';
+import { emptyAndroidPaymentMethodToken } from '../../@standard/android/response/android-payment-method-token';
+
 import { PaymentResponse } from './payment-response';
 
 import type { AndroidFullAddress } from '../../@standard/android/response/android-full-address';
@@ -33,32 +36,21 @@ export class AndroidPaymentResponse extends PaymentResponse<AndroidPaymentMethod
 
     private static parseToken(input = '{}'): AndroidPaymentMethodToken {
         if (input === 'examplePaymentMethodToken') {
-            return {
-                intermediateSigningKey: {
-                    signatures: '',
-                    signedKey: {
-                        keyExpiration: '',
-                        keyValue: '',
-                    },
-                },
-                protocolVersion: '',
-                signature: '',
-                signedMessage: {
-                    encryptedMessage: '',
-                    ephemeralPublicKey: '',
-                    tag: '',
-                },
-            };
+            return emptyAndroidPaymentMethodToken;
         }
 
         const rawToken = JSON.parse(input) as AndroidRawPaymentMethodToken;
 
-        // TODO: If needed we can add parsing of rawToken.intermediateSigningKey
         return {
+            ...emptyAndroidPaymentMethodToken,
             ...rawToken,
             intermediateSigningKey: {
-                ...rawToken.intermediateSigningKey,
-                signedKey: JSON.parse(rawToken.intermediateSigningKey.signedKey) as AndroidSignedKey,
+                ...(isDefined(rawToken.intermediateSigningKey)
+                    ? {
+                          ...rawToken.intermediateSigningKey,
+                          signedKey: JSON.parse(rawToken.intermediateSigningKey.signedKey) as AndroidSignedKey,
+                      }
+                    : emptyAndroidIntermediateSigningKey),
             },
             signedMessage: JSON.parse(rawToken.signedMessage) as AndroidSignedMessage,
         };

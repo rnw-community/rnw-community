@@ -3,3 +3,8 @@ export interface AndroidSignedKey {
     keyExpiration: string;
     keyValue: string;
 }
+
+export const emptyAndroidSignedKey: AndroidSignedKey = {
+    keyExpiration: '',
+    keyValue: '',
+};
