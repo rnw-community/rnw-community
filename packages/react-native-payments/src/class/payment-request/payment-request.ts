@@ -1,8 +1,7 @@
 /* eslint-disable max-lines */
-import { isAndroid } from '@rnw-community/platform/src';
 import uuid from 'react-native-uuid';
 
-import { isIOS } from '@rnw-community/platform';
+import { isAndroid, isIOS } from '@rnw-community/platform';
 import { emptyFn, getErrorMessage, isDefined, isNotEmptyArray, isNotEmptyString } from '@rnw-community/shared';
 
 import { AndroidPaymentMethodTokenizationType } from '../../@standard/android/enum/android-payment-method-tokenization-type.enum';
