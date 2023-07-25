@@ -21,10 +21,8 @@ export class AndroidPaymentResponse extends PaymentResponse {
 
         super(requestId, methodName, {
             billingAddress: AndroidPaymentResponse.parseFullAddress(data.paymentMethodData.info.billingAddress),
-            details: {
-                AndroidPay: AndroidPaymentResponse.parseToken(data.paymentMethodData.tokenizationData.token),
-                ApplePay: emptyIosPKToken,
-            },
+            androidPayToken: AndroidPaymentResponse.parseToken(data.paymentMethodData.tokenizationData.token),
+            applePayToken: emptyIosPKToken,
             payerEmail: data.email,
             ...(isDefined(data.shippingAddress) && {
                 payerName: (data.shippingAddress as AndroidMinAddress).name,
