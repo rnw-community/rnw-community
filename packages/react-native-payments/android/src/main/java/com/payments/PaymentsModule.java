@@ -53,7 +53,9 @@ public class PaymentsModule extends PaymentsSpec {
               case LOAD_MASKED_WALLET_REQUEST_CODE:
                   switch (resultCode) {
                       case Activity.RESULT_OK:
-                          handlePaymentSuccess(PaymentData.getFromIntent(intent));
+                          PaymentData paymentData = PaymentData.getFromIntent(intent);
+                          Log.d(NAME, "Received payment: " + paymentData);
+                          handlePaymentSuccess(paymentData);
                           break;
 
                       case Activity.RESULT_CANCELED:
@@ -61,14 +63,11 @@ public class PaymentsModule extends PaymentsSpec {
                           break;
 
                       case AutoResolveHelper.RESULT_ERROR:
+                      default:
                           Status status = AutoResolveHelper.getStatusFromIntent(intent);
                           handleError(status.getStatusCode());
                           break;
                   }
-
-                default:
-                    rejectPromise(E_FAILED_UNHANDLED, "Unhandled AndroidPay resultCode: " + resultCode);
-                    break;
             }
         }
       };
@@ -188,13 +187,14 @@ public class PaymentsModule extends PaymentsSpec {
     private void handlePaymentSuccess(PaymentData paymentData) {
         // https://developers.google.com/pay/api/android/guides/tutorial#checkoutactivity.java-java
         // https://developers.google.com/android/reference/com/google/android/gms/wallet/PaymentData
+        // https://developers.google.com/pay/api/android/reference/request-objects#PaymentData
         final String paymentInfo = paymentData.toJson();
         if (paymentInfo == null) {
             rejectPromise(E_FAILED_PARSING_PAYMENT_RESPONSE, "Failed parsing payment response");
             return;
         }
 
-        Log.d(NAME, "Successfully received paymentData: " + getCurrentActivity().toString() + " " + paymentData);
+        Log.d(NAME, "Successfully received paymentData: " + getCurrentActivity().toString() + " " + paymentInfo);
 
         mPromise.resolve(paymentInfo);
         mPromise = null;

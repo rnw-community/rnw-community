@@ -5,16 +5,18 @@ import { PaymentResponse } from './payment-response';
 import type { AndroidFullAddress } from '../../@standard/android/response/android-full-address';
 import type { AndroidMinAddress } from '../../@standard/android/response/android-min-address';
 import type { AndroidPaymentData } from '../../@standard/android/response/android-payment-data';
-import type { AndroidPaymentDataToken } from '../../@standard/android/response/android-payment-data-token';
+import type { AndroidPaymentMethodToken } from '../../@standard/android/response/android-payment-method-token';
+import type { AndroidRawPaymentMethodToken } from '../../@standard/android/response/android-raw-payment-method-token';
+import type { AndroidSignedMessage } from '../../@standard/android/response/android-signed-message';
 import type { PaymentResponseAddressInterface } from '../../interface/payment-response-address.interface';
 
-export class AndroidPaymentResponse extends PaymentResponse<AndroidPaymentDataToken> {
+export class AndroidPaymentResponse extends PaymentResponse<AndroidPaymentMethodToken> {
     constructor(requestId: string, methodName: string, jsonData: string) {
         const data = JSON.parse(jsonData) as AndroidPaymentData;
 
         super(requestId, methodName, {
             billingAddress: AndroidPaymentResponse.parseFullAddress(data.paymentMethodData.info.billingAddress),
-            details: JSON.parse(data.paymentMethodData.tokenizationData.token ?? '{}') as AndroidPaymentDataToken,
+            details: AndroidPaymentResponse.parseToken(data.paymentMethodData.tokenizationData.token),
             payerEmail: data.email,
             ...(isDefined(data.shippingAddress) && {
                 payerName: (data.shippingAddress as AndroidMinAddress).name,
@@ -26,6 +28,32 @@ export class AndroidPaymentResponse extends PaymentResponse<AndroidPaymentDataTo
             }),
             shippingAddress: AndroidPaymentResponse.parseFullAddress(data.shippingAddress),
         });
+    }
+
+    private static parseToken(input = '{}'): AndroidPaymentMethodToken {
+        if (input === 'examplePaymentMethodToken') {
+            return {
+                intermediateSigningKey: {
+                    signatures: '',
+                    signedKey: '',
+                },
+                protocolVersion: '',
+                signature: '',
+                signedMessage: {
+                    encryptedMessage: '',
+                    ephemeralPublicKey: '',
+                    tag: '',
+                },
+            };
+        }
+
+        const rawToken = JSON.parse(input) as AndroidRawPaymentMethodToken;
+
+        // TODO: If needed we can add parsing of rawToken.intermediateSigningKey
+        return {
+            ...rawToken,
+            signedMessage: JSON.parse(rawToken.signedMessage) as AndroidSignedMessage,
+        };
     }
 
     private static parseFullAddress(input?: AndroidFullAddress): PaymentResponseAddressInterface {

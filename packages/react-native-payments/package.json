@@ -30,6 +30,7 @@
             "require": "./dist/cjs/index.js"
         }
     },
+    "react-native": "src/index.ts",
     "main": "dist/cjs/index.js",
     "module": "dist/esm/index.js",
     "types": "dist/esm/index.d.ts",

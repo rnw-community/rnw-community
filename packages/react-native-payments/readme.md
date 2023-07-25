@@ -46,22 +46,43 @@ integration experience for your applications.
 
 ### ApplePay setup
 
+- ApplePay [overview](https://developer.apple.com/apple-pay/planning/).
 - Create [Apple developer account](https://developer.apple.com/programs/enroll/).
 - Follow [this guide](https://developer.apple.com/library/archive/ApplePay_Guide/Configuration.html) to setup ApplePay in
   your application.
+- [Payment token reference](https://developer.apple.com/documentation/passkit/apple_pay/payment_token_format_reference?language=objc)
+- Add following code to your `AppDelegate.h`:
+```objc
+#import <RCTAppDelegate.h>
+#import <UIKit/UIKit.h>
+#import <PassKit/PassKit.h> // Add this import
+
+@interface AppDelegate : RCTAppDelegate
+
+```
 
 ### AndroidPay setup
 
 - Create [Google developer account](https://support.google.com/googleplay/android-developer/answer/6112435?hl=en).
 - Follow [this guide](https://developers.google.com/pay/api/android/guides/setup) to setup Google Pay Api in your
   application.
+- [Google payments tutorial](https://developers.google.com/pay/api/android/guides/tutorial)
+- [Google brand guidelines](https://developers.google.com/pay/api/android/guides/brand-guidelines)
+
+- Use should use `19.0.0+` version of Google play services in your application:
+```groovy
+dependencies {
+    // The version of react-native is set by the React Native Gradle Plugin
+    implementation("com.facebook.react:react-android")
+
+    implementation 'com.google.android.gms:play-services-wallet:19.2.0'
+```
 
 ## Usage
 
-> Detailed guide should be found
->
-at [developer.mozilla.org](https://developer.mozilla.org/en-US/docs/Web/API/Payment_Request_API/Using_the_Payment_Request_API)
-> as API is fully compliant.
+Detailed guide should be found at:
+- [developer.mozilla.org](https://developer.mozilla.org/en-US/docs/Web/API/Payment_Request_API/Using_the_Payment_Request_API) as API is fully compliant.
+- [Google Web Payments guide](https://web.dev/payments/).
 
 The PaymentRequest class is designed to facilitate the integration of payment processing into your React Native application.
 It leverages TypeScript for robust typing and ensures seamless payment experiences across both iOS and Android platforms.
@@ -153,9 +174,14 @@ including the payment method used, the payer's information, and transaction-rela
 
 ```ts
 const paymentResponse = paymentRequest.show().then((paymentResponse) => {
-    // Will provide all plaform related information needed for transaction processing
-    paymentDetails.details
+    // This field will have all plaform related information needed for transaction processing
+    paymentDetails.details;
     // Aditionally if was requested, shipping, billing and payer info would be available
+    paymentDetails.billingAddress;
+    paymentDetails.payerEmail;
+    paymentDetails.payerName;
+    paymentDetails.payerPhone;
+    paymentDetails.shippingAddress;
 }).catch(...);
 ```
 
@@ -201,6 +227,7 @@ the [react-native-payments-example](../react-native-payments-example/README.md) 
   details.
 - [ ] Rewrite IOS to swift?
 - [ ] Rewrite Android to Kotlin?
+- [ ] Can we avoid modifying `AppDelegate.h` with importing `PassKit`?
 
 ### W3C spec:
 
