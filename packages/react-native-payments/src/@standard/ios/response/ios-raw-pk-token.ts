@@ -12,13 +12,3 @@ export interface IosRawPKToken {
     };
     transactionIdentifier: string;
 }
-
-export const emptyIosPKToken: IosRawPKToken = {
-    paymentData: '',
-    paymentMethod: {
-        displayName: '',
-        network: '',
-        type: '',
-    },
-    transactionIdentifier: '',
-};
