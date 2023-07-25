@@ -3,6 +3,10 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.54.9](https://github.com/rnw-community/rnw-community/compare/v0.54.8...v0.54.9) (2023-07-25)
+
+**Note:** Version bump only for package @rnw-community/react-native-payments-example
+
 ## [0.54.8](https://github.com/rnw-community/rnw-community/compare/v0.54.7...v0.54.8) (2023-07-25)
 
 ### Bug Fixes
