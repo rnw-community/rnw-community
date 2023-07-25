@@ -5,3 +5,9 @@ export interface AndroidSignedMessage {
     ephemeralPublicKey: string;
     tag: string;
 }
+
+export const emptyAndroidSignedMessage: AndroidSignedMessage = {
+    encryptedMessage: '',
+    ephemeralPublicKey: '',
+    tag: '',
+};
