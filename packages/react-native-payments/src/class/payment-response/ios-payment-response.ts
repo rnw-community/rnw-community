@@ -27,8 +27,6 @@ export class IosPaymentResponse extends PaymentResponse {
             payerPhone: IosPaymentResponse.parseCNPhoneNumber(data.shippingContact?.phoneNumber),
             shippingAddress: IosPaymentResponse.parsePKContact(data.shippingContact?.postalAddress),
         });
-
-        console.log('Created payment request');
     }
 
     private static parsePkToken(input: IosRawPKToken): IosPKToken {
