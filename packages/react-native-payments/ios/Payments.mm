@@ -1,7 +1,9 @@
 #import "Payments.h"
-#import <objc/runtime.h>
 
-// TODO: Rewrite according to recent docs https://developer.apple.com/documentation/passkit/apple_pay/offering_apple_pay_in_your_app?language=objc
+#import <objc/runtime.h>
+#import <React/RCTLog.h>
+
+// TODO: Add logs
 @implementation Payments
 
 RCT_EXPORT_MODULE()

@@ -1,21 +1,18 @@
 #import <UIKit/UIKit.h>
 #import <PassKit/PassKit.h>
 
-#import <React/RCTBridgeModule.h>
-#import <React/RCTEventEmitter.h>
 #import <React/RCTUtils.h>
 
 #ifdef RCT_NEW_ARCH_ENABLED
 #import "RNPaymentsSpec.h"
 
-// Should we use https://developer.apple.com/documentation/passkit/pkpaymentauthorizationcontroller?changes=latest_major&language=objc
-// As it will support watchOS?
 @interface Payments : NSObject<NativePaymentsSpec, PKPaymentAuthorizationViewControllerDelegate>
 
 #else
-#import <React/RCTBridgeModule.h>
 
-@interface Payments : RCTEventEmitter<RCTBridgeModule, PKPaymentAuthorizationViewControllerDelegate>
+#import <React/RCTBridgeModule.h>
+@interface Payments : NSObject<RCTBridgeModule, PKPaymentAuthorizationViewControllerDelegate>
+
 #endif
 
 @property (nonatomic, strong) PKPaymentAuthorizationViewController * _Nullable viewController;
