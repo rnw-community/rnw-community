@@ -3,11 +3,9 @@ import type { AndroidPaymentMethodToken } from '../@standard/android/response/an
 import type { IosPKToken } from '../@standard/ios/response/ios-pk-token';
 
 export interface PaymentResponseDetailsInterface {
+    androidPayToken: AndroidPaymentMethodToken;
+    applePayToken: IosPKToken;
     billingAddress?: PaymentResponseAddressInterface;
-    details: {
-        AndroidPay: AndroidPaymentMethodToken;
-        ApplePay: IosPKToken;
-    };
     payerEmail?: string;
     payerName?: string;
     payerPhone?: string;
