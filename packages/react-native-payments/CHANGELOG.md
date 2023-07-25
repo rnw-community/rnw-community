@@ -3,6 +3,13 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.54.6](https://github.com/rnw-community/rnw-community/compare/v0.54.5...v0.54.6) (2023-07-25)
+
+### Bug Fixes
+
+-   fixed android response parsing ([24d078b](https://github.com/rnw-community/rnw-community/commit/24d078bbc732787e6f8e9b2fef820a0797520363))
+-   fixed android response parsing ([b5f37df](https://github.com/rnw-community/rnw-community/commit/b5f37df0d70976a3fdefe4e3c95338726c40c617))
+
 ## [0.54.5](https://github.com/rnw-community/rnw-community/compare/v0.54.4...v0.54.5) (2023-07-25)
 
 ### Bug Fixes
