@@ -7,6 +7,7 @@ import type { AndroidMinAddress } from '../../@standard/android/response/android
 import type { AndroidPaymentData } from '../../@standard/android/response/android-payment-data';
 import type { AndroidPaymentMethodToken } from '../../@standard/android/response/android-payment-method-token';
 import type { AndroidRawPaymentMethodToken } from '../../@standard/android/response/android-raw-payment-method-token';
+import type { AndroidSignedKey } from '../../@standard/android/response/android-signed-key';
 import type { AndroidSignedMessage } from '../../@standard/android/response/android-signed-message';
 import type { PaymentResponseAddressInterface } from '../../interface/payment-response-address.interface';
 
@@ -35,7 +36,10 @@ export class AndroidPaymentResponse extends PaymentResponse<AndroidPaymentMethod
             return {
                 intermediateSigningKey: {
                     signatures: '',
-                    signedKey: '',
+                    signedKey: {
+                        keyExpiration: '',
+                        keyValue: '',
+                    },
                 },
                 protocolVersion: '',
                 signature: '',
@@ -52,6 +56,10 @@ export class AndroidPaymentResponse extends PaymentResponse<AndroidPaymentMethod
         // TODO: If needed we can add parsing of rawToken.intermediateSigningKey
         return {
             ...rawToken,
+            intermediateSigningKey: {
+                ...rawToken.intermediateSigningKey,
+                signedKey: JSON.parse(rawToken.intermediateSigningKey.signedKey) as AndroidSignedKey,
+            },
             signedMessage: JSON.parse(rawToken.signedMessage) as AndroidSignedMessage,
         };
     }
