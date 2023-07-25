@@ -78,6 +78,8 @@ dependencies {
     implementation 'com.google.android.gms:play-services-wallet:19.2.0'
 ```
 
+- Your google account that are you using for testing should be added to [Google Pay API Test Cards Allowlist](https://groups.google.com/g/googlepay-test-mode-stub-data?pli=1)
+
 ## Usage
 
 Detailed guide should be found at:
