@@ -116,14 +116,9 @@ const paymentRequest = new PaymentRequest(methodData, paymentDetails);
 > or `PaymentMethodNameEnum.ApplePay`)
 > and a data property containing the corresponding platform-specific data.
 
-#### 2.1 PaymentDetailsInterface
+#### 2.1 Additional methodData.data options
 
-The `PaymentDetailsInterface` is a mapping interface used in React Native Payments to represent the payment details required
-for initiating a payment request. It extends the `PaymentDetailsInit` interface from
-the [W3C Payment Request API(version 08 September 2022)](https://www.w3.org/TR/payment-request/)
-specification and includes additional fields specific to React Native Payments.
-
-The `PaymentDetailsInterface` includes the following additional properties:
+Depending on the platform and payment method, you can provide additional data to the `methodData.data` property:
 
 - `environment`: This property represents the Android environment for the payment.
 - `requestBilling`: An optional boolean field that, when present and set to true, indicates that the `PaymentResponse` will
@@ -132,8 +127,6 @@ The `PaymentDetailsInterface` includes the following additional properties:
   include the email address of the payer.
 - `requestShipping`: An optional boolean field that, when present and set to true, indicates that the `PaymentResponse` will
   include the shipping address of the payer.
-- `total`: This property is required and represents the total amount to be paid by the user for the transaction. It includes
-  both the monetary value and its corresponding currency.
 
 ### 3. Checking Payment Capability
 
@@ -233,13 +226,12 @@ the [react-native-payments-example](../react-native-payments-example/README.md) 
 ### Docs
 
 - [ ] Add gifs to the docs showing payment sheets appearing on IOS and Android.
+- [ ] Provide migration guide from `react-native-payments`.
 
 ### Native
 
-- [ ] Investigate and implement unified shipping option selection between IOS and Android.(PR are welcome =)) W3C Payment
-  Request does not provide anything related to the Shipping options selection, only mentions
-  it [here](https://www.w3.org/TR/payment-request/#describing-what-is-being-paid-for) as a part of the `PaymentRequest`
-  details.
+- [ ] Investigate and implement `shipping options`.
+- [ ] Investigate and implement `coupons` support.
 - [ ] Rewrite IOS to swift?
 - [ ] Rewrite Android to Kotlin?
 - [ ] Can we avoid modifying `AppDelegate.h` with importing `PassKit`?
@@ -257,6 +249,7 @@ the [react-native-payments-example](../react-native-payments-example/README.md) 
 ### Other
 
 - [ ] Add unit tests
+- [ ] Refactor `utils`
 - [ ] Add web support
 - [ ] Merge react-native-payments-example into this package, and setup it properly
 - [ ] CI/CD:

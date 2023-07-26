@@ -28,8 +28,8 @@ import type { AndroidPaymentMethodDataDataInterface } from '../../@standard/andr
 import type { AndroidPaymentDataRequest } from '../../@standard/android/request/android-payment-data-request';
 import type { IosPaymentMethodDataDataInterface } from '../../@standard/ios/mapping/ios-payment-method-data-data.interface';
 import type { IosPaymentDataRequest } from '../../@standard/ios/request/ios-payment-data-request';
+import type { PaymentDetailsInit } from '../../@standard/w3c/payment-details-init';
 import type { PaymentMethodData } from '../../@standard/w3c/payment-method-data';
-import type { PaymentDetailsInterface } from '../../interface/payment-details.interface';
 
 /*
  * HINT: Troubleshooting: https://developers.google.com/pay/api/android/support/troubleshooting
@@ -47,7 +47,7 @@ export class PaymentRequest {
     private acceptPromiseRejecter: (reason: unknown) => void = emptyFn;
 
     // eslint-disable-next-line max-statements
-    constructor(readonly methodData: PaymentMethodData[], public details: PaymentDetailsInterface) {
+    constructor(readonly methodData: PaymentMethodData[], public details: PaymentDetailsInit) {
         // 3. Establish the request's id:
         if (!isNotEmptyString(details.id)) {
             // TODO: Can we avoid using external lib? Use Math.random?
@@ -69,7 +69,7 @@ export class PaymentRequest {
 
         const nativePlatformMethodData = isAndroid
             ? this.getAndroidPaymentMethodData(platformMethodData as AndroidPaymentMethodDataDataInterface, details)
-            : this.getIosPaymentMethodData(platformMethodData as IosPaymentMethodDataDataInterface, details);
+            : this.getIosPaymentMethodData(platformMethodData as IosPaymentMethodDataDataInterface);
 
         this.serializedMethodData = JSON.stringify(nativePlatformMethodData);
     }
@@ -146,7 +146,7 @@ export class PaymentRequest {
     // eslint-disable-next-line class-methods-use-this
     private getAndroidPaymentMethodData(
         methodData: AndroidPaymentMethodDataDataInterface,
-        details: PaymentDetailsInterface
+        details: PaymentDetailsInit
     ): AndroidPaymentDataRequest {
         return {
             ...defaultAndroidPaymentDataRequest,
@@ -168,7 +168,7 @@ export class PaymentRequest {
                         allowedCardNetworks: methodData.supportedNetworks.map(
                             network => network.toUpperCase() as AndroidAllowedCardNetworksEnum
                         ),
-                        ...(details.requestBilling === true && {
+                        ...(methodData.requestBilling === true && {
                             billingAddressRequired: true,
                             billingAddressParameters: {
                                 format: 'FULL',
@@ -190,8 +190,8 @@ export class PaymentRequest {
                     }),
                 },
             ],
-            ...(details.requestEmail === true && { emailRequired: true }),
-            ...(details.requestShipping === true && {
+            ...(methodData.requestEmail === true && { emailRequired: true }),
+            ...(methodData.requestShipping === true && {
                 shippingAddressRequired: true,
                 shippingAddressParameters: {
                     phoneNumberRequired: true,
@@ -201,10 +201,7 @@ export class PaymentRequest {
     }
 
     // eslint-disable-next-line class-methods-use-this
-    private getIosPaymentMethodData(
-        methodData: IosPaymentMethodDataDataInterface,
-        details: PaymentDetailsInterface
-    ): IosPaymentDataRequest {
+    private getIosPaymentMethodData(methodData: IosPaymentMethodDataDataInterface): IosPaymentDataRequest {
         // TODO: Add mappings for other systems if needed
         const supportedNetworkMap: Record<SupportedNetworkEnum, IosPKPaymentNetworksEnum> = {
             [SupportedNetworkEnum.Amex]: IosPKPaymentNetworksEnum.PKPaymentNetworkAmex,
@@ -226,8 +223,8 @@ export class PaymentRequest {
             merchantCapabilities: isNotEmptyArray(methodData.merchantCapabilities)
                 ? methodData.merchantCapabilities
                 : defaultMerchantCapabilities,
-            ...(details.requestBilling === true && { requiredBillingContactFields: true }),
-            ...(details.requestShipping === true && { requiredShippingContactFields: true }),
+            ...(methodData.requestBilling === true && { requiredBillingContactFields: true }),
+            ...(methodData.requestShipping === true && { requiredShippingContactFields: true }),
         };
     }
 }
