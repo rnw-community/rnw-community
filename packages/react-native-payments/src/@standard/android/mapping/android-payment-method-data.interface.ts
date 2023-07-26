@@ -3,5 +3,5 @@ import type { PaymentMethodNameEnum } from '../../../enum/payment-method-name.en
 
 export interface AndroidPaymentMethodDataInterface {
     data: AndroidPaymentMethodDataDataInterface;
-    supportedMethods: [PaymentMethodNameEnum.AndroidPay];
+    supportedMethods: PaymentMethodNameEnum.AndroidPay;
 }
