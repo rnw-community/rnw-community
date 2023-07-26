@@ -99,8 +99,39 @@ import {PaymentRequest} from '@rnw-community/react-native-payments';
 ### 2. Creating an Instance
 
 ```ts
+import { PaymentMethodNameEnum, SupportedNetworkEnum } from "@rnw-community/react-native-payments/src";
+
 const methodData = [
-    // Specify payment methods supported in your application
+    // ApplePay example
+    {
+        supportedMethods: PaymentMethodNameEnum.ApplePay,
+        data: {
+            merchantIdentifier: 'merchant.com.your-app.namespace',
+            supportedNetworks: [SupportedNetworkEnum.Visa, SupportedNetworkEnum.MasterCard],
+            countryCode: 'US',
+            currencyCode: 'USD',
+            requestBilling: true,
+            requestEmail: true,
+            requestShipping: true
+        }
+    },
+    // AndroidPay
+    {
+        supportedMethods: PaymentMethodNameEnum.AndroidPay,
+        data: {
+            supportedNetworks: [SupportedNetworkEnum.Visa, SupportedNetworkEnum.MasterCard],
+            environment: EnvironmentEnum.Test,
+            countryCode: 'DE',
+            currencyCode: 'EUR',
+            requestBilling: true,
+            requestEmail: true,
+            requestShipping: true,
+            gatewayConfig: {
+                gateway: 'example',
+                gatewayMerchantId: 'exampleGatewayMerchantId',
+            },
+        }
+    }
 ];
 
 const paymentDetails = {
