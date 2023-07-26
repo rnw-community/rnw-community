@@ -1,10 +1,6 @@
-import { EnvironmentEnum, type PaymentDetailsInterface } from '@rnw-community/react-native-payments';
+import type { PaymentDetailsInit } from '@rnw-community/react-native-payments';
 
-export const paymentDetails: PaymentDetailsInterface = {
-    environment: EnvironmentEnum.TEST,
-    requestBilling: true,
-    requestShipping: true,
-    requestEmail: true,
+export const paymentDetails: PaymentDetailsInit = {
     displayItems: [
         {
             amount: {

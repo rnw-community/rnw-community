@@ -1,3 +1,5 @@
+import { EnvironmentEnum } from '@rnw-community/react-native-payments/src';
+
 import {
     type AndroidPaymentMethodDataInterface,
     PaymentMethodNameEnum,
@@ -6,6 +8,10 @@ import {
 
 export const androidPaymentMethodData: AndroidPaymentMethodDataInterface = {
     data: {
+        requestBilling: true,
+        requestShipping: true,
+        requestEmail: true,
+        environment: EnvironmentEnum.TEST,
         // USD: will not show total and merchantInfo
         currencyCode: 'EUR',
         supportedNetworks: [SupportedNetworkEnum.Visa, SupportedNetworkEnum.Mastercard],
@@ -17,7 +23,6 @@ export const androidPaymentMethodData: AndroidPaymentMethodDataInterface = {
             gateway: 'example',
             gatewayMerchantId: 'exampleGatewayMerchantId',
         },
-        merchantInfo: { merchantName: 'Example merchant' },
     },
-    supportedMethods: [PaymentMethodNameEnum.AndroidPay],
+    supportedMethods: PaymentMethodNameEnum.AndroidPay,
 };
