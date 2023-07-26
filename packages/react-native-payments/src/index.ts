@@ -7,7 +7,6 @@ export { SupportedNetworkEnum } from './enum/supported-networks.enum';
 export { IosPKMerchantCapability } from './@standard/ios/enum/ios-pk-merchant-capability.enum';
 
 export type { PaymentMethodData } from './@standard/w3c/payment-method-data';
-export type { PaymentDetailsInterface } from './interface/payment-details.interface';
 
 export type { AndroidPaymentMethodDataDataInterface } from './@standard/android/mapping/android-payment-method-data-data.interface';
 export type { AndroidPaymentMethodDataInterface } from './@standard/android/mapping/android-payment-method-data.interface';
