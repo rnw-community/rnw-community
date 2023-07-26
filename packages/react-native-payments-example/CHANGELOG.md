@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.54.11](https://github.com/rnw-community/rnw-community/compare/v0.54.10...v0.54.11) (2023-07-26)
+
+### Bug Fixes
+
+-   **react-native-payments:** methodData now accepts additional options based on platform instead of the details ([8fb503e](https://github.com/rnw-community/rnw-community/commit/8fb503ed6e2b369790d9ed40a4574ac9b8d238ca))
+
 ## [0.54.10](https://github.com/rnw-community/rnw-community/compare/v0.54.9...v0.54.10) (2023-07-25)
 
 ### Bug Fixes
