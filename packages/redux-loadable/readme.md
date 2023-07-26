@@ -36,3 +36,7 @@ Helper reducer functions that will change loading state.
 ### Redux-toolkit example
 
 ### ts-action example
+
+## License
+
+This library is licensed under The [MIT License](./LICENSE.md).

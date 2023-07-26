@@ -96,6 +96,6 @@ echo $POSTGRES_PASSWORD_FILE
 /secrets/postgres_pwd
 ```
 
-## TODO
+## License
 
--   Perform real-world checks
+This library is licensed under The [MIT License](./LICENSE.md).

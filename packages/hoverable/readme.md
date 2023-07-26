@@ -37,3 +37,7 @@ const Example = () => (
     </HoverView>
 );
 ```
+
+## License
+
+This library is licensed under The [MIT License](./LICENSE.md).

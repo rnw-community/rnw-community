@@ -151,4 +151,6 @@ you may end up with `Error: Bindings not found` SWC error, this is happening bec
 }
 ```
 
-#
+## License
+
+This library is licensed under The [MIT License](./LICENSE.md).

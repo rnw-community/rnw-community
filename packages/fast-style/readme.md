@@ -98,3 +98,7 @@ import { Font } from './font';
 
 export const Component = () => <Text style={Font.ptSansBold.xs.blue}>There!</Text>;
 ```
+
+## License
+
+This library is licensed under The [MIT License](./LICENSE.md).
