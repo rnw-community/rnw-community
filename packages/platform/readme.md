@@ -72,3 +72,7 @@ import { getEnv } from '@rnw-community/platform';
 
 const myEnvVar = getEnv('ENV_NAME');
 ```
+
+## License
+
+This library is licensed under The [MIT License](./LICENSE.md).

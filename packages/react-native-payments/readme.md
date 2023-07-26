@@ -2,6 +2,7 @@
 
 [![npm version](https://badge.fury.io/js/%40rnw-community%2Fnestjs-webpack-swc.svg)](https://badge.fury.io/js/%40rnw-community%2Freact-native-payments)
 [![npm downloads](https://img.shields.io/npm/dm/%40rnw-community%2Freact-native-payments.svg)](https://www.npmjs.com/package/%40rnw-community%2Freact-native-payments)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com)
 
 > Accept Payments with Apple Pay and Android Pay using the Payment Request API.
 
@@ -288,3 +289,7 @@ the [react-native-payments-example](../react-native-payments-example/README.md) 
     - [ ] check/setup push to master and release to NPM
     - [ ] add e2e via maestro for IOS
     - [ ] add e2e via maestro for Android
+
+## License
+
+This library is licensed under The [MIT License](./LICENSE.md).

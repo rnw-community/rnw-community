@@ -177,3 +177,7 @@ export class MyService {
     }
 }
 ```
+
+## License
+
+This library is licensed under The [MIT License](./LICENSE.md).

@@ -336,3 +336,7 @@ export const Card = () => (
 ```tsx
 export * from './card/card.selectors';
 ```
+
+## License
+
+This library is licensed under The [MIT License](./LICENSE.md).

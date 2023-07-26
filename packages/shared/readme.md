@@ -203,3 +203,7 @@ export const getErrorText = (err: unknown): string => {
     return 'Unknown error';
 };
 ```
+
+## License
+
+This library is licensed under The [MIT License](./LICENSE.md).

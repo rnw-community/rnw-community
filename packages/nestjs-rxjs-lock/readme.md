@@ -92,3 +92,7 @@ export class MyUserService {
 ```
 
 > `lock$` method will throw an error if lock is not acquired
+
+## License
+
+This library is licensed under The [MIT License](./LICENSE.md).
