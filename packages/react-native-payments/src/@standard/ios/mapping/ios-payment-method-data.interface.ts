@@ -3,5 +3,5 @@ import type { PaymentMethodNameEnum } from '../../../enum/payment-method-name.en
 
 export interface IosPaymentMethodDataInterface {
     data: IosPaymentMethodDataDataInterface;
-    supportedMethods: [PaymentMethodNameEnum.ApplePay];
+    supportedMethods: PaymentMethodNameEnum.ApplePay;
 }

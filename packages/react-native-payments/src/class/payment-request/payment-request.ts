@@ -133,7 +133,7 @@ export class PaymentRequest {
         const platformSupportedMethod = isIOS ? PaymentMethodNameEnum.ApplePay : PaymentMethodNameEnum.AndroidPay;
 
         const platformMethod = this.methodData.find(
-            paymentMethodData => paymentMethodData.supportedMethods.at(0) === platformSupportedMethod
+            paymentMethodData => paymentMethodData.supportedMethods === platformSupportedMethod
         );
 
         if (!isDefined(platformMethod)) {
@@ -150,7 +150,9 @@ export class PaymentRequest {
     ): AndroidPaymentDataRequest {
         return {
             ...defaultAndroidPaymentDataRequest,
-            merchantInfo: methodData.merchantInfo,
+            merchantInfo: {
+                merchantName: details.total.label,
+            },
             transactionInfo: {
                 ...defaultAndroidTransactionInfo,
                 currencyCode: methodData.currencyCode,

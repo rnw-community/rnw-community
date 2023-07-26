@@ -6,5 +6,5 @@ export interface PaymentDetailsModifier {
     additionalDisplayItems: PaymentItem[];
     // TODO: Add type
     data: Record<string, string>;
-    supportedMethods: SupportedNetworkEnum[];
+    supportedMethods: SupportedNetworkEnum;
 }
