@@ -1,3 +1,5 @@
+[![Stand With Ukraine](https://raw.githubusercontent.com/vshymanskyy/StandWithUkraine/main/banner2-direct.svg)](https://stand-with-ukraine.pp.ua)
+
 # NestJS, React native & React native web community packages
 
 Monorepo for useful NestJS, React Native and React Native Web packages and native libs which can help you develop better software faster.
