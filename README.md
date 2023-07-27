@@ -41,4 +41,4 @@ Monorepo for useful NestJS, React Native and React Native Web packages and nativ
 
 ## License
 
-Reanimated library is licensed under The [MIT License](./LICENSE.md).
+This library is licensed under The [MIT License](./LICENSE.md).
