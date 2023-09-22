@@ -168,6 +168,7 @@ export class PaymentRequest {
                         allowedCardNetworks: methodData.supportedNetworks.map(
                             network => network.toUpperCase() as AndroidAllowedCardNetworksEnum
                         ),
+                        ...(methodData.allowedAuthMethods && { allowedAuthMethods: methodData.allowedAuthMethods }),
                         ...(methodData.requestBilling === true && {
                             billingAddressRequired: true,
                             billingAddressParameters: {
@@ -222,7 +223,7 @@ export class PaymentRequest {
             [SupportedNetworkEnum.Maestro]: IosPKPaymentNetworksEnum.PKPaymentNetworkAmex,
             [SupportedNetworkEnum.Mir]: IosPKPaymentNetworksEnum.PKPaymentNetworkAmex,
             [SupportedNetworkEnum.PrivateLabel]: IosPKPaymentNetworksEnum.PKPaymentNetworkAmex,
-            [SupportedNetworkEnum.Vpay]: IosPKPaymentNetworksEnum.PKPaymentNetworkAmex
+            [SupportedNetworkEnum.Vpay]: IosPKPaymentNetworksEnum.PKPaymentNetworkAmex,
         };
 
         const defaultMerchantCapabilities = [
