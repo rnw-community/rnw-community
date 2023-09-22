@@ -1,12 +1,10 @@
 export enum SupportedNetworkEnum {
     Amex = 'amex',
-    Mastercard = 'masterCard',
-    Visa = 'visa',
-    Discover = 'discover',
     Bancontact = 'bancontact',
     CartesBancaires = 'cartesBancaires',
     ChinaUnionPay = 'chinaUnionPay',
     Dankort = 'dankort',
+    Discover = 'discover',
     Eftpos = 'eftpos',
     Electron = 'electron',
     Elo = 'elo',
@@ -15,7 +13,9 @@ export enum SupportedNetworkEnum {
     Jcb = 'jcb',
     Mada = 'mada',
     Maestro = 'maestro',
+    Mastercard = 'masterCard',
     Mir = 'mir',
     PrivateLabel = 'privateLabel',
-    Vpay = 'vPay'
+    Visa = 'visa',
+    Vpay = 'vPay',
 }
