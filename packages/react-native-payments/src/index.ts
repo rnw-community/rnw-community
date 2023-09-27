@@ -12,6 +12,7 @@ export type { PaymentMethodData } from './@standard/w3c/payment-method-data';
 export type { AndroidPaymentMethodDataDataInterface } from './@standard/android/mapping/android-payment-method-data-data.interface';
 export type { AndroidPaymentMethodDataInterface } from './@standard/android/mapping/android-payment-method-data.interface';
 export type { AndroidPaymentMethodToken } from './@standard/android/response/android-payment-method-token';
+export { AndroidAllowedAuthMethodsEnum } from './@standard/android/enum/android-allowed-auth-methods.enum';
 export { AndroidPaymentResponse } from './class/payment-response/android-payment-response';
 
 export type { IosPaymentMethodDataDataInterface } from './@standard/ios/mapping/ios-payment-method-data-data.interface';
