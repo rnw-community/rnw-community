@@ -168,9 +168,8 @@ export class PaymentRequest {
                         allowedCardNetworks: methodData.supportedNetworks.map(
                             network => network.toUpperCase() as AndroidAllowedCardNetworksEnum
                         ),
-                        ...(isDefined(methodData.allowedAuthMethods) && {
-                            allowedAuthMethods: methodData.allowedAuthMethods,
-                        }),
+                        allowedAuthMethods:
+                            methodData.allowedAuthMethods ?? defaultAndroidPaymentMethod.parameters.allowedAuthMethods,
                         ...(methodData.requestBilling === true && {
                             billingAddressRequired: true,
                             billingAddressParameters: {
