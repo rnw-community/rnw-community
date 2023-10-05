@@ -43,6 +43,7 @@ export class PaymentRequest {
 
     // Internal Slots https://www.w3.org/TR/payment-request/#internal-slots
     private readonly serializedMethodData: string;
+    private readonly platformMethodData: AndroidPaymentMethodDataDataInterface | IosPaymentMethodDataDataInterface;
 
     private acceptPromiseRejecter: (reason: unknown) => void = emptyFn;
 
@@ -65,11 +66,11 @@ export class PaymentRequest {
         validateDisplayItems(details.displayItems, ConstructorError);
 
         // 17. Set request.[[serializedMethodData]] to serializedMethodData.         */
-        const platformMethodData = this.findPlatformPaymentMethodData();
+        this.platformMethodData = this.findPlatformPaymentMethodData();
 
         const nativePlatformMethodData = isAndroid
-            ? this.getAndroidPaymentMethodData(platformMethodData as AndroidPaymentMethodDataDataInterface, details)
-            : this.getIosPaymentMethodData(platformMethodData as IosPaymentMethodDataDataInterface);
+            ? this.getAndroidPaymentMethodData(this.platformMethodData as AndroidPaymentMethodDataDataInterface, details)
+            : this.getIosPaymentMethodData(this.platformMethodData as IosPaymentMethodDataDataInterface);
 
         this.serializedMethodData = JSON.stringify(nativePlatformMethodData);
     }
@@ -91,7 +92,15 @@ export class PaymentRequest {
             if (this.state === 'created') {
                 this.state = 'interactive';
 
-                NativePayments.show(this.serializedMethodData, this.details)
+                // HINT: We need to pass Android environment configuration to native module via details
+                const details = isAndroid
+                    ? {
+                          ...this.details,
+                          environment: (this.platformMethodData as AndroidPaymentMethodDataDataInterface).environment,
+                      }
+                    : this.details;
+
+                NativePayments.show(this.serializedMethodData, details)
                     .then(jsonDetails => {
                         resolve(this.handleAccept(jsonDetails));
 
