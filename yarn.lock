@@ -4322,6 +4322,7 @@ __metadata:
   dependencies:
     "@react-native/metro-config": ^0.72.9
     "@rnw-community/react-native-payments": ^0.54.12
+    "@rnw-community/shared": ^0.54.12
     "@tsconfig/react-native": ^3.0.0
     ios-deploy: ^1.12.2
     pod-install: ^0.1.38
