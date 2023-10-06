@@ -4322,7 +4322,6 @@ __metadata:
   dependencies:
     "@react-native/metro-config": ^0.72.9
     "@rnw-community/react-native-payments": ^0.54.12
-    "@rnw-community/shared": ^0.54.12
     "@tsconfig/react-native": ^3.0.0
     ios-deploy: ^1.12.2
     pod-install: ^0.1.38
@@ -4343,8 +4342,6 @@ __metadata:
     react-native-uuid: ^2.0.1
     validator: ^13.9.0
   peerDependencies:
-    "@rnw-community/platform": ">=0.49"
-    "@rnw-community/shared": ">=0.49"
     react: ">=17"
     react-native: ">=0.64"
   languageName: unknown
