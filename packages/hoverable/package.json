@@ -1,6 +1,6 @@
 {
     "name": "@rnw-community/hoverable",
-    "version": "0.54.12",
+    "version": "0.55.0",
     "description": "Hover support for React native elements in React native web",
     "keywords": [
         "hover",
@@ -45,7 +45,7 @@
         "clear:deps": "rm -rf ./node_modules && rm -rf ./dist"
     },
     "devDependencies": {
-        "@rnw-community/shared": "^0.54.12",
+        "@rnw-community/shared": "^0.55.0",
         "@testing-library/jest-native": "^5.4.2",
         "@testing-library/react-native": "^12.1.3",
         "@types/react": "^18.2.15",
