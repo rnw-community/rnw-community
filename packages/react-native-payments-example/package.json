@@ -19,6 +19,7 @@
     },
     "dependencies": {
         "@rnw-community/react-native-payments": "^0.54.12",
+        "@rnw-community/shared": "^0.54.12",
         "react": "^18.2.0",
         "react-native": "^0.72.3"
     },
