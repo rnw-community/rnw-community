@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.55.0](https://github.com/rnw-community/rnw-community/compare/v0.54.12...v0.55.0) (2023-10-06)
+
+### Features
+
+-   **react-native-payments:** API improvements and TS fixes ([#146](https://github.com/rnw-community/rnw-community/issues/146)) ([65be4c5](https://github.com/rnw-community/rnw-community/commit/65be4c5696474e793f7dc7e474e8628f45a267a7))
+
 ## [0.54.12](https://github.com/rnw-community/rnw-community/compare/v0.54.11...v0.54.12) (2023-07-27)
 
 **Note:** Version bump only for package @rnw-community/react-native-payments
