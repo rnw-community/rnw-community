@@ -7,6 +7,7 @@ import type { AndroidSignedMessage } from './android-signed-message';
 export interface AndroidPaymentMethodToken {
     intermediateSigningKey: AndroidIntermediateSigningKey;
     protocolVersion: string;
+    rawToken: string;
     signature: string;
     signedMessage: AndroidSignedMessage;
 }
@@ -16,4 +17,5 @@ export const emptyAndroidPaymentMethodToken: AndroidPaymentMethodToken = {
     protocolVersion: '',
     signature: '',
     signedMessage: emptyAndroidSignedMessage,
+    rawToken: '',
 };
