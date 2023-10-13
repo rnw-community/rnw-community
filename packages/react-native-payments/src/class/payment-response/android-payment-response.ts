@@ -41,20 +41,21 @@ export class AndroidPaymentResponse extends PaymentResponse {
             return emptyAndroidPaymentMethodToken;
         }
 
-        const rawToken = JSON.parse(input) as AndroidRawPaymentMethodToken;
+        const parsedToken = JSON.parse(input) as AndroidRawPaymentMethodToken;
 
         return {
             ...emptyAndroidPaymentMethodToken,
-            ...rawToken,
+            ...parsedToken,
+            rawToken: input,
             intermediateSigningKey: {
-                ...(isDefined(rawToken.intermediateSigningKey)
+                ...(isDefined(parsedToken.intermediateSigningKey)
                     ? {
-                          ...rawToken.intermediateSigningKey,
-                          signedKey: JSON.parse(rawToken.intermediateSigningKey.signedKey) as AndroidSignedKey,
+                          ...parsedToken.intermediateSigningKey,
+                          signedKey: JSON.parse(parsedToken.intermediateSigningKey.signedKey) as AndroidSignedKey,
                       }
                     : emptyAndroidIntermediateSigningKey),
             },
-            signedMessage: JSON.parse(rawToken.signedMessage) as AndroidSignedMessage,
+            signedMessage: JSON.parse(parsedToken.signedMessage) as AndroidSignedMessage,
         };
     }
 
