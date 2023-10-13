@@ -4345,9 +4345,8 @@ __metadata:
   peerDependencies:
     react: ">=17"
     react-native: ">=0.64"
-  checksum: a9f825407caf18102ff1e9a0e36dd451f6a9668cf5bca12af6b817dcbdcbe318c21004a77d92453abd0a848e990729e845ac626d1efc7f525df574089fe9bf83
-  languageName: node
-  linkType: hard
+  languageName: unknown
+  linkType: soft
 
 "@rnw-community/redux-loadable@workspace:packages/redux-loadable":
   version: 0.0.0-use.local
