@@ -22,25 +22,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@audrius-sav/react-native-payments@workspace:packages/react-native-payments":
-  version: 0.0.0-use.local
-  resolution: "@audrius-sav/react-native-payments@workspace:packages/react-native-payments"
-  dependencies:
-    "@rnw-community/platform": ^0.54.12
-    "@rnw-community/shared": ^0.54.12
-    "@types/validator": ^13.7.17
-    react: ^18.2.0
-    react-native: ^0.72.3
-    react-native-uuid: ^2.0.1
-    validator: ^13.9.0
-  peerDependencies:
-    "@rnw-community/platform": ">=0.49"
-    "@rnw-community/shared": ">=0.49"
-    react: ">=17"
-    react-native: ">=0.64"
-  languageName: unknown
-  linkType: soft
-
 "@babel/code-frame@npm:^7.0.0, @babel/code-frame@npm:^7.12.13, @babel/code-frame@npm:^7.22.5":
   version: 7.22.5
   resolution: "@babel/code-frame@npm:7.22.5"
