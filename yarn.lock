@@ -22,6 +22,25 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@audrius-sav/react-native-payments@workspace:packages/react-native-payments":
+  version: 0.0.0-use.local
+  resolution: "@audrius-sav/react-native-payments@workspace:packages/react-native-payments"
+  dependencies:
+    "@rnw-community/platform": ^0.54.12
+    "@rnw-community/shared": ^0.54.12
+    "@types/validator": ^13.7.17
+    react: ^18.2.0
+    react-native: ^0.72.3
+    react-native-uuid: ^2.0.1
+    validator: ^13.9.0
+  peerDependencies:
+    "@rnw-community/platform": ">=0.49"
+    "@rnw-community/shared": ">=0.49"
+    react: ">=17"
+    react-native: ">=0.64"
+  languageName: unknown
+  linkType: soft
+
 "@babel/code-frame@npm:^7.0.0, @babel/code-frame@npm:^7.12.13, @babel/code-frame@npm:^7.22.5":
   version: 7.22.5
   resolution: "@babel/code-frame@npm:7.22.5"
@@ -4321,7 +4340,8 @@ __metadata:
   resolution: "@rnw-community/react-native-payments-example@workspace:packages/react-native-payments-example"
   dependencies:
     "@react-native/metro-config": ^0.72.9
-    "@rnw-community/react-native-payments": ^0.54.12
+    "@rnw-community/react-native-payments": ^0.54.11
+    "@rnw-community/shared": ^0.54.0
     "@tsconfig/react-native": ^3.0.0
     ios-deploy: ^1.12.2
     pod-install: ^0.1.38
@@ -4330,12 +4350,12 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@rnw-community/react-native-payments@^0.54.12, @rnw-community/react-native-payments@workspace:packages/react-native-payments":
+"@rnw-community/react-native-payments@^0.54.11, @rnw-community/react-native-payments@workspace:packages/react-native-payments":
   version: 0.0.0-use.local
   resolution: "@rnw-community/react-native-payments@workspace:packages/react-native-payments"
   dependencies:
-    "@rnw-community/platform": ^0.54.12
-    "@rnw-community/shared": ^0.54.12
+    "@rnw-community/platform": ^0.54.3
+    "@rnw-community/shared": ^0.54.0
     "@types/validator": ^13.7.17
     react: ^18.2.0
     react-native: ^0.72.3
@@ -4344,8 +4364,9 @@ __metadata:
   peerDependencies:
     react: ">=17"
     react-native: ">=0.64"
-  languageName: unknown
-  linkType: soft
+  checksum: a9f825407caf18102ff1e9a0e36dd451f6a9668cf5bca12af6b817dcbdcbe318c21004a77d92453abd0a848e990729e845ac626d1efc7f525df574089fe9bf83
+  languageName: node
+  linkType: hard
 
 "@rnw-community/redux-loadable@workspace:packages/redux-loadable":
   version: 0.0.0-use.local
