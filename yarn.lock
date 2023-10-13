@@ -4350,15 +4350,18 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@rnw-community/react-native-payments@npm:^0.54.12":
-  version: 0.54.12
-  resolution: "@rnw-community/react-native-payments@npm:0.54.12"
+"@rnw-community/react-native-payments@^0.54.12, @rnw-community/react-native-payments@workspace:packages/react-native-payments":
+  version: 0.0.0-use.local
+  resolution: "@rnw-community/react-native-payments@workspace:packages/react-native-payments"
   dependencies:
+    "@rnw-community/platform": ^0.54.12
+    "@rnw-community/shared": ^0.54.12
+    "@types/validator": ^13.7.17
+    react: ^18.2.0
+    react-native: ^0.72.3
     react-native-uuid: ^2.0.1
     validator: ^13.9.0
   peerDependencies:
-    "@rnw-community/platform": ">=0.49"
-    "@rnw-community/shared": ">=0.49"
     react: ">=17"
     react-native: ">=0.64"
   checksum: a9f825407caf18102ff1e9a0e36dd451f6a9668cf5bca12af6b817dcbdcbe318c21004a77d92453abd0a848e990729e845ac626d1efc7f525df574089fe9bf83

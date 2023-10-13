@@ -1,6 +1,6 @@
 {
-    "name": "@audrius-sav/react-native-payments",
-    "version": "0.55.2",
+    "name": "@rnw-community/react-native-payments",
+    "version": "0.55.0",
     "description": "React Native Payments",
     "keywords": [
         "react",
@@ -75,21 +75,17 @@
         "build:ios": "cd example/ios && xcodebuild -workspace PaymentsExample.xcworkspace -scheme PaymentsExample -configuration Debug -sdk iphonesimulator CC=clang CPLUSPLUS=clang++ LD=clang LDPLUSPLUS=clang++ GCC_OPTIMIZATION_LEVEL=0 GCC_PRECOMPILE_PREFIX_HEADER=YES ASSETCATALOG_COMPILER_OPTIMIZATION=time DEBUG_INFORMATION_FORMAT=dwarf COMPILER_INDEX_STORE_ENABLE=NO"
     },
     "dependencies": {
-        "@rnw-community/platform": "^0.54.12",
-        "@rnw-community/shared": "^0.54.12",
+        "@rnw-community/platform": "^0.55.0",
+        "@rnw-community/shared": "^0.55.0",
         "react-native-uuid": "^2.0.1",
         "validator": "^13.9.0"
     },
     "devDependencies": {
-        "@rnw-community/platform": "^0.54.12",
-        "@rnw-community/shared": "^0.54.12",
         "@types/validator": "^13.7.17",
         "react": "^18.2.0",
         "react-native": "^0.72.3"
     },
     "peerDependencies": {
-        "@rnw-community/platform": ">=0.49",
-        "@rnw-community/shared": ">=0.49",
         "react": ">=17",
         "react-native": ">=0.64"
     },

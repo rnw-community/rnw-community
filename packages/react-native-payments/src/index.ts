@@ -4,6 +4,7 @@ export { PaymentComplete } from './enum/payment-complete.enum';
 export { PaymentsErrorEnum } from './enum/payments-error.enum';
 export { SupportedNetworkEnum } from './enum/supported-networks.enum';
 export type { PaymentDetailsInit } from './@standard/w3c/payment-details-init';
+export type { PaymentItem } from './@standard/w3c/payment-item';
 
 export { IosPKMerchantCapability } from './@standard/ios/enum/ios-pk-merchant-capability.enum';
 
