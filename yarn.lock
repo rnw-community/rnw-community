@@ -4323,7 +4323,7 @@ __metadata:
   resolution: "@rnw-community/react-native-payments-example@workspace:packages/react-native-payments-example"
   dependencies:
     "@react-native/metro-config": ^0.72.9
-    "@rnw-community/react-native-payments": ^0.55.1
+    "@rnw-community/react-native-payments": "workspace:^"
     "@rnw-community/shared": "workspace:^"
     "@tsconfig/react-native": ^3.0.0
     ios-deploy: ^1.12.2
@@ -4333,7 +4333,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@rnw-community/react-native-payments@^0.55.1, @rnw-community/react-native-payments@workspace:packages/react-native-payments":
+"@rnw-community/react-native-payments@workspace:^, @rnw-community/react-native-payments@workspace:packages/react-native-payments":
   version: 0.0.0-use.local
   resolution: "@rnw-community/react-native-payments@workspace:packages/react-native-payments"
   dependencies:
