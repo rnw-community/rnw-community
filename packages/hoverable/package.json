@@ -1,6 +1,6 @@
 {
     "name": "@rnw-community/hoverable",
-    "version": "0.55.0",
+    "version": "0.56.0",
     "description": "Hover support for React native elements in React native web",
     "keywords": [
         "hover",
