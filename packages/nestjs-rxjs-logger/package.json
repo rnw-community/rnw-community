@@ -42,12 +42,12 @@
     "gitHead": "b5608910319390f9773a9d42c3cc828e8e8a1d95",
     "devDependencies": {
         "@nestjs/common": "^10.2.7",
-        "@rnw-community/shared": "^0.55.0",
+        "@rnw-community/shared": "workspace:^",
         "rxjs": "^7.4.0"
     },
     "peerDependencies": {
         "@nestjs/common": "^10.2.7",
-        "@rnw-community/shared": "^0.55.0",
+        "@rnw-community/shared": "workspace:^",
         "rxjs": "^7.4.0"
     }
 }
