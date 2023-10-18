@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.56.0](https://github.com/rnw-community/rnw-community/compare/v0.55.1...v0.56.0) (2023-10-18)
+
+### Features
+
+-   bumped nestjs deps, move local deps to workspace protocol ([#150](https://github.com/rnw-community/rnw-community/issues/150)) ([5ccf031](https://github.com/rnw-community/rnw-community/commit/5ccf031e4699028999c64be25ff70ced1530c422))
+
 # [0.55.0](https://github.com/rnw-community/rnw-community/compare/v0.54.12...v0.55.0) (2023-10-06)
 
 **Note:** Version bump only for package @rnw-community/rxjs-errors
