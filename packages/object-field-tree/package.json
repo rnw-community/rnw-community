@@ -49,6 +49,6 @@
         "@rnw-community/shared": "^0.55.0"
     },
     "peerDependencies": {
-        "@rnw-community/shared": "^0.46.0"
+        "@rnw-community/shared": "^0.55.0"
     }
 }

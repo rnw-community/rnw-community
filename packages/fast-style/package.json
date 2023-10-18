@@ -41,8 +41,8 @@
         "clear:deps": "rm -rf ./node_modules && rm -rf ./dist"
     },
     "peerDependencies": {
-        "@rnw-community/object-field-tree": "^0.45.0",
-        "@rnw-community/shared": "^0.49.0",
+        "@rnw-community/object-field-tree": "^0.55.0",
+        "@rnw-community/shared": "^0.55.0",
         "react-native": "^0.72.3"
     },
     "devDependencies": {
