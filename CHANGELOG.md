@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.57.2](https://github.com/rnw-community/rnw-community/compare/v0.57.1...v0.57.2) (2023-10-21)
+
+### Features
+
+-   create dependabot.yml ([#152](https://github.com/rnw-community/rnw-community/issues/152)) ([227a6cc](https://github.com/rnw-community/rnw-community/commit/227a6cce6916c8abe94c19efa34fb6e44d5c6ef2))
+
 ## [0.57.1](https://github.com/rnw-community/rnw-community/compare/v0.57.0...v0.57.1) (2023-10-21)
 
 **Note:** Version bump only for package rnw-community
