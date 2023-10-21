@@ -1,4 +1,4 @@
-import { isError } from '../../type-guard/is-error/is-error';
+import { isError } from '../../type-guard/generic/is-error/is-error';
 
 /**
  * Get Error message as string type-safely, or show fallback message.
