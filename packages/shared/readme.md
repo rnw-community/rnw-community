@@ -33,8 +33,8 @@ Utility functions that helps with everyday tasks:
 - [getErrorMessage](src/util/get-error-message/get-error-message.md) - Get typesafe Error object message.
 - [emptyFn](src/util/empty-fn/empty-fn.md) - Useful default react prop callback value.
 - [cs](src/util/cs/cs.md) - Conditional styling util.
-- [getDefined](src/util/get-defined/get-defined.md) - Get fallback value if passed variable is not defined
-- [getDefinedAsync](src/util/get-defined-async/get-defined-async.md) - Get async fallback value if passed variable is not defined
+- [getDefined](src/util/get-defined/get-defined.md) - Get fallback value if passed variable is not defined.
+- [getDefinedAsync](src/util/get-defined-async/get-defined-async.md) - Get async fallback value if passed variable is not defined.
 
 ## Types
 
