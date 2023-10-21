@@ -1,4 +1,4 @@
-# Shared - React native web community
+# Shared
 
 Generic types, type guards and utilities commonly used across packages.
 
