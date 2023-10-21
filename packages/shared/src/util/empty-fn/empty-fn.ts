@@ -1,4 +1,4 @@
-import type { EmptyFn } from '../../type/empty-fn.type';
+import type { EmptyFn } from '../../type/empty-fn-type/empty-fn.type';
 
 /**
  * Function that has not implementation and returns void.

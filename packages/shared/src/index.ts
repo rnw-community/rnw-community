@@ -1,9 +1,9 @@
 // Types
-export type { ClassType } from './type/class.type';
-export type { OnEventFn } from './type/on-event-fn.type';
-export type { Maybe } from './type/maybe.type';
-export type { EmptyFn } from './type/empty-fn.type';
-export type { Enum } from './type/enum.type';
+export type { ClassType } from './type/class-type/class.type';
+export type { OnEventFn } from './type/on-event-fn-type/on-event-fn.type';
+export type { Maybe } from './type/maybe-type/maybe.type';
+export type { EmptyFn } from './type/empty-fn-type/empty-fn.type';
+export type { Enum } from './type/enum-type/enum.type';
 
 // Type guards
 export { isDefined } from './type-guard/generic/is-defined/is-defined';
