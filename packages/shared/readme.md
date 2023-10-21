@@ -5,16 +5,6 @@ Generic types, type guards and utilities commonly used across packages.
 [![npm version](https://badge.fury.io/js/%40rnw-community%2Fshared.svg)](https://badge.fury.io/js/%40rnw-community%2Fshared)
 [![npm downloads](https://img.shields.io/npm/dm/%40rnw-community%2Fshared.svg)](https://www.npmjs.com/package/%40rnw-community%2Fshared)
 
-## Types
-
-Commonly used typescript types:
-
-- [ClassType](src/type/class-type/class.type.md)
-- [Maybe](src/type/maybe-type/maybe-type.md)
-- [OnEventFn](src/type/on-event-fn-type/on-event-fn.type.md)
-- [EmptyFn](src/type/empty-fn-type/empty-fn.type.md)
-- [Enum](src/type/enum-type/enum-type.md)
-
 ## Type guards
 
 Convenient [typescript type guards](https://www.typescriptlang.org/docs/handbook/2/narrowing.html#using-type-predicates) for everyday usage.
@@ -45,6 +35,16 @@ Utility functions that helps with everyday tasks:
 - [cs](src/util/cs/cs.md) - Conditional styling util.
 - [getDefined](src/util/get-defined/get-defined.md) - Get fallback value if passed variable is not defined
 - [getDefinedAsync](src/util/get-defined-async/get-defined-async.md) - Get async fallback value if passed variable is not defined
+
+## Types
+
+Commonly used typescript types:
+
+- [ClassType](src/type/class-type/class.type.md)
+- [Maybe](src/type/maybe-type/maybe-type.md)
+- [OnEventFn](src/type/on-event-fn-type/on-event-fn.type.md)
+- [EmptyFn](src/type/empty-fn-type/empty-fn.type.md)
+- [Enum](src/type/enum-type/enum-type.md)
 
 ## License
 
