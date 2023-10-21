@@ -40,11 +40,11 @@ This package provides a set of convenient type guards for everyday usage with th
 ## Utils
 
 Utility functions that helps with everyday tasks:
-- [getErrorMessage](src/util/get-error-message/get-error-message.md)
-- [emptyFn](src/util/empty-fn/empty-fn.md)
-- [cs](src/util/cs/cs.md)
-- [getDefined](src/util/get-defined/get-defined.md)
-- [getDefinedAsync](src/util/get-defined-async/get-defined-async.md)
+- [getErrorMessage - get typesafe Error object message](src/util/get-error-message/get-error-message.md)
+- [emptyFn - useful default react prop callback value](src/util/empty-fn/empty-fn.md)
+- [cs - conditional styling util](src/util/cs/cs.md)
+- [getDefined - get fallback value if passed variable is not defined](src/util/get-defined/get-defined.md)
+- [getDefinedAsync - get async fallback value if passed variable is not defined](src/util/get-defined-async/get-defined-async.md)
 
 ## License
 
