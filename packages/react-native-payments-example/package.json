@@ -1,6 +1,6 @@
 {
     "name": "@rnw-community/react-native-payments-example",
-    "version": "0.57.1",
+    "version": "0.57.2",
     "private": true,
     "scripts": {
         "android": "react-native run-android",
