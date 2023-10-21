@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.57.0](https://github.com/rnw-community/rnw-community/compare/v0.56.0...v0.57.0) (2023-10-21)
+
+### Features
+
+-   **shared:** refactored docs, added isNumber, isPositiveNumber, isEmptyArray ([#151](https://github.com/rnw-community/rnw-community/issues/151)) ([68fa290](https://github.com/rnw-community/rnw-community/commit/68fa290bff354056ecfb6a7ecd907ccde6a85036))
+
 # [0.56.0](https://github.com/rnw-community/rnw-community/compare/v0.55.1...v0.56.0) (2023-10-18)
 
 **Note:** Version bump only for package @rnw-community/shared
