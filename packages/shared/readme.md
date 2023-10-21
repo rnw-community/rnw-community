@@ -126,83 +126,14 @@ expect(await getDefinedAsync('defined value', async () => 'default value')).reso
 
 Convenient [typescript type guards](https://www.typescriptlang.org/docs/handbook/2/narrowing.html#using-type-predicates) for everyday usage.
 
-### `isDefined`
+> This type guards makes your code more explicit, readable and type-safe, both in runtime and typescript.
 
-Check if variable is not `undefined` and is not `null`.
+This package provides a set of convenient type guards for everyday usage with the following types:
 
-#### Example
-
-```ts
-const value: Record<string, string> | null = { data: 'value' };
-
-isDefined(value); // returns true and narrows type to Record<string, string>
-```
-
-### `isString`
-
-Check if variable is a string.
-
-#### Example
-
-```ts
-const aString = '';
-
-isString(aString); // returns true and narrows type to string for aString
-```
-
-### `isEmptyString`
-
-Check if variable is an empty string.
-
-#### Example
-
-```ts
-const emptyString = '';
-
-isEmptyString(emptyString); // returns true and narrows type to string
-```
-
-### `isNotEmptyString`
-
-Check if variable is NOT an empty string.
-
-#### Example
-
-```ts
-const notEmptyString = 'test';
-
-isNotEmptyString(notEmptyString); // returns true and narrows type to string
-```
-
-### `isNotEmptyArray`
-
-Check if variable is NOT an empty array.
-
-#### Example
-
-```ts
-const notEmptyArray = ['test'];
-
-isNotEmptyArray(notEmptyArray); // returns true and narrows type to array of strings
-```
-
-### `isError`
-
-Check if variable is an Error. Useful for `try/catch` blocks where `error: unknown`.
-
-#### Example
-
-```ts
-export const getErrorText = (err: unknown): string => {
-    if (isOtherError(err)) {
-        return err.response?.data.error_message ?? 'Unknown API error';
-    } else if (isError(err)) {
-        return err.message;
-    }
-
-    return 'Unknown error';
-};
-```
+- [Generic type guards](docs/type-guard/generic.type-guard.md)
+- [String type guards](docs/type-guard/string.type-guard.md)
+- [Array type guards](docs/type-guard/array.type-guard.md)
+- [Number type guards](docs/type-guard/number.type-guard.md)
 
 ## License
 
