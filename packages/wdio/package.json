@@ -1,6 +1,6 @@
 {
     "name": "@rnw-community/wdio",
-    "version": "0.61.0",
+    "version": "0.59.3",
     "description": "WDIO commands, page objects and utils",
     "keywords": [
         "wdio",
@@ -45,14 +45,14 @@
     },
     "gitHead": "ed2cec449e634a16dc3a80b4a8cd2d1d28c9f9c4",
     "devDependencies": {
-        "@rnw-community/shared": "0.61.0",
+        "@rnw-community/shared": "0.59.3",
         "@wdio/globals": "^8.5.1",
         "@wdio/protocols": "^8.3.11",
         "expect-type": "^0.13.0",
         "webdriverio": "^8.5.1"
     },
     "peerDependencies": {
-        "@rnw-community/shared": "0.61.0",
+        "@rnw-community/shared": "0.59.3",
         "@wdio/globals": "^8.5.1",
         "webdriverio": "^8.5.1"
     }
