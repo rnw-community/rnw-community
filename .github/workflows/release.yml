@@ -42,6 +42,4 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GH_PAT_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-        run: |
-          npm config set //registry.npmjs.org/:_authToken $NPM_TOKEN
-          yarn release
+        run: yarn release
