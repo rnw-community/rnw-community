@@ -1,0 +1,81 @@
+coverage:
+  status:
+    project:
+      default: off
+      fast-style:
+        flags: fast-style
+      hoverable:
+        flags: hoverable
+      nestjs-rxjs-lock:
+        flags: nestjs-rxjs-lock
+      nestjs-rxjs-logger:
+        flags: nestjs-rxjs-logger
+      nestjs-rxjs-metrics:
+        flags: nestjs-rxjs-metrics
+      nestjs-rxjs-redis:
+        flags: nestjs-rxjs-redis
+      nestjs-typed-config:
+        flags: nestjs-typed-config
+      nestjs-webpack-swc:
+        flags: nestjs-webpack-swc
+      object-field-tree:
+        flags: object-field-tree
+      platform:
+        flags: platform
+      react-native-payments:
+        flags: react-native-payments
+      redux-loadable:
+        flags: redux-loadable
+      rxjs-errors:
+        flags: rxjs-errors
+      shared:
+        flags: shared
+      wdio:
+        flags: wdio
+
+flags:
+  fast-style:
+    paths:
+      - packages/fast-style/
+  hoverable:
+    paths:
+      - packages/hoverable/
+  nestjs-rxjs-lock:
+    paths:
+      - packages/nestjs-rxjs-lock/
+  nestjs-rxjs-logger:
+    paths:
+      - packages/nestjs-rxjs-logger/
+  nestjs-rxjs-metrics:
+    paths:
+      - packages/nestjs-rxjs-metrics/
+  nestjs-rxjs-redis:
+    paths:
+      - packages/nestjs-rxjs-redis/
+  nestjs-typed-config:
+    paths:
+      - packages/nestjs-typed-config/
+  nestjs-webpack-swc:
+    paths:
+      - packages/nestjs-webpack-swc/
+  object-field-tree:
+    paths:
+      - packages/object-field-tree/
+  platform:
+    paths:
+      - packages/platform/
+  react-native-payments:
+    paths:
+      - packages/react-native-payments/
+  redux-loadable:
+    paths:
+      - packages/redux-loadable/
+  rxjs-errors:
+    paths:
+      - packages/rxjs-errors/
+  shared:
+    paths:
+      - packages/shared/
+  wdio:
+    paths:
+      - packages/wdio/
