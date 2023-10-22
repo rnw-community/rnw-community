@@ -1,17 +1,23 @@
 {
     "$schema": "https://turborepo.org/schema.json",
     "pipeline": {
+        "topo": {
+            "dependsOn": ["^topo"]
+        },
         "build": {
             "dependsOn": ["^build"],
             "outputs": ["dist/**"]
         },
         "ts": {
+            "dependsOn": ["^topo"],
             "outputs": []
         },
         "lint": {
+            "dependsOn": ["^topo"],
             "outputs": []
         },
         "lint:fix": {
+            "dependsOn": ["^topo"],
             "outputs": []
         },
         "format": {
@@ -21,6 +27,12 @@
             "outputs": []
         },
         "clear:deps": {
+            "outputs": []
+        },
+        "//#cpd": {
+            "outputs": ["report/jscpd/**"]
+        },
+        "//#deadcode": {
             "outputs": []
         }
     },
