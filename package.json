@@ -77,7 +77,7 @@
   "resolutions": {
     "@nestjs-modules/ioredis@^1.0.1": "patch:@nestjs-modules/ioredis@npm%3A1.0.1#./.yarn/patches/@nestjs-modules-ioredis-npm-1.0.1-ff9cf68bdf.patch"
   },
-  "version": "0.61.0",
+  "version": "0.59.3",
   "release-it": {
     "plugins": {
       "@release-it-plugins/workspaces": true
