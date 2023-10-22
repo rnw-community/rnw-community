@@ -1,6 +1,6 @@
 {
     "name": "@rnw-community/nestjs-rxjs-redis",
-    "version": "0.59.4",
+    "version": "0.59.5",
     "description": "NestJS RxJS redis",
     "keywords": [
         "nestjs",
@@ -43,7 +43,7 @@
     "devDependencies": {
         "@nestjs-modules/ioredis": "^1.0.1",
         "@nestjs/common": "^10.2.7",
-        "@rnw-community/shared": "0.59.4",
+        "@rnw-community/shared": "^0.59.5",
         "ioredis": "^5.3.2",
         "rxjs": "^7.4.0"
     },
