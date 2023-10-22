@@ -12,7 +12,7 @@ import type { EnvType } from './env.type';
 export class NestJSTypedConfigService<
     EnvEnum extends string,
     EnvTypes extends Record<EnvEnum, boolean | number | string>,
-    EnvKeys extends Extract<keyof EnvTypes, string> = Extract<keyof EnvTypes, string>
+    EnvKeys extends Extract<keyof EnvTypes, string> = Extract<keyof EnvTypes, string>,
 > {
     private readonly envCache = new Map();
 
@@ -63,6 +63,7 @@ export class NestJSTypedConfigService<
         return value;
     }
 
+    // eslint-disable-next-line @typescript-eslint/class-methods-use-this
     private readFileEnvFromFS<T extends EnvKeys>(envVariable: T, variableValue: EnvType<EnvTypes, T>): EnvType<EnvTypes, T> {
         if (!existsSync(variableValue as string)) {
             throw new Error(`Could not read file "${envVariable}"`);

@@ -12,7 +12,10 @@ export abstract class NestJSRxJSLockService<E = string> {
     private readonly lock: Redlock;
     private readonly expireInMs: number;
 
-    protected constructor(@InjectRedis() readonly redis: Redis, readonly options: NestJSRxJSLockModuleOptions) {
+    protected constructor(
+        @InjectRedis() readonly redis: Redis,
+        readonly options: NestJSRxJSLockModuleOptions
+    ) {
         const { defaultExpireMs, ...redlockOptions } = options;
         this.expireInMs = options.defaultExpireMs;
 

@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRedis } from '@nestjs-modules/ioredis';
-// eslint-disable-next-line @typescript-eslint/no-import-type-side-effects
-import { type Redis } from 'ioredis';
+import { Redis } from 'ioredis';
 import { catchError, concatMap, from, map, of, throwError } from 'rxjs';
 
 import { isDefined } from '@rnw-community/shared';
