@@ -29,7 +29,9 @@ jobs:
           registry-url: 'https://registry.npmjs.org'
 
       - name: Setup Git user
-        uses: fregante/setup-git-user@v2.0.1
+        run: |
+          git config --global user.email "vitalyiegorov@gmail.com"
+          git config --global user.name "Vitalii Yehorov"
 
       - name: Install dependencies
         run: yarn
