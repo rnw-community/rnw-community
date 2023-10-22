@@ -1,6 +1,6 @@
 {
     "name": "@rnw-community/rxjs-errors",
-    "version": "0.59.3",
+    "version": "0.59.4",
     "description": "RxJS errors utils",
     "keywords": [
         "rxjs error operator",
@@ -40,11 +40,11 @@
     },
     "gitHead": "b5608910319390f9773a9d42c3cc828e8e8a1d95",
     "peerDependencies": {
-        "@rnw-community/shared": "workspace:^",
+        "@rnw-community/shared": "0.59.4",
         "rxjs": "^7.4.0"
     },
     "devDependencies": {
-        "@rnw-community/shared": "workspace:^",
+        "@rnw-community/shared": "0.59.4",
         "expect-type": "^0.13.0",
         "rxjs": "^7.4.0"
     }
