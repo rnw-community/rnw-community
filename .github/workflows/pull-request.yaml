@@ -9,11 +9,18 @@ jobs:
             - uses: actions/setup-node@v3
               with:
                   node-version: '18'
-            - run: yarn
-            - run: yarn build
-            - run: yarn ts
-            - run: yarn lint
-            - run: yarn find-deadcode
-            - run: yarn cpd
-            - run: yarn test:coverage
+            - name: Install dependencies
+              run: yarn
+            - name: Build packages
+              run: yarn build
+            - name: Typescript checks
+              run: yarn ts
+            - name: ESLint checks
+              run: yarn lint
+            - name: Find dead code
+              run: yarn find-deadcode
+            - name: Find copy-paste
+              run: yarn cpd
+            - name: Unit tests
+              run: yarn test:coverage
 
