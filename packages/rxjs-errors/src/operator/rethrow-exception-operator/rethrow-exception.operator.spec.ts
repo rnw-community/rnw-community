@@ -224,7 +224,7 @@ describe('rethrowException', () => {
 
         await new Promise(resolve => {
             const wantedErrorMsg = 'error message';
-            const wantedLogPrefix = () => 'Encountered an error';
+            const wantedLogPrefix = (): string => 'Encountered an error';
             const wantedLogMsg = `${wantedLogPrefix()}: ${wantedErrorMsg}`;
 
             const logger = jest.fn();

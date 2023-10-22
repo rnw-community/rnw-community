@@ -167,6 +167,8 @@ describe('nestJsRxJSLoggerService', () => {
     });
 
     it('should print with default context and log level', () => {
+        expect.assertions(1);
+
         const service = new NestJSRxJSLoggerService(loggerMock);
 
         const loggerMethod = jest.spyOn(loggerMock, 'log');
