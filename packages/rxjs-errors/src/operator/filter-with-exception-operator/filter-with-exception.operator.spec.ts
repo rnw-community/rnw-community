@@ -3,8 +3,9 @@ import { EMPTY, catchError, of } from 'rxjs';
 
 import { getErrorMessage } from '@rnw-community/shared';
 
+import { RxJSFilterError } from '../../rxjs-filter-error';
+
 import { filterWithException } from './filter-with-exception.operator';
-import { RxJSFilterError } from './rxjs-filter-error';
 
 describe('filterWithException', () => {
     it('should pass the value forward if condition returns true', async () => {
@@ -74,6 +75,29 @@ describe('filterWithException', () => {
                     filterWithException(() => false, wantedErrorText, errorCreator),
                     catchError((err: unknown) => {
                         expect(err instanceof CustomError).toBe(true);
+                        expect(getErrorMessage(err)).toBe(wantedErrorText);
+
+                        resolve(true);
+
+                        return EMPTY;
+                    })
+                )
+                .subscribe();
+        });
+    });
+    it('should use error message function when error is thrown', async () => {
+        expect.assertions(1);
+
+        await new Promise(resolve => {
+            const wantedErrorText = 'Custom error message';
+
+            of('A')
+                .pipe(
+                    filterWithException(
+                        () => false,
+                        () => wantedErrorText
+                    ),
+                    catchError((err: unknown) => {
                         expect(getErrorMessage(err)).toBe(wantedErrorText);
 
                         resolve(true);

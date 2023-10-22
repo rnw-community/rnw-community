@@ -1,5 +1,1 @@
-module.exports = {
-    displayName: 'nestjs-typed-config',
-    testRegex: './src/.*\\.spec\\.(tsx?)$',
-    testEnvironment: 'node',
-};
+module.exports = require('../../get-jest.config.js')('nestjs-typed-config');

@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/explicit-function-return-type,class-methods-use-this,@typescript-eslint/explicit-module-boundary-types */
+/* eslint-disable @typescript-eslint/explicit-function-return-type,class-methods-use-this,@typescript-eslint/explicit-module-boundary-types,@typescript-eslint/class-methods-use-this */
 import type { ComponentConfigInterface } from './type';
 import type { ChainablePromiseArray, ChainablePromiseElement, Element, ElementArray } from 'webdriverio';
 import './wdio.mock';

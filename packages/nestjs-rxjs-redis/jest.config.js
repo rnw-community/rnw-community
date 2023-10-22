@@ -1,5 +1,1 @@
-module.exports = {
-    displayName: 'nestjs-rxjs-redis',
-    testRegex: './src/.*\\.spec\\.(tsx?)$',
-    testEnvironment: 'node',
-};
+module.exports = require('../../get-jest.config.js')('nestjs-rxjs-redis');

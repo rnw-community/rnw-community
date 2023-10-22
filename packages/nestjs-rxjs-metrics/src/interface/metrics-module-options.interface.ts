@@ -8,7 +8,7 @@ export interface MetricsModuleOptionsInterface<
     H extends MetricConfig,
     S extends MetricConfig,
     HL extends LabelsConfig<H> = LabelsConfig<H>,
-    SL extends LabelsConfig<S> = LabelsConfig<S>
+    SL extends LabelsConfig<S> = LabelsConfig<S>,
 > extends PrometheusOptions {
     counterMetrics: C;
     gaugeMetrics: G;

@@ -20,7 +20,7 @@ export class NestJSRxJSMetricsService<
     H extends MC,
     S extends MC,
     HL extends LabelsConfig<H> = LabelsConfig<H>,
-    SL extends LabelsConfig<S> = LabelsConfig<S>
+    SL extends LabelsConfig<S> = LabelsConfig<S>,
 > {
     protected readonly startedHistogramMetrics: HistogramRecord<H>;
     protected readonly startedSummaryMetrics: SummaryRecord<S>;

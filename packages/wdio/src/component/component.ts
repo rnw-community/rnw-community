@@ -9,7 +9,10 @@ import type { ChainablePromiseArray, ChainablePromiseElement, Element, ElementAr
 export class Component<T = any> {
     protected parentComponents: Component[] = [];
 
-    constructor(protected config: ComponentConfigInterface, protected selectors: T) {
+    constructor(
+        protected config: ComponentConfigInterface,
+        protected selectors: T
+    ) {
         // eslint-disable-next-line no-constructor-return
         return new Proxy(this, {
             get(client, field: string, receiver) {

@@ -1,5 +1,1 @@
-module.exports = {
-    displayName: 'object-field-tree',
-    testRegex: "./src/.*\\.spec\\.(tsx?)$",
-    testEnvironment: "node"
-};
+module.exports = require('../../get-jest.config.js')('object-field-tree');

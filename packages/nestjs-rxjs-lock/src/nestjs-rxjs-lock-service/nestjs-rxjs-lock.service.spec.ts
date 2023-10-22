@@ -72,5 +72,23 @@ describe('nestJSRxJSLockService', () => {
                 done
             );
         });
+
+        it('should silence lock release error', done => {
+            expect.assertions(2);
+            jest.clearAllMocks();
+
+            const nestJSRxJSLockService = new LockService(getRedisService(), defaultNestJSRxJSLockModuleOptions);
+            const handler$ = jest.fn(() => of(true));
+
+            const releaseErrorText = 'Lock failed';
+            mockRelease.mockRejectedValue(new Error(releaseErrorText));
+
+            nestJSRxJSLockService.lock$('test', LockCodesEnum.DB_CREATE_USER, handler$).subscribe(emptyFn, emptyFn, () => {
+                expect(handler$).toHaveBeenCalledWith();
+                expect(mockRelease).toHaveBeenCalledWith();
+
+                done();
+            });
+        });
     });
 });

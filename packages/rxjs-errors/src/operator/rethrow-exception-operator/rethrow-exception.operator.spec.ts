@@ -3,8 +3,9 @@ import { EMPTY, catchError, concatMap, of, throwError } from 'rxjs';
 
 import { getErrorMessage } from '@rnw-community/shared';
 
+import { RxJSFilterError } from '../../rxjs-filter-error';
+
 import { rethrowException } from './rethrow-exception.operator';
-import { RxJSFilterError } from './rxjs-filter-error';
 
 // eslint-disable-next-line max-lines-per-function
 describe('rethrowException', () => {
@@ -153,7 +154,10 @@ describe('rethrowException', () => {
             const logger = jest.fn();
 
             class CustomError extends Error {
-                constructor(msg: string, public readonly additionalMsg: string) {
+                constructor(
+                    msg: string,
+                    public readonly additionalMsg: string
+                ) {
                     super(msg);
                 }
             }
@@ -187,7 +191,10 @@ describe('rethrowException', () => {
             const logger = jest.fn();
 
             class CustomError extends Error {
-                constructor(msg: string, public readonly additionalMsg: string) {
+                constructor(
+                    msg: string,
+                    public readonly additionalMsg: string
+                ) {
                     super(msg);
                 }
             }
@@ -209,6 +216,35 @@ describe('rethrowException', () => {
                     })
                 )
                 .subscribe();
+        });
+    });
+
+    it('should use error message function when error is thrown', async () => {
+        expect.assertions(4);
+
+        await new Promise(resolve => {
+            const wantedErrorMsg = 'error message';
+            const wantedLogPrefix = (): string => 'Encountered an error';
+            const wantedLogMsg = `${wantedLogPrefix()}: ${wantedErrorMsg}`;
+
+            const logger = jest.fn();
+
+            of('A')
+                .pipe(
+                    concatMap(() => throwError(() => new Error(wantedErrorMsg))),
+                    rethrowException(wantedLogPrefix, logger),
+                    catchError((err: unknown) => {
+                        expect(getErrorMessage(err)).toBe(wantedLogPrefix());
+                        expect(err instanceof RxJSFilterError).toBe(true);
+                        expect(logger).toHaveBeenCalledTimes(1);
+                        expect(logger).toHaveBeenCalledWith(wantedLogMsg);
+
+                        resolve(true);
+
+                        return EMPTY;
+                    })
+                )
+                .subscribe(() => void resolve(true));
         });
     });
 });

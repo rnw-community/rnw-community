@@ -1,5 +1,1 @@
-module.exports = {
-    displayName: 'nestjs-webpack-swc',
-    testRegex: './src/.*\\.spec\\.(tsx?)$',
-    testEnvironment: 'node',
-};
+module.exports = require('../../get-jest.config.js')('react-native-payments');

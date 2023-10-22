@@ -24,7 +24,7 @@ const getRedisService = (
         ttl: jest.fn().mockResolvedValue(redisTTLValue),
         expire: jest.fn().mockResolvedValue(1),
         ...redisClient,
-    } as Redis);
+    }) as Redis;
 
 // eslint-disable-next-line max-lines-per-function,max-statements
 describe('NestJSRxJSRedisService', () => {
