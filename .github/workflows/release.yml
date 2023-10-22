@@ -47,6 +47,14 @@ jobs:
       - name: Build packages
         run: yarn build
 
+      - name: Unit tests
+        run: yarn test:coverage
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v3
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+
       - name: Publish a release
         env:
           GH_TOKEN: ${{ secrets.GH_PAT_TOKEN }}
