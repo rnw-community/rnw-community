@@ -10,6 +10,7 @@ module.exports = {
                 path: '.',
             },
         },
+        '@release-it-plugins/workspaces': true,
     },
     git: {
         push: false,
