@@ -1,5 +1,1 @@
-module.exports = {
-    displayName: 'fast-style',
-    testRegex: './src/.*\\.spec\\.(tsx?)$',
-    testEnvironment: 'node',
-};
+module.exports = require('../../get-jest.config.js')('fast-style');

@@ -1,6 +1,7 @@
 {
     "extends": "../../tsconfig.json",
     "compilerOptions": {
+        "tsBuildInfoFile": "./node_modules/.cache/tsbuildinfo.json",
         "types": ["@types/webpack-env", "node"]
     },
     "include": [

@@ -43,7 +43,7 @@ Monorepo for useful NestJS, React Native and React Native Web packages and nativ
 ## TODO:
 
 ### Repository level
-- [ ] Use `turbopack` to run `Jest`, how to handle thresholds, reporters, coverage, etc?
+- [ ] Use `turbopack` to run `Jest`, how to [configure](https://jestjs.io/docs/configuration) thresholds, reporters, coverage, etc?
 - [ ] Finish setup, description and contributing docs.
 
 ### Package level

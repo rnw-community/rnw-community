@@ -1,5 +1,1 @@
-module.exports = {
-    displayName: 'shared',
-    testRegex: './src/.*\\.spec\\.(tsx?)$',
-    testEnvironment: 'node',
-};
+module.exports = require('../../get-jest.config.js')('shared');

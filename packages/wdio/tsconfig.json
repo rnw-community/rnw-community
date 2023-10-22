@@ -1,7 +1,11 @@
 {
     "extends": "../../tsconfig.json",
     "compilerOptions": {
-        "types": ["node", "jest"]
+        "tsBuildInfoFile": "./node_modules/.cache/tsbuildinfo.json",
+        "types": [
+            "node",
+            "jest"
+        ]
     },
     "include": [
         "./src"

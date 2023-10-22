@@ -1,5 +1,1 @@
-module.exports = {
-    displayName: 'platform',
-    testRegex: './src/.*\\.spec\\.(tsx?)$',
-    testEnvironment: 'node',
-};
+module.exports = require('../../get-jest.config.js')('platform');

@@ -10,7 +10,7 @@
         },
         "ts": {
             "dependsOn": ["^topo"],
-            "outputs": []
+            "outputs": ["node_modules/.cache/tsbuildinfo.json"]
         },
         "lint": {
             "dependsOn": ["^topo"],
