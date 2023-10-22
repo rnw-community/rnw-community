@@ -40,10 +40,18 @@ Monorepo for useful NestJS, React Native and React Native Web packages and nativ
 
 -   [WDIO](https://github.com/rnw-community/rnw-community/tree/master/packages/wdio) [![npm version](https://badge.fury.io/js/%40rnw-community%2Fnestjs-typed-config.svg)](https://badge.fury.io/js/%40rnw-community%2wdio)
 
+## TODO:
+
+### Repository level
+- [ ] Use `turbopack` to run `Jest`, how to handle thresholds, reporters, coverage, etc?
+- [ ] Finish setup, description and contributing docs.
+
+### Package level
+- [nestjs-rxjs-redis](./packages/nestjs-rxjs-redis/readme.md#TODO)
+- [nestjs-rxjs-lock](./packages/nestjs-rxjs-lock/readme.md#TODO)
+- [react-native-payments](./packages/react-native-payments/readme.md#TODO)
+- [wdio](./packages/wdio/readme.md#TODO)
 
 ## License
 
 This library is licensed under The [MIT License](./LICENSE.md).
-
-## TODO:
-- [ ] Use `turbopack` to run `Jest`, how to handle thresholds, reporters, coverage, etc?
