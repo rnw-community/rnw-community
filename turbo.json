@@ -43,6 +43,7 @@
         }
     },
     "globalDependencies": [
-        "tsconfig*.json"
+        "tsconfig*.json",
+        "get-jest.config.js"
     ]
 }

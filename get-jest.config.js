@@ -6,10 +6,10 @@ module.exports = (packageName, preset) => ({
     coveragePathIgnorePatterns: ['.mock.ts'],
     coverageThreshold: {
         global: {
-            statements: 99.7,
-            branches: 90.6,
-            functions: 96.22,
-            lines: 99.8,
+            statements: 99.9,
+            branches: 99.9,
+            functions: 99.9,
+            lines: 99.9,
         },
     },
     ...(packageName !== undefined && {

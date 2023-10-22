@@ -85,4 +85,27 @@ describe('filterWithException', () => {
                 .subscribe();
         });
     });
+    it('should use error message function when error is thrown', async () => {
+        expect.assertions(1);
+
+        await new Promise(resolve => {
+            const wantedErrorText = 'Custom error message';
+
+            of('A')
+                .pipe(
+                    filterWithException(
+                        () => false,
+                        () => wantedErrorText
+                    ),
+                    catchError((err: unknown) => {
+                        expect(getErrorMessage(err)).toBe(wantedErrorText);
+
+                        resolve(true);
+
+                        return EMPTY;
+                    })
+                )
+                .subscribe();
+        });
+    });
 });

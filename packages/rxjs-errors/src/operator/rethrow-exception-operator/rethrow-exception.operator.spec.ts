@@ -218,4 +218,33 @@ describe('rethrowException', () => {
                 .subscribe();
         });
     });
+
+    it('should use error message function when error is thrown', async () => {
+        expect.assertions(4);
+
+        await new Promise(resolve => {
+            const wantedErrorMsg = 'error message';
+            const wantedLogPrefix = () => 'Encountered an error';
+            const wantedLogMsg = `${wantedLogPrefix()}: ${wantedErrorMsg}`;
+
+            const logger = jest.fn();
+
+            of('A')
+                .pipe(
+                    concatMap(() => throwError(() => new Error(wantedErrorMsg))),
+                    rethrowException(wantedLogPrefix, logger),
+                    catchError((err: unknown) => {
+                        expect(getErrorMessage(err)).toBe(wantedLogPrefix());
+                        expect(err instanceof RxJSFilterError).toBe(true);
+                        expect(logger).toHaveBeenCalledTimes(1);
+                        expect(logger).toHaveBeenCalledWith(wantedLogMsg);
+
+                        resolve(true);
+
+                        return EMPTY;
+                    })
+                )
+                .subscribe(() => void resolve(true));
+        });
+    });
 });
