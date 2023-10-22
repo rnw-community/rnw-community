@@ -76,5 +76,7 @@
   "packageManager": "yarn@3.6.4",
   "resolutions": {
     "@nestjs-modules/ioredis@^1.0.1": "patch:@nestjs-modules/ioredis@npm%3A1.0.1#./.yarn/patches/@nestjs-modules-ioredis-npm-1.0.1-ff9cf68bdf.patch"
-  }
+  },
+  "version": "0.60.0",
+  "npm": false
 }

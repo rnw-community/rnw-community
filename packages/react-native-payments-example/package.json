@@ -1,6 +1,6 @@
 {
     "name": "@rnw-community/react-native-payments-example",
-    "version": "0.57.3",
+    "version": "0.60.0",
     "private": true,
     "scripts": {
         "android": "react-native run-android",
@@ -17,8 +17,8 @@
         "clear:watchman": "watchman watch-del-all"
     },
     "dependencies": {
-        "@rnw-community/react-native-payments": "workspace:^",
-        "@rnw-community/shared": "workspace:^",
+        "@rnw-community/react-native-payments": "0.60.0",
+        "@rnw-community/shared": "0.60.0",
         "react": "^18.2.0",
         "react-native": "^0.72.3"
     },
