@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.59.6](https://github.com/rnw-community/rnw-community/compare/v0.59.5...v0.59.6) (2023-10-22)
+
+### Reverts
+
+-   lerna ([9aeca6d](https://github.com/rnw-community/rnw-community/commit/9aeca6d7664a275fb472b93ff317ffb1e5f7d977))
+
 ## [0.59.5](https://github.com/rnw-community/rnw-community/compare/v0.59.4...v0.59.5) (2023-10-22)
 
 ### Reverts
