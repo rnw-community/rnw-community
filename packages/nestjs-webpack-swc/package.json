@@ -52,7 +52,7 @@
     "gitHead": "b5608910319390f9773a9d42c3cc828e8e8a1d95",
     "devDependencies": {
         "@nestjs/common": "^10.2.7",
-        "@rnw-community/shared": "0.59.3",
+        "@rnw-community/shared": "workspace:^",
         "@types/webpack-env": "^1.18.0",
         "@types/webpack-node-externals": "^2.5.3",
         "run-script-webpack-plugin": "^0.1.1",
@@ -62,7 +62,7 @@
     },
     "peerDependencies": {
         "@nestjs/common": "^10.2.7",
-        "@rnw-community/shared": "0.59.3",
+        "@rnw-community/shared": "workspace:^",
         "@swc/cli": "^0.1.57",
         "@swc/core": "^1.2.239",
         "@swc/helpers": "^0.4.7",
