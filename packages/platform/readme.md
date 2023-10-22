@@ -21,6 +21,7 @@ Simple platform-specific styling helpers:
 -   `webStyles(style)`
 -   `androidStyles(style)`
 -   `iosStyles(style)`
+-   `iosStyles(style)`
 -   `mobileStyles(style)`
 
 Example usage:
@@ -40,24 +41,6 @@ export const Styles = StyleSheet.create({
         }),
     },
 });
-```
-
-### Storage
-
-> Deprecated Use @react-native-community/async-storage, it has web fallback support
-
-Generic `async storage` for [redux-persist](https://github.com/rt2zz/redux-persist) configuration supporting
-`web` and `native` platforms.
-
-Example usage:
-
-```ts
-import { storage } from '@rnw-community/platform';
-
-export const persistConfig = {
-    key: 'my-key',
-    storage,
-};
 ```
 
 ### getEnv

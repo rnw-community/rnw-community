@@ -1,5 +1,4 @@
 module.exports = (packageName, preset) => ({
-    preset,
     testRegex: './src/.*\\.spec\\.(tsx?)$',
     testEnvironment: 'node',
     coverageReporters: ['text-summary', 'lcov'],
@@ -14,6 +13,7 @@ module.exports = (packageName, preset) => ({
         },
     },
     ...(packageName !== undefined && {
+        preset,
         displayName: packageName,
         coverageDirectory: `../../coverage/${packageName}`,
     }),

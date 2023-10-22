@@ -7,6 +7,15 @@ import { androidStyles, iosStyles, mobileStyles, webStyles } from './platform-st
 describe('platform styles', () => {
     const styleObj = { backgroundColor: 'red' };
 
+    it('should return empty style if platform does not match', () => {
+        expect.hasAssertions();
+
+        // @ts-expect-error No other way to redefine platform constants
+        // eslint-disable-next-line no-import-assign
+        constants.isWeb = false;
+        expect(webStyles(styleObj)).not.toStrictEqual(styleObj);
+    });
+
     it('should apply webStyles if platform is WEB', () => {
         expect.hasAssertions();
 

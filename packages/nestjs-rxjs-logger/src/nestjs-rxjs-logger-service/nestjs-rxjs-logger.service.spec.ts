@@ -1,9 +1,9 @@
 /* eslint-disable jest/expect-expect */
 import { Observable, concatMap, of, throwError } from 'rxjs';
 
-import { getErrorMessage } from '@rnw-community/shared';
+import { getErrorMessage, isNotEmptyString } from '@rnw-community/shared';
 
-import { AppLogLevelEnum } from '../app-log-level.enum';
+import { AppLogLevelEnum } from '../enum/app-log-level.enum';
 
 import { NestJSRxJSLoggerService } from './nestjs-rxjs-logger.service';
 
@@ -20,30 +20,32 @@ const loggerMock: LoggerService = {
     verbose: () => void 0,
 };
 
-const create$Test = (method: LoggerMethod, logLevel: AppLogLevelEnum) => async (): Promise<boolean> => {
-    expect.assertions(2);
+const create$Test =
+    (method: LoggerMethod, logLevel?: AppLogLevelEnum, logContext = 'logContext') =>
+    async (): Promise<boolean> => {
+        expect.assertions(2);
 
-    return await new Promise((resolve, reject) => {
-        const loggerMethod = jest.spyOn(loggerMock, method);
+        return await new Promise((resolve, reject) => {
+            const loggerMethod = jest.spyOn(loggerMock, method);
 
-        const service = new NestJSRxJSLoggerService(loggerMock);
-        const logMessage = 'logMessage';
-        const logContext = 'logContext';
+            const service = new NestJSRxJSLoggerService(loggerMock);
+            const logMessage = 'logMessage';
 
-        const stream = service.create$(logMessage, logContext, logLevel);
+            const stream =
+                logLevel === undefined ? service.create$(logMessage) : service.create$(logMessage, logContext, logLevel);
 
-        expect(stream).toBeInstanceOf(Observable);
+            expect(stream).toBeInstanceOf(Observable);
 
-        stream.subscribe({
-            next: () => {
-                expect(loggerMethod).toHaveBeenCalledWith(logMessage, logContext);
+            stream.subscribe({
+                next: () => {
+                    expect(loggerMethod).toHaveBeenCalledWith(logMessage, logContext);
 
-                resolve(true);
-            },
-            error: reject,
+                    resolve(true);
+                },
+                error: reject,
+            });
         });
-    });
-};
+    };
 
 const print$Test =
     (
@@ -51,11 +53,14 @@ const print$Test =
         method: LoggerMethod,
         logMessage: string | ((input: unknown) => string),
         service = new NestJSRxJSLoggerService(loggerMock),
-        logContext = ''
+        logContext = '',
+        expectAssertions = 1
         // eslint-disable-next-line max-params
     ) =>
     async () => {
-        expect.assertions(1);
+        if (expectAssertions > 0) {
+            expect.assertions(1);
+        }
 
         return await new Promise((resolve, reject) => {
             const loggerMethod = jest.spyOn(loggerMock, method);
@@ -63,17 +68,11 @@ const print$Test =
             const getOperator = (
                 messageInput: string | ((input: unknown) => string)
             ): ReturnType<NestJSRxJSLoggerService['info']> => {
-                if (rxjsMethod === 'info') {
-                    return service.info(messageInput, logContext);
-                } else if (rxjsMethod === 'debug') {
-                    return service.debug(messageInput, logContext);
-                } else if (rxjsMethod === 'warn') {
-                    return service.warn(messageInput, logContext);
-                } else if (rxjsMethod === 'error') {
-                    return service.error(messageInput, logContext);
+                if (isNotEmptyString(logContext)) {
+                    return service[rxjsMethod](messageInput, logContext);
                 }
 
-                return service.verbose(logMessage, logContext);
+                return service[rxjsMethod](logMessage);
             };
 
             const stream = of(true).pipe(getOperator(logMessage));
@@ -97,6 +96,7 @@ describe('nestJsRxJSLoggerService', () => {
     it('should create observable and output log with info log warn', create$Test('warn', AppLogLevelEnum.warn));
     it('should create observable and output log with info log error', create$Test('warn', AppLogLevelEnum.error));
     it('should create observable and output log with info log verbose', create$Test('warn', AppLogLevelEnum.verbose));
+    it('should create observable with default context and log level', create$Test('warn'));
 
     it('should print info log message', print$Test('info', 'log', 'test-info'));
     it('should print debug log message', print$Test('debug', 'debug', 'test-debug'));
@@ -126,14 +126,19 @@ describe('nestJsRxJSLoggerService', () => {
     );
 
     it('should set log context', async () => {
-        expect.assertions(2);
+        expect.assertions(5);
 
         const service = new NestJSRxJSLoggerService(loggerMock);
+        const logMessage = 'testMessage';
         const logContext = 'customContext';
 
         service.setContext(logContext);
 
-        await print$Test('info', 'log', logContext, service)();
+        await print$Test('info', 'log', logMessage, service, logContext, 0)();
+        await print$Test('warn', 'warn', logMessage, service, logContext, 0)();
+        await print$Test('error', 'error', logMessage, service, logContext, 0)();
+        await print$Test('verbose', 'verbose', logMessage, service, logContext, 0)();
+        await print$Test('debug', 'debug', logMessage, service, logContext, 0)();
     });
 
     it('should catch stream error and print error with error message function', async () => {
@@ -159,5 +164,15 @@ describe('nestJsRxJSLoggerService', () => {
                 },
             });
         });
+    });
+
+    it('should print with default context and log level', () => {
+        const service = new NestJSRxJSLoggerService(loggerMock);
+
+        const loggerMethod = jest.spyOn(loggerMock, 'log');
+        const testMessage = 'test';
+
+        service.print(testMessage);
+        expect(loggerMethod).toHaveBeenCalledWith(testMessage, '');
     });
 });

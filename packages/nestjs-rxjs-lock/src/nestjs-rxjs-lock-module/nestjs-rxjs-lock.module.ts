@@ -3,8 +3,8 @@ import { type DynamicModule, Injectable, Module, type Type } from '@nestjs/commo
 import { RedisModule } from '@nestjs-modules/ioredis';
 import Redis from 'ioredis';
 
-import { type NestJSRxJSLockModuleOptions, defaultNestJSRxJSLockModuleOptions } from './nestjs-rxjs-lock-module.options';
-import { NestJSRxJSLockService } from './nestjs-rxjs-lock-service/nestjs-rxjs-lock.service';
+import { type NestJSRxJSLockModuleOptions, defaultNestJSRxJSLockModuleOptions } from '../nestjs-rxjs-lock-module.options';
+import { NestJSRxJSLockService } from '../nestjs-rxjs-lock-service/nestjs-rxjs-lock.service';
 
 @Module({})
 export class NestJSRxJSLockModule {
