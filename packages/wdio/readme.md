@@ -35,7 +35,7 @@ import { Text } from 'react-native';
 
 import { IOSTestIDProps, setTestId } from '@rnw-community/wdio';
 
-export const DynamicComponent: = ({ testID = 'ParentTestID' }:IOSTestIDProps) => (
+export const DynamicComponent = ({ testID = 'ParentTestID' }:IOSTestIDProps) => (
     <Text {...setTestId(testID, `Text`)}>Text</Text>
 );
 ```
