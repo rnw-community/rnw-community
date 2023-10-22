@@ -13,15 +13,13 @@ module.exports = {
         '@release-it-plugins/workspaces': true,
     },
     git: {
-        push: false,
-        tagName: `v${version}`,
-        pushRepo: 'git@github.com:rnw-community/rnw-community.git',
-        commitsPath: '.',
         commitMessage: `chore: released version v${version} [no ci]`,
-        requireCommits: true,
-        requireCommitsFail: false,
+        requireBranch: 'master',
     },
     github: {
         release: true,
+    },
+    npm: {
+        publish: true,
     },
 };
