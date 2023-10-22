@@ -15,6 +15,5 @@ module.exports = (packageName, preset) => ({
     ...(packageName !== undefined && {
         preset,
         displayName: packageName,
-        coverageDirectory: `../../coverage/${packageName}`,
     }),
 });
