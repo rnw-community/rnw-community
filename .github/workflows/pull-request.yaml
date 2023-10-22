@@ -29,10 +29,10 @@ jobs:
                 run: yarn lint
 
             -   name: Find dead code
-                run: yarn find-deadcode
+                run: turbo run find-deadcode
 
             -   name: Find copy-paste
-                run: yarn cpd
+                run: turbo run cpd
 
             -   name: Unit tests
                 run: yarn test:coverage
