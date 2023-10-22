@@ -11,13 +11,13 @@
     "lint:fix": "turbo run lint:fix",
     "test": "turbo run test",
     "test:coverage": "turbo run test:coverage",
-    "cpd": "yarn jscpd packages",
+    "cpd": "jscpd packages",
     "format": "turbo run format",
     "find-deadcode": "ts-prune",
-    "ci": "yarn lint && yarn build && yarn find-deadcode && yarn cpd && yarn test:coverage",
     "clear": "turbo run clear",
     "deps:clear": "turbo run clear:deps && yarn deps:clear:root",
-    "deps:clear:root": "rm -rf ./node_modules"
+    "deps:clear:root": "rm -rf ./node_modules",
+    "release": "lerna publish --yes --conventional-commits --create-release=github"
   },
   "engines": {
     "node": ">=16.0.0"
