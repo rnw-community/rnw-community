@@ -7,7 +7,6 @@ on:
 env:
   TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
   TURBO_TEAM: ${{ secrets.TURBO_TEAM }}
-  GH_TOKEN: ${{ secrets.GH_PAT_TOKEN }}
 
 jobs:
   release:
@@ -44,6 +43,7 @@ jobs:
           git add -A ./
           git push && git push --tags
         env:
+          GH_TOKEN: ${{ secrets.GH_PAT_TOKEN }}
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: Push changes
