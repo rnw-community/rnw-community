@@ -1,5 +1,1 @@
-module.exports = {
-    displayName: 'rxjs-errors',
-    testRegex: './src/.*\\.spec\\.(tsx?)$',
-    testEnvironment: 'node',
-};
+module.exports = require('../../get-jest.config.js')('rxjs-errors');

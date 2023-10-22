@@ -2,7 +2,7 @@
 import { Inject, Injectable, Scope } from '@nestjs/common';
 import { catchError, concatMap, of, tap, throwError } from 'rxjs';
 
-import { AppLogLevelEnum } from '../app-log-level.enum';
+import { AppLogLevelEnum } from '../enum/app-log-level.enum';
 
 // eslint-disable-next-line @typescript-eslint/consistent-type-imports
 import type { LoggerService } from '@nestjs/common';

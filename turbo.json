@@ -1,17 +1,23 @@
 {
     "$schema": "https://turborepo.org/schema.json",
     "pipeline": {
+        "topo": {
+            "dependsOn": ["^topo"]
+        },
         "build": {
             "dependsOn": ["^build"],
             "outputs": ["dist/**"]
         },
         "ts": {
-            "outputs": []
+            "dependsOn": ["^topo"],
+            "outputs": ["node_modules/.cache/tsbuildinfo.json"]
         },
         "lint": {
+            "dependsOn": ["^topo"],
             "outputs": []
         },
         "lint:fix": {
+            "dependsOn": ["^topo"],
             "outputs": []
         },
         "format": {
@@ -22,9 +28,22 @@
         },
         "clear:deps": {
             "outputs": []
+        },
+        "test": {
+
+        },
+        "test:coverage": {
+            "outputs": ["coverage/**"]
+        },
+        "//#cpd": {
+            "outputs": ["report/jscpd/**"]
+        },
+        "//#find-deadcode": {
+            "outputs": []
         }
     },
     "globalDependencies": [
-        "tsconfig*.json"
+        "tsconfig*.json",
+        "get-jest.config.js"
     ]
 }

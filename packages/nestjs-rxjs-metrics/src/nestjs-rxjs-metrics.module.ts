@@ -24,7 +24,7 @@ export class NestJSRxJSMetricsModule {
         H extends MC,
         S extends MC,
         HL extends LabelsConfig<H> = LabelsConfig<H>,
-        SL extends LabelsConfig<S> = LabelsConfig<S>
+        SL extends LabelsConfig<S> = LabelsConfig<S>,
     >(
         options: MetricsModuleOptionsInterface<C, G, H, S, HL, SL>
     ): [DynamicModule, Type<NestJSRxJSMetricsService<C, G, H, S, HL, SL>>] {

@@ -48,7 +48,10 @@ export class PaymentRequest {
     private acceptPromiseRejecter: (reason: unknown) => void = emptyFn;
 
     // eslint-disable-next-line max-statements
-    constructor(readonly methodData: PaymentMethodData[], public details: PaymentDetailsInit) {
+    constructor(
+        readonly methodData: PaymentMethodData[],
+        public details: PaymentDetailsInit
+    ) {
         // 3. Establish the request's id:
         if (!isNotEmptyString(details.id)) {
             // TODO: Can we avoid using external lib? Use Math.random?
@@ -152,7 +155,7 @@ export class PaymentRequest {
         return platformMethod.data;
     }
 
-    // eslint-disable-next-line class-methods-use-this
+    // eslint-disable-next-line class-methods-use-this,@typescript-eslint/class-methods-use-this
     private getAndroidPaymentMethodData(
         methodData: AndroidPaymentMethodDataDataInterface,
         details: PaymentDetailsInit
@@ -211,7 +214,7 @@ export class PaymentRequest {
         };
     }
 
-    // eslint-disable-next-line class-methods-use-this
+    // eslint-disable-next-line class-methods-use-this,@typescript-eslint/class-methods-use-this
     private getIosPaymentMethodData(methodData: IosPaymentMethodDataDataInterface): IosPaymentDataRequest {
         // TODO: Add mappings for other systems if needed
         const supportedNetworkMap: Record<SupportedNetworkEnum, IosPKPaymentNetworksEnum> = {

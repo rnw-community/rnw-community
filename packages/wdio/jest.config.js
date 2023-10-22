@@ -1,6 +1,1 @@
-module.exports = {
-    displayName: 'wdio',
-    testRegex: './src/.*\\.spec\\.(tsx?)$',
-    testEnvironment: 'node',
-    coveragePathIgnorePatterns: ['.mock.ts'],
-};
+module.exports = require('../../get-jest.config.js')('wdio');

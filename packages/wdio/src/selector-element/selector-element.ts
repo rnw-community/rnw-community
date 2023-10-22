@@ -2,7 +2,10 @@ import type { Component } from '../component/component';
 import type { ChainablePromiseArray, ChainablePromiseElement, Element, ElementArray } from 'webdriverio';
 
 export class SelectorElement {
-    constructor(private readonly component: Component, private readonly enumSelector: string) {
+    constructor(
+        private readonly component: Component,
+        private readonly enumSelector: string
+    ) {
         // eslint-disable-next-line no-constructor-return
         return new Proxy(this, {
             get(client, field: string, receiver) {

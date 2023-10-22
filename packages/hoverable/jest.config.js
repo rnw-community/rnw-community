@@ -1,6 +1,11 @@
+const defaultConfig = require('../../get-jest.config.js')('hoverable', 'react-native');
+
 module.exports = {
-    preset: 'react-native',
-    displayName: 'hoverable',
-    testRegex: './src/.*\\.spec\\.(tsx?)$',
-    testEnvironment: 'node',
+    ...defaultConfig,
+    coverageThreshold: {
+        global: {
+            ...defaultConfig.coverageThreshold.global,
+            branches: 93.1,
+        },
+    },
 };
