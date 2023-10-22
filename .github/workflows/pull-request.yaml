@@ -10,4 +10,10 @@ jobs:
               with:
                   node-version: '18'
             - run: yarn
-            - run: yarn ci
+            - run: yarn build
+            - run: yarn ts
+            - run: yarn lint
+            - run: yarn find-deadcode
+            - run: yarn cpd
+            - run: yarn test:coverage
+
