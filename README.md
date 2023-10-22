@@ -43,8 +43,9 @@ Monorepo for useful NestJS, React Native and React Native Web packages and nativ
 ## TODO:
 
 ### Repository level
-- [ ] Use `turbopack` to run `Jest`, how to [configure](https://jestjs.io/docs/configuration) thresholds, reporters, coverage, etc?
+- [x] Use `turbopack` to run `Jest`, how to [configure](https://jestjs.io/docs/configuration) thresholds, reporters, coverage, etc?
 - [ ] Finish setup, description and contributing docs.
+- [ ] Can we remove `@commitlint/config-lerna-scopes` as we opt out from `lerna`?
 
 ### Package level
 - [nestjs-rxjs-redis](./packages/nestjs-rxjs-redis/readme.md#TODO)

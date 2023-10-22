@@ -17,7 +17,7 @@
     "clear": "turbo run clear",
     "deps:clear": "turbo run clear:deps && yarn deps:clear:root",
     "deps:clear:root": "rm -rf ./node_modules",
-    "release": "lerna publish --yes --conventional-commits --create-release=github"
+    "release": "release-it --ci"
   },
   "engines": {
     "node": ">=16.0.0"
@@ -32,6 +32,7 @@
     "@commitlint/config-conventional": "^18.0.0",
     "@commitlint/config-lerna-scopes": "^18.0.0",
     "@react-native-community/eslint-config": "^3.2.0",
+    "@release-it/conventional-changelog": "^7.0.2",
     "@types/jest": "^29.5.6",
     "@types/node": "^20.8.7",
     "@types/react": "^18.2.31",
@@ -59,12 +60,12 @@
     "husky": "^8.0.3",
     "jest": "^29.7.0",
     "jscpd": "^3.5.10",
-    "lerna": "^7.4.1",
     "lint-staged": "^15.0.2",
     "metro-react-native-babel-preset": "0.76.7",
     "prettier": "^3.0.3",
     "react-test-renderer": "18.2.0",
     "reflect-metadata": "^0.1.13",
+    "release-it": "^16.2.1",
     "rimraf": "^5.0.5",
     "sort-package-json": "^2.6.0",
     "ts-prune": "^0.10.3",
