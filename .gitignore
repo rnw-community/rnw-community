@@ -30,6 +30,7 @@ __coverage__
 coverage
 
 .turbo
+.npmrc
 
 # YARN BERRY
 .yarn/*
