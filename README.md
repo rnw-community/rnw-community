@@ -44,7 +44,6 @@ Monorepo for useful NestJS, React Native and React Native Web packages and nativ
 
 ### Repository level
 - [ ] Finish setup, description and contributing docs.
-- [ ] Can we remove `@commitlint/config-lerna-scopes` as we opt out from `lerna`?
 
 ### Package level
 - [nestjs-rxjs-redis](./packages/nestjs-rxjs-redis/readme.md#TODO)
