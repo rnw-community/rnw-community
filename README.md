@@ -5,7 +5,7 @@
 Monorepo for useful NestJS, React Native and React Native Web packages and native libs which can help you develop better software faster.
 
 [![Build Status](https://app.travis-ci.com/rnw-community/rnw-community.svg?branch=master)](https://app.travis-ci.com/rnw-community/rnw-community)
-[![codecov](https://codecov.io/gh/rnw-community/rnw-community/branch/master/graph/badge.svg)](https://codecov.io/gh/rnw-community/rnw-community)
+[![codecov](https://codecov.io/gh/rnw-community/rnw-community/graph/badge.svg?token=T0THT8I97I)](https://codecov.io/gh/rnw-community/rnw-community)
 [![DeepScan grade](https://deepscan.io/api/teams/11119/projects/14033/branches/251011/badge/grade.svg)](https://deepscan.io/dashboard#view=project&tid=11119&pid=14033&bid=251011)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com)
