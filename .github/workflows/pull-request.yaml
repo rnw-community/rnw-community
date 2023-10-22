@@ -4,6 +4,7 @@ on: [ pull_request ]
 env:
     TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
     TURBO_TEAM: ${{ secrets.TURBO_TEAM }}
+    TURBO_REMOTE_ONLY: true
 
 jobs:
     lint-and-test:
@@ -11,6 +12,9 @@ jobs:
 
         steps:
             -   uses: actions/checkout@v4
+                with:
+                    fetch-depth: 2
+
             -   uses: actions/setup-node@v3
                 with:
                     node-version: '18'

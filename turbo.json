@@ -38,7 +38,7 @@
         "//#cpd": {
             "outputs": ["report/jscpd/**"]
         },
-        "//#deadcode": {
+        "//#find-deadcode": {
             "outputs": []
         }
     },
