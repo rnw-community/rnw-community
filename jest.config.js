@@ -1,5 +1,5 @@
 module.exports = {
-    projects: ['packages/*/jest.config.js'],
+    projects: ['packages/*'],
     coverageReporters: ['text-summary', 'lcov'],
     reporters: ['default'],
     coveragePathIgnorePatterns: ['.mock.ts'],

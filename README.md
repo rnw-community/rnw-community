@@ -44,3 +44,6 @@ Monorepo for useful NestJS, React Native and React Native Web packages and nativ
 ## License
 
 This library is licensed under The [MIT License](./LICENSE.md).
+
+## TODO:
+- [ ] Use `turbopack` to run `Jest`, how to handle thresholds, reporters, coverage, etc?

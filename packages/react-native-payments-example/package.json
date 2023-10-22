@@ -9,7 +9,6 @@
         "lint": "run -T eslint src",
         "lint:fix": "run -T eslint --fix src",
         "start": "react-native start",
-        "test": "jest",
         "deps": "pod-install --quiet",
         "clear": "yarn clear:metro && yarn clear:watchman && yarn clear:android && yarn clear:babel",
         "clear:android": "cd android && ./gradlew clean",
