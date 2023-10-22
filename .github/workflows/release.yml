@@ -33,6 +33,8 @@ jobs:
           git config user.email "${GITHUB_ACTOR}@users.noreply.github.com"
 
       - name: Install dependencies
+        env:
+          YARN_ENABLE_IMMUTABLE_INSTALLS: true
         run: yarn
 
       - name: Build packages
