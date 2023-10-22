@@ -29,6 +29,12 @@
         "clear:deps": {
             "outputs": []
         },
+        "test": {
+
+        },
+        "test:coverage": {
+            "outputs": ["coverage/**"]
+        },
         "//#cpd": {
             "outputs": ["report/jscpd/**"]
         },
