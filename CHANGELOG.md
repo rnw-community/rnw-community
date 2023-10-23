@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.60.0](https://github.com/rnw-community/rnw-community/compare/v0.59.6...v0.60.0) (2023-10-23)
+
+### Bug Fixes
+
+-   added codecov flags ([#157](https://github.com/rnw-community/rnw-community/issues/157)) ([76276d3](https://github.com/rnw-community/rnw-community/commit/76276d3de12dfc47006e4d962d19a96922f3279c))
+-   codecov badge ([f98b42d](https://github.com/rnw-community/rnw-community/commit/f98b42dafa5198bc6b15195482508c1ed4e9d47f))
+
+### Features
+
+-   added codecov to master, fixed flags ([#158](https://github.com/rnw-community/rnw-community/issues/158)) ([a268db5](https://github.com/rnw-community/rnw-community/commit/a268db5a6587740598fd98409f062145d9ccd2f4))
+-   improved bundled size by removing tsbuildinfo from the dist on build script ([fc613ff](https://github.com/rnw-community/rnw-community/commit/fc613ff65722a1601ae9bbacb8599163ccf0d34c))
+
 ## [0.59.6](https://github.com/rnw-community/rnw-community/compare/v0.59.5...v0.59.6) (2023-10-22)
 
 ### Reverts
