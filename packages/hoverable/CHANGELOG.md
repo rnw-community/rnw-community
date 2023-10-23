@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.60.0](https://github.com/rnw-community/rnw-community/compare/v0.59.6...v0.60.0) (2023-10-23)
+
+### Features
+
+-   improved bundled size by removing tsbuildinfo from the dist on build script ([fc613ff](https://github.com/rnw-community/rnw-community/commit/fc613ff65722a1601ae9bbacb8599163ccf0d34c))
+
 ## [0.59.6](https://github.com/rnw-community/rnw-community/compare/v0.59.5...v0.59.6) (2023-10-22)
 
 **Note:** Version bump only for package @rnw-community/hoverable
