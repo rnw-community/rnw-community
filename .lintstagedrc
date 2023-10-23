@@ -6,4 +6,5 @@
     "*.{md, json}": [
         "yarn prettier --write"
     ],
+    'package.json': ['yarn sort-package-json']
 }
