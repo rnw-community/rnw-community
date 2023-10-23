@@ -3,6 +3,10 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.61.0](https://github.com/rnw-community/rnw-community/compare/v0.60.0...v0.61.0) (2023-10-23)
+
+**Note:** Version bump only for package @rnw-community/nestjs-typed-config
+
 # [0.60.0](https://github.com/rnw-community/rnw-community/compare/v0.59.6...v0.60.0) (2023-10-23)
 
 ### Features
