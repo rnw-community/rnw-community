@@ -41,7 +41,7 @@ Utility functions that helps with everyday tasks:
 Commonly used typescript types:
 
 - [ClassType](src/type/class-type/class.type.md)
-- [Maybe](src/type/maybe-type/maybe-type.md)
+- [Maybe](src/type/maybe-type/maybe.type.md)
 - [OnEventFn](src/type/on-event-fn-type/on-event-fn.type.md)
 - [EmptyFn](src/type/empty-fn-type/empty-fn.type.md)
 - [Enum](src/type/enum-type/enum-type.md)
