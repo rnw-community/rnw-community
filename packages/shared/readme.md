@@ -45,6 +45,7 @@ Commonly used typescript types:
 - [OnEventFn](src/type/on-event-fn-type/on-event-fn.type.md)
 - [EmptyFn](src/type/empty-fn-type/empty-fn.type.md)
 - [Enum](src/type/enum-type/enum-type.md)
+- [IsNotEmptyArray](src/type/is-not-empty-array-type/is-not-empty-array.type.md)
 
 ## License
 
