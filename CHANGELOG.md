@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.62.0](https://github.com/rnw-community/rnw-community/compare/v0.61.0...v0.62.0) (2023-10-26)
+
+### Features
+
+-   **shared:** added IsNotEmptyArray<T> type, improved isNotEmptyArray ([#159](https://github.com/rnw-community/rnw-community/issues/159)) ([db93d91](https://github.com/rnw-community/rnw-community/commit/db93d9194d23e44ae8b0b3fcd3e1f5925785c156))
+
 # [0.61.0](https://github.com/rnw-community/rnw-community/compare/v0.60.0...v0.61.0) (2023-10-23)
 
 ### Features
