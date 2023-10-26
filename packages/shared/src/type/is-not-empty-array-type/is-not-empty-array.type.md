@@ -5,6 +5,6 @@ Generic type for declaring input type `T` to be an array with at least one eleme
 ## Example
 
 ```ts
-const testNotEmptyArray: IsNotEmptyArray<string> = ['test']; // Not TS error
+const testNotEmptyArray: IsNotEmptyArray<string> = ['test']; // No TS error
 const testEmptyArray: IsNotEmptyArray<string> = []; // Shows TS error
 ```
