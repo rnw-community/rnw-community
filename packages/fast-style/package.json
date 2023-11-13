@@ -1,6 +1,6 @@
 {
     "name": "@rnw-community/fast-style",
-    "version": "0.62.0",
+    "version": "0.62.1",
     "description": "Fast react native flex and font styling",
     "keywords": [
         "object field tree",
@@ -45,8 +45,8 @@
         "react-native": "^0.72.3"
     },
     "devDependencies": {
-        "@rnw-community/object-field-tree": "^0.62.0",
-        "@rnw-community/shared": "^0.62.0",
+        "@rnw-community/object-field-tree": "^0.62.1",
+        "@rnw-community/shared": "^0.62.1",
         "react-native": "^0.72.3"
     },
     "gitHead": "b5608910319390f9773a9d42c3cc828e8e8a1d95"
