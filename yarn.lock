@@ -3762,8 +3762,8 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@rnw-community/fast-style@workspace:packages/fast-style"
   dependencies:
-    "@rnw-community/object-field-tree": ^0.61.0
-    "@rnw-community/shared": ^0.61.0
+    "@rnw-community/object-field-tree": ^0.62.0
+    "@rnw-community/shared": ^0.62.0
     react-native: ^0.72.3
   peerDependencies:
     "@rnw-community/object-field-tree": 0.59.4
@@ -3776,7 +3776,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@rnw-community/hoverable@workspace:packages/hoverable"
   dependencies:
-    "@rnw-community/shared": ^0.61.0
+    "@rnw-community/shared": ^0.62.0
     "@testing-library/jest-native": ^5.4.2
     "@testing-library/react-native": ^12.1.3
     "@types/react": ^18.2.15
@@ -3797,7 +3797,7 @@ __metadata:
   dependencies:
     "@nestjs-modules/ioredis": ^1.0.1
     "@nestjs/common": ^10.2.7
-    "@rnw-community/shared": ^0.61.0
+    "@rnw-community/shared": ^0.62.0
     ioredis: ^5.3.2
     redlock: ^5.0.0-beta.2
     rxjs: ^7.4.0
@@ -3816,7 +3816,7 @@ __metadata:
   resolution: "@rnw-community/nestjs-rxjs-logger@workspace:packages/nestjs-rxjs-logger"
   dependencies:
     "@nestjs/common": ^10.2.7
-    "@rnw-community/shared": ^0.61.0
+    "@rnw-community/shared": ^0.62.0
     rxjs: ^7.4.0
   peerDependencies:
     "@nestjs/common": ^10.2.7
@@ -3830,7 +3830,7 @@ __metadata:
   resolution: "@rnw-community/nestjs-rxjs-metrics@workspace:packages/nestjs-rxjs-metrics"
   dependencies:
     "@nestjs/common": ^10.2.7
-    "@rnw-community/shared": ^0.61.0
+    "@rnw-community/shared": ^0.62.0
     "@willsoto/nestjs-prometheus": ^4.0.1
     prom-client: ^14.0.0
     rxjs: ^7.4.0
@@ -3849,7 +3849,7 @@ __metadata:
   dependencies:
     "@nestjs-modules/ioredis": ^1.0.1
     "@nestjs/common": ^10.2.7
-    "@rnw-community/shared": ^0.61.0
+    "@rnw-community/shared": ^0.62.0
     ioredis: ^5.3.2
     rxjs: ^7.4.0
   peerDependencies:
@@ -3867,7 +3867,7 @@ __metadata:
   dependencies:
     "@nestjs/common": ^10.2.7
     "@nestjs/config": ^3.1.1
-    "@rnw-community/shared": ^0.61.0
+    "@rnw-community/shared": ^0.62.0
     "@types/hapi__joi": ^17.1.7
     joi: ^17.1.1
   peerDependencies:
@@ -3883,7 +3883,7 @@ __metadata:
   resolution: "@rnw-community/nestjs-webpack-swc@workspace:packages/nestjs-webpack-swc"
   dependencies:
     "@nestjs/common": ^10.2.7
-    "@rnw-community/shared": ^0.61.0
+    "@rnw-community/shared": ^0.62.0
     "@types/webpack-env": ^1.18.0
     "@types/webpack-node-externals": ^2.5.3
     run-script-webpack-plugin: ^0.1.1
@@ -3904,22 +3904,22 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@rnw-community/object-field-tree@^0.61.0, @rnw-community/object-field-tree@workspace:packages/object-field-tree":
+"@rnw-community/object-field-tree@^0.62.0, @rnw-community/object-field-tree@workspace:packages/object-field-tree":
   version: 0.0.0-use.local
   resolution: "@rnw-community/object-field-tree@workspace:packages/object-field-tree"
   dependencies:
-    "@rnw-community/shared": ^0.61.0
+    "@rnw-community/shared": ^0.62.0
   peerDependencies:
     "@rnw-community/shared": 0.59.4
   languageName: unknown
   linkType: soft
 
-"@rnw-community/platform@^0.61.0, @rnw-community/platform@workspace:packages/platform":
+"@rnw-community/platform@^0.62.0, @rnw-community/platform@workspace:packages/platform":
   version: 0.0.0-use.local
   resolution: "@rnw-community/platform@workspace:packages/platform"
   dependencies:
     "@react-native-async-storage/async-storage": ^1.13.4
-    "@rnw-community/wdio": ^0.61.0
+    "@rnw-community/wdio": ^0.62.0
     react-native-config: ^1.4.2
     redux-persist: ^6.0.0
   peerDependencies:
@@ -3937,8 +3937,8 @@ __metadata:
   resolution: "@rnw-community/react-native-payments-example@workspace:packages/react-native-payments-example"
   dependencies:
     "@react-native/metro-config": ^0.72.9
-    "@rnw-community/react-native-payments": ^0.61.0
-    "@rnw-community/shared": ^0.61.0
+    "@rnw-community/react-native-payments": ^0.62.0
+    "@rnw-community/shared": ^0.62.0
     "@tsconfig/react-native": ^3.0.0
     ios-deploy: ^1.12.2
     pod-install: ^0.1.38
@@ -3947,12 +3947,12 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@rnw-community/react-native-payments@^0.61.0, @rnw-community/react-native-payments@workspace:packages/react-native-payments":
+"@rnw-community/react-native-payments@^0.62.0, @rnw-community/react-native-payments@workspace:packages/react-native-payments":
   version: 0.0.0-use.local
   resolution: "@rnw-community/react-native-payments@workspace:packages/react-native-payments"
   dependencies:
-    "@rnw-community/platform": ^0.61.0
-    "@rnw-community/shared": ^0.61.0
+    "@rnw-community/platform": ^0.62.0
+    "@rnw-community/shared": ^0.62.0
     "@types/validator": ^13.7.17
     react: ^18.2.0
     react-native: ^0.72.3
@@ -3974,7 +3974,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@rnw-community/rxjs-errors@workspace:packages/rxjs-errors"
   dependencies:
-    "@rnw-community/shared": ^0.61.0
+    "@rnw-community/shared": ^0.62.0
     expect-type: ^0.13.0
     rxjs: ^7.4.0
   peerDependencies:
@@ -3983,17 +3983,17 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@rnw-community/shared@^0.61.0, @rnw-community/shared@workspace:packages/shared":
+"@rnw-community/shared@^0.62.0, @rnw-community/shared@workspace:packages/shared":
   version: 0.0.0-use.local
   resolution: "@rnw-community/shared@workspace:packages/shared"
   languageName: unknown
   linkType: soft
 
-"@rnw-community/wdio@^0.61.0, @rnw-community/wdio@workspace:packages/wdio":
+"@rnw-community/wdio@^0.62.0, @rnw-community/wdio@workspace:packages/wdio":
   version: 0.0.0-use.local
   resolution: "@rnw-community/wdio@workspace:packages/wdio"
   dependencies:
-    "@rnw-community/shared": ^0.61.0
+    "@rnw-community/shared": ^0.62.0
     "@wdio/globals": ^8.5.1
     "@wdio/protocols": ^8.3.11
     expect-type: ^0.13.0
@@ -5655,13 +5655,13 @@ __metadata:
   linkType: hard
 
 "axios@npm:^1.0.0":
-  version: 1.5.1
-  resolution: "axios@npm:1.5.1"
+  version: 1.6.1
+  resolution: "axios@npm:1.6.1"
   dependencies:
     follow-redirects: ^1.15.0
     form-data: ^4.0.0
     proxy-from-env: ^1.1.0
-  checksum: 4444f06601f4ede154183767863d2b8e472b4a6bfc5253597ed6d21899887e1fd0ee2b3de792ac4f8459fe2e359d2aa07c216e45fd8b9e4e0688a6ebf48a5a8d
+  checksum: 573f03f59b7487d54551b16f5e155d1d130ad4864ed32d1da93d522b78a57123b34e3bde37f822a65ee297e79f1db840f9ad6514addff50d3cbf5caeed39e8dc
   languageName: node
   linkType: hard
 
