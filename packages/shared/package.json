@@ -1,6 +1,6 @@
 {
     "name": "@rnw-community/shared",
-    "version": "0.62.1",
+    "version": "0.62.2",
     "description": "Shared useful utils and types",
     "keywords": [
         "generic utils",
