@@ -50,3 +50,4 @@ Commonly used typescript types:
 ## License
 
 This library is licensed under The [MIT License](./LICENSE.md).
+
