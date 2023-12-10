@@ -163,6 +163,7 @@ module.exports = {
         '@typescript-eslint/no-type-alias': 'off',
         '@typescript-eslint/no-meaningless-void-operator': 'off',
         '@typescript-eslint/promise-function-async': 'off',
+        '@typescript-eslint/max-params': ['error', { max: 4 }],
         'lines-between-class-members': 'off',
         'import/namespace': 'off',
         'import/order': [
@@ -219,7 +220,7 @@ module.exports = {
         'max-lines-per-function': ['error', { max: 90, skipBlankLines: true, skipComments: true }],
         'max-statements': ['error', { max: 12 }, { ignoreTopLevelFunctions: true }],
         'id-length': ['error', { exceptions: ['x', 'y', 'z', 'i', 'e', '_'] }],
-        'max-params': ['error', { max: 4 }],
+        'max-params': 'off',
         'newline-before-return': 'error',
         'react/display-name': 'off',
         'require-await': 'off',

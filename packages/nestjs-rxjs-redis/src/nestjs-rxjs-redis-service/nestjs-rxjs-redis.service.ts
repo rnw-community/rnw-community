@@ -200,7 +200,7 @@ export class NestJSRxJSRedisService {
      *
      * @returns OperatorFunction RxJS operator
      */
-    // eslint-disable-next-line max-params
+    // eslint-disable-next-line @typescript-eslint/max-params
     cache<R, T = string>(
         ttlInSeconds: number,
         prepareFn$: (input: string) => Observable<R>,
