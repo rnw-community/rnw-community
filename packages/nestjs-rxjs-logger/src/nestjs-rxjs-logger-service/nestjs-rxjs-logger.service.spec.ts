@@ -55,7 +55,7 @@ const print$Test =
         service = new NestJSRxJSLoggerService(loggerMock),
         logContext = '',
         expectAssertions = 1
-        // eslint-disable-next-line max-params
+        // eslint-disable-next-line @typescript-eslint/max-params
     ) =>
     async () => {
         if (expectAssertions > 0) {
