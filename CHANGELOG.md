@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.62.4](https://github.com/rnw-community/rnw-community/compare/v0.62.3...v0.62.4) (2023-12-13)
+
+### Bug Fixes
+
+-   **nestjs-typed-config:** fixed file env variable name should end with \_FILE ([#165](https://github.com/rnw-community/rnw-community/issues/165)) ([89f92af](https://github.com/rnw-community/rnw-community/commit/89f92afcfa131a4b988b39f00cef7fb525efdb84))
+
 ## [0.62.3](https://github.com/rnw-community/rnw-community/compare/v0.62.2...v0.62.3) (2023-12-10)
 
 **Note:** Version bump only for package rnw-community
