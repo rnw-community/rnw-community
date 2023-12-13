@@ -28,7 +28,7 @@ export class NestJSTypedConfigService<
 
         const variableValue = this.config.get<EnvType<EnvTypes, T>>(envVariable);
 
-        if (envVariable.includes('_FILE')) {
+        if (envVariable.endsWith('_FILE')) {
             const fileEnvValue = this.handleFileEnvVariable(envVariable, variableValue);
             this.envCache.set(envVariable, fileEnvValue);
 
