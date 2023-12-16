@@ -242,7 +242,12 @@ module.exports = {
     overrides: [{ files: '*.d.ts', rules: { 'init-declarations': 'off' } }],
     settings: {
         'import/parsers': { '@typescript-eslint/parser': ['.ts', '.tsx'] },
-        'import/resolver': { node: { moduleDirectory: ['node_modules', 'src'] } },
+        'import/resolver': {
+            typescript: {
+                alwaysTryTypes: true,
+                project: 'packages/*/tsconfig.json',
+            },
+        },
         jest: { version: require('jest/package.json').version },
         react: { version: 'detect' },
     },
