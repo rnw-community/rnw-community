@@ -40,6 +40,9 @@ ruleTester.run('no-complex-jsx-logic', noComplexJsxLogicRule, {
         {
             code: '<Component>{condition ? <AnotherComponent /> : <FallbackComponent />}</Component>',
         },
+        {
+            code: '<Component>{condition => (<AnotherComponent />)}</Component>',
+        },
     ],
 
     invalid: [

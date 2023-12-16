@@ -24,10 +24,10 @@ export const noComplexJsxLogicRule = createRule({
             JSXExpressionContainer(node) {
                 const { expression } = node;
 
-                if (expression.type === AST_NODE_TYPES.ArrowFunctionExpression) {
-                    context.report({ node, messageId: 'noInlineCallbacks' });
-                } else if (node.parent.type === AST_NODE_TYPES.JSXAttribute) {
-                    if (
+                if (node.parent.type === AST_NODE_TYPES.JSXAttribute) {
+                    if (expression.type === AST_NODE_TYPES.ArrowFunctionExpression) {
+                        context.report({ node, messageId: 'noInlineCallbacks' });
+                    } else if (
                         expression.type === AST_NODE_TYPES.BinaryExpression &&
                         !['===', '!=='].includes(expression.operator)
                     ) {
