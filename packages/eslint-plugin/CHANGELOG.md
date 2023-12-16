@@ -3,6 +3,10 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.63.1](https://github.com/rnw-community/rnw-community/compare/v0.63.0...v0.63.1) (2023-12-16)
+
+**Note:** Version bump only for package @rnw-community/eslint-plugin
+
 # [0.63.0](https://github.com/rnw-community/rnw-community/compare/v0.62.4...v0.63.0) (2023-12-16)
 
 ### Features
