@@ -68,7 +68,7 @@
     "rimraf": "^5.0.5",
     "sort-package-json": "^2.6.0",
     "ts-prune": "^0.10.3",
-    "turbo": "^1.11.0",
+    "turbo": "^1.11.2",
     "typescript": "^5.3.2"
   },
   "packageManager": "yarn@3.6.4",
