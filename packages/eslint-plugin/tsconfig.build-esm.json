@@ -2,8 +2,8 @@
     "extends": "../../tsconfig.build-esm.json",
     "compilerOptions": {
         "outDir": "./dist/esm",
-        "target": "ESNext",
-        "moduleResolution": "Bundler"
+        "module": "NodeNext",
+        "moduleResolution": "NodeNext"
     },
     "include": [
         "./src"
