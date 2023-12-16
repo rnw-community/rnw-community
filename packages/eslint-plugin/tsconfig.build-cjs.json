@@ -1,0 +1,16 @@
+{
+    "extends": "../../tsconfig.build-cjs.json",
+    "compilerOptions": {
+        "outDir": "./dist/cjs",
+        "module": "node16",
+        "moduleResolution": "Node16"
+    },
+    "include": [
+        "./src"
+    ],
+    "exclude": [
+        "node_modules",
+        "dist",
+        "**/*.spec.*"
+    ]
+}
