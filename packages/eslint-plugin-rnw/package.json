@@ -1,12 +1,12 @@
 {
-  "name": "@rnw-community/react-eslint-plugin",
+  "name": "@rnw-community/eslint-plugin-rnw",
   "version": "0.62.2",
   "description": "RxJS errors utils",
   "keywords": [
     "react eslint plugin",
     "enterprise react coding standards"
   ],
-  "repository": "https://github.com/rnw-community/rnw-community/tree/master/packages/react-eslint-plugin",
+  "repository": "https://github.com/rnw-community/rnw-community/tree/master/packages/eslint-plugin-rnw",
   "license": "MIT",
   "exports": {
     ".": {
