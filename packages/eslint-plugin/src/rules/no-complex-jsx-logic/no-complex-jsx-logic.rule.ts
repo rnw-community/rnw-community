@@ -27,11 +27,11 @@ export const noComplexJsxLogicRule = createRule({
                 if (expression.type === AST_NODE_TYPES.ArrowFunctionExpression) {
                     context.report({ node, messageId: 'noInlineCallbacks' });
                 } else if (node.parent.type === AST_NODE_TYPES.JSXAttribute) {
-                    if (expression.type === AST_NODE_TYPES.BinaryExpression) {
+                    if (expression.type === AST_NODE_TYPES.BinaryExpression && expression.operator !== '===') {
                         context.report({ node, messageId: 'noPropsCalculations' });
                     } else if (expression.type === AST_NODE_TYPES.ConditionalExpression) {
                         context.report({ node, messageId: 'noPropsTernary' });
-                    } else if (expression.type === AST_NODE_TYPES.LogicalExpression) {
+                    } else if (expression.type === AST_NODE_TYPES.LogicalExpression && expression.operator !== '??') {
                         context.report({ node, messageId: 'noPropsTernary' });
                     } else if (expression.type === AST_NODE_TYPES.CallExpression) {
                         expression.arguments.forEach(arg => {

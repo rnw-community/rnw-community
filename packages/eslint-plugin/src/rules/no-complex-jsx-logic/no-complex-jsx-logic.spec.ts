@@ -17,6 +17,12 @@ ruleTester.run('no-complex-jsx-logic', noComplexJsxLogicRule, {
             code: '<Component prop={simpleValue} />',
         },
         {
+            code: '<Component prop={simpleValue === scalar} />',
+        },
+        {
+            code: `<Component prop={simpleValue ?? ''} />`,
+        },
+        {
             code: '<Component>{simpleContent}</Component>',
         },
         {

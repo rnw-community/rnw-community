@@ -3,8 +3,11 @@
   "version": "0.62.2",
   "description": "RNW-Community ESLint plugin",
   "keywords": [
-    "react eslint plugin",
-    "enterprise react coding standards"
+    "eslint",
+    "eslintplugin",
+    "eslint-plugin",
+    "rnw-community eslint plugin",
+    "eslint plugin JSX"
   ],
   "repository": "https://github.com/rnw-community/rnw-community/tree/master/packages/eslint-plugin",
   "license": "MIT",
