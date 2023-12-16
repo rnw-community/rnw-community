@@ -26,7 +26,7 @@ const noComplexJsxLogic = createRule({
 
                 if (expression.type === AST_NODE_TYPES.ArrowFunctionExpression) {
                     context.report({ node, messageId: 'noInlineCallbacks' });
-                } else if (node.parent?.type === AST_NODE_TYPES.JSXAttribute) {
+                } else if (node.parent.type === AST_NODE_TYPES.JSXAttribute) {
                     if (expression.type === AST_NODE_TYPES.BinaryExpression) {
                         context.report({ node, messageId: 'noPropsCalculations' });
                     } else if (expression.type === AST_NODE_TYPES.ConditionalExpression) {
@@ -35,7 +35,7 @@ const noComplexJsxLogic = createRule({
                         context.report({ node, messageId: 'noPropsTernary' });
                     } else if (expression.type === AST_NODE_TYPES.CallExpression) {
                         expression.arguments.forEach(arg => {
-                            if (arg.type === 'ConditionalExpression') {
+                            if (arg.type === AST_NODE_TYPES.ConditionalExpression) {
                                 context.report({ node, messageId: 'noTernaryCallbackArguments' });
                             }
                         });
