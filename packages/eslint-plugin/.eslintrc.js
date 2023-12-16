@@ -1,5 +1,5 @@
 module.exports = {
-    extends: ['../../.eslintrc.js', 'plugin:eslint-plugin/recommended'],
+    extends: ['../../.eslintrc.js'],
     rules: {
         'jest/require-hook': 'off',
         'node/no-missing-import': 'off',

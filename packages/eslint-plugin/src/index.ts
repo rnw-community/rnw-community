@@ -9,4 +9,4 @@ const plugin: Plugin = {
     rules,
 };
 
-export default plugin;
+export = plugin;

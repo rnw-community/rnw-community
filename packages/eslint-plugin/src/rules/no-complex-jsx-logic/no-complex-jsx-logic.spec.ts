@@ -1,6 +1,6 @@
 import { RuleTester } from '@typescript-eslint/rule-tester';
 
-import rule from './no-complex-jsx-logic.rule';
+import { noComplexJsxLogicRule } from './no-complex-jsx-logic.rule';
 
 const ruleTester = new RuleTester({
     parser: '@typescript-eslint/parser',
@@ -11,7 +11,7 @@ const ruleTester = new RuleTester({
     },
 });
 
-ruleTester.run('no-complex-jsx-logic', rule, {
+ruleTester.run('no-complex-jsx-logic', noComplexJsxLogicRule, {
     valid: [
         {
             code: '<Component prop={simpleValue} />',
