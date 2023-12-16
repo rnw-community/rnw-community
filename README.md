@@ -38,7 +38,10 @@ Monorepo for useful NestJS, React Native and React Native Web packages and nativ
 
 ### End-to-end tests
 
--   [WDIO](https://github.com/rnw-community/rnw-community/tree/master/packages/wdio) [![npm version](https://badge.fury.io/js/%40rnw-community%2Fnestjs-typed-config.svg)](https://badge.fury.io/js/%40rnw-community%2wdio)
+-   [WDIO](https://github.com/rnw-community/rnw-community/tree/master/packages/wdio) [![npm version](https://badge.fury.io/js/%40rnw-community%2Fwdio.svg)](https://badge.fury.io/js/%40rnw-community%2wdio)
+
+### ESLint
+- [RWN ESLint plugin](https://github.com/rnw-community/rnw-community/tree/master/packages/eslint-plugin) [![npm version](https://badge.fury.io/js/%40rnw-community%2Feslint-plugin.svg)](https://badge.fury.io/js/%40rnw-community%2eslint-plugin)
 
 ## TODO:
 
