@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.65.1](https://github.com/rnw-community/rnw-community/compare/v0.65.0...v0.65.1) (2023-12-17)
+
+### Bug Fixes
+
+-   **wdio:** added wdio/globals as a dependency ([#169](https://github.com/rnw-community/rnw-community/issues/169)) ([06a36d3](https://github.com/rnw-community/rnw-community/commit/06a36d3e57c2c727f219731f15520e2cc38642fc))
+
 # [0.65.0](https://github.com/rnw-community/rnw-community/compare/v0.64.0...v0.65.0) (2023-12-17)
 
 ### Features
