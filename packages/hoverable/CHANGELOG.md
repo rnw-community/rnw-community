@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.65.0](https://github.com/rnw-community/rnw-community/compare/v0.64.0...v0.65.0) (2023-12-17)
+
+### Features
+
+-   bump rxjs 7.8.1, changed local version deps to workspace protocol ([#168](https://github.com/rnw-community/rnw-community/issues/168)) ([319db8c](https://github.com/rnw-community/rnw-community/commit/319db8c93e8abd65f8cbda58506e471fb9462f64))
+
 # [0.64.0](https://github.com/rnw-community/rnw-community/compare/v0.63.2...v0.64.0) (2023-12-17)
 
 **Note:** Version bump only for package @rnw-community/hoverable
