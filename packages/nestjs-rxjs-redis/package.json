@@ -42,14 +42,14 @@
     "devDependencies": {
         "@nestjs-modules/ioredis": "^1.0.1",
         "@nestjs/common": "^10.2.7",
-        "@rnw-community/shared": "^0.64.0",
+        "@rnw-community/shared": "workspace:^",
         "ioredis": "^5.3.2",
         "rxjs": "^7.8.1"
     },
     "peerDependencies": {
         "@nestjs-modules/ioredis": "^1.0.1",
         "@nestjs/common": "^10.2.7",
-        "@rnw-community/shared": "0.59.4",
+        "@rnw-community/shared": "workspace:^",
         "ioredis": "^5.3.2",
         "rxjs": "^7.8.1"
     }
