@@ -4076,14 +4076,14 @@ __metadata:
     "@rnw-community/shared": ^0.63.0
     ioredis: ^5.3.2
     redlock: ^5.0.0-beta.2
-    rxjs: ^7.4.0
+    rxjs: ^7.8.1
   peerDependencies:
     "@nestjs-modules/ioredis": ^1.0.1
     "@nestjs/common": ^10.2.7
     "@rnw-community/shared": 0.59.4
     ioredis: ^5.3.2
     redlock: ^5.0.0-beta.2
-    rxjs: ^7.4.0
+    rxjs: ^7.8.1
   languageName: unknown
   linkType: soft
 
@@ -4093,11 +4093,11 @@ __metadata:
   dependencies:
     "@nestjs/common": ^10.2.7
     "@rnw-community/shared": ^0.63.0
-    rxjs: ^7.4.0
+    rxjs: ^7.8.1
   peerDependencies:
     "@nestjs/common": ^10.2.7
     "@rnw-community/shared": 0.59.4
-    rxjs: ^7.4.0
+    rxjs: ^7.8.1
   languageName: unknown
   linkType: soft
 
@@ -4109,13 +4109,13 @@ __metadata:
     "@rnw-community/shared": ^0.63.0
     "@willsoto/nestjs-prometheus": ^4.0.1
     prom-client: ^14.0.0
-    rxjs: ^7.4.0
+    rxjs: ^7.8.1
   peerDependencies:
     "@nestjs/common": ^10.2.7
     "@rnw-community/shared": 0.59.4
     "@willsoto/nestjs-prometheus": ^4.0.1
     prom-client: ^14.0.0
-    rxjs: ^7.4.0
+    rxjs: ^7.8.1
   languageName: unknown
   linkType: soft
 
@@ -4127,13 +4127,13 @@ __metadata:
     "@nestjs/common": ^10.2.7
     "@rnw-community/shared": ^0.63.0
     ioredis: ^5.3.2
-    rxjs: ^7.4.0
+    rxjs: ^7.8.1
   peerDependencies:
     "@nestjs-modules/ioredis": ^1.0.1
     "@nestjs/common": ^10.2.7
     "@rnw-community/shared": 0.59.4
     ioredis: ^5.3.2
-    rxjs: ^7.4.0
+    rxjs: ^7.8.1
   languageName: unknown
   linkType: soft
 
@@ -4252,10 +4252,10 @@ __metadata:
   dependencies:
     "@rnw-community/shared": ^0.63.0
     expect-type: ^0.13.0
-    rxjs: ^7.4.0
+    rxjs: ^7.8.1
   peerDependencies:
     "@rnw-community/shared": 0.59.4
-    rxjs: ^7.4.0
+    rxjs: ^7.8.1
   languageName: unknown
   linkType: soft
 
@@ -15719,7 +15719,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"rxjs@npm:^7.4.0, rxjs@npm:^7.5.5":
+"rxjs@npm:^7.5.5, rxjs@npm:^7.8.1":
   version: 7.8.1
   resolution: "rxjs@npm:7.8.1"
   dependencies:
