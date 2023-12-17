@@ -1,3 +1,4 @@
+
 # `no-complex-jsx-logic` Rule Documentation
 
 ## Overview
@@ -47,6 +48,14 @@ This rule restricts the use of complex logic expressions directly inside JSX. It
   ```jsx
   <Component prop={myVar + myVar2} />
   ```
+- Inline Objects in Props:
+  ```jsx
+  <Component objectProp={{ field: 1, boolField: true}} />
+  ```
+- Inline Arrays in Props:
+  ```jsx
+  <Component objectProp={[ 1, 2 ]} />
+  ```
 - Inline Callbacks:
   ```jsx
   <Component onClick={() => doSomething()} />
@@ -62,8 +71,8 @@ To use this rule, add it to your ESLint configuration file. Here's an example of
 
 ```json
 {
-  "rules": {
-    "no-complex-jsx-logic": "warn" // or "error" to enforce the rule strictly
-  }
+    "rules": {
+        "no-complex-jsx-logic": "warn" // or "error" to enforce the rule strictly
+    }
 }
 ```

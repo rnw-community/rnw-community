@@ -55,6 +55,14 @@ ruleTester.run('no-complex-jsx-logic', noComplexJsxLogicRule, {
             errors: [{ messageId: 'noPropsCalculations' }],
         },
         {
+            code: '<Component objectProp={{ field: 1, boolField: true}} />',
+            errors: [{ messageId: 'noPropsInlineObjects' }],
+        },
+        {
+            code: '<Component objectProp={[ 1, 2 ]} />',
+            errors: [{ messageId: 'noPropsInlineArrays' }],
+        },
+        {
             code: '<Component onClick={() => doSomething()} />',
             errors: [{ messageId: 'noInlineCallbacks' }],
         },
