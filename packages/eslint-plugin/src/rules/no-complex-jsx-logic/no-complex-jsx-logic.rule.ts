@@ -14,6 +14,8 @@ export const noComplexJsxLogicRule = createRule({
             noTernaryCallbackArguments: 'Conditional expressions should not be used in callback arguments in JSX.',
             noPropsCalculations: 'Complex logic (calculations) should not be used in JSX props.',
             noPropsTernary: 'Complex logic (ternary or logical operators) should not be used in JSX props.',
+            noPropsInlineObjects: 'Inline objects should not be used in JSX props.',
+            noPropsInlineArrays: 'Inline arrays should not be used in JSX props.',
         },
         type: 'suggestion',
         schema: [],
@@ -42,6 +44,10 @@ export const noComplexJsxLogicRule = createRule({
                                 context.report({ node, messageId: 'noTernaryCallbackArguments' });
                             }
                         });
+                    } else if (expression.type === AST_NODE_TYPES.ObjectExpression) {
+                        context.report({ node, messageId: 'noPropsInlineObjects' });
+                    } else if (expression.type === AST_NODE_TYPES.ArrayExpression) {
+                        context.report({ node, messageId: 'noPropsInlineArrays' });
                     }
                 }
             },
