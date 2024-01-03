@@ -17,7 +17,8 @@
     "clear": "turbo run clear",
     "deps:clear": "turbo run clear:deps && yarn deps:clear:root",
     "deps:clear:root": "rm -rf ./node_modules",
-    "release": "lerna publish --yes --conventional-commits --create-release=github -m \"chore: release %s [skip ci]\""
+    "release": "lerna publish --yes --conventional-commits --create-release=github -m \"chore: release %s [skip ci]\"",
+    "deps:check": "yarn dlx check-dependency-version-consistency ."
   },
   "engines": {
     "node": ">=16.0.0"
@@ -72,7 +73,7 @@
     "turbo": "^1.11.2",
     "typescript": "^5.3.2"
   },
-  "packageManager": "yarn@3.6.4",
+  "packageManager": "yarn@4.0.2",
   "resolutions": {
     "@nestjs-modules/ioredis@^1.0.1": "patch:@nestjs-modules/ioredis@npm%3A1.0.1#./.yarn/patches/@nestjs-modules-ioredis-npm-1.0.1-ff9cf68bdf.patch"
   },

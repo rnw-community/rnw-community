@@ -22,7 +22,6 @@ Monorepo for useful NestJS, React Native and React Native Web packages and nativ
 -   [Object field tree](https://github.com/rnw-community/rnw-community/tree/master/packages/object-field-tree) [![npm version](https://badge.fury.io/js/%40rnw-community%2Fobject-field-tree.svg)](https://badge.fury.io/js/%40rnw-community%2Fobject-field-tree)
 -   [Shared](https://github.com/rnw-community/rnw-community/tree/master/packages/shared) [![npm version](https://badge.fury.io/js/%40rnw-community%2Fshared.svg)](https://badge.fury.io/js/%40rnw-community%2Fshared)
 -   [Fast style](https://github.com/rnw-community/rnw-community/tree/master/packages/fast-style) [![npm version](https://badge.fury.io/js/%40rnw-community%2Ffast-style.svg)](https://badge.fury.io/js/%40rnw-community%2Ffast-style)
--   [Hoverable](https://github.com/rnw-community/rnw-community/tree/master/packages/hoverable) [![npm version](https://badge.fury.io/js/%40rnw-community%2Fhoverable.svg)](https://badge.fury.io/js/%40rnw-community%2Fhoverable)
 -   [Platform](https://github.com/rnw-community/rnw-community/tree/master/packages/platform) [![npm version](https://badge.fury.io/js/%40rnw-community%2Fplatform.svg)](https://badge.fury.io/js/%40rnw-community%2Fplatform)
 -   [redux-loadable](https://github.com/rnw-community/rnw-community/tree/master/packages/redux-loadable) [![npm version](https://badge.fury.io/js/%40rnw-community%2Fredux-loadable.svg)](https://badge.fury.io/js/%40rnw-community%2Fredux-loadable)
 
