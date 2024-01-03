@@ -37,6 +37,7 @@ coverage
 .yarn/cache/*darwin-arm64*
 .yarn/cache/*linux-64*
 .yarn/cache/*linux-x64*
+.yarn/cache/fsevents-patch*
 !.yarn/cache
 !.yarn/patches
 !.yarn/plugins
