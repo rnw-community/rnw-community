@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.65.2](https://github.com/rnw-community/rnw-community/compare/v0.65.1...v0.65.2) (2024-01-03)
+
+### Bug Fixes
+
+-   workspace protocol failing yarn4 installs ([7ccbb70](https://github.com/rnw-community/rnw-community/commit/7ccbb70b468105a6736b36461987507e2fef4d5e))
+
 ## [0.65.1](https://github.com/rnw-community/rnw-community/compare/v0.65.0...v0.65.1) (2023-12-17)
 
 **Note:** Version bump only for package @rnw-community/react-native-payments
