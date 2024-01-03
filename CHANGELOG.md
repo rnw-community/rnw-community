@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.65.3](https://github.com/rnw-community/rnw-community/compare/v0.65.2...v0.65.3) (2024-01-03)
+
+### Bug Fixes
+
+-   fixed monorepo deps ([0652a86](https://github.com/rnw-community/rnw-community/commit/0652a867bbe53f04c8a1d6baf61fea9b6f7e8c13))
+
 ## [0.65.2](https://github.com/rnw-community/rnw-community/compare/v0.65.1...v0.65.2) (2024-01-03)
 
 ### Bug Fixes
