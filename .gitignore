@@ -35,6 +35,8 @@ coverage
 # YARN BERRY
 .yarn/*
 !.yarn/cache
+.yarn/cache/*darwin-arm64*
+.yarn/cache/*linux-x64*
 !.yarn/patches
 !.yarn/plugins
 !.yarn/releases
