@@ -1,6 +1,6 @@
 {
     "name": "@rnw-community/nestjs-rxjs-redis",
-    "version": "0.65.0",
+    "version": "0.65.2",
     "description": "NestJS RxJS redis",
     "keywords": [
         "nestjs",
