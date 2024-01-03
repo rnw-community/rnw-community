@@ -17,7 +17,8 @@
     "clear": "turbo run clear",
     "deps:clear": "turbo run clear:deps && yarn deps:clear:root",
     "deps:clear:root": "rm -rf ./node_modules",
-    "release": "lerna publish --yes --conventional-commits --create-release=github -m \"chore: release %s [skip ci]\""
+    "release": "lerna publish --yes --conventional-commits --create-release=github -m \"chore: release %s [skip ci]\"",
+    "deps:check": "yarn dlx check-dependency-version-consistency ."
   },
   "engines": {
     "node": ">=16.0.0"
