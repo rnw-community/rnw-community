@@ -4042,8 +4042,6 @@ __metadata:
     "@rnw-community/shared": "workspace:*"
     react-native: "npm:^0.72.3"
   peerDependencies:
-    "@rnw-community/object-field-tree": "workspace:*"
-    "@rnw-community/shared": "workspace:*"
     react-native: ^0.72.3
   languageName: unknown
   linkType: soft
@@ -4061,7 +4059,6 @@ __metadata:
   peerDependencies:
     "@nestjs-modules/ioredis": ^1.0.1
     "@nestjs/common": ^10.2.7
-    "@rnw-community/shared": "workspace:*"
     ioredis: ^5.3.2
     redlock: ^5.0.0-beta.2
     rxjs: ^7.8.1
@@ -4077,7 +4074,6 @@ __metadata:
     rxjs: "npm:^7.8.1"
   peerDependencies:
     "@nestjs/common": ^10.2.7
-    "@rnw-community/shared": "workspace:*"
     rxjs: ^7.8.1
   languageName: unknown
   linkType: soft
@@ -4093,7 +4089,6 @@ __metadata:
     rxjs: "npm:^7.8.1"
   peerDependencies:
     "@nestjs/common": ^10.2.7
-    "@rnw-community/shared": "workspace:*"
     "@willsoto/nestjs-prometheus": ^4.0.1
     prom-client: ^14.0.0
     rxjs: ^7.8.1
@@ -4112,7 +4107,6 @@ __metadata:
   peerDependencies:
     "@nestjs-modules/ioredis": ^1.0.1
     "@nestjs/common": ^10.2.7
-    "@rnw-community/shared": "workspace:*"
     ioredis: ^5.3.2
     rxjs: ^7.8.1
   languageName: unknown
@@ -4130,7 +4124,6 @@ __metadata:
   peerDependencies:
     "@nestjs/common": ^10.2.7
     "@nestjs/config": ^3.1.1
-    "@rnw-community/shared": "workspace:*"
     joi: ^17.1.1
   languageName: unknown
   linkType: soft
@@ -4149,7 +4142,6 @@ __metadata:
     webpack-node-externals: "npm:^3.0.0"
   peerDependencies:
     "@nestjs/common": ^10.2.7
-    "@rnw-community/shared": "workspace:*"
     "@swc/cli": ^0.1.57
     "@swc/core": ^1.2.239
     "@swc/helpers": ^0.4.7
@@ -4165,8 +4157,6 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@rnw-community/object-field-tree@workspace:packages/object-field-tree"
   dependencies:
-    "@rnw-community/shared": "workspace:*"
-  peerDependencies:
     "@rnw-community/shared": "workspace:*"
   languageName: unknown
   linkType: soft
@@ -4235,7 +4225,6 @@ __metadata:
     expect-type: "npm:^0.13.0"
     rxjs: "npm:^7.8.1"
   peerDependencies:
-    "@rnw-community/shared": "workspace:*"
     rxjs: ^7.8.1
   languageName: unknown
   linkType: soft
@@ -4256,7 +4245,6 @@ __metadata:
     expect-type: "npm:^0.13.0"
     webdriverio: "npm:^8.5.1"
   peerDependencies:
-    "@rnw-community/shared": "workspace:*"
     "@wdio/globals": ^8.5.1
     webdriverio: ^8.5.1
   languageName: unknown
