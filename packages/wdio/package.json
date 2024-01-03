@@ -47,14 +47,14 @@
         "@wdio/globals": "^8.5.1"
     },
     "devDependencies": {
-        "@rnw-community/shared": "workspace:^",
+        "@rnw-community/shared": "workspace:*",
         "@wdio/globals": "^8.5.1",
         "@wdio/protocols": "^8.3.11",
         "expect-type": "^0.13.0",
         "webdriverio": "^8.5.1"
     },
     "peerDependencies": {
-        "@rnw-community/shared": "workspace:^",
+        "@rnw-community/shared": "workspace:*",
         "@wdio/globals": "^8.5.1",
         "webdriverio": "^8.5.1"
     }
