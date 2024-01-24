@@ -10,9 +10,9 @@ import type { TurboModule } from 'react-native';
  */
 export interface Spec extends TurboModule {
     abort: () => Promise<void>;
-    canMakePayments: (methodData: Object) => Promise<boolean>;
+    canMakePayments: (methodData: string) => Promise<boolean>;
     complete: (paymentComplete: string) => Promise<void>;
-    show: (methodData: Object, details: Object) => Promise<string>;
+    show: (methodData: string, details: Object) => Promise<string>;
 }
 
 // ts-prune-ignore-next
