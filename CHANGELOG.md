@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.65.4](https://github.com/rnw-community/rnw-community/compare/v0.65.3...v0.65.4) (2024-01-24)
+
+### Bug Fixes
+
+-   strict typing ([#175](https://github.com/rnw-community/rnw-community/issues/175)) ([55d9b8d](https://github.com/rnw-community/rnw-community/commit/55d9b8d61a10024fb11fce44bd5bc476098b7fc9))
+
 ## [0.65.3](https://github.com/rnw-community/rnw-community/compare/v0.65.2...v0.65.3) (2024-01-03)
 
 ### Bug Fixes
