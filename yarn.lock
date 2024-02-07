@@ -3715,17 +3715,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@react-native-async-storage/async-storage@npm:^1.13.4":
-  version: 1.19.0
-  resolution: "@react-native-async-storage/async-storage@npm:1.19.0"
-  dependencies:
-    merge-options: "npm:^3.0.4"
-  peerDependencies:
-    react-native: ^0.0.0-0 || 0.60 - 0.72 || 1000.0.0
-  checksum: 540265fcc4aa8fc04f5a14822dd1d4fe317692ab9e952eb0872559ce84c4d15e441fb538386cb01f2f8583a55cc7d9d9f519cb5f1f51ed96e9f5e0c28da70bea
-  languageName: node
-  linkType: hard
-
 "@react-native-community/cli-clean@npm:11.3.5":
   version: 11.3.5
   resolution: "@react-native-community/cli-clean@npm:11.3.5"
@@ -4165,17 +4154,9 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@rnw-community/platform@workspace:packages/platform"
   dependencies:
-    "@react-native-async-storage/async-storage": "npm:^1.13.4"
-    "@rnw-community/wdio": "workspace:*"
+    react: "npm:^18.2.0"
+    react-native: "npm:^0.72.3"
     react-native-config: "npm:^1.4.2"
-    redux-persist: "npm:^6.0.0"
-  peerDependencies:
-    "@react-native-async-storage/async-storage": ^1.13.4
-    "@rnw-community/wdio": "workspace:*"
-    react: ^18.2.0
-    react-native: ^0.72.3
-    react-native-config: ^1.4.2
-    redux-persist: ^6.0.0
   languageName: unknown
   linkType: soft
 
@@ -4235,7 +4216,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@rnw-community/wdio@workspace:*, @rnw-community/wdio@workspace:packages/wdio":
+"@rnw-community/wdio@workspace:packages/wdio":
   version: 0.0.0-use.local
   resolution: "@rnw-community/wdio@workspace:packages/wdio"
   dependencies:
@@ -10681,7 +10662,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"is-plain-obj@npm:^2.0.0, is-plain-obj@npm:^2.1.0":
+"is-plain-obj@npm:^2.0.0":
   version: 2.1.0
   resolution: "is-plain-obj@npm:2.1.0"
   checksum: cec9100678b0a9fe0248a81743041ed990c2d4c99f893d935545cfbc42876cbe86d207f3b895700c690ad2fa520e568c44afc1605044b535a7820c1d40e38daa
@@ -12573,15 +12554,6 @@ __metadata:
     type-fest: "npm:^0.18.0"
     yargs-parser: "npm:^20.2.3"
   checksum: d4770f90135c0ef4d0f4fa4f4310a18c07bbbe408221fa79a68fda93944134001ffc24ed605e7668f61e920dd8db30936548e927d2331b0e30699d56247f9873
-  languageName: node
-  linkType: hard
-
-"merge-options@npm:^3.0.4":
-  version: 3.0.4
-  resolution: "merge-options@npm:3.0.4"
-  dependencies:
-    is-plain-obj: "npm:^2.1.0"
-  checksum: d86ddb3dd6e85d558dbf25dc944f3527b6bacb944db3fdda6e84a3f59c4e4b85231095f58b835758b9a57708342dee0f8de0dffa352974a48221487fe9f4584f
   languageName: node
   linkType: hard
 
@@ -15125,15 +15097,6 @@ __metadata:
   dependencies:
     node-abort-controller: "npm:^3.0.1"
   checksum: c1df94fb229182ccf59b744f600b45f2cda1d9c7e5b87b9bbf5c3ef92eb47339af7b33b80dc71e97c08c1f476443be68987dad6c49cfc1a89e9a647127884963
-  languageName: node
-  linkType: hard
-
-"redux-persist@npm:^6.0.0":
-  version: 6.0.0
-  resolution: "redux-persist@npm:6.0.0"
-  peerDependencies:
-    redux: ">4.0.0"
-  checksum: d3bf03fe8fc90f08985b88419eb32a21f727db2cfc93b486a8267b3884a22c665916a3dce1fd80e9e7d8180a849e5dc614b53e09e0a6803855899d7b3e652242
   languageName: node
   linkType: hard
 

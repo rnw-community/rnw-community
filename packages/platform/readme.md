@@ -28,7 +28,7 @@ Example usage:
 
 ```ts
 import { StyleSheet } from 'react-native';
-import { webStyles, androidStyles } from '@rnw-community/shared';
+import { webStyles, androidStyles } from '@rnw-community/platform';
 
 export const Styles = StyleSheet.create({
     root: {
