@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.65.5](https://github.com/rnw-community/rnw-community/compare/v0.65.4...v0.65.5) (2024-02-07)
+
+### Bug Fixes
+
+-   **platform:** fixed dependencies ([#177](https://github.com/rnw-community/rnw-community/issues/177)) ([6419c73](https://github.com/rnw-community/rnw-community/commit/6419c739c7a876f90c5a69ffc59d8d5e6375f302))
+
 ## [0.65.3](https://github.com/rnw-community/rnw-community/compare/v0.65.2...v0.65.3) (2024-01-03)
 
 **Note:** Version bump only for package @rnw-community/platform
