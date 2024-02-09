@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.65.6](https://github.com/rnw-community/rnw-community/compare/v0.65.5...v0.65.6) (2024-02-09)
+
+### Bug Fixes
+
+-   **nestjs-rxjs-lock:** fixed platform deps ([#178](https://github.com/rnw-community/rnw-community/issues/178)) ([7964f1b](https://github.com/rnw-community/rnw-community/commit/7964f1b528f47feb483e0055e075276cd58b94ec))
+
 ## [0.65.3](https://github.com/rnw-community/rnw-community/compare/v0.65.2...v0.65.3) (2024-01-03)
 
 ### Bug Fixes
