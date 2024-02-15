@@ -1,3 +1,5 @@
+import { describe, expect, it } from '@jest/globals';
+
 import { mockDefaultConfig, mockElement } from '../../element.mock';
 import { ComponentSelectorsMock } from '../mocks/component-selectors.mock';
 import { GetComponentMock } from '../mocks/get-component.mock';
@@ -8,7 +10,7 @@ describe('getComponent', () => {
 
         const component = new GetComponentMock();
 
-        await expect(component.Button.el()).resolves.toMatchObject(mockElement);
+        await expect(component.Button.el()).resolves.toBe(mockElement);
         expect(mockDefaultConfig.elSelectorFn).toHaveBeenCalledWith(ComponentSelectorsMock.Button);
     });
 });

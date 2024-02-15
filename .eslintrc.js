@@ -189,6 +189,7 @@ module.exports = {
         'no-ternary': 'off',
         'no-void': 'off',
         'no-undefined': 'off',
+        'node/no-extraneous-import': ['error', { allowModules: ['@jest/globals'] }],
         'node/no-missing-import': [
             'error',
             {

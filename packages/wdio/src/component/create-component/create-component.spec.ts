@@ -1,3 +1,5 @@
+import { describe, expect, it } from '@jest/globals';
+
 import { mockElement } from '../../element.mock';
 import { ComponentSelectorsMock } from '../mocks/component-selectors.mock';
 
@@ -9,6 +11,6 @@ describe('createComponent', () => {
 
         const component = createComponent(ComponentSelectorsMock);
 
-        await expect(component.Button.el()).resolves.toMatchObject(mockElement);
+        await expect(component.Button.el()).resolves.toBe(mockElement);
     });
 });

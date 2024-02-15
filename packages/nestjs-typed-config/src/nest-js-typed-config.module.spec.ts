@@ -1,3 +1,4 @@
+import { describe, expect, it } from '@jest/globals';
 import Joi from 'joi';
 
 import { NestJSTypedConfigModule } from './nest-js-typed-config.module';

@@ -1,4 +1,5 @@
 import '../platform/platform.mock';
+import { describe, expect, it } from '@jest/globals';
 
 import * as constants from '../platform/platform';
 

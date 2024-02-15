@@ -2777,15 +2777,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@jest/expect-utils@npm:^29.6.1":
-  version: 29.6.1
-  resolution: "@jest/expect-utils@npm:29.6.1"
-  dependencies:
-    jest-get-type: "npm:^29.4.3"
-  checksum: b8506c067b90e7c7bb2b3db8b1323d0c514471e2cf52c27f955fbae0052c82b045a3e12c8dd6e7d155d4cf278e80d88c39ba48e5675f142f81e3a7ab9f5a230c
-  languageName: node
-  linkType: hard
-
 "@jest/expect-utils@npm:^29.7.0":
   version: 29.7.0
   resolution: "@jest/expect-utils@npm:29.7.0"
@@ -4500,16 +4491,6 @@ __metadata:
   dependencies:
     "@types/istanbul-lib-report": "npm:*"
   checksum: f1ad54bc68f37f60b30c7915886b92f86b847033e597f9b34f2415acdbe5ed742fa559a0a40050d74cdba3b6a63c342cac1f3a64dba5b68b66a6941f4abd7903
-  languageName: node
-  linkType: hard
-
-"@types/jest@npm:^29.5.11":
-  version: 29.5.11
-  resolution: "@types/jest@npm:29.5.11"
-  dependencies:
-    expect: "npm:^29.0.0"
-    pretty-format: "npm:^29.0.0"
-  checksum: 798f4c89407d9457bea1256de74c26f2b279f6c789c0e3311cd604cc75cdab333b9a29b00c51b0090d31abdf11cc788b4103282851a653bef6daf72edf97eef2
   languageName: node
   linkType: hard
 
@@ -7812,13 +7793,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"diff-sequences@npm:^29.4.3":
-  version: 29.4.3
-  resolution: "diff-sequences@npm:29.4.3"
-  checksum: 2287b259400513332d757f921eeda7c740863a919a00bd1d1b22ab2532b3e763538c404aec0953a813bbe33e660cbc77d0742875d6674d8dc5bc31d74ec88cc1
-  languageName: node
-  linkType: hard
-
 "diff-sequences@npm:^29.6.3":
   version: 29.6.3
   resolution: "diff-sequences@npm:29.6.3"
@@ -9075,20 +9049,6 @@ __metadata:
     webdriverio:
       optional: true
   checksum: 4e5cf2ed13fa40c927c5cac1048ba2e928e30caa5830f93dfd6dd3a2baaba8c3b4b98f3a3b10f543b71ac19a8545148028e66d589ecb11e6b4ba547b33bb3794
-  languageName: node
-  linkType: hard
-
-"expect@npm:^29.0.0":
-  version: 29.6.1
-  resolution: "expect@npm:29.6.1"
-  dependencies:
-    "@jest/expect-utils": "npm:^29.6.1"
-    "@types/node": "npm:*"
-    jest-get-type: "npm:^29.4.3"
-    jest-matcher-utils: "npm:^29.6.1"
-    jest-message-util: "npm:^29.6.1"
-    jest-util: "npm:^29.6.1"
-  checksum: aa737890fe4a2c3145c4004e2817a14f6196775a53bd591f756f617062881eb576ed9c0409f10b076ad969ceb3dc73b88752100a69db9652a06e0a77e297a6fa
   languageName: node
   linkType: hard
 
@@ -11428,18 +11388,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"jest-diff@npm:^29.6.1":
-  version: 29.6.1
-  resolution: "jest-diff@npm:29.6.1"
-  dependencies:
-    chalk: "npm:^4.0.0"
-    diff-sequences: "npm:^29.4.3"
-    jest-get-type: "npm:^29.4.3"
-    pretty-format: "npm:^29.6.1"
-  checksum: b4e427d19cf1e779f15e677de74f770c3916405fc83987aa1470701c8acb52764c0da115db2989b3bb433ae15127f974fffea7b808f921eb061e07965b2d687f
-  languageName: node
-  linkType: hard
-
 "jest-docblock@npm:^29.7.0":
   version: 29.7.0
   resolution: "jest-docblock@npm:29.7.0"
@@ -11534,18 +11482,6 @@ __metadata:
     jest-get-type: "npm:^29.6.3"
     pretty-format: "npm:^29.7.0"
   checksum: e3950e3ddd71e1d0c22924c51a300a1c2db6cf69ec1e51f95ccf424bcc070f78664813bef7aed4b16b96dfbdeea53fe358f8aeaaea84346ae15c3735758f1605
-  languageName: node
-  linkType: hard
-
-"jest-matcher-utils@npm:^29.6.1":
-  version: 29.6.1
-  resolution: "jest-matcher-utils@npm:29.6.1"
-  dependencies:
-    chalk: "npm:^4.0.0"
-    jest-diff: "npm:^29.6.1"
-    jest-get-type: "npm:^29.4.3"
-    pretty-format: "npm:^29.6.1"
-  checksum: f5f223f5bc1986ce2fe91d26a0abe422fb58fdd5f984c55c7486be05509e520e33ffe6bb5425943b3be02e2df05dd95e700dd5abbdaf651d7b05c9cb099729c3
   languageName: node
   linkType: hard
 
@@ -14745,7 +14681,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"pretty-format@npm:^29.0.0, pretty-format@npm:^29.6.1":
+"pretty-format@npm:^29.6.1":
   version: 29.6.1
   resolution: "pretty-format@npm:29.6.1"
   dependencies:
@@ -15875,8 +15811,8 @@ __metadata:
     "@commitlint/cli": "npm:^18.4.3"
     "@commitlint/config-conventional": "npm:^18.4.3"
     "@commitlint/config-lerna-scopes": "npm:^18.4.3"
+    "@jest/globals": "npm:^29.7.0"
     "@react-native-community/eslint-config": "npm:^3.2.0"
-    "@types/jest": "npm:^29.5.11"
     "@types/node": "npm:^20.10.3"
     "@types/react": "npm:^18.2.42"
     "@types/react-test-renderer": "npm:^18.0.7"

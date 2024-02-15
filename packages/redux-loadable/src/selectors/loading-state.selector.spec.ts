@@ -1,3 +1,5 @@
+import { describe, expect, it } from '@jest/globals';
+
 import { initialLoadingState } from '../interface/loading-state.interface';
 
 import { loadingStateSelector } from './loading-state.selector';

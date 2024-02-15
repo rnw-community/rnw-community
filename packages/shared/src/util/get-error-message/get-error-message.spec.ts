@@ -1,5 +1,6 @@
-import { getErrorMessage } from './get-error-message';
+import { describe, expect, it } from '@jest/globals';
 
+import { getErrorMessage } from './get-error-message';
 describe('get-error-message', () => {
     it('should return error message', () => {
         expect.hasAssertions();

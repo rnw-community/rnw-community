@@ -1,5 +1,5 @@
 import type { Component } from '../component/component';
-import type { ChainablePromiseArray, ChainablePromiseElement, Element, ElementArray } from 'webdriverio';
+import type { ChainablePromiseArray, ChainablePromiseElement } from 'webdriverio';
 
 export class SelectorElement {
     constructor(
@@ -20,15 +20,15 @@ export class SelectorElement {
         });
     }
 
-    el(): ChainablePromiseElement<Element> {
+    el(): ChainablePromiseElement<WebdriverIO.Element> {
         return this.component.getChildEl(this.enumSelector);
     }
 
-    els(): ChainablePromiseArray<ElementArray> {
+    els(): ChainablePromiseArray<WebdriverIO.ElementArray> {
         return this.component.getChildEls(this.enumSelector);
     }
 
-    byIdx(idx: number): ChainablePromiseElement<Element> {
+    byIdx(idx: number): ChainablePromiseElement<WebdriverIO.Element> {
         return this.component.getChildElByIdx(this.enumSelector, idx);
     }
 }
