@@ -1,4 +1,5 @@
 /* eslint-disable jest/no-untyped-mock-factory,jest/no-done-callback */
+import { describe, expect, it, jest } from '@jest/globals';
 import { of } from 'rxjs';
 
 import { emptyFn } from '@rnw-community/shared';
@@ -9,10 +10,11 @@ import { NestJSRxJSLockService } from './nestjs-rxjs-lock.service';
 
 import type Redis from 'ioredis';
 
-const mockRelease = jest.fn().mockResolvedValue(true);
-const mockAcquire = jest.fn().mockResolvedValue({
-    release: mockRelease,
-});
+const mockRelease = jest.fn<() => Promise<boolean>>().mockResolvedValue(true);
+const mockAcquire = jest
+    .fn<() => Promise<{ release: () => Promise<boolean> }>>()
+    .mockResolvedValue({ release: mockRelease });
+
 jest.mock('redlock', () =>
     jest.fn().mockImplementation(() => ({
         acquire: mockAcquire,
@@ -62,7 +64,7 @@ describe('nestJSRxJSLockService', () => {
             mockAcquire.mockRejectedValueOnce(new Error(acquireErrorText));
 
             nestJSRxJSLockService.lock$('test', LockCodesEnum.DB_CREATE_USER, handler$).subscribe(
-                done,
+                () => void done(),
                 (e: unknown) => {
                     expect((e as string).toString()).toBe(`Error: Lock failed`);
                     expect(handler$).toHaveBeenCalledTimes(0);

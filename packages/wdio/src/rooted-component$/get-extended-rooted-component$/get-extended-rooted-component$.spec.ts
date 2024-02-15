@@ -1,3 +1,5 @@
+import { describe, expect, it, jest } from '@jest/globals';
+
 import { mockDefault$Config, mockElement } from '../../element.mock';
 import { DefaultRootRootedExtendedComponent$Mock } from '../mocks/default-root-rooted-extended-component$.mock';
 import { RootedComponent$SelectorsMock } from '../mocks/rooted-component$-selectors.mock';

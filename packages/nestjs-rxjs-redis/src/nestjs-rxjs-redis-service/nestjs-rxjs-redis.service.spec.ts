@@ -1,4 +1,5 @@
 /* eslint-disable max-lines */
+import { describe, expect, it, jest } from '@jest/globals';
 import { of } from 'rxjs';
 
 import { emptyFn, getErrorMessage } from '@rnw-community/shared';
@@ -11,18 +12,17 @@ const redisKey = 'testKey';
 const redisValue = 'testValue';
 const redisTTLValue = 100;
 
-const getRedisService = (
-    redisClient?: Partial<Pick<Redis, 'del' | 'expire' | 'get' | 'incr' | 'mget' | 'set' | 'ttl'>>
-): Redis =>
+type RedisClient = Partial<Pick<Redis, 'del' | 'expire' | 'get' | 'incr' | 'mget' | 'set' | 'ttl'>>;
+const getRedisService = (redisClient?: RedisClient): Redis =>
     // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
     ({
-        get: jest.fn().mockResolvedValue(redisValue),
-        set: jest.fn().mockResolvedValue('OK'),
-        del: jest.fn().mockResolvedValue(1),
-        mget: jest.fn().mockResolvedValue([redisValue]),
-        incr: jest.fn().mockResolvedValue(2),
-        ttl: jest.fn().mockResolvedValue(redisTTLValue),
-        expire: jest.fn().mockResolvedValue(1),
+        get: jest.fn<Redis['get']>().mockResolvedValue(redisValue),
+        set: jest.fn<Redis['set']>().mockResolvedValue('OK'),
+        del: jest.fn<Redis['del']>().mockResolvedValue(1),
+        mget: jest.fn<Redis['mget']>().mockResolvedValue([redisValue]),
+        incr: jest.fn<Redis['incr']>().mockResolvedValue(2),
+        ttl: jest.fn<Redis['ttl']>().mockResolvedValue(redisTTLValue),
+        expire: jest.fn<Redis['expire']>().mockResolvedValue(1),
         ...redisClient,
     }) as Redis;
 
@@ -31,7 +31,7 @@ describe('NestJSRxJSRedisService', () => {
     it('get$ operation should create observable', done => {
         expect.assertions(2);
 
-        const get = jest.fn().mockResolvedValue(redisValue);
+        const get = jest.fn<Redis['get']>().mockResolvedValue(redisValue);
         const redisService = getRedisService({ get });
         const redis = new NestJSRxJSRedisService(redisService);
 
@@ -45,7 +45,7 @@ describe('NestJSRxJSRedisService', () => {
     it('get$ operation when redis clinet returns null', done => {
         expect.assertions(2);
 
-        const get = jest.fn().mockResolvedValue(null);
+        const get = jest.fn<Redis['get']>().mockResolvedValue(null);
         const redisService = getRedisService({ get });
         const redis = new NestJSRxJSRedisService(redisService);
 
@@ -62,7 +62,7 @@ describe('NestJSRxJSRedisService', () => {
     it('get$ operation when redis client throws error', done => {
         expect.assertions(2);
 
-        const get = jest.fn().mockRejectedValue(null);
+        const get = jest.fn<Redis['get']>().mockRejectedValue(null);
         const redisService = getRedisService({ get });
         const redis = new NestJSRxJSRedisService(redisService);
 
@@ -76,8 +76,8 @@ describe('NestJSRxJSRedisService', () => {
     it('set$ operation should create observable', done => {
         expect.assertions(2);
 
-        const set = jest.fn().mockResolvedValue('OK');
-        const redisService = getRedisService({ set });
+        const set = jest.fn<Redis['set']>().mockResolvedValue('OK');
+        const redisService = getRedisService({ set } as unknown as RedisClient);
         const redis = new NestJSRxJSRedisService(redisService);
 
         redis.set$(redisKey, redisValue, 1).subscribe(data => {
@@ -90,8 +90,8 @@ describe('NestJSRxJSRedisService', () => {
     it('set$ operation when redis client returns not OK', done => {
         expect.assertions(2);
 
-        const set = jest.fn().mockRejectedValue('FAIL');
-        const redisService = getRedisService({ set });
+        const set = jest.fn<Redis['set']>().mockRejectedValue('FAIL');
+        const redisService = getRedisService({ set } as unknown as RedisClient);
         const redis = new NestJSRxJSRedisService(redisService);
 
         redis.set$(redisKey, redisValue, 1).subscribe({
@@ -107,8 +107,8 @@ describe('NestJSRxJSRedisService', () => {
     it('set$ operation when redis client throws error', done => {
         expect.assertions(2);
 
-        const set = jest.fn().mockRejectedValue('FAIL');
-        const redisService = getRedisService({ set });
+        const set = jest.fn<Redis['set']>().mockRejectedValue('FAIL');
+        const redisService = getRedisService({ set } as unknown as RedisClient);
         const redis = new NestJSRxJSRedisService(redisService);
 
         redis.set$(redisKey, redisValue, 1).subscribe({
@@ -124,8 +124,8 @@ describe('NestJSRxJSRedisService', () => {
     it('del$ operation should create observable', done => {
         expect.assertions(2);
 
-        const del = jest.fn().mockResolvedValue(1);
-        const redisService = getRedisService({ del });
+        const del = jest.fn<Redis['del']>().mockResolvedValue(1);
+        const redisService = getRedisService({ del } as unknown as RedisClient);
         const redis = new NestJSRxJSRedisService(redisService);
 
         redis.del$(redisKey).subscribe(data => {
@@ -138,8 +138,8 @@ describe('NestJSRxJSRedisService', () => {
     it('del$ operation when redis client throws error', done => {
         expect.assertions(2);
 
-        const del = jest.fn().mockRejectedValue(0);
-        const redisService = getRedisService({ del });
+        const del = jest.fn<Redis['del']>().mockRejectedValue(0);
+        const redisService = getRedisService({ del } as unknown as RedisClient);
         const redis = new NestJSRxJSRedisService(redisService);
 
         redis.del$(redisKey).subscribe({
@@ -155,8 +155,8 @@ describe('NestJSRxJSRedisService', () => {
     it('mget$ operation should create observable', done => {
         expect.assertions(2);
 
-        const mget = jest.fn().mockResolvedValue([redisValue]);
-        const redisService = getRedisService({ mget });
+        const mget = jest.fn<Redis['mget']>().mockResolvedValue([redisValue]);
+        const redisService = getRedisService({ mget } as unknown as RedisClient);
         const redis = new NestJSRxJSRedisService(redisService);
 
         redis.mget$([redisKey]).subscribe(data => {
@@ -171,13 +171,13 @@ describe('NestJSRxJSRedisService', () => {
 
         const stringRedisValue = `"${redisValue}"`;
 
-        const set = jest.fn().mockResolvedValue('OK');
-        const redisService = getRedisService({ set });
+        const set = jest.fn<Redis['set']>().mockResolvedValue('OK');
+        const redisService = getRedisService({ set } as unknown as RedisClient);
         const redis = new NestJSRxJSRedisService(redisService);
 
         // TODO: Check error function
-        const errorFn = jest.fn().mockReturnValue('Error');
-        const toValueFn = jest.fn().mockReturnValue(stringRedisValue);
+        const errorFn = jest.fn<(input: unknown) => string>().mockReturnValue('Error');
+        const toValueFn = jest.fn<(input: unknown) => string>().mockReturnValue(stringRedisValue);
 
         of(redisValue)
             .pipe(redis.save(() => redisKey, 1, errorFn, toValueFn))
@@ -194,8 +194,8 @@ describe('NestJSRxJSRedisService', () => {
 
         const stringRedisValue = `"${redisValue}"`;
 
-        const set = jest.fn().mockResolvedValue('OK');
-        const redisService = getRedisService({ set });
+        const set = jest.fn<Redis['set']>().mockResolvedValue('OK');
+        const redisService = getRedisService({ set } as unknown as RedisClient);
         const redis = new NestJSRxJSRedisService(redisService);
 
         of(redisValue)
@@ -212,13 +212,13 @@ describe('NestJSRxJSRedisService', () => {
 
         const stringRedisValue = `"${redisValue}"`;
 
-        const get = jest.fn().mockResolvedValue(redisValue);
+        const get = jest.fn<Redis['get']>().mockResolvedValue(redisValue);
         const redisService = getRedisService({ get });
         const redis = new NestJSRxJSRedisService(redisService);
 
         const keyFn = (key: string): string => `${key}-modified`;
-        const errorFn = jest.fn().mockReturnValue('Error');
-        const fromValueFn = jest.fn().mockReturnValue(stringRedisValue);
+        const errorFn = jest.fn<(input: unknown) => string>().mockReturnValue('Error');
+        const fromValueFn = jest.fn<(input: unknown) => string>().mockReturnValue(stringRedisValue);
 
         of(redisKey)
             .pipe(redis.load(keyFn, errorFn, fromValueFn))
@@ -233,7 +233,7 @@ describe('NestJSRxJSRedisService', () => {
     it('load operator default value JSON.parse', done => {
         expect.assertions(2);
 
-        const get = jest.fn().mockResolvedValue(JSON.stringify(redisValue));
+        const get = jest.fn<Redis['get']>().mockResolvedValue(JSON.stringify(redisValue));
         const redisService = getRedisService({ get });
         const redis = new NestJSRxJSRedisService(redisService);
 
@@ -249,11 +249,11 @@ describe('NestJSRxJSRedisService', () => {
     it('remove operator', done => {
         expect.assertions(2);
 
-        const del = jest.fn().mockResolvedValue(1);
-        const redis = new NestJSRxJSRedisService(getRedisService({ del }));
+        const del = jest.fn<Redis['del']>().mockResolvedValue(1);
+        const redis = new NestJSRxJSRedisService(getRedisService({ del } as unknown as RedisClient));
 
         const keyFn = (key: string): string => `${key}-modified`;
-        const errorFn = jest.fn().mockReturnValue('Error');
+        const errorFn = jest.fn<(input: unknown) => string>().mockReturnValue('Error');
 
         of(redisKey)
             .pipe(redis.remove(keyFn, errorFn))
@@ -267,8 +267,8 @@ describe('NestJSRxJSRedisService', () => {
     it('remove operator with default value from stream', done => {
         expect.assertions(2);
 
-        const del = jest.fn().mockResolvedValue(1);
-        const redis = new NestJSRxJSRedisService(getRedisService({ del }));
+        const del = jest.fn<Redis['del']>().mockResolvedValue(1);
+        const redis = new NestJSRxJSRedisService(getRedisService({ del } as unknown as RedisClient));
 
         of(redisKey)
             .pipe(redis.remove())
@@ -284,7 +284,7 @@ describe('NestJSRxJSRedisService', () => {
 
         const stringRedisValue = `"${redisValue}"`;
 
-        const get = jest.fn().mockResolvedValue(redisValue);
+        const get = jest.fn<Redis['get']>().mockResolvedValue(redisValue);
         const redisService = getRedisService({ get });
         const redis = new NestJSRxJSRedisService(redisService);
 
@@ -304,7 +304,7 @@ describe('NestJSRxJSRedisService', () => {
     it('cache operator load existing value with default handlers', done => {
         expect.assertions(2);
 
-        const get = jest.fn().mockResolvedValue(redisValue);
+        const get = jest.fn<Redis['get']>().mockResolvedValue(redisValue);
         const redisService = getRedisService({ get });
         const redis = new NestJSRxJSRedisService(redisService);
 
@@ -322,13 +322,13 @@ describe('NestJSRxJSRedisService', () => {
 
         const stringRedisValue = `"${redisValue}"`;
 
-        const set = jest.fn().mockResolvedValue('OK');
-        const get = jest.fn().mockRejectedValue('');
-        const redis = new NestJSRxJSRedisService(getRedisService({ get, set }));
+        const set = jest.fn<Redis['set']>().mockResolvedValue('OK');
+        const get = jest.fn<Redis['get']>().mockRejectedValue('');
+        const redis = new NestJSRxJSRedisService(getRedisService({ get, set } as unknown as RedisClient));
 
         const keyFn = (key: string): string => `${key}-modified`;
-        const fromValueFn = jest.fn().mockReturnValue(stringRedisValue);
-        const toValueFn = jest.fn().mockReturnValue(stringRedisValue);
+        const fromValueFn = jest.fn<(input: string) => string>().mockReturnValue(stringRedisValue);
+        const toValueFn = jest.fn<(input: unknown) => string>().mockReturnValue(stringRedisValue);
 
         of(redisKey)
             .pipe(redis.cache(1, () => of(redisValue), keyFn, toValueFn, fromValueFn))
@@ -344,7 +344,7 @@ describe('NestJSRxJSRedisService', () => {
         expect.assertions(2);
 
         const incrValue = 3;
-        const incr = jest.fn().mockResolvedValue(incrValue);
+        const incr = jest.fn<Redis['incr']>().mockResolvedValue(incrValue);
         const redis = new NestJSRxJSRedisService(getRedisService({ incr }));
 
         redis.incr$(redisKey).subscribe(data => {
@@ -357,7 +357,7 @@ describe('NestJSRxJSRedisService', () => {
     it('incr$ operation when redis client throws error', done => {
         expect.assertions(2);
 
-        const incr = jest.fn().mockRejectedValue(0);
+        const incr = jest.fn<Redis['incr']>().mockRejectedValue(0);
         const redis = new NestJSRxJSRedisService(getRedisService({ incr }));
 
         redis.incr$(redisKey, `Error increment ${redisKey} from redis`).subscribe({
@@ -373,7 +373,7 @@ describe('NestJSRxJSRedisService', () => {
     it('check the remaining time to live of a key that has a timeout', done => {
         expect.assertions(2);
 
-        const ttl = jest.fn().mockResolvedValue(redisTTLValue);
+        const ttl = jest.fn<Redis['ttl']>().mockResolvedValue(redisTTLValue);
         const redis = new NestJSRxJSRedisService(getRedisService({ ttl }));
 
         redis.ttl$(redisKey).subscribe(data => {
@@ -386,7 +386,7 @@ describe('NestJSRxJSRedisService', () => {
     it('ttl$ operation when redis client throws error', done => {
         expect.assertions(2);
 
-        const ttl = jest.fn().mockRejectedValue(0);
+        const ttl = jest.fn<Redis['ttl']>().mockRejectedValue(0);
         const redis = new NestJSRxJSRedisService(getRedisService({ ttl }));
 
         redis.ttl$(redisKey, `Error ttl ${redisKey} from redis`).subscribe({
@@ -402,8 +402,8 @@ describe('NestJSRxJSRedisService', () => {
     it('setting timeout for key', done => {
         expect.assertions(2);
 
-        const expire = jest.fn().mockResolvedValue(1);
-        const redis = new NestJSRxJSRedisService(getRedisService({ expire }));
+        const expire = jest.fn<Redis['expire']>().mockResolvedValue(1);
+        const redis = new NestJSRxJSRedisService(getRedisService({ expire } as unknown as RedisClient));
 
         redis.expire$(redisKey, redisTTLValue).subscribe(data => {
             expect(expire).toHaveBeenCalledWith(redisKey, redisTTLValue);
@@ -415,8 +415,8 @@ describe('NestJSRxJSRedisService', () => {
     it('expire$ operation when redis client throws error', done => {
         expect.assertions(2);
 
-        const expire = jest.fn().mockRejectedValue(0);
-        const redis = new NestJSRxJSRedisService(getRedisService({ expire }));
+        const expire = jest.fn<Redis['expire']>().mockRejectedValue(0);
+        const redis = new NestJSRxJSRedisService(getRedisService({ expire } as unknown as RedisClient));
 
         redis.expire$(redisKey, redisTTLValue, `Error setting timeout for ${redisKey} in redis`).subscribe({
             next: emptyFn,

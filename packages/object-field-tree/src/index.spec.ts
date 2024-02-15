@@ -1,3 +1,5 @@
+import { beforeEach, describe, expect, it, jest } from '@jest/globals';
+
 import { combine } from './index';
 
 enum TestEnum1 {
@@ -124,7 +126,7 @@ describe('combine', () => {
     const dataFnMock = jest.fn((...args) => ({ ...args }));
 
     // eslint-disable-next-line jest/no-hooks
-    beforeEach(() => dataFnMock.mockClear());
+    beforeEach(() => void dataFnMock.mockClear());
 
     it('should create tree from one enum with data generated callback', () => {
         expect.hasAssertions();

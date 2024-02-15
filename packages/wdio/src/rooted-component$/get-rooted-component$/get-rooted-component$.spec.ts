@@ -1,3 +1,5 @@
+import { describe, expect, it, jest } from '@jest/globals';
+
 import { mockDefault$Config, mockDefaultConfig, mockElement } from '../../element.mock';
 import { RootedComponentSelectorsMock } from '../../rooted-component/mocks/rooted-component-selectors.mock';
 import { DefaultRootRootedComponent$Mock } from '../mocks/default-root-rooted-component$.mock';
@@ -13,7 +15,7 @@ describe('getRootedComponent$', () => {
 
         const component = new RootedComponent$Mock(RootedComponent$SelectorsMock.Root$);
 
-        await expect(component.Button$.el()).resolves.toMatchObject(mockElement);
+        await expect(component.Button$.el()).resolves.toStrictEqual(mockElement);
         expect(mockDefault$Config.elSelectorFn).toHaveBeenNthCalledWith(1, RootedComponent$SelectorsMock.Root$);
         expect(mockDefault$Config.elSelectorFn).toHaveBeenNthCalledWith(
             2,
@@ -21,8 +23,8 @@ describe('getRootedComponent$', () => {
             expect.objectContaining({})
         );
 
-        await expect(component.Button$.els()).resolves.toMatchObject([mockElement]);
-        await expect(component.Button$.byIdx(1)).resolves.toMatchObject(mockElement);
+        await expect(component.Button$.els()).resolves.toStrictEqual([mockElement]);
+        await expect(component.Button$.byIdx(1)).resolves.toStrictEqual(mockElement);
 
         jest.clearAllMocks();
     });
@@ -32,7 +34,7 @@ describe('getRootedComponent$', () => {
 
         const component = new RootedExtendedComponent$Mock();
 
-        await expect(component.Button$.el()).resolves.toMatchObject(mockElement);
+        await expect(component.Button$.el()).resolves.toStrictEqual(mockElement);
         expect(mockDefault$Config.elSelectorFn).toHaveBeenNthCalledWith(
             1,
             RootedExtendedComponent$SelectorsMock.ExtendedRoot$
@@ -43,7 +45,7 @@ describe('getRootedComponent$', () => {
             expect.objectContaining({})
         );
 
-        await expect(component.ExtendedButton$.el()).resolves.toMatchObject(mockElement);
+        await expect(component.ExtendedButton$.el()).resolves.toBe(mockElement);
         expect(mockDefault$Config.elSelectorFn).toHaveBeenNthCalledWith(
             3,
             RootedExtendedComponent$SelectorsMock.ExtendedRoot$
@@ -62,7 +64,7 @@ describe('getRootedComponent$', () => {
 
         const component = new RootedMixedComponent$Mock();
 
-        await expect(component.Button$.el()).resolves.toMatchObject(mockElement);
+        await expect(component.Button$.el()).resolves.toBe(mockElement);
         expect(mockDefault$Config.elSelectorFn).toHaveBeenNthCalledWith(1, RootedComponent$SelectorsMock.Root$);
         expect(mockDefault$Config.elSelectorFn).toHaveBeenNthCalledWith(
             2,
@@ -70,7 +72,7 @@ describe('getRootedComponent$', () => {
             expect.objectContaining({})
         );
 
-        await expect(component.Button.el()).resolves.toMatchObject(mockElement);
+        await expect(component.Button.el()).resolves.toBe(mockElement);
         expect(mockDefaultConfig.elSelectorFn).toHaveBeenNthCalledWith(1, RootedComponent$SelectorsMock.Root$);
         expect(mockDefaultConfig.elSelectorFn).toHaveBeenNthCalledWith(
             2,
