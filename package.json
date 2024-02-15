@@ -21,7 +21,7 @@
     "deps:check": "yarn dlx check-dependency-version-consistency ."
   },
   "engines": {
-    "node": ">=16.0.0"
+    "node": ">=18.0.0"
   },
   "devDependencies": {
     "@babel/core": "^7.23.5",
