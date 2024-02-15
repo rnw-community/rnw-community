@@ -1,3 +1,5 @@
+import { describe, expect, it } from '@jest/globals';
+
 import { isNotEmptyString } from './is-not-empty-string';
 
 describe('isNotEmptyString', () => {

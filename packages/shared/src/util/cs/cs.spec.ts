@@ -1,3 +1,5 @@
+import { describe, expect, it } from '@jest/globals';
+
 import { cs } from './cs';
 
 describe('cs', () => {

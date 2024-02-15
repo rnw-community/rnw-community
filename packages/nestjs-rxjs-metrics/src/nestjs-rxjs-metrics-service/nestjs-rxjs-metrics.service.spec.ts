@@ -1,3 +1,4 @@
+import { describe, expect, it, jest } from '@jest/globals';
 import { Logger } from '@nestjs/common';
 import { of } from 'rxjs';
 
@@ -28,6 +29,8 @@ const histogramRecord = createMetricsRecord<Histogram, typeof histogramMetrics>(
     histogramLabels
 );
 const summaryRecord = createMetricsRecord<Summary, typeof summaryMetrics>('Summary', summaryMetrics, summaryLabels);
+
+const endTimerFn = jest.fn<(labels?: Partial<Record<string, number | string>> | undefined) => number>();
 
 class MetricsService extends NestJSRxJSMetricsService<
     typeof counterMetrics,
@@ -123,7 +126,6 @@ describe('NestJSRxJSMetricsService', () => {
 
         const service = new MetricsService();
 
-        const endTimerFn = jest.fn();
         jest.spyOn(histogramRecord.my_histogram_metric, 'startTimer').mockReturnValue(endTimerFn);
 
         of(true)
@@ -139,7 +141,6 @@ describe('NestJSRxJSMetricsService', () => {
 
         const service = new MetricsService();
 
-        const endTimerFn = jest.fn();
         jest.spyOn(histogramRecord.my_histogram_metric, 'startTimer').mockReturnValue(endTimerFn);
         const loggerErrorSpy = jest.spyOn(Logger, 'error');
 
@@ -161,7 +162,6 @@ describe('NestJSRxJSMetricsService', () => {
 
         const service = new MetricsService();
 
-        const endTimerFn = jest.fn();
         const histogramSpy = jest.spyOn(histogramRecord.my_histogram_metric, 'startTimer');
         jest.spyOn(histogramRecord.my_histogram_metric, 'startTimer').mockReturnValue(endTimerFn);
 
@@ -197,7 +197,6 @@ describe('NestJSRxJSMetricsService', () => {
 
         const service = new MetricsService();
 
-        const endTimerFn = jest.fn();
         jest.spyOn(summaryRecord.my_summary_metric, 'startTimer').mockReturnValue(endTimerFn);
 
         of(true)
@@ -213,7 +212,7 @@ describe('NestJSRxJSMetricsService', () => {
 
         const service = new MetricsService();
 
-        const endTimerFn = jest.fn();
+        endTimerFn.mockReset();
         jest.spyOn(summaryRecord.my_summary_metric, 'startTimer').mockReturnValue(endTimerFn);
         const loggerErrorSpy = jest.spyOn(Logger, 'error');
 
@@ -235,7 +234,6 @@ describe('NestJSRxJSMetricsService', () => {
 
         const service = new MetricsService();
 
-        const endTimerFn = jest.fn();
         const summarySpy = jest.spyOn(summaryRecord.my_summary_metric, 'startTimer');
         jest.spyOn(summaryRecord.my_summary_metric, 'startTimer').mockReturnValue(endTimerFn);
 

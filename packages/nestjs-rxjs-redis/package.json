@@ -1,57 +1,60 @@
 {
-    "name": "@rnw-community/nestjs-rxjs-redis",
-    "version": "0.65.3",
-    "description": "NestJS RxJS redis",
-    "keywords": [
-        "nestjs",
-        "nestjs redis",
-        "rxjs redis"
-    ],
-    "repository": "https://github.com/rnw-community/rnw-community/tree/master/packages/nestjs-rxjs-redis",
-    "license": "MIT",
-    "exports": {
-        ".": {
-            "import": "./dist/esm/index.js",
-            "require": "./dist/cjs/index.js"
-        }
-    },
-    "main": "dist/cjs/index.js",
-    "module": "dist/esm/index.js",
-    "types": "dist/esm/index.d.ts",
-    "files": [
-        "dist/**/*"
-    ],
-    "sideEffects": "false",
-    "publishConfig": {
-        "access": "public"
-    },
-    "scripts": {
-        "ts": "run -T tsc --pretty -p tsconfig.json",
-        "build:esm": "run -T tsc --pretty -p tsconfig.build-cjs.json",
-        "build:cjs": "run -T tsc --pretty -p tsconfig.build-esm.json",
-        "build": "yarn build:esm && yarn build:cjs && rm -rf ./dist/*/*.tsbuildinfo",
-        "lint": "run -T eslint src",
-        "lint:fix": "run -T eslint --fix src",
-        "test": "run -T jest",
-        "test:coverage": "run -T jest --coverage",
-        "format": "run -T prettier --write \"./src/**/*.{ts,tsx}\"",
-        "clear": "rm -rf coverage && rm -rf dist && rm -f *.tsbuildinfo",
-        "clear:deps": "rm -rf ./node_modules && rm -rf ./dist"
-    },
-    "gitHead": "b5608910319390f9773a9d42c3cc828e8e8a1d95",
-    "dependencies": {
-        "@rnw-community/shared": "workspace:*"
-    },
-    "devDependencies": {
-        "@nestjs-modules/ioredis": "^1.0.1",
-        "@nestjs/common": "^10.2.7",
-        "ioredis": "^5.3.2",
-        "rxjs": "^7.8.1"
-    },
-    "peerDependencies": {
-        "@nestjs-modules/ioredis": "^1.0.1",
-        "@nestjs/common": "^10.2.7",
-        "ioredis": "^5.3.2",
-        "rxjs": "^7.8.1"
+  "name": "@rnw-community/nestjs-rxjs-redis",
+  "version": "0.65.3",
+  "description": "NestJS RxJS redis",
+  "keywords": [
+    "nestjs",
+    "nestjs redis",
+    "rxjs redis"
+  ],
+  "repository": "https://github.com/rnw-community/rnw-community/tree/master/packages/nestjs-rxjs-redis",
+  "license": "MIT",
+  "exports": {
+    ".": {
+      "import": "./dist/esm/index.js",
+      "require": "./dist/cjs/index.js"
     }
+  },
+  "main": "dist/cjs/index.js",
+  "module": "dist/esm/index.js",
+  "types": "dist/esm/index.d.ts",
+  "files": [
+    "dist/**/*"
+  ],
+  "sideEffects": "false",
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "ts": "run -T tsc --pretty -p tsconfig.json",
+    "build:esm": "run -T tsc --pretty -p tsconfig.build-cjs.json",
+    "build:cjs": "run -T tsc --pretty -p tsconfig.build-esm.json",
+    "build": "yarn build:esm && yarn build:cjs && rm -rf ./dist/*/*.tsbuildinfo",
+    "lint": "run -T eslint src",
+    "lint:fix": "run -T eslint --fix src",
+    "test": "run -T jest",
+    "test:coverage": "run -T jest --coverage",
+    "format": "run -T prettier --write \"./src/**/*.{ts,tsx}\"",
+    "clear": "rm -rf coverage && rm -rf dist && rm -f *.tsbuildinfo",
+    "clear:deps": "rm -rf ./node_modules && rm -rf ./dist"
+  },
+  "gitHead": "b5608910319390f9773a9d42c3cc828e8e8a1d95",
+  "dependencies": {
+    "@rnw-community/shared": "workspace:*"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "devDependencies": {
+    "@nestjs-modules/ioredis": "^1.0.1",
+    "@nestjs/common": "^10.2.7",
+    "ioredis": "^5.3.2",
+    "rxjs": "^7.8.1"
+  },
+  "peerDependencies": {
+    "@nestjs-modules/ioredis": "^1.0.1",
+    "@nestjs/common": "^10.2.7",
+    "ioredis": "^5.3.2",
+    "rxjs": "^7.8.1"
+  }
 }

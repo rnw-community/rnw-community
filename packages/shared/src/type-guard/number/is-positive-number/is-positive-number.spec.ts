@@ -1,3 +1,5 @@
+import { describe, expect, it } from '@jest/globals';
+
 import { isPositiveNumber } from './is-positive-number';
 
 describe('isPositiveNumber', () => {

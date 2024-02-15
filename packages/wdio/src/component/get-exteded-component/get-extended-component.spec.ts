@@ -1,3 +1,5 @@
+import { describe, expect, it, jest } from '@jest/globals';
+
 import { mockDefaultConfig, mockElement } from '../../element.mock';
 import { ComponentSelectorsMock } from '../mocks/component-selectors.mock';
 import { ComponentMock } from '../mocks/component.mock';
@@ -12,7 +14,7 @@ describe('getExtendedComponent', () => {
 
         const component = new ComponentMock();
 
-        await expect(component.CSSSelector.el()).resolves.toMatchObject(mockElement);
+        await expect(component.CSSSelector.el()).resolves.toBe(mockElement);
         expect(mockDefaultConfig.elSelectorFn).toHaveBeenCalledWith(ParentComponentSelectorsMock.CSSSelector);
     });
 
@@ -21,10 +23,10 @@ describe('getExtendedComponent', () => {
 
         const component = new ComponentMock();
 
-        await expect(component.ParentButton.el()).resolves.toMatchObject(mockElement);
+        await expect(component.ParentButton.el()).resolves.toBe(mockElement);
         expect(mockDefaultConfig.elSelectorFn).toHaveBeenCalledWith(ParentComponentSelectorsMock.ParentButton);
 
-        await expect(component.Button.el()).resolves.toMatchObject(mockElement);
+        await expect(component.Button.el()).resolves.toBe(mockElement);
         expect(mockDefaultConfig.elSelectorFn).toHaveBeenCalledWith(ComponentSelectorsMock.Button);
     });
 
@@ -41,7 +43,7 @@ describe('getExtendedComponent', () => {
 
         const component = new ComponentMock();
 
-        await expect(component.Button.el()).resolves.toMatchObject(mockElement);
+        await expect(component.Button.el()).resolves.toBe(mockElement);
         expect(mockDefaultConfig.elSelectorFn).toHaveBeenCalledWith(ComponentSelectorsMock.Button);
     });
 
@@ -150,10 +152,10 @@ describe('getExtendedComponent', () => {
 
         const component = new ComponentMock();
 
-        await expect(component.Button.el()).resolves.toMatchObject(mockElement);
+        await expect(component.Button.el()).resolves.toBe(mockElement);
         expect(mockDefaultConfig.elSelectorFn).toHaveBeenCalledWith(ComponentSelectorsMock.Button);
 
-        await expect(component.ParentButton.el()).resolves.toMatchObject(mockElement);
+        await expect(component.ParentButton.el()).resolves.toBe(mockElement);
         expect(mockDefaultConfig.elSelectorFn).toHaveBeenCalledWith(ComponentSelectorsMock.Button);
     });
 

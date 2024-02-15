@@ -1,50 +1,53 @@
 {
-    "name": "@rnw-community/platform",
-    "version": "0.65.5",
-    "description": "React native web platform utils and helpers",
-    "keywords": [
-        "platform utils",
-        "platform helpers",
-        "react",
-        "react-native",
-        "react native",
-        "react-native-web"
-    ],
-    "repository": "https://github.com/rnw-community/rnw-community/tree/master/packages/platform",
-    "license": "MIT",
-    "exports": {
-        ".": {
-            "import": "./dist/esm/index.js",
-            "require": "./dist/cjs/index.js"
-        }
-    },
-    "main": "dist/cjs/index.js",
-    "module": "dist/esm/index.js",
-    "types": "dist/esm/index.d.ts",
-    "files": [
-        "dist/**/*"
-    ],
-    "sideEffects": "false",
-    "publishConfig": {
-        "access": "public"
-    },
-    "dependencies": {
-        "react": "^18.2.0",
-        "react-native": "^0.72.3",
-        "react-native-config": "^1.4.2"
-    },
-    "scripts": {
-        "ts": "run -T tsc --pretty -p tsconfig.json",
-        "build:esm": "run -T tsc --pretty -p tsconfig.build-cjs.json",
-        "build:cjs": "run -T tsc --pretty -p tsconfig.build-esm.json",
-        "build": "yarn build:esm && yarn build:cjs && rm -rf ./dist/*/*.tsbuildinfo",
-        "lint": "run -T eslint src",
-        "lint:fix": "run -T eslint --fix src",
-        "test": "run -T jest",
-        "test:coverage": "run -T jest --coverage",
-        "format": "run -T prettier --write \"./src/**/*.{ts,tsx}\"",
-        "clear": "rm -rf coverage && rm -rf dist && rm -f *.tsbuildinfo",
-        "clear:deps": "rm -rf ./node_modules && rm -rf ./dist"
-    },
-    "gitHead": "ed2cec449e634a16dc3a80b4a8cd2d1d28c9f9c4"
+  "name": "@rnw-community/platform",
+  "version": "0.65.5",
+  "description": "React native web platform utils and helpers",
+  "keywords": [
+    "platform utils",
+    "platform helpers",
+    "react",
+    "react-native",
+    "react native",
+    "react-native-web"
+  ],
+  "repository": "https://github.com/rnw-community/rnw-community/tree/master/packages/platform",
+  "license": "MIT",
+  "exports": {
+    ".": {
+      "import": "./dist/esm/index.js",
+      "require": "./dist/cjs/index.js"
+    }
+  },
+  "main": "dist/cjs/index.js",
+  "module": "dist/esm/index.js",
+  "types": "dist/esm/index.d.ts",
+  "files": [
+    "dist/**/*"
+  ],
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "sideEffects": "false",
+  "publishConfig": {
+    "access": "public"
+  },
+  "dependencies": {
+    "react": "^18.2.0",
+    "react-native": "^0.72.3",
+    "react-native-config": "^1.4.2"
+  },
+  "scripts": {
+    "ts": "run -T tsc --pretty -p tsconfig.json",
+    "build:esm": "run -T tsc --pretty -p tsconfig.build-cjs.json",
+    "build:cjs": "run -T tsc --pretty -p tsconfig.build-esm.json",
+    "build": "yarn build:esm && yarn build:cjs && rm -rf ./dist/*/*.tsbuildinfo",
+    "lint": "run -T eslint src",
+    "lint:fix": "run -T eslint --fix src",
+    "test": "run -T jest",
+    "test:coverage": "run -T jest --coverage",
+    "format": "run -T prettier --write \"./src/**/*.{ts,tsx}\"",
+    "clear": "rm -rf coverage && rm -rf dist && rm -f *.tsbuildinfo",
+    "clear:deps": "rm -rf ./node_modules && rm -rf ./dist"
+  },
+  "gitHead": "ed2cec449e634a16dc3a80b4a8cd2d1d28c9f9c4"
 }

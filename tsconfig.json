@@ -5,7 +5,7 @@
         "module": "ESNext",
         "moduleResolution": "node",
         "lib": ["es2019", "es7", "es6"],
-        "types": ["node","jest"],
+        "types": ["node"],
         "jsx": "react",
         "skipLibCheck": true,
         "declaration": true,

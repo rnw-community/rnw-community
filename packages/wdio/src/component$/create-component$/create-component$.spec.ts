@@ -1,3 +1,5 @@
+import { describe, expect, it } from '@jest/globals';
+
 import { mockElement } from '../../element.mock';
 import { Component$SelectorsMock } from '../mocks/component$-selectors.mock';
 
@@ -9,8 +11,8 @@ describe('create-component$', () => {
 
         const component = createComponent$(Component$SelectorsMock);
 
-        await expect(component.Button$.el()).resolves.toMatchObject(mockElement);
-        await expect(component.Button$.els()).resolves.toMatchObject([mockElement]);
-        await expect(component.Button$.byIdx(1)).resolves.toMatchObject(mockElement);
+        await expect(component.Button$.el()).resolves.toStrictEqual(mockElement);
+        await expect(component.Button$.els()).resolves.toStrictEqual([mockElement]);
+        await expect(component.Button$.byIdx(1)).resolves.toStrictEqual(mockElement);
     });
 });

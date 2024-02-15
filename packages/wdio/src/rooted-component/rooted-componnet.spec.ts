@@ -1,3 +1,5 @@
+import { describe, expect, it, jest } from '@jest/globals';
+
 import { MockElement, mockDefaultConfig, mockElement } from '../element.mock';
 import { SelectorElement } from '../selector-element/selector-element';
 
@@ -17,7 +19,7 @@ describe('RootedComponent', () => {
             RootedComponentSelectorsMock.Root
         );
 
-        await expect(rootedComponent.getChildEl(RootedComponentSelectorsMock.Button)).resolves.toMatchObject(mockElement);
+        await expect(rootedComponent.getChildEl(RootedComponentSelectorsMock.Button)).resolves.toBe(mockElement);
         expect(mockDefaultConfig.elSelectorFn).toHaveBeenNthCalledWith(1, RootedComponentSelectorsMock.Root);
         expect(mockDefaultConfig.elSelectorFn).toHaveBeenNthCalledWith(
             2,
@@ -72,7 +74,7 @@ describe('RootedComponent', () => {
             RootedComponentSelectorsMock.Root
         );
 
-        await expect(rootedComponent.RootEl).resolves.toMatchObject(mockElement);
+        await expect(rootedComponent.RootEl).resolves.toBe(mockElement);
         expect(mockDefaultConfig.elSelectorFn).toHaveBeenNthCalledWith(1, RootedComponentSelectorsMock.Root);
     });
 

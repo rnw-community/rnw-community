@@ -1,3 +1,5 @@
+import { describe, expect, it } from '@jest/globals';
+
 import { isDefined } from './is-defined';
 
 describe('isDefined', () => {

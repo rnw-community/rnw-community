@@ -1,3 +1,5 @@
+import { describe, expect, it, jest } from '@jest/globals';
+
 import { NestJSRxJSMetricsModule } from './nestjs-rxjs-metrics.module';
 import { createMetricsRecord } from './util/create-metrics-record.util';
 
