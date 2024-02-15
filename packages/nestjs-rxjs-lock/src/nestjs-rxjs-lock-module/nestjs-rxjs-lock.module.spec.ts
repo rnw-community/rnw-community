@@ -1,3 +1,5 @@
+import { describe, expect, it } from '@jest/globals';
+
 import { NestJSRxJSLockService } from '../nestjs-rxjs-lock-service/nestjs-rxjs-lock.service';
 
 import { NestJSRxJSLockModule } from './nestjs-rxjs-lock.module';

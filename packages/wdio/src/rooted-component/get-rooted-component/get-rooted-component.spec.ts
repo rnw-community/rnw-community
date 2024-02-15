@@ -1,3 +1,5 @@
+import { describe, expect, it } from '@jest/globals';
+
 import { mockDefaultConfig } from '../../element.mock';
 import { DefaultRootRootedComponentMock } from '../mocks/default-root-rooted-component.mock';
 import { RootedComponentSelectorsMock } from '../mocks/rooted-component-selectors.mock';

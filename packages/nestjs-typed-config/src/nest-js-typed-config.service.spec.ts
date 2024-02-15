@@ -1,5 +1,6 @@
 import { unlinkSync, writeFileSync } from 'fs';
 
+import { describe, expect, it, jest } from '@jest/globals';
 import { ConfigService as NestConfigService } from '@nestjs/config';
 
 import { NestJSTypedConfigService } from './nest-js-typed-config.service';
@@ -13,7 +14,7 @@ jest.mock('@nestjs/common', () => {
         Logger: { ...actual.Logger, debug: jest.fn() },
     };
 });
-jest.mock<typeof import('@nestjs/config')>('@nestjs/config', () => ({
+jest.mock('@nestjs/config', () => ({
     ...jest.requireActual<typeof import('@nestjs/config')>('@nestjs/config'),
     ConfigService: jest.fn().mockImplementation(() => ({ get: jest.fn() })),
 }));

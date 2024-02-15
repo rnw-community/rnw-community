@@ -1,3 +1,5 @@
+import { describe, expect, it } from '@jest/globals';
+
 import { mockDefaultConfig, mockElement } from '../../element.mock';
 import { RootedComponentSelectorsMock } from '../mocks/rooted-component-selectors.mock';
 
@@ -23,7 +25,7 @@ describe('createRootedComponent', () => {
 
         const component = createRootedComponent(RootedComponentSelectorsMock, RootedComponentSelectorsMock.Root);
 
-        await expect(component.Button.el()).resolves.toMatchObject(mockElement);
+        await expect(component.Button.el()).resolves.toBe(mockElement);
     });
 
     it('should create RootedComponent instance with selectors, using wdio element as root', async () => {
@@ -31,7 +33,7 @@ describe('createRootedComponent', () => {
 
         const component = createRootedComponent(RootedComponentSelectorsMock, mockElement);
 
-        await expect(component.Button.el()).resolves.toMatchObject(mockElement);
+        await expect(component.Button.el()).resolves.toBe(mockElement);
         expect(mockDefaultConfig.elSelectorFn).toHaveBeenCalledWith(
             RootedComponentSelectorsMock.Button,
             expect.objectContaining({})

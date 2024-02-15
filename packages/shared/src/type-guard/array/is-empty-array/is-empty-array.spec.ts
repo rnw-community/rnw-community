@@ -1,3 +1,5 @@
+import { describe, expect, it } from '@jest/globals';
+
 import { isEmptyArray } from './is-empty-array';
 
 describe('isEmptyArray', () => {

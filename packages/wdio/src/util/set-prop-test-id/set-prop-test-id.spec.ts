@@ -1,3 +1,5 @@
+import { describe, expect, it, jest } from '@jest/globals';
+
 import { WebSelectorConfig } from '../../config';
 import { Platform } from '../get-platform/get-platform.util';
 
