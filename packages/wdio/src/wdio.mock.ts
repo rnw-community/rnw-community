@@ -3,7 +3,7 @@ import type { ChainablePromiseArray, ChainablePromiseElement } from 'webdriverio
 import { jest } from '@jest/globals';
 
 // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
-export const mockWdioElement = {
+const mockWdioElement = {
     elementId: 'test-element-id',
     click: jest.fn(() => Promise.resolve(void 0)),
     getText: jest.fn(() => Promise.resolve('')),
