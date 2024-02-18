@@ -70,7 +70,7 @@
     "reflect-metadata": "^0.1.13",
     "rimraf": "^5.0.5",
     "sort-package-json": "^2.6.0",
-    "turbo": "^1.11.2",
+    "turbo": "^1.11.4",
     "typescript": "^5.3.2"
   },
   "packageManager": "yarn@4.0.2",

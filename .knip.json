@@ -1,11 +1,37 @@
 {
     "$schema": "https://unpkg.com/knip@4/schema.json",
-    "ignoreWorkspaces": [],
+    "ignoreWorkspaces": [
+        "packages/nestjs-webpack-swc"
+    ],
     "ignore": [
+        "**/dist/**",
+        "**/metro.config.js",
+        "**/*.native.ts",
+        "packages/react-native-payments/src/@standard/w3c/payment-details-update.ts"
     ],
     "ignoreDependencies": [
-
+        "@babel/preset-env"                     ,
+        "@babel/preset-typescript",
+        "@babel/runtime",
+        "@commitlint/cli",
+        "@react-native-community/eslint-config",
+        "@types/react-test-renderer",
+        "babel-jest",
+        "caniuse-lite",
+        "eslint-plugin-eslint-comments",
+        "eslint-plugin-simple-import-sort",
+        "eslint-plugin-standard",
+        "husky",
+        "react-test-renderer",
+        "reflect-metadata",
+        "rimraf",
+        "@types/hapi__joi",
+        "run-script-webpack-plugin",
+        "terser-webpack-plugin",
+        "@react-native/metro-config",
+        "@tsconfig/react-native",
+        "ios-deploy"
     ],
-    "ignoreBinaries": ["run"],
-    "exclude": []
+    "ignoreBinaries": ["run", "prepack", "watchman", "xcodebuild"],
+    "exclude": ["enumMembers"]
 }
