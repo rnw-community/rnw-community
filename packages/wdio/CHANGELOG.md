@@ -3,6 +3,13 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.67.0](https://github.com/rnw-community/rnw-community/compare/v0.66.0...v0.67.0) (2024-02-18)
+
+### Features
+
+-   added node engine 18, updated wdio ([c614bd8](https://github.com/rnw-community/rnw-community/commit/c614bd82ab1433f17c1c84dfa1640e389c9c8077))
+-   migration to @jest/globals ([dbdd100](https://github.com/rnw-community/rnw-community/commit/dbdd1005acf27564aac282635d1882106b0008d4))
+
 # [0.66.0](https://github.com/rnw-community/rnw-community/compare/v0.65.6...v0.66.0) (2024-02-15)
 
 ### Features

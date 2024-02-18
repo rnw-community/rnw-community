@@ -1,6 +1,6 @@
 {
     "name": "@rnw-community/rxjs-errors",
-    "version": "0.66.0",
+    "version": "0.67.0",
     "description": "RxJS errors utils",
     "keywords": [
         "rxjs error operator",
