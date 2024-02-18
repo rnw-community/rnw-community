@@ -11,6 +11,18 @@ WDIO commands and utils.
 -  [ ] Rename all tests `its` properly after API stabilizes
 -  [ ] Write docs with the examples
 -  [ ] Add tests for extended class instance ctor return from async function - it resolves to WDIO element =)
+-  [ ] Rename everything with `$` to `CSS` to make things more clear, leave backward compatibility
+-  [ ] Remove all dependencies from `@wdio`, library should be agnostic, and support `wdio` and `playwright` via adapters(maybe others):
+  - [ ] Create generic adapter and element interface
+  - [ ] Playwright does not support ChainablePromise, find a best way for this API(we still can have it btw)
+  - [ ] Add `wdio` adapter
+  - [ ] Add `playwright` adapter
+  - [ ] Add `puppeteer` adapter
+- [ ] Add check and human readable error for stale/missing RootEl in the rooted component and tests/docs for this case
+- [ ] rename `get*Component*` mixins to community standard
+- [ ] refactor Component classes proxy approach, add more tests
+- [ ] add documentation and tests for each custom command, make writing this streamlined and extendable
+- [ ] add documentation and tests for parent component inheritance and tests
 
 ## Installation
 
