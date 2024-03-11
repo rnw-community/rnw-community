@@ -6,8 +6,11 @@
   ],
   "scripts": {
     "ts": "turbo run ts",
+    "ts:force": "turbo run ts --force",
     "build": "turbo run build",
+    "build:force": "turbo run build --force",
     "lint": "turbo run lint",
+    "lint:force": "turbo run lint --force",
     "lint:fix": "turbo run lint:fix",
     "test": "turbo run test",
     "test:coverage": "turbo run test:coverage",
