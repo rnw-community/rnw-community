@@ -1,6 +1,6 @@
 // https://developer.apple.com/documentation/contacts/cnpostaladdress?language=objc
 export interface IosCNPostalAddress {
-    ISOCountryCode: string;
+    isoCountryCode: string;
     city: string;
     country: string;
     postalCode: string;

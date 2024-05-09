@@ -211,6 +211,18 @@ RCT_EXPORT_METHOD(canMakePayments: (NSString *)methodDataString
             postalAddressDict[@"isoCountryCode"] = postalAddress.ISOCountryCode;
         }
 
+        NSPersonNameComponents *nameComponents = billingContact.name;
+        NSMutableDictionary *name = [NSMutableDictionary dictionary];
+        if (nameComponents) {
+            name[@"givenName"] = nameComponents.givenName;
+            name[@"familyName"] = nameComponents.familyName;
+            name[@"middleName"] = nameComponents.middleName;
+            name[@"namePrefix"] = nameComponents.namePrefix;
+            name[@"nameSuffix"] = nameComponents.nameSuffix;
+            name[@"nickname"] = nameComponents.nickname;
+        }
+
+        billingContactDict[@"name"] = name;
         billingContactDict[@"postalAddress"] = postalAddressDict;
 
         paymentDict[@"billingContact"] = billingContactDict;

@@ -1,8 +1,8 @@
 // TODO: Validate IOS types
 export interface PaymentResponseAddressInterface {
-    address1: string;
-    address2: string;
-    address3: string;
+    street: string;
+    city: string;
+    state: string;
     administrativeArea: string;
     countryCode: string;
     locality: string;

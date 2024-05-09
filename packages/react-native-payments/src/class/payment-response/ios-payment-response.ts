@@ -20,11 +20,12 @@ export class IosPaymentResponse extends PaymentResponse {
 
         super(requestId, methodName, {
             billingAddress: IosPaymentResponse.parsePKContact(data.billingContact?.postalAddress),
+            name: data.billingContact?.name ?? '',
             applePayToken: IosPaymentResponse.parsePkToken(data.token),
             androidPayToken: emptyAndroidPaymentMethodToken,
             payerEmail: data.shippingContact?.emailAddress ?? '',
-            payerName: IosPaymentResponse.parseNSPersonNameComponents(data.shippingContact?.name),
-            payerPhone: IosPaymentResponse.parseCNPhoneNumber(data.shippingContact?.phoneNumber),
+            payerName: IosPaymentResponse.parseNSPersonNameComponents(data.billingContact?.name),
+            payerPhone: IosPaymentResponse.parseCNPhoneNumber(data.billingContact?.phoneNumber),
             shippingAddress: IosPaymentResponse.parsePKContact(data.shippingContact?.postalAddress),
         });
     }
@@ -40,11 +41,11 @@ export class IosPaymentResponse extends PaymentResponse {
 
     private static parsePKContact(input?: IosCNPostalAddress): PaymentResponseAddressInterface {
         return {
-            countryCode: input?.ISOCountryCode ?? '',
+            countryCode: input?.isoCountryCode ?? '',
             postalCode: input?.postalCode ?? '',
-            address1: input?.street ?? '',
-            address2: input?.city ?? '',
-            address3: input?.state ?? '',
+            street: input?.street ?? '',
+            city: input?.city ?? '',
+            state: input?.state ?? '',
             administrativeArea: input?.subAdministrativeArea ?? '',
             locality: input?.subLocality ?? '',
             sortingCode: '',
