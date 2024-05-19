@@ -32,12 +32,16 @@ class TestClass {
         return arg + this.field;
     }
 
+    // eslint-disable-next-line class-methods-use-this
     @Log(preLogText, postLogText, errorLogText)
+    // eslint-disable-next-line @typescript-eslint/class-methods-use-this
     testErrorString(_arg: number): number {
         throw new Error(errorLogText);
     }
 
-    @Log(preLogText, postLogText, (error, arg) => `${error}-${errorLogText}-${arg}`)
+    // eslint-disable-next-line class-methods-use-this
+    @Log(preLogText, postLogText, (error, arg) => `${String(error)}-${errorLogText}-${arg}`)
+    // eslint-disable-next-line @typescript-eslint/class-methods-use-this
     testErrorFunction(_arg: number): number {
         throw new Error(errorLogText);
     }
@@ -66,12 +70,12 @@ describe('LogDecorator', () => {
         expect.assertions(1);
 
         const instance = new TestClass();
-        await instance.testPromiseStrings(1);
+        await instance.testPromiseStrings();
 
-        expect(Logger.debug).toHaveBeenCalledWith(`2-${postLogText}-1`, `${TestClass.name}::testPromiseStrings`);
+        expect(Logger.debug).toHaveBeenCalledWith(postLogText, `${TestClass.name}::testPromiseStrings`);
     });
 
-    it('should output pre/post logs as strings with Observable returned', async () => {
+    it('should output pre/post logs as strings with Observable returned', () => {
         expect.assertions(1);
 
         const instance = new TestClass();

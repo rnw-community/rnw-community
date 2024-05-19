@@ -1,5 +1,5 @@
 import { Logger } from '@nestjs/common';
-import { from, isObservable, of } from 'rxjs';
+import { type Observable, from, isObservable, of } from 'rxjs';
 
 import { isDefined, isNotEmptyString } from '@rnw-community/shared';
 
@@ -8,10 +8,12 @@ import type { MethodDecoratorType } from './type/method-decorator.type';
 import type { PostLogFunction } from './type/post-log-function.type';
 import type { PreLogFunction } from './type/pre-log-function.type';
 
+type GetResultType<T> = T extends Promise<infer U> ? U : T extends Observable<infer U> ? U : T;
+
 export const Log =
     <TResult, TArgs extends unknown[] = unknown[]>(
         preLog: PreLogFunction<TArgs> | string,
-        postLog?: PostLogFunction<TResult, TArgs> | string,
+        postLog?: PostLogFunction<GetResultType<TResult>, TArgs> | string,
         errorLog?: ErrorLogFunction<TArgs> | string
     ): MethodDecoratorType<TResult, TArgs> =>
     (target, propertyKey, descriptor) => {
@@ -31,12 +33,10 @@ export const Log =
 
                 const result = originalMethod.apply(this, args);
 
-                let observableResult = result;
-                if (isObservable(result)) {
-                    observableResult = result;
-                } else if (result instanceof Promise) {
+                let observableResult = result as Observable<TResult>;
+                if (result instanceof Promise) {
                     observableResult = from(result);
-                } else {
+                } else if (!isObservable(result)) {
                     observableResult = of(result);
                 }
 
@@ -44,13 +44,13 @@ export const Log =
                     observableResult.subscribe(res => {
                         const postText = isNotEmptyString(postLog)
                             ? postLog
-                            : postLog(res, args[0], args[1], args[2], args[3], args[4]);
+                            : postLog(res as GetResultType<TResult>, args[0], args[1], args[2], args[3], args[4]);
 
                         Logger.debug(postText, logContext);
                     });
                 }
 
-                return result as TResult;
+                return result;
             } catch (error) {
                 if (isDefined(errorLog)) {
                     const errorText = isNotEmptyString(errorLog)
