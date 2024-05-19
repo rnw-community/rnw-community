@@ -1,5 +1,5 @@
 {
-    "name": "@rnw-community/nestjs-enterprice",
+    "name": "@rnw-community/nestjs-enterprise",
     "version": "0.67.0",
     "description": "NestJS Enterprise is a collection of enterprise-grade modules for NestJS.",
     "keywords": [
@@ -9,7 +9,7 @@
         "nestjs metrics",
         "nestjs metrics decorator"
     ],
-    "repository": "https://github.com/rnw-community/rnw-community/tree/master/packages/nestjs-enterprice",
+    "repository": "https://github.com/rnw-community/rnw-community/tree/master/packages/nestjs-enterprise",
     "license": "MIT",
     "exports": {
         ".": {
