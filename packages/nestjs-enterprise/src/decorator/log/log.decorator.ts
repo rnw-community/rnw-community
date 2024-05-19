@@ -22,14 +22,14 @@ export const Log =
             throw new Error('Cannot apply @Log decorator to a method that does not exist.');
         }
 
-        // eslint-disable-next-line max-statements
-        descriptor.value = (...args: TArgs) => {
+        // eslint-disable-next-line max-statements,func-names
+        descriptor.value = function (...args: TArgs) {
             try {
                 const preText = isNotEmptyString(preLog) ? preLog : preLog(args[0], args[1], args[2], args[3], args[4]);
 
                 Logger.log(preText, logContext);
 
-                const result = originalMethod.apply(target, args);
+                const result = originalMethod.apply(this, args);
 
                 let observableResult = result;
                 if (isObservable(result)) {
