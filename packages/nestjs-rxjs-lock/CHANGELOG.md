@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.68.0](https://github.com/rnw-community/rnw-community/compare/v0.67.0...v0.68.0) (2024-05-20)
+
+### Features
+
+-   **nestjs-rxjs-redis,nestjs-rxjs-lock:** bump ioredis and related modules ([#191](https://github.com/rnw-community/rnw-community/issues/191)) ([877167c](https://github.com/rnw-community/rnw-community/commit/877167c11e93fbeb6661d46e5bad3ac1ac766265))
+
 # [0.67.0](https://github.com/rnw-community/rnw-community/compare/v0.66.0...v0.67.0) (2024-02-18)
 
 **Note:** Version bump only for package @rnw-community/nestjs-rxjs-lock

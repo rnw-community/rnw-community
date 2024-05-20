@@ -3,6 +3,10 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.68.0](https://github.com/rnw-community/rnw-community/compare/v0.67.0...v0.68.0) (2024-05-20)
+
+**Note:** Version bump only for package @rnw-community/object-field-tree
+
 # [0.67.0](https://github.com/rnw-community/rnw-community/compare/v0.66.0...v0.67.0) (2024-02-18)
 
 **Note:** Version bump only for package @rnw-community/object-field-tree
