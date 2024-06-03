@@ -24,9 +24,11 @@ export const Log =
         // eslint-disable-next-line max-statements,func-names
         descriptor.value = function (...args: TArgs) {
             try {
-                const preText = isNotEmptyString(preLog) ? preLog : preLog(args[0], args[1], args[2], args[3], args[4]);
-
-                Logger.log(preText, logContext);
+                if (isNotEmptyString(preLog)) {
+                    Logger.log(preLog, logContext);
+                } else {
+                    Logger.log(preLog(args[0], args[1], args[2], args[3], args[4]), logContext);
+                }
 
                 const result = originalMethod.apply(this, args);
 
@@ -39,22 +41,25 @@ export const Log =
 
                 if (isDefined(postLog)) {
                     observableResult.subscribe(res => {
-                        const postText = isNotEmptyString(postLog)
-                            ? postLog
-                            : postLog(res as GetResultType<TResult>, args[0], args[1], args[2], args[3], args[4]);
-
-                        Logger.debug(postText, logContext);
+                        if (isNotEmptyString(postLog)) {
+                            Logger.debug(postLog, logContext);
+                        } else {
+                            Logger.debug(
+                                postLog(res as GetResultType<TResult>, args[0], args[1], args[2], args[3], args[4]),
+                                logContext
+                            );
+                        }
                     });
                 }
 
                 return result;
             } catch (error) {
                 if (isDefined(errorLog)) {
-                    const errorText = isNotEmptyString(errorLog)
-                        ? errorLog
-                        : errorLog(error, args[0], args[1], args[2], args[3], args[4]);
-
-                    Logger.error(errorText, logContext);
+                    if (isNotEmptyString(errorLog)) {
+                        Logger.error(errorLog, logContext);
+                    } else {
+                        Logger.error(errorLog(error, args[0], args[1], args[2], args[3], args[4]), logContext);
+                    }
                 }
 
                 throw error;

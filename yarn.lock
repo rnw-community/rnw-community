@@ -4379,9 +4379,9 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@rnw-community/nestjs-enterprice@workspace:packages/nestjs-enterprise":
+"@rnw-community/nestjs-enterprise@workspace:packages/nestjs-enterprise":
   version: 0.0.0-use.local
-  resolution: "@rnw-community/nestjs-enterprice@workspace:packages/nestjs-enterprise"
+  resolution: "@rnw-community/nestjs-enterprise@workspace:packages/nestjs-enterprise"
   dependencies:
     "@nestjs/common": "npm:^10.2.7"
     "@rnw-community/shared": "workspace:*"
