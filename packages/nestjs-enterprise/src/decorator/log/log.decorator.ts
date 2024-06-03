@@ -18,11 +18,8 @@ export const Log =
     ): MethodDecoratorType<TResult, TArgs> =>
     (target, propertyKey, descriptor) => {
         const logContext = `${target.constructor.name}::${String(propertyKey)}`;
-        const originalMethod = descriptor.value;
-
-        if (!isDefined(originalMethod)) {
-            throw new Error('Cannot apply @Log decorator to a method that does not exist.');
-        }
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        const originalMethod = descriptor.value!;
 
         // eslint-disable-next-line max-statements,func-names
         descriptor.value = function (...args: TArgs) {
