@@ -1,6 +1,6 @@
 {
     "name": "@rnw-community/nestjs-rxjs-lock",
-    "version": "0.67.0",
+    "version": "0.68.0",
     "description": "NestJS RxJS lock",
     "keywords": [
         "nestjs",
@@ -43,10 +43,11 @@
     },
     "gitHead": "b5608910319390f9773a9d42c3cc828e8e8a1d95",
     "dependencies": {
-        "@nestjs-modules/ioredis": "^1.0.1",
+        "@nestjs-modules/ioredis": "^2.0.2",
         "@nestjs/common": "^10.2.7",
+        "@nestjs/core": "^10.2.7",
         "@rnw-community/shared": "workspace:*",
-        "ioredis": "^5.3.2",
+        "ioredis": "^5.4.1",
         "redlock": "^5.0.0-beta.2",
         "rxjs": "^7.8.1"
     }
