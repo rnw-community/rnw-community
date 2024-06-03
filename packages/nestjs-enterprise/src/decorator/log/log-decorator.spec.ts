@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/unbound-method */
+/* eslint-disable @typescript-eslint/unbound-method,class-methods-use-this,@typescript-eslint/class-methods-use-this */
 import { describe, expect, it, jest } from '@jest/globals';
 import { Logger } from '@nestjs/common';
 import { Observable, of } from 'rxjs';
@@ -32,16 +32,12 @@ class TestClass {
         return arg + this.field;
     }
 
-    // eslint-disable-next-line class-methods-use-this
     @Log(preLogText, postLogText, errorLogText)
-    // eslint-disable-next-line @typescript-eslint/class-methods-use-this
     testErrorString(_arg: number): number {
         throw new Error(errorLogText);
     }
 
-    // eslint-disable-next-line class-methods-use-this
     @Log(preLogText, postLogText, (error, arg) => `${String(error)}-${errorLogText}-${arg}`)
-    // eslint-disable-next-line @typescript-eslint/class-methods-use-this
     testErrorFunction(_arg: number): number {
         throw new Error(errorLogText);
     }

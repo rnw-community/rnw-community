@@ -42,3 +42,8 @@ class CatsService {
 ```
 
 > PostLog and ErrorLog are optional
+
+
+## TODO
+
+- [ ] Implement automatic logging based on the arguments and return type of the method
