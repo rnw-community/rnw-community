@@ -129,9 +129,8 @@ describe('LogDecorator', () => {
     });
 
     it('should NOT output post log with no post log arg', () => {
-        jest.resetAllMocks();
-
         expect.assertions(1);
+        jest.resetAllMocks();
 
         const instance = new TestClass();
         instance.testNoPostLogArg();
