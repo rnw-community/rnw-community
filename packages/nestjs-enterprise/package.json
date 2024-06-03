@@ -1,12 +1,15 @@
 {
-    "name": "@rnw-community/rxjs-errors",
+    "name": "@rnw-community/nestjs-enterprise",
     "version": "0.69.0",
-    "description": "RxJS errors utils",
+    "description": "NestJS Enterprise is a collection of enterprise-grade modules for NestJS.",
     "keywords": [
-        "rxjs error operator",
-        "rxjs error handling"
+        "nestjs",
+        "nestjs decorator",
+        "nestjs log decorator",
+        "nestjs metrics",
+        "nestjs metrics decorator"
     ],
-    "repository": "https://github.com/rnw-community/rnw-community/tree/master/packages/rxjs-errors",
+    "repository": "https://github.com/rnw-community/rnw-community/tree/master/packages/nestjs-enterprise",
     "license": "MIT",
     "exports": {
         ".": {
@@ -23,9 +26,6 @@
     "sideEffects": "false",
     "publishConfig": {
         "access": "public"
-    },
-    "engines": {
-        "node": ">=18.0.0"
     },
     "scripts": {
         "ts": "run -T tsc --pretty -p tsconfig.json",
@@ -44,11 +44,15 @@
     "dependencies": {
         "@rnw-community/shared": "workspace:*"
     },
-    "peerDependencies": {
-        "rxjs": "^7.8.1"
+    "engines": {
+        "node": ">=18.0.0"
     },
     "devDependencies": {
-        "expect-type": "^0.13.0",
+        "@nestjs/common": "^10.2.7",
+        "rxjs": "^7.8.1"
+    },
+    "peerDependencies": {
+        "@nestjs/common": "^10.2.7",
         "rxjs": "^7.8.1"
     }
 }
