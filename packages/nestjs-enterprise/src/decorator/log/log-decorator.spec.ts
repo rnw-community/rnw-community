@@ -17,6 +17,11 @@ class TestClass {
         return this.field;
     }
 
+    @Log(preLogText)
+    testNoPostLogArg(): number {
+        return this.field;
+    }
+
     @Log(preLogText, postLogText)
     testPromiseStrings(): Promise<number> {
         return Promise.resolve(this.field);
@@ -39,6 +44,11 @@ class TestClass {
 
     @Log(preLogText, postLogText, (error, arg) => `${String(error)}-${errorLogText}-${arg}`)
     testErrorFunction(_arg: number): number {
+        throw new Error(errorLogText);
+    }
+
+    @Log(preLogText, postLogText)
+    testNoErrorArg(_arg: number): number {
         throw new Error(errorLogText);
     }
 }
@@ -109,5 +119,23 @@ describe('LogDecorator', () => {
             `Error: ${errorLogText}-${errorLogText}-2`,
             `${TestClass.name}::testErrorFunction`
         );
+    });
+
+    it('should NOT output error log if arg is not passed', () => {
+        expect.assertions(1);
+
+        const instance = new TestClass();
+        expect(() => instance.testNoErrorArg(2)).toThrow(errorLogText);
+    });
+
+    it('should NOT output post log with no post log arg', () => {
+        jest.resetAllMocks();
+
+        expect.assertions(1);
+
+        const instance = new TestClass();
+        instance.testNoPostLogArg();
+
+        expect(Logger.debug).not.toHaveBeenCalled();
     });
 });
