@@ -3864,6 +3864,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@opentelemetry/api@npm:^1.4.0":
+  version: 1.8.0
+  resolution: "@opentelemetry/api@npm:1.8.0"
+  checksum: 62f0c42711b9f0c56ea9527c2e6e609e371bfb47d0b78956c91fe27365b4744d7dcc407636ef5b19a24a1d5e2c3cfa79c1b715deca829074e24e3ffba1315ba2
+  languageName: node
+  linkType: hard
+
 "@pkgjs/parseargs@npm:^0.11.0":
   version: 0.11.0
   resolution: "@pkgjs/parseargs@npm:0.11.0"
@@ -4385,9 +4392,11 @@ __metadata:
   dependencies:
     "@nestjs/common": "npm:^10.2.7"
     "@rnw-community/shared": "workspace:*"
+    prom-client: "npm:^15.1.2"
     rxjs: "npm:^7.8.1"
   peerDependencies:
     "@nestjs/common": ^10.2.7
+    prom-client: ^15.1.2
     rxjs: ^7.8.1
   languageName: unknown
   linkType: soft
@@ -4426,12 +4435,12 @@ __metadata:
     "@nestjs/common": "npm:^10.2.7"
     "@rnw-community/shared": "workspace:*"
     "@willsoto/nestjs-prometheus": "npm:^4.0.1"
-    prom-client: "npm:^14.0.0"
+    prom-client: "npm:^15.1.2"
     rxjs: "npm:^7.8.1"
   peerDependencies:
     "@nestjs/common": ^10.2.7
     "@willsoto/nestjs-prometheus": ^4.0.1
-    prom-client: ^14.0.0
+    prom-client: ^15.1.2
     rxjs: ^7.8.1
   languageName: unknown
   linkType: soft
@@ -15570,12 +15579,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"prom-client@npm:^14.0.0":
-  version: 14.2.0
-  resolution: "prom-client@npm:14.2.0"
+"prom-client@npm:^15.1.2":
+  version: 15.1.2
+  resolution: "prom-client@npm:15.1.2"
   dependencies:
+    "@opentelemetry/api": "npm:^1.4.0"
     tdigest: "npm:^0.1.1"
-  checksum: 892eb83eb860945f3ee55bc19bb73e4a64cb63d95e28336141f49fb90a05354765b4ac4a8ba046fd895690f0bf231de1289caf180647cefdfd0d767f34725d97
+  checksum: f7edcba54d27eff4066ae7ebfe5692e6bb1914cf728efa89f7ab63766fef62679782c41c97d55b6fd6b2a8bb35b0d168ac8f1b9513c9a5770ea35c170691e24c
   languageName: node
   linkType: hard
 
