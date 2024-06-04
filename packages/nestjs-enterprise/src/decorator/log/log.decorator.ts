@@ -4,9 +4,9 @@ import { type Observable, from, isObservable, of } from 'rxjs';
 import { isDefined, isNotEmptyString } from '@rnw-community/shared';
 
 import type { ErrorLogFunction } from './type/error-log-function.type';
-import type { MethodDecoratorType } from './type/method-decorator.type';
 import type { PostLogFunction } from './type/post-log-function.type';
 import type { PreLogFunction } from './type/pre-log-function.type';
+import type { MethodDecoratorType } from '../../type/method-decorator.type';
 
 type GetResultType<T> = T extends Promise<infer U> ? U : T extends Observable<infer U> ? U : T;
 
