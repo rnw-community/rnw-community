@@ -115,7 +115,7 @@ describe('LogDecorator', () => {
         expect(Logger.debug).toHaveBeenCalledWith(`3-${postLogText}-2`, `${TestClass.name}::testFunctions`);
     });
 
-    it('should output error log string', async () => {
+    it('should output error log string', () => {
         expect.assertions(2);
 
         const instance = new TestClass();
@@ -177,6 +177,7 @@ describe('LogDecorator', () => {
 
             const instance = new TestClass();
 
+            // eslint-disable-next-line jest/unbound-method
             await expect(instance.testPromiseError).rejects.toThrow(errorLogText);
             expect(Logger.error).toHaveBeenCalledWith(errorLogText, `${TestClass.name}::testPromiseError`);
         });
