@@ -12,10 +12,11 @@ Add `@rnw-community/nestjs-enterprise` to your project using you package manager
 
 ## Contents
 - [Log Decorator](./src/decorator/log/log-decorator.md)
+- [Histogram Metric Decorator](./src/decorator/histogram-metric/histogram-metric-decorator.md)
 
 ## TODO
 
--  [ ] Implement POC for metrics decorator
+-  [ ] Implement POC for lock decorator
 
 ## License
 
