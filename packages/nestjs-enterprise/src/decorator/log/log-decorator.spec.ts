@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/unbound-method,class-methods-use-this,@typescript-eslint/class-methods-use-this */
 import { describe, expect, it, jest } from '@jest/globals';
 import { Logger } from '@nestjs/common';
-import { Observable, of } from 'rxjs';
+import { Observable, of, throwError } from 'rxjs';
 
 import { Log } from './log.decorator';
 
@@ -27,8 +27,30 @@ class TestClass {
         return Promise.resolve(this.field);
     }
 
+    @Log(preLogText)
+    testPromiseNoPostLog(): Promise<number> {
+        return Promise.resolve(this.field);
+    }
+
+    // eslint-disable-next-line @typescript-eslint/require-await
+    @Log(preLogText, postLogText, errorLogText)
+    async testPromiseError(): Promise<number> {
+        throw new Error(errorLogText);
+    }
+
+    // eslint-disable-next-line @typescript-eslint/require-await
+    @Log(preLogText, postLogText, (error, arg) => `${String(error)}-${arg}`)
+    async testPromiseErrorFunction(_arg: number): Promise<number> {
+        throw new Error(errorLogText);
+    }
+
     @Log(preLogText, (result, arg) => `${result}-${postLogText}-${arg}`)
     testObservableStrings(arg: number): Observable<number> {
+        return of(arg + this.field);
+    }
+
+    @Log(preLogText)
+    testObservableNoPostLog(arg: number): Observable<number> {
         return of(arg + this.field);
     }
 
@@ -51,6 +73,16 @@ class TestClass {
     testNoErrorArg(_arg: number): number {
         throw new Error(errorLogText);
     }
+
+    @Log(preLogText, postLogText, errorLogText)
+    testObservableError(): Observable<string> {
+        return throwError(() => errorLogText);
+    }
+
+    @Log(preLogText, postLogText, (error, arg) => `${String(error)}-${arg}`)
+    testObservableErrorArg(_arg: number): Observable<string> {
+        return throwError(() => errorLogText);
+    }
 }
 
 jest.mock('@nestjs/common', () => ({
@@ -61,6 +93,7 @@ jest.mock('@nestjs/common', () => ({
     },
 }));
 
+// eslint-disable-next-line max-lines-per-function
 describe('LogDecorator', () => {
     it('should output pre/post logs as strings with Plain value returned', () => {
         expect.assertions(2);
@@ -70,24 +103,6 @@ describe('LogDecorator', () => {
 
         expect(Logger.log).toHaveBeenCalledWith(preLogText, `${TestClass.name}::testStrings`);
         expect(Logger.debug).toHaveBeenCalledWith(`${postLogText}`, `${TestClass.name}::testStrings`);
-    });
-
-    it('should output pre/post logs as strings with Promise returned', async () => {
-        expect.assertions(1);
-
-        const instance = new TestClass();
-        await instance.testPromiseStrings();
-
-        expect(Logger.debug).toHaveBeenCalledWith(postLogText, `${TestClass.name}::testPromiseStrings`);
-    });
-
-    it('should output pre/post logs as strings with Observable returned', () => {
-        expect.assertions(1);
-
-        const instance = new TestClass();
-        instance.testObservableStrings(1);
-
-        expect(Logger.debug).toHaveBeenCalledWith(`2-${postLogText}-1`, `${TestClass.name}::testObservableStrings`);
     });
 
     it('should output pre/post logs with functions', () => {
@@ -100,7 +115,7 @@ describe('LogDecorator', () => {
         expect(Logger.debug).toHaveBeenCalledWith(`3-${postLogText}-2`, `${TestClass.name}::testFunctions`);
     });
 
-    it('should output error log string', () => {
+    it('should output error log string', async () => {
         expect.assertions(2);
 
         const instance = new TestClass();
@@ -136,5 +151,88 @@ describe('LogDecorator', () => {
         instance.testNoPostLogArg();
 
         expect(Logger.debug).not.toHaveBeenCalled();
+    });
+
+    describe('Promise', () => {
+        it('should output pre log as strings', async () => {
+            expect.assertions(1);
+
+            const instance = new TestClass();
+            await instance.testPromiseNoPostLog();
+
+            expect(Logger.log).toHaveBeenCalledWith(preLogText, `${TestClass.name}::testPromiseNoPostLog`);
+        });
+
+        it('should output pre/post logs as strings', async () => {
+            expect.assertions(1);
+
+            const instance = new TestClass();
+            await instance.testPromiseStrings();
+
+            expect(Logger.debug).toHaveBeenCalledWith(postLogText, `${TestClass.name}::testPromiseStrings`);
+        });
+
+        it('should output error log string', async () => {
+            expect.assertions(2);
+
+            const instance = new TestClass();
+
+            await expect(instance.testPromiseError).rejects.toThrow(errorLogText);
+            expect(Logger.error).toHaveBeenCalledWith(errorLogText, `${TestClass.name}::testPromiseError`);
+        });
+
+        it('should output error log function with argument', async () => {
+            expect.assertions(2);
+
+            const instance = new TestClass();
+
+            await expect(() => instance.testPromiseErrorFunction(1)).rejects.toThrow(errorLogText);
+            expect(Logger.error).toHaveBeenCalledWith(
+                `Error: ${errorLogText}-1`,
+                `${TestClass.name}::testPromiseErrorFunction`
+            );
+        });
+    });
+
+    describe('Observable', () => {
+        it('should output pre log as strings', () => {
+            expect.assertions(1);
+
+            const instance = new TestClass();
+            instance.testObservableNoPostLog(1);
+
+            expect(Logger.log).toHaveBeenCalledWith(preLogText, `${TestClass.name}::testObservableNoPostLog`);
+        });
+
+        it('should output pre/post logs as strings', () => {
+            expect.assertions(2);
+
+            const instance = new TestClass();
+            instance.testObservableStrings(1).subscribe();
+
+            expect(Logger.log).toHaveBeenCalledWith(preLogText, `${TestClass.name}::testObservableStrings`);
+            expect(Logger.debug).toHaveBeenCalledWith(`2-${postLogText}-1`, `${TestClass.name}::testObservableStrings`);
+        });
+
+        it('should output error log', () => {
+            expect.assertions(2);
+            jest.resetAllMocks();
+
+            const instance = new TestClass();
+            instance.testObservableError().subscribe();
+
+            expect(Logger.log).toHaveBeenCalledWith(preLogText, `${TestClass.name}::testObservableError`);
+            expect(Logger.error).toHaveBeenCalledWith(errorLogText, `${TestClass.name}::testObservableError`);
+        });
+        it('should output error log function with argument', () => {
+            expect.assertions(2);
+            jest.resetAllMocks();
+
+            const instance = new TestClass();
+            instance.testObservableErrorArg(2).subscribe();
+
+            expect(Logger.log).toHaveBeenCalledWith(preLogText, `${TestClass.name}::testObservableErrorArg`);
+            expect(Logger.error).toHaveBeenCalledWith(`${errorLogText}-2`, `${TestClass.name}::testObservableErrorArg`);
+        });
     });
 });
