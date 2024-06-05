@@ -1,11 +1,14 @@
 # @HistogramMetric decorator
 
-Class property decorator that logs the method name and its arguments when the method is called.
+Class property decorator that runs [Prometheus](https://prometheus.io) [histogram metric](https://prometheus.io/docs/concepts/metric_types/#histogram) on your method.
+
+## Installation
+
+For using this decorator you need to install [`prom-client` package](https://github.com/siimon/prom-client).
 
 ## Usage
 
-> Please follow official documentation
-> for [histogram metrics configuration](https://github.com/siimon/prom-client?tab=readme-ov-file#histogram) options.
+Please follow official documentation for [histogram metrics configuration](https://github.com/siimon/prom-client?tab=readme-ov-file#histogram) options.
 
 ```typescript
 import {HistogramMetric} from '@rnw-community/nestjs-enterprise';
