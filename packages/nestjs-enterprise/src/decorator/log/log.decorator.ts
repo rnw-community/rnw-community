@@ -1,5 +1,5 @@
 import { Logger } from '@nestjs/common';
-import { type Observable, from, isObservable, of } from 'rxjs';
+import { type Observable, catchError, isObservable, tap, throwError } from 'rxjs';
 
 import { isDefined, isNotEmptyString } from '@rnw-community/shared';
 
@@ -23,44 +23,63 @@ export const Log =
 
         // eslint-disable-next-line max-statements,func-names
         descriptor.value = function (...args: TArgs) {
-            try {
+            type R = GetResultType<TResult>;
+
+            const runPreLog = (): void => {
                 if (isNotEmptyString(preLog)) {
                     Logger.log(preLog, logContext);
-                } else {
+                } else if (isDefined(preLog)) {
                     Logger.log(preLog(args[0], args[1], args[2], args[3], args[4]), logContext);
                 }
+            };
+
+            const runPostLog = (res: R): R => {
+                if (isNotEmptyString(postLog)) {
+                    Logger.debug(postLog, logContext);
+                } else if (isDefined(postLog)) {
+                    Logger.debug(postLog(res, args[0], args[1], args[2], args[3], args[4]), logContext);
+                }
+
+                return res;
+            };
+
+            const runErrorLog = (error: unknown): void => {
+                if (isNotEmptyString(errorLog)) {
+                    Logger.error(errorLog, logContext);
+                } else if (isDefined(errorLog)) {
+                    Logger.error(errorLog(error, args[0], args[1], args[2], args[3], args[4]), logContext);
+                }
+            };
+
+            try {
+                runPreLog();
 
                 const result = originalMethod.apply(this, args);
 
-                let observableResult = result as Observable<TResult>;
-                if (result instanceof Promise) {
-                    observableResult = from(result);
-                } else if (!isObservable(result)) {
-                    observableResult = of(result);
-                }
-
                 if (isDefined(postLog)) {
-                    observableResult.subscribe(res => {
-                        if (isNotEmptyString(postLog)) {
-                            Logger.debug(postLog, logContext);
-                        } else {
-                            Logger.debug(
-                                postLog(res as GetResultType<TResult>, args[0], args[1], args[2], args[3], args[4]),
-                                logContext
-                            );
-                        }
-                    });
+                    if (isObservable(result)) {
+                        return (result as Observable<R>).pipe(
+                            tap(runPostLog),
+                            catchError((error: unknown) => {
+                                runErrorLog(error);
+
+                                return throwError(() => error);
+                            })
+                        ) as unknown as TResult;
+                    } else if (result instanceof Promise) {
+                        return result.then(runPostLog).catch(error => {
+                            runErrorLog(error);
+
+                            throw error;
+                        }) as unknown as TResult;
+                    }
+
+                    runPostLog(result as R);
                 }
 
                 return result;
             } catch (error) {
-                if (isDefined(errorLog)) {
-                    if (isNotEmptyString(errorLog)) {
-                        Logger.error(errorLog, logContext);
-                    } else {
-                        Logger.error(errorLog(error, args[0], args[1], args[2], args[3], args[4]), logContext);
-                    }
-                }
+                runErrorLog(error);
 
                 throw error;
             }
