@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.70.2](https://github.com/rnw-community/rnw-community/compare/v0.70.1...v0.70.2) (2024-06-05)
+
+### Bug Fixes
+
+-   **nestjs-enterprise:** fixed handling observables and promises ([#195](https://github.com/rnw-community/rnw-community/issues/195)) ([3809d08](https://github.com/rnw-community/rnw-community/commit/3809d0823039ae3ee1a378bac8c73bcdba7e0f07))
+
 ## [0.70.1](https://github.com/rnw-community/rnw-community/compare/v0.70.0...v0.70.1) (2024-06-05)
 
 **Note:** Version bump only for package rnw-community
