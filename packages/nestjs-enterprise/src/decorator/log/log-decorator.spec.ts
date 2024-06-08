@@ -83,6 +83,11 @@ class TestClass {
     testObservableErrorArg(_arg: number): Observable<string> {
         return throwError(() => errorLogText);
     }
+
+    @Log(arg => `${preLogText}-${arg}`, (result, arg) => `${result}-${postLogText}-${arg}`)
+    testGeneric<T>(arg: T): T {
+        return arg;
+    }
 }
 
 jest.mock('@nestjs/common', () => ({
