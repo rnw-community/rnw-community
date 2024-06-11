@@ -1,24 +1,24 @@
 {
-  "name": "@rnw-community/react-native-payments-example",
-  "version": "0.70.0",
-  "private": true,
-  "scripts": {
-    "android": "react-native run-android",
-    "ios": "react-native run-ios",
-    "start": "react-native start"
-  },
-  "dependencies": {
-    "@rnw-community/react-native-payments": "workspace:*",
-    "@rnw-community/shared": "workspace:*",
-    "react": "18.2.0",
-    "react-native": "0.74.2"
-  },
-  "devDependencies": {
-    "@react-native/babel-preset": "0.74.84",
-    "@react-native/metro-config": "0.74.84",
-    "@react-native/typescript-config": "0.74.84"
-  },
-  "engines": {
-    "node": ">=18"
-  }
+    "name": "@rnw-community/react-native-payments-example",
+    "version": "0.71.0",
+    "private": true,
+    "scripts": {
+        "android": "react-native run-android",
+        "ios": "react-native run-ios",
+        "start": "react-native start"
+    },
+    "dependencies": {
+        "@rnw-community/react-native-payments": "workspace:*",
+        "@rnw-community/shared": "workspace:*",
+        "react": "18.2.0",
+        "react-native": "0.74.2"
+    },
+    "devDependencies": {
+        "@react-native/babel-preset": "0.74.84",
+        "@react-native/metro-config": "0.74.84",
+        "@react-native/typescript-config": "0.74.84"
+    },
+    "engines": {
+        "node": ">=18"
+    }
 }
