@@ -1,49 +1,65 @@
 {
-    "$schema": "https://turborepo.org/schema.json",
-    "pipeline": {
-        "topo": {
-            "dependsOn": ["^topo"]
-        },
-        "build": {
-            "dependsOn": ["^build"],
-            "outputs": ["dist/**"]
-        },
-        "ts": {
-            "dependsOn": ["^topo"],
-            "outputs": ["node_modules/.cache/tsbuildinfo.json"]
-        },
-        "lint": {
-            "dependsOn": ["^topo"],
-            "outputs": []
-        },
-        "lint:fix": {
-            "dependsOn": ["^topo"],
-            "outputs": []
-        },
-        "format": {
-            "outputs": []
-        },
-        "clear": {
-            "outputs": []
-        },
-        "clear:deps": {
-            "outputs": []
-        },
-        "test": {
-
-        },
-        "test:coverage": {
-            "outputs": ["coverage/**"]
-        },
-        "//#cpd": {
-            "outputs": ["report/jscpd/**"]
-        },
-        "//#find-deadcode": {
-            "outputs": []
-        }
+  "$schema": "https://turborepo.org/schema.json",
+  "globalDependencies": [
+    "tsconfig*.json",
+    "get-jest.config.js"
+  ],
+  "tasks": {
+    "topo": {
+      "dependsOn": [
+        "^topo"
+      ]
     },
-    "globalDependencies": [
-        "tsconfig*.json",
-        "get-jest.config.js"
-    ]
+    "build": {
+      "dependsOn": [
+        "^build"
+      ],
+      "outputs": [
+        "dist/**"
+      ]
+    },
+    "ts": {
+      "dependsOn": [
+        "^topo"
+      ],
+      "outputs": [
+        "node_modules/.cache/tsbuildinfo.json"
+      ]
+    },
+    "lint": {
+      "dependsOn": [
+        "^topo"
+      ],
+      "outputs": []
+    },
+    "lint:fix": {
+      "dependsOn": [
+        "^topo"
+      ],
+      "outputs": []
+    },
+    "format": {
+      "outputs": []
+    },
+    "clear": {
+      "outputs": []
+    },
+    "clear:deps": {
+      "outputs": []
+    },
+    "test": {},
+    "test:coverage": {
+      "outputs": [
+        "coverage/**"
+      ]
+    },
+    "//#cpd": {
+      "outputs": [
+        "report/jscpd/**"
+      ]
+    },
+    "//#find-deadcode": {
+      "outputs": []
+    }
+  }
 }

@@ -1,4 +1,4 @@
-import { EnvironmentEnum } from '@rnw-community/react-native-payments/src';
+import { EnvironmentEnum } from '@rnw-community/react-native-payments';
 
 import {
     AndroidAllowedAuthMethodsEnum,
