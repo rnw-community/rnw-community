@@ -21,7 +21,7 @@ jobs:
                 uses: actions/stale@v8.0.0
 
             -   name: Setup NodeJS
-                uses: actions/setup-node@v3
+                uses: actions/setup-node@v4
                 with:
                     node-version: '18'
                     cache: 'yarn'
@@ -48,7 +48,7 @@ jobs:
                 run: yarn test:coverage
 
             -   name: Upload coverage to Codecov
-                uses: codecov/codecov-action@v3
+                uses: codecov/codecov-action@v4
                 with:
                     token: ${{ secrets.CODECOV_TOKEN }}
                     fail_ci_if_error: true
