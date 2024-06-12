@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.72.0](https://github.com/rnw-community/rnw-community/compare/v0.71.0...v0.72.0) (2024-06-12)
+
+### Features
+
+-   updated react-native-payments-example to the latest RN 0.74 ([#201](https://github.com/rnw-community/rnw-community/issues/201)) ([2c4862b](https://github.com/rnw-community/rnw-community/commit/2c4862b9d0285bd1ba7f457ad49b5cd22a719a24))
+
 # [0.71.0](https://github.com/rnw-community/rnw-community/compare/v0.70.3...v0.71.0) (2024-06-11)
 
 ### Features
