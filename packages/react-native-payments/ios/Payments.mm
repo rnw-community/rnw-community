@@ -298,41 +298,67 @@ RCT_EXPORT_METHOD(canMakePayments: (NSString *)methodDataString
 }
 
 - (PKPaymentNetwork)paymentNetworkFromString:(NSString *)paymentNetworkString {
-    if ([paymentNetworkString isEqualToString:@"PKPaymentNetworkAmex"]) {
-        return PKPaymentNetworkAmex;
-    } else if ([paymentNetworkString isEqualToString:@"PKPaymentNetworkDiscover"]) {
-        return PKPaymentNetworkDiscover;
-    } else if ([paymentNetworkString isEqualToString:@"PKPaymentNetworkMasterCard"]) {
-        return PKPaymentNetworkMasterCard;
-    } else if ([paymentNetworkString isEqualToString:@"PKPaymentNetworkVisa"]) {
-        return PKPaymentNetworkVisa;
-    } else if ([paymentNetworkString isEqualToString:@"PKPaymentNetworkChinaUnionPay"]) {
-        return PKPaymentNetworkChinaUnionPay;
-    } else if ([paymentNetworkString isEqualToString:@"PKPaymentNetworkInterac"]) {
-        return PKPaymentNetworkInterac;
-    } else if ([paymentNetworkString isEqualToString:@"PKPaymentNetworkPrivateLabel"]) {
-        return PKPaymentNetworkPrivateLabel;
-    } else if ([paymentNetworkString isEqualToString:@"PKPaymentNetworkSuica"]) {
-        return PKPaymentNetworkSuica;
-    } else if ([paymentNetworkString isEqualToString:@"PKPaymentNetworkIDCredit"]) {
-        return PKPaymentNetworkIDCredit;
-    } else if ([paymentNetworkString isEqualToString:@"PKPaymentNetworkQuicPay"]) {
-        return PKPaymentNetworkQuicPay;
-    } else if ([paymentNetworkString isEqualToString:@"PKPaymentNetworkJCB"]) {
-        return PKPaymentNetworkJCB;
-    } else if (@available(iOS 12.0, *)) {
-        if ([paymentNetworkString isEqualToString:@"PKPaymentNetworkCartesBancaires"]) {
-            return PKPaymentNetworkCartesBancaires;
-        } else if ([paymentNetworkString isEqualToString:@"PKPaymentNetworkVPay"]) {
-            return PKPaymentNetworkVPay;
-        } else if ([paymentNetworkString isEqualToString:@"PKPaymentNetworkEftpos"]) {
-            return PKPaymentNetworkEftpos;
-        } else if ([paymentNetworkString isEqualToString:@"PKPaymentNetworkMaestro"]) {
-            return PKPaymentNetworkMaestro;
+    static NSDictionary<NSString *, PKPaymentNetwork> *paymentNetworks;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        paymentNetworks = @{
+            @"PKPaymentNetworkAmex": PKPaymentNetworkAmex,
+            @"PKPaymentNetworkDiscover": PKPaymentNetworkDiscover,
+            @"PKPaymentNetworkMasterCard": PKPaymentNetworkMasterCard,
+            @"PKPaymentNetworkVisa": PKPaymentNetworkVisa,
+            @"PKPaymentNetworkChinaUnionPay": PKPaymentNetworkChinaUnionPay,
+            @"PKPaymentNetworkInterac": PKPaymentNetworkInterac,
+            @"PKPaymentNetworkPrivateLabel": PKPaymentNetworkPrivateLabel,
+            @"PKPaymentNetworkSuica": PKPaymentNetworkSuica,
+            @"PKPaymentNetworkIDCredit": PKPaymentNetworkIDCredit,
+            @"PKPaymentNetworkQuicPay": PKPaymentNetworkQuicPay,
+            @"PKPaymentNetworkJCB": PKPaymentNetworkJCB,
+            @"PKPaymentNetworkMaestro": PKPaymentNetworkMaestro,
+            @"PKPaymentNetworkEftpos": PKPaymentNetworkEftpos,
+            @"PKPaymentNetworkCartesBancaires": PKPaymentNetworkCartesBancaires,
+            @"PKPaymentNetworkVPay": PKPaymentNetworkVPay,
+            @"PKPaymentNetworkMada": PKPaymentNetworkMada,
+            @"PKPaymentNetworkElectron": PKPaymentNetworkElectron,
+            @"PKPaymentNetworkElo": PKPaymentNetworkElo
+        };
+        
+        if (@available(iOS 16.0, *)) {
+            NSMutableDictionary *mutablePaymentNetworks = [paymentNetworks mutableCopy];
+            mutablePaymentNetworks[@"PKPaymentNetworkBancontact"] = PKPaymentNetworkBancontact;
+            paymentNetworks = [mutablePaymentNetworks copy];
         }
-    }
+        
+        if (@available(iOS 15.1, *)) {
+            NSMutableDictionary *mutablePaymentNetworks = [paymentNetworks mutableCopy];
+            mutablePaymentNetworks[@"PKPaymentNetworkDankort"] = PKPaymentNetworkDankort;
+            paymentNetworks = [mutablePaymentNetworks copy];
+        }
+        
+        if (@available(iOS 14.5, *)) {
+            NSMutableDictionary *mutablePaymentNetworks = [paymentNetworks mutableCopy];
+            // HINT: You should never work
+            mutablePaymentNetworks[@"PKPaymentNetworkMIR"] = PKPaymentNetworkMir;
+            paymentNetworks = [mutablePaymentNetworks copy];
+        }
+        
+        if (@available(iOS 14.0, *)) {
+            NSMutableDictionary *mutablePaymentNetworks = [paymentNetworks mutableCopy];
+            mutablePaymentNetworks[@"PKPaymentNetworkGirocard"] = PKPaymentNetworkGirocard;
+            mutablePaymentNetworks[@"PKPaymentNetworkBarcode"] = PKPaymentNetworkBarcode;
+            paymentNetworks = [mutablePaymentNetworks copy];
+        }
 
-    return PKPaymentNetworkUnknown;
+        if (@available(iOS 12.0, *)) {
+            NSMutableDictionary *mutablePaymentNetworks = [paymentNetworks mutableCopy];
+            mutablePaymentNetworks[@"PKPaymentNetworkCartesBancaires"] = PKPaymentNetworkCartesBancaires;
+            mutablePaymentNetworks[@"PKPaymentNetworkVPay"] = PKPaymentNetworkVPay;
+            mutablePaymentNetworks[@"PKPaymentNetworkEftpos"] = PKPaymentNetworkEftpos;
+            mutablePaymentNetworks[@"PKPaymentNetworkMaestro"] = PKPaymentNetworkMaestro;
+            paymentNetworks = [mutablePaymentNetworks copy];
+        }
+    });
+
+    return paymentNetworks[paymentNetworkString] ?: PKPaymentNetworkUnknown;
 }
 
 - (PKMerchantCapability)merchantCapabilityFromString:(NSString *)capabilityString {
