@@ -4,7 +4,9 @@ Class property decorator that runs [Prometheus](https://prometheus.io) [histogra
 
 ## Installation
 
-For using this decorator you need to install [`prom-client` package](https://github.com/siimon/prom-client).
+For using this decorator you need to install following packages:
+- [`prom-client` package](https://github.com/siimon/prom-client)
+- [`willsoto/nestjs-prometheus` package](https://github.com/willsoto/nestjs-prometheus)
 
 ## Usage
 
