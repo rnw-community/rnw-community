@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any,@typescript-eslint/ban-types,@typescript-eslint/ban-ts-comment */
-import type { DataFn1, DataFn2, DataFn3, DataFn4 } from './type/data-fn.type';
-import type { Return1, Return2, Return3, Return4 } from './type/return.type';
+import type { DataFn1, DataFn2, DataFn3, DataFn4, DataFn5 } from './type/data-fn.type';
+import type { Return1, Return2, Return3, Return4, Return5 } from './type/return.type';
 import type { Enum } from '@rnw-community/shared';
 
 // TODO: Investigate if we can add types without specifying all combinations
@@ -23,6 +23,14 @@ export function combine<D, T1 extends Enum, T2 extends Enum, T3 extends Enum, T4
     collection3: T3,
     collection4: T4
 ): Return4<D, T1, T2, T3, T4>;
+export function combine<D, T1 extends Enum, T2 extends Enum, T3 extends Enum, T4 extends Enum, T5 extends Enum>(
+    dataFn: DataFn5<D, T1, T2, T3, T4, T5>,
+    collection1: T1,
+    collection2: T2,
+    collection3: T3,
+    collection4: T4,
+    collection5: T5
+): Return5<D, T1, T2, T3, T4, T5>;
 
 // TODO: Introduce non-recursive optimized solution
 // eslint-disable-next-line func-style

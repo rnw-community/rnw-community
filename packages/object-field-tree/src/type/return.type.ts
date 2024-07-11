@@ -7,3 +7,7 @@ export type Return4<D, T1 extends Enum, T2 extends Enum, T3 extends Enum, T4 ext
     keyof T1,
     Return3<D, T2, T3, T4>
 >;
+export type Return5<D, T1 extends Enum, T2 extends Enum, T3 extends Enum, T4 extends Enum, T5 extends Enum> = Record<
+    keyof T1,
+    Return4<D, T2, T3, T4, T5>
+>;
