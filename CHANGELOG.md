@@ -3,6 +3,16 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.73.0](https://github.com/rnw-community/rnw-community/compare/v0.72.2...v0.73.0) (2024-07-11)
+
+### Bug Fixes
+
+-   **fast-style:** adjust enum generics so it passes ts ([30c4fe6](https://github.com/rnw-community/rnw-community/commit/30c4fe6604e73bb1391aa60fcca785629dde6531))
+
+### Features
+
+-   support 5 collections in object-field-tree ([#205](https://github.com/rnw-community/rnw-community/issues/205)) ([43ed9e0](https://github.com/rnw-community/rnw-community/commit/43ed9e008ddf4f278f07af8cad2f3f513ef0241b))
+
 ## [0.72.2](https://github.com/rnw-community/rnw-community/compare/v0.72.1...v0.72.2) (2024-06-28)
 
 **Note:** Version bump only for package rnw-community
