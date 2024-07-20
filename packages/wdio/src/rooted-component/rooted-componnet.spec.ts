@@ -6,7 +6,7 @@ import { SelectorElement } from '../selector-element/selector-element';
 import { RootedComponentSelectorsMock } from './mocks/rooted-component-selectors.mock';
 import { RootedComponent } from './rooted-component';
 
-import type { ChainablePromiseElement, Element } from 'webdriverio';
+import type { ChainablePromiseElement } from 'webdriverio';
 
 // eslint-disable-next-line max-lines-per-function,max-statements
 describe('RootedComponent', () => {
@@ -105,7 +105,7 @@ describe('RootedComponent', () => {
             RootedComponentSelectorsMock.Root
         );
 
-        const el = MockElement.resolve(mockElement) as ChainablePromiseElement<Element>;
+        const el = MockElement.resolve(mockElement) as ChainablePromiseElement<WebdriverIO.Element>;
         const elementMethodSpy = jest.spyOn(el, 'click');
 
         const getRootElSpy = jest.spyOn(rootedComponent, 'RootEl', 'get');

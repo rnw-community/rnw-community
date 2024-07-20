@@ -2,12 +2,10 @@ import { browser } from '@wdio/globals';
 
 import { isAndroidCapability } from '../capability';
 
-import type { Element } from 'webdriverio';
-
 const DEFAULT_INPUT_DELAY = 300;
 
 export const slowInputCommand = async function slowInputCommand(
-    this: Element,
+    this: WebdriverIO.Element,
     value: string,
     delay = DEFAULT_INPUT_DELAY
 ): Promise<void> {

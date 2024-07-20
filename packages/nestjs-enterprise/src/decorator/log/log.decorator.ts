@@ -67,7 +67,7 @@ export const Log =
                             })
                         ) as unknown as TResult;
                     } else if (result instanceof Promise) {
-                        return result.then(runPostLog).catch(error => {
+                        return result.then(runPostLog).catch((error: unknown) => {
                             runErrorLog(error);
 
                             throw error;

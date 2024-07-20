@@ -12,4 +12,4 @@ type StyleType = Array<Record<string, unknown>> | object | false | null | undefi
  * @returns `trueStyle` if condition is _true_ otherwise `falseStyle`
  */
 export const cs = (condition: boolean, trueStyle: StyleType, falseStyle?: StyleType): StyleType =>
-    condition ? trueStyle : falseStyle ?? {};
+    condition ? trueStyle : (falseStyle ?? {});

@@ -41,6 +41,7 @@ export abstract class NestJSRxJSLockService<E = string> {
         );
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-parameters
     private static generateName<E>(name: string, prefix: E): string {
         return ['lock', prefix, name].filter(isNotEmptyString).join(':');
     }
