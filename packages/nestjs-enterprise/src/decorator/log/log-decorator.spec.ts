@@ -32,14 +32,14 @@ class TestClass {
         return Promise.resolve(this.field);
     }
 
-    // eslint-disable-next-line @typescript-eslint/require-await
     @Log(preLogText, postLogText, errorLogText)
+    // eslint-disable-next-line @typescript-eslint/require-await
     async testPromiseError(): Promise<number> {
         throw new Error(errorLogText);
     }
 
-    // eslint-disable-next-line @typescript-eslint/require-await
     @Log(preLogText, postLogText, (error, arg) => `${String(error)}-${arg}`)
+    // eslint-disable-next-line @typescript-eslint/require-await
     async testPromiseErrorFunction(_arg: number): Promise<number> {
         throw new Error(errorLogText);
     }
@@ -102,7 +102,7 @@ describe('LogDecorator', () => {
         instance.testStrings();
 
         expect(Logger.log).toHaveBeenCalledWith(preLogText, `${TestClass.name}::testStrings`);
-        expect(Logger.debug).toHaveBeenCalledWith(`${postLogText}`, `${TestClass.name}::testStrings`);
+        expect(Logger.debug).toHaveBeenCalledWith(postLogText, `${TestClass.name}::testStrings`);
     });
 
     it('should output pre/post logs with functions', () => {

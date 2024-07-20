@@ -156,7 +156,7 @@ export class NestJSRxJSRedisService {
      * @param fromValueFn Handler for converting value from string after getting
      */
     load<O, I = string>(
-        keyFn: (input: I) => string = key => `${String(key)}`,
+        keyFn: (input: I) => string = key => String(key),
         errorFn: (input: I) => string = input => `Error loading "${keyFn(input)}" from redis`,
         fromValueFn: (input: string) => O = input => JSON.parse(input) as O
     ): OperatorFunction<I, O> {
@@ -176,7 +176,7 @@ export class NestJSRxJSRedisService {
      * @param errorFn Handler for generating saving error message
      */
     remove<T>(
-        keyFn: (input: T) => string = key => `${String(key)}`,
+        keyFn: (input: T) => string = key => String(key),
         errorFn: (input: T) => string = input => `Error removing "${keyFn(input)}" from redis`
     ): MonoTypeOperatorFunction<T> {
         return (source$: Observable<T>): Observable<T> =>

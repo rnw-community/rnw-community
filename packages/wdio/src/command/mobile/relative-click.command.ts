@@ -1,9 +1,7 @@
-import type { Element } from 'webdriverio';
-
 const ONE_HUNDRED_PERCENT = 100;
 
 export const relativeClickCommand = async function relativeClickCommand(
-    this: Element,
+    this: WebdriverIO.Element,
     xPercent: number,
     yPercent: number
 ): Promise<void> {
