@@ -6,10 +6,11 @@ import type { ImageStyle, TextStyle, ViewStyle } from 'react-native';
 
 type StyleType = ImageStyle | Record<string, unknown> | TextStyle | ViewStyle;
 
+// eslint-disable-next-line @typescript-eslint/no-unnecessary-type-parameters
 const platformStyles = <T extends object = CSSProperties | StyleType, R = StyleType>(
     isPlatform: boolean,
     style: T
-): R | {} => (isPlatform ? style : {});
+): R | object => (isPlatform ? style : {});
 
 /**
  * Return style object if current build platform is WEB
