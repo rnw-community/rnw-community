@@ -1,7 +1,6 @@
 import { browser } from '@wdio/globals';
 
 import type { SwipeDirectionType } from '../type';
-import type { Element } from 'webdriverio';
 
 interface Position {
     x: number;
@@ -9,7 +8,7 @@ interface Position {
 }
 
 const getSwipePositionsByDirection = async (
-    element: Element,
+    element: WebdriverIO.Element,
     direction: SwipeDirectionType,
     offset: Position = { x: 0, y: 0 }
 ): Promise<[start: Position, end: Position]> => {
@@ -53,7 +52,7 @@ const getSwipePositionsByDirection = async (
 };
 
 export const swipeCommand = async function swipeCommand(
-    this: Element,
+    this: WebdriverIO.Element,
     direction: SwipeDirectionType,
     offset: Position = { x: 0, y: 0 }
 ): Promise<void> {

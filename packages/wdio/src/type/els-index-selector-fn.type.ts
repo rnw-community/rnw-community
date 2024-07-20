@@ -1,8 +1,8 @@
 import type { SelectorContextType } from './selector-context.type';
-import type { ChainablePromiseElement, Element } from 'webdriverio';
+import type { ChainablePromiseElement } from 'webdriverio';
 
 export type ElsIndexSelectorFn = (
     selector: string,
     index: number,
     context?: SelectorContextType
-) => ChainablePromiseElement<Element>;
+) => ChainablePromiseElement<WebdriverIO.Element>;
