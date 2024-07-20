@@ -27,7 +27,9 @@
     "node": ">=18.0.0"
   },
   "resolutions": {
-    "expect-webdriverio": "4.15.1"
+    "webdriverio": "8.39.1",
+    "@wdio/globals": "8.39.1",
+    "@wdio/logger": "8.38.0"
   },
   "devDependencies": {
     "@babel/core": "^7.23.5",
@@ -76,8 +78,8 @@
     "reflect-metadata": "^0.1.13",
     "rimraf": "^5.0.5",
     "sort-package-json": "^2.6.0",
-    "turbo": "^2.0.3",
-    "typescript": "^5.4.5"
+    "turbo": "^2.0.9",
+    "typescript": "^5.3.3"
   },
   "packageManager": "yarn@4.0.2",
   "version": "0.59.4"
