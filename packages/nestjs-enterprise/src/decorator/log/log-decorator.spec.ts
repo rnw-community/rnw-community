@@ -32,15 +32,15 @@ class TestClass {
         return Promise.resolve(this.field);
     }
 
-    // eslint-disable-next-line @typescript-eslint/require-await
     @Log(preLogText, postLogText, errorLogText)
-    testPromiseError(): Promise<number> {
+    // eslint-disable-next-line @typescript-eslint/require-await
+    async testPromiseError(): Promise<number> {
         throw new Error(errorLogText);
     }
 
-    // eslint-disable-next-line @typescript-eslint/require-await
     @Log(preLogText, postLogText, (error, arg) => `${String(error)}-${arg}`)
-    testPromiseErrorFunction(_arg: number): Promise<number> {
+    // eslint-disable-next-line @typescript-eslint/require-await
+    async testPromiseErrorFunction(_arg: number): Promise<number> {
         throw new Error(errorLogText);
     }
 
