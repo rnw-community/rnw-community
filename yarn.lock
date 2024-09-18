@@ -5133,7 +5133,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@rnw-community/platform@workspace:*, @rnw-community/platform@workspace:packages/platform":
+"@rnw-community/platform@workspace:packages/platform":
   version: 0.0.0-use.local
   resolution: "@rnw-community/platform@workspace:packages/platform"
   dependencies:
@@ -5161,7 +5161,6 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@rnw-community/react-native-payments@workspace:packages/react-native-payments"
   dependencies:
-    "@rnw-community/platform": "workspace:*"
     "@rnw-community/shared": "workspace:*"
     "@types/validator": "npm:^13.7.17"
     react: "npm:^18.2.0"
