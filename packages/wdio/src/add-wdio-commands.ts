@@ -8,7 +8,7 @@ import {
 } from './command';
 import { swipeCommand } from './command/swipe.command';
 
-import type { Browser, Element } from 'webdriverio';
+import type { Browser } from 'webdriverio';
 
 export const addWdioCommands = (context: Browser): void => {
     // HINT: Browser commands
@@ -19,14 +19,14 @@ export const addWdioCommands = (context: Browser): void => {
     // HINT: Element commands
     context.addCommand(
         'testID$',
-        async function TestID$(this: Element, testID: string) {
+        async function TestID$(this: WebdriverIO.Element, testID: string) {
             return await testID$(testID, this);
         },
         true
     );
     context.addCommand(
         'testID$$',
-        async function TestID$$(this: Element, testID: string) {
+        async function TestID$$(this: WebdriverIO.Element, testID: string) {
             return await testID$$(testID, this);
         },
         true

@@ -1,7 +1,7 @@
 /* eslint-disable max-lines */
+import { Platform } from 'react-native';
 import uuid from 'react-native-uuid';
 
-import { isAndroid, isIOS } from '@rnw-community/platform';
 import { emptyFn, getErrorMessage, isDefined, isNotEmptyArray, isNotEmptyString } from '@rnw-community/shared';
 
 import { AndroidPaymentMethodTokenizationType } from '../../@standard/android/enum/android-payment-method-tokenization-type.enum';
@@ -71,9 +71,10 @@ export class PaymentRequest {
         // 17. Set request.[[serializedMethodData]] to serializedMethodData.         */
         this.platformMethodData = this.findPlatformPaymentMethodData();
 
-        const nativePlatformMethodData = isAndroid
-            ? this.getAndroidPaymentMethodData(this.platformMethodData as AndroidPaymentMethodDataDataInterface, details)
-            : this.getIosPaymentMethodData(this.platformMethodData as IosPaymentMethodDataDataInterface);
+        const nativePlatformMethodData =
+            Platform.OS === 'android'
+                ? this.getAndroidPaymentMethodData(this.platformMethodData as AndroidPaymentMethodDataDataInterface, details)
+                : this.getIosPaymentMethodData(this.platformMethodData as IosPaymentMethodDataDataInterface);
 
         this.serializedMethodData = JSON.stringify(nativePlatformMethodData);
     }
@@ -96,12 +97,13 @@ export class PaymentRequest {
                 this.state = 'interactive';
 
                 // HINT: We need to pass Android environment configuration to native module via details
-                const details = isAndroid
-                    ? {
-                          ...this.details,
-                          environment: (this.platformMethodData as AndroidPaymentMethodDataDataInterface).environment,
-                      }
-                    : this.details;
+                const details =
+                    Platform.OS === 'android'
+                        ? {
+                              ...this.details,
+                              environment: (this.platformMethodData as AndroidPaymentMethodDataDataInterface).environment,
+                          }
+                        : this.details;
 
                 NativePayments.show(this.serializedMethodData, details)
                     .then(jsonDetails => {
@@ -109,6 +111,7 @@ export class PaymentRequest {
 
                         return void 0;
                     })
+                    // eslint-disable-next-line @typescript-eslint/use-unknown-in-catch-callback-variable
                     .catch(reject);
             } else {
                 reject(new DOMException(PaymentsErrorEnum.InvalidStateError));
@@ -133,7 +136,7 @@ export class PaymentRequest {
 
     private handleAccept(details: string): AndroidPaymentResponse | IosPaymentResponse {
         try {
-            return isAndroid
+            return Platform.OS === 'android'
                 ? new AndroidPaymentResponse(this.id, PaymentMethodNameEnum.AndroidPay, details)
                 : new IosPaymentResponse(this.id, PaymentMethodNameEnum.ApplePay, details);
         } catch (e) {
@@ -142,7 +145,8 @@ export class PaymentRequest {
     }
 
     private findPlatformPaymentMethodData(): AndroidPaymentMethodDataDataInterface | IosPaymentMethodDataDataInterface {
-        const platformSupportedMethod = isIOS ? PaymentMethodNameEnum.ApplePay : PaymentMethodNameEnum.AndroidPay;
+        const platformSupportedMethod =
+            Platform.OS === 'ios' ? PaymentMethodNameEnum.ApplePay : PaymentMethodNameEnum.AndroidPay;
 
         const platformMethod = this.methodData.find(
             paymentMethodData => paymentMethodData.supportedMethods === platformSupportedMethod

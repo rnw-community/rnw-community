@@ -1,6 +1,6 @@
 {
     "name": "@rnw-community/react-native-payments",
-    "version": "0.72.0",
+    "version": "0.74.1",
     "description": "React Native Payments",
     "keywords": [
         "react",
@@ -75,7 +75,6 @@
     },
     "gitHead": "b5608910319390f9773a9d42c3cc828e8e8a1d95",
     "dependencies": {
-        "@rnw-community/platform": "workspace:*",
         "@rnw-community/shared": "workspace:*",
         "react-native-uuid": "^2.0.1",
         "validator": "^13.9.0"

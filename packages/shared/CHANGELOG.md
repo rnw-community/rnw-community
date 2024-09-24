@@ -3,6 +3,16 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.74.0](https://github.com/rnw-community/rnw-community/compare/v0.73.0...v0.74.0) (2024-07-20)
+
+### Features
+
+-   **wdio:** upgraded wdio to latest v8, fixed types, bump turbo 2.0.9, TS 5.5, eslint and its deps ([#209](https://github.com/rnw-community/rnw-community/issues/209)) ([1da06a0](https://github.com/rnw-community/rnw-community/commit/1da06a0bb53e94ad318e76b19bc2c9c153871656))
+
+# [0.73.0](https://github.com/rnw-community/rnw-community/compare/v0.72.2...v0.73.0) (2024-07-11)
+
+**Note:** Version bump only for package @rnw-community/shared
+
 # [0.72.0](https://github.com/rnw-community/rnw-community/compare/v0.71.0...v0.72.0) (2024-06-12)
 
 **Note:** Version bump only for package @rnw-community/shared

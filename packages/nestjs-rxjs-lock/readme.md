@@ -9,9 +9,8 @@ using [Redlock](https://github.com/mike-marcacci/node-redlock)
 
 ## TODO
 
--   [] Add module tests
--   [] Remove `nestjs-redis` dependency, use ioredis directly
--   [] Add `lock$` docs usage example
+-   [ ] Add module tests
+-   [ ] Add `lock$` docs usage example
 
 ## Installation
 

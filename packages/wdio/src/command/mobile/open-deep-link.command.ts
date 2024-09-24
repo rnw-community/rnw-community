@@ -6,7 +6,7 @@ import { isAndroidCapability, isIOSCapability } from '../../capability';
 
 const getPackageNameFromCapabilities = (context: WebdriverIO.Browser): string =>
     // @ts-expect-error TODO: Validate if it is working?
-    'appPackage' in context.capabilities ? `${context.capabilities.appPackage as string}` : '';
+    'appPackage' in context.capabilities ? (context.capabilities.appPackage as string) : '';
 
 /**
  * Create a  cross platform solution for opening a deep link
