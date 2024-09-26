@@ -280,6 +280,7 @@ the [react-native-payments-example](../react-native-payments-example/README.md) 
 
 ### Other
 
+- [ ] Add [EXPO support](https://docs.expo.dev/modules/existing-library/)
 - [ ] Add unit tests
 - [ ] Refactor `utils`
 - [ ] Add web support
