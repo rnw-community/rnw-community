@@ -102,8 +102,8 @@ dependencies {
   // For > 0.71, this will be replaced by `com.facebook.react:react-android:$version` by react gradle plugin
   //noinspection GradleDynamicVersion
   implementation "com.facebook.react:react-native:+"
-
   implementation 'com.google.android.gms:play-services-wallet:18.0.0'
+  implementation project(':expo-modules-core')
 }
 
 if (isNewArchitectureEnabled()) {

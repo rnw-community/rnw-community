@@ -5164,13 +5164,18 @@ __metadata:
   dependencies:
     "@rnw-community/shared": "workspace:*"
     "@types/validator": "npm:^13.7.17"
+    expo-modules-core: "npm:^1.12.24"
     react: "npm:^18.2.0"
     react-native: "npm:^0.72.3"
     react-native-uuid: "npm:^2.0.1"
     validator: "npm:^13.9.0"
   peerDependencies:
+    expo: "*"
     react: ">=17"
     react-native: ">=0.64"
+  peerDependenciesMeta:
+    expo:
+      optional: true
   languageName: unknown
   linkType: soft
 
@@ -10584,6 +10589,15 @@ __metadata:
     jest-message-util: "npm:^29.7.0"
     jest-util: "npm:^29.7.0"
   checksum: 63f97bc51f56a491950fb525f9ad94f1916e8a014947f8d8445d3847a665b5471b768522d659f5e865db20b6c2033d2ac10f35fcbd881a4d26407a4f6f18451a
+  languageName: node
+  linkType: hard
+
+"expo-modules-core@npm:^1.12.24":
+  version: 1.12.24
+  resolution: "expo-modules-core@npm:1.12.24"
+  dependencies:
+    invariant: "npm:^2.2.4"
+  checksum: 81c09bfcf7233bfb5218a65c6648d29155cee595f313857eaf5518fc4645375bacc43f8a4836d93a400301d3a0aba976be980d98fa0dff02ce60095984640215
   languageName: node
   linkType: hard
 

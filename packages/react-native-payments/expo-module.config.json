@@ -1,0 +1,12 @@
+{
+    "ios": {
+        "modules": [
+            "Payments"
+        ]
+    },
+    "android": {
+        "modules": [
+            "com.payments"
+        ]
+    }
+}
