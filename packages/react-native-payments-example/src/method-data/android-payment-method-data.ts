@@ -23,8 +23,8 @@ export const androidPaymentMethodData: AndroidPaymentMethodDataInterface = {
          * https://developers.google.com/pay/api/android/reference/request-objects#gateway
          */
         gatewayConfig: {
-            gateway: 'Worldpay',
-            gatewayMerchantId: 'worldpay',
+            gateway: 'example',
+            gatewayMerchantId: 'exampleGatewayMerchantId',
         },
     },
     supportedMethods: PaymentMethodNameEnum.AndroidPay,
