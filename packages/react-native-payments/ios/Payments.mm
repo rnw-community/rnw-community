@@ -84,9 +84,9 @@ RCT_EXPORT_METHOD(show:(NSString *)methodDataString
     for (NSString *requiredShippingContactField in methodData[@"requiredShippingContactFields"]) {
         PKContactField contactField = [self contactFieldFromString:requiredShippingContactField];
         if(contactField != nil) {
-            [requiredShippingcontactField addObject:contactField];
+            [requiredShippingContactFields addObject:contactField];
         } else {
-            [self rejectPromise:@"invalid_contact_field" message:[NSString stringWithFormat:@"Invalid contact field passed '%@'", contactField] error:nil]
+            [self rejectPromise:@"invalid_contact_field" message:[NSString stringWithFormat:@"Invalid contact field passed '%@'", contactField] error:nil];
             return;
         }
     }
@@ -129,12 +129,12 @@ RCT_EXPORT_METHOD(show:(NSString *)methodDataString
 
     // https://developer.apple.com/documentation/passkit/pkpaymentrequest/2865928-requiredbillingcontactfields?language=objc
     if(methodData[@"requiredBillingContactFields"]) {
-        paymentRequest.requiredBillingContactFields = requiredBillingContactFields;
+        paymentRequest.requiredBillingContactFields = [NSSet setWithArray:requiredBillingContactFields];
     }
 
     // https://developer.apple.com/documentation/passkit/pkpaymentrequest/2865927-requiredshippingcontactfields?language=objc
     if(methodData[@"requiredShippingContactFields"]) {
-        paymentRequest.requiredShippingContactFields = requiredShippingContactFields;
+        paymentRequest.requiredShippingContactFields = [NSSet setWithArray:requiredShippingContactFields];
     }
 
     // https://developer.apple.com/documentation/passkit/pkpaymentauthorizationviewcontroller/1616178-initwithpaymentrequest?language=objc

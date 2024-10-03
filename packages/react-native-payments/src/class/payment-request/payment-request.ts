@@ -218,7 +218,7 @@ export class PaymentRequest {
             ...(methodData.requestShipping === true && {
                 shippingAddressRequired: true,
                 shippingAddressParameters: {
-                    phoneNumberRequired: true,
+                    phoneNumberRequired: methodData.requestPayerPhone === true,
                 },
             }),
         };
@@ -259,6 +259,8 @@ export class PaymentRequest {
 
         const requiredShippingFields = createArrayOfRequestedShippingFields();
 
+        const isShippingRequired = requiredShippingFields.length > 0;
+
         return {
             countryCode: methodData.countryCode,
             currencyCode: methodData.currencyCode,
@@ -268,7 +270,7 @@ export class PaymentRequest {
                 ? methodData.merchantCapabilities
                 : defaultMerchantCapabilities,
             ...(methodData.requestBillingAddress === true && { requiredBillingContactFields: requiredBillingFields }),
-            ...(methodData.requestShipping === true && { requiredShippingContactFields: requiredShippingFields }),
+            ...(isShippingRequired && { requiredShippingContactFields: requiredShippingFields }),
         };
 
         function createArrayOfRequestedBillingFields() {
