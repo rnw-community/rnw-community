@@ -30,6 +30,7 @@ import type { IosPaymentMethodDataDataInterface } from '../../@standard/ios/mapp
 import type { IosPaymentDataRequest } from '../../@standard/ios/request/ios-payment-data-request';
 import type { PaymentDetailsInit } from '../../@standard/w3c/payment-details-init';
 import type { PaymentMethodData } from '../../@standard/w3c/payment-method-data';
+import { IOSPKContactField } from '../../@standard/ios/enum/ios-pk-contact-field.enum';
 
 /*
  * HINT: Troubleshooting: https://developers.google.com/pay/api/android/support/troubleshooting
@@ -164,6 +165,11 @@ export class PaymentRequest {
         methodData: AndroidPaymentMethodDataDataInterface,
         details: PaymentDetailsInit
     ): AndroidPaymentDataRequest {
+        const isBillingRequired =
+            methodData.requestBillingAddress === true ||
+            methodData.requestPayerName === true ||
+            methodData.requestPayerPhone === true;
+
         return {
             ...defaultAndroidPaymentDataRequest,
             merchantInfo: {
@@ -186,11 +192,11 @@ export class PaymentRequest {
                         ),
                         allowedAuthMethods:
                             methodData.allowedAuthMethods ?? defaultAndroidPaymentMethod.parameters.allowedAuthMethods,
-                        ...(methodData.requestBilling === true && {
+                        ...(isBillingRequired && {
                             billingAddressRequired: true,
                             billingAddressParameters: {
-                                format: 'FULL',
-                                phoneNumberRequired: true,
+                                format: methodData.requestBillingAddress === true ? 'FULL' : 'MIN',
+                                phoneNumberRequired: methodData.requestPayerPhone === true,
                             },
                         }),
                     },
@@ -208,7 +214,7 @@ export class PaymentRequest {
                     }),
                 },
             ],
-            ...(methodData.requestEmail === true && { emailRequired: true }),
+            ...(methodData.requestPayerEmail === true && { emailRequired: true }),
             ...(methodData.requestShipping === true && {
                 shippingAddressRequired: true,
                 shippingAddressParameters: {
@@ -249,6 +255,10 @@ export class PaymentRequest {
             IosPKMerchantCapability.PKMerchantCapabilityCredit,
         ];
 
+        const requiredBillingFields = createArrayOfRequestedBillingFields();
+
+        const requiredShippingFields = createArrayOfRequestedShippingFields();
+
         return {
             countryCode: methodData.countryCode,
             currencyCode: methodData.currencyCode,
@@ -257,8 +267,33 @@ export class PaymentRequest {
             merchantCapabilities: isNotEmptyArray(methodData.merchantCapabilities)
                 ? methodData.merchantCapabilities
                 : defaultMerchantCapabilities,
-            ...(methodData.requestBilling === true && { requiredBillingContactFields: true }),
-            ...(methodData.requestShipping === true && { requiredShippingContactFields: true }),
+            ...(methodData.requestBillingAddress === true && { requiredBillingContactFields: requiredBillingFields }),
+            ...(methodData.requestShipping === true && { requiredShippingContactFields: requiredShippingFields }),
         };
+
+        function createArrayOfRequestedBillingFields() {
+            const requiredBillingFields = [];
+            if (methodData.requestBillingAddress) {
+                requiredBillingFields.push(IOSPKContactField.PKContactFieldPostalAddress);
+            }
+            return requiredBillingFields;
+        }
+
+        function createArrayOfRequestedShippingFields() {
+            const requiredShippingFields = [];
+            if (methodData.requestPayerEmail) {
+                requiredShippingFields.push(IOSPKContactField.PKContactFieldEmailAddress);
+            }
+            if (methodData.requestPayerName) {
+                requiredShippingFields.push(IOSPKContactField.PKContactFieldName);
+            }
+            if (methodData.requestPayerPhone) {
+                requiredShippingFields.push(IOSPKContactField.PKContactFieldPhoneNumber);
+            }
+            if (methodData.requestShipping) {
+                requiredShippingFields.push(IOSPKContactField.PKContactFieldPostalAddress);
+            }
+            return requiredShippingFields;
+        }
     }
 }

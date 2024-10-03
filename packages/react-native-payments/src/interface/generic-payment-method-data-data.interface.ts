@@ -7,10 +7,14 @@ export interface GenericPaymentMethodDataDataInterface {
     countryCode?: string;
     currencyCode: string;
     // If present PaymentResponse will have billingAddress
-    requestBilling?: boolean;
-    // If present PaymentResponse will have email
-    requestEmail?: boolean;
+    requestBillingAddress?: boolean;
     // If present PaymentResponse will have shippingAddress
     requestShipping?: boolean;
+    // If present PaymentResponse will have email
+    requestPayerEmail?: boolean;
+    // If present PaymentResponse will have name
+    requestPayerName?: boolean;
+    // If present PaymentResponse will have phone
+    requestPayerPhone?: boolean;
     supportedNetworks: SupportedNetworkEnum[];
 }
