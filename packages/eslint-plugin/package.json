@@ -1,6 +1,6 @@
 {
     "name": "@rnw-community/eslint-plugin",
-    "version": "0.74.0",
+    "version": "0.74.2",
     "description": "RNW-Community ESLint plugin",
     "keywords": [
         "eslint",
@@ -48,6 +48,9 @@
         "@typescript-eslint/parser": "^6.14.0",
         "@typescript-eslint/rule-tester": "^6.14.0",
         "@typescript-eslint/utils": "^6.14.0"
+    },
+    "devDependencies": {
+        "@types/eslint": "^8.56.12"
     },
     "peerDependencies": {
         "@typescript-eslint/eslint-plugin": "^6",
