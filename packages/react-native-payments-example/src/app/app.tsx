@@ -1,11 +1,22 @@
 import React, { useEffect, useState } from 'react';
 import { Button, SafeAreaView, Text } from 'react-native';
 
-import { PaymentComplete, PaymentRequest } from '@rnw-community/react-native-payments';
+import {
+    AndroidPaymentMethodDataInterface,
+    IosPaymentMethodDataInterface,
+    PaymentComplete,
+    PaymentRequest,
+} from '@rnw-community/react-native-payments';
 import { getErrorMessage, isDefined } from '@rnw-community/shared';
 
-import { androidPaymentMethodData } from '../method-data/android-payment-method-data';
-import { iosPaymentMethodData } from '../method-data/ios-payment-method-data';
+import {
+    androidPaymentMethodDataWithoutShipping,
+    androidPaymentMethodData as defaultAndroidPaymentMethodData,
+} from '../method-data/android-payment-method-data';
+import {
+    iosPaymentMethodData as defaultIosPaymentMethodData,
+    iosPaymentMethodDataWithoutShipping,
+} from '../method-data/ios-payment-method-data';
 import { paymentDetails } from '../payment-details';
 
 /*
@@ -17,11 +28,20 @@ export const App = (): JSX.Element => {
     const [response, setResponse] = useState<object>();
     const [isWalletAvailable, setIsWalletAvailable] = useState(false);
 
-    const createPaymentRequest = (): PaymentRequest => {
+    const createPaymentRequest = (
+        iosPaymentMethodData?: IosPaymentMethodDataInterface,
+        androidPaymentMethodData?: AndroidPaymentMethodDataInterface
+    ): PaymentRequest => {
         setError('');
         setResponse(undefined);
 
-        return new PaymentRequest([iosPaymentMethodData, androidPaymentMethodData], paymentDetails);
+        return new PaymentRequest(
+            [
+                iosPaymentMethodData ?? defaultIosPaymentMethodData,
+                androidPaymentMethodData ?? defaultAndroidPaymentMethodData,
+            ],
+            paymentDetails
+        );
     };
 
     const handlePay = (): void => {
@@ -44,6 +64,17 @@ export const App = (): JSX.Element => {
         setTimeout(() => void paymentRequest.abort(), 1000);
     };
 
+    const handlePayWithoutShipping = (): void => {
+        createPaymentRequest(iosPaymentMethodDataWithoutShipping, androidPaymentMethodDataWithoutShipping)
+            .show()
+            .then(paymentResponse => {
+                setResponse(paymentResponse.details);
+
+                return paymentResponse.complete(PaymentComplete.SUCCESS);
+            })
+            .catch((err: unknown) => void setError(getErrorMessage(err)));
+    };
+
     useEffect(() => {
         createPaymentRequest()
             .canMakePayment()
@@ -59,6 +90,7 @@ export const App = (): JSX.Element => {
                 <>
                     <Button onPress={handlePay} title="AndroidPay/ApplePay" />
                     <Button onPress={handlePayWithAbort} title="ApplePay with delayed abort" />
+                    <Button onPress={handlePayWithoutShipping} title="AndroidPay/ApplePay without shipping" />
                     <Text>{error}</Text>
                     {isDefined(response) && <Text style={responseTextStyle}>Response:{JSON.stringify(response)}</Text>}
                 </>
