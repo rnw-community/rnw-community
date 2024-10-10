@@ -28,7 +28,8 @@
         ".": {
             "import": "./dist/esm/index.js",
             "require": "./dist/cjs/index.js"
-        }
+        },
+        "./package.json": "./package.json"
     },
     "react-native": "src/index.ts",
     "main": "dist/cjs/index.js",
