@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.75.1](https://github.com/rnw-community/rnw-community/compare/v0.75.0...v0.75.1) (2024-10-10)
+
+### Bug Fixes
+
+-   **react-native-payments-example:** change metro config and add google pay metadata to AndroidManifest ([#230](https://github.com/rnw-community/rnw-community/issues/230)) ([9878252](https://github.com/rnw-community/rnw-community/commit/9878252548e1cb9b1fc8882c170b56fd2c3eb9c9))
+
 # [0.75.0](https://github.com/rnw-community/rnw-community/compare/v0.74.4...v0.75.0) (2024-10-10)
 
 ### Features
