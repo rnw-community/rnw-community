@@ -7,16 +7,14 @@ const path = require('path');
  *
  * @type {import('metro-config').MetroConfig}
  */
+
+const workspaceRoot = path.resolve(__dirname, '../..');
+
 const config = {
     resolver: {
         unstable_enableSymlinks: true,
     },
-    watchFolders: [
-        path.resolve(__dirname, '../../node_modules'),
-        path.resolve(__dirname, '../../node_modules/@rnw-community/react-native-payments'),
-        path.resolve(__dirname, '../../node_modules/@rnw-community/shared'),
-        path.resolve(__dirname, '../../node_modules/@rnw-community/platform'),
-    ],
+    watchFolders: [workspaceRoot],
 };
 
 module.exports = mergeConfig(getDefaultConfig(__dirname), config);
