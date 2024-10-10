@@ -25,3 +25,13 @@ export const paymentDetails: PaymentDetailsInit = {
         label: 'Total',
     },
 };
+
+export const paymentDetailsWithoutDisplayItems: PaymentDetailsInit = {
+    total: {
+        amount: {
+            currency: 'EUR',
+            value: '20.00',
+        },
+        label: 'Total',
+    },
+};

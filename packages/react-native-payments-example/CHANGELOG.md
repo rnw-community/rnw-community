@@ -3,6 +3,26 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.75.2](https://github.com/rnw-community/rnw-community/compare/v0.75.1...v0.75.2) (2024-10-10)
+
+**Note:** Version bump only for package @rnw-community/react-native-payments-example
+
+## [0.75.1](https://github.com/rnw-community/rnw-community/compare/v0.75.0...v0.75.1) (2024-10-10)
+
+### Bug Fixes
+
+-   **react-native-payments-example:** change metro config and add google pay metadata to AndroidManifest ([#230](https://github.com/rnw-community/rnw-community/issues/230)) ([9878252](https://github.com/rnw-community/rnw-community/commit/9878252548e1cb9b1fc8882c170b56fd2c3eb9c9))
+
+# [0.75.0](https://github.com/rnw-community/rnw-community/compare/v0.74.4...v0.75.0) (2024-10-10)
+
+### Features
+
+-   **react-native-payments:** make displayItems in PaymentDetailsBase optional ([#221](https://github.com/rnw-community/rnw-community/issues/221)) ([875aaea](https://github.com/rnw-community/rnw-community/commit/875aaeaf6f99fbebabea28dcc6c08d5f8f950e98))
+
+## [0.74.4](https://github.com/rnw-community/rnw-community/compare/v0.74.3...v0.74.4) (2024-10-08)
+
+**Note:** Version bump only for package @rnw-community/react-native-payments-example
+
 ## [0.74.3](https://github.com/rnw-community/rnw-community/compare/v0.74.2...v0.74.3) (2024-09-26)
 
 **Note:** Version bump only for package @rnw-community/react-native-payments-example
