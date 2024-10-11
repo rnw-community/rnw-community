@@ -38,6 +38,7 @@ describe('NestJSRxJSRedisService', () => {
         redis.get$(redisKey).subscribe(data => {
             expect(get).toHaveBeenCalledWith(redisKey);
             expect(data).toStrictEqual(redisValue);
+
             done();
         });
     });
@@ -54,6 +55,7 @@ describe('NestJSRxJSRedisService', () => {
             error(error: unknown) {
                 expect(get).toHaveBeenCalledWith(redisKey);
                 expect(getErrorMessage(error)).toBe(`Error getting ${redisKey} from redis`);
+
                 done();
             },
         });
@@ -69,6 +71,7 @@ describe('NestJSRxJSRedisService', () => {
         redis.get$(redisKey).subscribe(emptyFn, (error: unknown) => {
             expect(get).toHaveBeenCalledWith(redisKey);
             expect(getErrorMessage(error)).toBe(`Error getting ${redisKey} from redis`);
+
             done();
         });
     });
@@ -83,6 +86,7 @@ describe('NestJSRxJSRedisService', () => {
         redis.set$(redisKey, redisValue, 1).subscribe(data => {
             expect(set).toHaveBeenCalledWith(redisKey, redisValue, 'EX', 1);
             expect(data).toBe(true);
+
             done();
         });
     });
@@ -99,6 +103,7 @@ describe('NestJSRxJSRedisService', () => {
             error(error: unknown) {
                 expect(set).toHaveBeenCalledWith(redisKey, redisValue, 'EX', 1);
                 expect(getErrorMessage(error)).toBe(`Error setting ${redisKey} to redis`);
+
                 done();
             },
         });
@@ -116,6 +121,7 @@ describe('NestJSRxJSRedisService', () => {
             error(error: unknown) {
                 expect(set).toHaveBeenCalledWith(redisKey, redisValue, 'EX', 1);
                 expect(getErrorMessage(error)).toBe(`Error setting ${redisKey} to redis`);
+
                 done();
             },
         });
@@ -131,6 +137,7 @@ describe('NestJSRxJSRedisService', () => {
         redis.del$(redisKey).subscribe(data => {
             expect(del).toHaveBeenCalledWith(redisKey);
             expect(data).toBe(1);
+
             done();
         });
     });
@@ -147,6 +154,7 @@ describe('NestJSRxJSRedisService', () => {
             error(error: unknown) {
                 expect(del).toHaveBeenCalledWith(redisKey);
                 expect(getErrorMessage(error)).toBe(`Error deleting ${redisKey} from redis`);
+
                 done();
             },
         });
@@ -162,6 +170,7 @@ describe('NestJSRxJSRedisService', () => {
         redis.mget$([redisKey]).subscribe(data => {
             expect(mget).toHaveBeenCalledWith(expect.arrayContaining([redisKey]));
             expect(data).toStrictEqual({ [redisKey]: redisValue });
+
             done();
         });
     });
@@ -185,6 +194,7 @@ describe('NestJSRxJSRedisService', () => {
                 expect(toValueFn).toHaveBeenCalledWith(redisValue);
                 expect(set).toHaveBeenCalledWith(redisKey, stringRedisValue, 'EX', 1);
                 expect(data).toStrictEqual(redisValue);
+
                 done();
             });
     });
@@ -203,6 +213,7 @@ describe('NestJSRxJSRedisService', () => {
             .subscribe(data => {
                 expect(set).toHaveBeenCalledWith(redisKey, stringRedisValue, 'EX', 1);
                 expect(data).toStrictEqual(redisValue);
+
                 done();
             });
     });
@@ -226,6 +237,7 @@ describe('NestJSRxJSRedisService', () => {
                 expect(get).toHaveBeenCalledWith(keyFn(redisKey));
                 expect(fromValueFn).toHaveBeenCalledWith(redisValue, 0);
                 expect(data).toStrictEqual(stringRedisValue);
+
                 done();
             });
     });
@@ -242,6 +254,7 @@ describe('NestJSRxJSRedisService', () => {
             .subscribe(data => {
                 expect(get).toHaveBeenCalledWith(redisKey);
                 expect(data).toStrictEqual(redisValue);
+
                 done();
             });
     });
@@ -260,6 +273,7 @@ describe('NestJSRxJSRedisService', () => {
             .subscribe(data => {
                 expect(del).toHaveBeenCalledWith(keyFn(redisKey));
                 expect(data).toStrictEqual(redisKey);
+
                 done();
             });
     });
@@ -275,6 +289,7 @@ describe('NestJSRxJSRedisService', () => {
             .subscribe(data => {
                 expect(del).toHaveBeenCalledWith(redisKey);
                 expect(data).toStrictEqual(redisKey);
+
                 done();
             });
     });
@@ -297,6 +312,7 @@ describe('NestJSRxJSRedisService', () => {
                 expect(get).toHaveBeenCalledWith(keyFn(redisKey));
                 expect(data).toStrictEqual(stringRedisValue);
                 expect(toValueFn).toHaveBeenCalledWith(redisValue, 0);
+
                 done();
             });
     });
@@ -313,6 +329,7 @@ describe('NestJSRxJSRedisService', () => {
             .subscribe(data => {
                 expect(get).toHaveBeenCalledWith(redisKey);
                 expect(data).toStrictEqual(redisValue);
+
                 done();
             });
     });
@@ -336,6 +353,7 @@ describe('NestJSRxJSRedisService', () => {
                 expect(set).toHaveBeenCalledWith(keyFn(redisKey), stringRedisValue, 'EX', 1);
                 expect(data).toStrictEqual(redisValue);
                 expect(fromValueFn).toHaveBeenCalledWith(redisValue);
+
                 done();
             });
     });
@@ -350,6 +368,7 @@ describe('NestJSRxJSRedisService', () => {
         redis.incr$(redisKey).subscribe(data => {
             expect(incr).toHaveBeenCalledWith(redisKey);
             expect(data).toStrictEqual(incrValue);
+
             done();
         });
     });
@@ -365,6 +384,7 @@ describe('NestJSRxJSRedisService', () => {
             error(error: unknown) {
                 expect(incr).toHaveBeenCalledWith(redisKey);
                 expect(getErrorMessage(error)).toBe(`Error increment ${redisKey} from redis`);
+
                 done();
             },
         });
@@ -379,6 +399,7 @@ describe('NestJSRxJSRedisService', () => {
         redis.ttl$(redisKey).subscribe(data => {
             expect(ttl).toHaveBeenCalledWith(redisKey);
             expect(data).toStrictEqual(redisTTLValue);
+
             done();
         });
     });
@@ -394,6 +415,7 @@ describe('NestJSRxJSRedisService', () => {
             error(error: unknown) {
                 expect(ttl).toHaveBeenCalledWith(redisKey);
                 expect(getErrorMessage(error)).toBe(`Error ttl ${redisKey} from redis`);
+
                 done();
             },
         });
@@ -408,6 +430,7 @@ describe('NestJSRxJSRedisService', () => {
         redis.expire$(redisKey, redisTTLValue).subscribe(data => {
             expect(expire).toHaveBeenCalledWith(redisKey, redisTTLValue);
             expect(data).toBe(1);
+
             done();
         });
     });
@@ -423,6 +446,7 @@ describe('NestJSRxJSRedisService', () => {
             error(error: unknown) {
                 expect(expire).toHaveBeenCalledWith(redisKey, redisTTLValue);
                 expect(getErrorMessage(error)).toBe(`Error setting timeout for ${redisKey} in redis`);
+
                 done();
             },
         });

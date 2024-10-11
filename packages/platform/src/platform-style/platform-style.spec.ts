@@ -14,6 +14,7 @@ describe('platform styles', () => {
         // @ts-expect-error No other way to redefine platform constants
         // eslint-disable-next-line no-import-assign
         constants.isWeb = false;
+
         expect(webStyles(styleObj)).not.toStrictEqual(styleObj);
     });
 
@@ -23,6 +24,7 @@ describe('platform styles', () => {
         // @ts-expect-error No other way to redefine platform constants
         // eslint-disable-next-line no-import-assign
         constants.isWeb = true;
+
         expect(webStyles(styleObj)).toStrictEqual(styleObj);
     });
 
@@ -32,6 +34,7 @@ describe('platform styles', () => {
         // @ts-expect-error No other way to redefine platform constants
         // eslint-disable-next-line no-import-assign
         constants.isIOS = true;
+
         expect(iosStyles(styleObj)).toStrictEqual(styleObj);
     });
 
@@ -41,6 +44,7 @@ describe('platform styles', () => {
         // @ts-expect-error No other way to redefine platform constants
         // eslint-disable-next-line no-import-assign
         constants.isAndroid = true;
+
         expect(androidStyles(styleObj)).toStrictEqual(styleObj);
     });
 
@@ -50,6 +54,7 @@ describe('platform styles', () => {
         // @ts-expect-error No other way to redefine platform constants
         // eslint-disable-next-line no-import-assign
         constants.isMobile = true;
+
         expect(mobileStyles(styleObj)).toStrictEqual(styleObj);
     });
 });

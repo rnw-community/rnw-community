@@ -57,20 +57,6 @@ module.exports = {
         '@typescript-eslint/no-magic-numbers': ['off'],
         '@typescript-eslint/init-declarations': 'off',
         '@typescript-eslint/no-confusing-void-expression': ['error', { ignoreVoidOperator: true }],
-        '@typescript-eslint/member-delimiter-style': [
-            'error',
-            {
-                multiline: {
-                    delimiter: 'semi',
-                    requireLast: true,
-                },
-                singleline: {
-                    delimiter: 'semi',
-                    requireLast: false,
-                },
-                multilineDetection: 'brackets',
-            },
-        ],
         '@typescript-eslint/member-ordering': [
             'error',
             {
@@ -164,7 +150,6 @@ module.exports = {
         '@typescript-eslint/no-meaningless-void-operator': 'off',
         '@typescript-eslint/promise-function-async': 'off',
         '@typescript-eslint/max-params': ['error', { max: 4 }],
-        'lines-between-class-members': 'off',
         'import/namespace': 'off',
         'import/order': [
             'error',
