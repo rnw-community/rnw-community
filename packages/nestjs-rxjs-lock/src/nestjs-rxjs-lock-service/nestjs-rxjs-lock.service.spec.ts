@@ -49,12 +49,14 @@ describe('nestJSRxJSLockService', () => {
                 );
                 expect(handler$).toHaveBeenCalledWith();
                 expect(mockRelease).toHaveBeenCalledWith();
+
                 done();
             });
         });
 
         it('should re-throw an error thrown by the lock acquiring', done => {
             expect.assertions(3);
+
             jest.clearAllMocks();
 
             const nestJSRxJSLockService = new LockService(getRedisService(), defaultNestJSRxJSLockModuleOptions);
@@ -69,6 +71,7 @@ describe('nestJSRxJSLockService', () => {
                     expect((e as string).toString()).toBe(`Error: Lock failed`);
                     expect(handler$).toHaveBeenCalledTimes(0);
                     expect(mockRelease).toHaveBeenCalledTimes(0);
+
                     done();
                 },
                 done
@@ -77,6 +80,7 @@ describe('nestJSRxJSLockService', () => {
 
         it('should silence lock release error', done => {
             expect.assertions(2);
+
             jest.clearAllMocks();
 
             const nestJSRxJSLockService = new LockService(getRedisService(), defaultNestJSRxJSLockModuleOptions);

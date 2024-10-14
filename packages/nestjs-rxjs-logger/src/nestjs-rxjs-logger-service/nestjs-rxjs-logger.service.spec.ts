@@ -81,6 +81,7 @@ const print$Test =
             stream.subscribe({
                 next: value => {
                     const textMessage = typeof logMessage === 'function' ? logMessage(value) : logMessage;
+
                     expect(loggerMethod).toHaveBeenCalledWith(textMessage, logContext);
 
                     resolve(true);
@@ -93,34 +94,47 @@ const print$Test =
 // eslint-disable-next-line max-statements
 describe('nestJsRxJSLoggerService', () => {
     it('should create observable and output log with info log level', create$Test('log', AppLogLevelEnum.info));
+
     it('should create observable and output log with info log debug', create$Test('debug', AppLogLevelEnum.debug));
+
     it('should create observable and output log with info log warn', create$Test('warn', AppLogLevelEnum.warn));
+
     it('should create observable and output log with info log error', create$Test('warn', AppLogLevelEnum.error));
+
     it('should create observable and output log with info log verbose', create$Test('warn', AppLogLevelEnum.verbose));
+
     it('should create observable with default context and log level', create$Test('warn'));
 
     it('should print info log message', print$Test('info', 'log', 'test-info'));
+
     it('should print debug log message', print$Test('debug', 'debug', 'test-debug'));
+
     it('should print warn log message', print$Test('warn', 'warn', 'test-warn'));
+
     it('should print error log message', print$Test('error', 'error', 'test-error'));
+
     it('should print verbose log message', print$Test('verbose', 'verbose', 'test-verbose'));
 
     it(
         'should print info with log message function',
         print$Test('info', 'log', () => 'test-info')
     );
+
     it(
         'should print debug with log message function',
         print$Test('debug', 'debug', () => 'test-debug')
     );
+
     it(
         'should print warn with log message function',
         print$Test('warn', 'warn', () => 'test-warn')
     );
+
     it(
         'should print error with log message function',
         print$Test('error', 'error', () => 'test-error')
     );
+
     it(
         'should print verbose with log message function',
         print$Test('verbose', 'verbose', () => 'test-verbose')
@@ -161,6 +175,7 @@ describe('nestJsRxJSLoggerService', () => {
                 next: reject,
                 error: (error: unknown) => {
                     expect(loggerMethod).toHaveBeenCalledWith(errorMessageFn(error), '');
+
                     resolve(true);
                 },
             });
@@ -176,6 +191,7 @@ describe('nestJsRxJSLoggerService', () => {
         const testMessage = 'test';
 
         service.print(testMessage);
+
         expect(loggerMethod).toHaveBeenCalledWith(testMessage, '');
     });
 });

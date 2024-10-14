@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/ban-types */
 import { isAndroid, isIOS, isMobile, isWeb } from '../platform/platform';
 
 import type { CSSProperties } from 'react';

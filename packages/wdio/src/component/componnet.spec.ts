@@ -12,6 +12,7 @@ describe('Component', () => {
         const component = new Component(mockDefaultConfig, ComponentSelectorsMock);
 
         await component.getChildEl('test-selector');
+
         expect(mockDefaultConfig.elSelectorFn).toHaveBeenCalledWith('test-selector');
     });
 
@@ -21,6 +22,7 @@ describe('Component', () => {
         const component = new Component(mockDefaultConfig, ComponentSelectorsMock);
 
         await component.getChildEls('test-selector');
+
         expect(mockDefaultConfig.elsSelectorFn).toHaveBeenCalledWith('test-selector');
     });
 

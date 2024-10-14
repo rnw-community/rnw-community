@@ -176,10 +176,12 @@ describe('getExtendedComponent', () => {
 
         const testData = 'test-data';
         component.setTestData(testData);
+
         expect(component.getTestData()).toBe(testData);
 
         const parentTestData = 'parent-test-data';
         component.setParentData(parentTestData);
+
         expect(component.getParentData()).toBe(parentTestData);
     });
 
@@ -190,10 +192,12 @@ describe('getExtendedComponent', () => {
 
         const testData = 'test-data';
         component.TestData = testData;
+
         expect(component.TestData).toBe(testData);
 
         const parentTestData = 'parent-test-data';
         component.ParentData = parentTestData;
+
         expect(component.ParentData).toBe(parentTestData);
     });
 });

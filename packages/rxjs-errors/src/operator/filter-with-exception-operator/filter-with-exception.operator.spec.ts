@@ -19,10 +19,12 @@ describe('filterWithException', () => {
                 .pipe(filterWithException(letter => letter === wanted, 'Error'))
                 .subscribe(value => {
                     expect(value).toBe(wanted);
+
                     resolve(true);
                 });
         });
     });
+
     it('should throw an error if condition returns false', async () => {
         expect.assertions(2);
 
@@ -44,6 +46,7 @@ describe('filterWithException', () => {
                 .subscribe();
         });
     });
+
     it('should narrow down typescript types when type guard is passed in', async () => {
         expect.assertions(1);
 
@@ -55,12 +58,14 @@ describe('filterWithException', () => {
                 .pipe(filterWithException(typeGuard, 'Error'))
                 .subscribe(value => {
                     expectTypeOf(value).toBeString();
+
                     expect(value).toBe(wanted);
 
                     resolve(true);
                 });
         });
     });
+
     it('should throw custom exception if provided a constructor fn', async () => {
         expect.assertions(2);
 
@@ -86,6 +91,7 @@ describe('filterWithException', () => {
                 .subscribe();
         });
     });
+
     it('should use error message function when error is thrown', async () => {
         expect.assertions(1);
 

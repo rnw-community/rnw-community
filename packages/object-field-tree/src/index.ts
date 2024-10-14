@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any,@typescript-eslint/ban-types,@typescript-eslint/ban-ts-comment */
 import type { DataFn1, DataFn2, DataFn3, DataFn4, DataFn5 } from './type/data-fn.type';
 import type { CombineReturn1, CombineReturn2, CombineReturn3, CombineReturn4, CombineReturn5 } from './type/return.type';
 import type { Enum } from '@rnw-community/shared';
@@ -34,20 +33,20 @@ export function combine<D, T1 extends Enum, T2 extends Enum, T3 extends Enum, T4
 ): CombineReturn5<D, T1, T2, T3, T4, T5>;
 
 // TODO: Introduce non-recursive optimized solution
-// eslint-disable-next-line func-style
+// eslint-disable-next-line func-style,@typescript-eslint/no-explicit-any
 export function combine(dataFn: (...keys: any) => any, ...objects: any[]): any {
     const result = {};
 
     const obj = objects.shift() as object;
     if (objects.length > 0) {
         for (const key of Object.keys(obj)) {
-            // @ts-expect-error
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-return,@typescript-eslint/no-unsafe-argument
+            // @ts-expect-error Needs improvement
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-return,@typescript-eslint/no-unsafe-argument,@typescript-eslint/no-explicit-any
             result[key] = combine((...args: any[]) => dataFn(key, ...args), ...objects);
         }
     } else {
         for (const key of Object.keys(obj)) {
-            // @ts-expect-error
+            // @ts-expect-error Needs improvement
             // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
             result[key] = dataFn(key);
         }

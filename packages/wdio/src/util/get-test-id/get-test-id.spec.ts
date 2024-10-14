@@ -17,6 +17,7 @@ describe('getTestID', () => {
 
         expect(getTestID(props)).toBe('test');
     });
+
     it('should return testID prop for the react-native', () => {
         expect.assertions(1);
 
@@ -26,6 +27,7 @@ describe('getTestID', () => {
 
         expect(getTestID(props)).toBe('test');
     });
+
     it('should return default testID if props does not have it', () => {
         expect.assertions(1);
 

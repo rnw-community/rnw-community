@@ -21,6 +21,7 @@ describe('getRootedComponent', () => {
 
         const component = new DefaultRootRootedComponentMock();
         await component.waitForDisplayed({ reverse: true });
+
         expect(mockDefaultConfig.elSelectorFn).toHaveBeenCalledWith(RootedComponentSelectorsMock.Root);
     });
 });

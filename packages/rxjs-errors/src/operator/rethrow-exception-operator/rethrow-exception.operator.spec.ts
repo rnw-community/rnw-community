@@ -38,8 +38,10 @@ describe('rethrowException', () => {
                 .subscribe(() => void resolve(true));
         });
     });
+
     it('should rethrow the error as is if the caught error is an instance of RxJSFilterError', async () => {
         expect.assertions(1);
+
         await new Promise(resolve => {
             const wantedErrorMsg = 'wanted error message';
 
@@ -60,6 +62,7 @@ describe('rethrowException', () => {
                 .subscribe();
         });
     });
+
     it('should throw a custom error if caught an error of other type', async () => {
         expect.assertions(2);
 
@@ -91,6 +94,7 @@ describe('rethrowException', () => {
                 .subscribe(() => void resolve(true));
         });
     });
+
     it('should rethrow the error as is if the caught error is an instance of passed in custom error', async () => {
         expect.assertions(2);
 
@@ -117,6 +121,7 @@ describe('rethrowException', () => {
                 .subscribe();
         });
     });
+
     it('should call custom error creator if provided', async () => {
         expect.assertions(2);
 
@@ -145,6 +150,7 @@ describe('rethrowException', () => {
                 .subscribe();
         });
     });
+
     it('should allow creating exceptions with more than one argument', async () => {
         expect.assertions(3);
 
@@ -182,6 +188,7 @@ describe('rethrowException', () => {
                 .subscribe();
         });
     });
+
     it('should ignore passed in exceptions with more than one argument', async () => {
         expect.assertions(3);
 

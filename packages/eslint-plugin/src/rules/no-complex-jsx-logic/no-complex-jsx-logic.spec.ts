@@ -3,11 +3,12 @@ import { RuleTester } from '@typescript-eslint/rule-tester';
 import { noComplexJsxLogicRule } from './no-complex-jsx-logic.rule';
 
 const ruleTester = new RuleTester({
-    parser: '@typescript-eslint/parser',
-    parserOptions: {
-        ecmaVersion: 2018,
-        ecmaFeatures: { jsx: true },
-        sourceType: 'module',
+    languageOptions: {
+        parserOptions: {
+            ecmaVersion: 2018,
+            ecmaFeatures: { jsx: true },
+            sourceType: 'module',
+        },
     },
 });
 

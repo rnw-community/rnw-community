@@ -160,6 +160,7 @@ describe('getFont', () => {
         expect.hasAssertions();
 
         const Font = getFont(TestFontFamilyEnum, TestFontSizeEnum, TestFontColorEnum);
+
         expect(Font).toStrictEqual(expectedTree);
     });
 
@@ -168,6 +169,7 @@ describe('getFont', () => {
 
         const getFontError = (): ReturnType<typeof getFont> =>
             getFont(TestFontFamilyEnum, TestFontSizeNumericEnum, TestFontColorEnum);
+
         expect(getFontError).toThrow('fontSizeObj must have string values');
     });
 
@@ -175,6 +177,7 @@ describe('getFont', () => {
         expect.hasAssertions();
 
         const Font = getFont(TestFontFamilyEnum, TestFontSizeEnum, TestFontColorEnum, additionalStyleMock);
+
         expect(Font).toStrictEqual(expectedExtendedTree);
     });
 });
