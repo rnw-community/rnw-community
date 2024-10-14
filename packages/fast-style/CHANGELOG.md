@@ -3,6 +3,10 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.75.4](https://github.com/rnw-community/rnw-community/compare/v0.75.3...v0.75.4) (2024-10-14)
+
+**Note:** Version bump only for package @rnw-community/fast-style
+
 # [0.75.0](https://github.com/rnw-community/rnw-community/compare/v0.74.4...v0.75.0) (2024-10-10)
 
 **Note:** Version bump only for package @rnw-community/fast-style
