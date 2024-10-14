@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/ban-types */
 import { TurboModuleRegistry } from 'react-native';
 
 import type { TurboModule } from 'react-native';
@@ -12,7 +11,7 @@ export interface Spec extends TurboModule {
     abort: () => Promise<void>;
     canMakePayments: (methodData: string) => Promise<boolean>;
     complete: (paymentComplete: string) => Promise<void>;
-    show: (methodData: string, details: Object) => Promise<string>;
+    show: (methodData: string, details: object) => Promise<string>;
 }
 
 // ts-prune-ignore-next

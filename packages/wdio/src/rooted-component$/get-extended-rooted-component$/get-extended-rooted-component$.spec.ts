@@ -22,6 +22,7 @@ describe('getExtendedRootedComponent$', () => {
 
         const component = new DefaultRootRootedExtendedComponent$Mock();
         await component.waitForDisplayed({ reverse: true });
+
         expect(mockDefault$Config.elSelectorFn).toHaveBeenNthCalledWith(1, RootedComponent$SelectorsMock.Root$);
     });
 });
