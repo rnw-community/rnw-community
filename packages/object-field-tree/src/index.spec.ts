@@ -186,6 +186,7 @@ describe('combine', () => {
         expect.hasAssertions();
 
         const result = combine(dataFnMock, TestNumericEnum1, TestNumericEnum2);
+
         expect(result).toStrictEqual(expectedNumericObj1);
     });
 });

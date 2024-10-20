@@ -1,6 +1,6 @@
 {
     "name": "@rnw-community/react-native-payments",
-    "version": "0.74.4",
+    "version": "0.75.4",
     "description": "React Native Payments",
     "keywords": [
         "react",
@@ -28,7 +28,8 @@
         ".": {
             "import": "./dist/esm/index.js",
             "require": "./dist/cjs/index.js"
-        }
+        },
+        "./package.json": "./package.json"
     },
     "react-native": "src/index.ts",
     "main": "dist/cjs/index.js",
@@ -82,7 +83,7 @@
     "devDependencies": {
         "@types/validator": "^13.7.17",
         "react": "^18.2.0",
-        "react-native": "^0.72.3"
+        "react-native": "^0.74.6"
     },
     "peerDependencies": {
         "react": ">=17",

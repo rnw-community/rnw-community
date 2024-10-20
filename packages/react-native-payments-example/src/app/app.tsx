@@ -2,9 +2,10 @@ import React, { useEffect, useState } from 'react';
 import { Button, SafeAreaView, Text } from 'react-native';
 
 import {
-    AndroidPaymentMethodDataInterface,
-    IosPaymentMethodDataInterface,
+    type AndroidPaymentMethodDataInterface,
+    type IosPaymentMethodDataInterface,
     PaymentComplete,
+    type PaymentDetailsInit,
     PaymentRequest,
 } from '@rnw-community/react-native-payments';
 import { getErrorMessage, isDefined } from '@rnw-community/shared';
@@ -17,7 +18,7 @@ import {
     iosPaymentMethodData as defaultIosPaymentMethodData,
     iosPaymentMethodDataWithoutShipping,
 } from '../method-data/ios-payment-method-data';
-import { paymentDetails } from '../payment-details';
+import { paymentDetails as defaultPaymentDetails, paymentDetailsWithoutDisplayItems } from '../payment-details';
 
 /*
  * TODO: Add UI to add items
@@ -28,10 +29,17 @@ export const App = (): JSX.Element => {
     const [response, setResponse] = useState<object>();
     const [isWalletAvailable, setIsWalletAvailable] = useState(false);
 
-    const createPaymentRequest = (
-        iosPaymentMethodData?: IosPaymentMethodDataInterface,
-        androidPaymentMethodData?: AndroidPaymentMethodDataInterface
-    ): PaymentRequest => {
+    interface CreatePaymentRequestProps {
+        androidPaymentMethodData?: AndroidPaymentMethodDataInterface;
+        iosPaymentMethodData?: IosPaymentMethodDataInterface;
+        paymentDetails?: PaymentDetailsInit;
+    }
+
+    const createPaymentRequest = ({
+        androidPaymentMethodData,
+        iosPaymentMethodData,
+        paymentDetails,
+    }: CreatePaymentRequestProps = {}): PaymentRequest => {
         setError('');
         setResponse(undefined);
 
@@ -40,7 +48,7 @@ export const App = (): JSX.Element => {
                 iosPaymentMethodData ?? defaultIosPaymentMethodData,
                 androidPaymentMethodData ?? defaultAndroidPaymentMethodData,
             ],
-            paymentDetails
+            paymentDetails ?? defaultPaymentDetails
         );
     };
 
@@ -54,6 +62,18 @@ export const App = (): JSX.Element => {
             })
             .catch((err: unknown) => void setError(getErrorMessage(err)));
     };
+
+    const handlePayWithoutDisplayItems = (): void => {
+        createPaymentRequest({ paymentDetails: paymentDetailsWithoutDisplayItems })
+            .show()
+            .then(paymentResponse => {
+                setResponse(paymentResponse.details);
+
+                return paymentResponse.complete(PaymentComplete.SUCCESS);
+            })
+            .catch((err: unknown) => void setError(getErrorMessage(err)));
+    };
+
     const handlePayWithAbort = (): void => {
         const paymentRequest = createPaymentRequest();
 
@@ -65,7 +85,10 @@ export const App = (): JSX.Element => {
     };
 
     const handlePayWithoutShipping = (): void => {
-        createPaymentRequest(iosPaymentMethodDataWithoutShipping, androidPaymentMethodDataWithoutShipping)
+        createPaymentRequest({
+            iosPaymentMethodData: iosPaymentMethodDataWithoutShipping,
+            androidPaymentMethodData: androidPaymentMethodDataWithoutShipping,
+        })
             .show()
             .then(paymentResponse => {
                 setResponse(paymentResponse.details);
@@ -89,6 +112,7 @@ export const App = (): JSX.Element => {
             {isWalletAvailable ? (
                 <>
                     <Button onPress={handlePay} title="AndroidPay/ApplePay" />
+                    <Button onPress={handlePayWithoutDisplayItems} title="ApplePay without displayItems" />
                     <Button onPress={handlePayWithAbort} title="ApplePay with delayed abort" />
                     <Button onPress={handlePayWithoutShipping} title="AndroidPay/ApplePay without shipping" />
                     <Text>{error}</Text>

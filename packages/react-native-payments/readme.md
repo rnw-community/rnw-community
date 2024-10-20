@@ -248,6 +248,32 @@ payment process or when specific conditions require the payment request to be ab
 
 > This will have no affect in the Android platform due to AndroidPay implementation.
 
+
+## Unit testing
+Due to new TurboModules architecture in React Native, you can [encounter issues](https://github.com/rnw-community/rnw-community/issues/227) with Jest tests. To fix this, you can mock
+the TurboModuleRegistry to disable the `Payment` module in Jest tests. Here is an example of how you can do this:
+
+```ts
+const turboModuleRegistry = jest.requireActual(
+  'react-native/Libraries/TurboModule/TurboModuleRegistry'
+);
+
+/** HINT: Mock TurboModuleRegistry to disable the `Payment` module in Jest tests */
+export function setupJestTurboModuleMock(): void {
+  jest.mock('react-native/Libraries/TurboModule/TurboModuleRegistry', () => {
+    return {
+      ...turboModuleRegistry,
+      getEnforcing: (name: string) => {
+        if (name === 'Payment') {
+          return null; // Return null to mock the Payment module
+        }
+        return turboModuleRegistry.getEnforcing(name);
+      },
+    };
+  });
+}
+```
+
 ## Example
 
 You can find working example in the `App` component of

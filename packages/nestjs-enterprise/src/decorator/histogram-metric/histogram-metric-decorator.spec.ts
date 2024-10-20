@@ -60,6 +60,7 @@ describe(`HistogramMetric decorator`, () => {
         expect.assertions(3);
 
         const testClass = new TestClass();
+
         expect(() => testClass.testMethodError()).toThrow('test-error');
 
         expect(Histogram).toHaveBeenCalledWith({

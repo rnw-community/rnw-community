@@ -1,4 +1,3 @@
-// eslint-disable-next-line @typescript-eslint/ban-types
 type StyleType = Array<Record<string, unknown>> | object | false | null | undefined;
 
 /**

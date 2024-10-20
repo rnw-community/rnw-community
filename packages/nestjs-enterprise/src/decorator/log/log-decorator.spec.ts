@@ -140,11 +140,13 @@ describe('LogDecorator', () => {
         expect.assertions(1);
 
         const instance = new TestClass();
+
         expect(() => instance.testNoErrorArg(2)).toThrow(errorLogText);
     });
 
     it('should NOT output post log with no post log arg', () => {
         expect.assertions(1);
+
         jest.resetAllMocks();
 
         const instance = new TestClass();
@@ -217,6 +219,7 @@ describe('LogDecorator', () => {
 
         it('should output error log', () => {
             expect.assertions(2);
+
             jest.resetAllMocks();
 
             const instance = new TestClass();
@@ -231,6 +234,7 @@ describe('LogDecorator', () => {
 
         it('should output error log function with argument', () => {
             expect.assertions(2);
+
             jest.resetAllMocks();
 
             const instance = new TestClass();

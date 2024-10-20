@@ -15,6 +15,7 @@ describe('setTestID', () => {
 
         expect(setTestID('test')).toMatchObject({ [WebSelectorConfig]: 'test' });
     });
+
     it('should return object with testID prop for ios', () => {
         expect.assertions(1);
 
@@ -22,6 +23,7 @@ describe('setTestID', () => {
 
         expect(setTestID('test')).toMatchObject({ testID: 'test' });
     });
+
     it('should return object with testID and accessibilityLabel prop for android', () => {
         expect.assertions(1);
 
@@ -29,6 +31,7 @@ describe('setTestID', () => {
 
         expect(setTestID('test')).toMatchObject({ testID: 'test', accessibilityLabel: 'test' });
     });
+
     it('should modify testID using rest args with underscore', () => {
         expect.assertions(1);
 
