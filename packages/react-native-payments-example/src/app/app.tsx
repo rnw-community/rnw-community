@@ -1,11 +1,23 @@
 import React, { useEffect, useState } from 'react';
 import { Button, SafeAreaView, Text } from 'react-native';
 
-import { PaymentComplete, PaymentRequest, PaymentDetailsInit } from '@rnw-community/react-native-payments';
+import {
+    type AndroidPaymentMethodDataInterface,
+    type IosPaymentMethodDataInterface,
+    PaymentComplete,
+    type PaymentDetailsInit,
+    PaymentRequest,
+} from '@rnw-community/react-native-payments';
 import { getErrorMessage, isDefined } from '@rnw-community/shared';
 
-import { androidPaymentMethodData } from '../method-data/android-payment-method-data';
-import { iosPaymentMethodData } from '../method-data/ios-payment-method-data';
+import {
+    androidPaymentMethodDataWithoutShipping,
+    androidPaymentMethodData as defaultAndroidPaymentMethodData,
+} from '../method-data/android-payment-method-data';
+import {
+    iosPaymentMethodData as defaultIosPaymentMethodData,
+    iosPaymentMethodDataWithoutShipping,
+} from '../method-data/ios-payment-method-data';
 import { paymentDetails as defaultPaymentDetails, paymentDetailsWithoutDisplayItems } from '../payment-details';
 
 /*
@@ -17,11 +29,27 @@ export const App = (): JSX.Element => {
     const [response, setResponse] = useState<object>();
     const [isWalletAvailable, setIsWalletAvailable] = useState(false);
 
-    const createPaymentRequest = (paymentDetails?: PaymentDetailsInit): PaymentRequest => {
+    interface CreatePaymentRequestProps {
+        androidPaymentMethodData?: AndroidPaymentMethodDataInterface;
+        iosPaymentMethodData?: IosPaymentMethodDataInterface;
+        paymentDetails?: PaymentDetailsInit;
+    }
+
+    const createPaymentRequest = ({
+        androidPaymentMethodData,
+        iosPaymentMethodData,
+        paymentDetails,
+    }: CreatePaymentRequestProps = {}): PaymentRequest => {
         setError('');
         setResponse(undefined);
 
-        return new PaymentRequest([iosPaymentMethodData, androidPaymentMethodData], paymentDetails ?? defaultPaymentDetails);
+        return new PaymentRequest(
+            [
+                iosPaymentMethodData ?? defaultIosPaymentMethodData,
+                androidPaymentMethodData ?? defaultAndroidPaymentMethodData,
+            ],
+            paymentDetails ?? defaultPaymentDetails
+        );
     };
 
     const handlePay = (): void => {
@@ -36,7 +64,7 @@ export const App = (): JSX.Element => {
     };
 
     const handlePayWithoutDisplayItems = (): void => {
-        createPaymentRequest(paymentDetailsWithoutDisplayItems)
+        createPaymentRequest({ paymentDetails: paymentDetailsWithoutDisplayItems })
             .show()
             .then(paymentResponse => {
                 setResponse(paymentResponse.details);
@@ -56,6 +84,20 @@ export const App = (): JSX.Element => {
         setTimeout(() => void paymentRequest.abort(), 1000);
     };
 
+    const handlePayWithoutShipping = (): void => {
+        createPaymentRequest({
+            iosPaymentMethodData: iosPaymentMethodDataWithoutShipping,
+            androidPaymentMethodData: androidPaymentMethodDataWithoutShipping,
+        })
+            .show()
+            .then(paymentResponse => {
+                setResponse(paymentResponse.details);
+
+                return paymentResponse.complete(PaymentComplete.SUCCESS);
+            })
+            .catch((err: unknown) => void setError(getErrorMessage(err)));
+    };
+
     useEffect(() => {
         createPaymentRequest()
             .canMakePayment()
@@ -72,6 +114,7 @@ export const App = (): JSX.Element => {
                     <Button onPress={handlePay} title="AndroidPay/ApplePay" />
                     <Button onPress={handlePayWithoutDisplayItems} title="ApplePay without displayItems" />
                     <Button onPress={handlePayWithAbort} title="ApplePay with delayed abort" />
+                    <Button onPress={handlePayWithoutShipping} title="AndroidPay/ApplePay without shipping" />
                     <Text>{error}</Text>
                     {isDefined(response) && <Text style={responseTextStyle}>Response:{JSON.stringify(response)}</Text>}
                 </>
