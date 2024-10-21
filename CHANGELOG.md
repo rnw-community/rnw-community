@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.76.0](https://github.com/rnw-community/rnw-community/compare/v0.75.4...v0.76.0) (2024-10-21)
+
+### Features
+
+-   **nestjs-enterprise:** improved HistogramMetric memory usage ([#239](https://github.com/rnw-community/rnw-community/issues/239)) ([e5d10b8](https://github.com/rnw-community/rnw-community/commit/e5d10b8ff0f35d0e130101d485bd45dbdbaa161c))
+
 ## [0.75.4](https://github.com/rnw-community/rnw-community/compare/v0.75.3...v0.75.4) (2024-10-14)
 
 **Note:** Version bump only for package rnw-community
