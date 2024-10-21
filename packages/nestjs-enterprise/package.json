@@ -12,14 +12,18 @@
     "repository": "https://github.com/rnw-community/rnw-community/tree/master/packages/nestjs-enterprise",
     "license": "MIT",
     "exports": {
-      "HistogramMetric": {
-        "import": "./dist/esm/decorator/histogram-metric/histogram-metric.decorator.js",
-        "require": "./dist/cjs/decorator/histogram-metric/histogram-metric.decorator.js"
-      },
-      "Log": {
-        "import": "./dist/esm/decorator/log/log.decorator.js",
-        "require": "./dist/cjs/decorator/log/log.decorator.js"
-      }
+        ".": {
+            "import": "./dist/esm/index.js",
+            "require": "./dist/cjs/index.js"
+        },
+        "HistogramMetric": {
+            "import": "./dist/esm/decorator/histogram-metric/histogram-metric.decorator.js",
+            "require": "./dist/cjs/decorator/histogram-metric/histogram-metric.decorator.js"
+        },
+        "Log": {
+            "import": "./dist/esm/decorator/log/log.decorator.js",
+            "require": "./dist/cjs/decorator/log/log.decorator.js"
+        }
     },
     "main": "dist/cjs/index.js",
     "module": "dist/esm/index.js",
