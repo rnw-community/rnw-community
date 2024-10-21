@@ -1,6 +1,6 @@
 {
     "name": "@rnw-community/eslint-plugin",
-    "version": "0.75.0",
+    "version": "0.75.4",
     "description": "RNW-Community ESLint plugin",
     "keywords": [
         "eslint",
@@ -45,9 +45,9 @@
     },
     "gitHead": "b5608910319390f9773a9d42c3cc828e8e8a1d95",
     "dependencies": {
-        "@typescript-eslint/parser": "^6.14.0",
-        "@typescript-eslint/rule-tester": "^6.14.0",
-        "@typescript-eslint/utils": "^6.14.0"
+        "@typescript-eslint/parser": "^8.8.1",
+        "@typescript-eslint/rule-tester": "^8.8.1",
+        "@typescript-eslint/utils": "^8.8.1"
     },
     "devDependencies": {
         "@types/eslint": "^8.56.12"
