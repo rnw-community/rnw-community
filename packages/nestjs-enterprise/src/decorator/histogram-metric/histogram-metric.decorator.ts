@@ -1,4 +1,6 @@
-import { Histogram, type HistogramConfiguration } from 'prom-client';
+import { Histogram, type HistogramConfiguration, register } from 'prom-client';
+
+import { isDefined } from '@rnw-community/shared';
 
 import type { MethodDecoratorType } from '../../type/method-decorator.type';
 
@@ -8,11 +10,15 @@ export const HistogramMetric =
         configuration?: Omit<HistogramConfiguration<M>, 'name'>
     ): MethodDecoratorType<TResult, TArgs> =>
     (_target, _propertyKey, descriptor) => {
-        const histogram = new Histogram({
-            help: metricName,
-            ...configuration,
-            name: metricName,
-        });
+        let histogram = register.getSingleMetric(metricName) as Histogram<M> | undefined;
+
+        if (!isDefined(histogram)) {
+            histogram = new Histogram({
+                help: metricName,
+                ...configuration,
+                name: metricName,
+            });
+        }
 
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         const originalMethod = descriptor.value!;

@@ -14,7 +14,18 @@
     "exports": {
         ".": {
             "import": "./dist/esm/index.js",
-            "require": "./dist/cjs/index.js"
+            "require": "./dist/cjs/index.js",
+            "types": "./dist/esm/index.d.ts"
+        },
+        "./HistogramMetric": {
+            "import": "./dist/esm/decorator/histogram-metric/histogram-metric.decorator.js",
+            "require": "./dist/cjs/decorator/histogram-metric/histogram-metric.decorator.js",
+            "types": "./dist/esm/decorator/histogram-metric/histogram-metric.decorator.d.ts"
+        },
+        "./Log": {
+            "import": "./dist/esm/decorator/log/log.decorator.js",
+            "require": "./dist/cjs/decorator/log/log.decorator.js",
+            "types": "./dist/esm/decorator/log/log.decorator.d.ts"
         }
     },
     "main": "dist/cjs/index.js",

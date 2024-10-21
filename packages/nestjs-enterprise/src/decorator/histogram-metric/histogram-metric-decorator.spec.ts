@@ -26,6 +26,9 @@ jest.mock('prom-client', () => ({
     Histogram: jest.fn().mockImplementation(() => ({
         startTimer: jest.fn().mockImplementation(() => mockEndTimer),
     })),
+    register: {
+        getSingleMetric: jest.fn().mockReturnValue(undefined),
+    },
 }));
 
 describe(`HistogramMetric decorator`, () => {
