@@ -8,6 +8,7 @@ import { AndroidPaymentMethodTokenizationType } from '../../@standard/android/en
 import { defaultAndroidPaymentDataRequest } from '../../@standard/android/request/android-payment-data-request';
 import { defaultAndroidPaymentMethod } from '../../@standard/android/request/android-payment-method';
 import { defaultAndroidTransactionInfo } from '../../@standard/android/request/android-transaction-info';
+import { IOSPKContactField } from '../../@standard/ios/enum/ios-pk-contact-field.enum';
 import { IosPKMerchantCapability } from '../../@standard/ios/enum/ios-pk-merchant-capability.enum';
 import { IosPKPaymentNetworksEnum } from '../../@standard/ios/enum/ios-pk-payment-networks.enum';
 import { PaymentMethodNameEnum } from '../../enum/payment-method-name.enum';
@@ -30,7 +31,6 @@ import type { IosPaymentMethodDataDataInterface } from '../../@standard/ios/mapp
 import type { IosPaymentDataRequest } from '../../@standard/ios/request/ios-payment-data-request';
 import type { PaymentDetailsInit } from '../../@standard/w3c/payment-details-init';
 import type { PaymentMethodData } from '../../@standard/w3c/payment-method-data';
-import { IOSPKContactField } from '../../@standard/ios/enum/ios-pk-contact-field.enum';
 
 /*
  * HINT: Troubleshooting: https://developers.google.com/pay/api/android/support/troubleshooting
@@ -255,9 +255,9 @@ export class PaymentRequest {
             IosPKMerchantCapability.PKMerchantCapabilityCredit,
         ];
 
-        const requiredBillingFields = createArrayOfRequestedBillingFields();
+        const requiredBillingFields = this.createArrayOfRequestedBillingFields(methodData);
 
-        const requiredShippingFields = createArrayOfRequestedShippingFields();
+        const requiredShippingFields = this.createArrayOfRequestedShippingFields(methodData);
 
         const isShippingRequired = requiredShippingFields.length > 0;
 
@@ -272,30 +272,34 @@ export class PaymentRequest {
             ...(methodData.requestBillingAddress === true && { requiredBillingContactFields: requiredBillingFields }),
             ...(isShippingRequired && { requiredShippingContactFields: requiredShippingFields }),
         };
+    }
 
-        function createArrayOfRequestedBillingFields() {
-            const requiredBillingFields = [];
-            if (methodData.requestBillingAddress) {
-                requiredBillingFields.push(IOSPKContactField.PKContactFieldPostalAddress);
-            }
-            return requiredBillingFields;
+    // eslint-disable-next-line class-methods-use-this,@typescript-eslint/class-methods-use-this
+    private createArrayOfRequestedBillingFields(methodData: IosPaymentMethodDataDataInterface): IOSPKContactField[] {
+        const requiredBillingFields = [];
+        if (methodData.requestBillingAddress ?? false) {
+            requiredBillingFields.push(IOSPKContactField.PKContactFieldPostalAddress);
         }
 
-        function createArrayOfRequestedShippingFields() {
-            const requiredShippingFields = [];
-            if (methodData.requestPayerEmail) {
-                requiredShippingFields.push(IOSPKContactField.PKContactFieldEmailAddress);
-            }
-            if (methodData.requestPayerName) {
-                requiredShippingFields.push(IOSPKContactField.PKContactFieldName);
-            }
-            if (methodData.requestPayerPhone) {
-                requiredShippingFields.push(IOSPKContactField.PKContactFieldPhoneNumber);
-            }
-            if (methodData.requestShipping) {
-                requiredShippingFields.push(IOSPKContactField.PKContactFieldPostalAddress);
-            }
-            return requiredShippingFields;
+        return requiredBillingFields;
+    }
+
+    // eslint-disable-next-line class-methods-use-this,@typescript-eslint/class-methods-use-this
+    private createArrayOfRequestedShippingFields(methodData: IosPaymentMethodDataDataInterface): IOSPKContactField[] {
+        const requiredShippingFields = [];
+        if (methodData.requestPayerEmail ?? false) {
+            requiredShippingFields.push(IOSPKContactField.PKContactFieldEmailAddress);
         }
+        if (methodData.requestPayerName ?? false) {
+            requiredShippingFields.push(IOSPKContactField.PKContactFieldName);
+        }
+        if (methodData.requestPayerPhone ?? false) {
+            requiredShippingFields.push(IOSPKContactField.PKContactFieldPhoneNumber);
+        }
+        if (methodData.requestShipping ?? false) {
+            requiredShippingFields.push(IOSPKContactField.PKContactFieldPostalAddress);
+        }
+
+        return requiredShippingFields;
     }
 }

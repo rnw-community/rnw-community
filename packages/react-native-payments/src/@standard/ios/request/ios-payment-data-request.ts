@@ -1,4 +1,4 @@
-import { IOSPKContactField } from '../enum/ios-pk-contact-field.enum';
+import type { IOSPKContactField } from '../enum/ios-pk-contact-field.enum';
 import type { IosPKMerchantCapability } from '../enum/ios-pk-merchant-capability.enum';
 import type { IosPKPaymentNetworksEnum } from '../enum/ios-pk-payment-networks.enum';
 
