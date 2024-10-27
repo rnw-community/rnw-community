@@ -4732,7 +4732,7 @@ __metadata:
     "@nestjs/core": "npm:^10.2.7"
     "@rnw-community/shared": "workspace:*"
     ioredis: "npm:^5.4.1"
-    redlock: "npm:^5.0.0-beta.2"
+    redlock: "patch:redlock@npm%3A5.0.0-beta2#~/.yarn/patches/redlock-npm-5.0.0-beta2-4d0e335fe9.patch"
     rxjs: "npm:^7.8.1"
   languageName: unknown
   linkType: soft
@@ -16989,12 +16989,21 @@ __metadata:
   languageName: node
   linkType: hard
 
-"redlock@npm:^5.0.0-beta.2":
-  version: 5.0.0-beta.2
-  resolution: "redlock@npm:5.0.0-beta.2"
+"redlock@npm:5.0.0-beta2":
+  version: 5.0.0-beta2
+  resolution: "redlock@npm:5.0.0-beta2"
   dependencies:
     node-abort-controller: "npm:^3.0.1"
-  checksum: c1df94fb229182ccf59b744f600b45f2cda1d9c7e5b87b9bbf5c3ef92eb47339af7b33b80dc71e97c08c1f476443be68987dad6c49cfc1a89e9a647127884963
+  checksum: 0e515e3afcdd71ee551e677c0f97bb8d827d89f1aa467dcb281b4aa9f68fbadf19dcb823b1153ddf32964402d6dc6e48bcc9790d06fb5aba910d4fcf530a0ee7
+  languageName: node
+  linkType: hard
+
+"redlock@patch:redlock@npm%3A5.0.0-beta2#~/.yarn/patches/redlock-npm-5.0.0-beta2-4d0e335fe9.patch":
+  version: 5.0.0-beta2
+  resolution: "redlock@patch:redlock@npm%3A5.0.0-beta2#~/.yarn/patches/redlock-npm-5.0.0-beta2-4d0e335fe9.patch::version=5.0.0-beta2&hash=91e434"
+  dependencies:
+    node-abort-controller: "npm:^3.0.1"
+  checksum: 98aed82b1d60a91a2d01590920c223f42f64b1e743f4d79784eabdfcc30cd05bf15716a25c8dff05d2625c9d5992239cb23f07f56751fc55235578a85cb27f4a
   languageName: node
   linkType: hard
 

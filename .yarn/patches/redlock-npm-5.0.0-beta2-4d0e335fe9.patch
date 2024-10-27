@@ -1,0 +1,17 @@
+diff --git a/dist/cjs/index.js b/dist/cjs/index.js
+index c4bcc12ef66b817cdea5a0d37571e6a8714623ee..35b7bef63c2d0147a60044be499d0c10efaacccd 100644
+--- a/dist/cjs/index.js
++++ b/dist/cjs/index.js
+@@ -235,6 +235,12 @@ class Redlock extends events_1.EventEmitter {
+      * error, as the lock will automatically expire after its timeout.
+      */
+     async release(lock, settings) {
++        // Check if lock already expired and quit early
++        if (lock.expiration < Date.now()) {
++            const attempts: Promise<ExecutionStats>[] = [];
++            return Promise.resolve({ attempts });
++        }
++        
+         // Immediately invalidate the lock.
+         lock.expiration = 0;
+         // Attempt to release the lock.
