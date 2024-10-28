@@ -1,24 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { Button, SafeAreaView, Text } from 'react-native';
 
-import {
-    type AndroidPaymentMethodDataInterface,
-    type IosPaymentMethodDataInterface,
-    PaymentComplete,
-    type PaymentDetailsInit,
-    PaymentRequest,
-} from '@rnw-community/react-native-payments';
+import { PaymentComplete } from '@rnw-community/react-native-payments';
 import { getErrorMessage, isDefined } from '@rnw-community/shared';
 
-import {
-    androidPaymentMethodDataWithoutShipping,
-    androidPaymentMethodData as defaultAndroidPaymentMethodData,
-} from '../method-data/android-payment-method-data';
-import {
-    iosPaymentMethodData as defaultIosPaymentMethodData,
-    iosPaymentMethodDataWithoutShipping,
-} from '../method-data/ios-payment-method-data';
-import { paymentDetails as defaultPaymentDetails, paymentDetailsWithoutDisplayItems } from '../payment-details';
+import { createPaymentRequest } from '../createPaymentRequest';
+import { androidPaymentMethodDataWithoutShipping } from '../method-data/android-payment-method-data';
+import { iosPaymentMethodDataWithoutShipping } from '../method-data/ios-payment-method-data';
+import { paymentDetailsWithoutDisplayItems } from '../payment-details';
 
 /*
  * TODO: Add UI to add items
@@ -29,30 +18,13 @@ export const App = (): JSX.Element => {
     const [response, setResponse] = useState<object>();
     const [isWalletAvailable, setIsWalletAvailable] = useState(false);
 
-    interface CreatePaymentRequestProps {
-        androidPaymentMethodData?: AndroidPaymentMethodDataInterface;
-        iosPaymentMethodData?: IosPaymentMethodDataInterface;
-        paymentDetails?: PaymentDetailsInit;
-    }
-
-    const createPaymentRequest = ({
-        androidPaymentMethodData,
-        iosPaymentMethodData,
-        paymentDetails,
-    }: CreatePaymentRequestProps = {}): PaymentRequest => {
+    const clearErrorAndResponse = (): void => {
         setError('');
         setResponse(undefined);
-
-        return new PaymentRequest(
-            [
-                iosPaymentMethodData ?? defaultIosPaymentMethodData,
-                androidPaymentMethodData ?? defaultAndroidPaymentMethodData,
-            ],
-            paymentDetails ?? defaultPaymentDetails
-        );
     };
 
     const handlePay = (): void => {
+        clearErrorAndResponse();
         createPaymentRequest()
             .show()
             .then(paymentResponse => {
@@ -64,6 +36,7 @@ export const App = (): JSX.Element => {
     };
 
     const handlePayWithoutDisplayItems = (): void => {
+        clearErrorAndResponse();
         createPaymentRequest({ paymentDetails: paymentDetailsWithoutDisplayItems })
             .show()
             .then(paymentResponse => {
@@ -75,6 +48,7 @@ export const App = (): JSX.Element => {
     };
 
     const handlePayWithAbort = (): void => {
+        clearErrorAndResponse();
         const paymentRequest = createPaymentRequest();
 
         paymentRequest.show().catch((err: unknown) => {
@@ -85,6 +59,7 @@ export const App = (): JSX.Element => {
     };
 
     const handlePayWithoutShipping = (): void => {
+        clearErrorAndResponse();
         createPaymentRequest({
             iosPaymentMethodData: iosPaymentMethodDataWithoutShipping,
             androidPaymentMethodData: androidPaymentMethodDataWithoutShipping,
