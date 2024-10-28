@@ -5,14 +5,14 @@ import { isDefined, isNotEmptyString } from '@rnw-community/shared';
 
 import type { ErrorLogFunction } from './type/error-log-function.type';
 import type { PostLogFunction } from './type/post-log-function.type';
-import type { PreLogFunction } from './type/pre-log-function.type';
 import type { MethodDecoratorType } from '../../type/method-decorator.type';
+import type { PreDecoratorFunction } from '../../type/pre-decorator-function.type';
 
 type GetResultType<T> = T extends Promise<infer U> ? U : T extends Observable<infer U> ? U : T;
 
 export const Log =
     <TResult, TArgs extends unknown[] = unknown[]>(
-        preLog: PreLogFunction<TArgs> | string,
+        preLog: PreDecoratorFunction<TArgs> | string,
         postLog?: PostLogFunction<GetResultType<TResult>, TArgs> | string,
         errorLog?: ErrorLogFunction<TArgs> | string
     ): MethodDecoratorType<TResult, TArgs> =>
