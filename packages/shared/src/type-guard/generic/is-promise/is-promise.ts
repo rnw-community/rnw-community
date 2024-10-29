@@ -1,10 +1,9 @@
-import { isDefined } from '@rnw-community/shared';
+import { isDefined } from '../is-defined/is-defined';
 
 /*
- * TODO: Move to shared?
  * HINT: https://promisesaplus.com/#the-promise-resolution-procedure
  */
-export const isPromise = (value: unknown): value is Promise<unknown> =>
+export const isPromise = <T = unknown>(value: unknown): value is Promise<T> =>
     (typeof value === 'object' || typeof value === 'function') &&
     isDefined(value) &&
     'then' in value &&
