@@ -1,4 +1,5 @@
-import { isPromise } from '../util/is-promise.util';
+import { isPromise } from '@rnw-community/shared';
+
 import { runPreLock } from '../util/run-pre-lock.util';
 import { validateRedlock } from '../util/validate-redlock.util';
 

@@ -26,6 +26,7 @@ This package provides a set of convenient type guards for everyday usage with th
 - Generic:
   - [isDefined](src/type-guard/generic/is-defined/is-defined.md)
   - [isError](src/type-guard/generic/is-error/is-error.md)
+  - [isPromise](src/type-guard/generic/is-promise/is-promise.md)
 
 ## Utils
 

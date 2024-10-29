@@ -1,7 +1,7 @@
 import { Logger } from '@nestjs/common';
 import { type Observable, catchError, isObservable, tap, throwError } from 'rxjs';
 
-import { isDefined, isNotEmptyString } from '@rnw-community/shared';
+import { isDefined, isNotEmptyString, isPromise } from '@rnw-community/shared';
 
 import type { ErrorLogFunction } from './type/error-log-function.type';
 import type { PostLogFunction } from './type/post-log-function.type';
@@ -66,7 +66,7 @@ export const Log =
                                 return throwError(() => error);
                             })
                         ) as unknown as TResult;
-                    } else if (result instanceof Promise) {
+                    } else if (isPromise<R>(result)) {
                         return result.then(runPostLog).catch((error: unknown) => {
                             runErrorLog(error);
 

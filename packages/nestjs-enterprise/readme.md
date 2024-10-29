@@ -25,7 +25,7 @@ Peer dependencies that your project should contain:
 
 ## TODO
 
--  [ ] Implement single decorator that will work for both sync and async methods
+-  [ ] Implement single `Lock decorator` that will work for both sync and async methods
 
 ## License
 
