@@ -1,18 +1,18 @@
 import { Logger } from '@nestjs/common';
 import { type Observable, catchError, isObservable, tap, throwError } from 'rxjs';
 
-import { isDefined, isNotEmptyString } from '@rnw-community/shared';
+import { isDefined, isNotEmptyString, isPromise } from '@rnw-community/shared';
 
 import type { ErrorLogFunction } from './type/error-log-function.type';
 import type { PostLogFunction } from './type/post-log-function.type';
-import type { PreLogFunction } from './type/pre-log-function.type';
 import type { MethodDecoratorType } from '../../type/method-decorator.type';
+import type { PreDecoratorFunction } from '../../type/pre-decorator-function.type';
 
 type GetResultType<T> = T extends Promise<infer U> ? U : T extends Observable<infer U> ? U : T;
 
 export const Log =
     <TResult, TArgs extends unknown[] = unknown[]>(
-        preLog: PreLogFunction<TArgs> | string,
+        preLog: PreDecoratorFunction<TArgs> | string,
         postLog?: PostLogFunction<GetResultType<TResult>, TArgs> | string,
         errorLog?: ErrorLogFunction<TArgs> | string
     ): MethodDecoratorType<TResult, TArgs> =>
@@ -66,7 +66,7 @@ export const Log =
                                 return throwError(() => error);
                             })
                         ) as unknown as TResult;
-                    } else if (result instanceof Promise) {
+                    } else if (isPromise<R>(result)) {
                         return result.then(runPostLog).catch((error: unknown) => {
                             runErrorLog(error);
 

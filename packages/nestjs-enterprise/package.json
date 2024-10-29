@@ -26,6 +26,16 @@
             "import": "./dist/esm/decorator/log/log.decorator.js",
             "require": "./dist/cjs/decorator/log/log.decorator.js",
             "types": "./dist/esm/decorator/log/log.decorator.d.ts"
+        },
+        "./LockPromise": {
+            "import": "./dist/esm/decorator/lock/lock-promise/lock-promise.decorator.js",
+            "require": "./dist/cjs/decorator/lock/lock-promise/lock-promise.decorator.js",
+            "types": "./dist/esm/decorator/lock/lock-promise/lock-promise.decorator.d.ts"
+        },
+        "./LockObservable": {
+            "import": "./dist/esm/decorator/lock/lock-observable/lock-observable.decorator.js",
+            "require": "./dist/cjs/decorator/lock/lock-observable/lock-observable.decorator.js",
+            "types": "./dist/esm/decorator/lock/lock-observable/lock-observable.decorator.d.ts"
         }
     },
     "main": "dist/cjs/index.js",
@@ -60,12 +70,16 @@
     },
     "devDependencies": {
         "@nestjs/common": "^10.2.7",
+        "ioredis": "^5.4.1",
         "prom-client": "^15.1.2",
+        "redlock": "^5.0.0-beta.2",
         "rxjs": "^7.8.1"
     },
     "peerDependencies": {
         "@nestjs/common": "^10.2.7",
+        "ioredis": "^5.4.1",
         "prom-client": "^15.1.2",
+        "redlock": "^5.0.0-beta.2",
         "rxjs": "^7.8.1"
     }
 }
