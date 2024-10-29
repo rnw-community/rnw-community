@@ -3,10 +3,11 @@ import { beforeEach, describe, expect, it, jest } from '@jest/globals';
 import Redis from 'ioredis';
 import { Observable, of } from 'rxjs';
 
+import { getErrorMessage } from '@rnw-community/shared';
+
 import { LockableService } from '../service/lockable.service';
 
 import { LockObservable } from './lock-observable.decorator';
-import { getErrorMessage } from '@rnw-community/shared';
 
 const getRedisService = (): Redis => jest.fn() as unknown as Redis;
 const mockRelease = jest.fn<() => Promise<boolean>>().mockResolvedValue(true);
@@ -69,8 +70,9 @@ describe('LockObservableDecorator', () => {
         instance.testArray$().subscribe({
             next: value => {
                 expect(mockAcquire).toHaveBeenCalledWith([`test`], 1000);
-                expect(value).toStrictEqual(1);
+                expect(value).toBe(1);
                 expect(mockRelease).toHaveBeenCalledWith();
+
                 done();
             },
         });
@@ -84,7 +86,7 @@ describe('LockObservableDecorator', () => {
         instance.testFunction$(1).subscribe({
             next: value => {
                 expect(mockAcquire).toHaveBeenCalledWith([`test`, `1`], 1000);
-                expect(value).toEqual({ field: 1, id: 1 });
+                expect(value).toStrictEqual({ field: 1, id: 1 });
                 expect(mockRelease).toHaveBeenCalledWith();
 
                 done();
@@ -100,8 +102,8 @@ describe('LockObservableDecorator', () => {
         instance.redlock = undefined;
 
         instance.testMissingRedlock$(1).subscribe({
-            error: error => {
-                expect(getErrorMessage(error)).toStrictEqual(
+            error: (error: unknown) => {
+                expect(getErrorMessage(error)).toBe(
                     'Redlock is not available on this instance. Ensure that the class using the `Lock` decorator extends `LockableService` or provide redlock field manually.'
                 );
                 expect(mockAcquire).not.toHaveBeenCalledWith([`test`, `1`], 1000);
@@ -118,8 +120,8 @@ describe('LockObservableDecorator', () => {
         const instance = new TestObservableClass();
 
         instance.testEmptyResource$().subscribe({
-            error: error => {
-                expect(getErrorMessage(error)).toStrictEqual(`Lock key is not defined`);
+            error: (error: unknown) => {
+                expect(getErrorMessage(error)).toBe(`Lock key is not defined`);
                 expect(mockAcquire).not.toHaveBeenCalledWith([`test`], 1000);
                 expect(mockRelease).not.toHaveBeenCalledWith();
 
@@ -135,10 +137,8 @@ describe('LockObservableDecorator', () => {
 
         // HINT: Wrong types test
         (instance.testSync() as unknown as Observable<number>).subscribe({
-            error: error => {
-                expect(getErrorMessage(error)).toStrictEqual(
-                    `Method TestObservableClass::testSync does not return an observable`
-                );
+            error: (error: unknown) => {
+                expect(getErrorMessage(error)).toBe(`Method TestObservableClass::testSync does not return an observable`);
                 expect(mockAcquire).toHaveBeenCalledWith([`test`], 1000);
                 expect(mockRelease).toHaveBeenCalledWith();
 
