@@ -19,10 +19,13 @@ Peer dependencies that your project should contain:
 ## Contents
 - [Log Decorator](./src/decorator/log/log-decorator.md)
 - [Histogram Metric Decorator](./src/decorator/histogram-metric/histogram-metric-decorator.md)
+- [Lock Decorator](./src/decorator/lock/lock-decorator.md)
+  - [Lock Promise Decorator](./src/decorator/lock/lock-promise/lock-promise-decorator.md)
+  - [Lock Observable Decorator](./src/decorator/lock/lock-observable/lock-observable-decorator.md)
 
 ## TODO
 
--  [ ] Implement POC for lock decorator
+-  [ ] Implement single decorator that will work for both sync and async methods
 
 ## License
 
