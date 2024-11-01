@@ -1,6 +1,6 @@
 {
     "name": "@rnw-community/nestjs-enterprise",
-    "version": "0.76.0",
+    "version": "0.77.0",
     "description": "NestJS Enterprise is a collection of enterprise-grade modules for NestJS.",
     "keywords": [
         "nestjs",

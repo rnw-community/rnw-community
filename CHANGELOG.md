@@ -3,6 +3,19 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.77.0](https://github.com/rnw-community/rnw-community/compare/v0.76.0...v0.77.0) (2024-11-01)
+
+### Features
+
+-   **nestjs-enterprice:** added lock decorators ([#243](https://github.com/rnw-community/rnw-community/issues/243)) ([f5e8ef3](https://github.com/rnw-community/rnw-community/commit/f5e8ef3d2dff58efb6fac64769e776bcb4de5d39))
+-   **react-native-payments:** android cardInfo parsing, RN 0.76.1 support ([#246](https://github.com/rnw-community/rnw-community/issues/246)) ([d7876a6](https://github.com/rnw-community/rnw-community/commit/d7876a6270e4758d155c282f32d13753f5387a19))
+-   **shared:** added isPromise type guard ([#245](https://github.com/rnw-community/rnw-community/issues/245)) ([a99ebf8](https://github.com/rnw-community/rnw-community/commit/a99ebf872fab3f075358d091041527240783130d))
+
+### Reverts
+
+-   removed awesome lib ([df5151c](https://github.com/rnw-community/rnw-community/commit/df5151cbdfe841b18a2885cbc1e11031db476632))
+-   removed awesome lib ([1bc6b96](https://github.com/rnw-community/rnw-community/commit/1bc6b9602b1f961e68e494e23bf0c73d75b43070))
+
 # [0.76.0](https://github.com/rnw-community/rnw-community/compare/v0.75.4...v0.76.0) (2024-10-21)
 
 ### Features
