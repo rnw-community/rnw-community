@@ -1,0 +1,19 @@
+{
+  "name": "react-native-awesome-lib",
+  "version": "0.0.0",
+  "description": "asd",
+  "main": "src/index",
+  "codegenConfig": {
+    "name": "RNAwesomeLibSpec",
+    "type": "modules",
+    "jsSrcsDir": "src"
+  },
+  "author": " <> ()",
+  "license": "UNLICENSED",
+  "homepage": "#readme",
+  "create-react-native-library": {
+    "type": "module-mixed",
+    "languages": "kotlin-objc",
+    "version": "0.42.2"
+  }
+}

@@ -47,7 +47,7 @@
         "@rnw-community/shared": "workspace:*"
     },
     "devDependencies": {
-        "react-native": "^0.74.6"
+        "react-native": "^0.76.1"
     },
     "peerDependencies": {
         "react": ">=18",

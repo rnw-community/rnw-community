@@ -3,3 +3,8 @@ export interface AndroidAssuranceDetailsSpecifications {
     accountVerified: boolean;
     cardHolderAuthenticated: boolean;
 }
+
+export const emptyAndroidAssuranceDetailsSpecifications = {
+    accountVerified: false,
+    cardHolderAuthenticated: false,
+};

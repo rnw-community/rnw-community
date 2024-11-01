@@ -11,8 +11,9 @@ export interface Spec extends TurboModule {
     abort: () => Promise<void>;
     canMakePayments: (methodData: string) => Promise<boolean>;
     complete: (paymentComplete: string) => Promise<void>;
-    show: (methodData: string, details: object) => Promise<string>;
+    // eslint-disable-next-line @typescript-eslint/no-wrapper-object-types,@typescript-eslint/ban-types
+    show: (methodData: string, details: Object) => Promise<string>;
 }
 
 // ts-prune-ignore-next
-export default TurboModuleRegistry.getEnforcing<Spec>('Payments');
+export default TurboModuleRegistry.get<Spec>('Payments');

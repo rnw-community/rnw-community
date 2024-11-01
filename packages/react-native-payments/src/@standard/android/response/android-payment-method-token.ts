@@ -1,3 +1,4 @@
+import { type AndroidCardInfo, emptyAndroidCardInfo } from './android-card-info';
 import { emptyAndroidIntermediateSigningKey } from './android-intermediate-signing-key';
 import { emptyAndroidSignedMessage } from './android-signed-message';
 
@@ -5,6 +6,7 @@ import type { AndroidIntermediateSigningKey } from './android-intermediate-signi
 import type { AndroidSignedMessage } from './android-signed-message';
 
 export interface AndroidPaymentMethodToken {
+    cardInfo: AndroidCardInfo;
     intermediateSigningKey: AndroidIntermediateSigningKey;
     protocolVersion: string;
     rawToken: string;
@@ -18,4 +20,5 @@ export const emptyAndroidPaymentMethodToken: AndroidPaymentMethodToken = {
     signature: '',
     signedMessage: emptyAndroidSignedMessage,
     rawToken: '',
+    cardInfo: emptyAndroidCardInfo,
 };
