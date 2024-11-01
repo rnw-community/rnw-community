@@ -17272,6 +17272,12 @@ __metadata:
   languageName: node
   linkType: hard
 
+"react-native-awesome-lib@workspace:packages/awesome-lib":
+  version: 0.0.0-use.local
+  resolution: "react-native-awesome-lib@workspace:packages/awesome-lib"
+  languageName: unknown
+  linkType: soft
+
 "react-native-config@npm:^1.4.2":
   version: 1.5.1
   resolution: "react-native-config@npm:1.5.1"
