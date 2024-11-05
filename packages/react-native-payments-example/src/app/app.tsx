@@ -4,7 +4,7 @@ import { Button, SafeAreaView, Text } from 'react-native';
 import { PaymentComplete } from '@rnw-community/react-native-payments';
 import { getErrorMessage, isDefined } from '@rnw-community/shared';
 
-import { createPaymentRequest } from '../createPaymentRequest';
+import { createPaymentRequest } from '../create-payment-request';
 import { androidPaymentMethodDataWithoutShipping } from '../method-data/android-payment-method-data';
 import { iosPaymentMethodDataWithoutShipping } from '../method-data/ios-payment-method-data';
 import { paymentDetailsWithoutDisplayItems } from '../payment-details';
