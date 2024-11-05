@@ -255,11 +255,9 @@ export class PaymentRequest {
             IosPKMerchantCapability.PKMerchantCapabilityCredit,
         ];
 
-        const requiredBillingFields = this.createArrayOfRequestedBillingFields(methodData);
+        const requestedShippingFields = this.getRequestedShippingFields(methodData);
 
-        const requiredShippingFields = this.createArrayOfRequestedShippingFields(methodData);
-
-        const isShippingRequired = requiredShippingFields.length > 0;
+        const isShippingRequested = requestedShippingFields.length > 0;
 
         return {
             countryCode: methodData.countryCode,
@@ -269,13 +267,15 @@ export class PaymentRequest {
             merchantCapabilities: isNotEmptyArray(methodData.merchantCapabilities)
                 ? methodData.merchantCapabilities
                 : defaultMerchantCapabilities,
-            ...(methodData.requestBillingAddress === true && { requiredBillingContactFields: requiredBillingFields }),
-            ...(isShippingRequired && { requiredShippingContactFields: requiredShippingFields }),
+            ...(methodData.requestBillingAddress === true && {
+                requiredBillingContactFields: this.getRequestedBillingFields(methodData),
+            }),
+            ...(isShippingRequested && { requiredShippingContactFields: requestedShippingFields }),
         };
     }
 
     // eslint-disable-next-line class-methods-use-this,@typescript-eslint/class-methods-use-this
-    private createArrayOfRequestedBillingFields(methodData: IosPaymentMethodDataDataInterface): IOSPKContactField[] {
+    private getRequestedBillingFields(methodData: IosPaymentMethodDataDataInterface): IOSPKContactField[] {
         const requiredBillingFields = [];
         if (methodData.requestBillingAddress ?? false) {
             requiredBillingFields.push(IOSPKContactField.PKContactFieldPostalAddress);
@@ -285,7 +285,7 @@ export class PaymentRequest {
     }
 
     // eslint-disable-next-line class-methods-use-this,@typescript-eslint/class-methods-use-this
-    private createArrayOfRequestedShippingFields(methodData: IosPaymentMethodDataDataInterface): IOSPKContactField[] {
+    private getRequestedShippingFields(methodData: IosPaymentMethodDataDataInterface): IOSPKContactField[] {
         const requiredShippingFields = [];
         if (methodData.requestPayerEmail ?? false) {
             requiredShippingFields.push(IOSPKContactField.PKContactFieldEmailAddress);
