@@ -410,11 +410,7 @@ RCT_EXPORT_METHOD(canMakePayments: (NSString *)methodDataString
 
     PKContactField field = contactFieldMapping[inputString];
     
-    if (field != nil) {
-        return field;
-    } else {
-        return nil;
-    }
+    return field;
 }
 
 - (NSString *)stringFromPaymentMethodType:(PKPaymentMethodType)type {
