@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.77.0](https://github.com/rnw-community/rnw-community/compare/v0.76.0...v0.77.0) (2024-11-01)
+
+### Features
+
+-   **react-native-payments:** android cardInfo parsing, RN 0.76.1 support ([#246](https://github.com/rnw-community/rnw-community/issues/246)) ([d7876a6](https://github.com/rnw-community/rnw-community/commit/d7876a6270e4758d155c282f32d13753f5387a19))
+
 # [0.76.0](https://github.com/rnw-community/rnw-community/compare/v0.75.4...v0.76.0) (2024-10-21)
 
 **Note:** Version bump only for package @rnw-community/react-native-payments-example

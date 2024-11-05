@@ -3,11 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
-# [0.76.0](https://github.com/rnw-community/rnw-community/compare/v0.75.4...v0.76.0) (2024-10-21)
+# [0.77.0](https://github.com/rnw-community/rnw-community/compare/v0.76.0...v0.77.0) (2024-11-01)
 
 ### Features
 
--   **nestjs-enterprise:** improved HistogramMetric memory usage ([#239](https://github.com/rnw-community/rnw-community/issues/239)) ([e5d10b8](https://github.com/rnw-community/rnw-community/commit/e5d10b8ff0f35d0e130101d485bd45dbdbaa161c))
+-   **nestjs-enterprice:** added lock decorators ([#243](https://github.com/rnw-community/rnw-community/issues/243)) ([f5e8ef3](https://github.com/rnw-community/rnw-community/commit/f5e8ef3d2dff58efb6fac64769e776bcb4de5d39))
+-   **shared:** added isPromise type guard ([#245](https://github.com/rnw-community/rnw-community/issues/245)) ([a99ebf8](https://github.com/rnw-community/rnw-community/commit/a99ebf872fab3f075358d091041527240783130d))
 
 ## [0.75.4](https://github.com/rnw-community/rnw-community/compare/v0.75.3...v0.75.4) (2024-10-14)
 

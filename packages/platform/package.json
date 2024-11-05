@@ -1,6 +1,6 @@
 {
     "name": "@rnw-community/platform",
-    "version": "0.76.0",
+    "version": "0.77.0",
     "description": "React native web platform utils and helpers",
     "keywords": [
         "platform utils",
@@ -32,8 +32,8 @@
         "access": "public"
     },
     "devDependencies": {
-        "react": "^18.2.0",
-        "react-native": "^0.74.6",
+        "react": "^18.3.1",
+        "react-native": "^0.76.1",
         "react-native-config": "^1.4.2"
     },
     "peerDependencies": {
