@@ -5,8 +5,8 @@ import {
     PaymentRequest,
 } from '@rnw-community/react-native-payments';
 
-import { androidPaymentMethodData as defaultAndroidPaymentMethodData } from './method-data/android-payment-method-data';
-import { iosPaymentMethodData as defaultIosPaymentMethodData } from './method-data/ios-payment-method-data';
+import { getAndroidPaymentMethodData } from './method-data/android-payment-method-data';
+import { getIosPaymentMethodData } from './method-data/ios-payment-method-data';
 import { paymentDetails as defaultPaymentDetails } from './payment-details';
 
 interface CreatePaymentRequestProps {
@@ -16,11 +16,8 @@ interface CreatePaymentRequestProps {
 }
 
 export const createPaymentRequest = ({
-    androidPaymentMethodData,
-    iosPaymentMethodData,
-    paymentDetails,
+    androidPaymentMethodData = getAndroidPaymentMethodData(),
+    iosPaymentMethodData = getIosPaymentMethodData(),
+    paymentDetails = defaultPaymentDetails,
 }: CreatePaymentRequestProps = {}): PaymentRequest =>
-    new PaymentRequest(
-        [iosPaymentMethodData ?? defaultIosPaymentMethodData, androidPaymentMethodData ?? defaultAndroidPaymentMethodData],
-        paymentDetails ?? defaultPaymentDetails
-    );
+    new PaymentRequest([iosPaymentMethodData, androidPaymentMethodData], paymentDetails);

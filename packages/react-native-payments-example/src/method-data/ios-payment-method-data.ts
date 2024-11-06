@@ -4,26 +4,27 @@ import {
     SupportedNetworkEnum,
 } from '@rnw-community/react-native-payments';
 
-export const iosPaymentMethodData: IosPaymentMethodDataInterface = {
-    data: {
-        requestBillingAddress: true,
-        requestShipping: true,
-        requestPayerEmail: true,
-        countryCode: 'US',
-        currencyCode: 'USD',
-        supportedNetworks: [SupportedNetworkEnum.Visa, SupportedNetworkEnum.Mastercard],
-        // HINT: This should match your Apple Developer Merchant ID(in XCode Apple Pay Capabilities)
-        merchantIdentifier: 'merchant.react-native-payments',
-    },
-    supportedMethods: PaymentMethodNameEnum.ApplePay,
-};
+interface GetIOSPaymentMethodDataProps {
+    requestBillingAddress?: boolean;
+    requestPayerEmail?: boolean;
+    requestPayerName?: boolean;
+    requestPayerPhone?: boolean;
+    requestShipping?: boolean;
+}
 
-export const iosPaymentMethodDataWithoutShipping: IosPaymentMethodDataInterface = {
+export const getIosPaymentMethodData = ({
+    requestBillingAddress = false,
+    requestPayerEmail = false,
+    requestPayerName = false,
+    requestPayerPhone = false,
+    requestShipping = false,
+}: GetIOSPaymentMethodDataProps = {}): IosPaymentMethodDataInterface => ({
     data: {
-        requestBillingAddress: true,
-        requestPayerName: true,
-        requestPayerEmail: true,
-        requestPayerPhone: true,
+        requestBillingAddress,
+        requestPayerName,
+        requestPayerEmail,
+        requestPayerPhone,
+        requestShipping,
         countryCode: 'US',
         currencyCode: 'USD',
         supportedNetworks: [SupportedNetworkEnum.Visa, SupportedNetworkEnum.Mastercard],
@@ -31,4 +32,4 @@ export const iosPaymentMethodDataWithoutShipping: IosPaymentMethodDataInterface 
         merchantIdentifier: 'merchant.react-native-payments',
     },
     supportedMethods: PaymentMethodNameEnum.ApplePay,
-};
+});
