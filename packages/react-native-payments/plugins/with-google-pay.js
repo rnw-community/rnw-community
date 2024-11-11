@@ -1,6 +1,6 @@
 const { withAppBuildGradle, withAndroidManifest } = require("@expo/config-plugins");
 
-export const withGooglePay = (config) => {
+const withGooglePay = (config) => {
   // Add Google Pay dependency to app/build.gradle
   config = withAppBuildGradle(config, (config) => {
     if (config.modResults.language === "groovy") {
@@ -11,7 +11,7 @@ export const withGooglePay = (config) => {
       );
     } else {
       throw new Error(
-        "Unable to add Google Pay dependency to build.gradle: Kotlin build files are not supported.",
+        "Unable to add Google Pay dependency to build.gradle: Kotlin build files are not supported."
       );
     }
     return config;
@@ -24,7 +24,7 @@ export const withGooglePay = (config) => {
 
     // Check if the meta-data already exists
     const existingMetaData = mainApplication["meta-data"]?.find(
-      (metadata) => metadata.$["android:name"] === "com.google.android.gms.wallet.api.enabled",
+      (metadata) => metadata.$["android:name"] === "com.google.android.gms.wallet.api.enabled"
     );
 
     if (!existingMetaData) {
@@ -46,3 +46,4 @@ export const withGooglePay = (config) => {
   return config;
 };
 
+module.exports = { withGooglePay };

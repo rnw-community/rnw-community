@@ -2,14 +2,14 @@ const { withDangerousMod } = require("@expo/config-plugins");
 const fs = require("fs");
 const path = require("path");
 
-export const withApplePay = (config) =>
+const withApplePay = (config) =>
   withDangerousMod(config, [
     "ios",
     async (config) => {
       const filePath = path.join(
         config.modRequest.platformProjectRoot,
         config.modRequest.projectName,
-        "AppDelegate.h",
+        "AppDelegate.h"
       );
 
       const content = fs.readFileSync(filePath, "utf-8");
@@ -21,3 +21,4 @@ export const withApplePay = (config) =>
     },
   ]);
 
+module.exports = { withApplePay };
