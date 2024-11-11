@@ -76,7 +76,10 @@
     },
     "gitHead": "b5608910319390f9773a9d42c3cc828e8e8a1d95",
     "dependencies": {
+        "@expo/config-plugins": "8.0.10",
         "@rnw-community/shared": "workspace:*",
+        "fs": "0.0.1-security",
+        "path": "^0.12.7",
         "react-native-uuid": "^2.0.1",
         "validator": "^13.9.0"
     },
