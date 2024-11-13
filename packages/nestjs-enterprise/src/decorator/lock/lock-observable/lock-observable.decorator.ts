@@ -1,4 +1,6 @@
-import { type Observable, concatMap, from, isObservable, map, of, tap } from 'rxjs';
+import { type Observable, catchError, concatMap, from, isObservable, map, of, tap } from 'rxjs';
+
+import { isDefined } from '@rnw-community/shared';
 
 import { runPreLock } from '../util/run-pre-lock.util';
 import { validateRedlock } from '../util/validate-redlock.util';
@@ -10,7 +12,8 @@ import type { LockableService } from '../service/lockable.service';
 export const LockObservable =
     <TResult, TArgs extends unknown[] = unknown[]>(
         preLock: PreDecoratorFunction<TArgs, string[]> | string[],
-        duration: number
+        duration: number,
+        catchErrorFn$?: (error: unknown) => Observable<TResult>
     ): MethodDecoratorType<TResult, TArgs> =>
     (target, propertyKey, descriptor) => {
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
@@ -21,23 +24,30 @@ export const LockObservable =
             return of(true).pipe(
                 tap(() => void validateRedlock(this)),
                 map(() => runPreLock(preLock, ...args)),
-                concatMap(lockKeys => from(this.redlock.acquire(lockKeys, duration))),
-                concatMap(currentLock => {
-                    try {
-                        const result = originalMethod.apply(this, args) as Observable<TResult>;
+                concatMap(lockKeys =>
+                    from(this.redlock.acquire(lockKeys, duration)).pipe(
+                        concatMap(currentLock => {
+                            try {
+                                const result = originalMethod.apply(this, args) as Observable<TResult>;
 
-                        if (!isObservable(result)) {
-                            throw new Error(
-                                `Method ${target.constructor.name}::${String(propertyKey)} does not return an observable`
-                            );
-                        }
+                                if (!isObservable(result)) {
+                                    throw new Error(
+                                        `Method ${target.constructor.name}::${String(propertyKey)} does not return an observable`
+                                    );
+                                }
 
-                        return result;
-                    } finally {
-                        // HINT: Finalize does not work in this case, rxjs bug?
-                        void currentLock.release();
-                    }
-                })
+                                return result;
+                            } finally {
+                                /*
+                                 * HINT: Finalize does not work in this case, rxjs bug?
+                                 * HINT: https://github.com/mike-marcacci/node-redlock/issues/168
+                                 */
+                                void currentLock.release().catch(() => void 0);
+                            }
+                        }),
+                        isDefined(catchErrorFn$) ? catchError((err: unknown) => catchErrorFn$(err)) : tap()
+                    )
+                )
             ) as TResult;
         };
 
