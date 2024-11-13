@@ -73,6 +73,8 @@ describe('LockObservableDecorator', () => {
     // eslint-disable-next-line jest/no-hooks
     beforeEach(() => {
         jest.clearAllMocks();
+        mockRelease.mockResolvedValue(true);
+        mockAcquire.mockResolvedValue({ release: mockRelease });
     });
 
     it('should lock resource with key as array and duration', done => {
