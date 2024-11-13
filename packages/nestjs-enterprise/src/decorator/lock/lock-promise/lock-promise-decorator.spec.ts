@@ -147,6 +147,7 @@ describe('LockPromiseDecorator', () => {
         const instance = new TestClass();
         const errorMsg = 'Acquire lock failed';
         mockAcquire.mockRejectedValueOnce(new Error(errorMsg));
+        // @ts-expect-error Test preconditions
         mockErrorFn.mockResolvedValue(0);
 
         await expect(instance.testLockFailedErrorFn()).resolves.toBe(0);
