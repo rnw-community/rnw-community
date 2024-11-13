@@ -1,7 +1,7 @@
 /* eslint-disable jest/no-done-callback */
 import { beforeEach, describe, expect, it, jest } from '@jest/globals';
 import Redis from 'ioredis';
-import { Observable, of } from 'rxjs';
+import { EMPTY, Observable, of } from 'rxjs';
 
 import { getErrorMessage } from '@rnw-community/shared';
 
@@ -21,6 +21,8 @@ jest.mock('redlock', () =>
         release: mockRelease,
     }))
 );
+
+const mockErrorFn = jest.fn();
 
 class TestObservableClass extends LockableService {
     readonly field = 1;
@@ -51,6 +53,17 @@ class TestObservableClass extends LockableService {
 
     @LockObservable([], 1000)
     testEmptyResource$(): Observable<number> {
+        return of(this.field);
+    }
+
+    @LockObservable(['test'], 1000)
+    testLockFailed$(): Observable<number> {
+        return of(this.field);
+    }
+
+    // @ts-expect-error Test preconditions
+    @LockObservable(['test'], 1000, mockErrorFn)
+    testLockFailedErrorFn$(): Observable<number> {
         return of(this.field);
     }
 }
@@ -141,6 +154,87 @@ describe('LockObservableDecorator', () => {
                 expect(getErrorMessage(error)).toBe(`Method TestObservableClass::testSync does not return an observable`);
                 expect(mockAcquire).toHaveBeenCalledWith([`test`], 1000);
                 expect(mockRelease).toHaveBeenCalledWith();
+
+                done();
+            },
+        });
+    });
+
+    it('should handle acquire lock failed', done => {
+        expect.assertions(3);
+
+        const instance = new TestObservableClass();
+
+        const errorMsg = 'Failed to acquire lock';
+        mockAcquire.mockRejectedValue(new Error(errorMsg));
+
+        instance.testLockFailed$().subscribe({
+            error: (error: unknown) => {
+                expect(getErrorMessage(error)).toBe(errorMsg);
+                expect(mockAcquire).toHaveBeenCalledWith([`test`], 1000);
+                expect(mockRelease).not.toHaveBeenCalledWith();
+
+                done();
+            },
+        });
+    });
+
+    it('should handle release lock failed', done => {
+        expect.assertions(3);
+
+        const instance = new TestObservableClass();
+
+        const errorMsg = 'Failed to release lock';
+        mockRelease.mockRejectedValue(new Error(errorMsg));
+
+        instance.testLockFailed$().subscribe({
+            next: value => {
+                expect(value).toBe(1);
+                expect(mockAcquire).toHaveBeenCalledWith([`test`], 1000);
+                expect(mockRelease).toHaveBeenCalledWith();
+
+                done();
+            },
+        });
+    });
+
+    it('should handle error in catchErrorFn', done => {
+        expect.assertions(3);
+
+        const instance = new TestObservableClass();
+
+        const errorMsg = 'Failed to acquire lock';
+        mockAcquire.mockRejectedValue(new Error(errorMsg));
+        mockErrorFn.mockReturnValue(EMPTY);
+
+        instance.testLockFailedErrorFn$().subscribe({
+            complete: () => {
+                expect(mockAcquire).toHaveBeenCalledWith([`test`], 1000);
+                expect(mockRelease).not.toHaveBeenCalledWith();
+                expect(mockErrorFn).toHaveBeenCalledWith(new Error(errorMsg));
+
+                done();
+            },
+        });
+    });
+
+    it('should handle throwing error in catchErrorFn', done => {
+        expect.assertions(3);
+
+        const instance = new TestObservableClass();
+
+        const errorMsg = 'Failed to acquire lock';
+        mockAcquire.mockRejectedValue(new Error(errorMsg));
+        const catchErrorFnErrorMsg = 'Error in catchErrorFn';
+        mockErrorFn.mockImplementation(() => {
+            throw new Error(catchErrorFnErrorMsg);
+        });
+
+        instance.testLockFailedErrorFn$().subscribe({
+            error: (error: unknown) => {
+                expect(getErrorMessage(error)).toBe(catchErrorFnErrorMsg);
+                expect(mockAcquire).toHaveBeenCalledWith([`test`], 1000);
+                expect(mockRelease).not.toHaveBeenCalledWith();
 
                 done();
             },
