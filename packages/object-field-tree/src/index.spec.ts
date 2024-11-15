@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/naming-convention */
 import { beforeEach, describe, expect, it, jest } from '@jest/globals';
 
 import { combine } from './index';
@@ -121,7 +122,7 @@ const testObj2 = {
 };
 
 describe('combine', () => {
-    const getCombinationsCount = (...objects: Array<Record<string, unknown>>): number =>
+    const getCombinationsCount = (...objects: Record<string, unknown>[]): number =>
         objects.reduce((acc, obj) => Object.keys(obj).length * acc, 1);
     const dataFnMock = jest.fn((...args) => ({ ...args }));
 

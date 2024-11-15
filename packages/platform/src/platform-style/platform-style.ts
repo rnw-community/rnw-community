@@ -17,6 +17,7 @@ const platformStyles = <T extends object = CSSProperties | StyleType, R = StyleT
  * @param style Styling object
  * @returns Style object if current build platform is WEB otherwise {}
  */
+// eslint-disable-next-line @typescript-eslint/no-unnecessary-type-parameters
 export const webStyles = <T extends object = CSSProperties | StyleType>(style: T): StyleType =>
     platformStyles<T>(isWeb, style);
 
@@ -26,6 +27,7 @@ export const webStyles = <T extends object = CSSProperties | StyleType>(style: T
  * @param style Styling object
  * @returns Style object if current build platform is Android or IOS otherwise {}
  */
+// eslint-disable-next-line @typescript-eslint/no-unnecessary-type-parameters
 export const mobileStyles = <T extends object>(style: T): StyleType => platformStyles<T>(isMobile, style);
 
 /**
@@ -34,6 +36,7 @@ export const mobileStyles = <T extends object>(style: T): StyleType => platformS
  * @param style Styling object
  * @returns Style object if current build platform is IOS otherwise {}
  */
+// eslint-disable-next-line @typescript-eslint/no-unnecessary-type-parameters
 export const iosStyles = <T extends object>(style: T): StyleType => platformStyles<T>(isIOS, style);
 
 /**
@@ -42,4 +45,5 @@ export const iosStyles = <T extends object>(style: T): StyleType => platformStyl
  * @param style Styling object
  * @returns Style object if current build platform is Android otherwise {}
  */
+// eslint-disable-next-line @typescript-eslint/no-unnecessary-type-parameters
 export const androidStyles = <T extends object>(style: T): StyleType => platformStyles<T>(isAndroid, style);

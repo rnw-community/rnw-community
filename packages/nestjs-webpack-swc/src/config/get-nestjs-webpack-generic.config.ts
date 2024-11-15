@@ -36,7 +36,9 @@ export const getNestJSWebpackGenericConfig = (
         ],
     },
     node: {
+        // eslint-disable-next-line @typescript-eslint/naming-convention
         __dirname: false,
+        // eslint-disable-next-line @typescript-eslint/naming-convention
         __filename: false,
     },
 });

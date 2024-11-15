@@ -22,6 +22,7 @@ jest.mock('redlock', () =>
     }))
 );
 enum LockCodesEnum {
+    // eslint-disable-next-line @typescript-eslint/naming-convention
     DB_CREATE_USER = 'DB_CREATE_USER',
 }
 
@@ -42,15 +43,17 @@ describe('nestJSRxJSLockService', () => {
             const nestJSRxJSLockService = new LockService(getRedisService(), defaultNestJSRxJSLockModuleOptions);
             const handler$ = jest.fn(() => of(true));
 
-            nestJSRxJSLockService.lock$('test', LockCodesEnum.DB_CREATE_USER, handler$).subscribe(emptyFn, emptyFn, () => {
-                expect(mockAcquire).toHaveBeenCalledWith(
-                    [`lock:${LockCodesEnum.DB_CREATE_USER}:test`],
-                    defaultNestJSRxJSLockModuleOptions.defaultExpireMs
-                );
-                expect(handler$).toHaveBeenCalledWith();
-                expect(mockRelease).toHaveBeenCalledWith();
+            nestJSRxJSLockService.lock$('test', LockCodesEnum.DB_CREATE_USER, handler$).subscribe({
+                complete: () => {
+                    expect(mockAcquire).toHaveBeenCalledWith(
+                        [`lock:${LockCodesEnum.DB_CREATE_USER}:test`],
+                        defaultNestJSRxJSLockModuleOptions.defaultExpireMs
+                    );
+                    expect(handler$).toHaveBeenCalledWith();
+                    expect(mockRelease).toHaveBeenCalledWith();
 
-                done();
+                    done();
+                },
             });
         });
 
@@ -65,17 +68,15 @@ describe('nestJSRxJSLockService', () => {
             const acquireErrorText = 'Lock failed';
             mockAcquire.mockRejectedValueOnce(new Error(acquireErrorText));
 
-            nestJSRxJSLockService.lock$('test', LockCodesEnum.DB_CREATE_USER, handler$).subscribe(
-                () => void done(),
-                (e: unknown) => {
+            nestJSRxJSLockService.lock$('test', LockCodesEnum.DB_CREATE_USER, handler$).subscribe({
+                error: (e: unknown) => {
                     expect((e as string).toString()).toBe(`Error: Lock failed`);
                     expect(handler$).toHaveBeenCalledTimes(0);
                     expect(mockRelease).toHaveBeenCalledTimes(0);
 
                     done();
                 },
-                done
-            );
+            });
         });
 
         it('should silence lock release error', done => {
@@ -89,11 +90,13 @@ describe('nestJSRxJSLockService', () => {
             const releaseErrorText = 'Lock failed';
             mockRelease.mockRejectedValue(new Error(releaseErrorText));
 
-            nestJSRxJSLockService.lock$('test', LockCodesEnum.DB_CREATE_USER, handler$).subscribe(emptyFn, emptyFn, () => {
-                expect(handler$).toHaveBeenCalledWith();
-                expect(mockRelease).toHaveBeenCalledWith();
+            nestJSRxJSLockService.lock$('test', LockCodesEnum.DB_CREATE_USER, handler$).subscribe({
+                complete: () => {
+                    expect(handler$).toHaveBeenCalledWith();
+                    expect(mockRelease).toHaveBeenCalledWith();
 
-                done();
+                    done();
+                },
             });
         });
     });

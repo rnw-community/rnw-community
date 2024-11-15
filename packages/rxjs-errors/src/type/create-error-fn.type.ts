@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/naming-convention */
 import type { ErrorCtor } from './error-ctor.type';
 
 export type CreateErrorFn = (msg: string) => Error;

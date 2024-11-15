@@ -15,6 +15,7 @@ export const getNestJSWebpackProdConfig = (options: Configuration, _webpack: typ
             new TerserPlugin({
                 parallel: true,
                 terserOptions: {
+                    // eslint-disable-next-line @typescript-eslint/naming-convention
                     keep_classnames: true,
                     mangle: false,
                 },

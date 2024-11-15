@@ -26,7 +26,7 @@ const create$Test =
     async (): Promise<boolean> => {
         expect.assertions(2);
 
-        return await new Promise((resolve, reject) => {
+        return new Promise((resolve, reject) => {
             const loggerMethod = jest.spyOn(loggerMock, method);
 
             const service = new NestJSRxJSLoggerService(loggerMock);
@@ -58,12 +58,12 @@ const print$Test =
         expectAssertions = 1
         // eslint-disable-next-line @typescript-eslint/max-params
     ) =>
-    async () => {
+    async (): Promise<unknown> => {
         if (expectAssertions > 0) {
             expect.assertions(1);
         }
 
-        return await new Promise((resolve, reject) => {
+        return new Promise((resolve, reject) => {
             const loggerMethod = jest.spyOn(loggerMock, method);
 
             const getOperator = (

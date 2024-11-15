@@ -14,6 +14,7 @@ export class NestJSTypedConfigModule {
     ): [DynamicModule, Type<NestJSTypedConfigService<Enum, C, Extract<keyof C, string>>>] {
         class Service extends NestJSTypedConfigService<Enum, C, Extract<keyof C, string>> {}
 
+        // eslint-disable-next-line @typescript-eslint/naming-convention
         const CustomConfigModule: DynamicModule = {
             imports: [
                 ConfigModule.forRoot({

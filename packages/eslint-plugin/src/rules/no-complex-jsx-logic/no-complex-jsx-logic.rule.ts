@@ -23,7 +23,8 @@ export const noComplexJsxLogicRule = createRule({
     defaultOptions: [],
     create(context) {
         return {
-            JSXExpressionContainer(node) {
+            // eslint-disable-next-line @typescript-eslint/naming-convention
+            JSXExpressionContainer(node): void {
                 const { expression } = node;
 
                 if (node.parent.type === AST_NODE_TYPES.JSXAttribute) {

@@ -16,6 +16,7 @@ export const rethrowException =
     <T>(
         errStringOrMessageFn: ErrorCodeOrMsgFn<unknown>,
         logFn: LogFn,
+        // eslint-disable-next-line @typescript-eslint/naming-convention
         ErrorCtor: ErrorCtor = RxJSFilterError,
         createError: CreateErrorFn = defaultCreateError(ErrorCtor)
     ): MonoTypeOperatorFunction<T> =>

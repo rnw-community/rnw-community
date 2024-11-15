@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/ban-types,@typescript-eslint/no-unsafe-function-type */
+/* eslint-disable @typescript-eslint/no-unsafe-function-type */
 export const importTypeormWebpackMigrations = (requireContext: __WebpackModuleApi.RequireContext): Function[] =>
     requireContext
         .keys()

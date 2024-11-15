@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/naming-convention */
 import { unlinkSync, writeFileSync } from 'fs';
 
 import { describe, expect, it, jest } from '@jest/globals';

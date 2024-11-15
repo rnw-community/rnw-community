@@ -18,6 +18,7 @@ export class NestJSRxJSLockModule {
             }
         }
 
+        // eslint-disable-next-line @typescript-eslint/naming-convention
         const LockModule = {
             imports: [RedisModule],
             module: NestJSRxJSLockModule,
