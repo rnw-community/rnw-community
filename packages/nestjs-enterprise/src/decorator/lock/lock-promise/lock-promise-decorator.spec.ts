@@ -18,6 +18,8 @@ jest.mock('redlock', () =>
     }))
 );
 
+const mockErrorFn = jest.fn();
+
 class TestClass extends LockableService {
     readonly field = 1;
 
@@ -43,6 +45,17 @@ class TestClass extends LockableService {
     @LockPromise([], 1000)
     testEmptyResource(): number {
         return this.field;
+    }
+
+    @LockPromise(['test'], 1000)
+    async testLockFailed(): Promise<number> {
+        return await Promise.resolve(this.field);
+    }
+
+    // @ts-expect-error Test preconditions
+    @LockPromise(['test'], 1000, mockErrorFn)
+    async testLockFailedErrorFn(): Promise<number> {
+        return await Promise.resolve(this.field);
     }
 }
 
@@ -104,5 +117,57 @@ describe('LockPromiseDecorator', () => {
         await expect(instance.testSync()).rejects.toThrow(`Method TestClass::testSync does not return a promise`);
         expect(mockAcquire).toHaveBeenCalledWith([`test`], 1000);
         expect(mockRelease).toHaveBeenCalledWith();
+    });
+
+    it('should handle acquire lock failed', async () => {
+        expect.assertions(3);
+
+        const instance = new TestClass();
+        mockAcquire.mockRejectedValueOnce(new Error('Acquire lock failed'));
+
+        await expect(instance.testLockFailed()).rejects.toThrow('Acquire lock failed');
+        expect(mockAcquire).toHaveBeenCalledWith([`test`], 1000);
+        expect(mockRelease).not.toHaveBeenCalled();
+    });
+
+    it('should handle release lock failed', async () => {
+        expect.assertions(3);
+
+        const instance = new TestClass();
+        mockRelease.mockRejectedValueOnce(new Error('Release lock failed'));
+
+        await expect(instance.testLockFailed()).resolves.toBe(1);
+        expect(mockAcquire).toHaveBeenCalledWith([`test`], 1000);
+        expect(mockRelease).toHaveBeenCalledWith();
+    });
+
+    it('should handle error in catchErrorFn', async () => {
+        expect.assertions(3);
+
+        const instance = new TestClass();
+        const errorMsg = 'Acquire lock failed';
+        mockAcquire.mockRejectedValueOnce(new Error(errorMsg));
+        // @ts-expect-error Test preconditions
+        mockErrorFn.mockResolvedValue(0);
+
+        await expect(instance.testLockFailedErrorFn()).resolves.toBe(0);
+        expect(mockAcquire).toHaveBeenCalledWith([`test`], 1000);
+        expect(mockRelease).not.toHaveBeenCalled();
+    });
+
+    it('should handle throwing error in catchErrorFn', async () => {
+        expect.assertions(3);
+
+        const instance = new TestClass();
+        const errorMsg = 'Acquire lock failed';
+        mockAcquire.mockRejectedValueOnce(new Error(errorMsg));
+        const catchErrorFnErrorMsg = 'Error in catchErrorFn';
+        mockErrorFn.mockImplementation(() => {
+            throw new Error(catchErrorFnErrorMsg);
+        });
+
+        await expect(instance.testLockFailedErrorFn()).rejects.toThrow(catchErrorFnErrorMsg);
+        expect(mockAcquire).toHaveBeenCalledWith([`test`], 1000);
+        expect(mockRelease).not.toHaveBeenCalled();
     });
 });
