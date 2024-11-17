@@ -1,1 +1,1 @@
-module.exports = require('./plugins/withPayments');
+module.exports = require('./plugins/with-payments');
