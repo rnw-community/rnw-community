@@ -135,7 +135,7 @@ const methodData = [
         supportedMethods: PaymentMethodNameEnum.ApplePay,
         data: {
             merchantIdentifier: 'merchant.com.your-app.namespace',
-            supportedNetworks: [SupportedNetworkEnum.Visa, SupportedNetworkEnum.MasterCard],
+            supportedNetworks: [SupportedNetworkEnum.Visa, SupportedNetworkEnum.Mastercard],
             countryCode: 'US',
             currencyCode: 'USD',
             requestBilling: true,
@@ -147,7 +147,7 @@ const methodData = [
     {
         supportedMethods: PaymentMethodNameEnum.AndroidPay,
         data: {
-            supportedNetworks: [SupportedNetworkEnum.Visa, SupportedNetworkEnum.MasterCard],
+            supportedNetworks: [SupportedNetworkEnum.Visa, SupportedNetworkEnum.Mastercard],
             environment: EnvironmentEnum.Test,
             countryCode: 'DE',
             currencyCode: 'EUR',
