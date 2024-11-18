@@ -154,7 +154,7 @@ Depending on the platform and payment method, you can provide additional data to
 
 - `environment`: This property represents the Android environment for the payment.
 - `requestPayerName`: "An optional boolean field that, when present and set to true, indicates that the `PaymentResponse` will include the name of the payer.
-- `requestPayerPhone`: "An optional boolean field that, when present and set to true, indicates that the `PaymentResponse` will include the phone of hte payer. 
+- `requestPayerPhone`: "An optional boolean field that, when present and set to true, indicates that the `PaymentResponse` will include the phone of the payer. 
 - `requestBillingAddress`: An optional boolean field that, when present and set to true, indicates that the `PaymentResponse` will
   include the billing address of the payer.
 - `requestPayerEmail`: An optional boolean field that, when present and set to true, indicates that the `PaymentResponse` will
