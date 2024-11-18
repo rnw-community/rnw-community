@@ -138,8 +138,8 @@ const methodData = [
             supportedNetworks: [SupportedNetworkEnum.Visa, SupportedNetworkEnum.Mastercard],
             countryCode: 'US',
             currencyCode: 'USD',
-            requestBilling: true,
-            requestEmail: true,
+            requestBillingAddress: true,
+            requestPayerEmail: true,
             requestShipping: true
         }
     },
@@ -151,8 +151,8 @@ const methodData = [
             environment: EnvironmentEnum.Test,
             countryCode: 'DE',
             currencyCode: 'EUR',
-            requestBilling: true,
-            requestEmail: true,
+            requestBillingAddress: true,
+            requestPayerEmail: true,
             requestShipping: true,
             gatewayConfig: {
                 gateway: 'example',
@@ -180,9 +180,11 @@ const paymentRequest = new PaymentRequest(methodData, paymentDetails);
 Depending on the platform and payment method, you can provide additional data to the `methodData.data` property:
 
 - `environment`: This property represents the Android environment for the payment.
-- `requestBilling`: An optional boolean field that, when present and set to true, indicates that the `PaymentResponse` will
+- `requestPayerName`: "An optional boolean field that, when present and set to true, indicates that the `PaymentResponse` will include the name of the payer.
+- `requestPayerPhone`: "An optional boolean field that, when present and set to true, indicates that the `PaymentResponse` will include the phone of the payer. 
+- `requestBillingAddress`: An optional boolean field that, when present and set to true, indicates that the `PaymentResponse` will
   include the billing address of the payer.
-- `requestEmail`: An optional boolean field that, when present and set to true, indicates that the `PaymentResponse` will
+- `requestPayerEmail`: An optional boolean field that, when present and set to true, indicates that the `PaymentResponse` will
   include the email address of the payer.
 - `requestShipping`: An optional boolean field that, when present and set to true, indicates that the `PaymentResponse` will
   include the shipping address of the payer.

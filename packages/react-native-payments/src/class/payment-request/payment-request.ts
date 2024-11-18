@@ -8,6 +8,7 @@ import { AndroidPaymentMethodTokenizationType } from '../../@standard/android/en
 import { defaultAndroidPaymentDataRequest } from '../../@standard/android/request/android-payment-data-request';
 import { defaultAndroidPaymentMethod } from '../../@standard/android/request/android-payment-method';
 import { defaultAndroidTransactionInfo } from '../../@standard/android/request/android-transaction-info';
+import { IOSPKContactField } from '../../@standard/ios/enum/ios-pk-contact-field.enum';
 import { IosPKMerchantCapability } from '../../@standard/ios/enum/ios-pk-merchant-capability.enum';
 import { IosPKPaymentNetworksEnum } from '../../@standard/ios/enum/ios-pk-payment-networks.enum';
 import { PaymentMethodNameEnum } from '../../enum/payment-method-name.enum';
@@ -164,6 +165,11 @@ export class PaymentRequest {
         methodData: AndroidPaymentMethodDataDataInterface,
         details: PaymentDetailsInit
     ): AndroidPaymentDataRequest {
+        const isBillingRequired =
+            methodData.requestBillingAddress === true ||
+            methodData.requestPayerName === true ||
+            methodData.requestPayerPhone === true;
+
         return {
             ...defaultAndroidPaymentDataRequest,
             merchantInfo: {
@@ -186,11 +192,11 @@ export class PaymentRequest {
                         ),
                         allowedAuthMethods:
                             methodData.allowedAuthMethods ?? defaultAndroidPaymentMethod.parameters.allowedAuthMethods,
-                        ...(methodData.requestBilling === true && {
+                        ...(isBillingRequired && {
                             billingAddressRequired: true,
                             billingAddressParameters: {
-                                format: 'FULL',
-                                phoneNumberRequired: true,
+                                format: methodData.requestBillingAddress === true ? 'FULL' : 'MIN',
+                                phoneNumberRequired: methodData.requestPayerPhone === true,
                             },
                         }),
                     },
@@ -208,11 +214,11 @@ export class PaymentRequest {
                     }),
                 },
             ],
-            ...(methodData.requestEmail === true && { emailRequired: true }),
+            ...(methodData.requestPayerEmail === true && { emailRequired: true }),
             ...(methodData.requestShipping === true && {
                 shippingAddressRequired: true,
                 shippingAddressParameters: {
-                    phoneNumberRequired: true,
+                    phoneNumberRequired: methodData.requestPayerPhone === true,
                 },
             }),
         };
@@ -249,6 +255,10 @@ export class PaymentRequest {
             IosPKMerchantCapability.PKMerchantCapabilityCredit,
         ];
 
+        const requestedShippingFields = this.getRequestedShippingFields(methodData);
+
+        const isShippingRequested = requestedShippingFields.length > 0;
+
         return {
             countryCode: methodData.countryCode,
             currencyCode: methodData.currencyCode,
@@ -257,8 +267,39 @@ export class PaymentRequest {
             merchantCapabilities: isNotEmptyArray(methodData.merchantCapabilities)
                 ? methodData.merchantCapabilities
                 : defaultMerchantCapabilities,
-            ...(methodData.requestBilling === true && { requiredBillingContactFields: true }),
-            ...(methodData.requestShipping === true && { requiredShippingContactFields: true }),
+            ...(methodData.requestBillingAddress === true && {
+                requiredBillingContactFields: this.getRequestedBillingFields(methodData),
+            }),
+            ...(isShippingRequested && { requiredShippingContactFields: requestedShippingFields }),
         };
+    }
+
+    // eslint-disable-next-line class-methods-use-this,@typescript-eslint/class-methods-use-this
+    private getRequestedBillingFields(methodData: IosPaymentMethodDataDataInterface): IOSPKContactField[] {
+        const requiredBillingFields = [];
+        if (methodData.requestBillingAddress ?? false) {
+            requiredBillingFields.push(IOSPKContactField.PKContactFieldPostalAddress);
+        }
+
+        return requiredBillingFields;
+    }
+
+    // eslint-disable-next-line class-methods-use-this,@typescript-eslint/class-methods-use-this
+    private getRequestedShippingFields(methodData: IosPaymentMethodDataDataInterface): IOSPKContactField[] {
+        const requiredShippingFields = [];
+        if (methodData.requestPayerEmail ?? false) {
+            requiredShippingFields.push(IOSPKContactField.PKContactFieldEmailAddress);
+        }
+        if (methodData.requestPayerName ?? false) {
+            requiredShippingFields.push(IOSPKContactField.PKContactFieldName);
+        }
+        if (methodData.requestPayerPhone ?? false) {
+            requiredShippingFields.push(IOSPKContactField.PKContactFieldPhoneNumber);
+        }
+        if (methodData.requestShipping ?? false) {
+            requiredShippingFields.push(IOSPKContactField.PKContactFieldPostalAddress);
+        }
+
+        return requiredShippingFields;
     }
 }
