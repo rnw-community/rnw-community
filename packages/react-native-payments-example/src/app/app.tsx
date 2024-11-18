@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import { Button, SafeAreaView, Text } from 'react-native';
+import { Button, SafeAreaView, ScrollView, Text } from 'react-native';
 
-import { PaymentComplete, PaymentRequest, PaymentDetailsInit } from '@rnw-community/react-native-payments';
 import { getErrorMessage, isDefined } from '@rnw-community/shared';
 
-import { androidPaymentMethodData } from '../method-data/android-payment-method-data';
-import { iosPaymentMethodData } from '../method-data/ios-payment-method-data';
-import { paymentDetails as defaultPaymentDetails, paymentDetailsWithoutDisplayItems } from '../payment-details';
+import { createPaymentRequest } from '../create-payment-request';
+import { RequestOptionsForm } from '../request-options-form';
+
+import type { PaymentResponse } from '@rnw-community/react-native-payments';
 
 /*
  * TODO: Add UI to add items
@@ -14,39 +14,16 @@ import { paymentDetails as defaultPaymentDetails, paymentDetailsWithoutDisplayIt
  */
 export const App = (): JSX.Element => {
     const [error, setError] = useState('');
-    const [response, setResponse] = useState<object>();
+    const [response, setResponse] = useState<PaymentResponse['details']>();
     const [isWalletAvailable, setIsWalletAvailable] = useState(false);
 
-    const createPaymentRequest = (paymentDetails?: PaymentDetailsInit): PaymentRequest => {
+    const clearErrorAndResponse = (): void => {
         setError('');
         setResponse(undefined);
-
-        return new PaymentRequest([iosPaymentMethodData, androidPaymentMethodData], paymentDetails ?? defaultPaymentDetails);
-    };
-
-    const handlePay = (): void => {
-        createPaymentRequest()
-            .show()
-            .then(paymentResponse => {
-                setResponse(paymentResponse.details);
-
-                return paymentResponse.complete(PaymentComplete.SUCCESS);
-            })
-            .catch((err: unknown) => void setError(getErrorMessage(err)));
-    };
-
-    const handlePayWithoutDisplayItems = (): void => {
-        createPaymentRequest(paymentDetailsWithoutDisplayItems)
-            .show()
-            .then(paymentResponse => {
-                setResponse(paymentResponse.details);
-
-                return paymentResponse.complete(PaymentComplete.SUCCESS);
-            })
-            .catch((err: unknown) => void setError(getErrorMessage(err)));
     };
 
     const handlePayWithAbort = (): void => {
+        clearErrorAndResponse();
         const paymentRequest = createPaymentRequest();
 
         paymentRequest.show().catch((err: unknown) => {
@@ -63,21 +40,25 @@ export const App = (): JSX.Element => {
             .catch(() => void setIsWalletAvailable(false));
     }, []);
 
-    const responseTextStyle = { color: 'red' };
-
     return (
         <SafeAreaView>
-            {isWalletAvailable ? (
-                <>
-                    <Button onPress={handlePay} title="AndroidPay/ApplePay" />
-                    <Button onPress={handlePayWithoutDisplayItems} title="ApplePay without displayItems" />
-                    <Button onPress={handlePayWithAbort} title="ApplePay with delayed abort" />
-                    <Text>{error}</Text>
-                    {isDefined(response) && <Text style={responseTextStyle}>Response:{JSON.stringify(response)}</Text>}
-                </>
-            ) : (
-                <Text>Unfortunately Apple/Google pay is not available</Text>
-            )}
+            <ScrollView>
+                {isWalletAvailable ? (
+                    <>
+                        <Button onPress={handlePayWithAbort} title="ApplePay with delayed abort" />
+                        <RequestOptionsForm setError={setError} setResponse={setResponse} />
+                        {Boolean(error) && <Text style={errorTextStyle}>Error: {error}</Text>}
+                        {isDefined(response) && (
+                            <Text style={responseTextStyle}>Response: {JSON.stringify(response, null, 2)}</Text>
+                        )}
+                    </>
+                ) : (
+                    <Text>Unfortunately Apple/Google pay is not available</Text>
+                )}
+            </ScrollView>
         </SafeAreaView>
     );
 };
+
+const responseTextStyle = { color: 'green' };
+const errorTextStyle = { color: 'red' };

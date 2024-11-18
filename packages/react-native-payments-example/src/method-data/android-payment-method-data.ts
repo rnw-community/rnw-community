@@ -1,5 +1,4 @@
 import { EnvironmentEnum } from '@rnw-community/react-native-payments';
-
 import {
     AndroidAllowedAuthMethodsEnum,
     type AndroidPaymentMethodDataInterface,
@@ -7,11 +6,27 @@ import {
     SupportedNetworkEnum,
 } from '@rnw-community/react-native-payments';
 
-export const androidPaymentMethodData: AndroidPaymentMethodDataInterface = {
+interface GetAndroidPaymentMethodDataProps {
+    requestBillingAddress?: boolean;
+    requestPayerEmail?: boolean;
+    requestPayerName?: boolean;
+    requestPayerPhone?: boolean;
+    requestShipping?: boolean;
+}
+
+export const getAndroidPaymentMethodData = ({
+    requestBillingAddress = false,
+    requestPayerEmail = false,
+    requestPayerPhone = false,
+    requestPayerName = false,
+    requestShipping = false,
+}: GetAndroidPaymentMethodDataProps = {}): AndroidPaymentMethodDataInterface => ({
     data: {
-        requestBilling: true,
-        requestShipping: true,
-        requestEmail: true,
+        requestBillingAddress,
+        requestPayerEmail,
+        requestPayerPhone,
+        requestPayerName,
+        requestShipping,
         environment: __DEV__ ? EnvironmentEnum.TEST : EnvironmentEnum.PRODUCTION,
         // USD: will not show total and merchantInfo
         currencyCode: 'EUR',
@@ -28,4 +43,4 @@ export const androidPaymentMethodData: AndroidPaymentMethodDataInterface = {
         },
     },
     supportedMethods: PaymentMethodNameEnum.AndroidPay,
-};
+});
