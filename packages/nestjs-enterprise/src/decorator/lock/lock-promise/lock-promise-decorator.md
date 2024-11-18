@@ -48,3 +48,41 @@ class CatsService extends LockableService {
     }
 }
 ```
+
+### catchErrorFn
+Decorator accepts a `catchErrorFn` function that will be called in case of the lock error, you can return a value that will be returned from the method
+or throw an error, or process the error in any other way.
+
+```ts
+import { Injectable } from '@nestjs/common';
+import { LockPromise, LockableService } from '@rnw-community/nestjs-enterprise';
+import { InjectRedis } from '@nestjs-modules/ioredis';
+import Redis from 'ioredis';
+
+@Injectable()
+class CatsService extends LockableService {
+    constructor(@InjectRedis() readonly redis: Redis) {
+        super(redis, { retryCount: 0 });
+    }
+
+    @LockPromise(['cats-resource'], 100, error => {
+        console.error('Lock error', error)
+        return void 0;
+    })
+    consoleExample$() {
+        return of('This action returns all cats');
+    }
+
+    @LockPromise(id => ['cats-resource', id], 100, error => void 0)
+    noopExample$(id: number) {
+        return of('This action returns all cats');
+    }
+
+    @LockPromise(id => ['cats-resource', id], 100, error => {
+        throw new Error('My error')
+    })
+    rethrowAnotherErrorExample$(id: number) {
+        return of('This action returns all cats');
+    }
+}
+```

@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.78.0](https://github.com/rnw-community/rnw-community/compare/v0.77.0...v0.78.0) (2024-11-13)
+
+### Features
+
+-   **nestjs-enterprise:** added catchErrorFn to lock decorators ([#247](https://github.com/rnw-community/rnw-community/issues/247)) ([6e361d1](https://github.com/rnw-community/rnw-community/commit/6e361d1dd97722ad79a670bafddce4297623a942))
+
 # [0.77.0](https://github.com/rnw-community/rnw-community/compare/v0.76.0...v0.77.0) (2024-11-01)
 
 ### Features
