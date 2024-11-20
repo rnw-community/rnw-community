@@ -61,8 +61,11 @@ class TestObservableClass extends LockableService {
         return of(this.field);
     }
 
-    // @ts-expect-error Test preconditions
-    @LockObservable(['test'], 1000, mockErrorFn)
+    @LockObservable(['test'], 1000, err => {
+        mockErrorFn(err);
+
+        return of(0);
+    })
     testLockFailedErrorFn$(): Observable<number> {
         return of(this.field);
     }
