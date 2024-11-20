@@ -3,6 +3,16 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.80.0](https://github.com/rnw-community/rnw-community/compare/v0.79.0...v0.80.0) (2024-11-20)
+
+### Bug Fixes
+
+-   **nestjs-enterprise:** fixed LockObservable catchErrorFn$ types ([#254](https://github.com/rnw-community/rnw-community/issues/254)) ([e13ce71](https://github.com/rnw-community/rnw-community/commit/e13ce717dbfe49b5e4ede59fec438bae8d4db935))
+
+### Features
+
+-   **react-native-payments:** added Expo support via config-plugins ([#250](https://github.com/rnw-community/rnw-community/issues/250)) ([7770802](https://github.com/rnw-community/rnw-community/commit/777080233a6943bfcb78cb8e6a7b92fe1908055e))
+
 # [0.79.0](https://github.com/rnw-community/rnw-community/compare/v0.78.1...v0.79.0) (2024-11-18)
 
 ### Features
