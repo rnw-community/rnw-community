@@ -13,7 +13,7 @@ export const LockObservable =
     <TResult, TArgs extends unknown[] = unknown[]>(
         preLock: PreDecoratorFunction<TArgs, string[]> | string[],
         duration: number,
-        catchErrorFn$?: (error: unknown) => Observable<TResult>
+        catchErrorFn$?: (error: unknown) => TResult
     ): MethodDecoratorType<TResult, TArgs> =>
     (target, propertyKey, descriptor) => {
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
@@ -45,7 +45,9 @@ export const LockObservable =
                                 void currentLock.release().catch(() => void 0);
                             }
                         }),
-                        isDefined(catchErrorFn$) ? catchError((err: unknown) => catchErrorFn$(err)) : tap()
+                        isDefined(catchErrorFn$)
+                            ? catchError((err: unknown) => catchErrorFn$(err) as Observable<TResult>)
+                            : tap()
                     )
                 )
             ) as TResult;
