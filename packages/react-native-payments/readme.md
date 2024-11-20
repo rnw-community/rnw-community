@@ -81,6 +81,33 @@ dependencies {
 
 - Your google account that are you using for testing should be added to [Google Pay API Test Cards Allowlist](https://groups.google.com/g/googlepay-test-mode-stub-data?pli=1)
 
+### Expo setup
+
+To integrate with Expo custom builds, you need to add the payment plugin from the package into your `app.config.js`:
+
+1. Update your `app.config.js` configuration:
+```js
+export default {
+  expo: {
+    ...
+    ios: {
+      ...
+      infoPlist: {
+        merchant_id: [your_merchant_id],
+      },
+      entitlements: {
+        "com.apple.developer.in-app-payments": [your_merchant_id],
+      },
+      ...
+    },
+    plugins: [
+      ...
+      "@rnw-community/react-native-payments",
+    ],
+  },
+};
+```
+
 ## Usage
 
 Detailed guide should be found at:

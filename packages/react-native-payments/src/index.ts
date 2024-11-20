@@ -23,3 +23,4 @@ export { IosPaymentResponse } from './class/payment-response/ios-payment-respons
 
 export { PaymentRequest } from './class/payment-request/payment-request';
 export { PaymentResponse } from './class/payment-response/payment-response';
+
