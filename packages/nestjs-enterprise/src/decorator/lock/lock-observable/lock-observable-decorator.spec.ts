@@ -1,7 +1,7 @@
 /* eslint-disable jest/no-done-callback */
 import { beforeEach, describe, expect, it, jest } from '@jest/globals';
 import Redis from 'ioredis';
-import { EMPTY, Observable, of } from 'rxjs';
+import { EMPTY, Observable, of, tap } from 'rxjs';
 
 import { getErrorMessage } from '@rnw-community/shared';
 
@@ -23,6 +23,7 @@ jest.mock('redlock', () =>
 );
 
 const mockErrorFn = jest.fn();
+const mockResultFn = jest.fn();
 
 class TestObservableClass extends LockableService {
     readonly field = 1;
@@ -68,6 +69,11 @@ class TestObservableClass extends LockableService {
     })
     testLockFailedErrorFn$(): Observable<number> {
         return of(this.field);
+    }
+
+    @LockObservable(['test'], 1000)
+    testReleaseAfterResultFn$(): Observable<number> {
+        return of(this.field).pipe(tap(() => mockResultFn()));
     }
 }
 
@@ -245,6 +251,28 @@ describe('LockObservableDecorator', () => {
                 expect(mockAcquire).toHaveBeenCalledWith([`test`], 1000);
                 expect(mockRelease).not.toHaveBeenCalledWith();
 
+                done();
+            },
+        });
+    });
+
+    it('should wait for resultFn to complete before releasing the lock', done => {
+        expect.assertions(3);
+
+        const instance = new TestObservableClass();
+
+        instance.testReleaseAfterResultFn$().subscribe({
+            next: value => {
+                expect(value).toBe(1);
+                expect(mockResultFn).toHaveBeenCalledWith();
+                expect(mockRelease).toHaveBeenCalledWith();
+
+                const [resultCallOrder] = mockResultFn.mock.invocationCallOrder;
+                const [releaseCallOrder] = mockRelease.mock.invocationCallOrder;
+
+                expect(resultCallOrder).toBeLessThan(releaseCallOrder);
+            },
+            complete: () => {
                 done();
             },
         });
