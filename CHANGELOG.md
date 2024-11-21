@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.80.1](https://github.com/rnw-community/rnw-community/compare/v0.80.0...v0.80.1) (2024-11-21)
+
+### Bug Fixes
+
+-   **nestjs-enterprise:** fixed Lock decorators releasing lock ([#255](https://github.com/rnw-community/rnw-community/issues/255)) ([d5423f8](https://github.com/rnw-community/rnw-community/commit/d5423f8b143f063c7e4b53e631aa0b66b4d2ea28))
+
 # [0.80.0](https://github.com/rnw-community/rnw-community/compare/v0.79.0...v0.80.0) (2024-11-20)
 
 ### Bug Fixes
