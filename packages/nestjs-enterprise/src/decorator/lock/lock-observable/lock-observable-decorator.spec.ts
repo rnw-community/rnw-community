@@ -89,6 +89,8 @@ describe('LockObservableDecorator', () => {
             next: value => {
                 expect(mockAcquire).toHaveBeenCalledWith([`test`], 1000);
                 expect(value).toBe(1);
+            },
+            complete: () => {
                 expect(mockRelease).toHaveBeenCalledWith();
 
                 done();
@@ -106,7 +108,8 @@ describe('LockObservableDecorator', () => {
                 expect(mockAcquire).toHaveBeenCalledWith([`test`, `1`], 1000);
                 expect(value).toStrictEqual({ field: 1, id: 1 });
                 expect(mockRelease).toHaveBeenCalledWith();
-
+            },
+            complete: () => {
                 done();
             },
         });
@@ -197,7 +200,8 @@ describe('LockObservableDecorator', () => {
                 expect(value).toBe(1);
                 expect(mockAcquire).toHaveBeenCalledWith([`test`], 1000);
                 expect(mockRelease).toHaveBeenCalledWith();
-
+            },
+            complete: () => {
                 done();
             },
         });

@@ -52,8 +52,11 @@ class TestClass extends LockableService {
         return await Promise.resolve(this.field);
     }
 
-    // @ts-expect-error Test preconditions
-    @LockPromise(['test'], 1000, mockErrorFn)
+    @LockPromise(['test'], 1000, (err: unknown) => {
+        mockErrorFn(err);
+
+        return Promise.resolve(0);
+    })
     async testLockFailedErrorFn(): Promise<number> {
         return await Promise.resolve(this.field);
     }
