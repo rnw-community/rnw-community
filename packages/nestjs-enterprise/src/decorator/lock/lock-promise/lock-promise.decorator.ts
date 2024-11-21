@@ -32,20 +32,20 @@ export const LockPromise =
             return this.redlock
                 .acquire(lockKeys, duration)
                 .then(currentLock => {
-                    try {
-                        const originalResult = originalMethod.apply(this, args);
-                        if (!isPromise(originalResult)) {
-                            throw new Error(
-                                `Method ${target.constructor.name}::${String(propertyKey)} does not return a promise`
-                            );
-                        }
-
-                        return originalResult;
-                        // eslint-disable-next-line promise/always-return
-                    } finally {
+                    const originalResult = originalMethod.apply(this, args);
+                    if (!isPromise(originalResult)) {
                         // HINT: https://github.com/mike-marcacci/node-redlock/issues/168
                         void currentLock.release().catch(() => void 0);
+
+                        throw new Error(
+                            `Method ${target.constructor.name}::${String(propertyKey)} does not return a promise`
+                        );
                     }
+
+                    return originalResult.finally(() => {
+                        // HINT: https://github.com/mike-marcacci/node-redlock/issues/168
+                        void currentLock.release().catch(() => void 0);
+                    });
                 })
                 .catch((err: unknown) => {
                     if (isDefined(catchErrorFn)) {
