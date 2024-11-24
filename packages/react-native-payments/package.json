@@ -1,6 +1,6 @@
 {
     "name": "@rnw-community/react-native-payments",
-    "version": "0.79.0",
+    "version": "0.80.0",
     "description": "React Native Payments",
     "keywords": [
         "react",
@@ -92,9 +92,9 @@
         "react-native": "^0.76.1"
     },
     "peerDependencies": {
+        "expo": ">=48.0.0",
         "react": ">=17",
-        "react-native": ">=0.64",
-        "expo": ">=48.0.0"
+        "react-native": ">=0.64"
     },
     "codegenConfig": {
         "name": "RNPaymentsSpec",

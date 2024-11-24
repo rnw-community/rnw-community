@@ -1,7 +1,7 @@
 /* eslint-disable jest/no-done-callback */
 import { beforeEach, describe, expect, it, jest } from '@jest/globals';
 import Redis from 'ioredis';
-import { EMPTY, Observable, of } from 'rxjs';
+import { EMPTY, Observable, of, tap } from 'rxjs';
 
 import { getErrorMessage } from '@rnw-community/shared';
 
@@ -23,6 +23,7 @@ jest.mock('redlock', () =>
 );
 
 const mockErrorFn = jest.fn();
+const mockResultFn = jest.fn();
 
 class TestObservableClass extends LockableService {
     readonly field = 1;
@@ -61,10 +62,18 @@ class TestObservableClass extends LockableService {
         return of(this.field);
     }
 
-    // @ts-expect-error Test preconditions
-    @LockObservable(['test'], 1000, mockErrorFn)
+    @LockObservable(['test'], 1000, err => {
+        mockErrorFn(err);
+
+        return of(0);
+    })
     testLockFailedErrorFn$(): Observable<number> {
         return of(this.field);
+    }
+
+    @LockObservable(['test'], 1000)
+    testReleaseAfterResultFn$(): Observable<number> {
+        return of(this.field).pipe(tap(() => mockResultFn()));
     }
 }
 
@@ -86,6 +95,8 @@ describe('LockObservableDecorator', () => {
             next: value => {
                 expect(mockAcquire).toHaveBeenCalledWith([`test`], 1000);
                 expect(value).toBe(1);
+            },
+            complete: () => {
                 expect(mockRelease).toHaveBeenCalledWith();
 
                 done();
@@ -103,7 +114,8 @@ describe('LockObservableDecorator', () => {
                 expect(mockAcquire).toHaveBeenCalledWith([`test`, `1`], 1000);
                 expect(value).toStrictEqual({ field: 1, id: 1 });
                 expect(mockRelease).toHaveBeenCalledWith();
-
+            },
+            complete: () => {
                 done();
             },
         });
@@ -194,7 +206,8 @@ describe('LockObservableDecorator', () => {
                 expect(value).toBe(1);
                 expect(mockAcquire).toHaveBeenCalledWith([`test`], 1000);
                 expect(mockRelease).toHaveBeenCalledWith();
-
+            },
+            complete: () => {
                 done();
             },
         });
@@ -238,6 +251,28 @@ describe('LockObservableDecorator', () => {
                 expect(mockAcquire).toHaveBeenCalledWith([`test`], 1000);
                 expect(mockRelease).not.toHaveBeenCalledWith();
 
+                done();
+            },
+        });
+    });
+
+    it('should wait for resultFn to complete before releasing the lock', done => {
+        expect.assertions(3);
+
+        const instance = new TestObservableClass();
+
+        instance.testReleaseAfterResultFn$().subscribe({
+            next: value => {
+                expect(value).toBe(1);
+                expect(mockResultFn).toHaveBeenCalledWith();
+                expect(mockRelease).toHaveBeenCalledWith();
+
+                const [resultCallOrder] = mockResultFn.mock.invocationCallOrder;
+                const [releaseCallOrder] = mockRelease.mock.invocationCallOrder;
+
+                expect(resultCallOrder).toBeLessThan(releaseCallOrder);
+            },
+            complete: () => {
                 done();
             },
         });
