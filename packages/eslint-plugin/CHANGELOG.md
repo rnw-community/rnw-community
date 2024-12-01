@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.81.0](https://github.com/rnw-community/rnw-community/compare/v0.80.1...v0.81.0) (2024-12-01)
+
+### Features
+
+- fixed latest eslint 8, updated yarn, typescript other dev deps ([#258](https://github.com/rnw-community/rnw-community/issues/258)) ([96f74ab](https://github.com/rnw-community/rnw-community/commit/96f74abc876cd16a810145b35da8f22a61360ab0))
+
 # [0.80.0](https://github.com/rnw-community/rnw-community/compare/v0.79.0...v0.80.0) (2024-11-20)
 
 **Note:** Version bump only for package @rnw-community/eslint-plugin
@@ -71,7 +77,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 ### Features
 
--   **wdio:** updated wdio dependencies to the latest version, migration to @jest/globals ([#180](https://github.com/rnw-community/rnw-community/issues/180)) ([0b6e59a](https://github.com/rnw-community/rnw-community/commit/0b6e59ac40d4784fba40fba46ac7a1e28cff7d8c))
+- **wdio:** updated wdio dependencies to the latest version, migration to @jest/globals ([#180](https://github.com/rnw-community/rnw-community/issues/180)) ([0b6e59a](https://github.com/rnw-community/rnw-community/commit/0b6e59ac40d4784fba40fba46ac7a1e28cff7d8c))
 
 # [0.65.0](https://github.com/rnw-community/rnw-community/compare/v0.64.0...v0.65.0) (2023-12-17)
 
@@ -81,7 +87,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 ### Features
 
--   **eslint-plugin:** added inline object/array check for JSX attributes ([#167](https://github.com/rnw-community/rnw-community/issues/167)) ([b722b23](https://github.com/rnw-community/rnw-community/commit/b722b2337e1d6c43b6f04ca9d4f3de6d7be63072))
+- **eslint-plugin:** added inline object/array check for JSX attributes ([#167](https://github.com/rnw-community/rnw-community/issues/167)) ([b722b23](https://github.com/rnw-community/rnw-community/commit/b722b2337e1d6c43b6f04ca9d4f3de6d7be63072))
 
 ## [0.63.2](https://github.com/rnw-community/rnw-community/compare/v0.63.1...v0.63.2) (2023-12-16)
 
@@ -95,4 +101,4 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 ### Features
 
--   added eslint-plugin, updated eslint-plugin-import config ([#166](https://github.com/rnw-community/rnw-community/issues/166)) ([30a4ad8](https://github.com/rnw-community/rnw-community/commit/30a4ad8c8434b0f02bf2dfdd26cf396b5c40d1fd))
+- added eslint-plugin, updated eslint-plugin-import config ([#166](https://github.com/rnw-community/rnw-community/issues/166)) ([30a4ad8](https://github.com/rnw-community/rnw-community/commit/30a4ad8c8434b0f02bf2dfdd26cf396b5c40d1fd))
