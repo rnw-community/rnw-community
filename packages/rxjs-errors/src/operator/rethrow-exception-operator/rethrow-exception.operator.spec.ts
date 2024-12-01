@@ -178,6 +178,7 @@ describe('rethrowException', () => {
                     catchError((err: unknown) => {
                         expect(err instanceof CustomError).toBe(true);
                         expect(getErrorMessage(err)).toBe(wantedErrorMsg);
+
                         expect((err as CustomError).additionalMsg).toBe(wantedAdditionalErrorMsg);
 
                         resolve(true);
@@ -216,6 +217,7 @@ describe('rethrowException', () => {
                     catchError((err: unknown) => {
                         expect(err instanceof CustomError).toBe(true);
                         expect(getErrorMessage(err)).toBe(wantedErrorMsg);
+
                         expect((err as CustomError).additionalMsg).toBe(wantedAdditionalErrorMsg);
 
                         resolve(true);

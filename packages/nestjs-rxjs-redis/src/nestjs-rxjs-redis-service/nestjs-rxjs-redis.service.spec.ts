@@ -68,11 +68,14 @@ describe('NestJSRxJSRedisService', () => {
         const redisService = getRedisService({ get });
         const redis = new NestJSRxJSRedisService(redisService);
 
-        redis.get$(redisKey).subscribe(emptyFn, (error: unknown) => {
-            expect(get).toHaveBeenCalledWith(redisKey);
-            expect(getErrorMessage(error)).toBe(`Error getting ${redisKey} from redis`);
+        redis.get$(redisKey).subscribe({
+            next: emptyFn,
+            error: (error: unknown) => {
+                expect(get).toHaveBeenCalledWith(redisKey);
+                expect(getErrorMessage(error)).toBe(`Error getting ${redisKey} from redis`);
 
-            done();
+                done();
+            },
         });
     });
 
