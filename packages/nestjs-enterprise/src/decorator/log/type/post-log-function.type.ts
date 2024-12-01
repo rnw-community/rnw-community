@@ -1,3 +1,4 @@
+// eslint-disable-next-line @typescript-eslint/max-params
 export type PostLogFunction<T, TArgs extends unknown[]> = (
     result: T,
     arg1: TArgs[0],

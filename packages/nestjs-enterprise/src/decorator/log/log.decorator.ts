@@ -22,7 +22,7 @@ export const Log =
         const originalMethod = descriptor.value!;
 
         // eslint-disable-next-line max-statements,func-names
-        descriptor.value = function (...args: TArgs) {
+        descriptor.value = function (...args: TArgs): TResult {
             type R = GetResultType<TResult>;
 
             const runPreLog = (): void => {

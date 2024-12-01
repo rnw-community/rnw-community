@@ -32,7 +32,7 @@ export const openDeepLinkCommand = async (
 
         if (!(await browser.isKeyboardShown())) {
             await addressBar.click();
-            await browser.waitUntil(async () => await browser.isKeyboardShown());
+            await browser.waitUntil(async () => browser.isKeyboardShown());
         }
 
         const urlField = await $(

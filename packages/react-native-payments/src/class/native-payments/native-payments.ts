@@ -13,15 +13,21 @@ const LINKING_ERROR = `The package 'react-native-payments' doesn't seem to be li
 // eslint-disable-next-line no-underscore-dangle
 const isTurboModuleEnabled = global.__turboModuleProxy !== null;
 
-// eslint-disable-next-line @typescript-eslint/no-require-imports,@typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-var-requires,node/no-missing-require
-const PaymentsModule = (isTurboModuleEnabled ? require('../../NativePayments').default : NativeModules['Payments']) as Spec;
+// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+const PaymentsModule = isTurboModuleEnabled
+    ? // eslint-disable-next-line @typescript-eslint/no-require-imports,n/no-missing-require,@typescript-eslint/no-unsafe-member-access
+      (require('../../NativePayments').default as Spec)
+    : (NativeModules as { Payments: Spec }).Payments;
+
 const PaymentsProxy = new Proxy(
     {},
     {
+        // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
         get() {
             throw new Error(LINKING_ERROR);
         },
     }
 ) as Spec;
 
+// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
 export const NativePayments = isDefined(PaymentsModule) ? PaymentsModule : PaymentsProxy;

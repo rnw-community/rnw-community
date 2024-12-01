@@ -34,6 +34,7 @@ export class NestJSRxJSMetricsService<
         this.startedHistogramMetrics = Object.fromEntries(
             Object.entries(this.histogramMetrics).map(([key]) => [key, []])
         ) as unknown as HistogramRecord<H>;
+
         this.startedSummaryMetrics = Object.fromEntries(
             Object.entries(this.summaryMetrics).map(([key]) => [key, []])
         ) as unknown as SummaryRecord<S>;

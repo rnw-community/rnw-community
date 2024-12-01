@@ -1,3 +1,4 @@
+/* eslint-disable */
 import { describe, expect, it, jest } from '@jest/globals';
 import { Logger } from '@nestjs/common';
 import { of } from 'rxjs';

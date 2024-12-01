@@ -12,6 +12,7 @@ export const slowInputCommand = async function slowInputCommand(
     if (isAndroidCapability()) {
         await this.setValue(value);
     } else {
+        // eslint-disable-next-line @typescript-eslint/await-thenable
         for await (const char of value.split('')) {
             await browser.pause(delay);
             await this.addValue(char);

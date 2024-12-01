@@ -223,10 +223,10 @@ describe('LogDecorator', () => {
             jest.resetAllMocks();
 
             const instance = new TestClass();
-            instance.testObservableError().subscribe(
-                () => void 0,
-                () => void 0
-            );
+            instance.testObservableError().subscribe({
+                next: () => void 0,
+                error: () => void 0,
+            });
 
             expect(Logger.log).toHaveBeenCalledWith(preLogText, `${TestClass.name}::testObservableError`);
             expect(Logger.error).toHaveBeenCalledWith(errorLogText, `${TestClass.name}::testObservableError`);
@@ -238,10 +238,10 @@ describe('LogDecorator', () => {
             jest.resetAllMocks();
 
             const instance = new TestClass();
-            instance.testObservableErrorArg(2).subscribe(
-                () => void 0,
-                () => void 0
-            );
+            instance.testObservableErrorArg(2).subscribe({
+                next: () => void 0,
+                error: () => void 0,
+            });
 
             expect(Logger.log).toHaveBeenCalledWith(preLogText, `${TestClass.name}::testObservableErrorArg`);
             expect(Logger.error).toHaveBeenCalledWith(`${errorLogText}-2`, `${TestClass.name}::testObservableErrorArg`);

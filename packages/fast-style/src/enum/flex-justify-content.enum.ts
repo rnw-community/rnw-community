@@ -1,3 +1,4 @@
+/* eslint-disable */
 export enum FlexJustifyContentEnum {
     center = 'center',
     flexEnd = 'flex-end',
