@@ -15,6 +15,7 @@ export function combine<D, T1 extends Enum, T2 extends Enum, T3 extends Enum>(
     collection2: T2,
     collection3: T3
 ): CombineReturn3<D, T1, T2, T3>;
+// eslint-disable-next-line @typescript-eslint/max-params
 export function combine<D, T1 extends Enum, T2 extends Enum, T3 extends Enum, T4 extends Enum>(
     dataFn: DataFn4<D, T1, T2, T3, T4>,
     collection1: T1,
@@ -23,6 +24,7 @@ export function combine<D, T1 extends Enum, T2 extends Enum, T3 extends Enum, T4
     collection4: T4
 ): CombineReturn4<D, T1, T2, T3, T4>;
 
+// eslint-disable-next-line @typescript-eslint/max-params
 export function combine<D, T1 extends Enum, T2 extends Enum, T3 extends Enum, T4 extends Enum, T5 extends Enum>(
     dataFn: DataFn5<D, T1, T2, T3, T4, T5>,
     collection1: T1,

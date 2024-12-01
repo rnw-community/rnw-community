@@ -8,6 +8,7 @@ export class SelectorElement {
     ) {
         // eslint-disable-next-line no-constructor-return
         return new Proxy(this, {
+            // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
             get(client, field: string, receiver) {
                 if (Reflect.has(client, field)) {
                     // eslint-disable-next-line @typescript-eslint/no-unsafe-return

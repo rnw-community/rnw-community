@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/naming-convention */
 import { describe, expect, it } from '@jest/globals';
 import Joi from 'joi';
 
@@ -28,12 +29,12 @@ describe('NestJSTypedConfigModule', () => {
     it('should create type config module with exported service', () => {
         expect.assertions(3);
 
-        const validationSchema = Joi.object({});
+        const validationSchema = Joi.object({}) as unknown as ObjectSchema<EnvironmentVariablesInterface>;
 
         const [ConfigModule, ConfigService] = NestJSTypedConfigModule.create<
             EnvironmentVariablesEnum,
             EnvironmentVariablesInterface
-        >(validationSchema as ObjectSchema<EnvironmentVariablesInterface>);
+        >(validationSchema);
 
         expect(ConfigModule.exports).toContain(ConfigService);
         expect(ConfigModule.providers).toContain(ConfigService);
@@ -45,14 +46,12 @@ describe('NestJSTypedConfigModule', () => {
 
         const validationSchema = Joi.object({
             [EnvironmentVariablesEnum.ENVIRONMENT_VARIABLE]: Joi.string().required(),
-        });
+        }) as unknown as ObjectSchema<EnvironmentVariablesInterface>;
 
         process.env[EnvironmentVariablesEnum.ENVIRONMENT_VARIABLE] = 'value';
 
         expect(() =>
-            NestJSTypedConfigModule.create<EnvironmentVariablesEnum, EnvironmentVariablesInterface>(
-                validationSchema as ObjectSchema<EnvironmentVariablesInterface>
-            )
+            NestJSTypedConfigModule.create<EnvironmentVariablesEnum, EnvironmentVariablesInterface>(validationSchema)
         ).not.toThrow();
 
         // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
@@ -64,12 +63,10 @@ describe('NestJSTypedConfigModule', () => {
 
         const validationSchema = Joi.object({
             [EnvironmentVariablesEnum.ENVIRONMENT_VARIABLE]: Joi.string().required(),
-        });
+        }) as unknown as ObjectSchema<EnvironmentVariablesInterface>;
 
         expect(() =>
-            NestJSTypedConfigModule.create<EnvironmentVariablesEnum, EnvironmentVariablesInterface>(
-                validationSchema as ObjectSchema<EnvironmentVariablesInterface>
-            )
+            NestJSTypedConfigModule.create<EnvironmentVariablesEnum, EnvironmentVariablesInterface>(validationSchema)
         ).toThrow(`Config validation error: "${EnvironmentVariablesEnum.ENVIRONMENT_VARIABLE}" is required`);
     });
 });

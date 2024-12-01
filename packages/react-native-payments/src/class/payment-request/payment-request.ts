@@ -56,6 +56,7 @@ export class PaymentRequest {
         // 3. Establish the request's id:
         if (!isNotEmptyString(details.id)) {
             // TODO: Can we avoid using external lib? Use Math.random?
+
             details.id = uuid.v4() as string;
         }
         this.id = details.id;
@@ -86,7 +87,7 @@ export class PaymentRequest {
             throw new DOMException(PaymentsErrorEnum.InvalidStateError);
         }
 
-        return await NativePayments.canMakePayments(this.serializedMethodData);
+        return NativePayments.canMakePayments(this.serializedMethodData);
     }
 
     // https://www.w3.org/TR/payment-request/#show-method

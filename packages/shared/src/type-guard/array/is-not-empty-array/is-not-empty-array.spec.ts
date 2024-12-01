@@ -17,6 +17,7 @@ describe('isNotEmptyArray', () => {
         expect.hasAssertions();
 
         expect(isNotEmptyArray(undefined)).toBe(false);
+
         expect(isNotEmptyArray(1 as unknown as unknown[])).toBe(false);
     });
 });

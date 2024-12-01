@@ -24,7 +24,7 @@ export const HistogramMetric =
         const originalMethod = descriptor.value!;
 
         // eslint-disable-next-line max-statements,func-names
-        descriptor.value = function (...args: TArgs) {
+        descriptor.value = function (...args: TArgs): TResult {
             const endHistogram = histogram.startTimer();
 
             try {

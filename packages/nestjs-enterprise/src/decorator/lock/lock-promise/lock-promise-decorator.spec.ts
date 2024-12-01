@@ -30,12 +30,12 @@ class TestClass extends LockableService {
 
     @LockPromise(['test'], 1000)
     async testArray(): Promise<number> {
-        return await Promise.resolve(this.field);
+        return Promise.resolve(this.field);
     }
 
     @LockPromise(id => ['test', String(id)], 1000)
     async testFunction(id: number): Promise<number[]> {
-        return await Promise.resolve([this.field, id]);
+        return Promise.resolve([this.field, id]);
     }
 
     @LockPromise(['test'], 1000)
@@ -50,7 +50,7 @@ class TestClass extends LockableService {
 
     @LockPromise(['test'], 1000)
     async testLockFailed(): Promise<number> {
-        return await Promise.resolve(this.field);
+        return Promise.resolve(this.field);
     }
 
     @LockPromise(['test'], 1000, (err: unknown) => {
@@ -59,7 +59,7 @@ class TestClass extends LockableService {
         return Promise.resolve(0);
     })
     async testLockFailedErrorFn(): Promise<number> {
-        return await Promise.resolve(this.field);
+        return Promise.resolve(this.field);
     }
 
     @LockPromise(['test'], 1000)

@@ -158,6 +158,7 @@ export class NestJSRxJSRedisService {
     load<O, I = string>(
         keyFn: (input: I) => string = key => String(key),
         errorFn: (input: I) => string = input => `Error loading "${keyFn(input)}" from redis`,
+
         fromValueFn: (input: string) => O = input => JSON.parse(input) as O
     ): OperatorFunction<I, O> {
         return (source$: Observable<I>): Observable<O> =>
@@ -205,6 +206,7 @@ export class NestJSRxJSRedisService {
         ttlInSeconds: number,
         prepareFn$: (input: string) => Observable<R>,
         keyFn: (input: T) => string = input => String(input),
+
         fromValueFn: (input: string) => R = input => JSON.parse(input) as R,
         toValueFn: (input: R) => string = input => JSON.stringify(input)
     ): OperatorFunction<T, R> {

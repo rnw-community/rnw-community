@@ -11,7 +11,7 @@ export const createMetricsRecord = <M, T extends MetricConfig>(
     enumObj: T,
     labelNames?: LabelsConfig<T>
 ): Record<keyof T, M> =>
-    Object.keys(enumObj).reduce(
+    Object.keys(enumObj).reduce<Record<keyof T, M>>(
         (acc, metric) => ({
             ...acc,
             [metric]: getOrCreateMetric(type, {

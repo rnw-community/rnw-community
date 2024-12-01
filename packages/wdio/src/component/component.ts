@@ -1,3 +1,4 @@
+/* eslint-disable */
 import { isDefined } from '@rnw-community/shared';
 
 import { SelectorElement } from '../selector-element/selector-element';
@@ -15,6 +16,7 @@ export class Component<T = any> {
     ) {
         // eslint-disable-next-line no-constructor-return
         return new Proxy(this, {
+            // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
             get(client, field: string, receiver) {
                 return client.proxyGet(field, receiver);
             },

@@ -1,3 +1,4 @@
+// eslint-disable-next-line @typescript-eslint/max-params
 export type ErrorLogFunction<TArgs extends unknown[]> = (
     error: unknown,
     arg1: TArgs[0],

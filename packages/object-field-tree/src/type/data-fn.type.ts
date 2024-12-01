@@ -9,6 +9,7 @@ export type DataFn4<D, T1 extends Enum, T2 extends Enum, T3 extends Enum, T4 ext
     t3: keyof T3,
     t4: keyof T4
 ) => D;
+// eslint-disable-next-line @typescript-eslint/max-params
 export type DataFn5<D, T1 extends Enum, T2 extends Enum, T3 extends Enum, T4 extends Enum, T5 extends Enum> = (
     t1: keyof T1,
     t2: keyof T2,

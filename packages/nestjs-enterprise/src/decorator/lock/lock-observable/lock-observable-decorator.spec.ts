@@ -163,6 +163,7 @@ describe('LockObservableDecorator', () => {
         const instance = new TestObservableClass();
 
         // HINT: Wrong types test
+
         (instance.testSync() as unknown as Observable<number>).subscribe({
             error: (error: unknown) => {
                 expect(getErrorMessage(error)).toBe(`Method TestObservableClass::testSync does not return an observable`);

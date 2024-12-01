@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/naming-convention */
 export enum FlexAlignItemsEnum {
     baseline = 'baseline',
     center = 'center',

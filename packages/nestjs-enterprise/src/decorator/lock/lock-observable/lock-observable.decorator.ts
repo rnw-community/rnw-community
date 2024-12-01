@@ -20,7 +20,7 @@ export const LockObservable =
         const originalMethod = descriptor.value!;
 
         // eslint-disable-next-line max-statements,func-names
-        descriptor.value = function (this: LockableService, ...args: TArgs) {
+        descriptor.value = function (this: LockableService, ...args: TArgs): TResult {
             return of(true).pipe(
                 tap(() => void validateRedlock(this)),
                 map(() => runPreLock(preLock, ...args)),

@@ -14,6 +14,7 @@ export const getNestJSWebpackDevConfig = (options: Configuration, webpack: typeo
         ...(options.plugins as WebpackPluginInstance[]),
         new webpack.HotModuleReplacementPlugin(),
         new webpack.WatchIgnorePlugin({ paths: [/\.js$/u, /\.d\.ts$/u] }),
+
         new RunScriptWebpackPlugin({ name: options.output?.filename as string, autoRestart: false }),
     ],
 });
