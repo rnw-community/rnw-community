@@ -19,6 +19,7 @@ jest.mock('redlock', () =>
 );
 
 const mockErrorFn = jest.fn();
+const mockResultFn = jest.fn();
 
 class TestClass extends LockableService {
     readonly field = 1;
@@ -52,10 +53,20 @@ class TestClass extends LockableService {
         return await Promise.resolve(this.field);
     }
 
-    // @ts-expect-error Test preconditions
-    @LockPromise(['test'], 1000, mockErrorFn)
+    @LockPromise(['test'], 1000, (err: unknown) => {
+        mockErrorFn(err);
+
+        return Promise.resolve(0);
+    })
     async testLockFailedErrorFn(): Promise<number> {
         return await Promise.resolve(this.field);
+    }
+
+    @LockPromise(['test'], 1000)
+    testReleaseAfterResultFn(): Promise<number> {
+        mockResultFn();
+
+        return Promise.resolve(this.field);
     }
 }
 
@@ -169,5 +180,21 @@ describe('LockPromiseDecorator', () => {
         await expect(instance.testLockFailedErrorFn()).rejects.toThrow(catchErrorFnErrorMsg);
         expect(mockAcquire).toHaveBeenCalledWith([`test`], 1000);
         expect(mockRelease).not.toHaveBeenCalled();
+    });
+
+    it('should release lock after result function', async () => {
+        expect.assertions(4);
+
+        const instance = new TestClass();
+        mockAcquire.mockResolvedValue({ release: mockRelease });
+
+        await expect(instance.testReleaseAfterResultFn()).resolves.toBe(1);
+        expect(mockAcquire).toHaveBeenCalledWith([`test`], 1000);
+        expect(mockRelease).toHaveBeenCalledWith();
+
+        const [resultCallOrder] = mockResultFn.mock.invocationCallOrder;
+        const [releaseCallOrder] = mockRelease.mock.invocationCallOrder;
+
+        expect(resultCallOrder).toBeLessThan(releaseCallOrder);
     });
 });
