@@ -91,10 +91,9 @@ export class MockElement<T> extends Promise<T> {
     }
 }
 
-const elImplementation = (): ChainablePromiseElement<WebdriverIO.Element> =>
-    MockElement.resolve(mockElement) as ChainablePromiseElement<WebdriverIO.Element>;
-const elsImplementation = (): ChainablePromiseArray<WebdriverIO.ElementArray> =>
-    Promise.resolve([mockElement]) as unknown as ChainablePromiseArray<WebdriverIO.ElementArray>;
+const elImplementation = (): ChainablePromiseElement =>
+    MockElement.resolve(mockElement) as unknown as ChainablePromiseElement;
+const elsImplementation = (): ChainablePromiseArray => Promise.resolve([mockElement]) as unknown as ChainablePromiseArray;
 
 export const mockDefaultConfig: ComponentConfigInterface = {
     elSelectorFn: jest.fn(elImplementation),
