@@ -17,6 +17,7 @@ export const mockElement = {
     setValue: jest.fn(() => Promise.resolve(void 0)),
     getLocation: jest.fn(() => Promise.resolve({ x: 0, y: 0 })),
     getSize: jest.fn(() => Promise.resolve({ width: 0, height: 0 })),
+    getElement: jest.fn(() => Promise.resolve(mockElement)),
 } as unknown as WebdriverIO.Element;
 
 export class MockElement<T> extends Promise<T> {

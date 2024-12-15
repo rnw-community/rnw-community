@@ -1,6 +1,4 @@
-import { $ } from '@wdio/globals';
-
-import { isDefined, isNotEmptyString, isString } from '@rnw-community/shared';
+import { isDefined, isString } from '@rnw-community/shared';
 
 import { Component } from '../component/component';
 
@@ -46,11 +44,7 @@ export class RootedComponent<T = any> extends Component<T> {
     }
 
     get RootEl(): ChainablePromiseElement {
-        if (isNotEmptyString(this.parentElInput)) {
-            return this.config.elSelectorFn(this.parentElInput);
-        }
-
-        return $(this.parentElInput);
+        return this.config.elSelectorFn(this.parentElInput);
     }
 
     override getChildEl(selector: string): ChainablePromiseElement {

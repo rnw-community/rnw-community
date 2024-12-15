@@ -34,7 +34,7 @@ export const openDeepLinkCommand = async (
             await browser.waitUntil(async () => browser.isKeyboardShown());
         }
 
-        const urlField = await $(
+        const urlField = $(
             `//XCUIElementTypeApplication[@name="Safari"]/XCUIElementTypeWindow[3]/XCUIElementTypeOther/XCUIElementTypeOther/XCUIElementTypeOther[1]`
         );
         await urlField.setValue(`${url}\uE007`);
