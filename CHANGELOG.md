@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.82.0](https://github.com/rnw-community/rnw-community/compare/v0.81.0...v0.82.0) (2024-12-15)
+
+### Features
+
+- **react-native-payments:** fixed IOS ISOCountryCode mapping ([#263](https://github.com/rnw-community/rnw-community/issues/263)) ([d973d82](https://github.com/rnw-community/rnw-community/commit/d973d82b559011f11db13f41b16978a71a330edc)), closes [#261](https://github.com/rnw-community/rnw-community/issues/261)
+
 # [0.81.0](https://github.com/rnw-community/rnw-community/compare/v0.80.1...v0.81.0) (2024-12-01)
 
 ### Features
