@@ -79,7 +79,7 @@ RCT_EXPORT_METHOD(show:(NSString *)methodDataString
             return;
         }
     }
-    
+
     NSMutableArray *requiredShippingContactFields = [NSMutableArray array];
     for (NSString *requiredShippingContactField in methodData[@"requiredShippingContactFields"]) {
         PKContactField contactField = [self contactFieldFromString:requiredShippingContactField];
@@ -90,7 +90,7 @@ RCT_EXPORT_METHOD(show:(NSString *)methodDataString
             return;
         }
     }
-    
+
 
     // https://developer.apple.com/documentation/passkit/pkpaymentrequest/1619257-merchantcapabilities?language=objc
     NSArray *merchantCapabilitiesArray = methodData[@"merchantCapabilities"];
@@ -231,7 +231,7 @@ RCT_EXPORT_METHOD(canMakePayments: (NSString *)methodDataString
             postalAddressDict[@"state"] = postalAddress.state;
             postalAddressDict[@"postalCode"] = postalAddress.postalCode;
             postalAddressDict[@"country"] = postalAddress.country;
-            postalAddressDict[@"isoCountryCode"] = postalAddress.ISOCountryCode;
+            postalAddressDict[@"ISOCountryCode"] = postalAddress.ISOCountryCode;
         }
 
         billingContactDict[@"postalAddress"] = postalAddressDict;
@@ -257,7 +257,7 @@ RCT_EXPORT_METHOD(canMakePayments: (NSString *)methodDataString
             postalAddressDict[@"state"] = postalAddress.state;
             postalAddressDict[@"postalCode"] = postalAddress.postalCode;
             postalAddressDict[@"country"] = postalAddress.country;
-            postalAddressDict[@"isoCountryCode"] = postalAddress.ISOCountryCode;
+            postalAddressDict[@"ISOCountryCode"] = postalAddress.ISOCountryCode;
         }
         shippingContactDict[@"postalAddress"] = postalAddressDict;
 
@@ -344,26 +344,26 @@ RCT_EXPORT_METHOD(canMakePayments: (NSString *)methodDataString
             @"PKPaymentNetworkElectron": PKPaymentNetworkElectron,
             @"PKPaymentNetworkElo": PKPaymentNetworkElo
         };
-        
+
         if (@available(iOS 16.0, *)) {
             NSMutableDictionary *mutablePaymentNetworks = [paymentNetworks mutableCopy];
             mutablePaymentNetworks[@"PKPaymentNetworkBancontact"] = PKPaymentNetworkBancontact;
             paymentNetworks = [mutablePaymentNetworks copy];
         }
-        
+
         if (@available(iOS 15.1, *)) {
             NSMutableDictionary *mutablePaymentNetworks = [paymentNetworks mutableCopy];
             mutablePaymentNetworks[@"PKPaymentNetworkDankort"] = PKPaymentNetworkDankort;
             paymentNetworks = [mutablePaymentNetworks copy];
         }
-        
+
         if (@available(iOS 14.5, *)) {
             NSMutableDictionary *mutablePaymentNetworks = [paymentNetworks mutableCopy];
             // HINT: You should never work
             mutablePaymentNetworks[@"PKPaymentNetworkMIR"] = PKPaymentNetworkMir;
             paymentNetworks = [mutablePaymentNetworks copy];
         }
-        
+
         if (@available(iOS 14.0, *)) {
             NSMutableDictionary *mutablePaymentNetworks = [paymentNetworks mutableCopy];
             mutablePaymentNetworks[@"PKPaymentNetworkGirocard"] = PKPaymentNetworkGirocard;
@@ -409,7 +409,7 @@ RCT_EXPORT_METHOD(canMakePayments: (NSString *)methodDataString
     };
 
     PKContactField field = contactFieldMapping[inputString];
-    
+
     return field;
 }
 
