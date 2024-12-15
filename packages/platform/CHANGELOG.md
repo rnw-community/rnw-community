@@ -3,6 +3,10 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.81.0](https://github.com/rnw-community/rnw-community/compare/v0.80.1...v0.81.0) (2024-12-01)
+
+**Note:** Version bump only for package @rnw-community/platform
+
 # [0.80.0](https://github.com/rnw-community/rnw-community/compare/v0.79.0...v0.80.0) (2024-11-20)
 
 **Note:** Version bump only for package @rnw-community/platform
@@ -19,7 +23,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 ### Features
 
--   **react-native-payments:** android cardInfo parsing, RN 0.76.1 support ([#246](https://github.com/rnw-community/rnw-community/issues/246)) ([d7876a6](https://github.com/rnw-community/rnw-community/commit/d7876a6270e4758d155c282f32d13753f5387a19))
+- **react-native-payments:** android cardInfo parsing, RN 0.76.1 support ([#246](https://github.com/rnw-community/rnw-community/issues/246)) ([d7876a6](https://github.com/rnw-community/rnw-community/commit/d7876a6270e4758d155c282f32d13753f5387a19))
 
 # [0.76.0](https://github.com/rnw-community/rnw-community/compare/v0.75.4...v0.76.0) (2024-10-21)
 
@@ -37,7 +41,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 ### Features
 
--   **wdio:** upgraded wdio to latest v8, fixed types, bump turbo 2.0.9, TS 5.5, eslint and its deps ([#209](https://github.com/rnw-community/rnw-community/issues/209)) ([1da06a0](https://github.com/rnw-community/rnw-community/commit/1da06a0bb53e94ad318e76b19bc2c9c153871656))
+- **wdio:** upgraded wdio to latest v8, fixed types, bump turbo 2.0.9, TS 5.5, eslint and its deps ([#209](https://github.com/rnw-community/rnw-community/issues/209)) ([1da06a0](https://github.com/rnw-community/rnw-community/commit/1da06a0bb53e94ad318e76b19bc2c9c153871656))
 
 # [0.73.0](https://github.com/rnw-community/rnw-community/compare/v0.72.2...v0.73.0) (2024-07-11)
 
@@ -71,13 +75,13 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 ### Features
 
--   **wdio:** updated wdio dependencies to the latest version, migration to @jest/globals ([#180](https://github.com/rnw-community/rnw-community/issues/180)) ([0b6e59a](https://github.com/rnw-community/rnw-community/commit/0b6e59ac40d4784fba40fba46ac7a1e28cff7d8c))
+- **wdio:** updated wdio dependencies to the latest version, migration to @jest/globals ([#180](https://github.com/rnw-community/rnw-community/issues/180)) ([0b6e59a](https://github.com/rnw-community/rnw-community/commit/0b6e59ac40d4784fba40fba46ac7a1e28cff7d8c))
 
 ## [0.65.5](https://github.com/rnw-community/rnw-community/compare/v0.65.4...v0.65.5) (2024-02-07)
 
 ### Bug Fixes
 
--   **platform:** fixed dependencies ([#177](https://github.com/rnw-community/rnw-community/issues/177)) ([6419c73](https://github.com/rnw-community/rnw-community/commit/6419c739c7a876f90c5a69ffc59d8d5e6375f302))
+- **platform:** fixed dependencies ([#177](https://github.com/rnw-community/rnw-community/issues/177)) ([6419c73](https://github.com/rnw-community/rnw-community/commit/6419c739c7a876f90c5a69ffc59d8d5e6375f302))
 
 ## [0.65.3](https://github.com/rnw-community/rnw-community/compare/v0.65.2...v0.65.3) (2024-01-03)
 
@@ -87,7 +91,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 ### Bug Fixes
 
--   workspace protocol failing yarn4 installs ([7ccbb70](https://github.com/rnw-community/rnw-community/commit/7ccbb70b468105a6736b36461987507e2fef4d5e))
+- workspace protocol failing yarn4 installs ([7ccbb70](https://github.com/rnw-community/rnw-community/commit/7ccbb70b468105a6736b36461987507e2fef4d5e))
 
 ## [0.65.1](https://github.com/rnw-community/rnw-community/compare/v0.65.0...v0.65.1) (2023-12-17)
 
@@ -97,7 +101,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 ### Features
 
--   bump rxjs 7.8.1, changed local version deps to workspace protocol ([#168](https://github.com/rnw-community/rnw-community/issues/168)) ([319db8c](https://github.com/rnw-community/rnw-community/commit/319db8c93e8abd65f8cbda58506e471fb9462f64))
+- bump rxjs 7.8.1, changed local version deps to workspace protocol ([#168](https://github.com/rnw-community/rnw-community/issues/168)) ([319db8c](https://github.com/rnw-community/rnw-community/commit/319db8c93e8abd65f8cbda58506e471fb9462f64))
 
 # [0.64.0](https://github.com/rnw-community/rnw-community/compare/v0.63.2...v0.64.0) (2023-12-17)
 
@@ -127,7 +131,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 ### Features
 
--   improved bundled size by removing tsbuildinfo from the dist on build script ([fc613ff](https://github.com/rnw-community/rnw-community/commit/fc613ff65722a1601ae9bbacb8599163ccf0d34c))
+- improved bundled size by removing tsbuildinfo from the dist on build script ([fc613ff](https://github.com/rnw-community/rnw-community/commit/fc613ff65722a1601ae9bbacb8599163ccf0d34c))
 
 ## [0.59.6](https://github.com/rnw-community/rnw-community/compare/v0.59.5...v0.59.6) (2023-10-22)
 
@@ -157,7 +161,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 ### Features
 
--   bumped nestjs deps, move local deps to workspace protocol ([#150](https://github.com/rnw-community/rnw-community/issues/150)) ([5ccf031](https://github.com/rnw-community/rnw-community/commit/5ccf031e4699028999c64be25ff70ced1530c422))
+- bumped nestjs deps, move local deps to workspace protocol ([#150](https://github.com/rnw-community/rnw-community/issues/150)) ([5ccf031](https://github.com/rnw-community/rnw-community/commit/5ccf031e4699028999c64be25ff70ced1530c422))
 
 # [0.55.0](https://github.com/rnw-community/rnw-community/compare/v0.54.12...v0.55.0) (2023-10-06)
 
@@ -175,7 +179,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 ### Features
 
--   **nestjs-rxjs-lock:** migration to ioredis ([#140](https://github.com/rnw-community/rnw-community/issues/140)) ([846a060](https://github.com/rnw-community/rnw-community/commit/846a06025d46f0bc8a80ad010d1aaaa47b15d933))
+- **nestjs-rxjs-lock:** migration to ioredis ([#140](https://github.com/rnw-community/rnw-community/issues/140)) ([846a060](https://github.com/rnw-community/rnw-community/commit/846a06025d46f0bc8a80ad010d1aaaa47b15d933))
 
 # [0.53.0](https://github.com/rnw-community/rnw-community/compare/v0.52.7...v0.53.0) (2023-04-28)
 
@@ -237,7 +241,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 ### Features
 
--   migrated to yarn2, changed local packages as peer deps ([#115](https://github.com/rnw-community/rnw-community/issues/115)) ([59c3493](https://github.com/rnw-community/rnw-community/commit/59c3493c43dccc54bf2824920c4b655b59bb3083))
+- migrated to yarn2, changed local packages as peer deps ([#115](https://github.com/rnw-community/rnw-community/issues/115)) ([59c3493](https://github.com/rnw-community/rnw-community/commit/59c3493c43dccc54bf2824920c4b655b59bb3083))
 
 # [0.45.0](https://github.com/rnw-community/rnw-community/compare/v0.44.3...v0.45.0) (2022-10-14)
 
@@ -251,7 +255,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 ### Bug Fixes
 
--   **wdio:** refactored tests, extends cases ([#110](https://github.com/rnw-community/rnw-community/issues/110)) ([ca54ee2](https://github.com/rnw-community/rnw-community/commit/ca54ee2ce4ec0de870aea787035b0727870bed97))
+- **wdio:** refactored tests, extends cases ([#110](https://github.com/rnw-community/rnw-community/issues/110)) ([ca54ee2](https://github.com/rnw-community/rnw-community/commit/ca54ee2ce4ec0de870aea787035b0727870bed97))
 
 ## [0.44.1](https://github.com/rnw-community/rnw-community/compare/v0.44.0...v0.44.1) (2022-10-11)
 
@@ -273,13 +277,13 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 ### Bug Fixes
 
--   **wdio:** added wdio.d.ts types, testID by index return chain ([#103](https://github.com/rnw-community/rnw-community/issues/103)) ([681b6ee](https://github.com/rnw-community/rnw-community/commit/681b6ee0897edec215868f30e560eb7d5c33eae3))
+- **wdio:** added wdio.d.ts types, testID by index return chain ([#103](https://github.com/rnw-community/rnw-community/issues/103)) ([681b6ee](https://github.com/rnw-community/rnw-community/commit/681b6ee0897edec215868f30e560eb7d5c33eae3))
 
 # [0.43.0](https://github.com/rnw-community/rnw-community/compare/v0.42.1...v0.43.0) (2022-10-01)
 
 ### Features
 
--   added turbo ([2f1f514](https://github.com/rnw-community/rnw-community/commit/2f1f514c176484a37516592a89da7a07dbd11540))
+- added turbo ([2f1f514](https://github.com/rnw-community/rnw-community/commit/2f1f514c176484a37516592a89da7a07dbd11540))
 
 ## [0.42.1](https://github.com/rnw-community/rnw-community/compare/v0.42.0...v0.42.1) (2022-10-01)
 
@@ -289,7 +293,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 ### Features
 
--   **wdio:** added test for external file ([#98](https://github.com/rnw-community/rnw-community/issues/98)) ([f7cce82](https://github.com/rnw-community/rnw-community/commit/f7cce826a19df23d4e4a2450d7300dcd8a458e95))
+- **wdio:** added test for external file ([#98](https://github.com/rnw-community/rnw-community/issues/98)) ([f7cce82](https://github.com/rnw-community/rnw-community/commit/f7cce826a19df23d4e4a2450d7300dcd8a458e95))
 
 ## [0.41.1](https://github.com/rnw-community/rnw-community/compare/v0.41.0...v0.41.1) (2022-09-29)
 
@@ -303,7 +307,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 ### Features
 
--   added esm/cjs build config ([#93](https://github.com/rnw-community/rnw-community/issues/93)) ([2bf46ac](https://github.com/rnw-community/rnw-community/commit/2bf46ac93103d5276059027bb21886dd712a9ca7))
+- added esm/cjs build config ([#93](https://github.com/rnw-community/rnw-community/issues/93)) ([2bf46ac](https://github.com/rnw-community/rnw-community/commit/2bf46ac93103d5276059027bb21886dd712a9ca7))
 
 ## [0.39.2](https://github.com/rnw-community/rnw-community/compare/v0.39.1...v0.39.2) (2022-09-28)
 
@@ -321,13 +325,13 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 ### Bug Fixes
 
--   **wdio:** added esm/cjs build config ([#92](https://github.com/rnw-community/rnw-community/issues/92)) ([02195a1](https://github.com/rnw-community/rnw-community/commit/02195a1da3dccc62f2fe9f19105769c237fee02a))
+- **wdio:** added esm/cjs build config ([#92](https://github.com/rnw-community/rnw-community/issues/92)) ([02195a1](https://github.com/rnw-community/rnw-community/commit/02195a1da3dccc62f2fe9f19105769c237fee02a))
 
 ## [0.38.2](https://github.com/rnw-community/rnw-community/compare/v0.38.1...v0.38.2) (2022-09-27)
 
 ### Bug Fixes
 
--   **wdio:** fixed SelectorObject types to support ChainablePromiseElement/Array ([#91](https://github.com/rnw-community/rnw-community/issues/91)) ([c9fa5b7](https://github.com/rnw-community/rnw-community/commit/c9fa5b70d58ec42f9025336a512965c3d7ee5968))
+- **wdio:** fixed SelectorObject types to support ChainablePromiseElement/Array ([#91](https://github.com/rnw-community/rnw-community/issues/91)) ([c9fa5b7](https://github.com/rnw-community/rnw-community/commit/c9fa5b70d58ec42f9025336a512965c3d7ee5968))
 
 ## [0.38.1](https://github.com/rnw-community/rnw-community/compare/v0.38.0...v0.38.1) (2022-09-27)
 
@@ -337,19 +341,19 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 ### Features
 
--   **wdio:** refactored enum, added wdio ChainablePromise support ([#89](https://github.com/rnw-community/rnw-community/issues/89)) ([d8f24bf](https://github.com/rnw-community/rnw-community/commit/d8f24bf8d9a3c3ffec7c1151f466ed058da8af6c))
+- **wdio:** refactored enum, added wdio ChainablePromise support ([#89](https://github.com/rnw-community/rnw-community/issues/89)) ([d8f24bf](https://github.com/rnw-community/rnw-community/commit/d8f24bf8d9a3c3ffec7c1151f466ed058da8af6c))
 
 # [0.37.0](https://github.com/rnw-community/rnw-community/compare/v0.36.1...v0.37.0) (2022-09-26)
 
 ### Features
 
--   **wdio:** added custom selectors functions config and helpers ([#87](https://github.com/rnw-community/rnw-community/issues/87)) ([58b21f1](https://github.com/rnw-community/rnw-community/commit/58b21f14396acbb69f1db878c8203a51f654bfd0))
+- **wdio:** added custom selectors functions config and helpers ([#87](https://github.com/rnw-community/rnw-community/issues/87)) ([58b21f1](https://github.com/rnw-community/rnw-community/commit/58b21f14396acbb69f1db878c8203a51f654bfd0))
 
 ## [0.36.1](https://github.com/rnw-community/rnw-community/compare/v0.36.0...v0.36.1) (2022-09-26)
 
 ### Bug Fixes
 
--   **wdio:** fixed constructor types to accept ChainablePromiseElement ([#86](https://github.com/rnw-community/rnw-community/issues/86)) ([66b5aea](https://github.com/rnw-community/rnw-community/commit/66b5aeaa618f71b6484a76314a407423e5e8946f))
+- **wdio:** fixed constructor types to accept ChainablePromiseElement ([#86](https://github.com/rnw-community/rnw-community/issues/86)) ([66b5aea](https://github.com/rnw-community/rnw-community/commit/66b5aeaa618f71b6484a76314a407423e5e8946f))
 
 # [0.36.0](https://github.com/rnw-community/rnw-community/compare/v0.35.3...v0.36.0) (2022-09-25)
 
@@ -367,7 +371,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 ### Bug Fixes
 
--   **nestjs-webpack-swc:** fixed hmr helper ([#82](https://github.com/rnw-community/rnw-community/issues/82)) ([561ae93](https://github.com/rnw-community/rnw-community/commit/561ae93f3e4dec954d99e7e9e3b7d576e6cb0e4e))
+- **nestjs-webpack-swc:** fixed hmr helper ([#82](https://github.com/rnw-community/rnw-community/issues/82)) ([561ae93](https://github.com/rnw-community/rnw-community/commit/561ae93f3e4dec954d99e7e9e3b7d576e6cb0e4e))
 
 # [0.35.0](https://github.com/rnw-community/rnw-community/compare/v0.34.0...v0.35.0) (2022-09-19)
 
@@ -381,7 +385,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 ### Features
 
--   **platform:** migrated async storage to @react-native-async-storage/async-storage ([9193abc](https://github.com/rnw-community/rnw-community/commit/9193abcfba96e97d2dec3722b0a3e0c76fe9c08f))
+- **platform:** migrated async storage to @react-native-async-storage/async-storage ([9193abc](https://github.com/rnw-community/rnw-community/commit/9193abcfba96e97d2dec3722b0a3e0c76fe9c08f))
 
 ## [0.32.1](https://github.com/rnw-community/rnw-community/compare/v0.32.0...v0.32.1) (2022-08-25)
 
@@ -587,25 +591,25 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 ### Features
 
--   improved page size by removing tsbuildinfo ([a7a7e5a](https://github.com/rnw-community/rnw-community/commit/a7a7e5aad6155681c481825365dba72a2acef831))
+- improved page size by removing tsbuildinfo ([a7a7e5a](https://github.com/rnw-community/rnw-community/commit/a7a7e5aad6155681c481825365dba72a2acef831))
 
 # [0.13.0](https://github.com/rnw-community/rnw-community/compare/v0.12.1...v0.13.0) (2022-07-26)
 
 ### Features
 
--   **wdio:** added setPropTestID helper for React components ([#73](https://github.com/rnw-community/rnw-community/issues/73)) ([fe07a9a](https://github.com/rnw-community/rnw-community/commit/fe07a9ada0de47f41b48e92e33c41d786fae4cf9))
+- **wdio:** added setPropTestID helper for React components ([#73](https://github.com/rnw-community/rnw-community/issues/73)) ([fe07a9a](https://github.com/rnw-community/rnw-community/commit/fe07a9ada0de47f41b48e92e33c41d786fae4cf9))
 
 ## [0.12.1](https://github.com/rnw-community/rnw-community/compare/v0.12.0...v0.12.1) (2022-07-26)
 
 ### Bug Fixes
 
--   **wdio:** fixed setTestID typings ([#72](https://github.com/rnw-community/rnw-community/issues/72)) ([ecacd8f](https://github.com/rnw-community/rnw-community/commit/ecacd8f1492fdacab5ae7fa76976b287ca6d52ab))
+- **wdio:** fixed setTestID typings ([#72](https://github.com/rnw-community/rnw-community/issues/72)) ([ecacd8f](https://github.com/rnw-community/rnw-community/commit/ecacd8f1492fdacab5ae7fa76976b287ca6d52ab))
 
 # [0.12.0](https://github.com/rnw-community/rnw-community/tree/master/packages/platform/compare/v0.11.0...v0.12.0) (2022-07-26)
 
 ### Features
 
--   Added wdio package ([#68](https://github.com/rnw-community/rnw-community/tree/master/packages/platform/issues/68)) ([da771bb](https://github.com/rnw-community/rnw-community/tree/master/packages/platform/commit/da771bb3ff73d9b02de6ff8c458dbde334b4b9e9))
+- Added wdio package ([#68](https://github.com/rnw-community/rnw-community/tree/master/packages/platform/issues/68)) ([da771bb](https://github.com/rnw-community/rnw-community/tree/master/packages/platform/commit/da771bb3ff73d9b02de6ff8c458dbde334b4b9e9))
 
 # [0.11.0](https://github.com/rnw-community/rnw-community/tree/master/packages/platform/compare/v0.10.1...v0.11.0) (2022-07-19)
 
@@ -635,7 +639,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 ### Features
 
--   **nestjs-rxjs-logger:** added support to pass message function ([#40](https://github.com/rnw-community/rnw-community/tree/master/packages/platform/issues/40)) ([bdc46d8](https://github.com/rnw-community/rnw-community/tree/master/packages/platform/commit/bdc46d87545c0769b641c9276c1029bcd7b0be67))
+- **nestjs-rxjs-logger:** added support to pass message function ([#40](https://github.com/rnw-community/rnw-community/tree/master/packages/platform/issues/40)) ([bdc46d8](https://github.com/rnw-community/rnw-community/tree/master/packages/platform/commit/bdc46d87545c0769b641c9276c1029bcd7b0be67))
 
 # [0.5.0](https://github.com/rnw-community/rnw-community/tree/master/packages/platform/compare/v0.4.0...v0.5.0) (2021-08-18)
 
@@ -653,9 +657,9 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 ### Bug Fixes
 
--   **platform:** fixed ts config for eslint ([69a77a8](https://github.com/rnw-community/rnw-community/tree/master/packages/platform/commit/69a77a8d4cbbad9deca31ab39f8ffd0391de12ba))
--   **platform:** removed dead code ([592d1d7](https://github.com/rnw-community/rnw-community/tree/master/packages/platform/commit/592d1d7061c9c122825de243e8d547f2117a37f4))
--   removed spec.\* files from npm version ([a2b5f15](https://github.com/rnw-community/rnw-community/tree/master/packages/platform/commit/a2b5f15159fe47ad697271a4ef123f40daad7413))
+- **platform:** fixed ts config for eslint ([69a77a8](https://github.com/rnw-community/rnw-community/tree/master/packages/platform/commit/69a77a8d4cbbad9deca31ab39f8ffd0391de12ba))
+- **platform:** removed dead code ([592d1d7](https://github.com/rnw-community/rnw-community/tree/master/packages/platform/commit/592d1d7061c9c122825de243e8d547f2117a37f4))
+- removed spec.\* files from npm version ([a2b5f15](https://github.com/rnw-community/rnw-community/tree/master/packages/platform/commit/a2b5f15159fe47ad697271a4ef123f40daad7413))
 
 # [0.2.0](https://github.com/rnw-community/rnw-community/tree/master/packages/platform/compare/v0.1.9...v0.2.0) (2021-05-16)
 
