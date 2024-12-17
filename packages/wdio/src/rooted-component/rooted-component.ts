@@ -1,6 +1,4 @@
-import { $ } from '@wdio/globals';
-
-import { isDefined, isNotEmptyString, isString } from '@rnw-community/shared';
+import { isDefined, isString } from '@rnw-community/shared';
 
 import { Component } from '../component/component';
 
@@ -45,23 +43,19 @@ export class RootedComponent<T = any> extends Component<T> {
         });
     }
 
-    get RootEl(): ChainablePromiseElement<WebdriverIO.Element> {
-        if (isNotEmptyString(this.parentElInput)) {
-            return this.config.elSelectorFn(this.parentElInput);
-        }
-
-        return $(this.parentElInput);
+    get RootEl(): ChainablePromiseElement {
+        return this.config.elSelectorFn(this.parentElInput);
     }
 
-    override getChildEl(selector: string): ChainablePromiseElement<WebdriverIO.Element> {
+    override getChildEl(selector: string): ChainablePromiseElement {
         return this.config.elSelectorFn(selector, this.RootEl);
     }
 
-    override getChildEls(selector: string): ChainablePromiseArray<WebdriverIO.ElementArray> {
+    override getChildEls(selector: string): ChainablePromiseArray {
         return this.config.elsSelectorFn(selector, this.RootEl);
     }
 
-    override getChildElByIdx(selector: string, idx: number): ChainablePromiseElement<WebdriverIO.Element> {
+    override getChildElByIdx(selector: string, idx: number): ChainablePromiseElement {
         return this.config.elsIndexSelectorFn(selector, idx, this.RootEl);
     }
 }

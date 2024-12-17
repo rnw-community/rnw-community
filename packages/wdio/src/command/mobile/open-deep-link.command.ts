@@ -5,7 +5,6 @@ import { isEmptyString } from '@rnw-community/shared';
 import { isAndroidCapability, isIOSCapability } from '../../capability';
 
 const getPackageNameFromCapabilities = (context: WebdriverIO.Browser): string =>
-    // @ts-expect-error TODO: Validate if it is working?
     'appPackage' in context.capabilities ? (context.capabilities.appPackage as string) : '';
 
 /**
@@ -35,7 +34,7 @@ export const openDeepLinkCommand = async (
             await browser.waitUntil(async () => browser.isKeyboardShown());
         }
 
-        const urlField = await $(
+        const urlField = $(
             `//XCUIElementTypeApplication[@name="Safari"]/XCUIElementTypeWindow[3]/XCUIElementTypeOther/XCUIElementTypeOther/XCUIElementTypeOther[1]`
         );
         await urlField.setValue(`${url}\uE007`);

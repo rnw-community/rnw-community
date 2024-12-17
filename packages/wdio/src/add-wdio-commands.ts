@@ -19,14 +19,14 @@ export const addWdioCommands = (context: Browser): void => {
     // HINT: Element commands
     context.addCommand(
         'testID$',
-        async function TestID$(this: WebdriverIO.Element, testID: string) {
+        function TestID$(this: WebdriverIO.Element, testID: string) {
             return testID$(testID, this);
         },
         true
     );
     context.addCommand(
         'testID$$',
-        async function TestID$$(this: WebdriverIO.Element, testID: string) {
+        function TestID$$(this: WebdriverIO.Element, testID: string) {
             return testID$$(testID, this);
         },
         true

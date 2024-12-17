@@ -21,15 +21,15 @@ export class SelectorElement {
         });
     }
 
-    el(): ChainablePromiseElement<WebdriverIO.Element> {
+    el(): ChainablePromiseElement {
         return this.component.getChildEl(this.enumSelector);
     }
 
-    els(): ChainablePromiseArray<WebdriverIO.ElementArray> {
+    els(): ChainablePromiseArray {
         return this.component.getChildEls(this.enumSelector);
     }
 
-    byIdx(idx: number): ChainablePromiseElement<WebdriverIO.Element> {
+    byIdx(idx: number): ChainablePromiseElement {
         return this.component.getChildElByIdx(this.enumSelector, idx);
     }
 }

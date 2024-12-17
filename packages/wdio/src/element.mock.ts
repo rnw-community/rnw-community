@@ -17,6 +17,7 @@ export const mockElement = {
     setValue: jest.fn(() => Promise.resolve(void 0)),
     getLocation: jest.fn(() => Promise.resolve({ x: 0, y: 0 })),
     getSize: jest.fn(() => Promise.resolve({ width: 0, height: 0 })),
+    getElement: jest.fn(() => Promise.resolve(mockElement)),
 } as unknown as WebdriverIO.Element;
 
 export class MockElement<T> extends Promise<T> {
@@ -91,10 +92,9 @@ export class MockElement<T> extends Promise<T> {
     }
 }
 
-const elImplementation = (): ChainablePromiseElement<WebdriverIO.Element> =>
-    MockElement.resolve(mockElement) as ChainablePromiseElement<WebdriverIO.Element>;
-const elsImplementation = (): ChainablePromiseArray<WebdriverIO.ElementArray> =>
-    Promise.resolve([mockElement]) as unknown as ChainablePromiseArray<WebdriverIO.ElementArray>;
+const elImplementation = (): ChainablePromiseElement =>
+    MockElement.resolve(mockElement) as unknown as ChainablePromiseElement;
+const elsImplementation = (): ChainablePromiseArray => Promise.resolve([mockElement]) as unknown as ChainablePromiseArray;
 
 export const mockDefaultConfig: ComponentConfigInterface = {
     elSelectorFn: jest.fn(elImplementation),

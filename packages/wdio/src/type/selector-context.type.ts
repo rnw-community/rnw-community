@@ -1,3 +1,3 @@
 import type { ChainablePromiseElement } from 'webdriverio';
 
-export type SelectorContextType = ChainablePromiseElement<WebdriverIO.Element> | WebdriverIO.Browser | WebdriverIO.Element;
+export type SelectorContextType = ChainablePromiseElement | WebdriverIO.Browser | WebdriverIO.Element;
