@@ -1,6 +1,6 @@
 {
     "name": "@rnw-community/nestjs-typed-config",
-    "version": "0.82.1",
+    "version": "0.83.0",
     "description": "NestJS typed config",
     "keywords": [
         "nestjs",
