@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.83.0](https://github.com/rnw-community/rnw-community/compare/v0.82.1...v0.83.0) (2025-01-12)
+
+### Features
+
+- **wdio:** migration to wdio v9 ([#262](https://github.com/rnw-community/rnw-community/issues/262)) ([f33e153](https://github.com/rnw-community/rnw-community/commit/f33e15343e64709f9cf7e6597efd7c9ab85911d4))
+
 ## [0.82.1](https://github.com/rnw-community/rnw-community/compare/v0.82.0...v0.82.1) (2024-12-15)
 
 ### Bug Fixes
