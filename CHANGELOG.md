@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.82.1](https://github.com/rnw-community/rnw-community/compare/v0.82.0...v0.82.1) (2024-12-15)
+
+### Bug Fixes
+
+- **nestjs-typed-config:** added service export ([e5a88c5](https://github.com/rnw-community/rnw-community/commit/e5a88c587ac35a34937bc7be98de2d94a1beab0c))
+
+# [0.82.0](https://github.com/rnw-community/rnw-community/compare/v0.81.0...v0.82.0) (2024-12-15)
+
+### Features
+
+- **react-native-payments:** fixed IOS ISOCountryCode mapping ([#263](https://github.com/rnw-community/rnw-community/issues/263)) ([d973d82](https://github.com/rnw-community/rnw-community/commit/d973d82b559011f11db13f41b16978a71a330edc)), closes [#261](https://github.com/rnw-community/rnw-community/issues/261)
+
 # [0.81.0](https://github.com/rnw-community/rnw-community/compare/v0.80.1...v0.81.0) (2024-12-01)
 
 ### Features

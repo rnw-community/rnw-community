@@ -3,6 +3,16 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.82.1](https://github.com/rnw-community/rnw-community/compare/v0.82.0...v0.82.1) (2024-12-15)
+
+### Bug Fixes
+
+- **nestjs-typed-config:** added service export ([e5a88c5](https://github.com/rnw-community/rnw-community/commit/e5a88c587ac35a34937bc7be98de2d94a1beab0c))
+
+# [0.82.0](https://github.com/rnw-community/rnw-community/compare/v0.81.0...v0.82.0) (2024-12-15)
+
+**Note:** Version bump only for package @rnw-community/nestjs-typed-config
+
 # [0.81.0](https://github.com/rnw-community/rnw-community/compare/v0.80.1...v0.81.0) (2024-12-01)
 
 ### Features
