@@ -11,7 +11,7 @@ describe('getRootedComponent', () => {
 
         const component = new RootedComponentMock(RootedComponentSelectorsMock.Root);
 
-        await component.RootEl;
+        await component.RootEl.waitForDisplayed();
 
         expect(mockDefaultConfig.elSelectorFn).toHaveBeenNthCalledWith(1, RootedComponentSelectorsMock.Root);
     });
