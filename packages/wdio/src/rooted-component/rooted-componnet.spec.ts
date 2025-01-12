@@ -105,7 +105,7 @@ describe('RootedComponent', () => {
             RootedComponentSelectorsMock.Root
         );
 
-        const el = MockElement.resolve(mockElement) as ChainablePromiseElement<WebdriverIO.Element>;
+        const el = MockElement.resolve(mockElement) as unknown as ChainablePromiseElement;
         const elementMethodSpy = jest.spyOn(el, 'click');
 
         const getRootElSpy = jest.spyOn(rootedComponent, 'RootEl', 'get');

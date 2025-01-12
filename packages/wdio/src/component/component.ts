@@ -27,15 +27,15 @@ export class Component<T = any> {
         this.parentComponents.push(component);
     }
 
-    getChildEl(selector: string): ChainablePromiseElement<WebdriverIO.Element> {
+    getChildEl(selector: string): ChainablePromiseElement {
         return this.config.elSelectorFn(selector);
     }
 
-    getChildEls(selector: string): ChainablePromiseArray<WebdriverIO.ElementArray> {
+    getChildEls(selector: string): ChainablePromiseArray {
         return this.config.elsSelectorFn(selector);
     }
 
-    getChildElByIdx(selector: string, idx: number): ChainablePromiseElement<WebdriverIO.Element> {
+    getChildElByIdx(selector: string, idx: number): ChainablePromiseElement {
         return this.config.elsIndexSelectorFn(selector, idx);
     }
 

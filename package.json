@@ -27,9 +27,6 @@
     "node": ">=18.0.0"
   },
   "resolutions": {
-    "webdriverio": "8.39.1",
-    "@wdio/globals": "8.39.1",
-    "@wdio/logger": "8.38.0",
     "hermes-parser": "0.25.0",
     "@typescript-eslint/eslint-plugin": "^8.16.0",
     "@typescript-eslint/parser": "^8.16.0"

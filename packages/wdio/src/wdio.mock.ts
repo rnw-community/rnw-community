@@ -18,19 +18,11 @@ const mockWdioElement = {
 } as unknown as WebdriverIO.Element;
 
 jest.mock('@wdio/globals', () => ({
-    $: jest
-        .fn()
-        .mockImplementation(
-            () => Promise.resolve(mockWdioElement) as unknown as ChainablePromiseElement<WebdriverIO.Element>
-        ),
-    $$: jest
-        .fn()
-        .mockImplementation(
-            () => Promise.resolve([mockWdioElement]) as unknown as ChainablePromiseArray<WebdriverIO.ElementArray>
-        ),
+    $: jest.fn().mockImplementation(() => Promise.resolve(mockWdioElement) as unknown as ChainablePromiseElement),
+    $$: jest.fn().mockImplementation(() => Promise.resolve([mockWdioElement]) as unknown as ChainablePromiseArray),
     browser: {
-        $: jest.fn(() => Promise.resolve(mockWdioElement) as unknown as ChainablePromiseElement<WebdriverIO.Element>),
-        $$: jest.fn(() => Promise.resolve([mockWdioElement]) as unknown as ChainablePromiseArray<WebdriverIO.ElementArray>),
+        $: jest.fn(() => Promise.resolve(mockWdioElement) as unknown as ChainablePromiseElement),
+        $$: jest.fn(() => Promise.resolve([mockWdioElement]) as unknown as ChainablePromiseArray),
         capabilities: {
             browserName: 'test-browser-name',
         },

@@ -8,7 +8,6 @@ export const getExtendedComponent = <T, P extends Component>(
     selectors: T,
     ParentComponent: ClassType<P>
 ): ComponentWithSelectorsCtor<T, P> =>
-    // @ts-expect-error We use proxy for dynamic fields
     class extends Component<T> {
         constructor() {
             super(defaultComponentConfig(), selectors);
@@ -17,4 +16,4 @@ export const getExtendedComponent = <T, P extends Component>(
                 this.addParentComponent(new ParentComponent());
             }
         }
-    };
+    } as ComponentWithSelectorsCtor<T, P>;

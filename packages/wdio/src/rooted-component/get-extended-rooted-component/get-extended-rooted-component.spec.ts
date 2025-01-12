@@ -26,7 +26,7 @@ describe('getExtendedRootedComponent', () => {
 
         const component = new RootedComponentMock(RootedComponentSelectorsMock.Root);
 
-        await component.Button.el();
+        await component.Button.waitForDisplayed();
 
         expect(mockDefaultConfig.elSelectorFn).toHaveBeenNthCalledWith(1, RootedComponentSelectorsMock.Root);
         expect(mockDefaultConfig.elSelectorFn).toHaveBeenNthCalledWith(
@@ -35,7 +35,7 @@ describe('getExtendedRootedComponent', () => {
             expect.objectContaining({})
         );
 
-        await component.ParentButton.el();
+        await component.ParentButton.waitForDisplayed();
 
         expect(mockDefaultConfig.elSelectorFn).toHaveBeenNthCalledWith(3, RootedComponentSelectorsMock.Root);
         expect(mockDefaultConfig.elSelectorFn).toHaveBeenNthCalledWith(
@@ -50,11 +50,11 @@ describe('getExtendedRootedComponent', () => {
 
         const component = new RootedOverrideComponentMock();
 
-        await component.RootEl;
+        await component.RootEl.waitForDisplayed();
 
         expect(mockDefaultConfig.elSelectorFn).toHaveBeenCalledWith(RootedComponentSelectorsMock.CustomRoot);
 
-        await component.ParentButton.el();
+        await component.ParentButton.el().waitForDisplayed();
 
         expect(mockDefaultConfig.elSelectorFn).toHaveBeenCalledWith(
             RootedParentComponentSelectorsMock.ParentButton,
@@ -66,7 +66,6 @@ describe('getExtendedRootedComponent', () => {
         expect.assertions(1);
 
         const component = new RootedComponentMock(RootedComponentSelectorsMock.Root);
-
         await component.waitForDisplayed({ reverse: true });
 
         expect(mockDefaultConfig.elSelectorFn).toHaveBeenCalledWith(RootedComponentSelectorsMock.CustomRoot);
