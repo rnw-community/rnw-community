@@ -46,6 +46,7 @@
 		81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = LaunchScreen.storyboard; path = ReactNativePaymentsExample/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		89C6BE57DB24E9ADA2F236DE /* Pods-ReactNativePaymentsExample-ReactNativePaymentsExampleTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ReactNativePaymentsExample-ReactNativePaymentsExampleTests.release.xcconfig"; path = "Target Support Files/Pods-ReactNativePaymentsExample-ReactNativePaymentsExampleTests/Pods-ReactNativePaymentsExample-ReactNativePaymentsExampleTests.release.xcconfig"; sourceTree = "<group>"; };
 		8B4F5E40068BF82020BF9C3F /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xml; name = PrivacyInfo.xcprivacy; path = ReactNativePaymentsExample/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+		A47914A92D4F64D300A26230 /* ReactNativePaymentsExample.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; name = ReactNativePaymentsExample.entitlements; path = ReactNativePaymentsExample/ReactNativePaymentsExample.entitlements; sourceTree = "<group>"; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
@@ -89,6 +90,7 @@
 		13B07FAE1A68108700A75B9A /* ReactNativePaymentsExample */ = {
 			isa = PBXGroup;
 			children = (
+				A47914A92D4F64D300A26230 /* ReactNativePaymentsExample.entitlements */,
 				13B07FAF1A68108700A75B9A /* AppDelegate.h */,
 				13B07FB01A68108700A75B9A /* AppDelegate.mm */,
 				13B07FB51A68108700A75B9A /* Images.xcassets */,
@@ -471,6 +473,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_ENTITLEMENTS = ReactNativePaymentsExample/ReactNativePaymentsExample.entitlements;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 3R8589YV24;
 				ENABLE_BITCODE = NO;
@@ -499,6 +502,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_ENTITLEMENTS = ReactNativePaymentsExample/ReactNativePaymentsExample.entitlements;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 3R8589YV24;
 				INFOPLIST_FILE = ReactNativePaymentsExample/Info.plist;
