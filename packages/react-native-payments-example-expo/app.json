@@ -1,0 +1,37 @@
+{
+  "expo": {
+    "name": "react-native-payments-expo-example",
+    "slug": "react-native-payments-expo-example",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "scheme": "myapp",
+    "userInterfaceStyle": "automatic",
+    "newArchEnabled": true,
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.a.tkachenko.reactnativepaymentsexpoexample"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#ffffff"
+      },
+      "package": "com.a.tkachenko.reactnativepaymentsexpoexample"
+    },
+    "web": {
+      "bundler": "metro",
+      "output": "static"
+    },
+    "plugins": [
+      "expo-router",
+      [
+        "@rnw-community/react-native-payments/app.plugin",
+        {
+            "merchantIdentifier": "merchant.react-native-payments"
+        }
+      ]
+    ],
+    "experiments": {
+      "typedRoutes": true
+    }
+  }
+}
