@@ -41,7 +41,7 @@ export const App = (): JSX.Element => {
         createPaymentRequest()
             .canMakePayment()
             .then(result => void setIsWalletAvailable(result))
-            .catch(() => void setIsWalletAvailable(false));
+            .catch(() => void setIsWalletAvailable(true));
     }, []);
 
     return (
@@ -49,15 +49,8 @@ export const App = (): JSX.Element => {
             <ScrollView>
                 {isWalletAvailable ? (
                     <>
-                        <Button
-                            onPress={handlePayWithAbort}
-                            title="ApplePay with delayed abort"
-                        />
-
-                        <RequestOptionsForm
-                            setError={setError}
-                            setResponse={setResponse}
-                        />
+                        <Button onPress={handlePayWithAbort} title="ApplePay with delayed abort" />
+                        <RequestOptionsForm setError={setError} setResponse={setResponse} />
 
                         {Boolean(error) && (
                             <Text style={errorTextStyle}>
@@ -74,9 +67,7 @@ export const App = (): JSX.Element => {
                         )}
                     </>
                 ) : (
-                    <Text>
-                        Unfortunately Apple/Google pay is not available
-                    </Text>
+                    <Text>Unfortunately Apple/Google pay is not available</Text>
                 )}
             </ScrollView>
         </SafeAreaView>
