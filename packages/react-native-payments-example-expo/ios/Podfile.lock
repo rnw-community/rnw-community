@@ -2133,7 +2133,7 @@ SPEC CHECKSUMS:
   React-logger: 9a0c4e1e41cd640ac49d69aacadab783f7e0096b
   React-Mapbuffer: 6993c785c22a170c02489bc78ed207814cbd700f
   React-microtasksnativemodule: 19230cd0933df6f6dc1336c9a9edc382d62638ae
-  react-native-payments: 55e3b294769c8a80786c02bf643caa9c7ba759ae
+  react-native-payments: 4e685364dfc5b18a716e2def780fa58a2008bd0c
   react-native-safe-area-context: b3edb1da341e5e61f865763d9e0b6d3d34706464
   react-native-webview: a6e851ee6bbb6f8716c6ff2b5bd3d9943d5b1633
   React-nativeconfig: cd0fbb40987a9658c24dab5812c14e5522a64929
