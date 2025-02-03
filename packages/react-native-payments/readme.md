@@ -341,11 +341,9 @@ the [react-native-payments-example](../react-native-payments-example/README.md) 
 
 ### Other
 
-- [ ] Add [EXPO support](https://docs.expo.dev/modules/existing-library/)
 - [ ] Add unit tests
 - [ ] Refactor `utils`
 - [ ] Add web support
-- [ ] Merge react-native-payments-example into this package, and setup it properly
 - [ ] CI/CD:
     - [ ] check/setup pull request
     - [ ] check/setup push to master and release to NPM

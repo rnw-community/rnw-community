@@ -4176,7 +4176,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@expo/vector-icons@npm:^14.0.0, @expo/vector-icons@npm:^14.0.2":
+"@expo/vector-icons@npm:^14.0.0":
   version: 14.0.4
   resolution: "@expo/vector-icons@npm:14.0.4"
   dependencies:
@@ -6761,25 +6761,13 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@rnw-community/react-native-payment-example-lib@workspace:*, @rnw-community/react-native-payment-example-lib@workspace:packages/react-native-payments-example-lib":
-  version: 0.0.0-use.local
-  resolution: "@rnw-community/react-native-payment-example-lib@workspace:packages/react-native-payments-example-lib"
-  dependencies:
-    "@rnw-community/react-native-payments": "workspace:*"
-    "@rnw-community/shared": "workspace:*"
-    react: "npm:^18.3.1"
-    react-native: "npm:^0.76.6"
-  languageName: unknown
-  linkType: soft
-
 "@rnw-community/react-native-payments-example-expo@workspace:packages/react-native-payments-example-expo":
   version: 0.0.0-use.local
   resolution: "@rnw-community/react-native-payments-example-expo@workspace:packages/react-native-payments-example-expo"
   dependencies:
-    "@expo/vector-icons": "npm:^14.0.2"
-    "@react-navigation/bottom-tabs": "npm:^7.2.0"
     "@react-navigation/native": "npm:^7.0.14"
-    "@rnw-community/react-native-payment-example-lib": "workspace:*"
+    "@rnw-community/react-native-payments": "workspace:*"
+    "@rnw-community/react-native-payments-example-lib": "workspace:*"
     expo: "npm:~52.0.28"
     expo-blur: "npm:~14.0.3"
     expo-constants: "npm:~17.0.5"
@@ -6803,6 +6791,17 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@rnw-community/react-native-payments-example-lib@workspace:*, @rnw-community/react-native-payments-example-lib@workspace:packages/react-native-payments-example-lib":
+  version: 0.0.0-use.local
+  resolution: "@rnw-community/react-native-payments-example-lib@workspace:packages/react-native-payments-example-lib"
+  dependencies:
+    "@rnw-community/react-native-payments": "workspace:*"
+    "@rnw-community/shared": "workspace:*"
+    react: "npm:^18.3.1"
+    react-native: "npm:^0.76.6"
+  languageName: unknown
+  linkType: soft
+
 "@rnw-community/react-native-payments-example@workspace:packages/react-native-payments-example":
   version: 0.0.0-use.local
   resolution: "@rnw-community/react-native-payments-example@workspace:packages/react-native-payments-example"
@@ -6814,8 +6813,8 @@ __metadata:
     "@react-native/eslint-config": "npm:0.77.0"
     "@react-native/metro-config": "npm:0.77.0"
     "@react-native/typescript-config": "npm:0.77.0"
-    "@rnw-community/react-native-payment-example-lib": "workspace:*"
     "@rnw-community/react-native-payments": "workspace:*"
+    "@rnw-community/react-native-payments-example-lib": "workspace:*"
     "@rnw-community/shared": "workspace:*"
     react: "npm:^18.3.1"
     react-native: "npm:^0.77.0"
