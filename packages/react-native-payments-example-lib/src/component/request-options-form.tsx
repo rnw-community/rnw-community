@@ -8,6 +8,7 @@ import { createPaymentRequest } from '../payment/create-payment-request';
 import { getAndroidPaymentMethodData } from '../payment/method-data/android-payment-method-data';
 import { getIosPaymentMethodData } from '../payment/method-data/ios-payment-method-data';
 import { paymentDetails as defaultPaymentDetails, paymentDetailsWithoutDisplayItems } from '../payment/payment-details';
+import { getPaymentName } from '../util/get-payment-name';
 
 import { SwitchRow } from './switch-row';
 
@@ -59,46 +60,13 @@ export const RequestOptionsForm = ({ setResponse, setError }: RequestOptionsForm
 
     return (
         <>
-            <Button
-                onPress={handleSubmit}
-                title="ApplePay/GooglePay with following options:"
-            />
-
-            <SwitchRow
-                setValue={setRequestBillingAddress}
-                text="requestBillingAddress"
-                value={requestBillingAddress}
-            />
-
-            <SwitchRow
-                setValue={setRequestPayerEmail}
-                text="requestPayerEmail"
-                value={requestPayerEmail}
-            />
-
-            <SwitchRow
-                setValue={setRequestPayerName}
-                text="requestPayerName"
-                value={requestPayerName}
-            />
-
-            <SwitchRow
-                setValue={setRequestPayerPhone}
-                text="requestPayerPhone"
-                value={requestPayerPhone}
-            />
-
-            <SwitchRow
-                setValue={setRequestShipping}
-                text="requestShipping"
-                value={requestShipping}
-            />
-
-            <SwitchRow
-                setValue={setShowDisplayItems}
-                text="showDisplayItems"
-                value={showDisplayItems}
-            />
+            <Button onPress={handleSubmit} title={`${getPaymentName()} with following options:`} />
+            <SwitchRow setValue={setRequestBillingAddress} text="requestBillingAddress" value={requestBillingAddress} />
+            <SwitchRow setValue={setRequestPayerEmail} text="requestPayerEmail" value={requestPayerEmail} />
+            <SwitchRow setValue={setRequestPayerName} text="requestPayerName" value={requestPayerName} />
+            <SwitchRow setValue={setRequestPayerPhone} text="requestPayerPhone" value={requestPayerPhone} />
+            <SwitchRow setValue={setRequestShipping} text="requestShipping" value={requestShipping} />
+            <SwitchRow setValue={setShowDisplayItems} text="showDisplayItems" value={showDisplayItems} />
         </>
     );
 };

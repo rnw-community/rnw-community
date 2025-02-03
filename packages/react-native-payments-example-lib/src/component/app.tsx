@@ -4,6 +4,7 @@ import { Button, SafeAreaView, ScrollView, Text } from 'react-native';
 import { getErrorMessage, isDefined } from '@rnw-community/shared';
 
 import { createPaymentRequest } from '../payment/create-payment-request';
+import { getPaymentName } from '../util/get-payment-name';
 
 import { RequestOptionsForm } from './request-options-form';
 
@@ -49,7 +50,7 @@ export const App = (): JSX.Element => {
             <ScrollView>
                 {isWalletAvailable ? (
                     <>
-                        <Button onPress={handlePayWithAbort} title="ApplePay with delayed abort" />
+                        <Button onPress={handlePayWithAbort} title={`${getPaymentName()} with delayed abort`} />
                         <RequestOptionsForm setError={setError} setResponse={setResponse} />
 
                         {Boolean(error) && (
