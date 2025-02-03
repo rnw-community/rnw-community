@@ -1,24 +1,10 @@
-import { withAndroidManifest, withAppBuildGradle } from '@expo/config-plugins';
+import { withAndroidManifest } from '@expo/config-plugins';
 
 import type { ReactNativePaymentsPluginProps } from './plugin.props';
 import type { ConfigPlugin } from '@expo/config-plugins';
 
-export const withGooglePay: ConfigPlugin<ReactNativePaymentsPluginProps> = initialConfig => {
-    const withAppBuildGradleConfig = withAppBuildGradle(initialConfig, config => {
-        if (config.modResults.language === 'groovy') {
-            config.modResults.contents = config.modResults.contents.replace(
-                /dependencies\s?\{/u,
-                `dependencies {
-    implementation 'com.google.android.gms:play-services-wallet:19.2.0'`
-            );
-        } else {
-            throw new Error('Unable to add Google Pay dependency to build.gradle: Kotlin build files are not supported.');
-        }
-
-        return config;
-    });
-
-    return withAndroidManifest(withAppBuildGradleConfig, config => {
+export const withGooglePay: ConfigPlugin<ReactNativePaymentsPluginProps> = initialConfig =>
+    withAndroidManifest(initialConfig, config => {
         const androidManifest = config.modResults;
         const mainApplication = androidManifest.manifest.application?.[0];
 
@@ -43,4 +29,3 @@ export const withGooglePay: ConfigPlugin<ReactNativePaymentsPluginProps> = initi
 
         return config;
     });
-};
