@@ -11,7 +11,7 @@
         "@rnw-community/react-native-payments": "workspace:*",
         "@rnw-community/react-native-payments-example-lib": "workspace:*",
         "react": "^18.3.1",
-        "react-native": "^0.77.0"
+        "react-native": "^0.76.1"
     },
     "devDependencies": {
         "@react-native-community/cli": "15.0.1",

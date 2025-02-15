@@ -28,7 +28,7 @@
         <key>CFBundleURLSchemes</key>
         <array>
           <string>myapp</string>
-          <string>com.a.tkachenko.reactnativepaymentsexpoexample</string>
+          <string>com.reactnativepaymentsexpoexample</string>
         </array>
       </dict>
     </array>
