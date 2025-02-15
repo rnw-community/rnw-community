@@ -52,6 +52,7 @@ integration experience for your applications.
 - Follow [this guide](https://developer.apple.com/library/archive/ApplePay_Guide/Configuration.html) to setup ApplePay in
   your application.
 - [Payment token reference](https://developer.apple.com/documentation/passkit/apple_pay/payment_token_format_reference?language=objc)
+#### Objective-C setup
 - Add following code to your `AppDelegate.h`:
 ```objc
 #import <RCTAppDelegate.h>
@@ -59,7 +60,15 @@ integration experience for your applications.
 #import <PassKit/PassKit.h> // Add this import
 
 @interface AppDelegate : RCTAppDelegate
-
+```
+#### Swift setup
+- Add following code to your `AppDelegate.swift`:
+```swift
+import UIKit
+import React
+import React_RCTAppDelegate
+import ReactAppDependencyProvider
+import PassKit // Add this import
 ```
 
 ### AndroidPay setup
@@ -83,29 +92,26 @@ dependencies {
 
 ### Expo setup
 
-To integrate with Expo custom builds, you need to add the payment plugin from the package into your `app.config.js`:
+To integrate with Expo [custom builds](https://docs.expo.dev/custom-builds/get-started/), you need to add the `@rnw-community/react-native-payments` plugin into your `app.config.js`:
 
 1. Update your `app.config.js` configuration:
 ```js
 export default {
-  expo: {
-    ...
-    ios: {
-      ...
-      infoPlist: {
-        merchant_id: [your_merchant_id],
-      },
-      entitlements: {
-        "com.apple.developer.in-app-payments": [your_merchant_id],
-      },
-      ...
-    },
     plugins: [
       ...
-      "@rnw-community/react-native-payments",
+      [
+          "@rnw-community/react-native-payments/app.plugin",
+          {
+              "merchantIdentifier": "merchant.react-native-payments"
+          }
+      ],
     ],
   },
 };
+```
+2. Prebuild your project:
+```bash
+npx expo prebuild --clean
 ```
 
 ## Usage
@@ -181,7 +187,7 @@ Depending on the platform and payment method, you can provide additional data to
 
 - `environment`: This property represents the Android environment for the payment.
 - `requestPayerName`: "An optional boolean field that, when present and set to true, indicates that the `PaymentResponse` will include the name of the payer.
-- `requestPayerPhone`: "An optional boolean field that, when present and set to true, indicates that the `PaymentResponse` will include the phone of the payer. 
+- `requestPayerPhone`: "An optional boolean field that, when present and set to true, indicates that the `PaymentResponse` will include the phone of the payer.
 - `requestBillingAddress`: An optional boolean field that, when present and set to true, indicates that the `PaymentResponse` will
   include the billing address of the payer.
 - `requestPayerEmail`: An optional boolean field that, when present and set to true, indicates that the `PaymentResponse` will
@@ -335,11 +341,9 @@ the [react-native-payments-example](../react-native-payments-example/README.md) 
 
 ### Other
 
-- [ ] Add [EXPO support](https://docs.expo.dev/modules/existing-library/)
 - [ ] Add unit tests
 - [ ] Refactor `utils`
 - [ ] Add web support
-- [ ] Merge react-native-payments-example into this package, and setup it properly
 - [ ] CI/CD:
     - [ ] check/setup pull request
     - [ ] check/setup push to master and release to NPM
