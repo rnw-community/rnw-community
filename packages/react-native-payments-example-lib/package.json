@@ -1,6 +1,6 @@
 {
     "name": "@rnw-community/react-native-payments-example-lib",
-    "version": "1.1.0",
+    "version": "1.1.1",
     "license": "MIT",
     "engines": {
         "node": ">=18.0.0"
@@ -26,5 +26,6 @@
         "@rnw-community/shared": "workspace:*",
         "react": "^18.3.1",
         "react-native": "^0.76.1"
-    }
+    },
+    "private": true
 }
