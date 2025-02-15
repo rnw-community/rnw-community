@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.83.1](https://github.com/rnw-community/rnw-community/compare/v0.83.0...v0.83.1) (2025-02-01)
+
+### Bug Fixes
+
+- **react-native-payment:** fixed wrong ios supported network mapping for Bancontact, closes [#268](https://github.com/rnw-community/rnw-community/issues/268) ([#269](https://github.com/rnw-community/rnw-community/issues/269)) ([0060283](https://github.com/rnw-community/rnw-community/commit/00602838b222fd4ad2386fbd48188dd94cbd8287))
+
 # [0.83.0](https://github.com/rnw-community/rnw-community/compare/v0.82.1...v0.83.0) (2025-01-12)
 
 ### Features
