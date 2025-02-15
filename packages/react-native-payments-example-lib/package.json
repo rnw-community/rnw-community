@@ -1,0 +1,30 @@
+{
+  "name": "@rnw-community/react-native-payments-example-lib",
+  "version": "0.83.0",
+  "license": "MIT",
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "main": "src/index.js",
+  "module": "src/index.ts",
+  "types": "src/index.ts",
+  "react-native": "src/index.ts",
+  "files": [
+    "src/**/*"
+  ],
+  "sideEffects": "false",
+  "scripts": {
+    "ts": "run -T tsc --pretty -p tsconfig.json",
+    "lint": "run -T eslint src",
+    "lint:fix": "run -T eslint --fix src",
+    "format": "run -T prettier --write \"./src/**/*.{ts,tsx}\"",
+    "clear": "rm -rf coverage && rm -rf dist && rm -f *.tsbuildinfo",
+    "clear:deps": "rm -rf ./node_modules && rm -rf ./dist"
+  },
+  "dependencies": {
+    "@rnw-community/react-native-payments": "workspace:*",
+    "@rnw-community/shared": "workspace:*",
+    "react": "^18.3.1",
+    "react-native": "^0.76.1"
+  }
+}

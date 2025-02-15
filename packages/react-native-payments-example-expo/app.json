@@ -1,0 +1,49 @@
+{
+  "expo": {
+    "name": "react-native-payments-expo-example",
+    "slug": "react-native-payments-expo-example",
+    "version": "1.0.0",
+    "orientation": "portrait",
+      "icon": "./assets/images/icon.png",
+    "scheme": "myapp",
+    "userInterfaceStyle": "automatic",
+    "newArchEnabled": true,
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.reactnativepaymentsexpoexample"
+    },
+    "android": {
+      "adaptiveIcon": {
+          "foregroundImage": "./assets/images/adaptive-icon.png",
+        "backgroundColor": "#ffffff"
+      },
+      "package": "com.reactnativepaymentsexpoexample"
+    },
+    "web": {
+      "bundler": "metro",
+      "output": "static",
+        "favicon": "./assets/images/favicon.png"
+    },
+    "plugins": [
+      "expo-router",
+        [
+            "expo-splash-screen",
+            {
+                "image": "./assets/images/splash-icon.png",
+                "imageWidth": 200,
+                "resizeMode": "contain",
+                "backgroundColor": "#ffffff"
+            }
+        ],
+      [
+        "@rnw-community/react-native-payments/app.plugin",
+        {
+            "merchantIdentifier": "merchant.react-native-payments"
+        }
+      ]
+    ],
+    "experiments": {
+      "typedRoutes": true
+    }
+  }
+}
