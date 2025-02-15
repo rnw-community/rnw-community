@@ -26,5 +26,6 @@
         "@rnw-community/shared": "workspace:*",
         "react": "^18.3.1",
         "react-native": "^0.76.1"
-    }
+    },
+    "private": true
 }
