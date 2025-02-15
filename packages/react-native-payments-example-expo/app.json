@@ -10,14 +10,14 @@
     "newArchEnabled": true,
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.a.tkachenko.reactnativepaymentsexpoexample"
+      "bundleIdentifier": "com.reactnativepaymentsexpoexample"
     },
     "android": {
       "adaptiveIcon": {
           "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "com.a.tkachenko.reactnativepaymentsexpoexample"
+      "package": "com.reactnativepaymentsexpoexample"
     },
     "web": {
       "bundler": "metro",
