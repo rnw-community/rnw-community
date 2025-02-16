@@ -559,9 +559,7 @@ describe('PaymentRequest', () => {
             expect.assertions(1);
 
             jest.mocked(NativePayments.show).mockResolvedValue(`...`);
-            const expectedError = new PaymentsError(
-                `Failed parsing PaymentRequest details: Unexpected token '.', "..." is not valid JSON`
-            );
+            const expectedError = new PaymentsError(`Failed parsing PaymentRequest details`);
 
             const request = new PaymentRequest([iosMethodData], paymentDetails);
             request.state = 'created';
