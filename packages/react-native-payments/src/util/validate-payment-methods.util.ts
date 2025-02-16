@@ -1,4 +1,4 @@
-import { isDefined } from '@rnw-community/shared';
+import { isDefined, isNotEmptyArray } from '@rnw-community/shared';
 
 import { ConstructorError } from '../error/constructor.error';
 
@@ -7,7 +7,7 @@ import type { PaymentMethodData } from '../@standard/w3c/payment-method-data';
 /** @deprecated Move to PaymentRequest */
 export const validatePaymentMethods = (methodData: PaymentMethodData[]): void => {
     // Check that at least one payment method is passed in
-    if (methodData.length < 1) {
+    if (!isNotEmptyArray(methodData)) {
         throw new ConstructorError(`At least one payment method is required`);
     }
 

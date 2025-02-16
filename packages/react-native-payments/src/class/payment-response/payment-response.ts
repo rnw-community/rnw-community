@@ -20,7 +20,7 @@ export class PaymentResponse {
     ) {}
 
     // https://www.w3.org/TR/payment-request/#complete-method
-    complete(result: PaymentComplete): Promise<void> {
+    async complete(result: PaymentComplete): Promise<void> {
         if (this.completeCalled) {
             throw new Error('InvalidStateError');
         }
@@ -33,13 +33,14 @@ export class PaymentResponse {
     }
 
     // https://www.w3.org/TR/payment-request/#dom-paymentresponse-retry
-    retry(_errorFields?: PaymentValidationErrors): Promise<undefined> {
+    // eslint-disable-next-line @typescript-eslint/require-await
+    async retry(_errorFields?: PaymentValidationErrors): Promise<undefined> {
         if (this.completeCalled) {
             throw new Error('InvalidStateError');
         }
 
         // TODO: Implement logic https://www.w3.org/TR/payment-request/#retry-method
 
-        return Promise.resolve(undefined);
+        return undefined;
     }
 }
