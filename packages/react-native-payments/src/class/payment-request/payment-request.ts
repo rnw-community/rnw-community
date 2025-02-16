@@ -128,7 +128,7 @@ export class PaymentRequest {
         }
 
         await NativePayments.abort().catch(() => {
-            throw new DOMException(PaymentsErrorEnum.InvalidStateError);
+            throw new PaymentsError(`Failed aborting PaymentRequest`);
         });
 
         this.state = 'closed';
@@ -142,7 +142,8 @@ export class PaymentRequest {
                 ? new AndroidPaymentResponse(this.id, PaymentMethodNameEnum.AndroidPay, details)
                 : new IosPaymentResponse(this.id, PaymentMethodNameEnum.ApplePay, details);
         } catch (e) {
-            throw new PaymentsError(`Failed creating AndroidPaymentResponse: ${getErrorMessage(e)}`);
+            // TODO: Is there an standard exception for this?
+            throw new PaymentsError(`Failed parsing PaymentRequest details: ${getErrorMessage(e)}`);
         }
     }
 
