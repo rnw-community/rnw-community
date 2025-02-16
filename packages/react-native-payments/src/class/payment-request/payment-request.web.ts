@@ -1,2 +1,1 @@
-// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-export const { PaymentRequest } = window;
+export const { PaymentRequest } = typeof window === 'undefined' ? { PaymentRequest: null } : window;
