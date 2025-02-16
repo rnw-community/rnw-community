@@ -43,17 +43,6 @@ Monorepo for useful NestJS, React Native and React Native Web packages and nativ
 ### ESLint
 - [RWN ESLint plugin](https://github.com/rnw-community/rnw-community/tree/master/packages/eslint-plugin) [![npm version](https://badge.fury.io/js/%40rnw-community%2Feslint-plugin.svg)](https://badge.fury.io/js/%40rnw-community%2Feslint-plugin)
 
-## TODO:
-
-### Repository level
-- [ ] Finish setup, description and contributing docs.
-
-### Package level
-- [nestjs-rxjs-redis](./packages/nestjs-rxjs-redis/readme.md#TODO)
-- [nestjs-rxjs-lock](./packages/nestjs-rxjs-lock/readme.md#TODO)
-- [react-native-payments](./packages/react-native-payments/readme.md#TODO)
-- [wdio](./packages/wdio/readme.md#TODO)
-
 ## License
 
 This library is licensed under The [MIT License](./LICENSE.md).
