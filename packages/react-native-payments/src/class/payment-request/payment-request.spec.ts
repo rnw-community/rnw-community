@@ -66,16 +66,30 @@ describe('PaymentRequest', () => {
             },
         };
 
-        it('should throw when not payment methods passed', () => {
+        it('should throw when payment methods not passed', () => {
             expect.assertions(2);
 
             expect(() => new PaymentRequest([], {} as unknown as PaymentDetailsInit)).toThrow(
                 new PaymentsError(`Failed to construct 'PaymentRequest':  At least one payment method is required`)
             );
 
+            expect(() => new PaymentRequest(undefined as unknown as PaymentMethodData[], paymentDetails)).toThrow(
+                new PaymentsError(`Failed to construct 'PaymentRequest':  At least one payment method is required`)
+            );
+        });
+
+        it('should throw when payment methods supportedMethods not passed', () => {
+            expect.assertions(2);
+
             expect(
-                () => new PaymentRequest(undefined as unknown as PaymentMethodData[], {} as unknown as PaymentDetailsInit)
-            ).toThrow(new PaymentsError(`Failed to construct 'PaymentRequest':  At least one payment method is required`));
+                () => new PaymentRequest([{ supportedMethods: undefined } as unknown as PaymentMethodData], paymentDetails)
+            ).toThrow(
+                new PaymentsError(`Failed to construct 'PaymentRequest':  required member supportedMethods is undefined.`)
+            );
+
+            expect(() => new PaymentRequest([{} as unknown as PaymentMethodData], paymentDetails)).toThrow(
+                new PaymentsError(`Failed to construct 'PaymentRequest':  required member supportedMethods is undefined.`)
+            );
         });
 
         describe(`payment details total`, () => {
