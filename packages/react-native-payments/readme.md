@@ -346,7 +346,6 @@ You can find working example in the `App` component of the [react-native-payment
 
 - [ ] Refactor `utils`
   - [ ] Find alternative/suctom implementation for the `validator` library
-- [ ] Add web support
 
 ## License
 
