@@ -311,8 +311,11 @@ export function setupJestTurboModuleMock(): void {
 
 ## Example
 
-You can find working example in the `App` component of
-the [react-native-payments-example](../react-native-payments-example/README.md) package.
+### Expo
+You can find working example in the `App` component of the [react-native-payments-expo-example](../react-native-payments-expo-example/README.md) package.
+
+### Bare React Native CLI
+You can find working example in the `App` component of the [react-native-payments-example](../react-native-payments-example/README.md) package.
 
 ## TODO
 
@@ -342,12 +345,8 @@ the [react-native-payments-example](../react-native-payments-example/README.md) 
 ### Other
 
 - [ ] Refactor `utils`
+  - [ ] Find alternative/suctom implementation for the `validator` library
 - [ ] Add web support
-- [ ] CI/CD:
-    - [ ] check/setup pull request
-    - [ ] check/setup push to master and release to NPM
-    - [ ] add e2e via maestro for IOS
-    - [ ] add e2e via maestro for Android
 
 ## License
 
