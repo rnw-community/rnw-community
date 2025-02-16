@@ -1,4 +1,4 @@
-import isDecimal from 'validator/es/lib/isDecimal';
+import validator from 'validator';
 
 import { isNumber, isString } from '@rnw-community/shared';
 
@@ -9,7 +9,7 @@ const isValidStringAmount = (stringAmount: string): boolean => {
         return false;
     }
 
-    return isDecimal(stringAmount);
+    return validator.isDecimal(stringAmount);
 };
 
 export const isValidDecimalMonetaryValue = (amountValue: AmountValue): boolean => {

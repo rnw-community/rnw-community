@@ -2,7 +2,7 @@
 import { Platform } from 'react-native';
 import uuid from 'react-native-uuid';
 
-import { emptyFn, getErrorMessage, isDefined, isNotEmptyArray, isNotEmptyString } from '@rnw-community/shared';
+import { emptyFn, isDefined, isNotEmptyArray, isNotEmptyString } from '@rnw-community/shared';
 
 import { AndroidPaymentMethodTokenizationType } from '../../@standard/android/enum/android-payment-method-tokenization-type.enum';
 import { defaultAndroidPaymentDataRequest } from '../../@standard/android/request/android-payment-data-request';
@@ -128,7 +128,7 @@ export class PaymentRequest {
         }
 
         await NativePayments.abort().catch(() => {
-            throw new DOMException(PaymentsErrorEnum.InvalidStateError);
+            throw new PaymentsError(`Failed aborting PaymentRequest`);
         });
 
         this.state = 'closed';
@@ -141,8 +141,9 @@ export class PaymentRequest {
             return Platform.OS === 'android'
                 ? new AndroidPaymentResponse(this.id, PaymentMethodNameEnum.AndroidPay, details)
                 : new IosPaymentResponse(this.id, PaymentMethodNameEnum.ApplePay, details);
-        } catch (e) {
-            throw new PaymentsError(`Failed creating AndroidPaymentResponse: ${getErrorMessage(e)}`);
+        } catch (_e) {
+            // TODO: Is there an standard exception for this?
+            throw new PaymentsError(`Failed parsing PaymentRequest details`);
         }
     }
 
