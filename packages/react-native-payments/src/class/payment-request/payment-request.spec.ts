@@ -485,7 +485,7 @@ describe('PaymentRequest', () => {
         });
     });
 
-    // eslint-disable-next-line max-lines-per-function
+    // eslint-disable-next-line max-lines-per-function,max-statements
     describe('PaymentRequest on iOS', () => {
         const iosMethodData: IosPaymentMethodDataInterface = {
             supportedMethods: PaymentMethodNameEnum.ApplePay,
