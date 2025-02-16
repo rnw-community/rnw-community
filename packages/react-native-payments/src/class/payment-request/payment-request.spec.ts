@@ -7,6 +7,7 @@ import { EnvironmentEnum } from '../../enum/environment.enum';
 import { PaymentMethodNameEnum } from '../../enum/payment-method-name.enum';
 import { PaymentsErrorEnum } from '../../enum/payments-error.enum';
 import { SupportedNetworkEnum } from '../../enum/supported-networks.enum';
+import { ConstructorError } from '../../error/constructor.error';
 import { DOMException } from '../../error/dom.exception';
 import { PaymentsError } from '../../error/payments.error';
 import { NativePayments } from '../native-payments/native-payments';
@@ -17,6 +18,8 @@ import type { AndroidPaymentMethodDataInterface } from '../../@standard/android/
 import type { AndroidPaymentData } from '../../@standard/android/response/android-payment-data';
 import type { IosPaymentMethodDataInterface } from '../../@standard/ios/mapping/ios-payment-method-data.interface';
 import type { IosPKPayment } from '../../@standard/ios/response/ios-pk-payment';
+import type { PaymentDetailsInit } from '../../@standard/w3c/payment-details-init';
+import type { PaymentItem } from '../../@standard/w3c/payment-item';
 import type { PaymentMethodData } from '../../@standard/w3c/payment-method-data';
 
 jest.mock('../native-payments/native-payments', () => ({
@@ -48,6 +51,193 @@ describe('PaymentRequest', () => {
     });
 
     // eslint-disable-next-line max-lines-per-function
+    describe('validation', () => {
+        const methodData: AndroidPaymentMethodDataInterface = {
+            supportedMethods: PaymentMethodNameEnum.AndroidPay,
+            data: {
+                currencyCode: 'USD',
+                countryCode: 'US',
+                supportedNetworks: [SupportedNetworkEnum.Visa, SupportedNetworkEnum.Mastercard],
+                environment: EnvironmentEnum.TEST,
+                gatewayConfig: {
+                    gateway: 'exampleGateway',
+                    gatewayMerchantId: 'exampleMerchantId',
+                },
+            },
+        };
+
+        it('should throw when not payment methods passed', () => {
+            expect.assertions(2);
+
+            expect(() => new PaymentRequest([], {} as unknown as PaymentDetailsInit)).toThrow(
+                new PaymentsError(`Failed to construct 'PaymentRequest':  At least one payment method is required`)
+            );
+
+            expect(
+                () => new PaymentRequest(undefined as unknown as PaymentMethodData[], {} as unknown as PaymentDetailsInit)
+            ).toThrow(new PaymentsError(`Failed to construct 'PaymentRequest':  At least one payment method is required`));
+        });
+
+        describe(`payment details total`, () => {
+            it('should throw when total is not defined', () => {
+                expect.assertions(1);
+
+                const invalidPaymentDetails = {} as unknown as PaymentDetailsInit;
+
+                expect(() => new PaymentRequest([methodData], invalidPaymentDetails)).toThrow(
+                    new PaymentsError(`Failed to construct 'PaymentRequest':  required member total is undefined.`)
+                );
+            });
+
+            it('should throw when total.amount is not defined', () => {
+                expect.assertions(1);
+
+                const invalidPaymentDetails = {
+                    total: {
+                        label: 'Total',
+                    },
+                } as unknown as PaymentDetailsInit;
+
+                expect(() => new PaymentRequest([methodData], invalidPaymentDetails)).toThrow(
+                    new PaymentsError(`Failed to construct 'PaymentRequest':  Missing required member(s): amount, label.`)
+                );
+            });
+
+            it('should throw when total.amount.value is not defined', () => {
+                expect.assertions(1);
+
+                const invalidPaymentDetails = {
+                    total: {
+                        label: 'Total',
+                        amount: {},
+                    },
+                } as unknown as PaymentDetailsInit;
+
+                expect(() => new PaymentRequest([methodData], invalidPaymentDetails)).toThrow(
+                    new PaymentsError(`Failed to construct 'PaymentRequest':  Missing required member(s): amount, label.`)
+                );
+            });
+
+            it('should throw when total.amount.value is not monetary', () => {
+                expect.assertions(1);
+
+                const invalidPaymentDetails = {
+                    total: {
+                        label: 'Total',
+                        amount: {
+                            currency: 'USD',
+                            value: true,
+                        },
+                    },
+                } as unknown as PaymentDetailsInit;
+
+                expect(() => new PaymentRequest([methodData], invalidPaymentDetails)).toThrow(
+                    new PaymentsError(`Failed to construct 'PaymentRequest':  'true' is not a valid amount format for total`)
+                );
+            });
+
+            it('should throw when total.amount.value is negative', () => {
+                expect.assertions(1);
+
+                const invalidPaymentDetails = {
+                    total: {
+                        label: 'Total',
+                        amount: {
+                            currency: 'USD',
+                            value: '-10.00',
+                        },
+                    },
+                };
+
+                expect(() => new PaymentRequest([methodData], invalidPaymentDetails)).toThrow(
+                    new PaymentsError(`Failed to construct 'PaymentRequest':  Total amount value should be non-negative`)
+                );
+            });
+
+            it('should throw when total.amount.value ends with dot', () => {
+                expect.assertions(1);
+
+                const invalidPaymentDetails = {
+                    total: {
+                        label: 'Total',
+                        amount: {
+                            currency: 'USD',
+                            value: '10.00.',
+                        },
+                    },
+                };
+
+                expect(() => new PaymentRequest([methodData], invalidPaymentDetails)).toThrow(
+                    new PaymentsError(
+                        `Failed to construct 'PaymentRequest':  '10.00.' is not a valid amount format for total`
+                    )
+                );
+            });
+        });
+
+        describe(`payment details displayItems`, () => {
+            const paymentDetailsWithTotal: PaymentDetailsInit = {
+                total: {
+                    label: 'Total',
+                    amount: {
+                        currency: 'USD',
+                        value: '10.00',
+                    },
+                },
+            };
+
+            it('should NOT throw when displayItems is not defined or empty', () => {
+                expect.assertions(2);
+
+                expect(() => new PaymentRequest([methodData], paymentDetailsWithTotal)).not.toThrow();
+                expect(
+                    () => new PaymentRequest([methodData], { ...paymentDetailsWithTotal, displayItems: [] })
+                ).not.toThrow();
+            });
+
+            it('should throw when displayItems item has in proper shape', () => {
+                expect.assertions(3);
+
+                expect(
+                    () =>
+                        new PaymentRequest([methodData], {
+                            ...paymentDetailsWithTotal,
+                            displayItems: [undefined as unknown as PaymentItem],
+                        })
+                ).toThrow(new ConstructorError(`required member value is undefined.`));
+
+                expect(
+                    () =>
+                        new PaymentRequest([methodData], {
+                            ...paymentDetailsWithTotal,
+                            displayItems: [{} as unknown as PaymentItem],
+                        })
+                ).toThrow(new ConstructorError(`required member value is undefined.`));
+
+                expect(
+                    () =>
+                        new PaymentRequest([methodData], {
+                            ...paymentDetailsWithTotal,
+                            displayItems: [{ amount: {} } as unknown as PaymentItem],
+                        })
+                ).toThrow(new ConstructorError(`required member value is undefined.`));
+            });
+
+            it('should throw when displayItems item.amount.value is not monetary', () => {
+                expect.assertions(1);
+
+                expect(
+                    () =>
+                        new PaymentRequest([methodData], {
+                            ...paymentDetailsWithTotal,
+                            displayItems: [{ amount: { currency: 'USD', value: true } } as unknown as PaymentItem],
+                        })
+                ).toThrow(new ConstructorError(`'true' is not a valid amount format for display items`));
+            });
+        });
+    });
+
+    // eslint-disable-next-line max-lines-per-function,max-statements
     describe('PaymentRequest on Android', () => {
         const androidMethodData: AndroidPaymentMethodDataInterface = {
             supportedMethods: PaymentMethodNameEnum.AndroidPay,
@@ -116,6 +306,33 @@ describe('PaymentRequest', () => {
             request.state = 'closed';
 
             await expect(request.show()).rejects.toThrow(new DOMException(PaymentsErrorEnum.InvalidStateError));
+        });
+
+        it(`should handle 'examplePaymentMethodToken' tokenization type`, async () => {
+            expect.assertions(3);
+
+            jest.mocked(NativePayments.show).mockResolvedValue(
+                JSON.stringify({
+                    apiVersion: 2,
+                    apiVersionMinor: 0,
+                    email: 'test@example.com',
+                    paymentMethodData: {
+                        info: {},
+                        tokenizationData: {
+                            type: 'PAYMENT_GATEWAY',
+                            token: 'examplePaymentMethodToken',
+                        },
+                    },
+                })
+            );
+
+            const request = new PaymentRequest([androidMethodData], paymentDetails);
+            request.state = 'created';
+            const result = await request.show();
+
+            expect(NativePayments.show).toHaveBeenCalledWith(expect.any(String), expect.any(Object));
+            expect(result).toBeDefined();
+            expect(request.state).toBe('interactive');
         });
 
         it('should throw when `NativePayments.show` returns invalid data', async () => {

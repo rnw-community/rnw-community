@@ -341,7 +341,6 @@ the [react-native-payments-example](../react-native-payments-example/README.md) 
 
 ### Other
 
-- [ ] Add unit tests
 - [ ] Refactor `utils`
 - [ ] Add web support
 - [ ] CI/CD:
