@@ -1,6 +1,8 @@
 import React from 'react';
 import { Switch, Text, View, type ViewStyle, useColorScheme } from 'react-native';
 
+import type { ReactNode } from 'react';
+
 interface SwitchRowProps {
     readonly setValue: (val: boolean) => void;
     readonly text: string;
@@ -12,7 +14,7 @@ const viewStyle: ViewStyle = {
     justifyContent: 'space-between',
 };
 
-export const SwitchRow = ({ text, value, setValue }: SwitchRowProps) => {
+export const SwitchRow = ({ text, value, setValue }: SwitchRowProps): ReactNode => {
     const colorScheme = useColorScheme();
 
     const textStyle = { color: colorScheme === 'dark' ? '#FFFFFF' : '#000000' };
