@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.2.0](https://github.com/rnw-community/rnw-community/compare/v1.1.1...v1.2.0) (2025-03-02)
+
+### Features
+
+- **react-native-payments:** added experimental web support ([#273](https://github.com/rnw-community/rnw-community/issues/273)) ([5efc84b](https://github.com/rnw-community/rnw-community/commit/5efc84bd1a1b7b2da8a573d321737a92ec34cb13))
+
 ## [1.1.1](https://github.com/rnw-community/rnw-community/compare/v1.1.0...v1.1.1) (2025-02-15)
 
 **Note:** Version bump only for package @rnw-community/react-native-payments-example-expo
