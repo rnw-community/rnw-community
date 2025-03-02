@@ -170,7 +170,15 @@ RCT_EXPORT_METHOD(complete: (NSString *)paymentStatus
 
     self.completion([[PKPaymentAuthorizationResult alloc] initWithStatus:status errors:nil]);
 
-    resolve(nil);
+    dispatch_async(dispatch_get_main_queue(), ^{
+        if (self.viewController.presentingViewController) {
+            [self.viewController dismissViewControllerAnimated:YES completion:^{
+                resolve(nil);
+            }];
+        } else {
+            resolve(nil);
+        }
+    });
 }
 
 RCT_EXPORT_METHOD(canMakePayments: (NSString *)methodDataString
