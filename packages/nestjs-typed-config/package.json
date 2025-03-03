@@ -47,13 +47,13 @@
         "@rnw-community/shared": "workspace:*"
     },
     "devDependencies": {
-        "@nestjs/common": "^10.2.7",
+        "@nestjs/common": "^10.0.0",
         "@nestjs/config": "^3.1.1",
         "@types/hapi__joi": "^17.1.7",
         "joi": "^17.1.1"
     },
     "peerDependencies": {
-        "@nestjs/common": "^10.2.7",
+        "@nestjs/common": "^10.0.0",
         "@nestjs/config": "^3.1.1",
         "joi": "^17.1.1"
     }

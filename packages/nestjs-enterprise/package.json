@@ -69,14 +69,14 @@
         "node": ">=18.0.0"
     },
     "devDependencies": {
-        "@nestjs/common": "^10.2.7",
+        "@nestjs/common": "^10.0.0",
         "ioredis": "^5.4.1",
         "prom-client": "^15.1.2",
         "redlock": "^5.0.0-beta.2",
         "rxjs": "^7.8.1"
     },
     "peerDependencies": {
-        "@nestjs/common": "^10.2.7",
+        "@nestjs/common": "^10.0.0",
         "ioredis": "^5.4.1",
         "prom-client": "^15.1.2",
         "redlock": "^5.0.0-beta.2",
