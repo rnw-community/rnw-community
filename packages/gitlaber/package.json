@@ -31,18 +31,29 @@
     "test:coverage": "run -T jest --coverage",
     "format": "run -T prettier --write \"./src/**/*.{ts,tsx}\"",
     "clear": "rm -rf coverage && rm -rf dist && rm -f *.tsbuildinfo",
-    "clear:deps": "rm -rf ./node_modules && rm -rf ./dist"
+    "clear:deps": "rm -rf ./node_modules && rm -rf ./dist",
+    "start": "nest start",
+    "start:dev": "nest start --watch",
+    "start:debug": "nest start --debug --watch",
+    "start:prod": "node dist/cjs/main"
   },
   "author": "Vitalii Yehorov",
   "dependencies": {
+    "@gitbeaker/core": "^42.1.0",
+    "@gitbeaker/rest": "^42.1.0",
     "@nestjs/common": "^10.0.0",
+    "@nestjs/config": "^3.2.0",
     "@nestjs/core": "^10.0.0",
     "@nestjs/platform-express": "^10.0.0",
+    "@rnw-community/nestjs-enterprise": "workspace:^",
+    "@rnw-community/shared": "workspace:^",
+    "ai": "^4.1.47",
     "rxjs": "^7.8.1"
   },
   "devDependencies": {
     "@nestjs/cli": "^10.0.0",
     "@nestjs/schematics": "^10.0.0",
-    "@nestjs/testing": "^10.0.0"
+    "@nestjs/testing": "^10.0.0",
+    "@types/express": "^4.17.21"
   }
 }

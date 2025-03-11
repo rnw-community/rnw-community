@@ -1,0 +1,136 @@
+import { Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+
+import { Log } from '@rnw-community/nestjs-enterprise';
+import { getErrorMessage, isDefined } from '@rnw-community/shared';
+
+import type { CommitDiffSchema, MergeRequestChangesSchema } from '@gitbeaker/rest';
+
+const MAX_PROMPT_LENGTH = 100000;
+const SAFETY_MARGIN = 2000;
+
+@Injectable()
+export class ReviewService {
+    private readonly ai: AI;
+
+    constructor(private readonly configService: ConfigService) {
+        this.anthropic = new Anthropic({
+            apiKey: this.configService.get<string>('ANTHROPIC_API_KEY') ?? '',
+        });
+    }
+
+    @Log(
+        mrChanges => `Reviewing merge request with ${mrChanges.changes.length ?? 0} changes`,
+        result => `Completed merge request review with ${result.length} characters`,
+        error => `Error reviewing merge request: ${getErrorMessage(error)}`
+    )
+    async reviewMergeRequest(mrChanges: MergeRequestChangesSchema): Promise<string> {
+        const diffs = this.extractDiffs(mrChanges);
+
+        if (diffs.length === 0) {
+            return 'No changes found to review.';
+        }
+
+        const prompt = this.buildReviewPrompt(diffs);
+        const truncatedPrompt = this.truncatePrompt(prompt, MAX_PROMPT_LENGTH);
+
+        const response = await this.anthropic.messages.create({
+            model: 'claude-3-sonnet-20240229',
+            max_tokens: 4000,
+            messages: [{ role: 'user', content: truncatedPrompt }],
+            system: 'You are an expert code reviewer. Your task is to review code changes and provide constructive feedback. Focus on code quality, potential bugs, performance issues, security vulnerabilities, and suggest improvements. Be concise but thorough. Format your response in Markdown with appropriate sections.',
+        });
+
+        const review = response.content[0].text;
+
+        return this.formatReview(review);
+    }
+
+    @Log(
+        mrChanges => `Extracting diffs from merge request with ${mrChanges.changes.length ?? 0} changes`,
+        result => `Extracted ${result.length} diffs from merge request`,
+        error => `Error extracting diffs: ${getErrorMessage(error)}`
+    )
+    private extractDiffs(mrChanges: MergeRequestChangesSchema): CommitDiffSchema[] {
+        if (!isDefined(mrChanges.changes) || !isArray(mrChanges.changes)) {
+            return [];
+        }
+
+        return mrChanges.changes;
+    }
+
+    @Log(
+        diffs => `Building prompt for ${diffs.length} file changes`,
+        result => `Built prompt with ${result.length} characters`,
+        error => `Error building prompt: ${getErrorMessage(error)}`
+    )
+    private buildReviewPrompt(diffs: CommitDiffSchema[]): string {
+        let prompt = `Please review the following merge request changes:\n\n`;
+
+        diffs.forEach(file => {
+            const fileStatus = file.new_file
+                ? 'New file'
+                : file.deleted_file
+                  ? 'Deleted file'
+                  : file.renamed_file
+                    ? `Renamed from ${file.old_path}`
+                    : 'Modified file';
+
+            prompt += `## ${file.new_path} (${fileStatus})\n\`\`\`diff\n${file.diff}\n\`\`\`\n\n`;
+        });
+
+        prompt += `
+Please analyze the code changes and provide:
+1. A summary of the changes
+2. Potential issues or bugs
+3. Code quality feedback
+4. Security considerations
+5. Suggestions for improvement
+
+Focus on the most important feedback first.`;
+
+        return prompt;
+    }
+
+    @Log(
+        (prompt, maxLength) => `Truncating prompt of length ${prompt.length} to max ${maxLength} characters`,
+        (result, prompt) => {
+            if (!isDefined(prompt)) {
+                return 'No prompt to truncate';
+            }
+
+            return prompt.length > result.length
+                ? `Truncated prompt from ${prompt.length} to ${result.length} characters`
+                : `No truncation needed for prompt of length ${prompt.length}`;
+        },
+        error => `Error truncating prompt: ${getErrorMessage(error)}`
+    )
+    private truncatePrompt(prompt: string, maxLength: number): string {
+        if (prompt.length <= maxLength) {
+            return prompt;
+        }
+
+        const marker = '```\n\n##';
+        const lastIndex = prompt.lastIndexOf(marker, maxLength - SAFETY_MARGIN);
+
+        if (lastIndex === -1) {
+            return `${prompt.substring(0, maxLength - SAFETY_MARGIN)}\n\n[Content truncated due to size limitations]`;
+        }
+
+        return `${prompt.substring(0, lastIndex + marker.length)}\n\n[Some files omitted due to size limitations]`;
+    }
+
+    @Log(
+        review => `Formatting review of length ${review.length}`,
+        result => `Formatted review to length ${result.length}`,
+        error => `Error formatting review: ${getErrorMessage(error)}`
+    )
+    private formatReview(review: string): string {
+        return `# 🤖 AI Code Review
+
+${review}
+
+---
+*This review was automatically generated by an AI assistant and may not catch all issues.*`;
+    }
+}

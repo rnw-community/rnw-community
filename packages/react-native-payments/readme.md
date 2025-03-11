@@ -100,7 +100,7 @@ export default {
     plugins: [
       ...
       [
-          "@rnw-community/react-native-payments/app.plugin",
+          "@rnw-community/react-native-payments/@app.plugin",
           {
               "merchantIdentifier": "merchant.react-native-payments"
           }
@@ -140,7 +140,7 @@ const methodData = [
     {
         supportedMethods: PaymentMethodNameEnum.ApplePay,
         data: {
-            merchantIdentifier: 'merchant.com.your-app.namespace',
+            merchantIdentifier: 'merchant.com.your-@app.namespace',
             supportedNetworks: [SupportedNetworkEnum.Visa, SupportedNetworkEnum.Mastercard],
             countryCode: 'US',
             currencyCode: 'USD',
