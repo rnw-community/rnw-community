@@ -5,7 +5,7 @@ Check if variable IS an empty array type.
 ## Example
 
 ```ts
-import {isEmptyArray} from "@rnw-community/shared/src";
+import {isEmptyArray} from "@rnw-community/shared";
 
 const emptyArray: string[] | undefined = [];
 

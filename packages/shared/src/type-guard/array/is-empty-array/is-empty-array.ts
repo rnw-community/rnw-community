@@ -1,4 +1,3 @@
-import { isDefined } from '../../generic/is-defined/is-defined';
+import { isArray } from '../is-array/is-array';
 
-export const isEmptyArray = <T>(array: T[] | null | undefined): array is never[] =>
-    isDefined(array) && Array.isArray(array) && array.length === 0;
+export const isEmptyArray = <T>(array: T[] | null | undefined): array is never[] => isArray(array) && array.length === 0;
