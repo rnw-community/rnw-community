@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.3.0](https://github.com/rnw-community/rnw-community/compare/v1.2.0...v1.3.0) (2025-06-23)
+
+### Features
+
+- **shared:** added isObject, isArray ([#282](https://github.com/rnw-community/rnw-community/issues/282)) ([9e2e605](https://github.com/rnw-community/rnw-community/commit/9e2e60527e5055048a0e89a0ca028013e0ab2d62))
+
 # [1.2.0](https://github.com/rnw-community/rnw-community/compare/v1.1.1...v1.2.0) (2025-03-02)
 
 ### Bug Fixes
