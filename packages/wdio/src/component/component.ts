@@ -42,12 +42,13 @@ export class Component<T = any> {
     async getComponentFromEls<E>(
         selector: string,
         componentFn: (el: WebdriverIO.Element) => Promise<E>,
-        predicateFn: (component: E) => Promise<boolean>
+        predicateFn: (component: E, idx: number) => Promise<boolean>
     ): Promise<E> {
-        for await (const el of await this.getChildEls(selector)) {
+        let idx = 0;
+        for await (const el of this.getChildEls(selector)) {
             const component = await componentFn(el);
 
-            if (await predicateFn(component)) {
+            if (await predicateFn(component, idx++)) {
                 return component;
             }
         }
