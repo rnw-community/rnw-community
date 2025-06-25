@@ -45,7 +45,7 @@ export class Component<T = any> {
         predicateFn: (component: E, idx: number) => Promise<boolean>
     ): Promise<E> {
         let idx = 0;
-        for await (const el of this.getChildEls(selector)) {
+        for await (const el of await this.getChildEls(selector)) {
             const component = await componentFn(el);
 
             if (await predicateFn(component, idx++)) {
