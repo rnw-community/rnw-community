@@ -8,7 +8,7 @@ describe('isObject', () => {
         expect(isObject({})).toBe(true);
     });
 
-    it('should return false if variable is not an array', () => {
+    it('should return false if variable is not an object', () => {
         expect.hasAssertions();
 
         expect(isObject(undefined)).toBe(false);
