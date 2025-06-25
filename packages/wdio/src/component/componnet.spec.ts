@@ -42,6 +42,22 @@ describe('Component', () => {
         expect(result).toBe(component);
     });
 
+    it('should find component from array of elements by using getComponentFromEls with index', async () => {
+        expect.assertions(1);
+
+        const component = new Component(mockDefaultConfig, ComponentSelectorsMock);
+
+        const componentFn = jest.fn<(el: WebdriverIO.Element) => Promise<Component>>();
+        const predicateFn = jest.fn<(component: Component, idx: number) => Promise<boolean>>();
+
+        componentFn.mockResolvedValue(component);
+        predicateFn.mockResolvedValue(true);
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+        const result = await component.getComponentFromEls(ComponentSelectorsMock.Button, componentFn, predicateFn);
+
+        expect(result).toBe(component);
+    });
+
     it('should throw error component is not found using getComponentFromEls', async () => {
         expect.assertions(1);
 
