@@ -7,35 +7,40 @@ Generic types, type guards and utilities commonly used across packages.
 
 ## Type guards
 
-Convenient [typescript type guards](https://www.typescriptlang.org/docs/handbook/2/narrowing.html#using-type-predicates) for everyday usage.
+Convenient [typescript type guards](https://www.typescriptlang.org/docs/handbook/2/narrowing.html#using-type-predicates) for
+everyday usage.
 
 > This type guards makes your code more explicit, readable and type-safe, both in runtime and typescript.
 
 This package provides a set of convenient type guards for everyday usage with the following types:
 
-- Array:
-  - [isEmptyArray](src/type-guard/array/is-empty-array/is-empty-array.md)
-  - [isNotEmptyArray](src/type-guard/array/is-not-empty-array/is-not-empty-array.md)
-- String:
-  - [isString](src/type-guard/string/is-string/is-string.md)
-  - [isEmptyString](src/type-guard/string/is-empty-string/is-empty-string.md)
-  - [isNotEmptyString](src/type-guard/string/is-not-empty-string/is-not-empty-string.md)
-- Number:
-  - [isNumber](src/type-guard/number/is-number/is-number.md)
-  - [isPositiveNumber](src/type-guard/number/is-positive-number/is-positive-number.md)
 - Generic:
-  - [isDefined](src/type-guard/generic/is-defined/is-defined.md)
-  - [isError](src/type-guard/generic/is-error/is-error.md)
-  - [isPromise](src/type-guard/generic/is-promise/is-promise.md)
+    - [isObject](src/type-guard/generic/is-object/is-object.md)
+    - [isDefined](src/type-guard/generic/is-defined/is-defined.md)
+    - [isError](src/type-guard/generic/is-error/is-error.md)
+    - [isPromise](src/type-guard/generic/is-promise/is-promise.md)
+- Array:
+    - [isArray](src/type-guard/array/is-array/is-array.md)
+    - [isEmptyArray](src/type-guard/array/is-empty-array/is-empty-array.md)
+    - [isNotEmptyArray](src/type-guard/array/is-not-empty-array/is-not-empty-array.md)
+- String:
+    - [isString](src/type-guard/string/is-string/is-string.md)
+    - [isEmptyString](src/type-guard/string/is-empty-string/is-empty-string.md)
+    - [isNotEmptyString](src/type-guard/string/is-not-empty-string/is-not-empty-string.md)
+- Number:
+    - [isNumber](src/type-guard/number/is-number/is-number.md)
+    - [isPositiveNumber](src/type-guard/number/is-positive-number/is-positive-number.md)
 
 ## Utils
 
 Utility functions that helps with everyday tasks:
+
 - [getErrorMessage](src/util/get-error-message/get-error-message.md) - Get typesafe Error object message.
 - [emptyFn](src/util/empty-fn/empty-fn.md) - Useful default react prop callback value.
 - [cs](src/util/cs/cs.md) - Conditional styling util.
 - [getDefined](src/util/get-defined/get-defined.md) - Get fallback value if passed variable is not defined.
-- [getDefinedAsync](src/util/get-defined-async/get-defined-async.md) - Get async fallback value if passed variable is not defined.
+- [getDefinedAsync](src/util/get-defined-async/get-defined-async.md) - Get async fallback value if passed variable is not
+  defined.
 
 ## Types
 

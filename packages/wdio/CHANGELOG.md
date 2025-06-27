@@ -3,6 +3,16 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.4.0](https://github.com/rnw-community/rnw-community/compare/v1.3.0...v1.4.0) (2025-06-25)
+
+### Features
+
+- **wdio:** getComponentFromEls added idx to predicateFn ([#283](https://github.com/rnw-community/rnw-community/issues/283)) ([af86504](https://github.com/rnw-community/rnw-community/commit/af8650401852bd5f6171e5217e623939f7745697))
+
+# [1.3.0](https://github.com/rnw-community/rnw-community/compare/v1.2.0...v1.3.0) (2025-06-23)
+
+**Note:** Version bump only for package @rnw-community/wdio
+
 # [1.1.0](https://github.com/rnw-community/rnw-community/compare/v0.83.1...v1.1.0) (2025-02-15)
 
 ### Features
