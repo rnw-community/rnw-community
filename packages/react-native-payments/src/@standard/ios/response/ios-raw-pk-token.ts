@@ -13,5 +13,4 @@ export interface IosRawPKToken {
         type: IosPKPaymentMethodType;
     };
     transactionIdentifier: string;
-    applicationDataHash?: string;
 }
