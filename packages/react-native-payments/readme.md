@@ -384,7 +384,7 @@ You can find working example in the `App` component of the [react-native-payment
 ### Other
 
 - [ ] Refactor `utils`
-    - [ ] Find alternative/suctom implementation for the `validator` library
+- [ ] Find alternative/suctom implementation for the `validator` library
 
 ## License
 
