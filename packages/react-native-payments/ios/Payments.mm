@@ -132,7 +132,7 @@ RCT_EXPORT_METHOD(show:(NSString *)methodDataString
                 [self rejectPromise:@"invalid_application_data" message:@"Could not convert applicationData to NSData" error:nil];
                 return;
             }
-        } else {
+        } else if([applicationData isKindOfClass:[NSDictionary class]] || [applicationData isKindOfClass:[NSArray class]]) {
             // If it's already JSON or a dictionary, convert to NSData
             NSError *jsonError;
             NSData *appData = [NSJSONSerialization dataWithJSONObject:applicationData options:0 error:&jsonError];
@@ -142,7 +142,10 @@ RCT_EXPORT_METHOD(show:(NSString *)methodDataString
                 [self rejectPromise:@"invalid_application_data" message:@"applicationData must be a valid string or JSON object" error:jsonError];
                 return;
             }
-        }
+        } else {
+            [self rejectPromise:@"invalid_application_data" message:@"applicationData must be a string, dictionary, or array" error:nil];
+            return;
+        }    
     }
 
     // https://developer.apple.com/documentation/passkit/pkpaymentrequest/1619231-paymentsummaryitems?language=objc
