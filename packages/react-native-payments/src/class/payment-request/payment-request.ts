@@ -265,7 +265,7 @@ export class PaymentRequest {
             countryCode: methodData.countryCode,
             currencyCode: methodData.currencyCode,
             merchantIdentifier: methodData.merchantIdentifier,
-            applicationData: methodData.applicationData,
+            ...(isDefined(methodData.applicationData) && { applicationData: methodData.applicationData }),
             supportedNetworks: methodData.supportedNetworks.map(network => supportedNetworkMap[network]),
             merchantCapabilities: isNotEmptyArray(methodData.merchantCapabilities)
                 ? methodData.merchantCapabilities
