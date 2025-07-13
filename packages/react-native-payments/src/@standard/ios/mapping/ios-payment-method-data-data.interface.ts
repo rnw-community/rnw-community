@@ -5,4 +5,5 @@ export interface IosPaymentMethodDataDataInterface extends GenericPaymentMethodD
     countryCode: string;
     merchantCapabilities?: IosPKMerchantCapability[];
     merchantIdentifier: string;
+    applicationData?: string;
 }

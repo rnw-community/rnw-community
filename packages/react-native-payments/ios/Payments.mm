@@ -120,6 +120,34 @@ RCT_EXPORT_METHOD(show:(NSString *)methodDataString
     // https://developer.apple.com/documentation/passkit/pkpaymentrequest/1619248-currencycode?language=objc
     paymentRequest.currencyCode = currencyCode;
 
+    // https://developer.apple.com/documentation/applepayontheweb/applepaypaymentrequest/applicationdata?language=objc
+    id applicationData = methodData[@"applicationData"];
+    if (applicationData != nil) {
+        if ([applicationData isKindOfClass:[NSString class]]) {
+            // Convert string to NSData
+            NSData *appData = [(NSString *)applicationData dataUsingEncoding:NSUTF8StringEncoding];
+            if (appData) {
+                paymentRequest.applicationData = appData;
+            } else {
+                [self rejectPromise:@"invalid_application_data" message:@"Could not convert applicationData to NSData" error:nil];
+                return;
+            }
+        } else if([applicationData isKindOfClass:[NSDictionary class]] || [applicationData isKindOfClass:[NSArray class]]) {
+            // If it's already JSON or a dictionary, convert to NSData
+            NSError *jsonError;
+            NSData *appData = [NSJSONSerialization dataWithJSONObject:applicationData options:0 error:&jsonError];
+            if (!jsonError && appData) {
+                paymentRequest.applicationData = appData;
+            } else {
+                [self rejectPromise:@"invalid_application_data" message:@"applicationData must be a valid string or JSON object" error:jsonError];
+                return;
+            }
+        } else {
+            [self rejectPromise:@"invalid_application_data" message:@"applicationData must be a string, dictionary, or array" error:nil];
+            return;
+        }    
+    }
+
     // https://developer.apple.com/documentation/passkit/pkpaymentrequest/1619231-paymentsummaryitems?language=objc
     paymentRequest.paymentSummaryItems = [self getPaymentSummaryItemsFromDetails:details];
 

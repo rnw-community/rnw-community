@@ -18,4 +18,6 @@ export interface IosPaymentDataRequest {
     requiredShippingContactFields?: IOSPKContactField[];
     // https://developer.apple.com/documentation/passkit/pkpaymentrequest/1619329-supportednetworks?language=objc
     supportedNetworks: IosPKPaymentNetworksEnum[];
+    // https://developer.apple.com/documentation/applepayontheweb/applepaypaymentrequest/applicationdata
+    applicationData?: string;
 }
