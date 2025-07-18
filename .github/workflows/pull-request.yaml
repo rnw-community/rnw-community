@@ -4,6 +4,8 @@ on: [ pull_request ]
 env:
     TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
     TURBO_TEAM: ${{ secrets.TURBO_TEAM }}
+    PR_NUMBER: ${{ github.event.pull_request.number }}
+    PR_TITLE: ${{ github.event.pull_request.title }}
 
 jobs:
     build-lint-and-test:
@@ -28,6 +30,9 @@ jobs:
 
             -   name: Install dependencies
                 run: yarn
+
+            -   name: Lint the PR Title
+                run: echo "${{env.PR_TITLE}}" | node_modules/.bin/commitlint
 
             -   name: Build packages
                 run: yarn build

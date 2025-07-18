@@ -4,6 +4,8 @@ import type { IosPKPaymentNetworksEnum } from '../enum/ios-pk-payment-networks.e
 
 // https://developer.apple.com/documentation/passkit/pkpaymentrequest?language=objc
 export interface IosPaymentDataRequest {
+    // https://developer.apple.com/documentation/applepayontheweb/applepaypaymentrequest/applicationdata
+    applicationData?: string;
     // https://developer.apple.com/documentation/passkit/pkpaymentrequest/1619246-countrycode?language=objc
     countryCode: string;
     // https://developer.apple.com/documentation/passkit/pkpaymentrequest/1619248-currencycode?language=objc
@@ -18,6 +20,4 @@ export interface IosPaymentDataRequest {
     requiredShippingContactFields?: IOSPKContactField[];
     // https://developer.apple.com/documentation/passkit/pkpaymentrequest/1619329-supportednetworks?language=objc
     supportedNetworks: IosPKPaymentNetworksEnum[];
-    // https://developer.apple.com/documentation/applepayontheweb/applepaypaymentrequest/applicationdata
-    applicationData?: string;
 }
