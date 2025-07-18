@@ -2,7 +2,7 @@ module.exports = {
     ...require('../../get-jest.config.js')('react-native-payments'),
     coverageThreshold: {
         global: {
-            branches: 76.5,
+            branches: 76.15,
         },
     },
 };

@@ -12,7 +12,7 @@ import { LockObservable } from './lock-observable.decorator';
 const getRedisService = (): Redis => jest.fn() as unknown as Redis;
 const mockRelease = jest.fn<() => Promise<boolean>>().mockResolvedValue(true);
 const mockAcquire = jest
-    .fn<() => Promise<{ release: () => Promise<boolean> }>>()
+    .fn<(args: string[], timeout: number) => Promise<{ release: () => Promise<boolean> }>>()
     .mockResolvedValue({ release: mockRelease });
 
 jest.mock('redlock', () =>
