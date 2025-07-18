@@ -89,7 +89,7 @@ describe('LockObservableDecorator', () => {
 
         const instance = new TestObservableClass();
 
-        await expect(lastValueFrom(instance.testArray$(1))).resolves.toBe(1);
+        await expect(lastValueFrom(instance.testArray$())).resolves.toBe(1);
         expect(mockAcquire).toHaveBeenCalledWith([`test`], 1000);
         expect(mockRelease).toHaveBeenCalledWith();
     });
