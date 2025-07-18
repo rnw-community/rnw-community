@@ -1,12 +1,7 @@
 PODS:
   - boost (1.84.0)
   - DoubleConversion (1.1.6)
-  - EASClient (0.14.4):
-    - ExpoModulesCore
   - EXConstants (17.0.6):
-    - ExpoModulesCore
-  - EXJSONUtils (0.15.0)
-  - EXManifests (0.16.6):
     - ExpoModulesCore
   - Expo (52.0.35):
     - ExpoModulesCore
@@ -49,36 +44,6 @@ PODS:
     - ExpoModulesCore
   - ExpoSystemUI (4.0.8):
     - ExpoModulesCore
-  - EXStructuredHeaders (4.1.0)
-  - EXUpdates (0.28.17):
-    - DoubleConversion
-    - EASClient
-    - EXManifests
-    - ExpoModulesCore
-    - EXStructuredHeaders
-    - EXUpdatesInterface
-    - glog
-    - hermes-engine
-    - RCT-Folly (= 2024.01.01.00)
-    - RCTRequired
-    - RCTTypeSafety
-    - ReachabilitySwift
-    - React-Core
-    - React-debug
-    - React-Fabric
-    - React-featureflags
-    - React-graphics
-    - React-ImageManager
-    - React-NativeModulesApple
-    - React-RCTFabric
-    - React-rendererdebug
-    - React-utils
-    - ReactCodegen
-    - ReactCommon/turbomodule/bridging
-    - ReactCommon/turbomodule/core
-    - Yoga
-  - EXUpdatesInterface (1.1.0):
-    - ExpoModulesCore
   - FBLazyVector (0.76.1)
   - fmt (9.1.0)
   - glog (0.3.5)
@@ -107,7 +72,6 @@ PODS:
     - FBLazyVector (= 0.76.1)
     - RCTRequired (= 0.76.1)
     - React-Core (= 0.76.1)
-  - ReachabilitySwift (5.2.4)
   - React (0.76.1):
     - React-Core (= 0.76.1)
     - React-Core/DevSupport (= 0.76.1)
@@ -1855,10 +1819,7 @@ PODS:
 DEPENDENCIES:
   - boost (from `../../../node_modules/react-native/third-party-podspecs/boost.podspec`)
   - DoubleConversion (from `../../../node_modules/react-native/third-party-podspecs/DoubleConversion.podspec`)
-  - EASClient (from `../../../node_modules/expo-eas-client/ios`)
   - EXConstants (from `../../../node_modules/expo-constants/ios`)
-  - EXJSONUtils (from `../../../node_modules/expo-json-utils/ios`)
-  - EXManifests (from `../../../node_modules/expo-manifests/ios`)
   - Expo (from `../../../node_modules/expo`)
   - ExpoAsset (from `../../../node_modules/expo-asset/ios`)
   - ExpoFileSystem (from `../../../node_modules/expo-file-system/ios`)
@@ -1869,9 +1830,6 @@ DEPENDENCIES:
   - ExpoModulesCore (from `../../../node_modules/expo-modules-core`)
   - ExpoSplashScreen (from `../../../node_modules/expo-splash-screen/ios`)
   - ExpoSystemUI (from `../../../node_modules/expo-system-ui/ios`)
-  - EXStructuredHeaders (from `../../../node_modules/expo-structured-headers/ios`)
-  - EXUpdates (from `../../../node_modules/expo-updates/ios`)
-  - EXUpdatesInterface (from `../../../node_modules/expo-updates-interface/ios`)
   - FBLazyVector (from `../../../node_modules/react-native/Libraries/FBLazyVector`)
   - fmt (from `../../../node_modules/react-native/third-party-podspecs/fmt.podspec`)
   - glog (from `../../../node_modules/react-native/third-party-podspecs/glog.podspec`)
@@ -1944,7 +1902,6 @@ DEPENDENCIES:
 
 SPEC REPOS:
   trunk:
-    - ReachabilitySwift
     - SocketRocket
 
 EXTERNAL SOURCES:
@@ -1952,14 +1909,8 @@ EXTERNAL SOURCES:
     :podspec: "../../../node_modules/react-native/third-party-podspecs/boost.podspec"
   DoubleConversion:
     :podspec: "../../../node_modules/react-native/third-party-podspecs/DoubleConversion.podspec"
-  EASClient:
-    :path: "../../../node_modules/expo-eas-client/ios"
   EXConstants:
     :path: "../../../node_modules/expo-constants/ios"
-  EXJSONUtils:
-    :path: "../../../node_modules/expo-json-utils/ios"
-  EXManifests:
-    :path: "../../../node_modules/expo-manifests/ios"
   Expo:
     :path: "../../../node_modules/expo"
   ExpoAsset:
@@ -1980,12 +1931,6 @@ EXTERNAL SOURCES:
     :path: "../../../node_modules/expo-splash-screen/ios"
   ExpoSystemUI:
     :path: "../../../node_modules/expo-system-ui/ios"
-  EXStructuredHeaders:
-    :path: "../../../node_modules/expo-structured-headers/ios"
-  EXUpdates:
-    :path: "../../../node_modules/expo-updates/ios"
-  EXUpdatesInterface:
-    :path: "../../../node_modules/expo-updates-interface/ios"
   FBLazyVector:
     :path: "../../../node_modules/react-native/Libraries/FBLazyVector"
   fmt:
@@ -2125,10 +2070,7 @@ EXTERNAL SOURCES:
 SPEC CHECKSUMS:
   boost: 1dca942403ed9342f98334bf4c3621f011aa7946
   DoubleConversion: f16ae600a246532c4020132d54af21d0ddb2a385
-  EASClient: fe396f88189ce51edd819abe12df16c99e98bcd2
   EXConstants: f5c27bfa40ba650257535ab958f4f5876ee93edd
-  EXJSONUtils: 1d3e4590438c3ee593684186007028a14b3686cd
-  EXManifests: 691a779b04e4f2c96da46fb9bef4f86174fefcb5
   Expo: 24e21e782c2858eae363d3597ea945751e5af078
   ExpoAsset: 715ce37a36951fee71c32773b3be50f2285e2fbe
   ExpoFileSystem: 5df53001901f76b493bd5deb75ac506871cc9b2e
@@ -2139,9 +2081,6 @@ SPEC CHECKSUMS:
   ExpoModulesCore: 7f5e59799b89e5fad1d7cc6070744c1003ca320f
   ExpoSplashScreen: 0f281e3c2ded4757d2309276c682d023c6299c77
   ExpoSystemUI: 2e5356d22b077c56c132b4dcbc5d69dd667b1f8c
-  EXStructuredHeaders: 32bec6771c2db18c4cd47cecae530d1d06cdf972
-  EXUpdates: 78916562afdc8b0967e5c32f98b7aba15d7647d3
-  EXUpdatesInterface: 7ff005b7af94ee63fa452ea7bb95d7a8ff40277a
   FBLazyVector: 7075bb12898bc3998fd60f4b7ca422496cc2cdf7
   fmt: 10c6e61f4be25dc963c36bd73fc7b1705fe975be
   glog: 08b301085f15bcbb6ff8632a8ebaf239aae04e6a
@@ -2150,7 +2089,6 @@ SPEC CHECKSUMS:
   RCTDeprecation: fde92935b3caa6cb65cbff9fbb7d3a9867ffb259
   RCTRequired: 75c6cee42d21c1530a6f204ba32ff57335d19007
   RCTTypeSafety: 7e6fe47bfb693c50d4669db1a480ca5331795f5b
-  ReachabilitySwift: 32793e867593cfc1177f5d16491e3a197d2fccda
   React: 8e73704cdd5c7f801936776d2fc434c605a7827b
   React-callinvoker: fa27d1e091e683de88f576e6a5d4efc171929a4c
   React-Core: 948deed7fa720eeb0d901ff9e45c3719767dab5f

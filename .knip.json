@@ -29,7 +29,8 @@
         "@react-navigation/native",
         "react-dom",
         "react-native-gesture-handler",
-        "@expo/config-plugins"
+        "@expo/config-plugins",
+        "expo-updates"
     ],
     "ignoreBinaries": ["run"],
     "exclude": ["enumMembers"]
