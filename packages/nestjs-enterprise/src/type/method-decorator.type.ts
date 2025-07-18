@@ -1,8 +1,7 @@
-import type { DecoratedMethodType } from './decorated-method.type';
-
-export type MethodDecoratorType<TResult, TArgs extends unknown[]> = (
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export type MethodDecoratorType<K extends (...args: any) => any> = (
     target: object,
     propertyKey: string | symbol,
-    descriptor: TypedPropertyDescriptor<DecoratedMethodType<TResult, TArgs>>
+    descriptor: TypedPropertyDescriptor<K>
     // eslint-disable-next-line @typescript-eslint/no-invalid-void-type
-) => TypedPropertyDescriptor<DecoratedMethodType<TResult, TArgs>> | void;
+) => TypedPropertyDescriptor<K> | void;
