@@ -145,11 +145,13 @@ describe('LogDecorator', () => {
         expect.assertions(1);
 
         const instance = new TestClass();
+
         expect(() => instance.testNoErrorArg(2)).toThrow(errorLogText);
     });
 
     it('should NOT output post log with no post log arg', () => {
         expect.assertions(1);
+
         jest.resetAllMocks();
 
         const instance = new TestClass();
@@ -222,13 +224,14 @@ describe('LogDecorator', () => {
 
         it('should output error log', () => {
             expect.assertions(2);
+
             jest.resetAllMocks();
 
             const instance = new TestClass();
-            instance.testObservableError().subscribe(
-                () => void 0,
-                () => void 0
-            );
+            instance.testObservableError().subscribe({
+                next: () => void 0,
+                error: () => void 0,
+            });
 
             expect(Logger.log).toHaveBeenCalledWith(preLogText, `${TestClass.name}::testObservableError`);
             expect(Logger.error).toHaveBeenCalledWith(errorLogText, `${TestClass.name}::testObservableError`);
@@ -236,13 +239,14 @@ describe('LogDecorator', () => {
 
         it('should output error log function with argument', () => {
             expect.assertions(2);
+
             jest.resetAllMocks();
 
             const instance = new TestClass();
-            instance.testObservableErrorArg(2).subscribe(
-                () => void 0,
-                () => void 0
-            );
+            instance.testObservableErrorArg(2).subscribe({
+                next: () => void 0,
+                error: () => void 0,
+            });
 
             expect(Logger.log).toHaveBeenCalledWith(preLogText, `${TestClass.name}::testObservableErrorArg`);
             expect(Logger.error).toHaveBeenCalledWith(`${errorLogText}-2`, `${TestClass.name}::testObservableErrorArg`);

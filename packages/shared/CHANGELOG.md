@@ -3,11 +3,67 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.3.0](https://github.com/rnw-community/rnw-community/compare/v1.2.0...v1.3.0) (2025-06-23)
+
+### Features
+
+- **shared:** added isObject, isArray ([#282](https://github.com/rnw-community/rnw-community/issues/282)) ([9e2e605](https://github.com/rnw-community/rnw-community/commit/9e2e60527e5055048a0e89a0ca028013e0ab2d62))
+
+# [1.1.0](https://github.com/rnw-community/rnw-community/compare/v0.83.1...v1.1.0) (2025-02-15)
+
+### Features
+
+- **react-native-payments:** expo plugin support, expo usage example, bump rn example 0.77 ([#270](https://github.com/rnw-community/rnw-community/issues/270)) ([0d8846e](https://github.com/rnw-community/rnw-community/commit/0d8846e119afe1c657b845013d8aef08e891a300))
+
+# [0.83.0](https://github.com/rnw-community/rnw-community/compare/v0.82.1...v0.83.0) (2025-01-12)
+
+**Note:** Version bump only for package @rnw-community/shared
+
+# [0.82.0](https://github.com/rnw-community/rnw-community/compare/v0.81.0...v0.82.0) (2024-12-15)
+
+**Note:** Version bump only for package @rnw-community/shared
+
+# [0.81.0](https://github.com/rnw-community/rnw-community/compare/v0.80.1...v0.81.0) (2024-12-01)
+
+### Features
+
+- fixed latest eslint 8, updated yarn, typescript other dev deps ([#258](https://github.com/rnw-community/rnw-community/issues/258)) ([96f74ab](https://github.com/rnw-community/rnw-community/commit/96f74abc876cd16a810145b35da8f22a61360ab0))
+
+# [0.80.0](https://github.com/rnw-community/rnw-community/compare/v0.79.0...v0.80.0) (2024-11-20)
+
+**Note:** Version bump only for package @rnw-community/shared
+
+# [0.79.0](https://github.com/rnw-community/rnw-community/compare/v0.78.1...v0.79.0) (2024-11-18)
+
+**Note:** Version bump only for package @rnw-community/shared
+
+# [0.78.0](https://github.com/rnw-community/rnw-community/compare/v0.77.0...v0.78.0) (2024-11-13)
+
+**Note:** Version bump only for package @rnw-community/shared
+
+# [0.77.0](https://github.com/rnw-community/rnw-community/compare/v0.76.0...v0.77.0) (2024-11-01)
+
+### Features
+
+- **shared:** added isPromise type guard ([#245](https://github.com/rnw-community/rnw-community/issues/245)) ([a99ebf8](https://github.com/rnw-community/rnw-community/commit/a99ebf872fab3f075358d091041527240783130d))
+
+# [0.76.0](https://github.com/rnw-community/rnw-community/compare/v0.75.4...v0.76.0) (2024-10-21)
+
+**Note:** Version bump only for package @rnw-community/shared
+
+## [0.75.4](https://github.com/rnw-community/rnw-community/compare/v0.75.3...v0.75.4) (2024-10-14)
+
+**Note:** Version bump only for package @rnw-community/shared
+
+# [0.75.0](https://github.com/rnw-community/rnw-community/compare/v0.74.4...v0.75.0) (2024-10-10)
+
+**Note:** Version bump only for package @rnw-community/shared
+
 # [0.74.0](https://github.com/rnw-community/rnw-community/compare/v0.73.0...v0.74.0) (2024-07-20)
 
 ### Features
 
--   **wdio:** upgraded wdio to latest v8, fixed types, bump turbo 2.0.9, TS 5.5, eslint and its deps ([#209](https://github.com/rnw-community/rnw-community/issues/209)) ([1da06a0](https://github.com/rnw-community/rnw-community/commit/1da06a0bb53e94ad318e76b19bc2c9c153871656))
+- **wdio:** upgraded wdio to latest v8, fixed types, bump turbo 2.0.9, TS 5.5, eslint and its deps ([#209](https://github.com/rnw-community/rnw-community/issues/209)) ([1da06a0](https://github.com/rnw-community/rnw-community/commit/1da06a0bb53e94ad318e76b19bc2c9c153871656))
 
 # [0.73.0](https://github.com/rnw-community/rnw-community/compare/v0.72.2...v0.73.0) (2024-07-11)
 
@@ -41,7 +97,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 ### Features
 
--   **wdio:** updated wdio dependencies to the latest version, migration to @jest/globals ([#180](https://github.com/rnw-community/rnw-community/issues/180)) ([0b6e59a](https://github.com/rnw-community/rnw-community/commit/0b6e59ac40d4784fba40fba46ac7a1e28cff7d8c))
+- **wdio:** updated wdio dependencies to the latest version, migration to @jest/globals ([#180](https://github.com/rnw-community/rnw-community/issues/180)) ([0b6e59a](https://github.com/rnw-community/rnw-community/commit/0b6e59ac40d4784fba40fba46ac7a1e28cff7d8c))
 
 # [0.65.0](https://github.com/rnw-community/rnw-community/compare/v0.64.0...v0.65.0) (2023-12-17)
 
@@ -59,31 +115,31 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 ### Bug Fixes
 
--   **shared:** improved isEmptyArray types ([e481132](https://github.com/rnw-community/rnw-community/commit/e48113240bdabd59d01add6d159a16e09a1592fe))
+- **shared:** improved isEmptyArray types ([e481132](https://github.com/rnw-community/rnw-community/commit/e48113240bdabd59d01add6d159a16e09a1592fe))
 
 ## [0.62.1](https://github.com/rnw-community/rnw-community/compare/v0.62.0...v0.62.1) (2023-11-13)
 
 ### Bug Fixes
 
--   **shared:** improved isNotEmptyArray types ([#162](https://github.com/rnw-community/rnw-community/issues/162)) ([4a69119](https://github.com/rnw-community/rnw-community/commit/4a691193fdc5a3ffeb967a893bd03218f9533d5a))
+- **shared:** improved isNotEmptyArray types ([#162](https://github.com/rnw-community/rnw-community/issues/162)) ([4a69119](https://github.com/rnw-community/rnw-community/commit/4a691193fdc5a3ffeb967a893bd03218f9533d5a))
 
 # [0.62.0](https://github.com/rnw-community/rnw-community/compare/v0.61.0...v0.62.0) (2023-10-26)
 
 ### Features
 
--   **shared:** added IsNotEmptyArray<T> type, improved isNotEmptyArray ([#159](https://github.com/rnw-community/rnw-community/issues/159)) ([db93d91](https://github.com/rnw-community/rnw-community/commit/db93d9194d23e44ae8b0b3fcd3e1f5925785c156))
+- **shared:** added IsNotEmptyArray<T> type, improved isNotEmptyArray ([#159](https://github.com/rnw-community/rnw-community/issues/159)) ([db93d91](https://github.com/rnw-community/rnw-community/commit/db93d9194d23e44ae8b0b3fcd3e1f5925785c156))
 
 # [0.61.0](https://github.com/rnw-community/rnw-community/compare/v0.60.0...v0.61.0) (2023-10-23)
 
 ### Features
 
--   added sort-package-json to lint-staged ([319f798](https://github.com/rnw-community/rnw-community/commit/319f798e24a9b5bc62dd5e3489134c33e5606d90))
+- added sort-package-json to lint-staged ([319f798](https://github.com/rnw-community/rnw-community/commit/319f798e24a9b5bc62dd5e3489134c33e5606d90))
 
 # [0.60.0](https://github.com/rnw-community/rnw-community/compare/v0.59.6...v0.60.0) (2023-10-23)
 
 ### Features
 
--   improved bundled size by removing tsbuildinfo from the dist on build script ([fc613ff](https://github.com/rnw-community/rnw-community/commit/fc613ff65722a1601ae9bbacb8599163ccf0d34c))
+- improved bundled size by removing tsbuildinfo from the dist on build script ([fc613ff](https://github.com/rnw-community/rnw-community/commit/fc613ff65722a1601ae9bbacb8599163ccf0d34c))
 
 ## [0.59.6](https://github.com/rnw-community/rnw-community/compare/v0.59.5...v0.59.6) (2023-10-22)
 
@@ -109,7 +165,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 ### Features
 
--   **shared:** refactored docs, added isNumber, isPositiveNumber, isEmptyArray ([#151](https://github.com/rnw-community/rnw-community/issues/151)) ([68fa290](https://github.com/rnw-community/rnw-community/commit/68fa290bff354056ecfb6a7ecd907ccde6a85036))
+- **shared:** refactored docs, added isNumber, isPositiveNumber, isEmptyArray ([#151](https://github.com/rnw-community/rnw-community/issues/151)) ([68fa290](https://github.com/rnw-community/rnw-community/commit/68fa290bff354056ecfb6a7ecd907ccde6a85036))
 
 # [0.56.0](https://github.com/rnw-community/rnw-community/compare/v0.55.1...v0.56.0) (2023-10-18)
 
@@ -127,7 +183,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 ### Features
 
--   **nestjs-rxjs-lock:** migration to ioredis ([#140](https://github.com/rnw-community/rnw-community/issues/140)) ([846a060](https://github.com/rnw-community/rnw-community/commit/846a06025d46f0bc8a80ad010d1aaaa47b15d933))
+- **nestjs-rxjs-lock:** migration to ioredis ([#140](https://github.com/rnw-community/rnw-community/issues/140)) ([846a060](https://github.com/rnw-community/rnw-community/commit/846a06025d46f0bc8a80ad010d1aaaa47b15d933))
 
 # [0.53.0](https://github.com/rnw-community/rnw-community/compare/v0.52.7...v0.53.0) (2023-04-28)
 
@@ -141,23 +197,23 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 ### Features
 
--   add getDefinedAsync ([#136](https://github.com/rnw-community/rnw-community/issues/136)) ([30a571d](https://github.com/rnw-community/rnw-community/commit/30a571d4f7d39d3133603a3660d1c1e74e1d0c85))
+- add getDefinedAsync ([#136](https://github.com/rnw-community/rnw-community/issues/136)) ([30a571d](https://github.com/rnw-community/rnw-community/commit/30a571d4f7d39d3133603a3660d1c1e74e1d0c85))
 
 # [0.51.0](https://github.com/rnw-community/rnw-community/compare/v0.50.0...v0.51.0) (2023-03-21)
 
 ### Bug Fixes
 
--   add export getDefined from the package ([#135](https://github.com/rnw-community/rnw-community/issues/135)) ([967749f](https://github.com/rnw-community/rnw-community/commit/967749f17f4133bf5975c9aaaa8f136c512cdd1b))
+- add export getDefined from the package ([#135](https://github.com/rnw-community/rnw-community/issues/135)) ([967749f](https://github.com/rnw-community/rnw-community/commit/967749f17f4133bf5975c9aaaa8f136c512cdd1b))
 
 ### Features
 
--   add internal barrel exports and fix eslint prettier ([#132](https://github.com/rnw-community/rnw-community/issues/132)) ([0f90572](https://github.com/rnw-community/rnw-community/commit/0f9057279f3c67fcf062ee5fd035725142be3528))
+- add internal barrel exports and fix eslint prettier ([#132](https://github.com/rnw-community/rnw-community/issues/132)) ([0f90572](https://github.com/rnw-community/rnw-community/commit/0f9057279f3c67fcf062ee5fd035725142be3528))
 
 # [0.50.0](https://github.com/rnw-community/rnw-community/compare/v0.49.2...v0.50.0) (2023-03-20)
 
 ### Features
 
--   add getDefined util ([#133](https://github.com/rnw-community/rnw-community/issues/133)) ([98aceb1](https://github.com/rnw-community/rnw-community/commit/98aceb1c86697c88c3395b61e037bf835d6d6b5b))
+- add getDefined util ([#133](https://github.com/rnw-community/rnw-community/issues/133)) ([98aceb1](https://github.com/rnw-community/rnw-community/commit/98aceb1c86697c88c3395b61e037bf835d6d6b5b))
 
 # [0.49.0](https://github.com/rnw-community/rnw-community/compare/v0.48.2...v0.49.0) (2023-03-02)
 
@@ -175,7 +231,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 ### Features
 
--   migrated to yarn2, changed local packages as peer deps ([#115](https://github.com/rnw-community/rnw-community/issues/115)) ([59c3493](https://github.com/rnw-community/rnw-community/commit/59c3493c43dccc54bf2824920c4b655b59bb3083))
+- migrated to yarn2, changed local packages as peer deps ([#115](https://github.com/rnw-community/rnw-community/issues/115)) ([59c3493](https://github.com/rnw-community/rnw-community/commit/59c3493c43dccc54bf2824920c4b655b59bb3083))
 
 # [0.45.0](https://github.com/rnw-community/rnw-community/compare/v0.44.3...v0.45.0) (2022-10-14)
 
@@ -193,13 +249,13 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 ### Bug Fixes
 
--   **wdio:** added wdio.d.ts types, testID by index return chain ([#103](https://github.com/rnw-community/rnw-community/issues/103)) ([681b6ee](https://github.com/rnw-community/rnw-community/commit/681b6ee0897edec215868f30e560eb7d5c33eae3))
+- **wdio:** added wdio.d.ts types, testID by index return chain ([#103](https://github.com/rnw-community/rnw-community/issues/103)) ([681b6ee](https://github.com/rnw-community/rnw-community/commit/681b6ee0897edec215868f30e560eb7d5c33eae3))
 
 # [0.43.0](https://github.com/rnw-community/rnw-community/compare/v0.42.1...v0.43.0) (2022-10-01)
 
 ### Features
 
--   added turbo ([2f1f514](https://github.com/rnw-community/rnw-community/commit/2f1f514c176484a37516592a89da7a07dbd11540))
+- added turbo ([2f1f514](https://github.com/rnw-community/rnw-community/commit/2f1f514c176484a37516592a89da7a07dbd11540))
 
 ## [0.42.1](https://github.com/rnw-community/rnw-community/compare/v0.42.0...v0.42.1) (2022-10-01)
 
@@ -209,7 +265,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 ### Features
 
--   **wdio:** added test for external file ([#98](https://github.com/rnw-community/rnw-community/issues/98)) ([f7cce82](https://github.com/rnw-community/rnw-community/commit/f7cce826a19df23d4e4a2450d7300dcd8a458e95))
+- **wdio:** added test for external file ([#98](https://github.com/rnw-community/rnw-community/issues/98)) ([f7cce82](https://github.com/rnw-community/rnw-community/commit/f7cce826a19df23d4e4a2450d7300dcd8a458e95))
 
 # [0.41.0](https://github.com/rnw-community/rnw-community/compare/v0.40.0...v0.41.0) (2022-09-29)
 
@@ -219,7 +275,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 ### Features
 
--   added esm/cjs build config ([#93](https://github.com/rnw-community/rnw-community/issues/93)) ([2bf46ac](https://github.com/rnw-community/rnw-community/commit/2bf46ac93103d5276059027bb21886dd712a9ca7))
+- added esm/cjs build config ([#93](https://github.com/rnw-community/rnw-community/issues/93)) ([2bf46ac](https://github.com/rnw-community/rnw-community/commit/2bf46ac93103d5276059027bb21886dd712a9ca7))
 
 # [0.39.0](https://github.com/rnw-community/rnw-community/compare/v0.38.3...v0.39.0) (2022-09-28)
 
@@ -229,13 +285,13 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 ### Bug Fixes
 
--   **wdio:** added esm/cjs build config ([#92](https://github.com/rnw-community/rnw-community/issues/92)) ([02195a1](https://github.com/rnw-community/rnw-community/commit/02195a1da3dccc62f2fe9f19105769c237fee02a))
+- **wdio:** added esm/cjs build config ([#92](https://github.com/rnw-community/rnw-community/issues/92)) ([02195a1](https://github.com/rnw-community/rnw-community/commit/02195a1da3dccc62f2fe9f19105769c237fee02a))
 
 ## [0.38.2](https://github.com/rnw-community/rnw-community/compare/v0.38.1...v0.38.2) (2022-09-27)
 
 ### Bug Fixes
 
--   **wdio:** fixed SelectorObject types to support ChainablePromiseElement/Array ([#91](https://github.com/rnw-community/rnw-community/issues/91)) ([c9fa5b7](https://github.com/rnw-community/rnw-community/commit/c9fa5b70d58ec42f9025336a512965c3d7ee5968))
+- **wdio:** fixed SelectorObject types to support ChainablePromiseElement/Array ([#91](https://github.com/rnw-community/rnw-community/issues/91)) ([c9fa5b7](https://github.com/rnw-community/rnw-community/commit/c9fa5b70d58ec42f9025336a512965c3d7ee5968))
 
 ## [0.38.1](https://github.com/rnw-community/rnw-community/compare/v0.38.0...v0.38.1) (2022-09-27)
 
@@ -245,19 +301,19 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 ### Features
 
--   **wdio:** refactored enum, added wdio ChainablePromise support ([#89](https://github.com/rnw-community/rnw-community/issues/89)) ([d8f24bf](https://github.com/rnw-community/rnw-community/commit/d8f24bf8d9a3c3ffec7c1151f466ed058da8af6c))
+- **wdio:** refactored enum, added wdio ChainablePromise support ([#89](https://github.com/rnw-community/rnw-community/issues/89)) ([d8f24bf](https://github.com/rnw-community/rnw-community/commit/d8f24bf8d9a3c3ffec7c1151f466ed058da8af6c))
 
 # [0.37.0](https://github.com/rnw-community/rnw-community/compare/v0.36.1...v0.37.0) (2022-09-26)
 
 ### Features
 
--   **wdio:** added custom selectors functions config and helpers ([#87](https://github.com/rnw-community/rnw-community/issues/87)) ([58b21f1](https://github.com/rnw-community/rnw-community/commit/58b21f14396acbb69f1db878c8203a51f654bfd0))
+- **wdio:** added custom selectors functions config and helpers ([#87](https://github.com/rnw-community/rnw-community/issues/87)) ([58b21f1](https://github.com/rnw-community/rnw-community/commit/58b21f14396acbb69f1db878c8203a51f654bfd0))
 
 ## [0.36.1](https://github.com/rnw-community/rnw-community/compare/v0.36.0...v0.36.1) (2022-09-26)
 
 ### Bug Fixes
 
--   **wdio:** fixed constructor types to accept ChainablePromiseElement ([#86](https://github.com/rnw-community/rnw-community/issues/86)) ([66b5aea](https://github.com/rnw-community/rnw-community/commit/66b5aeaa618f71b6484a76314a407423e5e8946f))
+- **wdio:** fixed constructor types to accept ChainablePromiseElement ([#86](https://github.com/rnw-community/rnw-community/issues/86)) ([66b5aea](https://github.com/rnw-community/rnw-community/commit/66b5aeaa618f71b6484a76314a407423e5e8946f))
 
 # [0.36.0](https://github.com/rnw-community/rnw-community/compare/v0.35.3...v0.36.0) (2022-09-25)
 
@@ -267,7 +323,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 ### Bug Fixes
 
--   **nestjs-webpack-swc:** fixed hmr helper ([#82](https://github.com/rnw-community/rnw-community/issues/82)) ([561ae93](https://github.com/rnw-community/rnw-community/commit/561ae93f3e4dec954d99e7e9e3b7d576e6cb0e4e))
+- **nestjs-webpack-swc:** fixed hmr helper ([#82](https://github.com/rnw-community/rnw-community/issues/82)) ([561ae93](https://github.com/rnw-community/rnw-community/commit/561ae93f3e4dec954d99e7e9e3b7d576e6cb0e4e))
 
 # [0.35.0](https://github.com/rnw-community/rnw-community/compare/v0.34.0...v0.35.0) (2022-09-19)
 
@@ -421,19 +477,19 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 ### Features
 
--   improved page size by removing tsbuildinfo ([a7a7e5a](https://github.com/rnw-community/rnw-community/commit/a7a7e5aad6155681c481825365dba72a2acef831))
+- improved page size by removing tsbuildinfo ([a7a7e5a](https://github.com/rnw-community/rnw-community/commit/a7a7e5aad6155681c481825365dba72a2acef831))
 
 # [0.13.0](https://github.com/rnw-community/rnw-community/compare/v0.12.1...v0.13.0) (2022-07-26)
 
 ### Features
 
--   **wdio:** added setPropTestID helper for React components ([#73](https://github.com/rnw-community/rnw-community/issues/73)) ([fe07a9a](https://github.com/rnw-community/rnw-community/commit/fe07a9ada0de47f41b48e92e33c41d786fae4cf9))
+- **wdio:** added setPropTestID helper for React components ([#73](https://github.com/rnw-community/rnw-community/issues/73)) ([fe07a9a](https://github.com/rnw-community/rnw-community/commit/fe07a9ada0de47f41b48e92e33c41d786fae4cf9))
 
 ## [0.12.1](https://github.com/rnw-community/rnw-community/compare/v0.12.0...v0.12.1) (2022-07-26)
 
 ### Bug Fixes
 
--   **wdio:** fixed setTestID typings ([#72](https://github.com/rnw-community/rnw-community/issues/72)) ([ecacd8f](https://github.com/rnw-community/rnw-community/commit/ecacd8f1492fdacab5ae7fa76976b287ca6d52ab))
+- **wdio:** fixed setTestID typings ([#72](https://github.com/rnw-community/rnw-community/issues/72)) ([ecacd8f](https://github.com/rnw-community/rnw-community/commit/ecacd8f1492fdacab5ae7fa76976b287ca6d52ab))
 
 # [0.12.0](https://github.com/rnw-community/rnw-community/tree/master/packages/shared/compare/v0.11.0...v0.12.0) (2022-07-26)
 
@@ -443,7 +499,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 ### Features
 
--   **shared:** added isNotEmptyArray util ([#65](https://github.com/rnw-community/rnw-community/tree/master/packages/shared/issues/65)) ([ffffa85](https://github.com/rnw-community/rnw-community/tree/master/packages/shared/commit/ffffa85ed332102062fb7e614c8cb26ecdb0b175))
+- **shared:** added isNotEmptyArray util ([#65](https://github.com/rnw-community/rnw-community/tree/master/packages/shared/issues/65)) ([ffffa85](https://github.com/rnw-community/rnw-community/tree/master/packages/shared/commit/ffffa85ed332102062fb7e614c8cb26ecdb0b175))
 
 # [0.10.0](https://github.com/rnw-community/rnw-community/tree/master/packages/shared/compare/v0.9.0...v0.10.0) (2022-02-14)
 
@@ -477,13 +533,13 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 ### Features
 
--   **nestjs-rxjs-logger:** added support to pass message function ([#40](https://github.com/rnw-community/rnw-community/tree/master/packages/shared/issues/40)) ([bdc46d8](https://github.com/rnw-community/rnw-community/tree/master/packages/shared/commit/bdc46d87545c0769b641c9276c1029bcd7b0be67))
+- **nestjs-rxjs-logger:** added support to pass message function ([#40](https://github.com/rnw-community/rnw-community/tree/master/packages/shared/issues/40)) ([bdc46d8](https://github.com/rnw-community/rnw-community/tree/master/packages/shared/commit/bdc46d87545c0769b641c9276c1029bcd7b0be67))
 
 # [0.5.0](https://github.com/rnw-community/rnw-community/tree/master/packages/shared/compare/v0.4.0...v0.5.0) (2021-08-18)
 
 ### Features
 
--   **nestjs-rxjs-logger:** added package ([#38](https://github.com/rnw-community/rnw-community/tree/master/packages/shared/issues/38)) ([774d69d](https://github.com/rnw-community/rnw-community/tree/master/packages/shared/commit/774d69d9ba7ace09a138d0dd767c567eaf37a730))
+- **nestjs-rxjs-logger:** added package ([#38](https://github.com/rnw-community/rnw-community/tree/master/packages/shared/issues/38)) ([774d69d](https://github.com/rnw-community/rnw-community/tree/master/packages/shared/commit/774d69d9ba7ace09a138d0dd767c567eaf37a730))
 
 # [0.4.0](https://github.com/rnw-community/rnw-community/tree/master/packages/shared/compare/v0.3.4...v0.4.0) (2021-07-26)
 
@@ -505,24 +561,24 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 ### Bug Fixes
 
--   **platform:** fixed ClassType ([#31](https://github.com/rnw-community/rnw-community/tree/master/packages/shared/issues/31)) ([1c847f4](https://github.com/rnw-community/rnw-community/tree/master/packages/shared/commit/1c847f4a81398a771c8f0c03ec9edc65a75ef161))
+- **platform:** fixed ClassType ([#31](https://github.com/rnw-community/rnw-community/tree/master/packages/shared/issues/31)) ([1c847f4](https://github.com/rnw-community/rnw-community/tree/master/packages/shared/commit/1c847f4a81398a771c8f0c03ec9edc65a75ef161))
 
 # [0.3.0](https://github.com/rnw-community/rnw-community/tree/master/packages/shared/compare/v0.2.0...v0.3.0) (2021-05-16)
 
 ### Bug Fixes
 
--   **shared:** fixed classtype export ([be8b365](https://github.com/rnw-community/rnw-community/tree/master/packages/shared/commit/be8b3657daf807dbf71e998565240a401e0ba653))
--   removed spec.\* files from npm version ([a2b5f15](https://github.com/rnw-community/rnw-community/tree/master/packages/shared/commit/a2b5f15159fe47ad697271a4ef123f40daad7413))
+- **shared:** fixed classtype export ([be8b365](https://github.com/rnw-community/rnw-community/tree/master/packages/shared/commit/be8b3657daf807dbf71e998565240a401e0ba653))
+- removed spec.\* files from npm version ([a2b5f15](https://github.com/rnw-community/rnw-community/tree/master/packages/shared/commit/a2b5f15159fe47ad697271a4ef123f40daad7413))
 
 ### Reverts
 
--   **shared:** test commit ([2b2e894](https://github.com/rnw-community/rnw-community/tree/master/packages/shared/commit/2b2e894ffa3cd9a16b4c47bfa36d92240e9f5d7d))
+- **shared:** test commit ([2b2e894](https://github.com/rnw-community/rnw-community/tree/master/packages/shared/commit/2b2e894ffa3cd9a16b4c47bfa36d92240e9f5d7d))
 
 # [0.2.0](https://github.com/rnw-community/rnw-community/tree/master/packages/shared/compare/v0.1.9...v0.2.0) (2021-05-16)
 
 ### Features
 
--   test commit ([8587441](https://github.com/rnw-community/rnw-community/tree/master/packages/shared/commit/8587441e91d2da90ddb50aa61e76cdc5b4a7d3d4))
+- test commit ([8587441](https://github.com/rnw-community/rnw-community/tree/master/packages/shared/commit/8587441e91d2da90ddb50aa61e76cdc5b4a7d3d4))
 
 ## [0.1.9](https://github.com/rnw-community/rnw-community/tree/master/packages/shared/compare/v0.1.8...v0.1.9) (2021-05-15)
 
@@ -544,14 +600,14 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 ### Bug Fixes
 
--   babel/jest configs ([8f75fe8](https://github.com/rnw-community/rnw-community/tree/master/packages/shared/commit/8f75fe8881e3f936a4d0645cab6cff3980f89586))
+- babel/jest configs ([8f75fe8](https://github.com/rnw-community/rnw-community/tree/master/packages/shared/commit/8f75fe8881e3f936a4d0645cab6cff3980f89586))
 
 ### Features
 
--   added cs util, docs, tests ([af5bf48](https://github.com/rnw-community/rnw-community/tree/master/packages/shared/commit/af5bf48a34eba99a719ab7b4d54e60a71b12f732))
--   added isDefined to shared ([4ae758c](https://github.com/rnw-community/rnw-community/tree/master/packages/shared/commit/4ae758c55331f248d5be2f5e7f2a904a01deced4))
--   added shared docs ([b330a27](https://github.com/rnw-community/rnw-community/tree/master/packages/shared/commit/b330a275ae2a0edd0c821e5af5e1c947e2b37e0e))
--   added shared docs ([124ce72](https://github.com/rnw-community/rnw-community/tree/master/packages/shared/commit/124ce729b0f5cbe2e81bca54db5932140affc780))
--   added shared docs ([d021ad2](https://github.com/rnw-community/rnw-community/tree/master/packages/shared/commit/d021ad23b069c702a90486341901fde8207c610b))
--   sahred - added platform constants and styles ([aefb7d5](https://github.com/rnw-community/rnw-community/tree/master/packages/shared/commit/aefb7d55df56ddc8b2cc27f930f59450c7ab3bdd))
--   shared - added setTestId util ([c3f48c0](https://github.com/rnw-community/rnw-community/tree/master/packages/shared/commit/c3f48c00c92c61a90d17800dce88330f9f2ab2ed))
+- added cs util, docs, tests ([af5bf48](https://github.com/rnw-community/rnw-community/tree/master/packages/shared/commit/af5bf48a34eba99a719ab7b4d54e60a71b12f732))
+- added isDefined to shared ([4ae758c](https://github.com/rnw-community/rnw-community/tree/master/packages/shared/commit/4ae758c55331f248d5be2f5e7f2a904a01deced4))
+- added shared docs ([b330a27](https://github.com/rnw-community/rnw-community/tree/master/packages/shared/commit/b330a275ae2a0edd0c821e5af5e1c947e2b37e0e))
+- added shared docs ([124ce72](https://github.com/rnw-community/rnw-community/tree/master/packages/shared/commit/124ce729b0f5cbe2e81bca54db5932140affc780))
+- added shared docs ([d021ad2](https://github.com/rnw-community/rnw-community/tree/master/packages/shared/commit/d021ad23b069c702a90486341901fde8207c610b))
+- sahred - added platform constants and styles ([aefb7d5](https://github.com/rnw-community/rnw-community/tree/master/packages/shared/commit/aefb7d55df56ddc8b2cc27f930f59450c7ab3bdd))
+- shared - added setTestId util ([c3f48c0](https://github.com/rnw-community/rnw-community/tree/master/packages/shared/commit/c3f48c00c92c61a90d17800dce88330f9f2ab2ed))

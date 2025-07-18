@@ -69,6 +69,29 @@ RCT_EXPORT_METHOD(show:(NSString *)methodDataString
         }
     }
 
+    NSMutableArray *requiredBillingContactFields = [NSMutableArray array];
+    for (NSString *requiredBillingContactField in methodData[@"requiredBillingContactFields"]) {
+        PKContactField contactField = [self contactFieldFromString:requiredBillingContactField];
+        if(contactField != nil) {
+            [requiredBillingContactFields addObject:contactField];
+        } else {
+            [self rejectPromise:@"invalid_contact_field" message:[NSString stringWithFormat:@"Invalid contact field passed '%@'", contactField] error:nil];
+            return;
+        }
+    }
+
+    NSMutableArray *requiredShippingContactFields = [NSMutableArray array];
+    for (NSString *requiredShippingContactField in methodData[@"requiredShippingContactFields"]) {
+        PKContactField contactField = [self contactFieldFromString:requiredShippingContactField];
+        if(contactField != nil) {
+            [requiredShippingContactFields addObject:contactField];
+        } else {
+            [self rejectPromise:@"invalid_contact_field" message:[NSString stringWithFormat:@"Invalid contact field passed '%@'", contactField] error:nil];
+            return;
+        }
+    }
+
+
     // https://developer.apple.com/documentation/passkit/pkpaymentrequest/1619257-merchantcapabilities?language=objc
     NSArray *merchantCapabilitiesArray = methodData[@"merchantCapabilities"];
     PKMerchantCapability merchantCapabilities = 0;
@@ -97,6 +120,34 @@ RCT_EXPORT_METHOD(show:(NSString *)methodDataString
     // https://developer.apple.com/documentation/passkit/pkpaymentrequest/1619248-currencycode?language=objc
     paymentRequest.currencyCode = currencyCode;
 
+    // https://developer.apple.com/documentation/applepayontheweb/applepaypaymentrequest/applicationdata?language=objc
+    id applicationData = methodData[@"applicationData"];
+    if (applicationData != nil) {
+        if ([applicationData isKindOfClass:[NSString class]]) {
+            // Convert string to NSData
+            NSData *appData = [(NSString *)applicationData dataUsingEncoding:NSUTF8StringEncoding];
+            if (appData) {
+                paymentRequest.applicationData = appData;
+            } else {
+                [self rejectPromise:@"invalid_application_data" message:@"Could not convert applicationData to NSData" error:nil];
+                return;
+            }
+        } else if([applicationData isKindOfClass:[NSDictionary class]] || [applicationData isKindOfClass:[NSArray class]]) {
+            // If it's already JSON or a dictionary, convert to NSData
+            NSError *jsonError;
+            NSData *appData = [NSJSONSerialization dataWithJSONObject:applicationData options:0 error:&jsonError];
+            if (!jsonError && appData) {
+                paymentRequest.applicationData = appData;
+            } else {
+                [self rejectPromise:@"invalid_application_data" message:@"applicationData must be a valid string or JSON object" error:jsonError];
+                return;
+            }
+        } else {
+            [self rejectPromise:@"invalid_application_data" message:@"applicationData must be a string, dictionary, or array" error:nil];
+            return;
+        }    
+    }
+
     // https://developer.apple.com/documentation/passkit/pkpaymentrequest/1619231-paymentsummaryitems?language=objc
     paymentRequest.paymentSummaryItems = [self getPaymentSummaryItemsFromDetails:details];
 
@@ -106,12 +157,12 @@ RCT_EXPORT_METHOD(show:(NSString *)methodDataString
 
     // https://developer.apple.com/documentation/passkit/pkpaymentrequest/2865928-requiredbillingcontactfields?language=objc
     if(methodData[@"requiredBillingContactFields"]) {
-        paymentRequest.requiredBillingContactFields = [NSSet setWithArray:@[PKContactFieldName, PKContactFieldEmailAddress, PKContactFieldPostalAddress, PKContactFieldPhoneNumber]];
+        paymentRequest.requiredBillingContactFields = [NSSet setWithArray:requiredBillingContactFields];
     }
 
     // https://developer.apple.com/documentation/passkit/pkpaymentrequest/2865927-requiredshippingcontactfields?language=objc
     if(methodData[@"requiredShippingContactFields"]) {
-        paymentRequest.requiredShippingContactFields = [NSSet setWithArray:@[PKContactFieldPostalAddress, PKContactFieldName, PKContactFieldEmailAddress, PKContactFieldPhoneNumber]];
+        paymentRequest.requiredShippingContactFields = [NSSet setWithArray:requiredShippingContactFields];
     }
 
     // https://developer.apple.com/documentation/passkit/pkpaymentauthorizationviewcontroller/1616178-initwithpaymentrequest?language=objc
@@ -147,7 +198,15 @@ RCT_EXPORT_METHOD(complete: (NSString *)paymentStatus
 
     self.completion([[PKPaymentAuthorizationResult alloc] initWithStatus:status errors:nil]);
 
-    resolve(nil);
+    dispatch_async(dispatch_get_main_queue(), ^{
+        if (self.viewController.presentingViewController) {
+            [self.viewController dismissViewControllerAnimated:YES completion:^{
+                resolve(nil);
+            }];
+        } else {
+            resolve(nil);
+        }
+    });
 }
 
 RCT_EXPORT_METHOD(canMakePayments: (NSString *)methodDataString
@@ -208,7 +267,7 @@ RCT_EXPORT_METHOD(canMakePayments: (NSString *)methodDataString
             postalAddressDict[@"state"] = postalAddress.state;
             postalAddressDict[@"postalCode"] = postalAddress.postalCode;
             postalAddressDict[@"country"] = postalAddress.country;
-            postalAddressDict[@"isoCountryCode"] = postalAddress.ISOCountryCode;
+            postalAddressDict[@"ISOCountryCode"] = postalAddress.ISOCountryCode;
         }
 
         billingContactDict[@"postalAddress"] = postalAddressDict;
@@ -234,7 +293,7 @@ RCT_EXPORT_METHOD(canMakePayments: (NSString *)methodDataString
             postalAddressDict[@"state"] = postalAddress.state;
             postalAddressDict[@"postalCode"] = postalAddress.postalCode;
             postalAddressDict[@"country"] = postalAddress.country;
-            postalAddressDict[@"isoCountryCode"] = postalAddress.ISOCountryCode;
+            postalAddressDict[@"ISOCountryCode"] = postalAddress.ISOCountryCode;
         }
         shippingContactDict[@"postalAddress"] = postalAddressDict;
 
@@ -321,26 +380,26 @@ RCT_EXPORT_METHOD(canMakePayments: (NSString *)methodDataString
             @"PKPaymentNetworkElectron": PKPaymentNetworkElectron,
             @"PKPaymentNetworkElo": PKPaymentNetworkElo
         };
-        
+
         if (@available(iOS 16.0, *)) {
             NSMutableDictionary *mutablePaymentNetworks = [paymentNetworks mutableCopy];
             mutablePaymentNetworks[@"PKPaymentNetworkBancontact"] = PKPaymentNetworkBancontact;
             paymentNetworks = [mutablePaymentNetworks copy];
         }
-        
+
         if (@available(iOS 15.1, *)) {
             NSMutableDictionary *mutablePaymentNetworks = [paymentNetworks mutableCopy];
             mutablePaymentNetworks[@"PKPaymentNetworkDankort"] = PKPaymentNetworkDankort;
             paymentNetworks = [mutablePaymentNetworks copy];
         }
-        
+
         if (@available(iOS 14.5, *)) {
             NSMutableDictionary *mutablePaymentNetworks = [paymentNetworks mutableCopy];
             // HINT: You should never work
             mutablePaymentNetworks[@"PKPaymentNetworkMIR"] = PKPaymentNetworkMir;
             paymentNetworks = [mutablePaymentNetworks copy];
         }
-        
+
         if (@available(iOS 14.0, *)) {
             NSMutableDictionary *mutablePaymentNetworks = [paymentNetworks mutableCopy];
             mutablePaymentNetworks[@"PKPaymentNetworkGirocard"] = PKPaymentNetworkGirocard;
@@ -375,6 +434,19 @@ RCT_EXPORT_METHOD(canMakePayments: (NSString *)methodDataString
     } else {
         return PKMerchantCapabilityUnknown;
     }
+}
+
+- (PKContactField)contactFieldFromString:(NSString *)inputString {
+    NSDictionary<NSString *, PKContactField> *contactFieldMapping = @{
+        @"PKContactFieldName": PKContactFieldName,
+        @"PKContactFieldPostalAddress": PKContactFieldPostalAddress,
+        @"PKContactFieldEmailAddress": PKContactFieldEmailAddress,
+        @"PKContactFieldPhoneNumber": PKContactFieldPhoneNumber,
+    };
+
+    PKContactField field = contactFieldMapping[inputString];
+
+    return field;
 }
 
 - (NSString *)stringFromPaymentMethodType:(PKPaymentMethodType)type {

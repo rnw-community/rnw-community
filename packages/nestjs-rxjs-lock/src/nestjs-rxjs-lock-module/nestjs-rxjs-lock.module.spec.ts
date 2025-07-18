@@ -8,6 +8,7 @@ describe('NestJSRxJSLockModule', () => {
     it('should registerTypedAsync', () => {
         expect.hasAssertions();
 
+        // eslint-disable-next-line @typescript-eslint/naming-convention
         const [module, Service] = NestJSRxJSLockModule.registerTypedAsync();
 
         expect(module).toBeTruthy();

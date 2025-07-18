@@ -1,3 +1,4 @@
+/* eslint-disable */
 import { isDefined } from '@rnw-community/shared';
 
 import { SelectorElement } from '../selector-element/selector-element';
@@ -15,6 +16,7 @@ export class Component<T = any> {
     ) {
         // eslint-disable-next-line no-constructor-return
         return new Proxy(this, {
+            // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
             get(client, field: string, receiver) {
                 return client.proxyGet(field, receiver);
             },
@@ -25,27 +27,28 @@ export class Component<T = any> {
         this.parentComponents.push(component);
     }
 
-    getChildEl(selector: string): ChainablePromiseElement<WebdriverIO.Element> {
+    getChildEl(selector: string): ChainablePromiseElement {
         return this.config.elSelectorFn(selector);
     }
 
-    getChildEls(selector: string): ChainablePromiseArray<WebdriverIO.ElementArray> {
+    getChildEls(selector: string): ChainablePromiseArray {
         return this.config.elsSelectorFn(selector);
     }
 
-    getChildElByIdx(selector: string, idx: number): ChainablePromiseElement<WebdriverIO.Element> {
+    getChildElByIdx(selector: string, idx: number): ChainablePromiseElement {
         return this.config.elsIndexSelectorFn(selector, idx);
     }
 
     async getComponentFromEls<E>(
         selector: string,
         componentFn: (el: WebdriverIO.Element) => Promise<E>,
-        predicateFn: (component: E) => Promise<boolean>
+        predicateFn: (component: E, idx: number) => Promise<boolean>
     ): Promise<E> {
+        let idx = 0;
         for await (const el of await this.getChildEls(selector)) {
             const component = await componentFn(el);
 
-            if (await predicateFn(component)) {
+            if (await predicateFn(component, idx++)) {
                 return component;
             }
         }

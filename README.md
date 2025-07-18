@@ -34,7 +34,7 @@ Monorepo for useful NestJS, React Native and React Native Web packages and nativ
 -   [NestJS RxJS Lock](https://github.com/rnw-community/rnw-community/tree/master/packages/nestjs-rxjs-lock) [![npm version](https://badge.fury.io/js/%40rnw-community%2Fnestjs-rxjs-lock.svg)](https://badge.fury.io/js/%40rnw-community%2Fnestjs-rxjs-lock)
 -   [NestJS Typed Config](https://github.com/rnw-community/rnw-community/tree/master/packages/nestjs-typed-config) [![npm version](https://badge.fury.io/js/%40rnw-community%2Fnestjs-typed-config.svg)](https://badge.fury.io/js/%40rnw-community%2Fnestjs-typed-config)
 -   [NestJS Webpack + SWC](https://github.com/rnw-community/rnw-community/tree/master/packages/nestjs-webpack-swc) [![npm version](https://badge.fury.io/js/%40rnw-community%2Fnestjs-webpack-swc.svg)](https://badge.fury.io/js/%40rnw-community%2Fnestjs-webpack-swc)
--   [NestJS Enterprise](https://github.com/rnw-community/rnw-community/tree/master/packages/nestjs-enterprise) [![npm version](https://badge.fury.io/js/%40rnw-community%2Fnestjs-enterprice.svg)](https://badge.fury.io/js/%40rnw-community%2Fnestjs-enterprice)
+-   [NestJS Enterprise](https://github.com/rnw-community/rnw-community/tree/master/packages/nestjs-enterprise) [![npm version](https://badge.fury.io/js/%40rnw-community%2Fnestjs-enterprise.svg)](https://badge.fury.io/js/%40rnw-community%2Fnestjs-enterprise)
 
 ### End-to-end tests
 
@@ -42,17 +42,6 @@ Monorepo for useful NestJS, React Native and React Native Web packages and nativ
 
 ### ESLint
 - [RWN ESLint plugin](https://github.com/rnw-community/rnw-community/tree/master/packages/eslint-plugin) [![npm version](https://badge.fury.io/js/%40rnw-community%2Feslint-plugin.svg)](https://badge.fury.io/js/%40rnw-community%2Feslint-plugin)
-
-## TODO:
-
-### Repository level
-- [ ] Finish setup, description and contributing docs.
-
-### Package level
-- [nestjs-rxjs-redis](./packages/nestjs-rxjs-redis/readme.md#TODO)
-- [nestjs-rxjs-lock](./packages/nestjs-rxjs-lock/readme.md#TODO)
-- [react-native-payments](./packages/react-native-payments/readme.md#TODO)
-- [wdio](./packages/wdio/readme.md#TODO)
 
 ## License
 

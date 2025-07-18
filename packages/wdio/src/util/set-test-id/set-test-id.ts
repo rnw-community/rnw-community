@@ -10,7 +10,7 @@ import type { AndroidTestIDProps, TestIDProps, WebTestIDProps } from '../../inte
  *
  * @return {AndroidTestIDProps | TestIDProps | WebTestIDProps} Object with platform TestID fields
  */
-export const setTestID = (...args: Array<number | string>): AndroidTestIDProps | TestIDProps | WebTestIDProps => {
+export const setTestID = (...args: (number | string)[]): AndroidTestIDProps | TestIDProps | WebTestIDProps => {
     const testID = args.join('_');
 
     if (Platform.OS === 'web') {

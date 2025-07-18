@@ -20,5 +20,5 @@ import type { AndroidTestIDProps, TestIDProps, WebTestIDProps } from '../../inte
 export const setPropTestID = (
     defaultTestID: string,
     props: AndroidTestIDProps | TestIDProps | WebTestIDProps,
-    ...args: Array<number | string>
+    ...args: (number | string)[]
 ): AndroidTestIDProps | TestIDProps | WebTestIDProps => setTestID(getTestID(props, defaultTestID), ...args);

@@ -1,3 +1,4 @@
+/* eslint-disable */
 import { describe, expect, it, jest } from '@jest/globals';
 import { Logger } from '@nestjs/common';
 import { of } from 'rxjs';
@@ -64,8 +65,11 @@ describe('NestJSRxJSMetricsService', () => {
             .pipe(service.counter('my_counter_metric', 2))
             .subscribe(() => {
                 expect(counterSpy).toHaveBeenCalledTimes(2);
+                // @ts-ignore
                 expect(counterSpy).toHaveBeenCalledWith(1);
+                // @ts-ignore
                 expect(counterSpy).toHaveBeenCalledWith(2);
+
                 done();
             });
     });
@@ -84,6 +88,7 @@ describe('NestJSRxJSMetricsService', () => {
                 expect(gaugeSpy).toHaveBeenCalledTimes(2);
                 expect(gaugeSpy).toHaveBeenCalledWith(1);
                 expect(gaugeSpy).toHaveBeenCalledWith(2);
+
                 done();
             });
     });
@@ -102,6 +107,7 @@ describe('NestJSRxJSMetricsService', () => {
                 expect(gaugeSpy).toHaveBeenCalledTimes(2);
                 expect(gaugeSpy).toHaveBeenCalledWith(1);
                 expect(gaugeSpy).toHaveBeenCalledWith(2);
+
                 done();
             });
     });
@@ -117,6 +123,7 @@ describe('NestJSRxJSMetricsService', () => {
             .pipe(service.histogramStart('my_histogram_metric'))
             .subscribe(() => {
                 expect(histogramSpy).toHaveBeenCalledWith(undefined);
+
                 done();
             });
     });
@@ -132,6 +139,7 @@ describe('NestJSRxJSMetricsService', () => {
             .pipe(service.histogramStart('my_histogram_metric'), service.histogramEnd('my_histogram_metric'))
             .subscribe(() => {
                 expect(endTimerFn).toHaveBeenCalledWith(undefined);
+
                 done();
             });
     });
@@ -173,6 +181,7 @@ describe('NestJSRxJSMetricsService', () => {
             .subscribe(() => {
                 expect(histogramSpy).toHaveBeenCalledWith({ my_histogram_metric_label: 1 });
                 expect(endTimerFn).toHaveBeenCalledWith({ my_histogram_metric_label: 2 });
+
                 done();
             });
     });
@@ -188,6 +197,7 @@ describe('NestJSRxJSMetricsService', () => {
             .pipe(service.summaryStart('my_summary_metric'))
             .subscribe(() => {
                 expect(summarySpy).toHaveBeenCalledWith(undefined);
+
                 done();
             });
     });
@@ -203,6 +213,7 @@ describe('NestJSRxJSMetricsService', () => {
             .pipe(service.summaryStart('my_summary_metric'), service.summaryEnd('my_summary_metric'))
             .subscribe(() => {
                 expect(endTimerFn).toHaveBeenCalledWith(undefined);
+
                 done();
             });
     });
@@ -245,6 +256,7 @@ describe('NestJSRxJSMetricsService', () => {
             .subscribe(() => {
                 expect(summarySpy).toHaveBeenCalledWith({ my_summary_label: 0 });
                 expect(endTimerFn).toHaveBeenCalledWith({ my_summary_label: 1 });
+
                 done();
             });
     });

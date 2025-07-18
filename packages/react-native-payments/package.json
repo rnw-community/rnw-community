@@ -1,7 +1,7 @@
 {
     "name": "@rnw-community/react-native-payments",
-    "version": "0.74.1",
-    "description": "React Native Payments",
+    "version": "1.5.0",
+    "description": "Accept Payments with Apple Pay and Android Pay using the Payment Request API.",
     "keywords": [
         "react",
         "react-native",
@@ -15,7 +15,9 @@
         "apple pay",
         "payment intents",
         "cross platform",
-        "react native payments"
+        "react native payments",
+        "expo",
+        "expo-plugin"
     ],
     "author": "Vitalii Yehorov <vitalyiegorov@gmail.com> (https://github.com/rnw-community/rnw-community/packages/react-native-payments)",
     "homepage": "https://github.com/rnw-community/rnw-community/tree/master/packages/react-native-payments",
@@ -28,7 +30,12 @@
         ".": {
             "import": "./dist/esm/index.js",
             "require": "./dist/cjs/index.js"
-        }
+        },
+        "./app.plugin": {
+            "import": "./dist/esm/app.plugin.js",
+            "require": "./dist/cjs/app.plugin.js"
+        },
+        "./package.json": "./package.json"
     },
     "react-native": "src/index.ts",
     "main": "dist/cjs/index.js",
@@ -63,28 +70,27 @@
         "build": "yarn build:esm && yarn build:cjs && rm -rf ./dist/*/*.tsbuildinfo",
         "lint": "run -T eslint src",
         "lint:fix": "run -T eslint --fix src",
-        "test": "run -T jest --passWithNoTests",
-        "test:coverage": "run -T jest --coverage --passWithNoTests",
+        "test": "run -T jest",
+        "test:coverage": "run -T jest --coverage",
         "format": "run -T prettier --write \"./src/**/*.{ts,tsx}\"",
-        "clear": "rm -rf coverage && rm -rf dist && rm -f *.tsbuildinfo && yarn run clear:native",
+        "clear": "rm -rf coverage && rm -rf dist && rm -f *.tsbuildinfo",
         "clear:deps": "rm -rf ./node_modules && rm -rf ./dist",
-        "clear:native": "rm -rf android/build example/android/build example/android/app/build example/ios/build",
-        "example": "yarn --cwd example",
-        "build:android": "cd example/android && ./gradlew assembleDebug --no-daemon --console=plain -PreactNativeArchitectures=arm64-v8a",
-        "build:ios": "cd example/ios && xcodebuild -workspace PaymentsExample.xcworkspace -scheme PaymentsExample -configuration Debug -sdk iphonesimulator CC=clang CPLUSPLUS=clang++ LD=clang LDPLUSPLUS=clang++ GCC_OPTIMIZATION_LEVEL=0 GCC_PRECOMPILE_PREFIX_HEADER=YES ASSETCATALOG_COMPILER_OPTIMIZATION=time DEBUG_INFORMATION_FORMAT=dwarf COMPILER_INDEX_STORE_ENABLE=NO"
+        "example": "yarn --cwd example"
     },
     "gitHead": "b5608910319390f9773a9d42c3cc828e8e8a1d95",
     "dependencies": {
+        "@expo/config-plugins": "^9.0.14",
         "@rnw-community/shared": "workspace:*",
         "react-native-uuid": "^2.0.1",
         "validator": "^13.9.0"
     },
     "devDependencies": {
         "@types/validator": "^13.7.17",
-        "react": "^18.2.0",
-        "react-native": "^0.72.3"
+        "react": "^18.3.1",
+        "react-native": "^0.76.1"
     },
     "peerDependencies": {
+        "expo": ">=48.0.0",
         "react": ">=17",
         "react-native": ">=0.64"
     },

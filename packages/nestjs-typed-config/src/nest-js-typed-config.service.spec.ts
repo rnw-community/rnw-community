@@ -11,6 +11,7 @@ jest.mock('@nestjs/common', () => {
 
     return {
         ...actual,
+        // eslint-disable-next-line @typescript-eslint/no-misused-spread
         Logger: { ...actual.Logger, debug: jest.fn() },
     };
 });

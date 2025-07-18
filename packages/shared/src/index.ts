@@ -8,6 +8,7 @@ export type { Enum } from './type/enum-type/enum.type';
 // Type guards
 export { isDefined } from './type-guard/generic/is-defined/is-defined';
 export { isError } from './type-guard/generic/is-error/is-error';
+export { isPromise } from './type-guard/generic/is-promise/is-promise';
 
 export { isString } from './type-guard/string/is-string/is-string';
 export { isEmptyString } from './type-guard/string/is-empty-string/is-empty-string';

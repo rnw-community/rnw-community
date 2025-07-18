@@ -1,6 +1,6 @@
 {
     "name": "@rnw-community/platform",
-    "version": "0.74.0",
+    "version": "1.1.0",
     "description": "React native web platform utils and helpers",
     "keywords": [
         "platform utils",
@@ -31,10 +31,15 @@
     "publishConfig": {
         "access": "public"
     },
-    "dependencies": {
-        "react": "^18.2.0",
-        "react-native": "^0.72.3",
+    "devDependencies": {
+        "react": "^18.3.1",
+        "react-native": "^0.76.1",
         "react-native-config": "^1.4.2"
+    },
+    "peerDependencies": {
+        "react": ">=18",
+        "react-native": ">=0.72",
+        "react-native-config": ">=1.4"
     },
     "scripts": {
         "ts": "run -T tsc --pretty -p tsconfig.json",

@@ -52,7 +52,7 @@ export class IosPaymentResponse extends PaymentResponse {
     }
 
     private static parseNSPersonNameComponents(input?: IosNSPersonNameComponents): string {
-        return [input?.familyName, input?.middleName, input?.givenName].filter(isNotEmptyString).join('');
+        return [input?.familyName, input?.middleName, input?.givenName].filter(isNotEmptyString).join(',');
     }
 
     private static parseCNPhoneNumber(input?: IosCNPhoneNumber): string {

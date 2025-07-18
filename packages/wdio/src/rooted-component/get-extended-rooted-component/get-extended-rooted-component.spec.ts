@@ -26,7 +26,8 @@ describe('getExtendedRootedComponent', () => {
 
         const component = new RootedComponentMock(RootedComponentSelectorsMock.Root);
 
-        await component.Button.el();
+        await component.Button.waitForDisplayed();
+
         expect(mockDefaultConfig.elSelectorFn).toHaveBeenNthCalledWith(1, RootedComponentSelectorsMock.Root);
         expect(mockDefaultConfig.elSelectorFn).toHaveBeenNthCalledWith(
             2,
@@ -34,7 +35,8 @@ describe('getExtendedRootedComponent', () => {
             expect.objectContaining({})
         );
 
-        await component.ParentButton.el();
+        await component.ParentButton.waitForDisplayed();
+
         expect(mockDefaultConfig.elSelectorFn).toHaveBeenNthCalledWith(3, RootedComponentSelectorsMock.Root);
         expect(mockDefaultConfig.elSelectorFn).toHaveBeenNthCalledWith(
             4,
@@ -48,10 +50,12 @@ describe('getExtendedRootedComponent', () => {
 
         const component = new RootedOverrideComponentMock();
 
-        await component.RootEl;
+        await component.RootEl.waitForDisplayed();
+
         expect(mockDefaultConfig.elSelectorFn).toHaveBeenCalledWith(RootedComponentSelectorsMock.CustomRoot);
 
-        await component.ParentButton.el();
+        await component.ParentButton.el().waitForDisplayed();
+
         expect(mockDefaultConfig.elSelectorFn).toHaveBeenCalledWith(
             RootedParentComponentSelectorsMock.ParentButton,
             expect.objectContaining({})
@@ -62,8 +66,8 @@ describe('getExtendedRootedComponent', () => {
         expect.assertions(1);
 
         const component = new RootedComponentMock(RootedComponentSelectorsMock.Root);
-
         await component.waitForDisplayed({ reverse: true });
+
         expect(mockDefaultConfig.elSelectorFn).toHaveBeenCalledWith(RootedComponentSelectorsMock.CustomRoot);
     });
 
@@ -74,10 +78,12 @@ describe('getExtendedRootedComponent', () => {
 
         const testData = 'test-data';
         component.setTestData(testData);
+
         expect(component.getTestData()).toBe(testData);
 
         const parentTestData = 'parent-test-data';
         component.setParentData(parentTestData);
+
         expect(component.getParentData()).toBe(parentTestData);
     });
 
@@ -89,10 +95,12 @@ describe('getExtendedRootedComponent', () => {
 
         const testData = 'test-data-1';
         component.TestData = testData;
+
         expect(component.TestData).toBe(testData);
 
         const parentTestData = 'test-data-2';
         component.ParentData = parentTestData;
+
         expect(component.ParentData).toBe(parentTestData);
     });
 
@@ -126,6 +134,7 @@ describe('getExtendedRootedComponent', () => {
 
         const component = new DefaultRootRootedExtendedComponentMock();
         await component.waitForDisplayed({ reverse: true });
+
         expect(mockDefaultConfig.elSelectorFn).toHaveBeenCalledWith(RootedComponentSelectorsMock.CustomRoot);
     });
 });

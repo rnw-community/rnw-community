@@ -8,6 +8,7 @@ export class SelectorElement {
     ) {
         // eslint-disable-next-line no-constructor-return
         return new Proxy(this, {
+            // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
             get(client, field: string, receiver) {
                 if (Reflect.has(client, field)) {
                     // eslint-disable-next-line @typescript-eslint/no-unsafe-return
@@ -20,15 +21,15 @@ export class SelectorElement {
         });
     }
 
-    el(): ChainablePromiseElement<WebdriverIO.Element> {
+    el(): ChainablePromiseElement {
         return this.component.getChildEl(this.enumSelector);
     }
 
-    els(): ChainablePromiseArray<WebdriverIO.ElementArray> {
+    els(): ChainablePromiseArray {
         return this.component.getChildEls(this.enumSelector);
     }
 
-    byIdx(idx: number): ChainablePromiseElement<WebdriverIO.Element> {
+    byIdx(idx: number): ChainablePromiseElement {
         return this.component.getChildElByIdx(this.enumSelector, idx);
     }
 }

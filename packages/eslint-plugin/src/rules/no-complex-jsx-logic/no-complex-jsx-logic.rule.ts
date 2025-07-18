@@ -23,7 +23,7 @@ export const noComplexJsxLogicRule = createRule({
     defaultOptions: [],
     create(context) {
         return {
-            JSXExpressionContainer(node) {
+            JSXExpressionContainer(node): void {
                 const { expression } = node;
 
                 if (node.parent.type === AST_NODE_TYPES.JSXAttribute) {
