@@ -273,12 +273,13 @@ export class PaymentRequest {
                 requiredBillingContactFields: this.getRequestedBillingFields(methodData),
             }),
             ...(isShippingRequested && { requiredShippingContactFields: requestedShippingFields }),
+            ...(isDefined(methodData.applicationData) && { applicationData: methodData.applicationData }),
         };
     }
 
     // eslint-disable-next-line class-methods-use-this,@typescript-eslint/class-methods-use-this
     private getRequestedBillingFields(methodData: IosPaymentMethodDataDataInterface): IOSPKContactField[] {
-        const requiredBillingFields = [];
+        const requiredBillingFields: IOSPKContactField[] = [];
         if (methodData.requestBillingAddress ?? false) {
             requiredBillingFields.push(IOSPKContactField.PKContactFieldPostalAddress);
         }
@@ -288,7 +289,7 @@ export class PaymentRequest {
 
     // eslint-disable-next-line class-methods-use-this,@typescript-eslint/class-methods-use-this
     private getRequestedShippingFields(methodData: IosPaymentMethodDataDataInterface): IOSPKContactField[] {
-        const requiredShippingFields = [];
+        const requiredShippingFields: IOSPKContactField[] = [];
         if (methodData.requestPayerEmail ?? false) {
             requiredShippingFields.push(IOSPKContactField.PKContactFieldEmailAddress);
         }

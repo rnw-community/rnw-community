@@ -52,8 +52,11 @@ integration experience for your applications.
 - Follow [this guide](https://developer.apple.com/library/archive/ApplePay_Guide/Configuration.html) to setup ApplePay in
   your application.
 - [Payment token reference](https://developer.apple.com/documentation/passkit/apple_pay/payment_token_format_reference?language=objc)
+
 #### Objective-C setup
+
 - Add following code to your `AppDelegate.h`:
+
 ```objc
 #import <RCTAppDelegate.h>
 #import <UIKit/UIKit.h>
@@ -61,8 +64,11 @@ integration experience for your applications.
 
 @interface AppDelegate : RCTAppDelegate
 ```
+
 #### Swift setup
+
 - Add following code to your `AppDelegate.swift`:
+
 ```swift
 import UIKit
 import React
@@ -80,6 +86,7 @@ import PassKit // Add this import
 - [Google brand guidelines](https://developers.google.com/pay/api/android/guides/brand-guidelines)
 
 - Use should use `19.0.0+` version of Google play services in your application:
+
 ```groovy
 dependencies {
     // The version of react-native is set by the React Native Gradle Plugin
@@ -95,6 +102,7 @@ dependencies {
 To integrate with Expo [custom builds](https://docs.expo.dev/custom-builds/get-started/), you need to add the `@rnw-community/react-native-payments` plugin into your `app.config.js`:
 
 1. Update your `app.config.js` configuration:
+
 ```js
 export default {
     plugins: [
@@ -109,7 +117,9 @@ export default {
   },
 };
 ```
+
 2. Prebuild your project:
+
 ```bash
 npx expo prebuild --clean
 ```
@@ -117,6 +127,7 @@ npx expo prebuild --clean
 ## Usage
 
 Detailed guide should be found at:
+
 - [developer.mozilla.org](https://developer.mozilla.org/en-US/docs/Web/API/Payment_Request_API/Using_the_Payment_Request_API) as API is fully compliant.
 - [Google Web Payments guide](https://web.dev/payments/).
 
@@ -127,13 +138,13 @@ Below is a comprehensive guide on how to use the PaymentRequest class effectivel
 ### 1. Importing the class
 
 ```ts
-import {PaymentRequest} from '@rnw-community/react-native-payments';
+import { PaymentRequest } from '@rnw-community/react-native-payments';
 ```
 
 ### 2. Creating an Instance
 
 ```ts
-import { PaymentMethodNameEnum, SupportedNetworkEnum } from "@rnw-community/react-native-payments/src";
+import { PaymentMethodNameEnum, SupportedNetworkEnum } from '@rnw-community/react-native-payments/src';
 
 const methodData = [
     // ApplePay example
@@ -146,8 +157,12 @@ const methodData = [
             currencyCode: 'USD',
             requestBillingAddress: true,
             requestPayerEmail: true,
-            requestShipping: true
-        }
+            requestShipping: true,
+            applicationData: JSON.stringify({
+                transactionId: 'unique-transaction-id-12345',
+                timestamp: new Date().toISOString(),
+            }),
+        },
     },
     // AndroidPay
     {
@@ -164,8 +179,8 @@ const methodData = [
                 gateway: 'example',
                 gatewayMerchantId: 'exampleGatewayMerchantId',
             },
-        }
-    }
+        },
+    },
 ];
 
 const paymentDetails = {
@@ -194,6 +209,26 @@ Depending on the platform and payment method, you can provide additional data to
   include the email address of the payer.
 - `requestShipping`: An optional boolean field that, when present and set to true, indicates that the `PaymentResponse` will
   include the shipping address of the payer.
+- `applicationData`: An optional string or object field for Apple Pay that allows you to store application-specific data. This data is not transmitted to Apple but is included in the payment token as a SHA-256 hash (applicationDataHash). You can use it to prevent replay attacks by associating a payment with a specific transaction.
+
+```ts
+// Example of using applicationData with Apple Pay
+const methodData = [
+    {
+        supportedMethods: PaymentMethodNameEnum.ApplePay,
+        data: {
+            merchantIdentifier: 'merchant.com.your-app.namespace',
+            supportedNetworks: [SupportedNetworkEnum.Visa, SupportedNetworkEnum.Mastercard],
+            countryCode: 'US',
+            currencyCode: 'USD',
+            applicationData: JSON.stringify({
+                transactionId: 'unique-transaction-id-12345',
+                timestamp: new Date().toISOString(),
+            }),
+        },
+    },
+];
+```
 
 ### 3. Checking Payment Capability
 
@@ -268,7 +303,7 @@ the
 payment and hide the payment sheet accordingly.
 
 ```ts
-paymentResponse.complete(PaymentComplete.Success) // OR PaymentComplete.Fail
+paymentResponse.complete(PaymentComplete.Success); // OR PaymentComplete.Fail
 ```
 
 > This will have no affect in the Android platform due to AndroidPay implementation.
@@ -283,44 +318,43 @@ payment process or when specific conditions require the payment request to be ab
 
 > This will have no affect in the Android platform due to AndroidPay implementation.
 
-
 ## Unit testing
+
 Due to new TurboModules architecture in React Native, you can [encounter issues](https://github.com/rnw-community/rnw-community/issues/227) with Jest tests. To fix this, you can mock
 the TurboModuleRegistry to disable the `Payment` module in Jest tests. Here is an example of how you can do this:
 
 ```ts
-const turboModuleRegistry = jest.requireActual(
-  'react-native/Libraries/TurboModule/TurboModuleRegistry'
-);
+const turboModuleRegistry = jest.requireActual('react-native/Libraries/TurboModule/TurboModuleRegistry');
 
 /** HINT: Mock TurboModuleRegistry to disable the `Payment` module in Jest tests */
 export function setupJestTurboModuleMock(): void {
-  jest.mock('react-native/Libraries/TurboModule/TurboModuleRegistry', () => {
-    return {
-      ...turboModuleRegistry,
-      getEnforcing: (name: string) => {
-        if (name === 'Payment') {
-          return null; // Return null to mock the Payment module
-        }
-        return turboModuleRegistry.getEnforcing(name);
-      },
-    };
-  });
+    jest.mock('react-native/Libraries/TurboModule/TurboModuleRegistry', () => {
+        return {
+            ...turboModuleRegistry,
+            getEnforcing: (name: string) => {
+                if (name === 'Payment') {
+                    return null; // Return null to mock the Payment module
+                }
+                return turboModuleRegistry.getEnforcing(name);
+            },
+        };
+    });
 }
 ```
 
 ## Example
 
 ### Expo
+
 You can find working example in the `App` component of the [react-native-payments-expo-example](../react-native-payments-expo-example/README.md) package.
 
 #### Web(react-native-web)
+
 On web the library will fallback to [W3C implementation](https://developer.mozilla.org/en-US/docs/Web/API/Payment_Request_API)
 
 ### Bare React Native CLI
+
 You can find working example in the `App` component of the [react-native-payments-example](../react-native-payments-example/README.md) package.
-
-
 
 ## TODO
 
@@ -350,7 +384,7 @@ You can find working example in the `App` component of the [react-native-payment
 ### Other
 
 - [ ] Refactor `utils`
-  - [ ] Find alternative/suctom implementation for the `validator` library
+- [ ] Find alternative/suctom implementation for the `validator` library
 
 ## License
 
