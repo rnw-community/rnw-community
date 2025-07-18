@@ -1,9 +1,7 @@
 /* eslint-disable jest/no-done-callback */
 import { beforeEach, describe, expect, it, jest } from '@jest/globals';
 import Redis from 'ioredis';
-import { EMPTY, Observable, of, tap } from 'rxjs';
-
-import { getErrorMessage } from '@rnw-community/shared';
+import { EMPTY, Observable, lastValueFrom, of, tap } from 'rxjs';
 
 import { LockableService } from '../service/lockable.service';
 
@@ -86,96 +84,64 @@ describe('LockObservableDecorator', () => {
         mockAcquire.mockResolvedValue({ release: mockRelease });
     });
 
-    it('should lock resource with key as array and duration', done => {
+    it('should lock resource with key as array and duration', async () => {
         expect.assertions(3);
 
         const instance = new TestObservableClass();
 
-        instance.testArray$().subscribe({
-            next: value => {
-                expect(mockAcquire).toHaveBeenCalledWith([`test`], 1000);
-                expect(value).toBe(1);
-            },
-            complete: () => {
-                expect(mockRelease).toHaveBeenCalledWith();
-
-                done();
-            },
-        });
+        await expect(lastValueFrom(instance.testArray$(1))).resolves.toBe(1);
+        expect(mockAcquire).toHaveBeenCalledWith([`test`], 1000);
+        expect(mockRelease).toHaveBeenCalledWith();
     });
 
-    it('should lock resource with key as function and duration', done => {
+    it('should lock resource with key as function and duration', async () => {
         expect.assertions(3);
 
         const instance = new TestObservableClass();
 
-        instance.testFunction$(1).subscribe({
-            next: value => {
-                expect(mockAcquire).toHaveBeenCalledWith([`test`, `1`], 1000);
-                expect(value).toStrictEqual({ field: 1, id: 1 });
-                expect(mockRelease).toHaveBeenCalledWith();
-            },
-            complete: () => {
-                done();
-            },
-        });
+        await expect(lastValueFrom(instance.testFunction$(1))).resolves.toStrictEqual({ field: 1, id: 1 });
+        expect(mockAcquire).toHaveBeenCalledWith([`test`, `1`], 1000);
+        expect(mockRelease).toHaveBeenCalledWith();
     });
 
-    it('should throw error if redlock is not available', done => {
+    it('should throw error if redlock is not available', async () => {
         expect.assertions(3);
 
         const instance = new TestObservableClass();
         // @ts-expect-error Test preconditions
         instance.redlock = undefined;
 
-        instance.testMissingRedlock$(1).subscribe({
-            error: (error: unknown) => {
-                expect(getErrorMessage(error)).toBe(
-                    'Redlock is not available on this instance. Ensure that the class using the `Lock` decorator extends `LockableService` or provide redlock field manually.'
-                );
-                expect(mockAcquire).not.toHaveBeenCalledWith([`test`, `1`], 1000);
-                expect(mockRelease).not.toHaveBeenCalledWith();
-
-                done();
-            },
-        });
+        await expect(lastValueFrom(instance.testMissingRedlock$(1))).rejects.toThrow(
+            'Redlock is not available on this instance. Ensure that the class using the `Lock` decorator extends `LockableService` or provide redlock field manually.'
+        );
+        expect(mockAcquire).not.toHaveBeenCalledWith(['test', '1'], 1000);
+        expect(mockRelease).not.toHaveBeenCalled();
     });
 
-    it('should throw error if resources argument is not defined or empty array is passed', done => {
+    it('should throw error if resources argument is not defined or empty array is passed', async () => {
         expect.assertions(3);
 
         const instance = new TestObservableClass();
 
-        instance.testEmptyResource$().subscribe({
-            error: (error: unknown) => {
-                expect(getErrorMessage(error)).toBe(`Lock key is not defined`);
-                expect(mockAcquire).not.toHaveBeenCalledWith([`test`], 1000);
-                expect(mockRelease).not.toHaveBeenCalledWith();
-
-                done();
-            },
-        });
+        await expect(lastValueFrom(instance.testEmptyResource$())).rejects.toThrow(`Lock key is not defined`);
+        expect(mockAcquire).not.toHaveBeenCalledWith([`test`], 1000);
+        expect(mockRelease).not.toHaveBeenCalledWith();
     });
 
-    it('should throw error if decorated method does not return Observable', done => {
+    it('should throw error if decorated method does not return Observable', async () => {
         expect.assertions(3);
 
         const instance = new TestObservableClass();
 
-        // HINT: Wrong types test
-
-        (instance.testSync() as unknown as Observable<number>).subscribe({
-            error: (error: unknown) => {
-                expect(getErrorMessage(error)).toBe(`Method TestObservableClass::testSync does not return an observable`);
-                expect(mockAcquire).toHaveBeenCalledWith([`test`], 1000);
-                expect(mockRelease).toHaveBeenCalledWith();
-
-                done();
-            },
-        });
+        // @ts-expect-error HINT: Wrong types test
+        await expect(lastValueFrom(instance.testSync())).rejects.toThrow(
+            `Method TestObservableClass::testSync does not return an observable`
+        );
+        expect(mockAcquire).toHaveBeenCalledWith([`test`], 1000);
+        expect(mockRelease).toHaveBeenCalledWith();
     });
 
-    it('should handle acquire lock failed', done => {
+    it('should handle acquire lock failed', async () => {
         expect.assertions(3);
 
         const instance = new TestObservableClass();
@@ -183,18 +149,12 @@ describe('LockObservableDecorator', () => {
         const errorMsg = 'Failed to acquire lock';
         mockAcquire.mockRejectedValue(new Error(errorMsg));
 
-        instance.testLockFailed$().subscribe({
-            error: (error: unknown) => {
-                expect(getErrorMessage(error)).toBe(errorMsg);
-                expect(mockAcquire).toHaveBeenCalledWith([`test`], 1000);
-                expect(mockRelease).not.toHaveBeenCalledWith();
-
-                done();
-            },
-        });
+        await expect(lastValueFrom(instance.testLockFailed$())).rejects.toThrow(errorMsg);
+        expect(mockAcquire).toHaveBeenCalledWith([`test`], 1000);
+        expect(mockRelease).not.toHaveBeenCalledWith();
     });
 
-    it('should handle release lock failed', done => {
+    it('should handle release lock failed', async () => {
         expect.assertions(3);
 
         const instance = new TestObservableClass();
@@ -202,19 +162,12 @@ describe('LockObservableDecorator', () => {
         const errorMsg = 'Failed to release lock';
         mockRelease.mockRejectedValue(new Error(errorMsg));
 
-        instance.testLockFailed$().subscribe({
-            next: value => {
-                expect(value).toBe(1);
-                expect(mockAcquire).toHaveBeenCalledWith([`test`], 1000);
-                expect(mockRelease).toHaveBeenCalledWith();
-            },
-            complete: () => {
-                done();
-            },
-        });
+        await expect(lastValueFrom(instance.testLockFailed$())).resolves.toBe(1);
+        expect(mockAcquire).toHaveBeenCalledWith([`test`], 1000);
+        expect(mockRelease).toHaveBeenCalledWith();
     });
 
-    it('should handle error in catchErrorFn', done => {
+    it('should handle error in catchErrorFn', async () => {
         expect.assertions(3);
 
         const instance = new TestObservableClass();
@@ -223,18 +176,14 @@ describe('LockObservableDecorator', () => {
         mockAcquire.mockRejectedValue(new Error(errorMsg));
         mockErrorFn.mockReturnValue(EMPTY);
 
-        instance.testLockFailedErrorFn$().subscribe({
-            complete: () => {
-                expect(mockAcquire).toHaveBeenCalledWith([`test`], 1000);
-                expect(mockRelease).not.toHaveBeenCalledWith();
-                expect(mockErrorFn).toHaveBeenCalledWith(new Error(errorMsg));
+        await lastValueFrom(instance.testLockFailedErrorFn$());
 
-                done();
-            },
-        });
+        expect(mockAcquire).toHaveBeenCalledWith([`test`], 1000);
+        expect(mockRelease).not.toHaveBeenCalledWith();
+        expect(mockErrorFn).toHaveBeenCalledWith(new Error(errorMsg));
     });
 
-    it('should handle throwing error in catchErrorFn', done => {
+    it('should handle throwing error in catchErrorFn', async () => {
         expect.assertions(3);
 
         const instance = new TestObservableClass();
@@ -246,36 +195,23 @@ describe('LockObservableDecorator', () => {
             throw new Error(catchErrorFnErrorMsg);
         });
 
-        instance.testLockFailedErrorFn$().subscribe({
-            error: (error: unknown) => {
-                expect(getErrorMessage(error)).toBe(catchErrorFnErrorMsg);
-                expect(mockAcquire).toHaveBeenCalledWith([`test`], 1000);
-                expect(mockRelease).not.toHaveBeenCalledWith();
-
-                done();
-            },
-        });
+        await expect(lastValueFrom(instance.testLockFailedErrorFn$())).rejects.toThrow(catchErrorFnErrorMsg);
+        expect(mockAcquire).toHaveBeenCalledWith([`test`], 1000);
+        expect(mockRelease).not.toHaveBeenCalledWith();
     });
 
-    it('should wait for resultFn to complete before releasing the lock', done => {
-        expect.assertions(3);
+    it('should wait for resultFn to complete before releasing the lock', async () => {
+        expect.assertions(4);
 
         const instance = new TestObservableClass();
 
-        instance.testReleaseAfterResultFn$().subscribe({
-            next: value => {
-                expect(value).toBe(1);
-                expect(mockResultFn).toHaveBeenCalledWith();
-                expect(mockRelease).toHaveBeenCalledWith();
+        await expect(lastValueFrom(instance.testReleaseAfterResultFn$())).resolves.toBe(1);
+        expect(mockResultFn).toHaveBeenCalledWith();
+        expect(mockRelease).toHaveBeenCalledWith();
 
-                const [resultCallOrder] = mockResultFn.mock.invocationCallOrder;
-                const [releaseCallOrder] = mockRelease.mock.invocationCallOrder;
+        const [resultCallOrder] = mockResultFn.mock.invocationCallOrder;
+        const [releaseCallOrder] = mockRelease.mock.invocationCallOrder;
 
-                expect(resultCallOrder).toBeLessThan(releaseCallOrder);
-            },
-            complete: () => {
-                done();
-            },
-        });
+        expect(resultCallOrder).toBeLessThan(releaseCallOrder);
     });
 });
