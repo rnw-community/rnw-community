@@ -224,7 +224,7 @@ describe('LogDecorator', () => {
             );
         });
 
-        it('should support generic methods with Promise', async () => {
+        it('should support generic methods', async () => {
             expect.assertions(2);
 
             const instance = new TestClass();
