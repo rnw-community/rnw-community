@@ -84,9 +84,22 @@ class TestClass {
         return throwError(() => errorLogText);
     }
 
+    // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
     @Log(arg => `${preLogText}-${arg}`, (result, arg) => `${result}-${postLogText}-${arg}`)
     testGeneric<T>(arg: T): T {
         return arg;
+    }
+
+    // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+    @Log(arg => `${preLogText}-${arg}`, (result, arg) => `${result}-${postLogText}-${arg}`)
+    async testGenericPromise<T>(arg: T): Promise<T> {
+        return await arg;
+    }
+
+    // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+    @Log(arg => `${preLogText}-${arg}`, (result, arg) => `${result}-${postLogText}-${arg}`)
+    testGenericObservable<T>(arg: T): Observable<T> {
+        return of(arg);
     }
 }
 
@@ -160,6 +173,16 @@ describe('LogDecorator', () => {
         expect(Logger.debug).not.toHaveBeenCalled();
     });
 
+    it('should support generic methods', () => {
+        expect.assertions(2);
+
+        const instance = new TestClass();
+        const result = instance.testGeneric('test');
+
+        expect(result).toBe('test');
+        expect(Logger.log).toHaveBeenCalledWith(`${preLogText}-test`, `${TestClass.name}::testGeneric`);
+    });
+
     describe('Promise', () => {
         it('should output pre log as strings', async () => {
             expect.assertions(1);
@@ -199,6 +222,16 @@ describe('LogDecorator', () => {
                 `Error: ${errorLogText}-1`,
                 `${TestClass.name}::testPromiseErrorFunction`
             );
+        });
+
+        it('should support generic methods with Promise', async () => {
+            expect.assertions(2);
+
+            const instance = new TestClass();
+            const result = await instance.testGenericPromise('test');
+
+            expect(result).toBe('test');
+            expect(Logger.log).toHaveBeenCalledWith(`${preLogText}-test`, `${TestClass.name}::testGenericPromise`);
         });
     });
 
@@ -250,6 +283,16 @@ describe('LogDecorator', () => {
 
             expect(Logger.log).toHaveBeenCalledWith(preLogText, `${TestClass.name}::testObservableErrorArg`);
             expect(Logger.error).toHaveBeenCalledWith(`${errorLogText}-2`, `${TestClass.name}::testObservableErrorArg`);
+        });
+
+        it('should support generic methods', () => {
+            expect.assertions(2);
+
+            const instance = new TestClass();
+            const result = instance.testGenericObservable('test');
+
+            expect(result).toBeInstanceOf(Observable);
+            expect(Logger.log).toHaveBeenCalledWith(`${preLogText}-test`, `${TestClass.name}::testGenericObservable`);
         });
     });
 });
