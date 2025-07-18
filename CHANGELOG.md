@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.6.0](https://github.com/rnw-community/rnw-community/compare/v1.5.0...v1.6.0) (2025-07-18)
+
+### Features
+
+- **nestjs-enterprise:** added log decorator generic support ([#197](https://github.com/rnw-community/rnw-community/issues/197)) ([89c9e0a](https://github.com/rnw-community/rnw-community/commit/89c9e0a22bce7c5f1fd345a2f1201e51e34f8690))
+
 # [1.5.0](https://github.com/rnw-community/rnw-community/compare/v1.4.0...v1.5.0) (2025-07-18)
 
 ### Features
