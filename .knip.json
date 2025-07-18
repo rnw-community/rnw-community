@@ -7,15 +7,15 @@
         "**/dist/**",
         "**/metro.config.js",
         "**/*.native.ts",
-        "packages/react-native-payments/src/@standard/w3c/payment-details-update.ts"
+        "packages/react-native-payments/src/@standard/w3c/payment-details-update.ts",
+        "packages/react-native-payments/src/app.plugin.ts",
+        "packages/react-native-payments/src/expo-plugins/**"
     ],
     "ignoreDependencies": [
         "@babel/preset-env"                     ,
         "@babel/preset-typescript",
         "@babel/runtime",
-        "@commitlint/cli",
         "babel-jest",
-        "caniuse-lite",
         "eslint-plugin-eslint-comments",
         "eslint-plugin-simple-import-sort",
         "eslint-plugin-standard",
@@ -23,12 +23,14 @@
         "reflect-metadata",
         "rimraf",
         "@types/hapi__joi",
-        "run-script-webpack-plugin",
-        "terser-webpack-plugin",
-        "@react-native/metro-config",
-        "@tsconfig/react-native",
-        "ios-deploy"
+        "@react-native-community/cli",
+        "@react-native-community/cli-platform-android",
+        "@react-native-community/cli-platform-ios",
+        "@react-navigation/native",
+        "react-dom",
+        "react-native-gesture-handler",
+        "@expo/config-plugins"
     ],
-    "ignoreBinaries": ["run", "prepack", "watchman", "xcodebuild"],
+    "ignoreBinaries": ["run"],
     "exclude": ["enumMembers"]
 }

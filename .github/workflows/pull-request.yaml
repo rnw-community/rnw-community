@@ -44,10 +44,10 @@ jobs:
                 run: yarn lint
 
             -   name: Find dead code
-                run: yarn turbo run find-deadcode
+                run: yarn deadcode
 
             -   name: Find copy-paste
-                run: yarn turbo run cpd
+                run: yarn cpd
 
             -   name: Unit tests
                 run: yarn test:coverage
