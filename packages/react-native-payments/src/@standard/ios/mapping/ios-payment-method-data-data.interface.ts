@@ -2,8 +2,8 @@ import type { GenericPaymentMethodDataDataInterface } from '../../../interface/g
 import type { IosPKMerchantCapability } from '../enum/ios-pk-merchant-capability.enum';
 
 export interface IosPaymentMethodDataDataInterface extends GenericPaymentMethodDataDataInterface {
+    applicationData?: string;
     countryCode: string;
     merchantCapabilities?: IosPKMerchantCapability[];
     merchantIdentifier: string;
-    applicationData?: string;
 }

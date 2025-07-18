@@ -2,7 +2,7 @@
 import { describe, expect, it, jest } from '@jest/globals';
 import { of } from 'rxjs';
 
-import { emptyFn } from '@rnw-community/shared';
+import { emptyFn, getErrorMessage } from '@rnw-community/shared';
 
 import { type NestJSRxJSLockModuleOptions, defaultNestJSRxJSLockModuleOptions } from '../nestjs-rxjs-lock-module.options';
 
@@ -36,6 +36,7 @@ const getRedisService = (): Redis => jest.fn() as unknown as Redis;
 
 describe('nestJSRxJSLockService', () => {
     describe('lock$', () => {
+        // eslint-disable-next-line jest/prefer-ending-with-an-expect
         it('should acquire and release a lock with correct key', done => {
             expect.assertions(3);
 
@@ -72,7 +73,7 @@ describe('nestJSRxJSLockService', () => {
             nestJSRxJSLockService.lock$('test', LockCodesEnum.DB_CREATE_USER, handler$).subscribe({
                 next: () => void done(),
                 error: (e: unknown) => {
-                    expect((e as string).toString()).toBe(`Error: Lock failed`);
+                    expect(getErrorMessage(e)).toBe(acquireErrorText);
                     expect(handler$).toHaveBeenCalledTimes(0);
                     expect(mockRelease).toHaveBeenCalledTimes(0);
 

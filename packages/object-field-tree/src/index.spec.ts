@@ -123,6 +123,7 @@ const testObj2 = {
 describe('combine', () => {
     const getCombinationsCount = (...objects: Record<string, unknown>[]): number =>
         objects.reduce((acc, obj) => Object.keys(obj).length * acc, 1);
+    // eslint-disable-next-line @typescript-eslint/no-misused-spread
     const dataFnMock = jest.fn((...args) => ({ ...args }));
 
     // eslint-disable-next-line jest/no-hooks

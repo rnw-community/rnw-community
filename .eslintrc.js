@@ -246,6 +246,7 @@ module.exports = {
         'react-native/no-raw-text': 'off',
         'prefer-named-capture-group': 'off',
         'jest/prefer-lowercase-title': ['error', { ignore: ['describe'] }],
+        'jest/prefer-ending-with-an-expect': 'off',
         'jest/max-expects': 'off',
         'jest/no-untyped-mock-factory': 'off',
     },

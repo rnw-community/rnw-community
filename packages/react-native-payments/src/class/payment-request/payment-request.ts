@@ -265,7 +265,6 @@ export class PaymentRequest {
             countryCode: methodData.countryCode,
             currencyCode: methodData.currencyCode,
             merchantIdentifier: methodData.merchantIdentifier,
-            ...(isDefined(methodData.applicationData) && { applicationData: methodData.applicationData }),
             supportedNetworks: methodData.supportedNetworks.map(network => supportedNetworkMap[network]),
             merchantCapabilities: isNotEmptyArray(methodData.merchantCapabilities)
                 ? methodData.merchantCapabilities
@@ -274,6 +273,7 @@ export class PaymentRequest {
                 requiredBillingContactFields: this.getRequestedBillingFields(methodData),
             }),
             ...(isShippingRequested && { requiredShippingContactFields: requestedShippingFields }),
+            ...(isDefined(methodData.applicationData) && { applicationData: methodData.applicationData }),
         };
     }
 

@@ -14,9 +14,7 @@ export const withGooglePay: ConfigPlugin<ReactNativePaymentsPluginProps> = initi
             );
 
             if (!existingMetaData) {
-                if (!mainApplication['meta-data']) {
-                    mainApplication['meta-data'] = [];
-                }
+                mainApplication['meta-data'] ??= [];
                 mainApplication['meta-data'].push({
                     // eslint-disable-next-line id-length
                     $: {

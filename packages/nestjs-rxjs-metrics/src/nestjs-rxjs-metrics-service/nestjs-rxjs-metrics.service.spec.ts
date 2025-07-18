@@ -65,7 +65,9 @@ describe('NestJSRxJSMetricsService', () => {
             .pipe(service.counter('my_counter_metric', 2))
             .subscribe(() => {
                 expect(counterSpy).toHaveBeenCalledTimes(2);
+                // @ts-ignore
                 expect(counterSpy).toHaveBeenCalledWith(1);
+                // @ts-ignore
                 expect(counterSpy).toHaveBeenCalledWith(2);
 
                 done();
