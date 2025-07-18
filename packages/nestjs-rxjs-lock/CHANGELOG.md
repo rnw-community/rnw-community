@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.5.0](https://github.com/rnw-community/rnw-community/compare/v1.4.0...v1.5.0) (2025-07-18)
+
+### Features
+
+- bump dev deps, added PR name lint job ([#285](https://github.com/rnw-community/rnw-community/issues/285)) ([2dc8e44](https://github.com/rnw-community/rnw-community/commit/2dc8e442d21aff87d50c6cea18bf9cdb5e6c9d64))
+
 # [1.3.0](https://github.com/rnw-community/rnw-community/compare/v1.2.0...v1.3.0) (2025-06-23)
 
 **Note:** Version bump only for package @rnw-community/nestjs-rxjs-lock
