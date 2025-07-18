@@ -8,7 +8,6 @@
         "start": "react-native start"
     },
     "dependencies": {
-        "@rnw-community/react-native-payments": "workspace:*",
         "@rnw-community/react-native-payments-example-lib": "workspace:*",
         "react": "^18.3.1",
         "react-native": "^0.76.1"
@@ -18,7 +17,6 @@
         "@react-native-community/cli-platform-android": "15.0.1",
         "@react-native-community/cli-platform-ios": "15.0.1",
         "@react-native/babel-preset": "0.77.0",
-        "@react-native/eslint-config": "0.77.0",
         "@react-native/metro-config": "0.77.0",
         "@react-native/typescript-config": "0.77.0"
     },
