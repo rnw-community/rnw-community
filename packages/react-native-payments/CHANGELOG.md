@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.6.2](https://github.com/rnw-community/rnw-community/compare/v1.6.1...v1.6.2) (2025-08-01)
+
+### Bug Fixes
+
+- **react-native-payments:** fix iOS 15.1 build issues with missing PKPaymentNetwork symbols ([#292](https://github.com/rnw-community/rnw-community/issues/292)) ([8a19d4f](https://github.com/rnw-community/rnw-community/commit/8a19d4f78224476fc5ea91a5c37e167b96078ccb))
+
 # [1.5.0](https://github.com/rnw-community/rnw-community/compare/v1.4.0...v1.5.0) (2025-07-18)
 
 ### Features
