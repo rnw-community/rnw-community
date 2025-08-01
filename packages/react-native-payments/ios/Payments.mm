@@ -2,6 +2,7 @@
 
 #import <React/RCTLog.h>
 #import <Foundation/Foundation.h>
+#import <objc/runtime.h>
 
 // TODO: Add logs
 @implementation Payments
@@ -383,20 +384,41 @@ RCT_EXPORT_METHOD(canMakePayments: (NSString *)methodDataString
 
         if (@available(iOS 16.0, *)) {
             NSMutableDictionary *mutablePaymentNetworks = [paymentNetworks mutableCopy];
-            mutablePaymentNetworks[@"PKPaymentNetworkBancontact"] = PKPaymentNetworkBancontact;
+            // Dynamically get PKPaymentNetworkBancontact to avoid linking issues
+            Class pkPaymentNetworkClass = NSClassFromString(@"PKPaymentNetwork");
+            if (pkPaymentNetworkClass) {
+                id bancontactNetwork = [pkPaymentNetworkClass performSelector:@selector(Bancontact)];
+                if (bancontactNetwork) {
+                    mutablePaymentNetworks[@"PKPaymentNetworkBancontact"] = bancontactNetwork;
+                }
+            }
             paymentNetworks = [mutablePaymentNetworks copy];
         }
 
         if (@available(iOS 15.1, *)) {
             NSMutableDictionary *mutablePaymentNetworks = [paymentNetworks mutableCopy];
-            mutablePaymentNetworks[@"PKPaymentNetworkDankort"] = PKPaymentNetworkDankort;
+            // Dynamically get PKPaymentNetworkDankort to avoid linking issues on iOS 15.1
+            Class pkPaymentNetworkClass = NSClassFromString(@"PKPaymentNetwork");
+            if (pkPaymentNetworkClass) {
+                id dankortNetwork = [pkPaymentNetworkClass performSelector:@selector(Dankort)];
+                if (dankortNetwork) {
+                    mutablePaymentNetworks[@"PKPaymentNetworkDankort"] = dankortNetwork;
+                }
+            }
             paymentNetworks = [mutablePaymentNetworks copy];
         }
 
         if (@available(iOS 14.5, *)) {
             NSMutableDictionary *mutablePaymentNetworks = [paymentNetworks mutableCopy];
             // HINT: You should never work
-            mutablePaymentNetworks[@"PKPaymentNetworkMIR"] = PKPaymentNetworkMir;
+            // Dynamically get PKPaymentNetworkMir to avoid linking issues
+            Class pkPaymentNetworkClass = NSClassFromString(@"PKPaymentNetwork");
+            if (pkPaymentNetworkClass) {
+                id mirNetwork = [pkPaymentNetworkClass performSelector:@selector(Mir)];
+                if (mirNetwork) {
+                    mutablePaymentNetworks[@"PKPaymentNetworkMIR"] = mirNetwork;
+                }
+            }
             paymentNetworks = [mutablePaymentNetworks copy];
         }
 
