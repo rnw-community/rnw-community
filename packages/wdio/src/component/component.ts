@@ -6,7 +6,7 @@ import { SelectorElement } from '../selector-element/selector-element';
 import type { ComponentConfigInterface } from '../type';
 import type { ChainablePromiseArray, ChainablePromiseElement } from 'webdriverio';
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+ 
 export class Component<T = any> {
     protected parentComponents: Component[] = [];
 
@@ -14,9 +14,9 @@ export class Component<T = any> {
         protected config: ComponentConfigInterface,
         protected selectors: T
     ) {
-        // eslint-disable-next-line no-constructor-return
+         
         return new Proxy(this, {
-            // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
+             
             get(client, field: string, receiver) {
                 return client.proxyGet(field, receiver);
             },
@@ -58,7 +58,7 @@ export class Component<T = any> {
 
     protected proxyGet(field: string, receiver: unknown, notFoundFn?: () => unknown): unknown {
         if (Reflect.has(this, field)) {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+             
             return Reflect.get(this, field, receiver);
         }
 
@@ -69,7 +69,7 @@ export class Component<T = any> {
 
         for (const parentComponent of this.parentComponents) {
             if (Reflect.has(parentComponent, field) || field in parentComponent.selectors) {
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+                 
                 return Reflect.get(parentComponent, field, receiver);
             }
         }

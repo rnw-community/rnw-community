@@ -5,7 +5,7 @@ import { type Observable, concatMap, finalize, from } from 'rxjs';
 
 import { isNotEmptyString } from '@rnw-community/shared';
 
-// eslint-disable-next-line @typescript-eslint/consistent-type-imports
+ 
 import type { NestJSRxJSLockModuleOptions } from '../nestjs-rxjs-lock-module.options';
 
 export abstract class NestJSRxJSLockService<E = string> {

@@ -1,11 +1,11 @@
-/* eslint-disable @typescript-eslint/explicit-function-return-type,class-methods-use-this,@typescript-eslint/explicit-module-boundary-types,@typescript-eslint/class-methods-use-this */
+ 
 import { jest } from '@jest/globals';
 
 import type { ComponentConfigInterface } from './type';
 import type { ChainablePromiseArray, ChainablePromiseElement } from 'webdriverio';
 import './wdio.mock';
 
-// eslint-disable-next-line @typescript-eslint/consistent-type-assertions
+ 
 export const mockElement = {
     click: jest.fn(() => Promise.resolve(void 0)),
     getText: jest.fn(() => Promise.resolve('')),
@@ -86,7 +86,7 @@ export class MockElement<T> extends Promise<T> {
         return MockElement.resolve(mockElement);
     }
 
-    // eslint-disable-next-line id-length
+     
     $$() {
         return MockElement.resolve([mockElement]);
     }

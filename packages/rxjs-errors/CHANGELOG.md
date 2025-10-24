@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.7.0](https://github.com/rnw-community/rnw-community/compare/v1.6.2...v1.7.0) (2025-10-24)
+
+### Features
+
+- eslint 9 migration, latest yarn + turbo ([#296](https://github.com/rnw-community/rnw-community/issues/296)) ([9f7258f](https://github.com/rnw-community/rnw-community/commit/9f7258f9feba067016e966d92037a9e3c5252367))
+
 # [1.3.0](https://github.com/rnw-community/rnw-community/compare/v1.2.0...v1.3.0) (2025-06-23)
 
 **Note:** Version bump only for package @rnw-community/rxjs-errors

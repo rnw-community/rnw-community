@@ -1,6 +1,6 @@
 {
     "name": "@rnw-community/react-native-payments",
-    "version": "1.6.2",
+    "version": "1.7.0",
     "description": "Accept Payments with Apple Pay and Android Pay using the Payment Request API.",
     "keywords": [
         "react",

@@ -15,13 +15,13 @@ For a comprehensive guide on this rule, see our [detailed documentation](./src/r
 
 Incorporating our plugin into your project is straightforward. Follow these simple steps:
 
-1. Install via NPM: Run the following command in your project directory:
+### Install via NPM: Run the following command in your project directory:
 ```sh
 npm install @rnw-community/eslint-plugin --save-dev
 ```
 
-2. Configure ESLint:
-Add the plugin to your ESLint configuration. Here's an example `.eslintrc` configuration:
+### Configuration(legacy: .eslintrc*):
+#### Custom rule configuration:
 ```json
 {
   "plugins": [
@@ -31,6 +31,46 @@ Add the plugin to your ESLint configuration. Here's an example `.eslintrc` confi
     "@rnw-community/no-complex-jsx-logic": "error"
   }
 }
+```
+
+#### Extending "recommended":
+```json
+{
+    "extends": [
+        "plugin:@rnw-community/recommended"
+    ]
+}
+```
+
+### Configuration(new: eslint.config.js):
+
+#### Custom rule configuration
+```js
+import rnwcPlugin from '@rnw-community/eslint-plugin';
+
+module.exports = [
+  {
+      files: ['**/*.{js,jsx,ts,tsx}'],
+      plugins: {
+          rnwcPlugin,
+      },
+      rules: {
+          "@rnw-community/no-complex-jsx-logic": "error"
+      },
+  }
+];
+```
+
+#### Extending "recommended"
+```js
+import rnwcPlugin from '@rnw-community/eslint-plugin';
+
+module.exports = [
+  {
+      files: ['**/*.{js,jsx,ts,tsx}'],
+      extends: [rnwcPlugin.configs['flat/recommended']],
+  }
+];
 ```
 
 ## License

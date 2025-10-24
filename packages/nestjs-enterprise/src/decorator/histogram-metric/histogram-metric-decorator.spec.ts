@@ -3,7 +3,6 @@ import { Histogram } from 'prom-client';
 
 import { HistogramMetric } from './histogram-metric.decorator';
 
-/* eslint-disable @typescript-eslint/unbound-method,class-methods-use-this,@typescript-eslint/class-methods-use-this */
 class TestClass {
     @HistogramMetric('test-metric')
     testMethod(): number {

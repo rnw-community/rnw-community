@@ -27,6 +27,7 @@ export const RequestOptionsForm = ({ setResponse, setError }: RequestOptionsForm
 
     const clearErrorAndResponse = (): void => {
         setError('');
+        // eslint-disable-next-line no-undefined
         setResponse(undefined);
     };
 

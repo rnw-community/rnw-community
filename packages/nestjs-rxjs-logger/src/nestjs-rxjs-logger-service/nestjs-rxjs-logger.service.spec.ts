@@ -1,4 +1,4 @@
-/* eslint-disable jest/expect-expect */
+ 
 import { describe, expect, it, jest } from '@jest/globals';
 import { Observable, concatMap, of, throwError } from 'rxjs';
 
@@ -91,7 +91,7 @@ const print$Test =
         });
     };
 
-// eslint-disable-next-line max-statements
+ 
 describe('nestJsRxJSLoggerService', () => {
     it('should create observable and output log with info log level', create$Test('log', AppLogLevelEnum.info));
 

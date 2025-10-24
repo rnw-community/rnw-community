@@ -20,6 +20,6 @@ export const createMetricsRecord = <M, T extends MetricConfig>(
                 ...(isDefined(labelNames) && { labelNames: Object.keys(labelNames[metric]) }),
             }),
         }),
-        // eslint-disable-next-line @typescript-eslint/consistent-type-assertions,@typescript-eslint/prefer-reduce-type-parameter
+         
         {} as Record<keyof T, M>
     );

@@ -5,7 +5,6 @@ import { ConfigService as NestConfigService } from '@nestjs/config';
 
 import { NestJSTypedConfigService } from './nest-js-typed-config.service';
 
-// eslint-disable-next-line jest/no-untyped-mock-factory
 jest.mock('@nestjs/common', () => {
     const actual = jest.requireActual<typeof import('@nestjs/common')>('@nestjs/common');
 
@@ -95,7 +94,6 @@ describe('NestJSTypedConfigService', () => {
 
         const expectedResult = 'file value';
         nestConfigGetSpy.mockImplementation(envVar =>
-            // eslint-disable-next-line jest/no-conditional-in-test
             envVar === EnvironmentVariablesEnum.ENV_VARIABLE ? expectedResult : undefined
         );
 

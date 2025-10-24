@@ -19,7 +19,7 @@ const summaryLabels = {
 };
 
 jest.mock('@willsoto/nestjs-prometheus', () => ({
-    // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
+     
     getOrCreateMetric: () => ({ inc: jest.fn(), dec: jest.fn(), startTimer: jest.fn() }),
     PrometheusModule: { register: jest.fn() },
 }));
