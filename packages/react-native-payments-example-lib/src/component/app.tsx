@@ -24,6 +24,7 @@ export const App = (): JSX.Element => {
 
     const clearErrorAndResponse = (): void => {
         setError('');
+        // eslint-disable-next-line no-undefined
         setResponse(undefined);
     };
 

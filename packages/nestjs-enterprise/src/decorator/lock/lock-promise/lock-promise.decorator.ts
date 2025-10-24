@@ -21,7 +21,7 @@ export const LockPromise =
             // @ts-expect-error TODO: Provide proper types
             // eslint-disable-next-line func-names
             descriptor.value = function (this: LockableService, ...args: TArgs): Promise<unknown> {
-                let lockKeys: string[] = [];
+                let lockKeys: string[];
                 try {
                     validateRedlock(this);
                     lockKeys = runPreLock(preLock, ...args);

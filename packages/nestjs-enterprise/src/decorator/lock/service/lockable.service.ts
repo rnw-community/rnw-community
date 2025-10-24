@@ -4,7 +4,7 @@ import type Redis from 'ioredis';
 
 // HINT: We need redlock instance with redis for the decorator
 export class LockableService {
-    public readonly redlock: Redlock;
+    readonly redlock: Redlock;
 
     constructor(
         // TODO: Add support for multiple redis clients/sentinels/clusters?

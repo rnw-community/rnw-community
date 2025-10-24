@@ -1,4 +1,3 @@
-/* eslint-disable jest/no-done-callback */
 import { beforeEach, describe, expect, it, jest } from '@jest/globals';
 import Redis from 'ioredis';
 import { EMPTY, Observable, lastValueFrom, of, tap } from 'rxjs';
@@ -75,9 +74,7 @@ class TestObservableClass extends LockableService {
     }
 }
 
-// eslint-disable-next-line max-lines-per-function
 describe('LockObservableDecorator', () => {
-    // eslint-disable-next-line jest/no-hooks
     beforeEach(() => {
         jest.clearAllMocks();
         mockRelease.mockResolvedValue(true);

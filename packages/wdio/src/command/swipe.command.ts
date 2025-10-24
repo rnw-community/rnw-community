@@ -12,7 +12,6 @@ const getSwipePositionsByDirection = async (
     direction: SwipeDirectionType,
     offset: Position = { x: 0, y: 0 }
 ): Promise<[start: Position, end: Position]> => {
-    // eslint-disable-next-line no-magic-numbers
     const ANDROID_SWIPE_OFFSET = browser.isAndroid ? -10 : 0;
 
     const elSize = await element.getSize();

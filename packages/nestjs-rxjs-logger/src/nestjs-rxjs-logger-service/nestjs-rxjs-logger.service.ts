@@ -1,10 +1,10 @@
-// eslint-disable-next-line max-classes-per-file, @typescript-eslint/consistent-type-imports
+ 
 import { Inject, Injectable, Scope } from '@nestjs/common';
 import { catchError, concatMap, of, tap, throwError } from 'rxjs';
 
 import { AppLogLevelEnum } from '../enum/app-log-level.enum';
 
-// eslint-disable-next-line @typescript-eslint/consistent-type-imports
+ 
 import type { LoggerService } from '@nestjs/common';
 import type { MonoTypeOperatorFunction, Observable } from 'rxjs';
 

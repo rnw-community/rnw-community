@@ -60,7 +60,7 @@ export const Log =
                     runPreLog();
 
                     // @ts-expect-error We need this to handle generic methods correctly
-                    // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion,@typescript-eslint/no-unsafe-assignment,no-invalid-this,@typescript-eslint/no-invalid-this
+                    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
                     const result = originalMethod.apply(this, args);
 
                     if (isDefined(postLog)) {

@@ -1,3 +1,4 @@
+/* eslint-disable no-implicit-globals */
 import { isDefined } from '@rnw-community/shared';
 
 import { RootedComponent } from '../../rooted-component/rooted-component';
@@ -14,7 +15,7 @@ export function getRootedComponent$<T>(
     rootSelector: T[keyof T]
 ): RootedComponentCtorWithDefaultRootSelector<T>;
 
-// eslint-disable-next-line func-style,@typescript-eslint/no-explicit-any
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function getRootedComponent$<T>(selectors: T, rootSelector?: T[keyof T]): any {
     if (isDefined(rootSelector)) {
         return getExtendedRootedComponent$(selectors, RootedComponent, rootSelector);
