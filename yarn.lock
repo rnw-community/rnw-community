@@ -7467,13 +7467,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"codeclimate-types@npm:^0.3.0":
-  version: 0.3.1
-  resolution: "codeclimate-types@npm:0.3.1"
-  checksum: 10/abadc51fffc21c50546eafbe81eb046dd805138ff0c108fc6025e2980fdd15ab57ef2628cbf3cc39e011bd36c7c969d0b419e5ed95d8988c587896327ccfcce4
-  languageName: node
-  linkType: hard
-
 "collect-v8-coverage@npm:^1.0.0":
   version: 1.0.2
   resolution: "collect-v8-coverage@npm:1.0.2"
@@ -9031,29 +9024,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"eslint-formatter-codeclimate@npm:^1.0.0":
-  version: 1.0.2
-  resolution: "eslint-formatter-codeclimate@npm:1.0.2"
-  dependencies:
-    codeclimate-types: "npm:^0.3.0"
-  peerDependencies:
-    eslint: ^9.0.0
-  checksum: 10/0ca0e6682796f2245c40404b751256c23a5fd8d5f9c772cc6d391c47a17153d46a099152f3149ff196f47cb7456df040059d144e908c02bde0cff19b42d000ad
-  languageName: node
-  linkType: hard
-
-"eslint-formatter-gitlab@npm:^6.0.1":
-  version: 6.0.1
-  resolution: "eslint-formatter-gitlab@npm:6.0.1"
-  dependencies:
-    eslint-formatter-codeclimate: "npm:^1.0.0"
-    yaml: "npm:^2.0.0"
-  peerDependencies:
-    eslint: ">=9"
-  checksum: 10/869fdaa6c5e7320154a77fd7686d005b5b7e48d565552805cada8c5c9d344bb9b09bca18b172bfc26124877ff8da45d47c55699ff249a36c3ebcc82becae4d4b
-  languageName: node
-  linkType: hard
-
 "eslint-import-resolver-node@npm:^0.3.9":
   version: 0.3.9
   resolution: "eslint-import-resolver-node@npm:0.3.9"
@@ -9179,24 +9149,6 @@ __metadata:
   peerDependencies:
     eslint: ^3.0.0 || ^4.0.0 || ^5.0.0 || ^6.0.0 || ^7.0.0 || ^8.0.0-0 || ^9.0.0
   checksum: 10/756ad90ec6390bafa8037f86ab72d98af55c25e13b69e15bdac634724c8af7a87eb6993b643665e930d67635d52c8aa55b0e7a1d47e3c4e42a3b66950b2069fb
-  languageName: node
-  linkType: hard
-
-"eslint-plugin-react-native-globals@npm:^0.1.1":
-  version: 0.1.2
-  resolution: "eslint-plugin-react-native-globals@npm:0.1.2"
-  checksum: 10/ab91e8ecbb51718fb0763f29226b1c2d402251ab2c4730a8bf85f38b805e32d4243da46d07ccdb12cb9dcce9e7514364a1706142cf970f58dcc9a820bcf4b732
-  languageName: node
-  linkType: hard
-
-"eslint-plugin-react-native@npm:^5.0.0":
-  version: 5.0.0
-  resolution: "eslint-plugin-react-native@npm:5.0.0"
-  dependencies:
-    eslint-plugin-react-native-globals: "npm:^0.1.1"
-  peerDependencies:
-    eslint: ^3.17.0 || ^4 || ^5 || ^6 || ^7 || ^8 || ^9
-  checksum: 10/41e84d806b74e3b4906c5541cad0caf1c79e30031130a1f3e92f9c030fb12e9ee4b193ea7b6ed5c425f2d83795e7f3ca51ab357e7e8f1f3d89c12fd4613343be
   languageName: node
   linkType: hard
 
@@ -17078,14 +17030,12 @@ __metadata:
     "@types/react": "npm:^18.3.23"
     babel-jest: "npm:^29.7.0"
     eslint: "npm:^9.38.0"
-    eslint-formatter-gitlab: "npm:^6.0.1"
     eslint-plugin-import: "npm:^2.32.0"
     eslint-plugin-jest: "npm:^29.0.1"
     eslint-plugin-n: "npm:^17.23.1"
     eslint-plugin-promise: "npm:^7.2.1"
     eslint-plugin-react: "npm:^7.37.5"
     eslint-plugin-react-hooks: "npm:^7.0.0"
-    eslint-plugin-react-native: "npm:^5.0.0"
     husky: "npm:^9.1.7"
     jest: "npm:^29.7.0"
     jscpd: "npm:^4.0.5"
@@ -19925,7 +19875,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"yaml@npm:^2.0.0, yaml@npm:^2.2.1, yaml@npm:^2.8.0":
+"yaml@npm:^2.2.1, yaml@npm:^2.8.0":
   version: 2.8.1
   resolution: "yaml@npm:2.8.1"
   bin:
