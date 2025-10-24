@@ -7,7 +7,6 @@ import { isNotEmptyString } from '@rnw-community/shared';
 
 import type { EnvType } from './env.type';
 
-/* eslint-disable class-methods-use-this */
 @Injectable()
 export class NestJSTypedConfigService<
     EnvEnum extends string,
@@ -52,7 +51,6 @@ export class NestJSTypedConfigService<
     }
 
     private readFileEnvFromEnvironment<T extends EnvKeys>(envVariable: T): EnvType<EnvTypes, T> {
-        /* eslint-disable @typescript-eslint/non-nullable-type-assertion-style */
         const value = this.config.get(envVariable.replace('_FILE', '') as T) as EnvType<EnvTypes, T>;
 
         Logger.debug(
@@ -63,7 +61,6 @@ export class NestJSTypedConfigService<
         return value;
     }
 
-    // eslint-disable-next-line @typescript-eslint/class-methods-use-this
     private readFileEnvFromFS<T extends EnvKeys>(envVariable: T, variableValue: EnvType<EnvTypes, T>): EnvType<EnvTypes, T> {
         if (!existsSync(variableValue as string)) {
             throw new Error(`Could not read file "${envVariable}"`);

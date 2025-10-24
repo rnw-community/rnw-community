@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/unbound-method,class-methods-use-this,@typescript-eslint/class-methods-use-this */
+/* eslint-disable @typescript-eslint/unbound-method */
 import { describe, expect, it, jest } from '@jest/globals';
 import { Logger } from '@nestjs/common';
 import { Observable, of, throwError } from 'rxjs';
@@ -33,13 +33,13 @@ class TestClass {
     }
 
     @Log(preLogText, postLogText, errorLogText)
-    // eslint-disable-next-line @typescript-eslint/require-await
+     
     async testPromiseError(): Promise<number> {
         throw new Error(errorLogText);
     }
 
     @Log(preLogText, postLogText, (error, arg) => `${String(error)}-${arg}`)
-    // eslint-disable-next-line @typescript-eslint/require-await
+     
     async testPromiseErrorFunction(_arg: number): Promise<number> {
         throw new Error(errorLogText);
     }
@@ -111,7 +111,7 @@ jest.mock('@nestjs/common', () => ({
     },
 }));
 
-// eslint-disable-next-line max-lines-per-function
+ 
 describe('LogDecorator', () => {
     it('should output pre/post logs as strings with Plain value returned', () => {
         expect.assertions(2);
@@ -207,7 +207,7 @@ describe('LogDecorator', () => {
 
             const instance = new TestClass();
 
-            // eslint-disable-next-line jest/unbound-method
+             
             await expect(instance.testPromiseError).rejects.toThrow(errorLogText);
             expect(Logger.error).toHaveBeenCalledWith(errorLogText, `${TestClass.name}::testPromiseError`);
         });

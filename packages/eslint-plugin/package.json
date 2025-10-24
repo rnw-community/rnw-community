@@ -45,8 +45,8 @@
     },
     "gitHead": "b5608910319390f9773a9d42c3cc828e8e8a1d95",
     "dependencies": {
-        "@typescript-eslint/rule-tester": "^8.37.0",
-        "@typescript-eslint/utils": "^8.37.0"
+        "@typescript-eslint/rule-tester": "^8.46.2",
+        "@typescript-eslint/utils": "^8.46.2"
     },
     "devDependencies": {
         "@types/eslint": "^8.56.12"

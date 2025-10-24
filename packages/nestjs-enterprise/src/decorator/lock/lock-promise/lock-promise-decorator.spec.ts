@@ -70,9 +70,9 @@ class TestClass extends LockableService {
     }
 }
 
-// eslint-disable-next-line max-lines-per-function
+ 
 describe('LockPromiseDecorator', () => {
-    // eslint-disable-next-line jest/no-hooks
+     
     beforeEach(() => void jest.clearAllMocks());
 
     it('should lock resource with key as array and duration', async () => {
@@ -102,7 +102,7 @@ describe('LockPromiseDecorator', () => {
         // @ts-expect-error Test preconditions
         instance.redlock = undefined;
 
-        // eslint-disable-next-line @typescript-eslint/unbound-method,jest/unbound-method
+        // eslint-disable-next-line @typescript-eslint/unbound-method
         await expect(instance.testArray).rejects.toThrow(
             'Redlock is not available on this instance. Ensure that the class using the `Lock` decorator extends `LockableService` or provide redlock field manually.'
         );
