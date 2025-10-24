@@ -33,7 +33,7 @@ export class PaymentResponse {
     }
 
     // https://www.w3.org/TR/payment-request/#dom-paymentresponse-retry
-    // eslint-disable-next-line @typescript-eslint/require-await
+
     async retry(_errorFields?: PaymentValidationErrors): Promise<undefined> {
         if (this.completeCalled) {
             throw new Error('InvalidStateError');
@@ -41,6 +41,7 @@ export class PaymentResponse {
 
         // TODO: Implement logic https://www.w3.org/TR/payment-request/#retry-method
 
+        // eslint-disable-next-line no-undefined
         return undefined;
     }
 }

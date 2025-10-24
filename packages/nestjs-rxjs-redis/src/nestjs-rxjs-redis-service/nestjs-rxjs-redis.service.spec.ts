@@ -1,4 +1,3 @@
-/* eslint-disable max-lines */
 import { describe, expect, it, jest } from '@jest/globals';
 import { of } from 'rxjs';
 
@@ -14,7 +13,6 @@ const redisTTLValue = 100;
 
 type RedisClient = Partial<Pick<Redis, 'del' | 'expire' | 'get' | 'incr' | 'mget' | 'set' | 'ttl'>>;
 const getRedisService = (redisClient?: RedisClient): Redis =>
-    // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
     ({
         get: jest.fn<Redis['get']>().mockResolvedValue(redisValue),
         set: jest.fn<Redis['set']>().mockResolvedValue('OK'),
@@ -26,7 +24,6 @@ const getRedisService = (redisClient?: RedisClient): Redis =>
         ...redisClient,
     }) as Redis;
 
-// eslint-disable-next-line max-lines-per-function,max-statements
 describe('NestJSRxJSRedisService', () => {
     it('get$ operation should create observable', done => {
         expect.assertions(2);

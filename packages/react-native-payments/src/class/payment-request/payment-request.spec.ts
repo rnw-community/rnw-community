@@ -1,4 +1,4 @@
-/* eslint-disable max-lines */
+ 
 import { beforeEach, describe, expect, it, jest } from '@jest/globals';
 import { Platform } from 'react-native';
 
@@ -36,7 +36,7 @@ jest.mock('react-native', () => ({
     },
 }));
 
-// eslint-disable-next-line max-lines-per-function
+ 
 describe('PaymentRequest', () => {
     const paymentDetails = {
         total: {
@@ -45,12 +45,12 @@ describe('PaymentRequest', () => {
         },
     };
 
-    // eslint-disable-next-line jest/no-hooks
+     
     beforeEach(() => {
         jest.clearAllMocks();
     });
 
-    // eslint-disable-next-line max-lines-per-function
+     
     describe('validation', () => {
         const methodData: AndroidPaymentMethodDataInterface = {
             supportedMethods: PaymentMethodNameEnum.AndroidPay,
@@ -251,7 +251,7 @@ describe('PaymentRequest', () => {
         });
     });
 
-    // eslint-disable-next-line max-lines-per-function,max-statements
+     
     describe('PaymentRequest on Android', () => {
         const androidMethodData: AndroidPaymentMethodDataInterface = {
             supportedMethods: PaymentMethodNameEnum.AndroidPay,
@@ -267,7 +267,7 @@ describe('PaymentRequest', () => {
             },
         };
 
-        // eslint-disable-next-line jest/no-hooks
+         
         beforeEach(() => {
             Platform.OS = 'android';
         });
@@ -483,7 +483,7 @@ describe('PaymentRequest', () => {
         });
     });
 
-    // eslint-disable-next-line max-lines-per-function,max-statements
+     
     describe('PaymentRequest on iOS', () => {
         const iosMethodData: IosPaymentMethodDataInterface = {
             supportedMethods: PaymentMethodNameEnum.ApplePay,
@@ -500,7 +500,7 @@ describe('PaymentRequest', () => {
             },
         };
 
-        // eslint-disable-next-line jest/no-hooks
+         
         beforeEach(() => {
             Platform.OS = 'ios';
         });

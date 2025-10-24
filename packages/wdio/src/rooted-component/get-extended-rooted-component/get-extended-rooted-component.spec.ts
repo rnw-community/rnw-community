@@ -8,7 +8,7 @@ import { RootedExtendedComponentMock } from '../mocks/rooted-extended-component.
 import { RootedOverrideComponentMock } from '../mocks/rooted-override-component.mock';
 import { RootedParentComponentSelectorsMock } from '../mocks/rooted-parent-component-selectors.mock';
 
-// eslint-disable-next-line max-lines-per-function
+ 
 describe('getExtendedRootedComponent', () => {
     it('should return RootEl using getter', async () => {
         expect.assertions(2);

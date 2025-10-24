@@ -48,7 +48,7 @@ export class PaymentRequest {
 
     private acceptPromiseRejecter: (reason: unknown) => void = emptyFn;
 
-    // eslint-disable-next-line max-statements
+     
     constructor(
         readonly methodData: PaymentMethodData[],
         public details: PaymentDetailsInit
@@ -113,7 +113,7 @@ export class PaymentRequest {
 
                         return void 0;
                     })
-                    // eslint-disable-next-line @typescript-eslint/use-unknown-in-catch-callback-variable
+                     
                     .catch(reject);
             } else {
                 reject(new DOMException(PaymentsErrorEnum.InvalidStateError));
@@ -162,7 +162,7 @@ export class PaymentRequest {
         return platformMethod.data;
     }
 
-    // eslint-disable-next-line class-methods-use-this,@typescript-eslint/class-methods-use-this
+     
     private getAndroidPaymentMethodData(
         methodData: AndroidPaymentMethodDataDataInterface,
         details: PaymentDetailsInit
@@ -226,7 +226,7 @@ export class PaymentRequest {
         };
     }
 
-    // eslint-disable-next-line class-methods-use-this,@typescript-eslint/class-methods-use-this
+     
     private getIosPaymentMethodData(methodData: IosPaymentMethodDataDataInterface): IosPaymentDataRequest {
         // TODO: Add mappings for other systems if needed
         const supportedNetworkMap: Record<SupportedNetworkEnum, IosPKPaymentNetworksEnum> = {
@@ -277,7 +277,7 @@ export class PaymentRequest {
         };
     }
 
-    // eslint-disable-next-line class-methods-use-this,@typescript-eslint/class-methods-use-this
+     
     private getRequestedBillingFields(methodData: IosPaymentMethodDataDataInterface): IOSPKContactField[] {
         const requiredBillingFields: IOSPKContactField[] = [];
         if (methodData.requestBillingAddress ?? false) {
@@ -287,7 +287,7 @@ export class PaymentRequest {
         return requiredBillingFields;
     }
 
-    // eslint-disable-next-line class-methods-use-this,@typescript-eslint/class-methods-use-this
+     
     private getRequestedShippingFields(methodData: IosPaymentMethodDataDataInterface): IOSPKContactField[] {
         const requiredShippingFields: IOSPKContactField[] = [];
         if (methodData.requestPayerEmail ?? false) {

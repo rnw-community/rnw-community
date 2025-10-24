@@ -1,4 +1,3 @@
-// eslint-disable-next-line max-classes-per-file
 import { describe, expect, it, jest } from '@jest/globals';
 import { EMPTY, catchError, concatMap, of, throwError } from 'rxjs';
 
@@ -8,7 +7,6 @@ import { RxJSFilterError } from '../../rxjs-filter-error';
 
 import { rethrowException } from './rethrow-exception.operator';
 
-// eslint-disable-next-line max-lines-per-function
 describe('rethrowException', () => {
     it('should throw RxJSFilterError and log error message', async () => {
         expect.assertions(4);
@@ -163,7 +161,7 @@ describe('rethrowException', () => {
             class CustomError extends Error {
                 constructor(
                     msg: string,
-                    public readonly additionalMsg: string
+                    readonly additionalMsg: string
                 ) {
                     super(msg);
                 }
@@ -202,7 +200,7 @@ describe('rethrowException', () => {
             class CustomError extends Error {
                 constructor(
                     msg: string,
-                    public readonly additionalMsg: string
+                    readonly additionalMsg: string
                 ) {
                     super(msg);
                 }

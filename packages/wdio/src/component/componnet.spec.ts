@@ -36,7 +36,7 @@ describe('Component', () => {
 
         componentFn.mockResolvedValue(component);
         predicateFn.mockResolvedValue(true);
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+         
         const result = await component.getComponentFromEls(ComponentSelectorsMock.Button, componentFn, predicateFn);
 
         expect(result).toBe(component);
@@ -52,7 +52,7 @@ describe('Component', () => {
 
         componentFn.mockResolvedValue(component);
         predicateFn.mockResolvedValue(true);
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+         
         const result = await component.getComponentFromEls(ComponentSelectorsMock.Button, componentFn, predicateFn);
 
         expect(result).toBe(component);

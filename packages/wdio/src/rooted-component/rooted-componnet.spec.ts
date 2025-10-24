@@ -8,7 +8,6 @@ import { RootedComponent } from './rooted-component';
 
 import type { ChainablePromiseElement } from 'webdriverio';
 
-// eslint-disable-next-line max-lines-per-function,max-statements
 describe('RootedComponent', () => {
     it('should return wdio element by selector in Root element using getChildEl', async () => {
         expect.assertions(3);
@@ -141,7 +140,7 @@ describe('RootedComponent', () => {
             RootedComponentSelectorsMock.Root
         );
 
-        // @ts-expect-error Test
+        // @ts-expect-error Needed fo tests
         // eslint-disable-next-line @typescript-eslint/no-unsafe-call
         expect(() => void component.IDONOTEXISTS()).toThrow(TypeError);
     });

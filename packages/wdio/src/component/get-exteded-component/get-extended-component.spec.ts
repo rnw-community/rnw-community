@@ -6,7 +6,6 @@ import { ComponentMock } from '../mocks/component.mock';
 import { ExtendedComponentMock } from '../mocks/extended-component.mock';
 import { ParentComponentSelectorsMock } from '../mocks/parent-component-selectors.mock';
 
-// eslint-disable-next-line max-lines-per-function,max-statements
 describe('getExtendedComponent', () => {
     // TODO: Move to component tests
     it('should work with css-like selector methods', async () => {
@@ -164,7 +163,7 @@ describe('getExtendedComponent', () => {
 
         const component = new ComponentMock();
 
-        // @ts-expect-error Test
+        // @ts-expect-error Needed for test
         // eslint-disable-next-line @typescript-eslint/no-unsafe-call
         expect(() => void component.Button.IDONOTEXISTS()).toThrow(TypeError);
     });

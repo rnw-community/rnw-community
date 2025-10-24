@@ -20,7 +20,7 @@ jest.mock('react-native', () => ({
     },
 }));
 
-// eslint-disable-next-line max-lines-per-function
+ 
 describe('PaymentResponse', () => {
     const mockDetails: PaymentResponseDetailsInterface = {
         androidPayToken: {
@@ -78,7 +78,7 @@ describe('PaymentResponse', () => {
         },
     };
 
-    // eslint-disable-next-line jest/no-hooks
+     
     beforeEach(() => {
         jest.clearAllMocks();
     });
