@@ -1,4 +1,4 @@
-/* eslint-disable jest/no-untyped-mock-factory,jest/no-done-callback */
+ 
 import { describe, expect, it, jest } from '@jest/globals';
 import { of } from 'rxjs';
 
@@ -36,7 +36,6 @@ const getRedisService = (): Redis => jest.fn() as unknown as Redis;
 
 describe('nestJSRxJSLockService', () => {
     describe('lock$', () => {
-        // eslint-disable-next-line jest/prefer-ending-with-an-expect
         it('should acquire and release a lock with correct key', done => {
             expect.assertions(3);
 

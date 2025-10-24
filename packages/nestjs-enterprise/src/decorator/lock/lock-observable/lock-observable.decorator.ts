@@ -20,18 +20,15 @@ export const LockObservable =
             // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
             const originalMethod = descriptor.value!;
 
-            // eslint-disable-next-line max-statements,func-names
+            // eslint-disable-next-line func-names
             descriptor.value = function (this: LockableService, ...args: TArgs): TResult {
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-return
                 return of(true).pipe(
-                    // eslint-disable-next-line no-invalid-this
                     tap(() => void validateRedlock(this)),
                     map(() => runPreLock(preLock, ...args)),
                     concatMap(lockKeys =>
-                        // eslint-disable-next-line no-invalid-this
                         from(this.redlock.acquire(lockKeys, duration)).pipe(
                             concatMap(currentLock => {
-                                // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion,no-invalid-this
                                 const result = originalMethod.apply(this, args) as Observable<TResult>;
 
                                 if (!isObservable(result)) {

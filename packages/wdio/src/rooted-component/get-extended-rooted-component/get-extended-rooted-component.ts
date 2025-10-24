@@ -1,3 +1,4 @@
+/* eslint-disable no-implicit-globals */
 import { defaultComponentConfig } from '../../config/default-component.config';
 import { RootedComponent } from '../rooted-component';
 
@@ -19,7 +20,6 @@ export function getExtendedRootedComponent<T, P extends RootedComponent>(
     rootSelector: T[keyof T]
 ): RootedComponentCtorWithDefaultRootSelector<T, P>;
 
-// eslint-disable-next-line func-style
 export function getExtendedRootedComponent<T, P extends RootedComponent>(
     selectors: T,
     ParentComponent: ClassType<P>,

@@ -126,7 +126,6 @@ describe('combine', () => {
     // eslint-disable-next-line @typescript-eslint/no-misused-spread
     const dataFnMock = jest.fn((...args) => ({ ...args }));
 
-    // eslint-disable-next-line jest/no-hooks
     beforeEach(() => void dataFnMock.mockClear());
 
     it('should create tree from one enum with data generated callback', () => {

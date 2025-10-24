@@ -24,13 +24,13 @@ export const HistogramMetric =
             // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
             const originalMethod = descriptor.value!;
 
-            // eslint-disable-next-line max-statements,func-names
+            // eslint-disable-next-line func-names
             descriptor.value = function (...args: TArgs): TResult {
                 const endHistogram = histogram.startTimer();
 
                 try {
                     // @ts-expect-error We need this to handle generic methods correctly
-                    // eslint-disable-next-line @typescript-eslint/no-unsafe-return,no-invalid-this,@typescript-eslint/no-invalid-this
+                    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
                     return originalMethod.apply(this, args);
                 } finally {
                     endHistogram();

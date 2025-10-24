@@ -51,7 +51,7 @@ jest.mock('@willsoto/nestjs-prometheus', () => ({
 }));
 jest.mock('@nestjs/common', () => ({ Logger: { error: jest.fn() } }));
 
-// eslint-disable-next-line max-lines-per-function
+ 
 describe('NestJSRxJSMetricsService', () => {
     it('counter metric, counter operator, with and without default increment size', done => {
         expect.assertions(3);

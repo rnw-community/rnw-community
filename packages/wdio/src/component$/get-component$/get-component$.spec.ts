@@ -24,7 +24,7 @@ describe('getComponent$', () => {
     });
 
     it('should use extended parent component$ testID selector functions', async () => {
-        // eslint-disable-next-line no-magic-numbers
+         
         expect.assertions(6);
 
         const component = new ParentComponent$Mock();
