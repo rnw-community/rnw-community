@@ -1,6 +1,6 @@
 {
     "name": "@rnw-community/nestjs-webpack-swc",
-    "version": "1.7.0",
+    "version": "1.7.1",
     "description": "NestJS typed config",
     "keywords": [
         "nestjs",
