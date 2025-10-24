@@ -1,5 +1,4 @@
 import js from '@eslint/js';
-import rnwcPlugin from '@rnw-community/eslint-plugin';
 import rxjs from '@smarttools/eslint-plugin-rxjs';
 import importPlugin from 'eslint-plugin-import';
 import jestPlugin from 'eslint-plugin-jest';
