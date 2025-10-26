@@ -54,5 +54,5 @@
         "clear": "rm -rf coverage && rm -rf dist && rm -f *.tsbuildinfo",
         "clear:deps": "rm -rf ./node_modules && rm -rf ./dist"
     },
-    "gitHead": "ed2cec449e634a16dc3a80b4a8cd2d1d28c9f9c4"
+    "gitHead": "4fd24bd92936d1793f8f7ff08d6420fce4f211d9"
 }
