@@ -45,8 +45,8 @@
     "gitHead": "ed2cec449e634a16dc3a80b4a8cd2d1d28c9f9c4",
     "dependencies": {
         "@rnw-community/shared": "workspace:*",
-        "@wdio/globals": "^9.5.4",
-        "@wdio/protocols": "^9.4.4",
-        "webdriverio": "^9.5.4"
+        "@wdio/globals": "^9.17.0",
+        "@wdio/protocols": "^9.16.2",
+        "webdriverio": "^9.20.0"
     }
 }
