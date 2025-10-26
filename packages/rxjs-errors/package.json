@@ -40,9 +40,9 @@
         "clear": "rm -rf coverage && rm -rf dist && rm -f *.tsbuildinfo",
         "clear:deps": "rm -rf ./node_modules && rm -rf ./dist"
     },
-    "gitHead": "b5608910319390f9773a9d42c3cc828e8e8a1d95",
+    "gitHead": "4fd24bd92936d1793f8f7ff08d6420fce4f211d9",
     "dependencies": {
-        "@rnw-community/shared": "workspace:*"
+        "@rnw-community/shared": "1.7.1"
     },
     "peerDependencies": {
         "rxjs": "^7.8.1"

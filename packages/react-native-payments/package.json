@@ -77,10 +77,10 @@
         "clear:deps": "rm -rf ./node_modules && rm -rf ./dist",
         "example": "yarn --cwd example"
     },
-    "gitHead": "b5608910319390f9773a9d42c3cc828e8e8a1d95",
+    "gitHead": "4fd24bd92936d1793f8f7ff08d6420fce4f211d9",
     "dependencies": {
         "@expo/config-plugins": "^9.0.14",
-        "@rnw-community/shared": "workspace:*",
+        "@rnw-community/shared": "1.7.1",
         "react-native-uuid": "^2.0.1",
         "validator": "^13.9.0"
     },
