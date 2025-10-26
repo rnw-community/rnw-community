@@ -43,8 +43,8 @@
         "node": ">=18.0.0"
     },
     "dependencies": {
-        "@rnw-community/object-field-tree": "workspace:*",
-        "@rnw-community/shared": "workspace:*"
+        "@rnw-community/object-field-tree": "1.7.1",
+        "@rnw-community/shared": "1.7.1"
     },
     "devDependencies": {
         "react-native": "^0.76.1"
@@ -53,5 +53,5 @@
         "react": ">=18",
         "react-native": ">=0.64"
     },
-    "gitHead": "b5608910319390f9773a9d42c3cc828e8e8a1d95"
+    "gitHead": "4fd24bd92936d1793f8f7ff08d6420fce4f211d9"
 }
