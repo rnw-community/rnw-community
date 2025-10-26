@@ -1,6 +1,6 @@
 {
     "name": "@rnw-community/wdio",
-    "version": "1.7.1",
+    "version": "1.8.0",
     "description": "WDIO commands, page objects and utils",
     "keywords": [
         "wdio",
