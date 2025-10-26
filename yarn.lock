@@ -4991,8 +4991,8 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@rnw-community/fast-style@workspace:packages/fast-style"
   dependencies:
-    "@rnw-community/object-field-tree": "npm:1.7.1"
-    "@rnw-community/shared": "npm:1.7.1"
+    "@rnw-community/object-field-tree": "npm:^1.8.2"
+    "@rnw-community/shared": "npm:^1.8.2"
     react-native: "npm:^0.76.1"
   peerDependencies:
     react: ">=18"
@@ -5005,7 +5005,7 @@ __metadata:
   resolution: "@rnw-community/nestjs-enterprise@workspace:packages/nestjs-enterprise"
   dependencies:
     "@nestjs/common": "npm:^10.2.7"
-    "@rnw-community/shared": "npm:1.7.1"
+    "@rnw-community/shared": "npm:^1.8.2"
     ioredis: "npm:^5.4.1"
     prom-client: "npm:^15.1.2"
     redlock: "npm:^5.0.0-beta.2"
@@ -5026,7 +5026,7 @@ __metadata:
     "@nestjs-modules/ioredis": "npm:^2.0.2"
     "@nestjs/common": "npm:^10.2.7"
     "@nestjs/core": "npm:^10.2.7"
-    "@rnw-community/shared": "npm:1.7.1"
+    "@rnw-community/shared": "npm:^1.8.2"
     ioredis: "npm:^5.4.1"
     redlock: "npm:^5.0.0-beta.2"
     rxjs: "npm:^7.8.1"
@@ -5038,7 +5038,7 @@ __metadata:
   resolution: "@rnw-community/nestjs-rxjs-logger@workspace:packages/nestjs-rxjs-logger"
   dependencies:
     "@nestjs/common": "npm:^10.2.7"
-    "@rnw-community/shared": "npm:1.7.1"
+    "@rnw-community/shared": "npm:^1.8.2"
     rxjs: "npm:^7.8.1"
   peerDependencies:
     "@nestjs/common": ^10.2.7
@@ -5051,7 +5051,7 @@ __metadata:
   resolution: "@rnw-community/nestjs-rxjs-metrics@workspace:packages/nestjs-rxjs-metrics"
   dependencies:
     "@nestjs/common": "npm:^10.2.7"
-    "@rnw-community/shared": "npm:1.7.1"
+    "@rnw-community/shared": "npm:^1.8.2"
     "@willsoto/nestjs-prometheus": "npm:^4.0.1"
     prom-client: "npm:^15.1.2"
     rxjs: "npm:^7.8.1"
@@ -5069,7 +5069,7 @@ __metadata:
   dependencies:
     "@nestjs-modules/ioredis": "npm:^2.0.2"
     "@nestjs/common": "npm:^10.2.7"
-    "@rnw-community/shared": "npm:1.7.1"
+    "@rnw-community/shared": "npm:^1.8.2"
     ioredis: "npm:^5.4.1"
     rxjs: "npm:^7.8.1"
   peerDependencies:
@@ -5086,7 +5086,7 @@ __metadata:
   dependencies:
     "@nestjs/common": "npm:^10.2.7"
     "@nestjs/config": "npm:^3.1.1"
-    "@rnw-community/shared": "npm:1.7.1"
+    "@rnw-community/shared": "npm:^1.8.2"
     "@types/hapi__joi": "npm:^17.1.7"
     joi: "npm:^17.1.1"
   peerDependencies:
@@ -5101,7 +5101,7 @@ __metadata:
   resolution: "@rnw-community/nestjs-webpack-swc@workspace:packages/nestjs-webpack-swc"
   dependencies:
     "@nestjs/common": "npm:^10.2.7"
-    "@rnw-community/shared": "npm:1.7.1"
+    "@rnw-community/shared": "npm:^1.8.2"
     "@types/webpack-env": "npm:^1.18.0"
     "@types/webpack-node-externals": "npm:^2.5.3"
     run-script-webpack-plugin: "npm:^0.1.1"
@@ -5121,11 +5121,11 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@rnw-community/object-field-tree@npm:1.7.1, @rnw-community/object-field-tree@workspace:packages/object-field-tree":
+"@rnw-community/object-field-tree@npm:^1.8.2, @rnw-community/object-field-tree@workspace:packages/object-field-tree":
   version: 0.0.0-use.local
   resolution: "@rnw-community/object-field-tree@workspace:packages/object-field-tree"
   dependencies:
-    "@rnw-community/shared": "npm:1.7.1"
+    "@rnw-community/shared": "npm:^1.8.2"
   languageName: unknown
   linkType: soft
 
@@ -5200,7 +5200,7 @@ __metadata:
   resolution: "@rnw-community/react-native-payments@workspace:packages/react-native-payments"
   dependencies:
     "@expo/config-plugins": "npm:^9.0.14"
-    "@rnw-community/shared": "npm:1.7.1"
+    "@rnw-community/shared": "npm:^1.8.2"
     "@types/validator": "npm:^13.7.17"
     react: "npm:^18.3.1"
     react-native: "npm:^0.76.1"
@@ -5223,7 +5223,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@rnw-community/rxjs-errors@workspace:packages/rxjs-errors"
   dependencies:
-    "@rnw-community/shared": "npm:1.7.1"
+    "@rnw-community/shared": "npm:^1.8.2"
     expect-type: "npm:^0.13.0"
     rxjs: "npm:^7.8.1"
   peerDependencies:
@@ -5231,7 +5231,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@rnw-community/shared@npm:1.7.1, @rnw-community/shared@workspace:*, @rnw-community/shared@workspace:packages/shared":
+"@rnw-community/shared@npm:^1.8.2, @rnw-community/shared@workspace:*, @rnw-community/shared@workspace:packages/shared":
   version: 0.0.0-use.local
   resolution: "@rnw-community/shared@workspace:packages/shared"
   languageName: unknown
@@ -5241,7 +5241,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@rnw-community/wdio@workspace:packages/wdio"
   dependencies:
-    "@rnw-community/shared": "npm:1.7.1"
+    "@rnw-community/shared": "npm:^1.8.2"
     "@wdio/globals": "npm:^9.17.0"
     "@wdio/protocols": "npm:^9.16.2"
     webdriverio: "npm:^9.20.0"
