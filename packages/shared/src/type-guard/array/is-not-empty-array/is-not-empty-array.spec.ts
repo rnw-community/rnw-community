@@ -20,4 +20,11 @@ describe('isNotEmptyArray', () => {
 
         expect(isNotEmptyArray(1 as unknown as unknown[])).toBe(false);
     });
+
+    it('should return true if variable is a non-empty readonly array', () => {
+        expect.hasAssertions();
+
+        const readonlyArray: readonly string[] = ['a', 'b'];
+        expect(isNotEmptyArray(readonlyArray)).toBe(true);
+    });
 });

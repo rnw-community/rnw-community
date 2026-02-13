@@ -4,6 +4,10 @@ export type { OnEventFn } from './type/on-event-fn-type/on-event-fn.type';
 export type { Maybe } from './type/maybe-type/maybe.type';
 export type { EmptyFn } from './type/empty-fn-type/empty-fn.type';
 export type { Enum } from './type/enum-type/enum.type';
+export type {
+    IsNotEmptyArray,
+    ReadonlyIsNotEmptyArray,
+} from './type/is-not-empty-array-type/is-not-empty-array.type';
 
 // Type guards
 export { isDefined } from './type-guard/generic/is-defined/is-defined';
