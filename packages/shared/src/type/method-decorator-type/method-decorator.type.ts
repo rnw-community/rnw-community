@@ -1,5 +1,6 @@
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export type MethodDecoratorType<K extends (...args: any) => any> = (
+import type { AnyFn } from '../any-fn-type/any-fn.type';
+
+export type MethodDecoratorType<K extends AnyFn> = (
     target: object,
     propertyKey: string | symbol,
     descriptor: TypedPropertyDescriptor<K>
