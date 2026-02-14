@@ -3,7 +3,7 @@ import { isArray } from '../is-array/is-array';
 import type { IsNotEmptyArray } from '../../../type/is-not-empty-array-type/is-not-empty-array.type';
 import type { ReadonlyIsNotEmptyArray } from '../../../type/readonly-is-not-empty-array-type/readonly-is-not-empty-array.type';
 
-interface IsNotEmptyArrayFn {
+export interface IsNotEmptyArrayFn {
     <T>(array: T[] | null | undefined): array is IsNotEmptyArray<T>;
     <T>(array: readonly T[] | null | undefined): array is ReadonlyIsNotEmptyArray<T>;
 }
