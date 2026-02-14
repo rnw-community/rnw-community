@@ -27,4 +27,17 @@ describe('isEmptyArray', () => {
         const readonlyArray: readonly string[] = [];
         expect(isEmptyArray(readonlyArray)).toBe(true);
     });
+
+    it('should preserve mutability for mutable arrays', () => {
+        expect.hasAssertions();
+
+        const array: string[] | undefined = [];
+        let mutable: never[] = [];
+
+        if (isEmptyArray(array)) {
+            mutable = array;
+        }
+
+        expect(mutable).toEqual([]);
+    });
 });
