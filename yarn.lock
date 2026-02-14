@@ -4083,7 +4083,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@nestjs/config@npm:^3.1.1":
+"@nestjs/config@npm:^3.3.0":
   version: 3.3.0
   resolution: "@nestjs/config@npm:3.3.0"
   dependencies:
@@ -5710,13 +5710,13 @@ __metadata:
   resolution: "@rnw-community/nestjs-typed-config@workspace:packages/nestjs-typed-config"
   dependencies:
     "@nestjs/common": "npm:^10.4.22"
-    "@nestjs/config": "npm:^3.1.1"
+    "@nestjs/config": "npm:^3.3.0"
     "@rnw-community/shared": "npm:^1.9.0"
     "@types/hapi__joi": "npm:^17.1.15"
     joi: "npm:^17.13.3"
   peerDependencies:
     "@nestjs/common": ^10.2.7
-    "@nestjs/config": ^3.1.1
+    "@nestjs/config": ^3.3.0
     joi: ^17.1.1
   languageName: unknown
   linkType: soft
