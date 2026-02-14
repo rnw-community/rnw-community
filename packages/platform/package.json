@@ -34,7 +34,7 @@
     "devDependencies": {
         "react": "^18.3.1",
         "react-native": "^0.76.1",
-        "react-native-config": "^1.4.2"
+        "react-native-config": "^1.6.1"
     },
     "peerDependencies": {
         "react": ">=18",
