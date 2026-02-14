@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.10.0](https://github.com/rnw-community/rnw-community/compare/v1.9.0...v1.10.0) (2026-02-14)
+
+### Features
+
+- **nestjs-enterprise:** add di-based lock decorator factories ([#307](https://github.com/rnw-community/rnw-community/issues/307)) ([d2ddc11](https://github.com/rnw-community/rnw-community/commit/d2ddc112c5cccb8f89b60077d6a547e83dd0941b))
+
 # [1.9.0](https://github.com/rnw-community/rnw-community/compare/v1.8.2...v1.9.0) (2026-02-14)
 
 **Note:** Version bump only for package @rnw-community/react-native-payments-example-expo
