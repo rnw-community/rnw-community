@@ -52,6 +52,7 @@ Commonly used typescript types:
 - [EmptyFn](src/type/empty-fn-type/empty-fn.type.md)
 - [Enum](src/type/enum-type/enum-type.md)
 - [IsNotEmptyArray](src/type/is-not-empty-array-type/is-not-empty-array.type.md)
+- [ReadonlyIsNotEmptyArray](src/type/readonly-is-not-empty-array-type/readonly-is-not-empty-array.type.md)
 
 ## License
 
