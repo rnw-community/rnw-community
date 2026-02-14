@@ -1,7 +1,7 @@
 import { Logger } from '@nestjs/common';
 import { type Observable, catchError, isObservable, tap, throwError } from 'rxjs';
 
-import { type AnyFn, MethodDecoratorType, isDefined, isNotEmptyString , isPromise } from '@rnw-community/shared';
+import { type AnyFn, type MethodDecoratorType, isDefined, isNotEmptyString, isPromise } from '@rnw-community/shared';
 
 import type { ErrorLogFunction } from './type/error-log-function.type';
 import type { PostLogFunction } from './type/post-log-function.type';
@@ -29,8 +29,7 @@ export const Log =
                     if (isNotEmptyString(preLog)) {
                         Logger.log(preLog, logContext);
                     } else if (isDefined(preLog)) {
-                        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-                        Logger.log(preLog(args[0], args[1], args[2], args[3], args[4]), logContext);
+                        Logger.log(preLog(...args), logContext);
                     }
                 };
 
@@ -38,8 +37,7 @@ export const Log =
                     if (isNotEmptyString(postLog)) {
                         Logger.debug(postLog, logContext);
                     } else if (isDefined(postLog)) {
-                        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-                        Logger.debug(postLog(res, args[0], args[1], args[2], args[3], args[4]), logContext);
+                        Logger.debug(postLog(res, ...args), logContext);
                     }
 
                     // eslint-disable-next-line @typescript-eslint/no-unsafe-return
@@ -50,8 +48,7 @@ export const Log =
                     if (isNotEmptyString(errorLog)) {
                         Logger.error(errorLog, logContext);
                     } else if (isDefined(errorLog)) {
-                        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-                        Logger.error(errorLog(error, args[0], args[1], args[2], args[3], args[4]), logContext);
+                        Logger.error(errorLog(error, ...args), logContext);
                     }
                 };
 

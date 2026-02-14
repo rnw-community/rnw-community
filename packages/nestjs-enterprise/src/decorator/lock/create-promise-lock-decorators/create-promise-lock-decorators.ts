@@ -24,7 +24,8 @@ export const createPromiseLockDecorators = (serviceToken: AbstractConstructor<Lo
 
                     descriptor.value = executeLockPromise(
                         getService, preLock, duration ?? defaultDuration, retryCount,
-                        descriptor.value as K,
+                        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+                        descriptor.value!,
                         getMethodName(target, propertyKey),
                         catchErrorFn
                     ) as K;

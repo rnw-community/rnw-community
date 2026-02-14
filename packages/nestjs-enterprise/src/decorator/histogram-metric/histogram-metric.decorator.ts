@@ -1,6 +1,6 @@
 import { Histogram, type HistogramConfiguration, register } from 'prom-client';
 
-import { type AnyFn, MethodDecoratorType , isDefined } from '@rnw-community/shared';
+import { type AnyFn, type MethodDecoratorType, isDefined } from '@rnw-community/shared';
 
 
 export const HistogramMetric =

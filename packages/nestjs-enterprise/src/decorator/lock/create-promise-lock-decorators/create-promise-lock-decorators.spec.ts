@@ -6,7 +6,7 @@ import type { LockHandle } from '../interface/lock-handle.interface';
 import type { LockServiceInterface } from '../interface/lock-service.interface';
 
 
-const mockRelease = jest.fn<() => Promise<boolean>>().mockResolvedValue(true);
+const mockRelease = jest.fn<() => Promise<void>>().mockResolvedValue();
 const mockAcquire = jest
     .fn<(resources: string[], duration: number) => Promise<LockHandle>>()
     .mockResolvedValue({ release: mockRelease });
@@ -14,11 +14,11 @@ const mockTryAcquire = jest
     .fn<(resources: string[], duration: number) => Promise<LockHandle | undefined>>()
     .mockResolvedValue({ release: mockRelease });
 
-let injectedSymbol: symbol;
+const injectedSymbols: symbol[] = [];
 
 jest.mock('@nestjs/common', () => ({
     Inject: () => (_target: object, key: symbol) => {
-        injectedSymbol = key;
+        injectedSymbols.push(key);
     },
 }));
 
@@ -136,8 +136,10 @@ describe('createPromiseLockDecorators', () => {
     beforeEach(() => {
         jest.clearAllMocks();
         instance = new TestClass();
-        // HINT: Simulate NestJS DI by setting the lock service on the instance via the captured symbol
-        (instance as unknown as Record<symbol, unknown>)[injectedSymbol] = getMockLockService();
+        // HINT: Simulate NestJS DI by setting the lock service on the instance via the captured symbols
+        for (const sym of injectedSymbols) {
+            (instance as unknown as Record<symbol, unknown>)[sym] = getMockLockService();
+        }
     });
 
     describe('SequentialLock', () => {
@@ -359,6 +361,69 @@ describe('createPromiseLockDecorators', () => {
 
             await expect(instance.testExclusiveOverrideDuration()).resolves.toBe(1);
             expect(mockTryAcquire).toHaveBeenCalledWith(['test'], 5000);
+        });
+    });
+
+    describe('factory isolation', () => {
+        it('should support multiple factories with different services on the same class', async () => {
+            expect.hasAssertions();
+
+            abstract class SecondMockLockService implements LockServiceInterface {
+                abstract acquire(resources: string[], duration: number): Promise<LockHandle>;
+                abstract tryAcquire(resources: string[], duration: number): Promise<LockHandle | undefined>;
+            }
+
+            const { SequentialLock: SequentialLock2 } = createPromiseLockDecorators(SecondMockLockService, 2000);
+
+            class MultiFactoryClass {
+                @SequentialLock(['first'])
+                async methodA(): Promise<string> {
+                    return Promise.resolve('a');
+                }
+
+                @SequentialLock2(['second'])
+                async methodB(): Promise<string> {
+                    return Promise.resolve('b');
+                }
+            }
+
+            const multi = new MultiFactoryClass();
+            for (const sym of injectedSymbols) {
+                (multi as unknown as Record<symbol, unknown>)[sym] = getMockLockService();
+            }
+
+            await expect(multi.methodA()).resolves.toBe('a');
+            expect(mockAcquire).toHaveBeenCalledWith(['first'], 1000);
+        });
+
+        it('should throw descriptive error when lock service is not injected', async () => {
+            expect.hasAssertions();
+
+            const noServiceInstance = new TestClass();
+
+            await expect(noServiceInstance.testArray()).rejects.toThrow(
+                'LockService was not injected. Ensure the lock service provider is registered in the NestJS module.'
+            );
+        });
+
+        it('should throw error when preLock function returns empty array', async () => {
+            expect.hasAssertions();
+
+            const { SequentialLock: SeqLockEmpty } = createPromiseLockDecorators(MockLockService, 1000);
+
+            class EmptyKeyClass {
+                @SeqLockEmpty(() => [])
+                async test(): Promise<number> {
+                    return Promise.resolve(1);
+                }
+            }
+
+            const emptyInstance = new EmptyKeyClass();
+            for (const sym of injectedSymbols) {
+                (emptyInstance as unknown as Record<symbol, unknown>)[sym] = getMockLockService();
+            }
+
+            await expect(emptyInstance.test()).rejects.toThrow('Lock key is not defined');
         });
     });
 });

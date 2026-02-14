@@ -53,6 +53,9 @@ Commonly used typescript types:
 - [Enum](src/type/enum-type/enum-type.md)
 - [IsNotEmptyArray](src/type/is-not-empty-array-type/is-not-empty-array.type.md)
 - [ReadonlyIsNotEmptyArray](src/type/readonly-is-not-empty-array-type/readonly-is-not-empty-array.type.md)
+- `AnyFn` — Generic function type `(...args: any[]) => any`
+- `AbstractConstructor<T>` — Abstract class constructor type for DI tokens
+- `MethodDecoratorType<K>` — Typed method decorator with `TypedPropertyDescriptor<K>`
 
 ## License
 

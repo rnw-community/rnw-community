@@ -54,7 +54,7 @@
     "files": [
         "dist/**/*"
     ],
-    "sideEffects": "false",
+    "sideEffects": false,
     "publishConfig": {
         "access": "public"
     },
@@ -91,5 +91,16 @@
         "prom-client": "^15.1.2",
         "redlock": "^5.0.0-beta.2",
         "rxjs": "^7.8.1"
+    },
+    "peerDependenciesMeta": {
+        "ioredis": {
+            "optional": true
+        },
+        "prom-client": {
+            "optional": true
+        },
+        "redlock": {
+            "optional": true
+        }
     }
 }

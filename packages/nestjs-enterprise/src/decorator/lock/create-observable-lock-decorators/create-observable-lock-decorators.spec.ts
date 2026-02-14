@@ -7,7 +7,7 @@ import type { LockHandle } from '../interface/lock-handle.interface';
 import type { LockServiceInterface } from '../interface/lock-service.interface';
 
 
-const mockRelease = jest.fn<() => Promise<boolean>>().mockResolvedValue(true);
+const mockRelease = jest.fn<() => Promise<void>>().mockResolvedValue();
 const mockAcquire = jest
     .fn<(resources: string[], duration: number) => Promise<LockHandle>>()
     .mockResolvedValue({ release: mockRelease });
@@ -132,7 +132,7 @@ describe('createObservableLockDecorators', () => {
 
     beforeEach(() => {
         jest.clearAllMocks();
-        mockRelease.mockResolvedValue(true);
+        mockRelease.mockResolvedValue();
         mockAcquire.mockResolvedValue({ release: mockRelease });
         mockTryAcquire.mockResolvedValue({ release: mockRelease });
         instance = new TestClass();

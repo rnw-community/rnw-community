@@ -1,3 +1,3 @@
 export interface LockHandle {
-    release(): Promise<unknown>;
+    release(): Promise<void>;
 }
