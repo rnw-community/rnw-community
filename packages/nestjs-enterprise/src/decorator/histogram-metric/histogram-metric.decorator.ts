@@ -1,12 +1,11 @@
 import { Histogram, type HistogramConfiguration, register } from 'prom-client';
 
-import { isDefined } from '@rnw-community/shared';
+import { type AnyFn, isDefined } from '@rnw-community/shared';
 
 import type { MethodDecoratorType } from '../../type/method-decorator.type';
 
 export const HistogramMetric =
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    <M extends string, K extends (...args: any) => any, TResult extends ReturnType<K>, TArgs extends Parameters<K>>(
+    <M extends string, K extends AnyFn, TResult extends ReturnType<K>, TArgs extends Parameters<K>>(
             metricName: string,
             configuration?: Omit<HistogramConfiguration<M>, 'name'>
         ): MethodDecoratorType<K> =>

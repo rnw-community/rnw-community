@@ -1,7 +1,7 @@
 import { Logger } from '@nestjs/common';
 import { type Observable, catchError, isObservable, tap, throwError } from 'rxjs';
 
-import { isDefined, isNotEmptyString, isPromise } from '@rnw-community/shared';
+import { type AnyFn, isDefined, isNotEmptyString, isPromise } from '@rnw-community/shared';
 
 import type { ErrorLogFunction } from './type/error-log-function.type';
 import type { PostLogFunction } from './type/post-log-function.type';
@@ -11,8 +11,7 @@ import type { PreDecoratorFunction } from '../../type/pre-decorator-function.typ
 type GetResultType<T> = T extends Promise<infer U> ? U : T extends Observable<infer U> ? U : T;
 
 export const Log =
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    <K extends (...args: any) => any, TResult extends ReturnType<K>, TArgs extends Parameters<K>>(
+    <K extends AnyFn, TResult extends ReturnType<K>, TArgs extends Parameters<K>>(
             preLog: PreDecoratorFunction<TArgs> | string,
             postLog?: PostLogFunction<GetResultType<TResult>, TArgs> | string,
             errorLog?: ErrorLogFunction<TArgs> | string

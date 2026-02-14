@@ -1,6 +1,6 @@
 import { type Observable, catchError, concatMap, finalize, from, isObservable, map, of, tap } from 'rxjs';
 
-import { isDefined } from '@rnw-community/shared';
+import { type AnyFn, isDefined } from '@rnw-community/shared';
 
 import { runPreLock } from '../util/run-pre-lock.util';
 import { validateRedlock } from '../util/validate-redlock.util';
@@ -10,8 +10,7 @@ import type { PreDecoratorFunction } from '../../../type/pre-decorator-function.
 import type { LockableService } from '../service/lockable.service';
 
 export const LockObservable =
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    <K extends (...args: any) => any, TResult extends ReturnType<K>, TArgs extends Parameters<K>>(
+    <K extends AnyFn, TResult extends ReturnType<K>, TArgs extends Parameters<K>>(
             preLock: PreDecoratorFunction<TArgs, string[]> | string[],
             duration: number,
             catchErrorFn$?: (error: unknown) => TResult

@@ -1,4 +1,4 @@
-import { isDefined, isPromise } from '@rnw-community/shared';
+import { type AnyFn, isDefined, isPromise } from '@rnw-community/shared';
 
 import { runPreLock } from '../util/run-pre-lock.util';
 import { validateRedlock } from '../util/validate-redlock.util';
@@ -8,15 +8,13 @@ import type { PreDecoratorFunction } from '../../../type/pre-decorator-function.
 import type { LockableService } from '../service/lockable.service';
 
 export const LockPromise =
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    <K extends (...args: any) => any, TResult extends ReturnType<K>, TArgs extends Parameters<K>>(
+    <K extends AnyFn, TResult extends ReturnType<K>, TArgs extends Parameters<K>>(
             preLock: PreDecoratorFunction<TArgs, string[]> | string[],
             duration: number,
             catchErrorFn?: (error: unknown) => TResult
         ): MethodDecoratorType<K> =>
         (target, propertyKey, descriptor) => {
-            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-            const originalMethod = descriptor.value!;
+            const originalMethod = descriptor.value as K;
 
             // @ts-expect-error TODO: Provide proper types
             // eslint-disable-next-line func-names
