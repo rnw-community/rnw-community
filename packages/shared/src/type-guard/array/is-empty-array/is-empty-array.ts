@@ -1,6 +1,6 @@
 import { isArray } from '../is-array/is-array';
 
-interface IsEmptyArrayFn {
+export interface IsEmptyArrayFn {
     <T>(array: T[] | null | undefined): array is never[];
     <T>(array: readonly T[] | null | undefined): array is readonly never[];
 }

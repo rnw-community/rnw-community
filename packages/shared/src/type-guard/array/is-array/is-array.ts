@@ -1,6 +1,6 @@
 import { isDefined } from '../../generic/is-defined/is-defined';
 
-interface IsArrayFn {
+export interface IsArrayFn {
     <T>(array: T[] | null | undefined): array is T[];
     <T>(array: readonly T[] | null | undefined): array is readonly T[];
 }
