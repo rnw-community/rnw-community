@@ -30,7 +30,10 @@
         "react-dom",
         "react-native-gesture-handler",
         "@expo/config-plugins",
-        "expo-updates"
+        "expo-updates",
+        "ioredis",
+        "prom-client",
+        "redlock"
     ],
     "ignoreBinaries": ["run"],
     "exclude": ["enumMembers"]

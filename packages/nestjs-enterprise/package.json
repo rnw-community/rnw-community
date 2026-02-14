@@ -36,6 +36,16 @@
             "import": "./dist/esm/decorator/lock/lock-observable/lock-observable.decorator.js",
             "require": "./dist/cjs/decorator/lock/lock-observable/lock-observable.decorator.js",
             "types": "./dist/esm/decorator/lock/lock-observable/lock-observable.decorator.d.ts"
+        },
+        "./CreatePromiseLockDecorators": {
+            "import": "./dist/esm/decorator/lock/create-promise-lock-decorators/create-promise-lock-decorators.js",
+            "require": "./dist/cjs/decorator/lock/create-promise-lock-decorators/create-promise-lock-decorators.js",
+            "types": "./dist/esm/decorator/lock/create-promise-lock-decorators/create-promise-lock-decorators.d.ts"
+        },
+        "./CreateObservableLockDecorators": {
+            "import": "./dist/esm/decorator/lock/create-observable-lock-decorators/create-observable-lock-decorators.js",
+            "require": "./dist/cjs/decorator/lock/create-observable-lock-decorators/create-observable-lock-decorators.js",
+            "types": "./dist/esm/decorator/lock/create-observable-lock-decorators/create-observable-lock-decorators.d.ts"
         }
     },
     "main": "dist/cjs/index.js",
@@ -44,7 +54,7 @@
     "files": [
         "dist/**/*"
     ],
-    "sideEffects": "false",
+    "sideEffects": false,
     "publishConfig": {
         "access": "public"
     },
@@ -81,5 +91,16 @@
         "prom-client": "^15.1.2",
         "redlock": "^5.0.0-beta.2",
         "rxjs": "^7.8.1"
+    },
+    "peerDependenciesMeta": {
+        "ioredis": {
+            "optional": true
+        },
+        "prom-client": {
+            "optional": true
+        },
+        "redlock": {
+            "optional": true
+        }
     }
 }

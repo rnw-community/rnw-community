@@ -72,6 +72,21 @@ class TestObservableClass extends LockableService {
     testReleaseAfterResultFn$(): Observable<number> {
         return of(this.field).pipe(tap(() => mockResultFn()));
     }
+
+    @LockObservable(['test'], 1000, undefined, 0)
+    testExclusive$(): Observable<number> {
+        return of(this.field);
+    }
+
+    @LockObservable(id => ['test', String(id)], 1000, undefined, 0)
+    testExclusiveFunction$(id: number): Observable<{ field: number; id: number }> {
+        return of({ field: this.field, id });
+    }
+
+    @LockObservable(['test'], 1000, undefined, 0)
+    testExclusiveSync(): number {
+        return this.field;
+    }
 }
 
 describe('LockObservableDecorator', () => {
@@ -210,5 +225,56 @@ describe('LockObservableDecorator', () => {
         const [releaseCallOrder] = mockRelease.mock.invocationCallOrder;
 
         expect(resultCallOrder).toBeLessThan(releaseCallOrder);
+    });
+
+    describe('retryCount: 0 (exclusive mode)', () => {
+        it('should acquire lock and execute method', async () => {
+            expect.assertions(3);
+
+            const instance = new TestObservableClass();
+
+            await expect(lastValueFrom(instance.testExclusive$())).resolves.toBe(1);
+            expect(mockAcquire).toHaveBeenCalledWith(['test'], 1000, { retryCount: 0 });
+            expect(mockRelease).toHaveBeenCalledWith();
+        });
+
+        it('should lock resource with key as function and duration', async () => {
+            expect.assertions(3);
+
+            const instance = new TestObservableClass();
+
+            await expect(lastValueFrom(instance.testExclusiveFunction$(1))).resolves.toStrictEqual({
+                field: 1,
+                id: 1,
+            });
+            expect(mockAcquire).toHaveBeenCalledWith(['test', '1'], 1000, { retryCount: 0 });
+            expect(mockRelease).toHaveBeenCalledWith();
+        });
+
+        it('should complete with EMPTY when lock is already held', async () => {
+            expect.assertions(3);
+
+            const instance = new TestObservableClass();
+            mockAcquire.mockRejectedValueOnce(new Error('Lock already held'));
+
+            await expect(
+                lastValueFrom(instance.testExclusive$(), { defaultValue: undefined })
+            ).resolves.toBeUndefined();
+            expect(mockAcquire).toHaveBeenCalledWith(['test'], 1000, { retryCount: 0 });
+            expect(mockRelease).not.toHaveBeenCalled();
+        });
+
+        it('should throw error if decorated method does not return observable', async () => {
+            expect.assertions(3);
+
+            const instance = new TestObservableClass();
+
+            // @ts-expect-error HINT: Wrong types test
+            await expect(lastValueFrom(instance.testExclusiveSync())).rejects.toThrow(
+                'Method TestObservableClass::testExclusiveSync does not return an observable'
+            );
+            expect(mockAcquire).toHaveBeenCalledWith(['test'], 1000, { retryCount: 0 });
+            expect(mockRelease).toHaveBeenCalledWith();
+        });
     });
 });

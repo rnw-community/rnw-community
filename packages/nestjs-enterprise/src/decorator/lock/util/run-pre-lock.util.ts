@@ -9,7 +9,12 @@ export const runPreLock = <TArgs extends unknown[] = unknown[]>(
     if (Array.isArray(preLock) && isNotEmptyArray(preLock)) {
         return preLock;
     } else if (isDefined(preLock) && typeof preLock === 'function') {
-        return preLock(args[0], args[1], args[2], args[3], args[4]);
+        const keys = preLock(...args);
+        if (!isNotEmptyArray(keys)) {
+            throw new Error('Lock key is not defined');
+        }
+
+        return keys;
     }
 
     throw new Error('Lock key is not defined');

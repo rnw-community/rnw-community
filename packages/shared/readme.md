@@ -53,6 +53,9 @@ Commonly used typescript types:
 - [Enum](src/type/enum-type/enum-type.md)
 - [IsNotEmptyArray](src/type/is-not-empty-array-type/is-not-empty-array.type.md)
 - [ReadonlyIsNotEmptyArray](src/type/readonly-is-not-empty-array-type/readonly-is-not-empty-array.type.md)
+- [AnyFn](src/type/any-fn-type/any-fn.type.md)
+- [AbstractConstructor](src/type/abstract-constructor-type/abstract-constructor.type.md)
+- [MethodDecoratorType](src/type/method-decorator-type/method-decorator.type.md)
 
 ## License
 

@@ -17,15 +17,28 @@ Peer dependencies that your project should contain:
 > Some features have **additional installation requirements**, please refer to the feature documentation for more information.
 
 ## Contents
-- [Log Decorator](./src/decorator/log/log-decorator.md)
-- [Histogram Metric Decorator](./src/decorator/histogram-metric/histogram-metric-decorator.md)
-- [Lock Decorator](./src/decorator/lock/lock-decorator.md)
-  - [Lock Promise Decorator](./src/decorator/lock/lock-promise/lock-promise-decorator.md)
-  - [Lock Observable Decorator](./src/decorator/lock/lock-observable/lock-observable-decorator.md)
 
-## TODO
+### Decorators
+- [Log](./src/decorator/log/log-decorator.md) - method call logging
+- [Histogram Metric](./src/decorator/histogram-metric/histogram-metric-decorator.md) - Prometheus histogram metrics
 
--  [ ] Implement single `Lock decorator` that will work for both sync and async methods
+### Distributed Locking
+
+Create lock decorators bound to **any injectable** `LockServiceInterface` via NestJS DI:
+
+```ts
+const { SequentialLock, ExclusiveLock } = createPromiseLockDecorators(MyLockService, 5000);
+const { SequentialLock$, ExclusiveLock$ } = createObservableLockDecorators(MyLockService, 5000);
+```
+
+- [createPromiseLockDecorators](./src/decorator/lock/create-promise-lock-decorators/create-promise-lock-decorators.md) - `SequentialLock` + `ExclusiveLock` for async methods
+- [createObservableLockDecorators](./src/decorator/lock/create-observable-lock-decorators/create-observable-lock-decorators.md) - `SequentialLock$` + `ExclusiveLock$` for Observable methods
+
+### Deprecated
+
+- [LockPromise](./src/decorator/lock/lock-promise/lock-promise-decorator.md) - use `createPromiseLockDecorators` instead
+- [LockObservable](./src/decorator/lock/lock-observable/lock-observable-decorator.md) - use `createObservableLockDecorators` instead
+- [LockableService](./src/decorator/lock/lock-decorator.md) - use `LockServiceInterface` instead
 
 ## License
 

@@ -68,6 +68,21 @@ class TestClass extends LockableService {
 
         return Promise.resolve(this.field);
     }
+
+    @LockPromise(['test'], 1000, undefined, 0)
+    async testExclusive(): Promise<number> {
+        return Promise.resolve(this.field);
+    }
+
+    @LockPromise(id => ['test', String(id)], 1000, undefined, 0)
+    async testExclusiveFunction(id: number): Promise<number[]> {
+        return Promise.resolve([this.field, id]);
+    }
+
+    @LockPromise(['test'], 1000, undefined, 0)
+    testExclusiveSync(): number {
+        return this.field;
+    }
 }
 
  
@@ -196,5 +211,50 @@ describe('LockPromiseDecorator', () => {
         const [releaseCallOrder] = mockRelease.mock.invocationCallOrder;
 
         expect(resultCallOrder).toBeLessThan(releaseCallOrder);
+    });
+
+    describe('retryCount: 0 (exclusive mode)', () => {
+        it('should acquire lock and execute method', async () => {
+            expect.assertions(3);
+
+            const instance = new TestClass();
+
+            await expect(instance.testExclusive()).resolves.toBe(1);
+            expect(mockAcquire).toHaveBeenCalledWith(['test'], 1000, { retryCount: 0 });
+            expect(mockRelease).toHaveBeenCalledWith();
+        });
+
+        it('should lock resource with key as function and duration', async () => {
+            expect.assertions(3);
+
+            const instance = new TestClass();
+
+            await expect(instance.testExclusiveFunction(1)).resolves.toStrictEqual([1, 1]);
+            expect(mockAcquire).toHaveBeenCalledWith(['test', '1'], 1000, { retryCount: 0 });
+            expect(mockRelease).toHaveBeenCalledWith();
+        });
+
+        it('should return undefined when lock is already held', async () => {
+            expect.assertions(3);
+
+            const instance = new TestClass();
+            mockAcquire.mockRejectedValueOnce(new Error('Lock already held'));
+
+            await expect(instance.testExclusive()).resolves.toBeUndefined();
+            expect(mockAcquire).toHaveBeenCalledWith(['test'], 1000, { retryCount: 0 });
+            expect(mockRelease).not.toHaveBeenCalled();
+        });
+
+        it('should throw error if decorated method does not return promise', async () => {
+            expect.assertions(3);
+
+            const instance = new TestClass();
+
+            await expect(instance.testExclusiveSync()).rejects.toThrow(
+                'Method TestClass::testExclusiveSync does not return a promise'
+            );
+            expect(mockAcquire).toHaveBeenCalledWith(['test'], 1000, { retryCount: 0 });
+            expect(mockRelease).toHaveBeenCalledWith();
+        });
     });
 });
