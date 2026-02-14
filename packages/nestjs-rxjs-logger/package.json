@@ -1,6 +1,6 @@
 {
     "name": "@rnw-community/nestjs-rxjs-logger",
-    "version": "1.10.0",
+    "version": "1.10.1",
     "description": "NestJS RxJS logger",
     "keywords": [
         "nestjs",
@@ -40,7 +40,7 @@
     },
     "gitHead": "4fd24bd92936d1793f8f7ff08d6420fce4f211d9",
     "dependencies": {
-        "@rnw-community/shared": "^1.10.0"
+        "@rnw-community/shared": "^1.10.1"
     },
     "engines": {
         "node": ">=18.0.0"
