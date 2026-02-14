@@ -1,6 +1,6 @@
 {
     "name": "@rnw-community/wdio",
-    "version": "1.8.2",
+    "version": "1.9.0",
     "description": "WDIO commands, page objects and utils",
     "keywords": [
         "wdio",
@@ -44,7 +44,7 @@
     },
     "gitHead": "4fd24bd92936d1793f8f7ff08d6420fce4f211d9",
     "dependencies": {
-        "@rnw-community/shared": "^1.8.2",
+        "@rnw-community/shared": "^1.9.0",
         "@wdio/globals": "^9.17.0",
         "@wdio/protocols": "^9.16.2",
         "webdriverio": "^9.20.0"
