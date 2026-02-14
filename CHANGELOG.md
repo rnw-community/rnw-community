@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.10.1](https://github.com/rnw-community/rnw-community/compare/v1.10.0...v1.10.1) (2026-02-14)
+
+### Bug Fixes
+
+- **shared:** export array type guard overload interfaces ([#309](https://github.com/rnw-community/rnw-community/issues/309)) ([bda8e61](https://github.com/rnw-community/rnw-community/commit/bda8e61ef136685c2336764c7c467aa5d2c1e156))
+
 # [1.10.0](https://github.com/rnw-community/rnw-community/compare/v1.9.0...v1.10.0) (2026-02-14)
 
 ### Features
