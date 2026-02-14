@@ -1,6 +1,8 @@
 // Types
+export type { AbstractConstructor } from './type/abstract-constructor-type/abstract-constructor.type';
 export type { AnyFn } from './type/any-fn-type/any-fn.type';
 export type { ClassType } from './type/class-type/class.type';
+export type { MethodDecoratorType } from './type/method-decorator-type/method-decorator.type';
 export type { OnEventFn } from './type/on-event-fn-type/on-event-fn.type';
 export type { Maybe } from './type/maybe-type/maybe.type';
 export type { EmptyFn } from './type/empty-fn-type/empty-fn.type';

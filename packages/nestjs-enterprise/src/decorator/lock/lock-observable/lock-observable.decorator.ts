@@ -1,56 +1,29 @@
-import { type Observable, catchError, concatMap, finalize, from, isObservable, map, of, tap } from 'rxjs';
+import { executeLockObservable } from '../util/execute-lock-observable.util';
+import { getMethodName } from '../util/get-method-name.util';
+import { getRedlockService } from '../util/get-redlock-service.util';
 
-import { type AnyFn, isDefined } from '@rnw-community/shared';
-
-import { runPreLock } from '../util/run-pre-lock.util';
-import { validateRedlock } from '../util/validate-redlock.util';
-
-import type { MethodDecoratorType } from '../../../type/method-decorator.type';
 import type { PreDecoratorFunction } from '../../../type/pre-decorator-function.type';
-import type { LockableService } from '../service/lockable.service';
+import type { AnyFn, MethodDecoratorType } from '@rnw-community/shared';
 
+/**
+ * @deprecated Use `createObservableLockDecorators` instead. This decorator requires class inheritance from `LockableService`.
+ * @see {@link createObservableLockDecorators} for the DI-based approach.
+ */
 export const LockObservable =
     <K extends AnyFn, TResult extends ReturnType<K>, TArgs extends Parameters<K>>(
             preLock: PreDecoratorFunction<TArgs, string[]> | string[],
             duration: number,
-            catchErrorFn$?: (error: unknown) => TResult
+            catchErrorFn$?: (error: unknown) => TResult,
+            retryCount?: number
         ): MethodDecoratorType<K> =>
         (target, propertyKey, descriptor) => {
-            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-            const originalMethod = descriptor.value!;
-
-            // eslint-disable-next-line func-names
-            descriptor.value = function (this: LockableService, ...args: TArgs): TResult {
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-                return of(true).pipe(
-                    tap(() => void validateRedlock(this)),
-                    map(() => runPreLock(preLock, ...args)),
-                    concatMap(lockKeys =>
-                        from(this.redlock.acquire(lockKeys, duration)).pipe(
-                            concatMap(currentLock => {
-                                const result = originalMethod.apply(this, args) as Observable<TResult>;
-
-                                if (!isObservable(result)) {
-                                    void currentLock.release().catch(() => void 0);
-
-                                    throw new Error(
-                                        `Method ${target.constructor.name}::${String(propertyKey)} does not return an observable`
-                                    );
-                                }
-
-                                return result.pipe(
-                                    finalize(() => {
-                                        void currentLock.release().catch(() => void 0);
-                                    })
-                                );
-                            }),
-                            isDefined(catchErrorFn$)
-                                ? catchError((err: unknown) => catchErrorFn$(err) as Observable<TResult>)
-                                : tap()
-                        )
-                    )
-                ) as TResult;
-            } as K;
+            descriptor.value = executeLockObservable(
+                getRedlockService, preLock, duration, retryCount,
+                // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+                descriptor.value!,
+                getMethodName(target, propertyKey),
+                catchErrorFn$
+            ) as K;
 
             return descriptor;
         };

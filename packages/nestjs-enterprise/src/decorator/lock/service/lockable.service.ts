@@ -2,7 +2,9 @@ import Redlock, { type Settings } from 'redlock';
 
 import type Redis from 'ioredis';
 
-// HINT: We need redlock instance with redis for the decorator
+/**
+ * @deprecated Use `createPromiseLockDecorators` or `createObservableLockDecorators` with a custom `LockServiceInterface` instead.
+ */
 export class LockableService {
     readonly redlock: Redlock;
 
