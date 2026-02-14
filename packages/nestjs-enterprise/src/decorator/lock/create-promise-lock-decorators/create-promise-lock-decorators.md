@@ -1,6 +1,6 @@
-# createPromiseLockDecorators
+# `createPromiseLockDecorators`
 
-Factory that creates ***Promise-based*** lock decorators bound to any injectable `LockServiceInterface` via NestJS DI.
+Factory that creates **Promise-based** lock decorators bound to any injectable `LockServiceInterface` via NestJS DI.
 
 Returns `{ SequentialLock, ExclusiveLock }` decorators:
 
