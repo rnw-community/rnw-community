@@ -4,6 +4,7 @@
         "packages/nestjs-webpack-swc"
     ],
     "ignore": [
+        ".yarn/**",
         "**/dist/**",
         "**/metro.config.js",
         "**/*.native.ts",
@@ -16,9 +17,6 @@
         "@babel/preset-typescript",
         "@babel/runtime",
         "babel-jest",
-        "eslint-plugin-eslint-comments",
-        "eslint-plugin-simple-import-sort",
-        "eslint-plugin-standard",
         "husky",
         "reflect-metadata",
         "rimraf",

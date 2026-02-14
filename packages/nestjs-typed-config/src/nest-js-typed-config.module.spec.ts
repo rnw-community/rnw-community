@@ -3,6 +3,7 @@ import Joi from 'joi';
 
 import { NestJSTypedConfigModule } from './nest-js-typed-config.module';
 
+import type { DynamicModule } from '@nestjs/common';
 import type { ObjectSchema } from 'joi';
 
 enum EnvEnum {
@@ -40,7 +41,7 @@ describe('NestJSTypedConfigModule', () => {
         expect(typeof ConfigService === 'function').toBeTruthy();
     });
 
-    it('should successfully be created if required environment variable is set', () => {
+    it('should successfully be created if required environment variable is set', async () => {
         expect.assertions(1);
 
         const validationSchema = Joi.object({
@@ -49,23 +50,31 @@ describe('NestJSTypedConfigModule', () => {
 
         process.env[EnvironmentVariablesEnum.ENVIRONMENT_VARIABLE] = 'value';
 
-        expect(() =>
-            NestJSTypedConfigModule.create<EnvironmentVariablesEnum, EnvironmentVariablesInterface>(validationSchema)
-        ).not.toThrow();
+        const [ConfigModule] = NestJSTypedConfigModule.create<EnvironmentVariablesEnum, EnvironmentVariablesInterface>(
+            validationSchema
+        );
+
+        // ConfigModule.forRoot() is async since @nestjs/config 3.3+
+        await expect((ConfigModule.imports ?? [])[0] as Promise<DynamicModule>).resolves.toBeDefined();
 
         // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
         delete process.env[EnvironmentVariablesEnum.ENVIRONMENT_VARIABLE];
     });
 
-    it('should throw an error if required environment variable is not set', () => {
+    it('should throw an error if required environment variable is not set', async () => {
         expect.assertions(1);
 
         const validationSchema = Joi.object({
             [EnvironmentVariablesEnum.ENVIRONMENT_VARIABLE]: Joi.string().required(),
         }) as unknown as ObjectSchema<EnvironmentVariablesInterface>;
 
-        expect(() =>
-            NestJSTypedConfigModule.create<EnvironmentVariablesEnum, EnvironmentVariablesInterface>(validationSchema)
-        ).toThrow(`Config validation error: "${EnvironmentVariablesEnum.ENVIRONMENT_VARIABLE}" is required`);
+        const [ConfigModule] = NestJSTypedConfigModule.create<EnvironmentVariablesEnum, EnvironmentVariablesInterface>(
+            validationSchema
+        );
+
+        // ConfigModule.forRoot() is async since @nestjs/config 3.3+, validation errors become rejected promises
+        await expect((ConfigModule.imports ?? [])[0] as Promise<DynamicModule>).rejects.toThrow(
+            `Config validation error: "${EnvironmentVariablesEnum.ENVIRONMENT_VARIABLE}" is required`
+        );
     });
 });

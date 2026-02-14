@@ -47,10 +47,10 @@
         "@rnw-community/shared": "^1.9.0"
     },
     "devDependencies": {
-        "@nestjs/common": "^10.2.7",
-        "@nestjs/config": "^3.1.1",
-        "@types/hapi__joi": "^17.1.7",
-        "joi": "^17.1.1"
+        "@nestjs/common": "^10.4.22",
+        "@nestjs/config": "^3.3.0",
+        "@types/hapi__joi": "^17.1.15",
+        "joi": "^17.13.3"
     },
     "peerDependencies": {
         "@nestjs/common": "^10.2.7",

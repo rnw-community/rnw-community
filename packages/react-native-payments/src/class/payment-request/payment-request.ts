@@ -57,7 +57,7 @@ export class PaymentRequest {
         if (!isNotEmptyString(details.id)) {
             // TODO: Can we avoid using external lib? Use Math.random?
 
-            details.id = uuid.v4() as string;
+            details.id = uuid.v4();
         }
         this.id = details.id;
 
