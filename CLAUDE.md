@@ -84,6 +84,14 @@ Format: `type(scope): description` — scope must be a package name (e.g., `shar
 - **Coverage threshold: 99.9%** for statements, branches, functions, and lines
 - Mock files (`*.mock.ts`) excluded from coverage
 
+## Pre-commit Checks
+
+**IMPORTANT: Always run all checks before committing and pushing:**
+```bash
+yarn ts && yarn lint && yarn test
+```
+All three must pass before creating a commit. Do not skip any of these checks.
+
 ## Pre-commit Hooks (Husky + lint-staged)
 - Auto-runs ESLint fix and Prettier on staged `.ts/.tsx` files
 - Sorts `package.json` files

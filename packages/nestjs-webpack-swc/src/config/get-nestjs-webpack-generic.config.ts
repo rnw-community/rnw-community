@@ -4,7 +4,7 @@ import nodeExternals from 'webpack-node-externals';
 
 import { swcConfig } from './swc.config';
 
-import type { Configuration } from 'webpack';
+import type { Configuration, ExternalItem } from 'webpack';
 import type webpackNodeExternals from 'webpack-node-externals';
 
 export const getNestJSWebpackGenericConfig = (
@@ -18,7 +18,7 @@ export const getNestJSWebpackGenericConfig = (
         nodeExternals({
             modulesFromFile: true,
             allowlist: ['webpack/hot/poll?100', ...(Array.isArray(allowList) ? allowList : [allowList])],
-        }),
+        }) as unknown as ExternalItem,
     ],
     externalsPresets: { node: true },
     cache: {
