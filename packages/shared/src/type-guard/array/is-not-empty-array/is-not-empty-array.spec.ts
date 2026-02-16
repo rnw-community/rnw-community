@@ -67,4 +67,19 @@ describe('isNotEmptyArray', () => {
         expect(isNotEmptyArray(value)).toBe(true);
         expect(isNotEmptyArray([] as unknown[])).toBe(false);
     });
+
+    it('should preserve element types after narrowing for indexed access', () => {
+        expect.hasAssertions();
+
+        interface TestItem {
+            id: number;
+            name: string;
+        }
+
+        const items: TestItem[] | undefined = [{ id: 1, name: 'test' }];
+        // satisfies TestItem fails at compile-time if element type becomes unknown
+        const first = isNotEmptyArray(items) ? (items[0] satisfies TestItem) : undefined;
+
+        expect(first).toEqual({ id: 1, name: 'test' });
+    });
 });
