@@ -40,4 +40,13 @@ describe('isEmptyArray', () => {
 
         expect(mutable).toEqual([]);
     });
+
+    it('should work when passed as a callback to filter', () => {
+        expect.hasAssertions();
+
+        const arrays: string[][] = [['a', 'b'], [], ['c']];
+        const result: string[][] = arrays.filter(isEmptyArray);
+
+        expect(result).toEqual([[]]);
+    });
 });

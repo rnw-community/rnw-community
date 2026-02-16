@@ -34,4 +34,13 @@ describe('isArray', () => {
 
         expect(array).toEqual(['a', 'b', 'c']);
     });
+
+    it('should work when passed as a callback to filter', () => {
+        expect.hasAssertions();
+
+        const items: (string[] | string | undefined)[] = [['a'], 'b', undefined, ['c']];
+        const result: (string[] | string | undefined)[] = items.filter(isArray);
+
+        expect(result).toEqual([['a'], ['c']]);
+    });
 });
