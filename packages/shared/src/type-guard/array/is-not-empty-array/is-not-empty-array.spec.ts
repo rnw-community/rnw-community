@@ -39,4 +39,13 @@ describe('isNotEmptyArray', () => {
 
         expect(array).toEqual(['a', 'b', 'c']);
     });
+
+    it('should work when passed as a callback to filter', () => {
+        expect.hasAssertions();
+
+        const arrays: string[][] = [['a', 'b'], [], ['c']];
+        const result: string[][] = arrays.filter(isNotEmptyArray);
+
+        expect(result).toEqual([['a', 'b'], ['c']]);
+    });
 });
