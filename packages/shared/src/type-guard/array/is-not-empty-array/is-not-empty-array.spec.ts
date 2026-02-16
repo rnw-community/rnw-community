@@ -40,12 +40,31 @@ describe('isNotEmptyArray', () => {
         expect(array).toEqual(['a', 'b', 'c']);
     });
 
-    it('should work when passed as a callback to filter', () => {
+    it('should work when passed as a callback to Array.filter', () => {
         expect.hasAssertions();
 
         const arrays: string[][] = [['a', 'b'], [], ['c']];
         const result: string[][] = arrays.filter(isNotEmptyArray);
 
         expect(result).toEqual([['a', 'b'], ['c']]);
+    });
+
+    it('should work when passed as a callback to Array.filter with readonly arrays', () => {
+        expect.hasAssertions();
+
+        const arrays: ReadonlyArray<readonly string[]> = [['a', 'b'], [], ['c']];
+        const result: ReadonlyArray<readonly string[]> = arrays.filter(isNotEmptyArray);
+
+        expect(result).toEqual([['a', 'b'], ['c']]);
+    });
+
+    it('should handle any-typed values', () => {
+        expect.hasAssertions();
+
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const value: any = ['a', 'b'];
+
+        expect(isNotEmptyArray(value)).toBe(true);
+        expect(isNotEmptyArray([] as unknown[])).toBe(false);
     });
 });
