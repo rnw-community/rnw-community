@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.10.3](https://github.com/rnw-community/rnw-community/compare/v1.10.2...v1.10.3) (2026-02-16)
+
+### Bug Fixes
+
+- **shared:** replace array type guard overloads with single generic signatures ([#311](https://github.com/rnw-community/rnw-community/issues/311)) ([7232247](https://github.com/rnw-community/rnw-community/commit/7232247498ab89290d33c1c0ea46ff67f83e73c1))
+
 ## [1.10.2](https://github.com/rnw-community/rnw-community/compare/v1.10.1...v1.10.2) (2026-02-16)
 
 ### Bug Fixes
