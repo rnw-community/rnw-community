@@ -1,5 +1,7 @@
 import { describe, expect, it } from '@jest/globals';
 
+import type { IsNever } from '../is-never.spec-type';
+
 import { isNotEmptyArray } from './is-not-empty-array';
 
 describe('isNotEmptyArray', () => {
@@ -80,9 +82,7 @@ describe('isNotEmptyArray', () => {
             return;
         }
 
-        // Custom type guard false branch on any narrows to never
-        type IsNever<T> = [T] extends [never] ? true : false;
-        // @ts-expect-error FIXME: value is never, but should remain any
+        // @ts-expect-error FIXME: custom type guard false branch on any narrows to never
         const neverCheck: IsNever<typeof value> = false;
         expect(neverCheck).toBe(false);
     });
