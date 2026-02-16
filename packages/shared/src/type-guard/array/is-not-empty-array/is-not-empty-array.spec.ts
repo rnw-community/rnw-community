@@ -124,4 +124,21 @@ describe('isNotEmptyArray', () => {
 
         expect(first).toEqual({ id: 1, name: 'test' });
     });
+
+    it('should preserve element types for array | undefined unions', () => {
+        expect.hasAssertions();
+
+        interface AssetCategory {
+            name: string;
+        }
+
+        // Simulate: value comes from a function return, preventing const narrowing
+        const getAssetCategory = (): AssetCategory[] | undefined => [{ name: 'test' }];
+        const assetCategory = getAssetCategory();
+
+        // Client pattern: isNotEmptyArray(x) && x[0].prop — element must not be unknown
+        const hasName = isNotEmptyArray(assetCategory) && 'name' in assetCategory[0];
+
+        expect(hasName).toBe(true);
+    });
 });
