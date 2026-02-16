@@ -87,6 +87,28 @@ describe('isNotEmptyArray', () => {
         expect(neverCheck).toBe(false);
     });
 
+    it('should accept generic indexed access types like T[keyof T]', () => {
+        expect.hasAssertions();
+
+        class AssetDto {
+            url = '';
+        }
+
+        function handleFields<T extends object>(data: T): string | undefined {
+            const entries = Object.entries(data) as [keyof T, T[keyof T]][];
+
+            for (const [, value] of entries) {
+                if (isNotEmptyArray(value) && value[0] instanceof AssetDto) {
+                    return value[0].url;
+                }
+            }
+
+            return undefined;
+        }
+
+        expect(handleFields({ assets: [new AssetDto()] })).toBe('');
+    });
+
     it('should preserve element types after narrowing for indexed access', () => {
         expect.hasAssertions();
 
