@@ -1,8 +1,8 @@
 import { describe, expect, it } from '@jest/globals';
 
-import type { IsNever } from '../is-never.spec-type';
-
 import { isNotEmptyArray } from './is-not-empty-array';
+
+import type { IsNever } from '../is-never.spec-type';
 
 describe('isNotEmptyArray', () => {
     it('should return true if variable is not empty array', () => {
@@ -94,7 +94,8 @@ describe('isNotEmptyArray', () => {
             url = '';
         }
 
-        function handleFields<T extends object>(data: T): string | undefined {
+        // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-parameters
+        const handleFields = <T extends object>(data: T): string | undefined => {
             const entries = Object.entries(data) as [keyof T, T[keyof T]][];
 
             for (const [, value] of entries) {
@@ -104,7 +105,7 @@ describe('isNotEmptyArray', () => {
             }
 
             return undefined;
-        }
+        };
 
         expect(handleFields({ assets: [new AssetDto()] })).toBe('');
     });
