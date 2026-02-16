@@ -32,7 +32,7 @@ describe('isEmptyArray', () => {
         expect.hasAssertions();
 
         const array: string[] | undefined = [];
-        let mutable: never[] = [];
+        let mutable: string[] = ['initial'];
 
         if (isEmptyArray(array)) {
             mutable = array;
@@ -41,11 +41,20 @@ describe('isEmptyArray', () => {
         expect(mutable).toEqual([]);
     });
 
-    it('should work when passed as a callback to filter', () => {
+    it('should work when passed as a callback to Array.filter', () => {
         expect.hasAssertions();
 
         const arrays: string[][] = [['a', 'b'], [], ['c']];
         const result: string[][] = arrays.filter(isEmptyArray);
+
+        expect(result).toEqual([[]]);
+    });
+
+    it('should work when passed as a callback to Array.filter with readonly arrays', () => {
+        expect.hasAssertions();
+
+        const arrays: ReadonlyArray<readonly string[]> = [['a', 'b'], [], ['c']];
+        const result: ReadonlyArray<readonly string[]> = arrays.filter(isEmptyArray);
 
         expect(result).toEqual([[]]);
     });
