@@ -67,4 +67,41 @@ describe('isNotEmptyArray', () => {
         expect(isNotEmptyArray(value)).toBe(true);
         expect(isNotEmptyArray([] as unknown[])).toBe(false);
     });
+
+    it('should not narrow any-typed value to never in false branch', () => {
+        expect.hasAssertions();
+
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const getValue = (): any => 'not an array';
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+        const value = getValue();
+
+        if (isNotEmptyArray(value)) {
+            return;
+        }
+
+        // Custom type guard false branch on any narrows to never
+        type IsNever<T> = [T] extends [never] ? true : false;
+        // @ts-expect-error FIXME: value is never, but should remain any
+        const neverCheck: IsNever<typeof value> = false;
+        expect(neverCheck).toBe(false);
+    });
+
+    it('should preserve element types after narrowing for indexed access', () => {
+        expect.hasAssertions();
+
+        interface TestItem {
+            id: number;
+            name: string;
+        }
+
+        const items: TestItem[] = [{ id: 1, name: 'test' }];
+
+        if (!isNotEmptyArray(items)) {
+            throw new Error('Expected non-empty array');
+        }
+
+        // @ts-expect-error FIXME: intersection with readonly [unknown, ...unknown[]] makes element access return unknown
+        expect((items[0] satisfies TestItem).name).toBe('test');
+    });
 });

@@ -79,4 +79,23 @@ describe('isEmptyArray', () => {
         items.push({ id: 2, name: 'added' });
         expect(items).toHaveLength(2);
     });
+
+    it('should not narrow any-typed value to never in false branch', () => {
+        expect.hasAssertions();
+
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const getValue = (): any => [1, 2, 3];
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+        const value = getValue();
+
+        if (isEmptyArray(value)) {
+            return;
+        }
+
+        // Custom type guard false branch on any narrows to never
+        type IsNever<T> = [T] extends [never] ? true : false;
+        // @ts-expect-error FIXME: value is never, but should remain any
+        const neverCheck: IsNever<typeof value> = false;
+        expect(neverCheck).toBe(false);
+    });
 });
