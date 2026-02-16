@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.10.2](https://github.com/rnw-community/rnw-community/compare/v1.10.1...v1.10.2) (2026-02-16)
+
+### Bug Fixes
+
+- **shared:** fix type inference for array type guards and AbstractConstructor ([#310](https://github.com/rnw-community/rnw-community/issues/310)) ([cd8212e](https://github.com/rnw-community/rnw-community/commit/cd8212e3d15aec4000ceda38694e2fb7fd8a736b))
+
 ## [1.10.1](https://github.com/rnw-community/rnw-community/compare/v1.10.0...v1.10.1) (2026-02-14)
 
 ### Bug Fixes

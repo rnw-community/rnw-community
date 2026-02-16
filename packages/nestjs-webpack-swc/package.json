@@ -1,6 +1,6 @@
 {
     "name": "@rnw-community/nestjs-webpack-swc",
-    "version": "1.10.1",
+    "version": "1.10.2",
     "description": "NestJS typed config",
     "keywords": [
         "nestjs",
@@ -50,7 +50,7 @@
     },
     "gitHead": "4fd24bd92936d1793f8f7ff08d6420fce4f211d9",
     "dependencies": {
-        "@rnw-community/shared": "^1.10.1"
+        "@rnw-community/shared": "^1.10.2"
     },
     "devDependencies": {
         "@nestjs/common": "^10.4.22",
