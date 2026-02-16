@@ -2,6 +2,8 @@ import { describe, expect, it } from '@jest/globals';
 
 import { isNotEmptyArray } from './is-not-empty-array';
 
+import type { IsNever } from '../is-never.spec-type';
+
 describe('isNotEmptyArray', () => {
     it('should return true if variable is not empty array', () => {
         expect.hasAssertions();
@@ -66,6 +68,46 @@ describe('isNotEmptyArray', () => {
 
         expect(isNotEmptyArray(value)).toBe(true);
         expect(isNotEmptyArray([] as unknown[])).toBe(false);
+    });
+
+    it('should not narrow any-typed value to never in false branch', () => {
+        expect.hasAssertions();
+
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const getValue = (): any => 'not an array';
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+        const value = getValue();
+
+        if (isNotEmptyArray(value)) {
+            return;
+        }
+
+        // @ts-expect-error FIXME: custom type guard false branch on any narrows to never
+        const neverCheck: IsNever<typeof value> = false;
+        expect(neverCheck).toBe(false);
+    });
+
+    it('should accept generic indexed access types like T[keyof T]', () => {
+        expect.hasAssertions();
+
+        class AssetDto {
+            url = '';
+        }
+
+        // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-parameters
+        const handleFields = <T extends object>(data: T): string | undefined => {
+            const entries = Object.entries(data) as [keyof T, T[keyof T]][];
+
+            for (const [, value] of entries) {
+                if (isNotEmptyArray(value) && value[0] instanceof AssetDto) {
+                    return value[0].url;
+                }
+            }
+
+            return undefined;
+        };
+
+        expect(handleFields({ assets: [new AssetDto()] })).toBe('');
     });
 
     it('should preserve element types after narrowing for indexed access', () => {
