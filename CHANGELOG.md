@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.10.4](https://github.com/rnw-community/rnw-community/compare/v1.10.3...v1.10.4) (2026-02-16)
+
+### Bug Fixes
+
+- **shared:** preserve element types in isNotEmptyArray narrowed type ([#314](https://github.com/rnw-community/rnw-community/issues/314)) ([c667671](https://github.com/rnw-community/rnw-community/commit/c667671f8f9323d5d9fadab798989a771f7b1abd))
+
 ## [1.10.3](https://github.com/rnw-community/rnw-community/compare/v1.10.2...v1.10.3) (2026-02-16)
 
 ### Bug Fixes

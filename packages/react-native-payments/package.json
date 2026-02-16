@@ -1,6 +1,6 @@
 {
     "name": "@rnw-community/react-native-payments",
-    "version": "1.10.3",
+    "version": "1.10.4",
     "description": "Accept Payments with Apple Pay and Android Pay using the Payment Request API.",
     "keywords": [
         "react",
@@ -80,7 +80,7 @@
     "gitHead": "4fd24bd92936d1793f8f7ff08d6420fce4f211d9",
     "dependencies": {
         "@expo/config-plugins": "^9.1.7",
-        "@rnw-community/shared": "^1.10.3",
+        "@rnw-community/shared": "^1.10.4",
         "react-native-uuid": "^2.0.3",
         "validator": "^13.15.26"
     },
