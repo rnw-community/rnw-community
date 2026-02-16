@@ -58,4 +58,25 @@ describe('isEmptyArray', () => {
 
         expect(result).toEqual([[]]);
     });
+
+    it('should narrow false branch to remove undefined after early return', () => {
+        expect.hasAssertions();
+
+        interface TestItem {
+            id: number;
+            name: string;
+        }
+
+        // Use function return to prevent const narrowing — TS can't see through function calls
+        const getItems = (): TestItem[] | undefined => [{ id: 1, name: 'test' }];
+        const items = getItems();
+
+        if (isEmptyArray(items)) {
+            throw new Error('Expected non-empty array');
+        }
+
+        // @ts-expect-error FIXME: isEmptyArray false branch does not remove undefined
+        items.push({ id: 2, name: 'added' });
+        expect(items).toHaveLength(2);
+    });
 });
