@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.10.6](https://github.com/rnw-community/rnw-community/compare/v1.10.5...v1.10.6) (2026-02-16)
+
+### Bug Fixes
+
+- **shared:** preserve element types for array | undefined unions in isNotEmptyArray ([#316](https://github.com/rnw-community/rnw-community/issues/316)) ([23e57df](https://github.com/rnw-community/rnw-community/commit/23e57df563175fbc424ecc7277823787e803116b))
+
 ## [1.10.5](https://github.com/rnw-community/rnw-community/compare/v1.10.4...v1.10.5) (2026-02-16)
 
 **Note:** Version bump only for package @rnw-community/shared
