@@ -6,6 +6,7 @@ import type { ReadonlyIsNotEmptyArray } from '../../../type/readonly-is-not-empt
 export interface IsNotEmptyArrayFn {
     <T>(array: T[] | null | undefined): array is IsNotEmptyArray<T>;
     <T>(array: readonly T[] | null | undefined): array is ReadonlyIsNotEmptyArray<T>;
+    <T extends readonly unknown[]>(array: T | null | undefined): array is T & readonly [unknown, ...unknown[]];
 }
 
 export const isNotEmptyArray: IsNotEmptyArrayFn = (<T>(array: readonly T[] | null | undefined) =>
