@@ -3,6 +3,10 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.10.4](https://github.com/rnw-community/rnw-community/compare/v1.10.3...v1.10.4) (2026-02-16)
+
+**Note:** Version bump only for package @rnw-community/nestjs-webpack-swc
+
 ## [1.10.3](https://github.com/rnw-community/rnw-community/compare/v1.10.2...v1.10.3) (2026-02-16)
 
 **Note:** Version bump only for package @rnw-community/nestjs-webpack-swc

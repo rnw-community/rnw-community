@@ -95,13 +95,10 @@ describe('isNotEmptyArray', () => {
             name: string;
         }
 
-        const items: TestItem[] = [{ id: 1, name: 'test' }];
+        const items: TestItem[] | undefined = [{ id: 1, name: 'test' }];
+        // satisfies TestItem fails at compile-time if element type becomes unknown
+        const first = isNotEmptyArray(items) ? (items[0] satisfies TestItem) : undefined;
 
-        if (!isNotEmptyArray(items)) {
-            throw new Error('Expected non-empty array');
-        }
-
-        // @ts-expect-error FIXME: intersection with readonly [unknown, ...unknown[]] makes element access return unknown
-        expect((items[0] satisfies TestItem).name).toBe('test');
+        expect(first).toEqual({ id: 1, name: 'test' });
     });
 });
