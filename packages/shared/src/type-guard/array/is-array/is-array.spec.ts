@@ -35,12 +35,23 @@ describe('isArray', () => {
         expect(array).toEqual(['a', 'b', 'c']);
     });
 
-    it('should work when passed as a callback to filter', () => {
+    it('should work when passed as a callback to Array.filter', () => {
         expect.hasAssertions();
 
         const items: (string[] | string | undefined)[] = [['a'], 'b', undefined, ['c']];
         const result: (string[] | string | undefined)[] = items.filter(isArray);
 
         expect(result).toEqual([['a'], ['c']]);
+    });
+
+    it('should narrow mixed union types', () => {
+        expect.hasAssertions();
+
+        const value: string | string[] = ['a', 'b'];
+        // Verifies narrowing: string | string[] -> string[] (via T & readonly unknown[])
+        const narrowed = isArray(value) ? (value satisfies string[]) : undefined;
+
+        expect(isArray(value)).toBe(true);
+        expect(narrowed).toEqual(['a', 'b']);
     });
 });
