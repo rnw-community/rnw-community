@@ -32,7 +32,7 @@ describe('isEmptyArray', () => {
         expect.hasAssertions();
 
         const array: string[] | undefined = [];
-        let mutable: never[] = [];
+        let mutable: string[] = ['initial'];
 
         if (isEmptyArray(array)) {
             mutable = array;

@@ -1,13 +1,8 @@
 import { isArray } from '../is-array/is-array';
 
-import type { IsNotEmptyArray } from '../../../type/is-not-empty-array-type/is-not-empty-array.type';
-import type { ReadonlyIsNotEmptyArray } from '../../../type/readonly-is-not-empty-array-type/readonly-is-not-empty-array.type';
-
 export interface IsNotEmptyArrayFn {
-    <T>(array: T[] | null | undefined): array is IsNotEmptyArray<T>;
-    <T>(array: readonly T[] | null | undefined): array is ReadonlyIsNotEmptyArray<T>;
-    <T extends readonly unknown[]>(array: T | null | undefined): array is T & readonly [unknown, ...unknown[]];
+    <T extends readonly unknown[] | null | undefined>(array: T): array is T & readonly [unknown, ...unknown[]];
 }
 
-export const isNotEmptyArray: IsNotEmptyArrayFn = (<T>(array: readonly T[] | null | undefined) =>
+export const isNotEmptyArray: IsNotEmptyArrayFn = (<T extends readonly unknown[] | null | undefined>(array: T) =>
     isArray(array) && array.length > 0) as IsNotEmptyArrayFn;
