@@ -24,7 +24,7 @@
     "dependencies": {
         "@rnw-community/react-native-payments": "workspace:*",
         "@rnw-community/shared": "workspace:*",
-        "react": "^18.3.1",
+        "react": "^19.2.4",
         "react-native": "^0.76.1"
     },
     "private": true

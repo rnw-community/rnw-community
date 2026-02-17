@@ -5758,7 +5758,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@rnw-community/platform@workspace:packages/platform"
   dependencies:
-    react: "npm:^18.3.1"
+    react: "npm:^19.2.4"
     react-native: "npm:^0.76.1"
     react-native-config: "npm:^1.6.1"
   peerDependencies:
@@ -5781,7 +5781,7 @@ __metadata:
     expo-router: "npm:~4.0.22"
     expo-splash-screen: "npm:~0.30.10"
     expo-system-ui: "npm:~4.0.9"
-    react: "npm:18.3.1"
+    react: "npm:19.2.4"
     react-dom: "npm:18.3.1"
     react-native: "npm:^0.76.1"
     react-native-gesture-handler: "npm:~2.30.0"
@@ -5799,7 +5799,7 @@ __metadata:
   dependencies:
     "@rnw-community/react-native-payments": "workspace:*"
     "@rnw-community/shared": "workspace:*"
-    react: "npm:^18.3.1"
+    react: "npm:^19.2.4"
     react-native: "npm:^0.76.1"
   languageName: unknown
   linkType: soft
@@ -5815,7 +5815,7 @@ __metadata:
     "@react-native/metro-config": "npm:0.77.0"
     "@react-native/typescript-config": "npm:0.77.0"
     "@rnw-community/react-native-payments-example-lib": "workspace:*"
-    react: "npm:^18.3.1"
+    react: "npm:^19.2.4"
     react-native: "npm:^0.76.1"
   languageName: unknown
   linkType: soft
@@ -5827,7 +5827,7 @@ __metadata:
     "@expo/config-plugins": "npm:^9.1.7"
     "@rnw-community/shared": "npm:^1.12.1"
     "@types/validator": "npm:^13.15.10"
-    react: "npm:^18.3.1"
+    react: "npm:^19.2.4"
     react-native: "npm:^0.76.1"
     react-native-uuid: "npm:^2.0.3"
     validator: "npm:^13.15.26"
@@ -6269,20 +6269,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/prop-types@npm:*":
-  version: 15.7.5
-  resolution: "@types/prop-types@npm:15.7.5"
-  checksum: 10/5b43b8b15415e1f298243165f1d44390403bb2bd42e662bca3b5b5633fdd39c938e91b7fce3a9483699db0f7a715d08cef220c121f723a634972fdf596aec980
-  languageName: node
-  linkType: hard
-
-"@types/react@npm:^18.3.28":
-  version: 18.3.28
-  resolution: "@types/react@npm:18.3.28"
+"@types/react@npm:^19.2.14":
+  version: 19.2.14
+  resolution: "@types/react@npm:19.2.14"
   dependencies:
-    "@types/prop-types": "npm:*"
     csstype: "npm:^3.2.2"
-  checksum: 10/6db7bb7f19957ee9f530baa7d143527f8befedad1585b064eb80777be0d84621157de75aba4f499ff429b10c5ef0c7d13e89be6bca3296ef71c80472894ff0eb
+  checksum: 10/fbff239089ee64b6bd9b00543594db498278b06de527ef1b0f71bb0eb09cc4445a71b5dd3c0d3d0257255c4eed94406be40a74ad4a987ade8a8d5dd65c82bc5f
   languageName: node
   linkType: hard
 
@@ -18049,12 +18041,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react@npm:18.3.1, react@npm:^18.3.1":
-  version: 18.3.1
-  resolution: "react@npm:18.3.1"
-  dependencies:
-    loose-envify: "npm:^1.1.0"
-  checksum: 10/261137d3f3993eaa2368a83110466fc0e558bc2c7f7ae7ca52d94f03aac945f45146bd85e5f481044db1758a1dbb57879e2fcdd33924e2dde1bdc550ce73f7bf
+"react@npm:19.2.4, react@npm:^19.2.4":
+  version: 19.2.4
+  resolution: "react@npm:19.2.4"
+  checksum: 10/18179fe217f67eb2d0bc61cd04e7ad3c282ea09a1dface7eacd71816f62609f4bbf566c447c704335284deb8397b00bca084e0cd60e6f437279a7498e2d0bfe0
   languageName: node
   linkType: hard
 
@@ -18706,7 +18696,7 @@ __metadata:
     "@jest/globals": "npm:^29.7.0"
     "@smarttools/eslint-plugin-rxjs": "npm:^1.0.22"
     "@types/node": "npm:^22.19.11"
-    "@types/react": "npm:^18.3.28"
+    "@types/react": "npm:^19.2.14"
     babel-jest: "npm:^29.7.0"
     eslint: "npm:^9.39.2"
     eslint-plugin-import: "npm:^2.32.0"
