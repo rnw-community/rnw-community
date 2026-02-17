@@ -84,6 +84,20 @@ Format: `type(scope): description` — scope must be a package name (e.g., `shar
 - **Coverage threshold: 99.9%** for statements, branches, functions, and lines
 - Mock files (`*.mock.ts`) excluded from coverage
 
+## Planning Convention
+
+Always write plans to `.plans/` as `.md` files before executing multi-step changes. Plans are gitignored and serve as working documents for complex tasks.
+
+## ESM Modernization Status
+
+The monorepo uses dual ESM + CJS output. Key decisions:
+- `sideEffects: false` (boolean) in all package.json files
+- `"types"` condition is **first** in all `exports` entries (required for `moduleResolution: "nodenext"` consumers)
+- `moduleResolution: "bundler"` in root tsconfig, `"node"` override in CJS build tsconfig
+- `verbatimModuleSyntax: true` enforces explicit `import type` for type-only imports
+- `lib: ["es2021"]` matches the build target
+- Build scripts correctly reference their tsconfig files (`build:esm` → `tsconfig.build-esm.json`)
+
 ## Pre-commit Checks
 
 **IMPORTANT: Always run all checks before committing and pushing:**
