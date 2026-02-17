@@ -5475,13 +5475,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@react-native/normalize-colors@npm:0.76.8":
-  version: 0.76.8
-  resolution: "@react-native/normalize-colors@npm:0.76.8"
-  checksum: 10/ad1573ed28289a8e46a07f1d4e35e98443a1c86bdb50b9423f390859916721123df751cc6bb6adf5d7c18a0f5b356af7ff015815ff7e5caf574fdfb466357a8b
-  languageName: node
-  linkType: hard
-
 "@react-native/normalize-colors@npm:0.76.9":
   version: 0.76.9
   resolution: "@react-native/normalize-colors@npm:0.76.9"
@@ -5493,6 +5486,13 @@ __metadata:
   version: 0.79.6
   resolution: "@react-native/normalize-colors@npm:0.79.6"
   checksum: 10/e8596238ddf6f666cb336cd410616f2222f513022ea37fd908826161cf554d00c5d43eb8b50e8a2f7000b9f73ee99c37e9813261cad4b896f7a74f26aaed0ebe
+  languageName: node
+  linkType: hard
+
+"@react-native/normalize-colors@npm:0.81.5":
+  version: 0.81.5
+  resolution: "@react-native/normalize-colors@npm:0.81.5"
+  checksum: 10/9a703b228b0e694436385f4438a684599f3b4f1ea16e3eb06f02b3bc2f9e091e3a754b4d25f0ad43ed7169ef5658603b30d0d78ee6bef338939313f16d85f077
   languageName: node
   linkType: hard
 
@@ -5850,7 +5850,7 @@ __metadata:
     expo-linking: "npm:~7.0.5"
     expo-router: "npm:~4.0.22"
     expo-splash-screen: "npm:~0.30.10"
-    expo-system-ui: "npm:~4.0.9"
+    expo-system-ui: "npm:~6.0.9"
     react: "npm:18.3.1"
     react-dom: "npm:18.3.1"
     react-native: "npm:^0.76.1"
@@ -11126,11 +11126,11 @@ __metadata:
   languageName: node
   linkType: hard
 
-"expo-system-ui@npm:~4.0.9":
-  version: 4.0.9
-  resolution: "expo-system-ui@npm:4.0.9"
+"expo-system-ui@npm:~6.0.9":
+  version: 6.0.9
+  resolution: "expo-system-ui@npm:6.0.9"
   dependencies:
-    "@react-native/normalize-colors": "npm:0.76.8"
+    "@react-native/normalize-colors": "npm:0.81.5"
     debug: "npm:^4.3.2"
   peerDependencies:
     expo: "*"
@@ -11139,7 +11139,7 @@ __metadata:
   peerDependenciesMeta:
     react-native-web:
       optional: true
-  checksum: 10/a3065b69a3d8312a6ec672920bb794b0b7338afb87e2f08b55a3f273a82e1b22635f8217663b1dda4b68980f8ebb7f1d4f266802d879884b33c59659804d9678
+  checksum: 10/c8d0cec566639d02e6cb5057c8dc37e4f1c081c245a220cc1410628cfbf6fa3dc53be85ccf92c26a496b83685f6980710d3a4800333f9a3012dfb8fc8e853ffb
   languageName: node
   linkType: hard
 
