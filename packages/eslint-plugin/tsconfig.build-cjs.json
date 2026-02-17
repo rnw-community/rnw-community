@@ -3,7 +3,8 @@
     "compilerOptions": {
         "outDir": "./dist/cjs",
         "module": "node16",
-        "moduleResolution": "Node16"
+        "moduleResolution": "Node16",
+        "verbatimModuleSyntax": false
     },
     "include": [
         "./src"

@@ -15,6 +15,7 @@
         "**/coverage/**",
         "**/node_modules/**",
         "**/CHANGELOG.md",
+        "**/CLAUDE.md",
         "**/LICENSE.md",
         "**/Pods/**",
         "**/react-native-payments-example-expo/**",

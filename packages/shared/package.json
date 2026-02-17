@@ -17,6 +17,7 @@
     "license": "MIT",
     "exports": {
         ".": {
+            "types": "./dist/esm/index.d.ts",
             "import": "./dist/esm/index.js",
             "require": "./dist/cjs/index.js"
         }
@@ -27,7 +28,7 @@
     "files": [
         "dist/**/*"
     ],
-    "sideEffects": "false",
+    "sideEffects": false,
     "publishConfig": {
         "access": "public"
     },

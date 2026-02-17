@@ -2,7 +2,7 @@
     "extends": "../../tsconfig.build-esm.json",
     "compilerOptions": {
         "outDir": "./dist/esm",
-        "lib": ["DOM"]
+        "lib": ["es2021", "DOM"]
     },
     "include": [
         "./src"

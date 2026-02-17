@@ -12,7 +12,7 @@
     "files": [
         "src/**/*"
     ],
-    "sideEffects": "false",
+    "sideEffects": false,
     "scripts": {
         "ts": "run -T tsc --pretty -p tsconfig.json",
         "lint": "run -T eslint src",
