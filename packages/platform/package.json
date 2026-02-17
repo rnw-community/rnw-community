@@ -1,6 +1,6 @@
 {
     "name": "@rnw-community/platform",
-    "version": "1.10.0",
+    "version": "1.12.1",
     "description": "React native web platform utils and helpers",
     "keywords": [
         "platform utils",
