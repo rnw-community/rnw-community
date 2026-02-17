@@ -27,6 +27,8 @@ export { isNotEmptyArrayOf } from './type-guard/array/is-not-empty-array-of/is-n
 export { isNumber } from './type-guard/number/is-number/is-number';
 export { isPositiveNumber } from './type-guard/number/is-positive-number/is-positive-number';
 
+export { isBoolean } from './type-guard/boolean/is-boolean/is-boolean';
+
 // Utils
 export { cs } from './util/cs/cs';
 export { emptyFn } from './util/empty-fn/empty-fn';

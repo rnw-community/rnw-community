@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.11.0](https://github.com/rnw-community/rnw-community/compare/v1.10.6...v1.11.0) (2026-02-17)
+
+### Features
+
+- **shared:** add isBoolean type guard ([#317](https://github.com/rnw-community/rnw-community/issues/317)) ([ef02f10](https://github.com/rnw-community/rnw-community/commit/ef02f10dd3b64e5df71b97460ac6266011b6f544))
+
 ## [1.10.6](https://github.com/rnw-community/rnw-community/compare/v1.10.5...v1.10.6) (2026-02-16)
 
 ### Bug Fixes

@@ -3,6 +3,10 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.11.0](https://github.com/rnw-community/rnw-community/compare/v1.10.6...v1.11.0) (2026-02-17)
+
+**Note:** Version bump only for package @rnw-community/nestjs-enterprise
+
 ## [1.10.6](https://github.com/rnw-community/rnw-community/compare/v1.10.5...v1.10.6) (2026-02-16)
 
 **Note:** Version bump only for package @rnw-community/nestjs-enterprise
