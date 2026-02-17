@@ -33,13 +33,13 @@ class TestClass {
     }
 
     @Log(preLogText, postLogText, errorLogText)
-     
+
     async testPromiseError(): Promise<number> {
         throw new Error(errorLogText);
     }
 
     @Log(preLogText, postLogText, (error, arg) => `${String(error)}-${arg}`)
-     
+
     async testPromiseErrorFunction(_arg: number): Promise<number> {
         throw new Error(errorLogText);
     }
@@ -84,22 +84,24 @@ class TestClass {
         return throwError(() => errorLogText);
     }
 
-    // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-    @Log(arg => `${preLogText}-${arg}`, (result, arg) => `${result}-${postLogText}-${arg}`)
+    @Log(arg => `${preLogText}-${String(arg)}`, (result, arg) => `${String(result)}-${postLogText}-${String(arg)}`)
     testGeneric<T>(arg: T): T {
         return arg;
     }
 
-    // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-    @Log(arg => `${preLogText}-${arg}`, (result, arg) => `${result}-${postLogText}-${arg}`)
+    @Log(arg => `${preLogText}-${String(arg)}`, (result, arg) => `${String(result)}-${postLogText}-${String(arg)}`)
     async testGenericPromise<T>(arg: T): Promise<T> {
         return await arg;
     }
 
-    // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-    @Log(arg => `${preLogText}-${arg}`, (result, arg) => `${result}-${postLogText}-${arg}`)
+    @Log(arg => `${preLogText}-${String(arg)}`, (result, arg) => `${String(result)}-${postLogText}-${String(arg)}`)
     testGenericObservable<T>(arg: T): Observable<T> {
         return of(arg);
+    }
+
+    @Log(preLogText, postLogText)
+    testConstrainedGeneric<T extends { id: number }>(arg: T): T {
+        return arg;
     }
 }
 
@@ -111,7 +113,7 @@ jest.mock('@nestjs/common', () => ({
     },
 }));
 
- 
+
 describe('LogDecorator', () => {
     it('should output pre/post logs as strings with Plain value returned', () => {
         expect.assertions(2);
@@ -183,6 +185,16 @@ describe('LogDecorator', () => {
         expect(Logger.log).toHaveBeenCalledWith(`${preLogText}-test`, `${TestClass.name}::testGeneric`);
     });
 
+    it('should support constrained generic methods', () => {
+        expect.assertions(2);
+
+        const instance = new TestClass();
+        const result = instance.testConstrainedGeneric({ id: 42 });
+
+        expect(result).toStrictEqual({ id: 42 });
+        expect(Logger.log).toHaveBeenCalledWith(preLogText, `${TestClass.name}::testConstrainedGeneric`);
+    });
+
     describe('Promise', () => {
         it('should output pre log as strings', async () => {
             expect.assertions(1);
@@ -207,7 +219,7 @@ describe('LogDecorator', () => {
 
             const instance = new TestClass();
 
-             
+
             await expect(instance.testPromiseError).rejects.toThrow(errorLogText);
             expect(Logger.error).toHaveBeenCalledWith(errorLogText, `${TestClass.name}::testPromiseError`);
         });
