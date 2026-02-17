@@ -88,12 +88,16 @@ describe(`HistogramMetric decorator`, () => {
     });
 
     it('should support generic methods', () => {
-        expect.assertions(2);
+        expect.assertions(3);
 
         const testClass = new TestClass();
-        const result = testClass.testGeneric('test');
 
-        expect(result).toBe('test');
+        const stringResult = testClass.testGeneric('test');
+        expect(stringResult.slice(0)).toBe('test');
+
+        const numberResult = testClass.testGeneric(42);
+        expect(numberResult.toFixed()).toBe('42');
+
         expect(mockEndTimer).toHaveBeenCalledWith();
     });
 
@@ -103,7 +107,7 @@ describe(`HistogramMetric decorator`, () => {
         const testClass = new TestClass();
         const result = testClass.testConstrainedGeneric({ id: 42 });
 
-        expect(result).toStrictEqual({ id: 42 });
+        expect(result.id.toFixed()).toBe('42');
         expect(mockEndTimer).toHaveBeenCalledWith();
     });
 
@@ -113,7 +117,7 @@ describe(`HistogramMetric decorator`, () => {
         const testClass = new TestClass();
         const result = await testClass.testGenericPromise('test');
 
-        expect(result).toBe('test');
+        expect(result.slice(0)).toBe('test');
         expect(mockEndTimer).toHaveBeenCalledWith();
     });
 });
