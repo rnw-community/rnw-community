@@ -22,6 +22,7 @@ export { isNotEmptyString } from './type-guard/string/is-not-empty-string/is-not
 export { isArray } from './type-guard/array/is-array/is-array';
 export { isEmptyArray } from './type-guard/array/is-empty-array/is-empty-array';
 export { isNotEmptyArray } from './type-guard/array/is-not-empty-array/is-not-empty-array';
+export { isNotEmptyArrayOf } from './type-guard/array/is-not-empty-array-of/is-not-empty-array-of';
 
 export { isNumber } from './type-guard/number/is-number/is-number';
 export { isPositiveNumber } from './type-guard/number/is-positive-number/is-positive-number';
