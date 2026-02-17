@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.12.0](https://github.com/rnw-community/rnw-community/compare/v1.11.0...v1.12.0) (2026-02-17)
+
+### Features
+
+- **shared:** add isNotEmptyArrayOf type guard ([#319](https://github.com/rnw-community/rnw-community/issues/319)) ([7873945](https://github.com/rnw-community/rnw-community/commit/78739459d2e29ca0e31037c41da48d3115013206))
+
 # [1.11.0](https://github.com/rnw-community/rnw-community/compare/v1.10.6...v1.11.0) (2026-02-17)
 
 ### Features
