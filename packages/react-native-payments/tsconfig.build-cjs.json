@@ -2,7 +2,7 @@
     "extends": "../../tsconfig.build-cjs.json",
     "compilerOptions": {
         "outDir": "./dist/cjs",
-        "lib": ["DOM"]
+        "lib": ["es2021", "DOM"]
     },
     "include": [
         "./src"

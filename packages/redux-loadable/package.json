@@ -14,6 +14,7 @@
     "license": "MIT",
     "exports": {
         ".": {
+            "types": "./dist/esm/index.d.ts",
             "import": "./dist/esm/index.js",
             "require": "./dist/cjs/index.js"
         }
@@ -27,14 +28,14 @@
     "files": [
         "dist/**/*"
     ],
-    "sideEffects": "false",
+    "sideEffects": false,
     "publishConfig": {
         "access": "public"
     },
     "scripts": {
         "ts": "run -T tsc --pretty -p tsconfig.json",
-        "build:esm": "run -T tsc --pretty -p tsconfig.build-cjs.json",
-        "build:cjs": "run -T tsc --pretty -p tsconfig.build-esm.json",
+        "build:esm": "run -T tsc --pretty -p tsconfig.build-esm.json",
+        "build:cjs": "run -T tsc --pretty -p tsconfig.build-cjs.json",
         "build": "yarn build:esm && yarn build:cjs && rm -rf ./dist/*/*.tsbuildinfo",
         "lint": "run -T eslint src",
         "lint:fix": "run -T eslint --fix src",
