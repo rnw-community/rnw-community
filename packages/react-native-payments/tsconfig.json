@@ -2,7 +2,7 @@
     "extends": "../../tsconfig.json",
     "compilerOptions": {
         "tsBuildInfoFile": "./node_modules/.cache/tsbuildinfo.json",
-        "lib": ["DOM"]
+        "lib": ["es2021", "DOM"]
     },
     "include": [
         "./src"
