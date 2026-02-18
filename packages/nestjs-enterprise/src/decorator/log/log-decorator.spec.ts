@@ -33,13 +33,13 @@ class TestClass {
     }
 
     @Log(preLogText, postLogText, errorLogText)
-
+     
     async testPromiseError(): Promise<number> {
         throw new Error(errorLogText);
     }
 
     @Log(preLogText, postLogText, (error, arg) => `${String(error)}-${arg}`)
-
+     
     async testPromiseErrorFunction(_arg: number): Promise<number> {
         throw new Error(errorLogText);
     }
@@ -84,17 +84,17 @@ class TestClass {
         return throwError(() => errorLogText);
     }
 
-    @Log(preLogText, postLogText)
+    @Log(arg => `${preLogText}-${String(arg)}`, (result, arg) => `${String(result)}-${postLogText}-${String(arg)}`)
     testGeneric<T>(arg: T): T {
         return arg;
     }
 
-    @Log(preLogText, postLogText)
+    @Log(arg => `${preLogText}-${String(arg)}`, (result, arg) => `${String(result)}-${postLogText}-${String(arg)}`)
     async testGenericPromise<T>(arg: T): Promise<T> {
         return await arg;
     }
 
-    @Log(preLogText, postLogText)
+    @Log(arg => `${preLogText}-${String(arg)}`, (result, arg) => `${String(result)}-${postLogText}-${String(arg)}`)
     testGenericObservable<T>(arg: T): Observable<T> {
         return of(arg);
     }
@@ -113,7 +113,7 @@ jest.mock('@nestjs/common', () => ({
     },
 }));
 
-
+ 
 describe('LogDecorator', () => {
     it('should output pre/post logs as strings with Plain value returned', () => {
         expect.assertions(2);
@@ -186,7 +186,7 @@ describe('LogDecorator', () => {
         const numberResult = instance.testGeneric(42);
         expect(numberResult.toFixed()).toBe('42');
 
-        expect(Logger.log).toHaveBeenCalledWith(preLogText, `${TestClass.name}::testGeneric`);
+        expect(Logger.log).toHaveBeenCalledWith(`${preLogText}-test`, `${TestClass.name}::testGeneric`);
     });
 
     it('should support constrained generic methods', () => {
@@ -223,7 +223,7 @@ describe('LogDecorator', () => {
 
             const instance = new TestClass();
 
-
+             
             await expect(instance.testPromiseError).rejects.toThrow(errorLogText);
             expect(Logger.error).toHaveBeenCalledWith(errorLogText, `${TestClass.name}::testPromiseError`);
         });
@@ -247,7 +247,7 @@ describe('LogDecorator', () => {
             const result = await instance.testGenericPromise('test');
 
             expect(result.slice(0)).toBe('test');
-            expect(Logger.log).toHaveBeenCalledWith(preLogText, `${TestClass.name}::testGenericPromise`);
+            expect(Logger.log).toHaveBeenCalledWith(`${preLogText}-test`, `${TestClass.name}::testGenericPromise`);
         });
     });
 
@@ -313,7 +313,7 @@ describe('LogDecorator', () => {
                 expect(value.slice(0)).toBe('test');
             });
 
-            expect(Logger.log).toHaveBeenCalledWith(preLogText, `${TestClass.name}::testGenericObservable`);
+            expect(Logger.log).toHaveBeenCalledWith(`${preLogText}-test`, `${TestClass.name}::testGenericObservable`);
         });
     });
 });
