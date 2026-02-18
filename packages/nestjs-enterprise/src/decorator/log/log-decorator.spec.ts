@@ -99,7 +99,7 @@ class TestClass {
         return of(arg);
     }
 
-    @Log(preLogText, postLogText)
+    @Log(arg => `constrained-${arg.id}`, postLogText)
     testConstrainedGeneric<T extends { id: number }>(arg: T): T {
         return arg;
     }
@@ -196,7 +196,7 @@ describe('LogDecorator', () => {
         const result = instance.testConstrainedGeneric({ id: 42 });
 
         expect(result.id.toFixed()).toBe('42');
-        expect(Logger.log).toHaveBeenCalledWith(preLogText, `${TestClass.name}::testConstrainedGeneric`);
+        expect(Logger.log).toHaveBeenCalledWith('constrained-42', `${TestClass.name}::testConstrainedGeneric`);
     });
 
     describe('Promise', () => {
