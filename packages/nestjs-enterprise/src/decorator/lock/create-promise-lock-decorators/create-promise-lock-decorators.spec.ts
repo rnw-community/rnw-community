@@ -275,6 +275,19 @@ describe('createPromiseLockDecorators', () => {
             expect(mockRelease).not.toHaveBeenCalled();
         });
 
+        it('should invoke catchErrorFn when lock is already held', async () => {
+            expect.hasAssertions();
+
+            mockTryAcquire.mockResolvedValueOnce(undefined);
+            // @ts-expect-error Test preconditions
+            mockErrorFn.mockResolvedValue(0);
+
+            await expect(instance.testExclusiveLockFailedErrorFn()).resolves.toBe(0);
+            expect(mockTryAcquire).toHaveBeenCalledWith(['test'], 1000);
+            expect(mockRelease).not.toHaveBeenCalled();
+            expect(mockErrorFn).toHaveBeenCalledWith(expect.objectContaining({ message: expect.stringContaining('Lock not acquired') }));
+        });
+
         it('should throw error if resources argument is not defined or empty array is passed', async () => {
             expect.hasAssertions();
 
