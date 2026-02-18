@@ -1,6 +1,6 @@
 {
     "name": "@rnw-community/nestjs-rxjs-lock",
-    "version": "1.12.0",
+    "version": "1.12.1",
     "description": "NestJS RxJS lock",
     "keywords": [
         "nestjs",
@@ -11,6 +11,7 @@
     "license": "MIT",
     "exports": {
         ".": {
+            "types": "./dist/esm/index.d.ts",
             "import": "./dist/esm/index.js",
             "require": "./dist/cjs/index.js"
         }
@@ -24,14 +25,14 @@
     "files": [
         "dist/**/*"
     ],
-    "sideEffects": "false",
+    "sideEffects": false,
     "publishConfig": {
         "access": "public"
     },
     "scripts": {
         "ts": "run -T tsc --pretty -p tsconfig.json",
-        "build:esm": "run -T tsc --pretty -p tsconfig.build-cjs.json",
-        "build:cjs": "run -T tsc --pretty -p tsconfig.build-esm.json",
+        "build:esm": "run -T tsc --pretty -p tsconfig.build-esm.json",
+        "build:cjs": "run -T tsc --pretty -p tsconfig.build-cjs.json",
         "build": "yarn build:esm && yarn build:cjs && rm -rf ./dist/*/*.tsbuildinfo",
         "lint": "run -T eslint src",
         "lint:fix": "run -T eslint --fix src",
@@ -46,9 +47,9 @@
         "@nestjs-modules/ioredis": "^2.0.2",
         "@nestjs/common": "^10.4.22",
         "@nestjs/core": "^10.4.22",
-        "@rnw-community/shared": "^1.12.0",
+        "@rnw-community/shared": "^1.12.1",
         "ioredis": "^5.9.3",
-        "redlock": "^5.0.0-beta.2",
+        "redlock": "patch:redlock@npm%3A5.0.0-beta2#~/.yarn/patches/redlock-npm-5.0.0-beta2-4d0e335fe9.patch",
         "rxjs": "^7.8.2"
     }
 }

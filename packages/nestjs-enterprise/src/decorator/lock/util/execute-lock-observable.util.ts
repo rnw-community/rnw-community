@@ -29,6 +29,10 @@ export const executeLockObservable = <TResult, TArgs extends unknown[] = unknown
         return from(acquireFn()).pipe(
             concatMap(currentLock => {
                 if (!isDefined(currentLock)) {
+                    if (isDefined(catchErrorFn$)) {
+                        throw new Error(`Lock not acquired for keys: ${lockKeys.join(', ')}`);
+                    }
+
                     return EMPTY;
                 }
 

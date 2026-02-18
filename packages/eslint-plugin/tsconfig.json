@@ -3,7 +3,8 @@
     "compilerOptions": {
         "tsBuildInfoFile": "./node_modules/.cache/tsbuildinfo.json",
         "moduleResolution": "nodenext",
-        "module": "nodenext"
+        "module": "nodenext",
+        "verbatimModuleSyntax": false
     },
     "include": [
         "./src"

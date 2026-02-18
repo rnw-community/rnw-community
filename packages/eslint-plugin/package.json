@@ -1,6 +1,6 @@
 {
     "name": "@rnw-community/eslint-plugin",
-    "version": "1.10.0",
+    "version": "1.12.1",
     "description": "RNW-Community ESLint plugin",
     "keywords": [
         "eslint",
@@ -13,6 +13,7 @@
     "license": "MIT",
     "exports": {
         ".": {
+            "types": "./dist/esm/src/index.d.ts",
             "import": "./dist/esm/src/index.js",
             "require": "./dist/cjs/src/index.js"
         }
@@ -23,7 +24,7 @@
     "files": [
         "dist/**/*"
     ],
-    "sideEffects": "false",
+    "sideEffects": false,
     "publishConfig": {
         "access": "public"
     },

@@ -1,6 +1,6 @@
 {
     "name": "@rnw-community/nestjs-enterprise",
-    "version": "1.12.0",
+    "version": "1.12.4",
     "description": "NestJS Enterprise is a collection of enterprise-grade modules for NestJS.",
     "keywords": [
         "nestjs",
@@ -13,39 +13,39 @@
     "license": "MIT",
     "exports": {
         ".": {
+            "types": "./dist/esm/index.d.ts",
             "import": "./dist/esm/index.js",
-            "require": "./dist/cjs/index.js",
-            "types": "./dist/esm/index.d.ts"
+            "require": "./dist/cjs/index.js"
         },
         "./HistogramMetric": {
+            "types": "./dist/esm/decorator/histogram-metric/histogram-metric.decorator.d.ts",
             "import": "./dist/esm/decorator/histogram-metric/histogram-metric.decorator.js",
-            "require": "./dist/cjs/decorator/histogram-metric/histogram-metric.decorator.js",
-            "types": "./dist/esm/decorator/histogram-metric/histogram-metric.decorator.d.ts"
+            "require": "./dist/cjs/decorator/histogram-metric/histogram-metric.decorator.js"
         },
         "./Log": {
+            "types": "./dist/esm/decorator/log/log.decorator.d.ts",
             "import": "./dist/esm/decorator/log/log.decorator.js",
-            "require": "./dist/cjs/decorator/log/log.decorator.js",
-            "types": "./dist/esm/decorator/log/log.decorator.d.ts"
+            "require": "./dist/cjs/decorator/log/log.decorator.js"
         },
         "./LockPromise": {
+            "types": "./dist/esm/decorator/lock/lock-promise/lock-promise.decorator.d.ts",
             "import": "./dist/esm/decorator/lock/lock-promise/lock-promise.decorator.js",
-            "require": "./dist/cjs/decorator/lock/lock-promise/lock-promise.decorator.js",
-            "types": "./dist/esm/decorator/lock/lock-promise/lock-promise.decorator.d.ts"
+            "require": "./dist/cjs/decorator/lock/lock-promise/lock-promise.decorator.js"
         },
         "./LockObservable": {
+            "types": "./dist/esm/decorator/lock/lock-observable/lock-observable.decorator.d.ts",
             "import": "./dist/esm/decorator/lock/lock-observable/lock-observable.decorator.js",
-            "require": "./dist/cjs/decorator/lock/lock-observable/lock-observable.decorator.js",
-            "types": "./dist/esm/decorator/lock/lock-observable/lock-observable.decorator.d.ts"
+            "require": "./dist/cjs/decorator/lock/lock-observable/lock-observable.decorator.js"
         },
         "./CreatePromiseLockDecorators": {
+            "types": "./dist/esm/decorator/lock/create-promise-lock-decorators/create-promise-lock-decorators.d.ts",
             "import": "./dist/esm/decorator/lock/create-promise-lock-decorators/create-promise-lock-decorators.js",
-            "require": "./dist/cjs/decorator/lock/create-promise-lock-decorators/create-promise-lock-decorators.js",
-            "types": "./dist/esm/decorator/lock/create-promise-lock-decorators/create-promise-lock-decorators.d.ts"
+            "require": "./dist/cjs/decorator/lock/create-promise-lock-decorators/create-promise-lock-decorators.js"
         },
         "./CreateObservableLockDecorators": {
+            "types": "./dist/esm/decorator/lock/create-observable-lock-decorators/create-observable-lock-decorators.d.ts",
             "import": "./dist/esm/decorator/lock/create-observable-lock-decorators/create-observable-lock-decorators.js",
-            "require": "./dist/cjs/decorator/lock/create-observable-lock-decorators/create-observable-lock-decorators.js",
-            "types": "./dist/esm/decorator/lock/create-observable-lock-decorators/create-observable-lock-decorators.d.ts"
+            "require": "./dist/cjs/decorator/lock/create-observable-lock-decorators/create-observable-lock-decorators.js"
         }
     },
     "main": "dist/cjs/index.js",
@@ -60,8 +60,8 @@
     },
     "scripts": {
         "ts": "run -T tsc --pretty -p tsconfig.json",
-        "build:esm": "run -T tsc --pretty -p tsconfig.build-cjs.json",
-        "build:cjs": "run -T tsc --pretty -p tsconfig.build-esm.json",
+        "build:esm": "run -T tsc --pretty -p tsconfig.build-esm.json",
+        "build:cjs": "run -T tsc --pretty -p tsconfig.build-cjs.json",
         "build": "yarn build:esm && yarn build:cjs && rm -rf ./dist/*/*.tsbuildinfo",
         "lint": "run -T eslint src",
         "lint:fix": "run -T eslint --fix src",
@@ -73,7 +73,7 @@
     },
     "gitHead": "4fd24bd92936d1793f8f7ff08d6420fce4f211d9",
     "dependencies": {
-        "@rnw-community/shared": "^1.12.0"
+        "@rnw-community/shared": "^1.12.1"
     },
     "engines": {
         "node": ">=18.0.0"
@@ -82,7 +82,7 @@
         "@nestjs/common": "^10.4.22",
         "ioredis": "^5.9.3",
         "prom-client": "^15.1.3",
-        "redlock": "^5.0.0-beta.2",
+        "redlock": "patch:redlock@npm%3A5.0.0-beta2#~/.yarn/patches/redlock-npm-5.0.0-beta2-4d0e335fe9.patch",
         "rxjs": "^7.8.2"
     },
     "peerDependencies": {

@@ -3,6 +3,20 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.12.4](https://github.com/rnw-community/rnw-community/compare/v1.12.3...v1.12.4) (2026-02-18)
+
+**Note:** Version bump only for package @rnw-community/nestjs-enterprise
+
+## [1.12.3](https://github.com/rnw-community/rnw-community/compare/v1.12.2...v1.12.3) (2026-02-18)
+
+### Bug Fixes
+
+- **nestjs-enterprise:** invoke catchErrorFn on exclusive lock contention ([fe0d98a](https://github.com/rnw-community/rnw-community/commit/fe0d98a0cbaf40a0ec46109927e54fe608704a9f))
+
+## [1.12.1](https://github.com/rnw-community/rnw-community/compare/v1.12.0...v1.12.1) (2026-02-17)
+
+**Note:** Version bump only for package @rnw-community/nestjs-enterprise
+
 # [1.12.0](https://github.com/rnw-community/rnw-community/compare/v1.11.0...v1.12.0) (2026-02-17)
 
 **Note:** Version bump only for package @rnw-community/nestjs-enterprise

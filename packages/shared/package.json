@@ -1,6 +1,6 @@
 {
     "name": "@rnw-community/shared",
-    "version": "1.12.0",
+    "version": "1.12.1",
     "description": "Shared useful utils and types",
     "keywords": [
         "generic utils",
@@ -17,6 +17,7 @@
     "license": "MIT",
     "exports": {
         ".": {
+            "types": "./dist/esm/index.d.ts",
             "import": "./dist/esm/index.js",
             "require": "./dist/cjs/index.js"
         }
@@ -27,7 +28,7 @@
     "files": [
         "dist/**/*"
     ],
-    "sideEffects": "false",
+    "sideEffects": false,
     "publishConfig": {
         "access": "public"
     },
