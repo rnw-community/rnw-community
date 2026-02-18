@@ -25,6 +25,10 @@ export const executeLockPromise = <TArgs extends unknown[] = unknown[]>(
                 : await lockService.acquire(lockKeys, duration);
 
         if (!isDefined(currentLock)) {
+            if (isDefined(catchErrorFn)) {
+                throw new Error(`Lock not acquired for keys: ${lockKeys.join(', ')}`);
+            }
+
             // eslint-disable-next-line no-undefined
             return undefined;
         }
