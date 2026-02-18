@@ -134,7 +134,10 @@ describe('createPromiseLockDecorators', () => {
     let instance: TestClass;
 
     beforeEach(() => {
-        jest.clearAllMocks();
+        jest.resetAllMocks();
+        mockRelease.mockResolvedValue();
+        mockAcquire.mockResolvedValue({ release: mockRelease });
+        mockTryAcquire.mockResolvedValue({ release: mockRelease });
         instance = new TestClass();
         // HINT: Simulate NestJS DI by setting the lock service on the instance via the captured symbols
         for (const sym of injectedSymbols) {
@@ -202,8 +205,6 @@ describe('createPromiseLockDecorators', () => {
 
             const errorMsg = 'Acquire lock failed';
             mockAcquire.mockRejectedValueOnce(new Error(errorMsg));
-            // @ts-expect-error Test preconditions
-            mockErrorFn.mockResolvedValue(0);
 
             await expect(instance.testLockFailedErrorFn()).resolves.toBe(0);
             expect(mockAcquire).toHaveBeenCalledWith(['test'], 1000);
@@ -279,13 +280,25 @@ describe('createPromiseLockDecorators', () => {
             expect.hasAssertions();
 
             mockTryAcquire.mockResolvedValueOnce(undefined);
-            // @ts-expect-error Test preconditions
-            mockErrorFn.mockResolvedValue(0);
 
             await expect(instance.testExclusiveLockFailedErrorFn()).resolves.toBe(0);
             expect(mockTryAcquire).toHaveBeenCalledWith(['test'], 1000);
             expect(mockRelease).not.toHaveBeenCalled();
             expect(mockErrorFn).toHaveBeenCalledWith(expect.objectContaining({ message: expect.stringContaining('Lock not acquired') }));
+        });
+
+        it('should handle throwing error in catchErrorFn when lock is already held', async () => {
+            expect.hasAssertions();
+
+            mockTryAcquire.mockResolvedValueOnce(undefined);
+            const catchErrorFnErrorMsg = 'Error in catchErrorFn';
+            mockErrorFn.mockImplementation(() => {
+                throw new Error(catchErrorFnErrorMsg);
+            });
+
+            await expect(instance.testExclusiveLockFailedErrorFn()).rejects.toThrow(catchErrorFnErrorMsg);
+            expect(mockTryAcquire).toHaveBeenCalledWith(['test'], 1000);
+            expect(mockRelease).not.toHaveBeenCalled();
         });
 
         it('should throw error if resources argument is not defined or empty array is passed', async () => {
@@ -331,8 +344,6 @@ describe('createPromiseLockDecorators', () => {
 
             const errorMsg = 'Acquire lock failed';
             mockTryAcquire.mockRejectedValueOnce(new Error(errorMsg));
-            // @ts-expect-error Test preconditions
-            mockErrorFn.mockResolvedValue(0);
 
             await expect(instance.testExclusiveLockFailedErrorFn()).resolves.toBe(0);
             expect(mockTryAcquire).toHaveBeenCalledWith(['test'], 1000);
