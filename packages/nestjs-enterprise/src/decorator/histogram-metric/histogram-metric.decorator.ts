@@ -2,12 +2,26 @@ import { Histogram, type HistogramConfiguration, register } from 'prom-client';
 
 import { type AnyFn, type MethodDecoratorType, isDefined } from '@rnw-community/shared';
 
+type DecoratorMethodType = (...args: unknown[]) => unknown;
+type DecoratorDescriptorType = TypedPropertyDescriptor<DecoratorMethodType>;
 
-export const HistogramMetric =
-    <M extends string, K extends AnyFn, TResult extends ReturnType<K>, TArgs extends Parameters<K>>(
+interface HistogramMetricFn {
+    <M extends string, K extends AnyFn>(
+        metricName: string,
+        configuration?: Omit<HistogramConfiguration<M>, 'name'>
+    ): MethodDecoratorType<K>;
+
+    <M extends string>(
+        metricName: string,
+        configuration?: Omit<HistogramConfiguration<M>, 'name'>
+    ): MethodDecorator;
+}
+
+export const HistogramMetric: HistogramMetricFn =
+    <M extends string>(
             metricName: string,
             configuration?: Omit<HistogramConfiguration<M>, 'name'>
-        ): MethodDecoratorType<K> =>
+        ): MethodDecorator =>
         (_target, _propertyKey, descriptor) => {
             let histogram = register.getSingleMetric(metricName) as Histogram<M> | undefined;
 
@@ -19,21 +33,20 @@ export const HistogramMetric =
                 });
             }
 
+            const typedDescriptor = descriptor as unknown as DecoratorDescriptorType;
             // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-            const originalMethod = descriptor.value!;
+            const originalMethod = typedDescriptor.value!;
 
             // eslint-disable-next-line func-names
-            descriptor.value = function (...args: TArgs): TResult {
+            typedDescriptor.value = function (...args: unknown[]): unknown {
                 const endHistogram = histogram.startTimer();
 
                 try {
-                    // @ts-expect-error We need this to handle generic methods correctly
-                    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-                    return originalMethod.apply(this, args);
+                    return originalMethod.call(this, ...args);
                 } finally {
                     endHistogram();
                 }
-            } as K;
+            };
 
             return descriptor;
         };
