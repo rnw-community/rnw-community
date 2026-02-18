@@ -131,7 +131,7 @@ describe('createObservableLockDecorators', () => {
     let instance: TestClass;
 
     beforeEach(() => {
-        jest.clearAllMocks();
+        jest.resetAllMocks();
         mockRelease.mockResolvedValue();
         mockAcquire.mockResolvedValue({ release: mockRelease });
         mockTryAcquire.mockResolvedValue({ release: mockRelease });
@@ -281,13 +281,28 @@ describe('createObservableLockDecorators', () => {
         it('should invoke catchErrorFn$ when lock is already held', async () => {
             expect.hasAssertions();
 
-            mockErrorFn.mockReset();
             mockTryAcquire.mockResolvedValueOnce(undefined);
 
             await expect(lastValueFrom(instance.testExclusiveLockFailedErrorFn$())).resolves.toBe(0);
             expect(mockTryAcquire).toHaveBeenCalledWith(['test'], 1000);
             expect(mockRelease).not.toHaveBeenCalled();
             expect(mockErrorFn).toHaveBeenCalledWith(expect.objectContaining({ message: expect.stringContaining('Lock not acquired') }));
+        });
+
+        it('should handle throwing error in catchErrorFn$ when lock is already held', async () => {
+            expect.hasAssertions();
+
+            mockTryAcquire.mockResolvedValueOnce(undefined);
+            const catchErrorFnErrorMsg = 'Error in catchErrorFn';
+            mockErrorFn.mockImplementation(() => {
+                throw new Error(catchErrorFnErrorMsg);
+            });
+
+            await expect(lastValueFrom(instance.testExclusiveLockFailedErrorFn$())).rejects.toThrow(
+                catchErrorFnErrorMsg
+            );
+            expect(mockTryAcquire).toHaveBeenCalledWith(['test'], 1000);
+            expect(mockRelease).not.toHaveBeenCalled();
         });
 
         it('should throw error if resources argument is not defined or empty array is passed', async () => {
