@@ -3,6 +3,16 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.13.0](https://github.com/rnw-community/rnw-community/compare/v1.12.4...v1.13.0) (2026-02-23)
+
+### Bug Fixes
+
+- simplify ([cbc06d3](https://github.com/rnw-community/rnw-community/commit/cbc06d32a0b859f23a47c2946348538cc981f9c3))
+
+### Features
+
+- **nestjs-enterprise:** log decorator passing stack for errors ([6b29436](https://github.com/rnw-community/rnw-community/commit/6b29436d03386d27cf93051c97540ea705d99d36))
+
 ## [1.12.4](https://github.com/rnw-community/rnw-community/compare/v1.12.3...v1.12.4) (2026-02-18)
 
 **Note:** Version bump only for package rnw-community
