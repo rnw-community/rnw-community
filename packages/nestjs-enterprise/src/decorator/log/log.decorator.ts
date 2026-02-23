@@ -45,12 +45,13 @@ export const Log =
                 };
 
                 const runErrorLog = (error: unknown): void => {
-                    const stack = error instanceof Error ? [error.stack] as const : [];
+                    // eslint-disable-next-line no-undefined
+                    const stack = error instanceof Error ? error.stack : undefined;
 
                     if (isNotEmptyString(errorLog)) {
-                        Logger.error(errorLog, ...stack, logContext);
+                        Logger.error(errorLog, stack, logContext);
                     } else if (isDefined(errorLog)) {
-                        Logger.error(errorLog(error, ...args), ...stack, logContext);
+                        Logger.error(errorLog(error, ...args), stack, logContext);
                     }
                 };
 
