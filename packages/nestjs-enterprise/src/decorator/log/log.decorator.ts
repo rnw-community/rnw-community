@@ -45,10 +45,12 @@ export const Log =
                 };
 
                 const runErrorLog = (error: unknown): void => {
+                    const stack = error instanceof Error ? [error.stack] as const : [];
+
                     if (isNotEmptyString(errorLog)) {
-                        Logger.error(errorLog, logContext);
+                        Logger.error(errorLog, ...stack, logContext);
                     } else if (isDefined(errorLog)) {
-                        Logger.error(errorLog(error, ...args), logContext);
+                        Logger.error(errorLog(error, ...args), ...stack, logContext);
                     }
                 };
 
