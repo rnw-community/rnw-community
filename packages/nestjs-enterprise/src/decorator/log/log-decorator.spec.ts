@@ -139,7 +139,7 @@ describe('LogDecorator', () => {
         const instance = new TestClass();
 
         expect(() => instance.testErrorString(2)).toThrow(errorLogText);
-        expect(Logger.error).toHaveBeenCalledWith(errorLogText, `${TestClass.name}::testErrorString`);
+        expect(Logger.error).toHaveBeenCalledWith(errorLogText, expect.any(String), `${TestClass.name}::testErrorString`);
     });
 
     it('should output error log with functions', () => {
@@ -150,6 +150,7 @@ describe('LogDecorator', () => {
         expect(() => instance.testErrorFunction(2)).toThrow(errorLogText);
         expect(Logger.error).toHaveBeenCalledWith(
             `Error: ${errorLogText}-${errorLogText}-2`,
+            expect.any(String),
             `${TestClass.name}::testErrorFunction`
         );
     });
@@ -209,7 +210,7 @@ describe('LogDecorator', () => {
 
              
             await expect(instance.testPromiseError).rejects.toThrow(errorLogText);
-            expect(Logger.error).toHaveBeenCalledWith(errorLogText, `${TestClass.name}::testPromiseError`);
+            expect(Logger.error).toHaveBeenCalledWith(errorLogText, expect.any(String), `${TestClass.name}::testPromiseError`);
         });
 
         it('should output error log function with argument', async () => {
@@ -220,6 +221,7 @@ describe('LogDecorator', () => {
             await expect(() => instance.testPromiseErrorFunction(1)).rejects.toThrow(errorLogText);
             expect(Logger.error).toHaveBeenCalledWith(
                 `Error: ${errorLogText}-1`,
+                expect.any(String),
                 `${TestClass.name}::testPromiseErrorFunction`
             );
         });
@@ -267,7 +269,7 @@ describe('LogDecorator', () => {
             });
 
             expect(Logger.log).toHaveBeenCalledWith(preLogText, `${TestClass.name}::testObservableError`);
-            expect(Logger.error).toHaveBeenCalledWith(errorLogText, `${TestClass.name}::testObservableError`);
+            expect(Logger.error).toHaveBeenCalledWith(errorLogText, undefined, `${TestClass.name}::testObservableError`);
         });
 
         it('should output error log function with argument', () => {
@@ -282,7 +284,7 @@ describe('LogDecorator', () => {
             });
 
             expect(Logger.log).toHaveBeenCalledWith(preLogText, `${TestClass.name}::testObservableErrorArg`);
-            expect(Logger.error).toHaveBeenCalledWith(`${errorLogText}-2`, `${TestClass.name}::testObservableErrorArg`);
+            expect(Logger.error).toHaveBeenCalledWith(`${errorLogText}-2`, undefined, `${TestClass.name}::testObservableErrorArg`);
         });
 
         it('should support generic methods', () => {
