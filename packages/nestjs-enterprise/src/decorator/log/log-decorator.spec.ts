@@ -84,22 +84,24 @@ class TestClass {
         return throwError(() => errorLogText);
     }
 
-    // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-    @Log(arg => `${preLogText}-${arg}`, (result, arg) => `${result}-${postLogText}-${arg}`)
+    @Log(arg => `${preLogText}-${String(arg)}`, (result, arg) => `${String(result)}-${postLogText}-${String(arg)}`)
     testGeneric<T>(arg: T): T {
         return arg;
     }
 
-    // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-    @Log(arg => `${preLogText}-${arg}`, (result, arg) => `${result}-${postLogText}-${arg}`)
+    @Log(arg => `${preLogText}-${String(arg)}`, (result, arg) => `${String(result)}-${postLogText}-${String(arg)}`)
     async testGenericPromise<T>(arg: T): Promise<T> {
         return await arg;
     }
 
-    // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-    @Log(arg => `${preLogText}-${arg}`, (result, arg) => `${result}-${postLogText}-${arg}`)
+    @Log(arg => `${preLogText}-${String(arg)}`, (result, arg) => `${String(result)}-${postLogText}-${String(arg)}`)
     testGenericObservable<T>(arg: T): Observable<T> {
         return of(arg);
+    }
+
+    @Log(arg => `constrained-${arg.id}`, postLogText)
+    testConstrainedGeneric<T extends { id: number }>(arg: T): T {
+        return arg;
     }
 }
 
@@ -175,13 +177,27 @@ describe('LogDecorator', () => {
     });
 
     it('should support generic methods', () => {
+        expect.assertions(3);
+
+        const instance = new TestClass();
+
+        const stringResult = instance.testGeneric('test');
+        expect(stringResult.slice(0)).toBe('test');
+
+        const numberResult = instance.testGeneric(42);
+        expect(numberResult.toFixed()).toBe('42');
+
+        expect(Logger.log).toHaveBeenCalledWith(`${preLogText}-test`, `${TestClass.name}::testGeneric`);
+    });
+
+    it('should support constrained generic methods', () => {
         expect.assertions(2);
 
         const instance = new TestClass();
-        const result = instance.testGeneric('test');
+        const result = instance.testConstrainedGeneric({ id: 42 });
 
-        expect(result).toBe('test');
-        expect(Logger.log).toHaveBeenCalledWith(`${preLogText}-test`, `${TestClass.name}::testGeneric`);
+        expect(result.id.toFixed()).toBe('42');
+        expect(Logger.log).toHaveBeenCalledWith('constrained-42', `${TestClass.name}::testConstrainedGeneric`);
     });
 
     describe('Promise', () => {
@@ -232,7 +248,7 @@ describe('LogDecorator', () => {
             const instance = new TestClass();
             const result = await instance.testGenericPromise('test');
 
-            expect(result).toBe('test');
+            expect(result.slice(0)).toBe('test');
             expect(Logger.log).toHaveBeenCalledWith(`${preLogText}-test`, `${TestClass.name}::testGenericPromise`);
         });
     });
@@ -288,12 +304,17 @@ describe('LogDecorator', () => {
         });
 
         it('should support generic methods', () => {
-            expect.assertions(2);
+            expect.assertions(3);
 
             const instance = new TestClass();
-            const result = instance.testGenericObservable('test');
+            const result$ = instance.testGenericObservable('test');
 
-            expect(result).toBeInstanceOf(Observable);
+            expect(result$).toBeInstanceOf(Observable);
+
+            result$.subscribe(value => {
+                expect(value.slice(0)).toBe('test');
+            });
+
             expect(Logger.log).toHaveBeenCalledWith(`${preLogText}-test`, `${TestClass.name}::testGenericObservable`);
         });
     });

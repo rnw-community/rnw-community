@@ -18,6 +18,21 @@ class TestClass {
     testMethodError(): number {
         throw new Error('test-error');
     }
+
+    @HistogramMetric('test-metric')
+    testGeneric<T>(arg: T): T {
+        return arg;
+    }
+
+    @HistogramMetric('test-metric')
+    testConstrainedGeneric<T extends { id: number }>(arg: T): T {
+        return arg;
+    }
+
+    @HistogramMetric('test-metric')
+    async testGenericPromise<T>(arg: T): Promise<T> {
+        return await arg;
+    }
 }
 
 const mockEndTimer = jest.fn();
@@ -69,6 +84,40 @@ describe(`HistogramMetric decorator`, () => {
             name: 'test-metric',
             help: 'test-metric',
         });
+        expect(mockEndTimer).toHaveBeenCalledWith();
+    });
+
+    it('should support generic methods', () => {
+        expect.assertions(3);
+
+        const testClass = new TestClass();
+
+        const stringResult = testClass.testGeneric('test');
+        expect(stringResult.slice(0)).toBe('test');
+
+        const numberResult = testClass.testGeneric(42);
+        expect(numberResult.toFixed()).toBe('42');
+
+        expect(mockEndTimer).toHaveBeenCalledWith();
+    });
+
+    it('should support constrained generic methods', () => {
+        expect.assertions(2);
+
+        const testClass = new TestClass();
+        const result = testClass.testConstrainedGeneric({ id: 42 });
+
+        expect(result.id.toFixed()).toBe('42');
+        expect(mockEndTimer).toHaveBeenCalledWith();
+    });
+
+    it('should support generic promise methods', async () => {
+        expect.assertions(2);
+
+        const testClass = new TestClass();
+        const result = await testClass.testGenericPromise('test');
+
+        expect(result.slice(0)).toBe('test');
         expect(mockEndTimer).toHaveBeenCalledWith();
     });
 });

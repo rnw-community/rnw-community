@@ -7,24 +7,39 @@ import type { ErrorLogFunction } from './type/error-log-function.type';
 import type { PostLogFunction } from './type/post-log-function.type';
 import type { PreDecoratorFunction } from '../../type/pre-decorator-function.type';
 
-
 type GetResultType<T> = T extends Promise<infer U> ? U : T extends Observable<infer U> ? U : T;
 
-export const Log =
+type DecoratorMethodType = (...args: unknown[]) => unknown;
+type DecoratorDescriptorType = TypedPropertyDescriptor<DecoratorMethodType>;
+
+interface LogFn {
     <K extends AnyFn, TResult extends ReturnType<K>, TArgs extends Parameters<K>>(
-            preLog: PreDecoratorFunction<TArgs> | string,
-            postLog?: PostLogFunction<GetResultType<TResult>, TArgs> | string,
-            errorLog?: ErrorLogFunction<TArgs> | string
-        ): MethodDecoratorType<K> =>
+        preLog: PreDecoratorFunction<TArgs> | string,
+        postLog?: PostLogFunction<GetResultType<TResult>, TArgs> | string,
+        errorLog?: ErrorLogFunction<TArgs> | string
+    ): MethodDecoratorType<K>;
+
+    (
+        preLog: PreDecoratorFunction<unknown[]> | string,
+        postLog?: PostLogFunction<unknown, unknown[]> | string,
+        errorLog?: ErrorLogFunction<unknown[]> | string
+    ): MethodDecorator;
+}
+
+export const Log: LogFn =
+    (
+            preLog: PreDecoratorFunction<unknown[]> | string,
+            postLog?: PostLogFunction<unknown, unknown[]> | string,
+            errorLog?: ErrorLogFunction<unknown[]> | string
+        ): MethodDecorator =>
         (target, propertyKey, descriptor) => {
             const logContext = `${target.constructor.name}::${String(propertyKey)}`;
+            const typedDescriptor = descriptor as unknown as DecoratorDescriptorType;
             // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-            const originalMethod = descriptor.value!;
+            const originalMethod = typedDescriptor.value!;
 
             // eslint-disable-next-line max-statements,func-names
-            descriptor.value = function (...args: TArgs): TResult {
-                type R = GetResultType<TResult>;
-
+            typedDescriptor.value = function (...args: unknown[]): unknown {
                 const runPreLog = (): void => {
                     if (isNotEmptyString(preLog)) {
                         Logger.log(preLog, logContext);
@@ -33,14 +48,13 @@ export const Log =
                     }
                 };
 
-                const runPostLog = (res: R): R => {
+                const runPostLog = (res: unknown): unknown => {
                     if (isNotEmptyString(postLog)) {
                         Logger.debug(postLog, logContext);
                     } else if (isDefined(postLog)) {
                         Logger.debug(postLog(res, ...args), logContext);
                     }
 
-                    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
                     return res;
                 };
 
@@ -58,41 +72,36 @@ export const Log =
                 try {
                     runPreLog();
 
-                    // @ts-expect-error We need this to handle generic methods correctly
-                    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-                    const result = originalMethod.apply(this, args);
+                    const result = originalMethod.call(this, ...args);
 
                     if (isDefined(postLog)) {
                         if (isObservable(result)) {
-                            // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-                            return (result as Observable<R>).pipe(
+                            return result.pipe(
                                 tap(runPostLog),
                                 catchError((error: unknown) => {
                                     runErrorLog(error);
 
                                     return throwError(() => error);
                                 })
-                            ) as unknown as TResult;
-                        } else if (isPromise<R>(result)) {
-                            // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+                            );
+                        } else if (isPromise(result)) {
                             return result.then(runPostLog).catch((error: unknown) => {
                                 runErrorLog(error);
 
                                 throw error;
-                            }) as unknown as TResult;
+                            });
                         }
 
-                        runPostLog(result as R);
+                        runPostLog(result);
                     }
 
-                    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
                     return result;
                 } catch (error) {
                     runErrorLog(error);
 
                     throw error;
                 }
-            } as K;
+            };
 
             return descriptor;
         };
