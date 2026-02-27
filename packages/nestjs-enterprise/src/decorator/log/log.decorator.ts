@@ -49,12 +49,12 @@ export const Log =
                         return;
                     }
 
+                    const message = isNotEmptyString(errorLog) ? errorLog : errorLog(error, ...args);
+
                     if (error instanceof Error) {
-                        Logger.error(error, logContext);
-                    } else if (isNotEmptyString(errorLog)) {
-                        Logger.error(errorLog, logContext);
+                        Logger.error(message, { err: error }, logContext);
                     } else {
-                        Logger.error(errorLog(error, ...args), logContext);
+                        Logger.error(message, logContext);
                     }
                 };
 
