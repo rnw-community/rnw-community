@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.14.1](https://github.com/rnw-community/rnw-community/compare/v1.14.0...v1.14.1) (2026-02-27)
+
+### Bug Fixes
+
+- **nestjs-enterprise:** preserve error callback message alongside Error object ([edec917](https://github.com/rnw-community/rnw-community/commit/edec917cef15b760834d23410570114b5b655e98))
+
 # [1.14.0](https://github.com/rnw-community/rnw-community/compare/v1.13.0...v1.14.0) (2026-02-27)
 
 ### Features
