@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.14.0](https://github.com/rnw-community/rnw-community/compare/v1.13.0...v1.14.0) (2026-02-27)
+
+### Features
+
+- **nestjs-enterprise:** pass Error object directly to Logger.error() ([a8497ce](https://github.com/rnw-community/rnw-community/commit/a8497ceb4d6262d860d869645ae12adca8e3fc68))
+
 # [1.13.0](https://github.com/rnw-community/rnw-community/compare/v1.12.4...v1.13.0) (2026-02-23)
 
 ### Bug Fixes
