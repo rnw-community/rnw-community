@@ -1,5 +1,5 @@
 /* eslint-disable max-lines */
-import { Platform } from 'react-native';
+import { NativeEventEmitter, NativeModules, Platform } from 'react-native';
 import uuid from 'react-native-uuid';
 
 import { emptyFn, isDefined, isNotEmptyArray, isNotEmptyString } from '@rnw-community/shared';
@@ -32,6 +32,14 @@ import type { IosPaymentDataRequest } from '../../@standard/ios/request/ios-paym
 import type { PaymentDetailsInit } from '../../@standard/w3c/payment-details-init';
 import type { PaymentMethodData } from '../../@standard/w3c/payment-method-data';
 
+import type { EmitterSubscription } from 'react-native';
+
+export interface PaymentMethodChangeEvent {
+    type: string;
+    network: string;
+    displayName: string;
+}
+
 /*
  * HINT: Troubleshooting: https://developers.google.com/pay/api/android/support/troubleshooting
  * HINT: Google Pay API Errors: https://developers.google.com/pay/api/web/reference/error-objects
@@ -47,6 +55,8 @@ export class PaymentRequest {
     private readonly platformMethodData: AndroidPaymentMethodDataDataInterface | IosPaymentMethodDataDataInterface;
 
     private acceptPromiseRejecter: (reason: unknown) => void = emptyFn;
+    private paymentMethodChangeSubscription: EmitterSubscription | undefined;
+    private paymentMethodChangeCallback: ((event: PaymentMethodChangeEvent) => PaymentDetailsInit) | undefined;
 
      
     constructor(
@@ -109,12 +119,16 @@ export class PaymentRequest {
 
                 NativePayments.show(this.serializedMethodData, details)
                     .then(jsonDetails => {
+                        this.cleanupPaymentMethodChangeListener();
                         resolve(this.handleAccept(jsonDetails));
 
                         return void 0;
                     })
-                     
-                    .catch(reject);
+
+                    .catch((error) => {
+                        this.cleanupPaymentMethodChangeListener();
+                        reject(error);
+                    });
             } else {
                 reject(new DOMException(PaymentsErrorEnum.InvalidStateError));
             }
@@ -134,6 +148,37 @@ export class PaymentRequest {
         this.state = 'closed';
 
         this.acceptPromiseRejecter(new DOMException(PaymentsErrorEnum.AbortError));
+    }
+
+    // Register a callback for Apple Pay payment method changes (credit/debit selection)
+    onPaymentMethodChange(
+        callback: (event: PaymentMethodChangeEvent) => PaymentDetailsInit
+    ): void {
+        this.paymentMethodChangeCallback = callback;
+
+        if (Platform.OS !== 'ios') {
+            return;
+        }
+
+        const eventEmitter = new NativeEventEmitter(NativeModules['Payments']);
+        this.paymentMethodChangeSubscription = eventEmitter.addListener(
+            'onPaymentMethodChange',
+            (event: PaymentMethodChangeEvent) => {
+                if (this.paymentMethodChangeCallback) {
+                    const updatedDetails = this.paymentMethodChangeCallback(event);
+                    this.details = updatedDetails;
+                    NativePayments.updatePaymentItems(updatedDetails).catch(emptyFn);
+                }
+            }
+        );
+    }
+
+    private cleanupPaymentMethodChangeListener(): void {
+        if (this.paymentMethodChangeSubscription) {
+            this.paymentMethodChangeSubscription.remove();
+            this.paymentMethodChangeSubscription = undefined;
+        }
+        this.paymentMethodChangeCallback = undefined;
     }
 
     private handleAccept(details: string): AndroidPaymentResponse | IosPaymentResponse {

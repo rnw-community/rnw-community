@@ -73,6 +73,9 @@ export class AndroidPaymentResponse extends PaymentResponse {
             administrativeArea: input?.administrativeArea ?? '',
             locality: input?.locality ?? '',
             sortingCode: input?.sortingCode ?? '',
+            givenName: input?.givenName ?? '',
+            familyName: input?.familyName ?? '',
+            middleName: input?.middleName ?? '',
         };
     }
 

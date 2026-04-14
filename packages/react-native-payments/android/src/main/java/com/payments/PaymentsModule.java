@@ -84,6 +84,22 @@ public class PaymentsModule extends PaymentsSpec {
         return NAME;
     }
 
+    @Override
+    public void addListener(String eventName) {
+        // Required for React Native built-in Event Emitter when the TurboModule spec declares addListener.
+    }
+
+    @Override
+    public void removeListeners(double count) {
+        // Required for React Native built-in Event Emitter when the TurboModule spec declares removeListeners.
+    }
+
+    @Override
+    public void updatePaymentItems(ReadableMap details, Promise promise) {
+        // Apple Pay only; Google Pay does not use payment-method change updates via this API.
+        promise.resolve(null);
+    }
+
     // Implementation See https://reactnative.dev/docs/native-modules-android
 
     // https://developers.google.com/android/reference/com/google/android/gms/wallet/PaymentsClient#isReadyToPay(com.google.android.gms.wallet.IsReadyToPayRequest)

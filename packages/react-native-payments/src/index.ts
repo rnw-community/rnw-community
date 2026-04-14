@@ -22,4 +22,5 @@ export type { IosPKToken } from './@standard/ios/response/ios-pk-token';
 export { IosPaymentResponse } from './class/payment-response/ios-payment-response';
 
 export { PaymentRequest } from './class/payment-request/payment-request';
+export type { PaymentMethodChangeEvent } from './class/payment-request/payment-request';
 export { PaymentResponse } from './class/payment-response/payment-response';

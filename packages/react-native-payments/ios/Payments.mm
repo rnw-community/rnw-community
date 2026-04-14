@@ -2,7 +2,19 @@
 
 #import <React/RCTLog.h>
 #import <Foundation/Foundation.h>
+#import <objc/message.h>
 #import <objc/runtime.h>
+
+static id RNPayments_PKPaymentNetworkFromClassMethod(Class cls, NSString *methodName)
+{
+    if (cls == nil || methodName.length == 0) {
+        return nil;
+    }
+    SEL sel = NSSelectorFromString(methodName);
+    typedef id (*MsgSend)(Class, SEL);
+    MsgSend msgSend = (MsgSend)objc_msgSend;
+    return msgSend(cls, sel);
+}
 
 // TODO: Add logs
 @implementation Payments
@@ -17,6 +29,15 @@ static const PKPaymentNetwork PKPaymentNetworkUnknown = 0;
 {
     return dispatch_get_main_queue();
 }
+
+// RCTEventEmitter required methods
+- (NSArray<NSString *> *)supportedEvents
+{
+    return @[@"onPaymentMethodChange"];
+}
+
+- (void)startObserving { }
+- (void)stopObserving { }
 
 RCT_EXPORT_METHOD(show:(NSString *)methodDataString
                         details:(NSDictionary *)details
@@ -221,14 +242,51 @@ RCT_EXPORT_METHOD(canMakePayments: (NSString *)methodDataString
     resolve(@([PKPaymentAuthorizationViewController canMakePayments]));
 }
 
+RCT_EXPORT_METHOD(updatePaymentItems:(NSDictionary *)details
+                  resolve:(RCTPromiseResolveBlock)resolve
+                  reject:(RCTPromiseRejectBlock)reject)
+{
+    if (!self.paymentMethodCompletion) {
+        reject(@"no_completion", @"No payment method completion handler available", nil);
+        return;
+    }
+
+    NSArray<PKPaymentSummaryItem *> *items = [self getPaymentSummaryItemsFromDetails:details];
+
+    PKPaymentRequestPaymentMethodUpdate *update =
+        [[PKPaymentRequestPaymentMethodUpdate alloc] initWithPaymentSummaryItems:items];
+
+    self.paymentMethodCompletion(update);
+    self.paymentMethodCompletion = nil;
+
+    resolve(nil);
+}
+
 // DELEGATES https://developer.apple.com/documentation/passkit/pkpaymentauthorizationviewcontrollerdelegate?language=objc
 
 // https://developer.apple.com/documentation/passkit/pkpaymentauthorizationviewcontrollerdelegate/1616180-paymentauthorizationviewcontroll?language=objc
 - (void) paymentAuthorizationViewControllerDidFinish:(PKPaymentAuthorizationViewController *)controller
 {
+    self.paymentMethodCompletion = nil;
     [controller dismissViewControllerAnimated:YES completion:^{
         [self rejectPromise:@"payment_error" message:@"Payment process canceled by user." error:nil];
     }];
+}
+
+// https://developer.apple.com/documentation/passkit/pkpaymentauthorizationviewcontrollerdelegate/1616203-paymentauthorizationviewcontroll?language=objc
+- (void) paymentAuthorizationViewController:(PKPaymentAuthorizationViewController *)controller
+                    didSelectPaymentMethod:(PKPaymentMethod *)paymentMethod
+                                   handler:(void (^)(PKPaymentRequestPaymentMethodUpdate * _Nonnull))completion
+{
+    self.paymentMethodCompletion = completion;
+
+    NSDictionary *methodInfo = @{
+        @"type": [self stringFromPaymentMethodType:paymentMethod.type],
+        @"network": paymentMethod.network ?: @"",
+        @"displayName": paymentMethod.displayName ?: @""
+    };
+
+    [self sendEventWithName:@"onPaymentMethodChange" body:methodInfo];
 }
 
 // https://developer.apple.com/documentation/passkit/pkpaymentauthorizationviewcontrollerdelegate/2865759-paymentauthorizationviewcontroll?language=objc
@@ -268,7 +326,13 @@ RCT_EXPORT_METHOD(canMakePayments: (NSString *)methodDataString
             postalAddressDict[@"state"] = postalAddress.state;
             postalAddressDict[@"postalCode"] = postalAddress.postalCode;
             postalAddressDict[@"country"] = postalAddress.country;
-            postalAddressDict[@"ISOCountryCode"] = postalAddress.ISOCountryCode;
+        }
+
+        NSPersonNameComponents *billingName = billingContact.name;
+        if (billingName) {
+            postalAddressDict[@"givenName"] = billingName.givenName;
+            postalAddressDict[@"familyName"] = billingName.familyName;
+            postalAddressDict[@"middleName"] = billingName.middleName;
         }
 
         billingContactDict[@"postalAddress"] = postalAddressDict;
@@ -387,7 +451,7 @@ RCT_EXPORT_METHOD(canMakePayments: (NSString *)methodDataString
             // Dynamically get PKPaymentNetworkBancontact to avoid linking issues
             Class pkPaymentNetworkClass = NSClassFromString(@"PKPaymentNetwork");
             if (pkPaymentNetworkClass) {
-                id bancontactNetwork = [pkPaymentNetworkClass performSelector:@selector(Bancontact)];
+                id bancontactNetwork = RNPayments_PKPaymentNetworkFromClassMethod(pkPaymentNetworkClass, @"Bancontact");
                 if (bancontactNetwork) {
                     mutablePaymentNetworks[@"PKPaymentNetworkBancontact"] = bancontactNetwork;
                 }
@@ -400,7 +464,7 @@ RCT_EXPORT_METHOD(canMakePayments: (NSString *)methodDataString
             // Dynamically get PKPaymentNetworkDankort to avoid linking issues on iOS 15.1
             Class pkPaymentNetworkClass = NSClassFromString(@"PKPaymentNetwork");
             if (pkPaymentNetworkClass) {
-                id dankortNetwork = [pkPaymentNetworkClass performSelector:@selector(Dankort)];
+                id dankortNetwork = RNPayments_PKPaymentNetworkFromClassMethod(pkPaymentNetworkClass, @"Dankort");
                 if (dankortNetwork) {
                     mutablePaymentNetworks[@"PKPaymentNetworkDankort"] = dankortNetwork;
                 }
@@ -414,7 +478,7 @@ RCT_EXPORT_METHOD(canMakePayments: (NSString *)methodDataString
             // Dynamically get PKPaymentNetworkMir to avoid linking issues
             Class pkPaymentNetworkClass = NSClassFromString(@"PKPaymentNetwork");
             if (pkPaymentNetworkClass) {
-                id mirNetwork = [pkPaymentNetworkClass performSelector:@selector(Mir)];
+                id mirNetwork = RNPayments_PKPaymentNetworkFromClassMethod(pkPaymentNetworkClass, @"Mir");
                 if (mirNetwork) {
                     mutablePaymentNetworks[@"PKPaymentNetworkMIR"] = mirNetwork;
                 }

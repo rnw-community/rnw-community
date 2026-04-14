@@ -8,4 +8,7 @@ export interface PaymentResponseAddressInterface {
     locality: string;
     postalCode: string;
     sortingCode: string;
+    familyName: string;
+    givenName: string;
+    middleName: string;
 }

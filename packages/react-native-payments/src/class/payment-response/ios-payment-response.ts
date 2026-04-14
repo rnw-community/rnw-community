@@ -48,6 +48,9 @@ export class IosPaymentResponse extends PaymentResponse {
             administrativeArea: input?.subAdministrativeArea ?? '',
             locality: input?.subLocality ?? '',
             sortingCode: '',
+            givenName: input?.givenName ?? '',
+            familyName: input?.familyName ?? '',
+            middleName: input?.middleName ?? '',
         };
     }
 
