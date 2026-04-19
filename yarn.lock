@@ -5652,7 +5652,6 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@rnw-community/lock-decorator@workspace:packages/lock-decorator"
   dependencies:
-    "@rnw-community/decorators-core": "workspace:^"
     "@rnw-community/shared": "workspace:^"
     rxjs: "npm:^7.8.2"
   peerDependencies:
