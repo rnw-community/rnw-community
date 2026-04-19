@@ -1,8 +1,8 @@
 import { buildContext } from '../build-context/build-context';
 import { runInterception } from '../run-interception/run-interception';
 
-import type { CreateLegacyInterceptorOptionsInterface } from './create-legacy-interceptor-options.interface';
-import type { LegacyMethodDecoratorType } from './legacy-method-decorator.type';
+import type { CreateInterceptorOptionsInterface } from '../../interface/create-interceptor-options.interface';
+import type { MethodDecoratorType } from '../../type/method-decorator.type';
 
 const resolveFallbackClassName = (target: object): string => {
     if (typeof target === 'function') {
@@ -16,9 +16,9 @@ const resolveFallbackClassName = (target: object): string => {
     return typeof ctorName === 'string' && ctorName.length > 0 ? ctorName : 'Object';
 };
 
-export const createLegacyInterceptor = <TArgs extends readonly unknown[], TResult>(
-    options: CreateLegacyInterceptorOptionsInterface<TArgs, TResult>
-): LegacyMethodDecoratorType => {
+export const createInterceptor = <TArgs extends readonly unknown[], TResult>(
+    options: CreateInterceptorOptionsInterface<TArgs, TResult>
+): MethodDecoratorType => {
     const strategies = options.strategies ?? [];
 
     return (target, propertyKey, descriptor) => {

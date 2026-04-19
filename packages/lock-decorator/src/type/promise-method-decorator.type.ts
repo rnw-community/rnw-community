@@ -1,4 +1,4 @@
-export type PromiseLegacyMethodDecoratorType = <
+export type PromiseMethodDecoratorType = <
     T extends (this: unknown, ...args: readonly never[]) => Promise<unknown>,
 >(
     target: object,

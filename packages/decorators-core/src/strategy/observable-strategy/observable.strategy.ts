@@ -1,6 +1,6 @@
 import { type Observable, catchError, isObservable, tap, throwError } from 'rxjs';
 
-import type { ResultStrategyInterface } from '../../type/result-strategy.interface';
+import type { ResultStrategyInterface } from '../../interface/result-strategy.interface';
 
 export const observableStrategy: ResultStrategyInterface = {
     matches: isObservable,

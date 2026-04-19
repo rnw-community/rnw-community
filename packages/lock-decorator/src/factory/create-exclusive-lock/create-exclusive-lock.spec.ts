@@ -3,12 +3,12 @@ import { describe, expect, it, jest } from '@jest/globals';
 import { LockBusyError } from '../../error/lock-busy-error/lock-busy.error';
 import { createInMemoryLockStore } from '../../store/create-in-memory-lock-store/create-in-memory-lock-store';
 
-import { createLegacyExclusiveLock } from './create-legacy-exclusive-lock';
+import { createExclusiveLock } from './create-exclusive-lock';
 
 import type { LockStoreInterface } from '../../interface/lock-store.interface';
 
 const store = createInMemoryLockStore();
-const ExclusiveLock = createLegacyExclusiveLock({ store });
+const ExclusiveLock = createExclusiveLock({ store });
 
 class PaymentService {
     @ExclusiveLock('capture-payment')
@@ -33,7 +33,7 @@ class PaymentService {
     }
 }
 
-describe('createLegacyExclusiveLock', () => {
+describe('createExclusiveLock', () => {
     it('executes the decorated method and returns its result', async () => {
         expect.hasAssertions();
 
@@ -48,7 +48,7 @@ describe('createLegacyExclusiveLock', () => {
 
         const localStore = createInMemoryLockStore();
         const spy = jest.spyOn(localStore, 'acquire');
-        const LocalExLock = createLegacyExclusiveLock({ store: localStore });
+        const LocalExLock = createExclusiveLock({ store: localStore });
 
         class ChargeService {
             @LocalExLock('charge-card')
@@ -76,7 +76,7 @@ describe('createLegacyExclusiveLock', () => {
         expect.hasAssertions();
 
         const localStore = createInMemoryLockStore();
-        const LocalExLock = createLegacyExclusiveLock({ store: localStore });
+        const LocalExLock = createExclusiveLock({ store: localStore });
 
         let releaseHeld!: () => void;
         const holdUntilReleased = new Promise<void>(resolve => { releaseHeld = resolve; });
@@ -104,7 +104,7 @@ return `checkout:${orderId}`;
 
         const localStore = createInMemoryLockStore();
         const spy = jest.spyOn(localStore, 'acquire');
-        const LocalExLock = createLegacyExclusiveLock({ store: localStore });
+        const LocalExLock = createExclusiveLock({ store: localStore });
 
         class SettlementService {
             @LocalExLock<readonly [string]>(args => `settle:${args[0]}`)
@@ -124,7 +124,7 @@ return `checkout:${orderId}`;
 
         const localStore = createInMemoryLockStore();
         const spy = jest.spyOn(localStore, 'acquire');
-        const LocalExLock = createLegacyExclusiveLock({ store: localStore });
+        const LocalExLock = createExclusiveLock({ store: localStore });
 
         class AuthorizationService {
             @LocalExLock<readonly [string]>({ key: args => `auth:${args[0]}` })
@@ -143,7 +143,7 @@ return `checkout:${orderId}`;
         expect.hasAssertions();
 
         const localStore = createInMemoryLockStore();
-        const LocalExLock = createLegacyExclusiveLock({ store: localStore });
+        const LocalExLock = createExclusiveLock({ store: localStore });
 
         class DeclineService {
             @LocalExLock('decline-payment')
@@ -172,7 +172,7 @@ return `checkout:${orderId}`;
             acquire: jest.fn<() => Promise<typeof failingHandle>>().mockResolvedValue(failingHandle),
         } as unknown as LockStoreInterface;
 
-        const LocalExLock = createLegacyExclusiveLock({ store: mockStore });
+        const LocalExLock = createExclusiveLock({ store: mockStore });
 
         class VoidService {
             @LocalExLock('payment-release')
@@ -189,7 +189,7 @@ return `checkout:${orderId}`;
         expect.hasAssertions();
 
         const localStore = createInMemoryLockStore();
-        const LocalExLock = createLegacyExclusiveLock({ store: localStore });
+        const LocalExLock = createExclusiveLock({ store: localStore });
 
         const descriptor: PropertyDescriptor = { get: (): string => 'payment-value', configurable: true };
         const result = LocalExLock('payment-prop')({} as object, 'paymentProp', descriptor);

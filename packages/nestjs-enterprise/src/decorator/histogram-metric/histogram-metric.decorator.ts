@@ -1,6 +1,6 @@
 import { Histogram, type HistogramConfiguration, register } from 'prom-client';
 
-import { createLegacyHistogramMetric } from '@rnw-community/histogram-metric-decorator';
+import { createHistogramMetric } from '@rnw-community/histogram-metric-decorator';
 import { type AnyFn, type MethodDecoratorType, isDefined } from '@rnw-community/shared';
 
 import type { HistogramTransportInterface } from '@rnw-community/histogram-metric-decorator';
@@ -41,6 +41,6 @@ export const HistogramMetric = <M extends string, K extends AnyFn>(
     metricName: string,
     configuration?: Omit<HistogramConfiguration<M>, 'name'>
 ): MethodDecoratorType<K> =>
-    createLegacyHistogramMetric({
+    createHistogramMetric({
         transport: createPromClientTransport(metricName, configuration),
     })({ name: metricName }) as unknown as MethodDecoratorType<K>;

@@ -1,8 +1,7 @@
 import { Inject } from '@nestjs/common';
-import { runWithLock$ } from '@rnw-community/lock-decorator/rxjs';
 import { EMPTY, type Observable, catchError, defer, isObservable, of } from 'rxjs';
 
-import { LockBusyError } from '@rnw-community/lock-decorator';
+import { LockBusyError , runWithLock$ } from '@rnw-community/lock-decorator';
 import { isDefined } from '@rnw-community/shared';
 
 import { createLockServiceStore } from '../create-lock-service-store';
@@ -10,7 +9,7 @@ import { LOCK_SERVICE_NOT_INJECTED_MESSAGE } from '../lock-service-not-injected-
 import { resolveResources } from '../resolve-resources';
 import { RESOURCE_SEPARATOR } from '../resource-separator.const';
 
-import type { PreDecoratorFunction } from '../../../pre-decorator-function.type';
+import type { PreDecoratorFunction } from '../../../type/pre-decorator-function.type';
 import type { LockServiceInterface } from '../interface/lock-service.interface';
 import type { AbstractConstructor, AnyFn, MethodDecoratorType } from '@rnw-community/shared';
 

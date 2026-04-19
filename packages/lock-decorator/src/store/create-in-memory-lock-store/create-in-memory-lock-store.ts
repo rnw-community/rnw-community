@@ -4,9 +4,9 @@ import { LockAcquireTimeoutError } from '../../error/lock-acquire-timeout-error/
 import { LockBusyError } from '../../error/lock-busy-error/lock-busy.error';
 
 import type { AcquireOptionsInterface } from '../../interface/acquire-options.interface';
+import type { InMemoryLockStoreInterface } from '../../interface/in-memory-lock-store.interface';
 import type { LockHandleInterface } from '../../interface/lock-handle.interface';
 import type { LockModeType } from '../../type/lock-mode.type';
-import type { InMemoryLockStoreInterface } from '../in-memory-lock-store.interface';
 
 type SettleFn = (action: 'resolve' | 'reject', value?: unknown) => void;
 

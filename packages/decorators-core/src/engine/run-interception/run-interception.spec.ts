@@ -2,9 +2,9 @@ import { describe, expect, it, jest } from '@jest/globals';
 
 import { runInterception } from './run-interception';
 
-import type { ExecutionContextInterface } from '../../type/execution-context.interface';
-import type { InterceptorInterface } from '../../type/interceptor.interface';
-import type { ResultStrategyInterface } from '../../type/result-strategy.interface';
+import type { ExecutionContextInterface } from '../../interface/execution-context.interface';
+import type { InterceptorInterface } from '../../interface/interceptor.interface';
+import type { ResultStrategyInterface } from '../../interface/result-strategy.interface';
 
 const makeContext = (): ExecutionContextInterface => ({
     className: 'TestClass',

@@ -1,14 +1,13 @@
-
 import { resolveLockKey } from '../../util/resolve-lock-key/resolve-lock-key';
 import { runWithLock } from '../../util/run-with-lock/run-with-lock';
 
 import type { CreateLockOptionsInterface } from '../../interface/create-lock-options.interface';
-import type { SequentialLockArgumentType } from '../../type/sequential-lock-argument.type';
-import type { LegacyMethodDecoratorType } from '@rnw-community/decorators-core';
+import type { ExclusiveLockArgumentType } from '../../type/exclusive-lock-argument.type';
+import type { PromiseMethodDecoratorType } from '../../type/promise-method-decorator.type';
 
-export const createLegacySequentialLock =
+export const createExclusiveLock =
     (options: CreateLockOptionsInterface) =>
-    <TArgs extends readonly unknown[]>(arg: SequentialLockArgumentType<TArgs>): LegacyMethodDecoratorType =>
+    <TArgs extends readonly unknown[]>(arg: ExclusiveLockArgumentType<TArgs>): PromiseMethodDecoratorType =>
     (_target, _propertyKey, descriptor) => {
         const originalMethod = descriptor.value;
         if (typeof originalMethod !== 'function') {
@@ -18,7 +17,7 @@ export const createLegacySequentialLock =
         const interceptedMethod = function interceptedMethod(this: unknown, ...args: TArgs): Promise<unknown> {
             const { key, options: acquireOptions } = resolveLockKey(arg, args);
 
-            return runWithLock(options.store, key, 'sequential', acquireOptions, () =>
+            return runWithLock(options.store, key, 'exclusive', acquireOptions, () =>
                 // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 (originalMethod as unknown as (this: unknown, ...fnArgs: any[]) => unknown).apply(this, [...args])
             );

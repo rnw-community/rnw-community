@@ -8,4 +8,4 @@ export { createObservableLockDecorators } from './decorator/lock/create-observab
 
 export type { LockHandle } from './decorator/lock/interface/lock-handle.interface';
 export type { LockServiceInterface } from './decorator/lock/interface/lock-service.interface';
-export type { PreDecoratorFunction } from './pre-decorator-function.type';
+export type { PreDecoratorFunction } from './type/pre-decorator-function.type';

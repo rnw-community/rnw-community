@@ -1,15 +1,15 @@
 import { beforeEach, describe, expect, it, jest } from '@jest/globals';
 
-import { createLegacyLog } from './create-legacy-log';
+import { createLog } from './create-log';
 
-import type { LogTransportInterface } from '../log-transport.interface';
+import type { LogTransportInterface } from '../interface/log-transport.interface';
 
 const transportLog = jest.fn<LogTransportInterface['log']>();
 const transportDebug = jest.fn<LogTransportInterface['debug']>();
 const transportError = jest.fn<LogTransportInterface['error']>();
 const transport: LogTransportInterface = { log: transportLog, debug: transportDebug, error: transportError };
 
-const LegacyLog = createLegacyLog({ transport });
+const LegacyLog = createLog({ transport });
 
 class OrderService {
     @(LegacyLog<[string, number], string>(
@@ -76,7 +76,7 @@ class OrderService {
     }
 }
 
-describe('createLegacyLog (experimentalDecorators)', () => {
+describe('createLog (experimentalDecorators)', () => {
     beforeEach(() => {
         transportLog.mockReset();
         transportDebug.mockReset();

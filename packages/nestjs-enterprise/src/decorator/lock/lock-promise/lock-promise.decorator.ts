@@ -2,7 +2,7 @@ import { executeLockPromise } from '../util/execute-lock-promise.util';
 import { getMethodName } from '../util/get-method-name.util';
 import { getRedlockService } from '../util/get-redlock-service.util';
 
-import type { PreDecoratorFunction } from '../../../pre-decorator-function.type';
+import type { PreDecoratorFunction } from '../../../type/pre-decorator-function.type';
 import type { AnyFn, MethodDecoratorType } from '@rnw-community/shared';
 
 /**

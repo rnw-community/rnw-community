@@ -1,7 +1,7 @@
-import type { CreateLogOptionsInterface } from './create-log-options.interface';
-import type { ErrorLogInputType } from './error-log-input.type';
-import type { PostLogInputType } from './post-log-input.type';
-import type { PreLogInputType } from './pre-log-input.type';
+import type { CreateLogOptionsInterface } from '../interface/create-log-options.interface';
+import type { ErrorLogInputType } from '../type/error-log-input.type';
+import type { PostLogInputType } from '../type/post-log-input.type';
+import type { PreLogInputType } from '../type/pre-log-input.type';
 import type { ExecutionContextInterface, InterceptorInterface } from '@rnw-community/decorators-core';
 
 const toErrorOrVoid = (error: unknown): Error | undefined =>

@@ -7,12 +7,14 @@ export type { AcquireOptionsInterface } from './interface/acquire-options.interf
 export type { LockHandleInterface } from './interface/lock-handle.interface';
 export type { LockStoreInterface } from './interface/lock-store.interface';
 export type { CreateLockOptionsInterface } from './interface/create-lock-options.interface';
+export type { InMemoryLockStoreInterface } from './interface/in-memory-lock-store.interface';
 
 export { LockBusyError } from './error/lock-busy-error/lock-busy.error';
 export { LockAcquireTimeoutError } from './error/lock-acquire-timeout-error/lock-acquire-timeout.error';
 
-export type { InMemoryLockStoreInterface } from './store/in-memory-lock-store.interface';
 export { createInMemoryLockStore } from './store/create-in-memory-lock-store/create-in-memory-lock-store';
 
-export { createLegacySequentialLock } from './factory/create-legacy-sequential-lock/create-legacy-sequential-lock';
-export { createLegacyExclusiveLock } from './factory/create-legacy-exclusive-lock/create-legacy-exclusive-lock';
+export { createSequentialLock } from './factory/create-sequential-lock/create-sequential-lock';
+export { createExclusiveLock } from './factory/create-exclusive-lock/create-exclusive-lock';
+
+export { runWithLock$ } from './util/run-with-lock-rxjs/run-with-lock-rxjs';

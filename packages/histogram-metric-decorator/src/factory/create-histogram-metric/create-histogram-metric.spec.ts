@@ -1,10 +1,10 @@
 import { beforeEach, describe, expect, it } from '@jest/globals';
 
-import { createLegacyHistogramMetric, inMemoryHistogramTransport } from '../../index';
+import { createHistogramMetric, inMemoryHistogramTransport } from '../../index';
 
 const transport = inMemoryHistogramTransport();
-const HistogramMetric = createLegacyHistogramMetric({ transport });
-const HistogramMetricWithStrategy = createLegacyHistogramMetric({
+const HistogramMetric = createHistogramMetric({ transport });
+const HistogramMetricWithStrategy = createHistogramMetric({
     transport,
     strategies: [{ matches: () => false, handle: <TVal>(val: TVal): TVal => val }],
 });
@@ -41,7 +41,7 @@ class OrderService {
     }
 }
 
-describe('createLegacyHistogramMetric', () => {
+describe('createHistogramMetric', () => {
     beforeEach(() => {
         transport.snapshot();
     });

@@ -1,10 +1,10 @@
 import { describe, expect, it } from '@jest/globals';
 
-import { createLegacyInterceptor } from './create-legacy-interceptor';
+import { createInterceptor } from './create-interceptor';
 
-import type { ExecutionContextInterface } from '../../type/execution-context.interface';
-import type { InterceptorInterface } from '../../type/interceptor.interface';
-import type { ResultStrategyInterface } from '../../type/result-strategy.interface';
+import type { ExecutionContextInterface } from '../../interface/execution-context.interface';
+import type { InterceptorInterface } from '../../interface/interceptor.interface';
+import type { ResultStrategyInterface } from '../../interface/result-strategy.interface';
 
 interface RecordedCallInterface {
     readonly kind: 'enter' | 'success' | 'error';
@@ -35,10 +35,10 @@ const makeRecorder = (): {
     };
 };
 
-describe('createLegacyInterceptor', () => {
+describe('createInterceptor', () => {
     it('wraps a sync method and emits enter + success with duration', () => {
         const { calls, interceptor } = makeRecorder();
-        const decorator = createLegacyInterceptor({ interceptor });
+        const decorator = createInterceptor({ interceptor });
 
         class Svc {
             value = 10;
@@ -67,7 +67,7 @@ describe('createLegacyInterceptor', () => {
 
     it('awaits a Promise return and emits success after resolution', async () => {
         const { calls, interceptor } = makeRecorder();
-        const decorator = createLegacyInterceptor({ interceptor });
+        const decorator = createInterceptor({ interceptor });
 
         class AsyncSvc {
 
@@ -88,7 +88,7 @@ describe('createLegacyInterceptor', () => {
 
     it('emits error and rethrows for a sync throw', () => {
         const { calls, interceptor } = makeRecorder();
-        const decorator = createLegacyInterceptor({ interceptor });
+        const decorator = createInterceptor({ interceptor });
         const boom = new Error('boom');
 
         class Svc {
@@ -106,7 +106,7 @@ describe('createLegacyInterceptor', () => {
 
     it('emits error and rethrows for a rejected Promise', async () => {
         const { calls, interceptor } = makeRecorder();
-        const decorator = createLegacyInterceptor({ interceptor });
+        const decorator = createInterceptor({ interceptor });
         const boom = new Error('async-boom');
 
         class AsyncSvc {
@@ -143,7 +143,7 @@ describe('createLegacyInterceptor', () => {
             },
         };
         const { interceptor } = makeRecorder();
-        const decorator = createLegacyInterceptor({ interceptor, strategies: [strategyA, strategyB] });
+        const decorator = createInterceptor({ interceptor, strategies: [strategyA, strategyB] });
 
         class Svc {
 
@@ -159,7 +159,7 @@ describe('createLegacyInterceptor', () => {
 
     it('preserves ExecutionContext identity across onEnter, onSuccess, and onError', () => {
         const seenContexts: unknown[] = [];
-        const decorator = createLegacyInterceptor({
+        const decorator = createInterceptor({
             interceptor: {
                 onEnter: (ctx) => seenContexts.push(ctx),
                 onSuccess: (ctx) => seenContexts.push(ctx),
@@ -197,7 +197,7 @@ describe('createLegacyInterceptor', () => {
             },
         };
         const { calls, interceptor } = makeRecorder();
-        const decorator = createLegacyInterceptor({ interceptor, strategies: [strategy] });
+        const decorator = createInterceptor({ interceptor, strategies: [strategy] });
 
         class Svc {
 
@@ -225,7 +225,7 @@ describe('createLegacyInterceptor', () => {
             },
         };
         const { calls, interceptor } = makeRecorder();
-        const decorator = createLegacyInterceptor({ interceptor, strategies: [strategy] });
+        const decorator = createInterceptor({ interceptor, strategies: [strategy] });
 
         class Svc {
 
@@ -245,7 +245,7 @@ describe('createLegacyInterceptor', () => {
     });
 
     it('swallows errors thrown inside hooks and still returns the method value', () => {
-        const decorator = createLegacyInterceptor({
+        const decorator = createInterceptor({
             interceptor: {
                 onEnter: () => {
                     throw new Error('enter-fail');
@@ -271,7 +271,7 @@ describe('createLegacyInterceptor', () => {
     });
 
     it('swallows hook errors on error path and still rethrows original', () => {
-        const decorator = createLegacyInterceptor({
+        const decorator = createInterceptor({
             interceptor: {
                 onError: () => {
                     throw new Error('hook');
@@ -291,7 +291,7 @@ describe('createLegacyInterceptor', () => {
     });
 
     it('works without any interceptor hooks defined', () => {
-        const decorator = createLegacyInterceptor({ interceptor: {} });
+        const decorator = createInterceptor({ interceptor: {} });
 
         class Svc {
             val(): string {
@@ -305,7 +305,7 @@ describe('createLegacyInterceptor', () => {
     });
 
     it('rethrows sync errors when no onError hook is defined', () => {
-        const decorator = createLegacyInterceptor({ interceptor: {} });
+        const decorator = createInterceptor({ interceptor: {} });
 
         class Svc {
             fail(): never {
@@ -318,7 +318,7 @@ describe('createLegacyInterceptor', () => {
     });
 
     it('rethrows async errors when no onError hook is defined', async () => {
-        const decorator = createLegacyInterceptor({ interceptor: {} });
+        const decorator = createInterceptor({ interceptor: {} });
 
         class Svc {
 
@@ -333,7 +333,7 @@ describe('createLegacyInterceptor', () => {
 
     it('auto-handles Promise returns when no strategies are configured', async () => {
         const { calls, interceptor } = makeRecorder();
-        const decorator = createLegacyInterceptor({ interceptor });
+        const decorator = createInterceptor({ interceptor });
 
         class Svc {
 
@@ -355,7 +355,7 @@ describe('createLegacyInterceptor', () => {
 
     it('emits error from a rejected thenable with no strategies', async () => {
         const { calls, interceptor } = makeRecorder();
-        const decorator = createLegacyInterceptor({ interceptor });
+        const decorator = createInterceptor({ interceptor });
         const boom = new Error('thenable-fail');
 
         class Svc {
@@ -377,7 +377,7 @@ describe('createLegacyInterceptor', () => {
     });
 
     it('returns the descriptor unchanged when value is not a function', () => {
-        const decorator = createLegacyInterceptor({ interceptor: {} });
+        const decorator = createInterceptor({ interceptor: {} });
 
         const input: PropertyDescriptor = { value: 42, writable: true, configurable: true, enumerable: true };
         const output = decorator({}, 'x', input as never);
@@ -386,7 +386,7 @@ describe('createLegacyInterceptor', () => {
 
     it('resolves className from `this` at call time (subclass)', () => {
         const { calls, interceptor } = makeRecorder();
-        const decorator = createLegacyInterceptor({ interceptor });
+        const decorator = createInterceptor({ interceptor });
 
         class Base {
 
@@ -405,7 +405,7 @@ describe('createLegacyInterceptor', () => {
 
     it('falls back to "Object" when target has no constructor name at decoration time', () => {
         const { calls, interceptor } = makeRecorder();
-        const decorator = createLegacyInterceptor({ interceptor });
+        const decorator = createInterceptor({ interceptor });
 
         const bareTarget = Object.create(null) as { ping?: () => number };
         const descriptor: PropertyDescriptor = {
@@ -427,7 +427,7 @@ describe('createLegacyInterceptor', () => {
 
     it('falls back to target.constructor.name when called with detached this', () => {
         const { calls, interceptor } = makeRecorder();
-        const decorator = createLegacyInterceptor({ interceptor });
+        const decorator = createInterceptor({ interceptor });
 
         class Svc {
 
@@ -446,7 +446,7 @@ describe('createLegacyInterceptor', () => {
 
     it('uses target.name when target is a constructor (static method decoration)', () => {
         const { calls, interceptor } = makeRecorder();
-        const decorator = createLegacyInterceptor({ interceptor });
+        const decorator = createInterceptor({ interceptor });
 
         // eslint-disable-next-line @typescript-eslint/no-extraneous-class
         class StaticSvc {
@@ -465,7 +465,7 @@ describe('createLegacyInterceptor', () => {
 
     it('falls back to constructor.name when target is an anonymous function', () => {
         const { calls, interceptor } = makeRecorder();
-        const decorator = createLegacyInterceptor({ interceptor });
+        const decorator = createInterceptor({ interceptor });
 
         const anonFn = function (): void {
             void 0;
