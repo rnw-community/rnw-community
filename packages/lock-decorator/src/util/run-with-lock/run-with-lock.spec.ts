@@ -1,5 +1,7 @@
 import { describe, expect, it, jest } from '@jest/globals';
 
+import { wait } from '@rnw-community/shared';
+
 import { createInMemoryLockStore } from '../../store/create-in-memory-lock-store/create-in-memory-lock-store';
 
 import { runWithLock } from './run-with-lock';
@@ -73,8 +75,7 @@ describe('runWithLock', () => {
 
         const lockRunPromise = runWithLock(store, 'thenable-key', 'sequential', {}, () => thenable);
 
-        // eslint-disable-next-line no-promise-executor-return
-        await new Promise((resolve) => setTimeout(resolve, 10));
+        await wait(10);
 
         const concurrentAcquire = store.acquire('thenable-key', 'sequential').then((handle) => {
             lockReleasedBeforeResolution = true;
@@ -82,8 +83,7 @@ describe('runWithLock', () => {
             return handle.release();
         });
 
-        // eslint-disable-next-line no-promise-executor-return
-        await new Promise((resolve) => setTimeout(resolve, 10));
+        await wait(10);
         expect(lockReleasedBeforeResolution).toBe(false);
 
         thenableResolve('thenable-result');

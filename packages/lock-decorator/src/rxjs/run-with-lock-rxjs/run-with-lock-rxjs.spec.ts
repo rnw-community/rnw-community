@@ -1,6 +1,8 @@
 import { describe, expect, it, jest } from '@jest/globals';
 import { Observable, lastValueFrom, of, throwError } from 'rxjs';
 
+import { wait } from '@rnw-community/shared';
+
 import { LockBusyError } from '../../error/lock-busy-error/lock-busy.error';
 import { createInMemoryLockStore } from '../../store/create-in-memory-lock-store/create-in-memory-lock-store';
 
@@ -141,11 +143,9 @@ describe('runWithLock$', () => {
             sub.next(1);
         });
         const sub = runWithLock$(spyStore, 'k', 'sequential', {}, () => neverCompleting$).subscribe();
-        // eslint-disable-next-line no-promise-executor-return
-        await new Promise((resolve) => setTimeout(resolve, 5));
+        await wait(5);
         sub.unsubscribe();
-        // eslint-disable-next-line no-promise-executor-return
-        await new Promise((resolve) => setTimeout(resolve, 5));
+        await wait(5);
         expect(releaseSpy).toHaveBeenCalledTimes(1);
     });
 
@@ -170,8 +170,7 @@ describe('runWithLock$', () => {
                 releaseSpy();
             },
         });
-        // eslint-disable-next-line no-promise-executor-return
-        await new Promise((resolve) => setTimeout(resolve, 5));
+        await wait(5);
 
         expect(releaseSpy).toHaveBeenCalledTimes(1);
     });
@@ -197,11 +196,9 @@ describe('runWithLock$', () => {
         const sub = runWithLock$(signalingStore, 'k', 'sequential', {}, () => of(1)).subscribe({
             error: () => void 0,
         });
-        // eslint-disable-next-line no-promise-executor-return
-        await new Promise((resolve) => setTimeout(resolve, 1));
+        await wait(1);
         sub.unsubscribe();
-        // eslint-disable-next-line no-promise-executor-return
-        await new Promise((resolve) => setTimeout(resolve, 5));
+        await wait(5);
 
         expect(capturedSignals).toHaveLength(1);
         expect(aborted).toEqual([true]);
@@ -223,11 +220,9 @@ describe('runWithLock$', () => {
         runWithLock$(signalingStore, 'k', 'sequential', { signal: userController.signal }, () => of(1)).subscribe({
             error: errorSpy,
         });
-        // eslint-disable-next-line no-promise-executor-return
-        await new Promise((resolve) => setTimeout(resolve, 1));
+        await wait(1);
         userController.abort();
-        // eslint-disable-next-line no-promise-executor-return
-        await new Promise((resolve) => setTimeout(resolve, 5));
+        await wait(5);
 
         expect(errorSpy).toHaveBeenCalledTimes(1);
         expect((errorSpy as jest.Mock).mock.calls[0]?.[0]).toMatchObject({ name: 'AbortError' });
@@ -241,8 +236,7 @@ describe('runWithLock$', () => {
         runWithLock$(store, 'sync', 'sequential', {}, () => 'not-observable' as unknown as Observable<unknown>).subscribe({
             error: errorSpy,
         });
-        // eslint-disable-next-line no-promise-executor-return
-        await new Promise((resolve) => setTimeout(resolve, 5));
+        await wait(5);
 
         expect(errorSpy).toHaveBeenCalledTimes(1);
         expect((errorSpy as jest.Mock).mock.calls[0]?.[0]).toMatchObject({
@@ -259,8 +253,7 @@ describe('runWithLock$', () => {
         const removeSpy = jest.spyOn(controller.signal, 'removeEventListener');
 
         const sub = runWithLock$(store, 'k', 'sequential', { signal: controller.signal }, () => of(1)).subscribe();
-        // eslint-disable-next-line no-promise-executor-return
-        await new Promise((resolve) => setTimeout(resolve, 5));
+        await wait(5);
         sub.unsubscribe();
 
         expect(addSpy).toHaveBeenCalledWith('abort', expect.any(Function), { once: true });
@@ -287,8 +280,7 @@ describe('runWithLock$', () => {
         runWithLock$(signalingStore, 'k', 'sequential', { signal: controller.signal }, () => of(1)).subscribe({
             error: errorSpy,
         });
-        // eslint-disable-next-line no-promise-executor-return
-        await new Promise((resolve) => setTimeout(resolve, 5));
+        await wait(5);
 
         expect(capturedAbortedAtCall).toEqual([true]);
         expect(errorSpy).toHaveBeenCalledTimes(1);

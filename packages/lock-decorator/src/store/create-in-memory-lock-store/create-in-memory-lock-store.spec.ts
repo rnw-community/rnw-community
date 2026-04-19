@@ -1,5 +1,7 @@
 import { describe, expect, it } from '@jest/globals';
 
+import { wait } from '@rnw-community/shared';
+
 import { LockAcquireTimeoutError } from '../../error/lock-acquire-timeout-error/lock-acquire-timeout.error';
 import { LockBusyError } from '../../error/lock-busy-error/lock-busy.error';
 
@@ -30,9 +32,7 @@ describe('createInMemoryLockStore', () => {
             expect(store.sequentialChainCount()).toBe(1);
 
             void holder.release();
-            await new Promise<void>((resolve) => {
-                setTimeout(resolve, 5);
-            });
+            await wait(5);
             expect(store.sequentialChainCount()).toBe(0);
         });
 
@@ -48,9 +48,7 @@ describe('createInMemoryLockStore', () => {
             expect(store.sequentialChainCount()).toBe(1);
 
             void holder.release();
-            await new Promise<void>((resolve) => {
-                setTimeout(resolve, 5);
-            });
+            await wait(5);
             expect(store.sequentialChainCount()).toBe(0);
         });
     });
@@ -215,8 +213,7 @@ describe('createInMemoryLockStore', () => {
                 return h3.release();
             });
 
-            // eslint-disable-next-line no-promise-executor-return
-            await new Promise((resolve) => setTimeout(resolve, 20));
+            await wait(20);
             expect(cAcquired).toBe(false);
 
             void handle.release();
@@ -240,8 +237,7 @@ describe('createInMemoryLockStore', () => {
                 return h3.release();
             });
 
-            // eslint-disable-next-line no-promise-executor-return
-            await new Promise((resolve) => setTimeout(resolve, 20));
+            await wait(20);
             expect(cAcquired).toBe(false);
 
             void handle.release();
@@ -352,8 +348,7 @@ describe('createInMemoryLockStore', () => {
 
                 return handle.release();
             });
-            // eslint-disable-next-line no-promise-executor-return
-            await new Promise((resolve) => setTimeout(resolve, 5));
+            await wait(5);
             expect(p3Done).toBe(false);
             void h2.release();
             await p3;

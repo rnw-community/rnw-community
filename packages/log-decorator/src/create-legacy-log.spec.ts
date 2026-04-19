@@ -9,13 +9,14 @@ const makeTransport = () => {
     const debug = jest.fn<LogTransportInterface['debug']>();
     const error = jest.fn<LogTransportInterface['error']>();
     const mock: LogTransportInterface = { log, debug, error };
-    
+
 return { mock, log, debug, error };
 };
 
 describe('createLegacyLog (experimentalDecorators)', () => {
     describe('preLog', () => {
         it('logs string preLog message', () => {
+            expect.hasAssertions();
             const { mock, log } = makeTransport();
             const LegacyLog = createLegacyLog({ transport: mock });
 
@@ -30,12 +31,13 @@ describe('createLegacyLog (experimentalDecorators)', () => {
             expect(log).toHaveBeenCalledWith('starting', 'TestClass::run');
         });
 
-        it('logs function preLog message with sanitized args', () => {
+        it('logs function preLog message with args', () => {
+            expect.hasAssertions();
             const { mock, log } = makeTransport();
             const LegacyLog = createLegacyLog({ transport: mock });
 
             class TestClass {
-                @(LegacyLog<[number], undefined>(args => `n=${args[0].toString()}`))
+                @(LegacyLog<[number], undefined>(n => `n=${n.toString()}`))
                 run(_n: number): void {
                     void 0;
                 }
@@ -45,22 +47,8 @@ describe('createLegacyLog (experimentalDecorators)', () => {
             expect(log).toHaveBeenCalledWith('n=7', 'TestClass::run');
         });
 
-        it('emits :begin when no preLog and measureDuration=true', () => {
-            const { mock, log } = makeTransport();
-            const LegacyLog = createLegacyLog({ transport: mock, measureDuration: true });
-
-            class TestClass {
-                @(LegacyLog())
-                run(): void {
-                    void 0;
-                }
-            }
-
-            new TestClass().run();
-            expect(log).toHaveBeenCalledWith('run:begin', 'TestClass::run');
-        });
-
-        it('does not emit when no preLog and measureDuration=false', () => {
+        it('does not emit when no preLog is supplied', () => {
+            expect.hasAssertions();
             const { mock, log } = makeTransport();
             const LegacyLog = createLegacyLog({ transport: mock });
 
@@ -78,6 +66,7 @@ describe('createLegacyLog (experimentalDecorators)', () => {
 
     describe('postLog', () => {
         it('logs string postLog via debug', () => {
+            expect.hasAssertions();
             const { mock, debug } = makeTransport();
             const LegacyLog = createLegacyLog({ transport: mock });
 
@@ -93,11 +82,12 @@ describe('createLegacyLog (experimentalDecorators)', () => {
         });
 
         it('logs function postLog with result and args', () => {
+            expect.hasAssertions();
             const { mock, debug } = makeTransport();
             const LegacyLog = createLegacyLog({ transport: mock });
 
             class TestClass {
-                @(LegacyLog<[number], number>(undefined, (result, args) => `r=${result.toString()} a=${args[0].toString()}`))
+                @(LegacyLog<[number], number>(undefined, (result, n) => `r=${result.toString()} a=${n.toString()}`))
                 run(n: number): number {
                     return n + 1;
                 }
@@ -107,25 +97,8 @@ describe('createLegacyLog (experimentalDecorators)', () => {
             expect(debug).toHaveBeenCalledWith('r=5 a=4', 'TestClass::run');
         });
 
-        it('emits :done with duration when no postLog and measureDuration=true', () => {
-            const { mock, debug } = makeTransport();
-            const LegacyLog = createLegacyLog({ transport: mock, measureDuration: true });
-
-            class TestClass {
-                @(LegacyLog())
-                run(): void {
-                    void 0;
-                }
-            }
-
-            new TestClass().run();
-            expect(debug).toHaveBeenCalledWith(
-                expect.stringMatching(/^run:done \(\d+\.\d+ms\)$/u),
-                'TestClass::run'
-            );
-        });
-
-        it('does not emit debug when no postLog and measureDuration=false', () => {
+        it('does not emit debug when no postLog is supplied', () => {
+            expect.hasAssertions();
             const { mock, debug } = makeTransport();
             const LegacyLog = createLegacyLog({ transport: mock });
 
@@ -143,6 +116,7 @@ describe('createLegacyLog (experimentalDecorators)', () => {
 
     describe('errorLog', () => {
         it('logs string errorLog with Error instance', () => {
+            expect.hasAssertions();
             const { mock, error } = makeTransport();
             const LegacyLog = createLegacyLog({ transport: mock });
             const err = new Error('boom');
@@ -159,6 +133,7 @@ describe('createLegacyLog (experimentalDecorators)', () => {
         });
 
         it('logs string errorLog with non-Error as undefined', () => {
+            expect.hasAssertions();
             const { mock, error } = makeTransport();
             const LegacyLog = createLegacyLog({ transport: mock });
 
@@ -174,12 +149,13 @@ describe('createLegacyLog (experimentalDecorators)', () => {
         });
 
         it('logs function errorLog with Error instance', () => {
+            expect.hasAssertions();
             const { mock, error } = makeTransport();
             const LegacyLog = createLegacyLog({ transport: mock });
             const err = new Error('fail');
 
             class TestClass {
-                @(LegacyLog<[number], undefined>(undefined, undefined, (e, args) => `err:${String(e)} n:${args[0].toString()}`))
+                @(LegacyLog<[number], undefined>(undefined, undefined, (e, n) => `err:${String(e)} n:${n.toString()}`))
                 run(_n: number): void {
                     throw err;
                 }
@@ -189,27 +165,8 @@ describe('createLegacyLog (experimentalDecorators)', () => {
             expect(error).toHaveBeenCalledWith('err:Error: fail n:3', err, 'TestClass::run');
         });
 
-        it('emits :throw with duration when no errorLog and measureDuration=true', () => {
-            const { mock, error } = makeTransport();
-            const LegacyLog = createLegacyLog({ transport: mock, measureDuration: true });
-            const err = new Error('oops');
-
-            class TestClass {
-                @(LegacyLog())
-                run(): void {
-                    throw err;
-                }
-            }
-
-            expect(() => void new TestClass().run()).toThrow('oops');
-            expect(error).toHaveBeenCalledWith(
-                expect.stringMatching(/^run:throw \(\d+\.\d+ms\)$/u),
-                err,
-                'TestClass::run'
-            );
-        });
-
-        it('does not emit error when no errorLog and measureDuration=false', () => {
+        it('does not emit error when no errorLog is supplied', () => {
+            expect.hasAssertions();
             const { mock, error } = makeTransport();
             const LegacyLog = createLegacyLog({ transport: mock });
 
@@ -227,6 +184,7 @@ describe('createLegacyLog (experimentalDecorators)', () => {
 
     describe('async methods (Promise)', () => {
         it('logs postLog after promise resolves', async () => {
+            expect.hasAssertions();
             const { mock, debug } = makeTransport();
             const LegacyLog = createLegacyLog({ transport: mock });
 
@@ -242,6 +200,7 @@ describe('createLegacyLog (experimentalDecorators)', () => {
         });
 
         it('logs errorLog after promise rejects', async () => {
+            expect.hasAssertions();
             const { mock, error } = makeTransport();
             const LegacyLog = createLegacyLog({ transport: mock });
             const err = new Error('async-fail');
