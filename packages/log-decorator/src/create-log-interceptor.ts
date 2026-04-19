@@ -1,10 +1,7 @@
 import type { ExecutionContextInterface, InterceptorInterface } from '@rnw-community/decorators-core';
 
-import type { CreateLogOptionsInterface } from '../../interface/create-log-options-interface/create-log-options.interface';
-import type { ErrorLogInputType } from '../../type/error-log-input-type/error-log-input.type';
-import type { PostLogInputType } from '../../type/post-log-input-type/post-log-input.type';
-import type { PreLogInputType } from '../../type/pre-log-input-type/pre-log-input.type';
-import { defaultSanitizer } from '../../util/default-sanitizer/default-sanitizer';
+import type { CreateLogOptionsInterface, ErrorLogInputType, PostLogInputType, PreLogInputType } from './types';
+import { defaultSanitizer } from './default-sanitizer';
 
 export const createLogInterceptor = <TArgs extends readonly unknown[], TResult>(
     options: CreateLogOptionsInterface,

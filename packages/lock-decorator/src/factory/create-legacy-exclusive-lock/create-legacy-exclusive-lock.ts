@@ -1,6 +1,6 @@
 import type { LegacyMethodDecoratorType } from '@rnw-community/decorators-core';
 
-import { resolveExclusiveLockKey } from '../../util/resolve-lock-key/resolve-lock-key';
+import { resolveLockKey } from '../../util/resolve-lock-key/resolve-lock-key';
 import { runWithLock } from '../../util/run-with-lock/run-with-lock';
 
 import type { CreateLockOptionsInterface } from '../../interface/create-lock-options-interface/create-lock-options.interface';
@@ -16,7 +16,7 @@ export const createLegacyExclusiveLock =
         }
 
         const interceptedMethod = function (this: unknown, ...args: TArgs): Promise<unknown> {
-            const { key, options: acquireOptions } = resolveExclusiveLockKey(arg, args);
+            const { key, options: acquireOptions } = resolveLockKey(arg, args);
             const self = this;
 
             return runWithLock(options.store, key, 'exclusive', acquireOptions, () =>

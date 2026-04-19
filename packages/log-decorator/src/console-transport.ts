@@ -1,4 +1,4 @@
-import type { LogTransportInterface } from '../../interface/log-transport-interface/log-transport.interface';
+import type { LogTransportInterface } from './types';
 
 export const consoleTransport: LogTransportInterface = {
     log: (message: string, logContext: string): void => {

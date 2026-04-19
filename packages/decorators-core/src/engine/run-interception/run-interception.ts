@@ -3,7 +3,6 @@ import { isPromise } from '@rnw-community/shared';
 import type { ExecutionContextInterface } from '../../type/execution-context-interface/execution-context.interface';
 import type { InterceptorInterface } from '../../type/interceptor-interface/interceptor.interface';
 import type { ResultStrategyInterface } from '../../type/result-strategy-interface/result-strategy.interface';
-import { now } from '../../util/now/now';
 
 const swallow = (fn: () => void): void => {
     try {
@@ -13,16 +12,13 @@ const swallow = (fn: () => void): void => {
     }
 };
 
-const firstMatchingStrategy = (strategies: readonly ResultStrategyInterface[], value: unknown): ResultStrategyInterface | undefined =>
-    strategies.find((strategy) => strategy.matches(value));
-
 export const runInterception = <TArgs extends readonly unknown[], TResult>(
     interceptor: InterceptorInterface<TArgs, TResult>,
     strategies: readonly ResultStrategyInterface[],
     context: ExecutionContextInterface<TArgs>,
     invoke: () => TResult
 ): TResult => {
-    const start = now();
+    const start = performance.now();
     const emitEnter = (): void => {
         if (interceptor.onEnter !== undefined) {
             swallow(() => interceptor.onEnter!(context));
@@ -30,12 +26,12 @@ export const runInterception = <TArgs extends readonly unknown[], TResult>(
     };
     const emitSuccess = (resolved: unknown): void => {
         if (interceptor.onSuccess !== undefined) {
-            swallow(() => interceptor.onSuccess!(context, resolved as Awaited<TResult>, now() - start));
+            swallow(() => interceptor.onSuccess!(context, resolved as Awaited<TResult>, performance.now() - start));
         }
     };
     const emitError = (error: unknown): void => {
         if (interceptor.onError !== undefined) {
-            swallow(() => interceptor.onError!(context, error, now() - start));
+            swallow(() => interceptor.onError!(context, error, performance.now() - start));
         }
     };
 
@@ -49,7 +45,7 @@ export const runInterception = <TArgs extends readonly unknown[], TResult>(
         throw error;
     }
 
-    const strategy = firstMatchingStrategy(strategies, rawResult);
+    const strategy = strategies.find((s) => s.matches(rawResult));
     if (strategy !== undefined) {
         return strategy.handle(rawResult, emitSuccess, emitError);
     }

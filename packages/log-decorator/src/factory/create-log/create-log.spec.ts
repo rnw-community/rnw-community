@@ -1,7 +1,7 @@
 import { describe, expect, it, jest } from '@jest/globals';
 
-import type { LogTransportInterface } from '../../interface/log-transport-interface/log-transport.interface';
-import { createLog } from './create-log';
+import type { LogTransportInterface } from '../../types';
+import { createLog } from '../../create-log';
 
 const makeTransport = () => {
     const log = jest.fn<LogTransportInterface['log']>();

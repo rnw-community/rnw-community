@@ -1,4 +1,4 @@
-import type { SanitizerFnType } from '../../type/sanitizer-fn-type/sanitizer-fn.type';
+import type { SanitizerFnType } from './types';
 
 const MAX_STRING_LENGTH = 200;
 const MAX_ARRAY_LENGTH = 20;

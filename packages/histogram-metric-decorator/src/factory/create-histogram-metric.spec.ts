@@ -1,6 +1,6 @@
 import { describe, expect, it, jest } from '@jest/globals';
 
-import type { HistogramTransportInterface } from '../../interface/histogram-transport-interface/histogram-transport.interface';
+import type { HistogramTransportInterface } from '../interface/histogram-transport.interface';
 import { createHistogramMetric } from './create-histogram-metric';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
