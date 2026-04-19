@@ -36,6 +36,7 @@ return { id: `order-${productId}-${qty.toString()}`, productId, qty };
         return this.inventory.get(productId) ?? 0;
     }
 
+    // @ts-expect-error — sync method intentionally violates the Promise-returning contract; runtime guard catches it
     @SequentialLock('validate-sku')
     syncValidateSku(sku: string): boolean {
         return this.inventory.has(sku);

@@ -4,10 +4,6 @@ import { createHistogramMetric, inMemoryHistogramTransport } from '../../index';
 
 const transport = inMemoryHistogramTransport();
 const HistogramMetric = createHistogramMetric({ transport });
-const HistogramMetricWithStrategy = createHistogramMetric({
-    transport,
-    strategies: [{ matches: () => false, handle: <TVal>(val: TVal): TVal => val }],
-});
 
 class OrderService {
     @HistogramMetric()
@@ -28,11 +24,6 @@ class OrderService {
     @HistogramMetric({ name: 'order_refund_ms', labels: ([orderId]: readonly [string]) => ({ orderId }) })
     async refundOrder(_orderId: string): Promise<never> {
         throw new Error('refund failed');
-    }
-
-    @HistogramMetricWithStrategy()
-    cancelOrder(orderId: string): string {
-        return `cancelled-${orderId}`;
     }
 
     @HistogramMetric()
@@ -101,12 +92,6 @@ describe('createHistogramMetric', () => {
     it('records one observation when a sync method throws', () => {
         expect.hasAssertions();
         expect(() => new OrderService().submitOrder()).toThrow('out of stock');
-        expect(transport.snapshot()).toHaveLength(1);
-    });
-
-    it('passes extra strategies through to the engine', () => {
-        expect.hasAssertions();
-        new OrderService().cancelOrder('ord-42');
         expect(transport.snapshot()).toHaveLength(1);
     });
 });

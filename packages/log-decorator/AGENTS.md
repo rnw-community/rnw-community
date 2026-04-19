@@ -1,6 +1,6 @@
 # @rnw-community/log-decorator
 
-Framework-agnostic `@Log` method decorator with pluggable transport, cycle-safe sanitizer, and optional duration measurement. Built on `@rnw-community/decorators-core`.
+Framework-agnostic `@Log` method decorator with pluggable transport, cycle-safe sanitizer, and optional duration measurement. Built on `@rnw-community/decorators-core`. Targets TypeScript's `experimentalDecorators` mode.
 
 ## Package Commands
 
@@ -17,33 +17,23 @@ yarn lint:fix           # Fix lint issues
 ```
 src/
   interface/
-    log-transport-interface/
-    create-log-options-interface/
+    log-transport.interface.ts
+    create-log-options.interface.ts
   type/
-    pre-log-input-type/
-    post-log-input-type/
-    error-log-input-type/
-    sanitizer-fn-type/
-  transport/
-    console-transport/        — default consoleTransport + spec
+    pre-log-input.type.ts
+    post-log-input.type.ts
+    error-log-input.type.ts
+  console-transport/      — default consoleTransport + spec
+  create-log/             — legacy-decorator factory + spec
   util/
-    default-sanitizer/        — cycle-safe, Error/Date/RegExp/Map/Set aware, + spec
-  factory/
-    create-log-interceptor/   — internal (shared by stage-3 + legacy factories)
-    create-log/               — stage-3 factory + spec
-    create-legacy-log/        — legacy factory + spec
+    create-log-interceptor.ts  — internal (wraps createInterceptor from decorators-core)
   index.ts
 ```
 
 ## Key Patterns
 
-- One entity per folder
-- `defaultSanitizer` is a **path-set** cycle guard — ancestor refs flagged as `[Circular]`; shared-reference DAGs (sibling positions pointing to the same node) serialize normally
-- `Error` → `{name, message, stack}` (message is non-enumerable; native `Object.keys` would lose it)
-- `Date` → ISO string; invalid Date → `'[Invalid Date]'` (never throws `RangeError`)
-- `RegExp` → string form; `Map`/`Set` → `{_type, size}` summary
-- String truncation at 200 chars → `<truncated:N>`; array length > 20 → `{length: N}`
-- Observable support: pass `observableStrategy` from `@rnw-community/decorators-core/rxjs` via the `strategies` factory option
+- One entity per file; folders only to group `source + spec` (+ optional `.md`)
+- Observable support: pass `observableStrategy` from `@rnw-community/decorators-core` via the `strategies` factory option
 
 ## Dependencies
 

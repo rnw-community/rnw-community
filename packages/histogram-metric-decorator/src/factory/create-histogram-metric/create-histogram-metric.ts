@@ -24,5 +24,4 @@ export const createHistogramMetric =
                     );
                 },
             },
-            strategies: options.strategies,
         });
