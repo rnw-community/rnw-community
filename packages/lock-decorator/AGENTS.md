@@ -1,6 +1,6 @@
 # @rnw-community/lock-decorator
 
-Framework-agnostic `@SequentialLock` / `@ExclusiveLock` method decorators with pluggable store, FIFO in-memory default, timeout + AbortSignal support, and typed errors.
+Framework-agnostic `@SequentialLock` / `@ExclusiveLock` method decorators with pluggable store, FIFO in-memory default, timeout + AbortSignal support, and typed errors. Targets TypeScript's `experimentalDecorators` mode.
 
 ## Package Commands
 
@@ -17,46 +17,46 @@ yarn lint:fix           # Fix lint issues
 ```
 src/
   type/
-    lock-mode-type/
-    lock-argument-type/                — union alias: SequentialLockArgumentType | ExclusiveLockArgumentType
-    sequential-lock-argument-type/     — string | (args) => string | {key, timeoutMs?, signal?}
-    exclusive-lock-argument-type/      — string | (args) => string | {key}  (no waiting, so no timeoutMs/signal)
+    lock-mode.type.ts
+    lock-argument.type.ts                — union alias: SequentialLockArgumentType | ExclusiveLockArgumentType
+    sequential-lock-argument.type.ts     — string | (args) => string | {key, timeoutMs?, signal?}
+    exclusive-lock-argument.type.ts      — string | (args) => string | {key}  (no waiting, so no timeoutMs/signal)
+    promise-method-decorator.type.ts     — method decorator constrained to Promise-returning methods
   interface/
-    acquire-options-interface/         — timeoutMs, signal
-    lock-handle-interface/             — key, mode, release()
-    lock-store-interface/              — acquire(key, mode, options)
-    create-lock-options-interface/
+    acquire-options.interface.ts         — timeoutMs, signal
+    lock-handle.interface.ts             — key, mode, release()
+    lock-store.interface.ts              — acquire(key, mode, options)
+    in-memory-lock-store.interface.ts    — adds sequentialChainCount / exclusiveHeldCount observers
+    create-lock-options.interface.ts     — { store }
   error/
-    lock-busy-error/                   — thrown when exclusive key is held
-    lock-acquire-timeout-error/        — thrown when sequential timeoutMs expires
+    lock-busy-error/                     — LockBusyError; thrown when exclusive key is held
+    lock-acquire-timeout-error/          — LockAcquireTimeoutError; thrown when sequential timeoutMs expires
   store/
-    create-in-memory-lock-store/       — single-process FIFO + exclusive set
+    create-in-memory-lock-store/         — single-process FIFO + exclusive set
   util/
-    resolve-sequential-lock-key/
-    resolve-exclusive-lock-key/
-    run-with-lock/                     — acquire → run → release (isPromise from shared for thenable support)
+    resolve-lock-key/                    — shared resolver for sequential/exclusive argument shapes
+    run-with-lock/                       — acquire → run → release; rejects non-Promise results at runtime
+    run-with-lock-rxjs/                  — runWithLock$; bridges AbortSignal, releases on complete/error/unsubscribe
   factory/
-    create-sequential-lock/            — stage-3 factory
-    create-exclusive-lock/             — stage-3 factory
-    create-legacy-sequential-lock/
-    create-legacy-exclusive-lock/
-    multi-factory/                     — cross-factory integration spec
+    create-sequential-lock/              — returns PromiseMethodDecoratorType; runtime-rejects non-Promise methods
+    create-exclusive-lock/               — returns PromiseMethodDecoratorType; runtime-rejects non-Promise methods
   index.ts
 ```
 
 ## Key Patterns
 
-- **Exclusive locks don't wait** — argument type does NOT accept `timeoutMs` or `signal`; tryAcquire either succeeds or throws `LockBusyError`
+- **Async-only at the type level** — both factories return `PromiseMethodDecoratorType`; applying them to a sync method is a compile-time error and, if bypassed with a cast, a runtime rejection (`Error('Locked method must return a Promise')`)
+- **Exclusive locks don't wait** — argument type does NOT accept `timeoutMs` or `signal`; acquire either succeeds or throws `LockBusyError`
 - **Sequential locks can wait** — accept `timeoutMs` (→ `LockAcquireTimeoutError`) and `signal: AbortSignal` (→ `DOMException('AbortError')`) threaded through the store
-- **Release is idempotent** on both modes — a stale handle's second `release()` is a no-op, preventing eviction of a fresh holder
-- **Chain-delete is release-only** — timeout/abort handlers never delete the `sequentialChains[key]` entry (prevents a race where the next acquirer would bypass an active holder)
+- **Release is idempotent** on both modes — a stale handle's second `release()` is a no-op
+- **Terminal waiters clean up the tail** — on timeout/abort the reject branch schedules `deleteTailIfStillOurs` via `nextTail.then(...)`, so no stale chain entry survives when no later acquirer arrives
+- **`runWithLock$` is leak-free** — a named `forward` listener is registered on the external `AbortSignal` and removed on teardown (complete, error, or unsubscribe)
 - **Thenable support via `isPromise`** (from `@rnw-community/shared`) — catches non-native Promises and cross-realm promises so the lock is held until resolution
-- One entity per folder
 
 ## Dependencies
 
-- `@rnw-community/decorators-core` — `LegacyMethodDecoratorType`
 - `@rnw-community/shared` — `isDefined`, `isPromise`
+- **Optional peer**: `rxjs` (only needed for `runWithLock$`)
 
 ## Coverage
 
