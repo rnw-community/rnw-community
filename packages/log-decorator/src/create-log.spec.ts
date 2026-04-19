@@ -25,56 +25,6 @@ const makeContext = (name: string): ClassMethodDecoratorContext<unknown, any> =>
     } as unknown as ClassMethodDecoratorContext<unknown, any>);
 
 describe('createLog (stage-3 decorator)', () => {
-    describe('devGate', () => {
-        it('returns identity decorator when devGate returns false', () => {
-            const { mock } = makeTransport();
-            const Log = createLog({ transport: mock, devGate: () => false });
-            const originalFn = function (this: unknown): number {
-                return 1;
-            };
-            const decorator = Log('pre', 'post', 'err');
-            const result = decorator(originalFn, makeContext('method'));
-            expect(result).toBe(originalFn);
-            expect(mock.log).not.toHaveBeenCalled();
-        });
-
-        it('wraps method when devGate returns true', () => {
-            const { mock, log } = makeTransport();
-            const Log = createLog({ transport: mock, devGate: () => true });
-
-            const originalFn = function (this: unknown): string {
-                return 'hi';
-            };
-            const decorator = Log<readonly unknown[], string>('entering');
-            const wrapped = decorator(originalFn, makeContext('greet'));
-
-            class Svc {
-                readonly greet = wrapped;
-            }
-
-            new Svc().greet();
-            expect(log).toHaveBeenCalledWith('entering', expect.stringContaining('greet'));
-        });
-
-        it('wraps method when devGate is not provided', () => {
-            const { mock, log } = makeTransport();
-            const Log = createLog({ transport: mock });
-
-            const originalFn = function (this: unknown): string {
-                return 'hi';
-            };
-            const decorator = Log<readonly unknown[], string>('entering');
-            const wrapped = decorator(originalFn, makeContext('greet'));
-
-            class Svc {
-                readonly greet = wrapped;
-            }
-
-            new Svc().greet();
-            expect(log).toHaveBeenCalledWith('entering', expect.stringContaining('greet'));
-        });
-    });
-
     describe('preLog', () => {
         it('logs string preLog message', () => {
             const { mock, log } = makeTransport();

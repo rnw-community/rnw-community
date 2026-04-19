@@ -10,16 +10,8 @@ export const createLog =
         preLog?: PreLogInputType<TArgs>,
         postLog?: PostLogInputType<TArgs, TResult>,
         errorLog?: ErrorLogInputType<TArgs>
-    ) => {
-        if (options.devGate !== undefined && !options.devGate()) {
-            return <TOriginal extends (this: unknown, ...args: TArgs) => TResult>(
-                originalMethod: TOriginal,
-                _context: ClassMethodDecoratorContext<unknown, TOriginal>
-            ): TOriginal => originalMethod;
-        }
-
-        return createInterceptor<TArgs, TResult>({
+    ) =>
+        createInterceptor<TArgs, TResult>({
             interceptor: createLogInterceptor<TArgs, TResult>(options, preLog, postLog, errorLog),
             strategies: options.strategies,
         });
-    };

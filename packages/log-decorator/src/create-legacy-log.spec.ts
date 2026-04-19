@@ -12,58 +12,6 @@ const makeTransport = () => {
 };
 
 describe('createLegacyLog (experimentalDecorators)', () => {
-    describe('devGate', () => {
-        it('returns identity decorator when devGate returns false', () => {
-            const { mock } = makeTransport();
-            const LegacyLog = createLegacyLog({ transport: mock, devGate: () => false });
-            const decorator = LegacyLog('pre', 'post', 'err');
-
-            class TestClass {
-                value = 1;
-
-                method(): number {
-                    return this.value;
-                }
-            }
-
-            const desc: TypedPropertyDescriptor<() => number> = {
-                value: TestClass.prototype.method,
-            };
-            const result = decorator(TestClass.prototype, 'method', desc);
-            expect(result.value).toBe(TestClass.prototype.method);
-        });
-
-        it('wraps method when devGate returns true', () => {
-            const { mock, log } = makeTransport();
-            const LegacyLog = createLegacyLog({ transport: mock, devGate: () => true });
-
-            class TestClass {
-                @(LegacyLog('entering'))
-                greet(): string {
-                    return 'hi';
-                }
-            }
-
-            new TestClass().greet();
-            expect(log).toHaveBeenCalledWith('entering', expect.stringContaining('greet'));
-        });
-
-        it('wraps method when devGate is not provided', () => {
-            const { mock, log } = makeTransport();
-            const LegacyLog = createLegacyLog({ transport: mock });
-
-            class TestClass {
-                @(LegacyLog('entering'))
-                greet(): string {
-                    return 'hi';
-                }
-            }
-
-            new TestClass().greet();
-            expect(log).toHaveBeenCalledWith('entering', expect.stringContaining('greet'));
-        });
-    });
-
     describe('preLog', () => {
         it('logs string preLog message', () => {
             const { mock, log } = makeTransport();

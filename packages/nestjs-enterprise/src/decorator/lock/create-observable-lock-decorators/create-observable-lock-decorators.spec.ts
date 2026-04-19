@@ -385,6 +385,15 @@ describe('createObservableLockDecorators', () => {
             expect(mockTryAcquire).toHaveBeenCalledWith(['test'], 5000);
         });
 
+        it('should emit a descriptive error when the lock service is not injected', async () => {
+            expect.hasAssertions();
+
+            const noServiceInstance = new TestClass();
+            await expect(lastValueFrom(noServiceInstance.testExclusiveArray$())).rejects.toThrow(
+                'LockService was not injected. Ensure the lock service provider is registered in the NestJS module.'
+            );
+        });
+
         it('should release lock after result function', async () => {
             expect.hasAssertions();
 
