@@ -459,7 +459,8 @@ describe('createPromiseLockDecorators', () => {
             class CatchSetupClass {
                 @SeqLockCatch(() => [], (err: unknown) => {
                     catchSpy(err);
-                    return Promise.resolve(0);
+                    
+return Promise.resolve(0);
                 })
                 async test(): Promise<number> {
                     return Promise.resolve(1);
@@ -484,7 +485,8 @@ describe('createPromiseLockDecorators', () => {
             class NoDIClass {
                 @SeqLockCatch(['test'], (err: unknown) => {
                     catchSpy(err);
-                    return Promise.resolve(0);
+                    
+return Promise.resolve(0);
                 })
                 async test(): Promise<number> {
                     return Promise.resolve(1);

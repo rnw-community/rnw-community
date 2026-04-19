@@ -17,9 +17,10 @@ const bridgeSignal = (external: AbortSignal | undefined, controller: AbortContro
     }
     if (external.aborted) {
         controller.abort();
-        return;
+        
+return;
     }
-    external.addEventListener('abort', () => controller.abort(), { once: true });
+    external.addEventListener('abort', () => void controller.abort(), { once: true });
 };
 
 export const runWithLock$ = (
@@ -41,7 +42,8 @@ export const runWithLock$ = (
             (handle) => {
                 if (cancelled) {
                     releaseSilently(handle);
-                    return;
+
+                    return void 0;
                 }
                 let result$: Observable<unknown>;
                 try {
@@ -49,10 +51,12 @@ export const runWithLock$ = (
                 } catch (err: unknown) {
                     releaseSilently(handle);
                     subscriber.error(err);
-                    return;
+
+                    return void 0;
                 }
-                innerSubscription.add(
-                    result$.pipe(finalize(() => releaseSilently(handle))).subscribe(subscriber)
+
+                return void innerSubscription.add(
+                    result$.pipe(finalize(() => void releaseSilently(handle))).subscribe(subscriber)
                 );
             },
             (err: unknown) => {

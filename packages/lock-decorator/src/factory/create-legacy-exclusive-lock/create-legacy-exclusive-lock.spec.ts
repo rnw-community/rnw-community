@@ -2,8 +2,10 @@ import { describe, expect, it, jest } from '@jest/globals';
 
 import { LockBusyError } from '../../error/lock-busy-error/lock-busy.error';
 import { createInMemoryLockStore } from '../../store/create-in-memory-lock-store/create-in-memory-lock-store';
-import type { LockStoreInterface } from '../../interface/lock-store-interface/lock-store.interface';
+
 import { createLegacyExclusiveLock } from './create-legacy-exclusive-lock';
+
+import type { LockStoreInterface } from '../../interface/lock-store-interface/lock-store.interface';
 
 describe('createLegacyExclusiveLock (legacy decorator)', () => {
     it('wraps and calls original async method', async () => {
@@ -59,8 +61,8 @@ describe('createLegacyExclusiveLock (legacy decorator)', () => {
         const ExclusiveLock = createLegacyExclusiveLock({ store });
 
         let releaseHeld!: () => void;
-        const holdLock = new Promise<void>((res) => {
-            releaseHeld = res;
+        const holdLock = new Promise<void>((resolve) => {
+            releaseHeld = resolve;
         });
 
         class Svc {
@@ -94,7 +96,7 @@ describe('createLegacyExclusiveLock (legacy decorator)', () => {
 
         class Svc {
             async process(_id: string): Promise<void> {
-                return;
+                await Promise.resolve();
             }
         }
 
@@ -124,7 +126,7 @@ describe('createLegacyExclusiveLock (legacy decorator)', () => {
 
         class Svc {
             async run(_id: number): Promise<void> {
-                return;
+                await Promise.resolve();
             }
         }
 

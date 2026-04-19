@@ -1,21 +1,20 @@
 import { Logger } from '@nestjs/common';
-import type { Observable } from 'rxjs';
-
-import { createLegacyLog } from '@rnw-community/log-decorator';
-import type { LogTransportInterface } from '@rnw-community/log-decorator';
 import { observableStrategy } from '@rnw-community/decorators-core/rxjs';
 
+import { createLegacyLog } from '@rnw-community/log-decorator';
 import { type AnyFn, type MethodDecoratorType, isDefined } from '@rnw-community/shared';
 
 import type { ErrorLogFunction } from './type/error-log-function.type';
 import type { PostLogFunction } from './type/post-log-function.type';
 import type { PreDecoratorFunction } from '../../type/pre-decorator-function.type';
+import type { LogTransportInterface } from '@rnw-community/log-decorator';
+import type { Observable } from 'rxjs';
 
 type GetResultType<T> = T extends Promise<infer U> ? U : T extends Observable<infer U> ? U : T;
 
 const nestLogTransport: LogTransportInterface = {
-    log: (message, logContext) => Logger.log(message, logContext),
-    debug: (message, logContext) => Logger.debug(message, logContext),
+    log: (message, logContext) => void Logger.log(message, logContext),
+    debug: (message, logContext) => void Logger.debug(message, logContext),
     error: (message, error, logContext) => {
         if (error instanceof Error) {
             Logger.error(message, { err: error }, logContext);

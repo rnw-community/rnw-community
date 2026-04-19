@@ -1,7 +1,8 @@
-import type { InterceptorInterface } from '../../type/interceptor-interface/interceptor.interface';
-import type { ResultStrategyInterface } from '../../type/result-strategy-interface/result-strategy.interface';
 import { buildContext } from '../build-context/build-context';
 import { runInterception } from '../run-interception/run-interception';
+
+import type { InterceptorInterface } from '../../type/interceptor-interface/interceptor.interface';
+import type { ResultStrategyInterface } from '../../type/result-strategy-interface/result-strategy.interface';
 
 export interface CreateInterceptorOptionsInterface<TArgs extends readonly unknown[], TResult> {
     readonly interceptor: InterceptorInterface<TArgs, TResult>;
@@ -24,9 +25,9 @@ export const createInterceptor = <TArgs extends readonly unknown[], TResult>(
 
         return function interceptedMethod(this: unknown, ...args: TArgs): TResult {
             const execContext = buildContext(this, 'Object', methodName, args);
-            const self = this;
+
             return runInterception(options.interceptor, strategies, execContext, () =>
-                (originalMethod as unknown as (this: unknown, ...methodArgs: unknown[]) => TResult).apply(self, [...args])
+                (originalMethod as unknown as (this: unknown, ...methodArgs: unknown[]) => TResult).apply(this, [...args])
             );
         };
     };

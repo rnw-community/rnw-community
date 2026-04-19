@@ -2,8 +2,10 @@ import { describe, expect, it, jest } from '@jest/globals';
 
 import { LockBusyError } from '../../error/lock-busy-error/lock-busy.error';
 import { createInMemoryLockStore } from '../../store/create-in-memory-lock-store/create-in-memory-lock-store';
-import type { LockStoreInterface } from '../../interface/lock-store-interface/lock-store.interface';
+
 import { createExclusiveLock } from './create-exclusive-lock';
+
+import type { LockStoreInterface } from '../../interface/lock-store-interface/lock-store.interface';
 
 describe('createExclusiveLock (stage-3)', () => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -15,6 +17,7 @@ describe('createExclusiveLock (stage-3)', () => {
             private: false,
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             access: { get: (): any => undefined },
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
         }) as unknown as ClassMethodDecoratorContext<any, any>;
 
     it('wraps and calls original method (async)', async () => {
@@ -28,6 +31,7 @@ describe('createExclusiveLock (stage-3)', () => {
 
         const wrapped = decorator(
             original as (this: unknown, ...args: readonly unknown[]) => unknown,
+             
             makeCtx('op')
         );
 
@@ -49,14 +53,15 @@ describe('createExclusiveLock (stage-3)', () => {
 
         const wrapped = decorator(
             original as (this: unknown, ...args: readonly unknown[]) => unknown,
-            makeCtx('s')
+             
+            makeCtx('sync')
         );
 
         class Svc {
-            readonly s = wrapped;
+            readonly sync = wrapped;
         }
 
-        expect(await new Svc().s()).toBe('sync');
+        expect(await new Svc().sync()).toBe('sync');
     });
 
     it('throws LockBusyError when lock already held', async () => {
@@ -64,8 +69,8 @@ describe('createExclusiveLock (stage-3)', () => {
         const ExclusiveLock = createExclusiveLock({ store });
 
         let releaseHeld!: () => void;
-        const holdLock = new Promise<void>((res) => {
-            releaseHeld = res;
+        const holdLock = new Promise<void>((resolve) => {
+            releaseHeld = resolve;
         });
 
         const original = async function (this: unknown): Promise<void> {
@@ -75,6 +80,7 @@ describe('createExclusiveLock (stage-3)', () => {
         const decorator = ExclusiveLock('busy-key');
         const wrapped = decorator(
             original as (this: unknown, ...args: readonly unknown[]) => unknown,
+             
             makeCtx('op')
         );
 
@@ -97,11 +103,12 @@ describe('createExclusiveLock (stage-3)', () => {
 
         const decorator = ExclusiveLock((args: readonly [string]) => `ex:${args[0]}`);
         const original = async function (this: unknown, _id: string): Promise<void> {
-            return;
+            await Promise.resolve();
         };
 
         const wrapped = decorator(
             original as (this: unknown, ...args: readonly unknown[]) => unknown,
+             
             makeCtx('run')
         );
 
@@ -120,26 +127,27 @@ describe('createExclusiveLock (stage-3)', () => {
 
         const decorator = ExclusiveLock({ key: 'obj-ex' });
         const original = async function (this: unknown): Promise<void> {
-            return;
+            await Promise.resolve();
         };
 
         const wrapped = decorator(
             original as (this: unknown, ...args: readonly unknown[]) => unknown,
-            makeCtx('r')
+             
+            makeCtx('run')
         );
 
         class Svc {
-            readonly r = wrapped;
+            readonly run = wrapped;
         }
 
-        await new Svc().r();
+        await new Svc().run();
         expect(spy).toHaveBeenCalledWith('obj-ex', 'exclusive', expect.anything());
     });
 
     it('swallows release errors silently', async () => {
         const releaseError = new Error('release boom');
         const mockHandle = {
-            key: 'r',
+            key: 'rel',
             mode: 'exclusive' as const,
             release: jest.fn<() => Promise<void>>().mockRejectedValue(releaseError),
         };
@@ -149,21 +157,22 @@ describe('createExclusiveLock (stage-3)', () => {
         } as unknown as LockStoreInterface;
 
         const ExclusiveLock = createExclusiveLock({ store: mockStore });
-        const decorator = ExclusiveLock('r');
+        const decorator = ExclusiveLock('rel');
         const original = async function (this: unknown): Promise<string> {
             return 'ok';
         };
 
         const wrapped = decorator(
             original as (this: unknown, ...args: readonly unknown[]) => unknown,
-            makeCtx('m')
+             
+            makeCtx('method')
         );
 
         class Svc {
-            readonly m = wrapped;
+            readonly method = wrapped;
         }
 
-        const result = await new Svc().m();
+        const result = await new Svc().method();
         expect(result).toBe('ok');
     });
 
@@ -178,14 +187,15 @@ describe('createExclusiveLock (stage-3)', () => {
         const decorator = ExclusiveLock('efail');
         const wrapped = decorator(
             original as (this: unknown, ...args: readonly unknown[]) => unknown,
-            makeCtx('f')
+             
+            makeCtx('fail')
         );
 
         class Svc {
-            readonly f = wrapped;
+            readonly fail = wrapped;
         }
 
-        await expect(new Svc().f()).rejects.toThrow('ex fail');
+        await expect(new Svc().fail()).rejects.toThrow('ex fail');
     });
 
     it('handles symbol method name in context', async () => {
@@ -199,9 +209,10 @@ describe('createExclusiveLock (stage-3)', () => {
         const decorator = ExclusiveLock('sym-ex');
         const wrapped = decorator(
             original as (this: unknown, ...args: readonly unknown[]) => unknown,
+             
             makeCtx(sym)
         );
 
-        expect(await wrapped.call(null)).toBe(99);
+        expect(await wrapped()).toBe(99);
     });
 });

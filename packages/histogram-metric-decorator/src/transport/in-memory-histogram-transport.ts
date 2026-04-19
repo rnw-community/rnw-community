@@ -15,7 +15,8 @@ export const inMemoryHistogramTransport = (): InMemoryHistogramTransportInterfac
 
     return {
         observe: (name, durationMs, labels) => {
-            observations.push({ name, durationMs, ...(labels !== undefined ? { labels } : {}) });
+            const labelsEntry = labels ? { labels } : {};
+            observations.push({ name, durationMs, ...labelsEntry });
         },
         snapshot: () => observations.splice(0),
     };

@@ -1,4 +1,4 @@
-import { catchError, isObservable, type Observable, tap, throwError } from 'rxjs';
+import { type Observable, catchError, isObservable, tap, throwError } from 'rxjs';
 
 import type { ResultStrategyInterface } from '../../type/result-strategy-interface/result-strategy.interface';
 
@@ -9,7 +9,8 @@ export const observableStrategy: ResultStrategyInterface = {
             tap(onSuccess),
             catchError((error: unknown) => {
                 onError(error);
-                return throwError(() => error);
+                
+return throwError(() => error);
             })
         ) as unknown as TResult,
 };

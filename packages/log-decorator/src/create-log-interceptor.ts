@@ -1,7 +1,44 @@
-import type { ExecutionContextInterface, InterceptorInterface } from '@rnw-community/decorators-core';
+import { defaultSanitizer } from './default-sanitizer';
 
 import type { CreateLogOptionsInterface, ErrorLogInputType, PostLogInputType, PreLogInputType } from './types';
-import { defaultSanitizer } from './default-sanitizer';
+import type { ExecutionContextInterface, InterceptorInterface } from '@rnw-community/decorators-core';
+
+type TransportType = CreateLogOptionsInterface['transport'];
+type AnyContext = ExecutionContextInterface;
+
+const toErrorOrVoid = (error: unknown): Error | undefined =>
+    error instanceof Error ? error : void 0;
+
+interface DurationLogOptions {
+    readonly context: AnyContext;
+    readonly measureDuration: boolean;
+}
+
+const logOnEnterWithDuration = (transport: TransportType, opts: DurationLogOptions): void => {
+    if (opts.measureDuration) {
+        transport.log(`${opts.context.methodName}:begin`, opts.context.logContext);
+    }
+};
+
+interface SuccessDurationLogOptions extends DurationLogOptions {
+    readonly durationMs: number;
+}
+
+const logOnSuccessWithDuration = (transport: TransportType, opts: SuccessDurationLogOptions): void => {
+    if (opts.measureDuration) {
+        transport.debug(`${opts.context.methodName}:done (${opts.durationMs.toFixed(2)}ms)`, opts.context.logContext);
+    }
+};
+
+interface ErrorDurationLogOptions extends SuccessDurationLogOptions {
+    readonly error: unknown;
+}
+
+const logOnErrorWithDuration = (transport: TransportType, opts: ErrorDurationLogOptions): void => {
+    if (opts.measureDuration) {
+        transport.error(`${opts.context.methodName}:throw (${opts.durationMs.toFixed(2)}ms)`, opts.error, opts.context.logContext);
+    }
+};
 
 export const createLogInterceptor = <TArgs extends readonly unknown[], TResult>(
     options: CreateLogOptionsInterface,
@@ -17,54 +54,48 @@ export const createLogInterceptor = <TArgs extends readonly unknown[], TResult>(
         onEnter: (context: ExecutionContextInterface<TArgs>): void => {
             const { logContext, args } = context;
 
-            if (preLog === undefined) {
-                if (measureDuration) {
-                    transport.log(`${context.methodName}:begin`, logContext);
-                }
+            if (preLog === void 0) {
+                logOnEnterWithDuration(transport, { context, measureDuration });
+
                 return;
             }
 
             if (typeof preLog === 'string') {
                 transport.log(preLog, logContext);
             } else {
-                const sanitizedArgs = sanitizeArgs(args) as TArgs;
-                transport.log(preLog(sanitizedArgs), logContext);
+                transport.log(preLog(sanitizeArgs(args)), logContext);
             }
         },
 
         onSuccess: (context: ExecutionContextInterface<TArgs>, result: TResult, durationMs: number): void => {
             const { logContext, args } = context;
 
-            if (postLog === undefined) {
-                if (measureDuration) {
-                    transport.debug(`${context.methodName}:done (${durationMs.toFixed(2)}ms)`, logContext);
-                }
+            if (postLog === void 0) {
+                logOnSuccessWithDuration(transport, { context, durationMs, measureDuration });
+
                 return;
             }
 
             if (typeof postLog === 'string') {
                 transport.debug(postLog, logContext);
             } else {
-                const sanitizedArgs = sanitizeArgs(args) as TArgs;
-                transport.debug(postLog(result, sanitizedArgs), logContext);
+                transport.debug(postLog(result, sanitizeArgs(args)), logContext);
             }
         },
 
         onError: (context: ExecutionContextInterface<TArgs>, error: unknown, durationMs: number): void => {
             const { logContext, args } = context;
 
-            if (errorLog === undefined) {
-                if (measureDuration) {
-                    transport.error(`${context.methodName}:throw (${durationMs.toFixed(2)}ms)`, error, logContext);
-                }
+            if (errorLog === void 0) {
+                logOnErrorWithDuration(transport, { context, error, durationMs, measureDuration });
+
                 return;
             }
 
             if (typeof errorLog === 'string') {
-                transport.error(errorLog, error instanceof Error ? error : undefined, logContext);
+                transport.error(errorLog, toErrorOrVoid(error), logContext);
             } else {
-                const sanitizedArgs = sanitizeArgs(args) as TArgs;
-                transport.error(errorLog(error, sanitizedArgs), error instanceof Error ? error : undefined, logContext);
+                transport.error(errorLog(error, sanitizeArgs(args)), toErrorOrVoid(error), logContext);
             }
         },
     };

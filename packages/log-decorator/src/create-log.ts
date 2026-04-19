@@ -1,7 +1,8 @@
 import { createInterceptor } from '@rnw-community/decorators-core';
 
-import type { CreateLogOptionsInterface, ErrorLogInputType, PostLogInputType, PreLogInputType } from './types';
 import { createLogInterceptor } from './create-log-interceptor';
+
+import type { CreateLogOptionsInterface, ErrorLogInputType, PostLogInputType, PreLogInputType } from './types';
 
 export const createLog =
     (options: CreateLogOptionsInterface) =>

@@ -1,14 +1,16 @@
 import { describe, expect, it, jest } from '@jest/globals';
 
-import type { LogTransportInterface } from '../../types';
 import { createLegacyLog } from '../../create-legacy-log';
+
+import type { LogTransportInterface } from '../../types';
 
 const makeTransport = () => {
     const log = jest.fn<LogTransportInterface['log']>();
     const debug = jest.fn<LogTransportInterface['debug']>();
     const error = jest.fn<LogTransportInterface['error']>();
     const mock: LogTransportInterface = { log, debug, error };
-    return { mock, log, debug, error };
+    
+return { mock, log, debug, error };
 };
 
 describe('createLegacyLog (experimentalDecorators)', () => {
@@ -33,7 +35,7 @@ describe('createLegacyLog (experimentalDecorators)', () => {
             const LegacyLog = createLegacyLog({ transport: mock });
 
             class TestClass {
-                @(LegacyLog<[number], void>(args => `n=${args[0].toString()}`))
+                @(LegacyLog<[number], undefined>(args => `n=${args[0].toString()}`))
                 run(_n: number): void {
                     void 0;
                 }
@@ -152,7 +154,7 @@ describe('createLegacyLog (experimentalDecorators)', () => {
                 }
             }
 
-            expect(() => new TestClass().run()).toThrow('boom');
+            expect(() => void new TestClass().run()).toThrow('boom');
             expect(error).toHaveBeenCalledWith('failed', err, 'TestClass::run');
         });
 
@@ -163,11 +165,11 @@ describe('createLegacyLog (experimentalDecorators)', () => {
             class TestClass {
                 @(LegacyLog(undefined, undefined, 'failed'))
                 run(): void {
-                    throw 42;
+                    throw (42 as unknown);
                 }
             }
 
-            expect(() => new TestClass().run()).toThrow();
+            expect(() => void new TestClass().run()).toThrow();
             expect(error).toHaveBeenCalledWith('failed', undefined, 'TestClass::run');
         });
 
@@ -177,13 +179,13 @@ describe('createLegacyLog (experimentalDecorators)', () => {
             const err = new Error('fail');
 
             class TestClass {
-                @(LegacyLog<[number], void>(undefined, undefined, (e, args) => `err:${String(e)} n:${args[0].toString()}`))
+                @(LegacyLog<[number], undefined>(undefined, undefined, (e, args) => `err:${String(e)} n:${args[0].toString()}`))
                 run(_n: number): void {
                     throw err;
                 }
             }
 
-            expect(() => new TestClass().run(3)).toThrow('fail');
+            expect(() => void new TestClass().run(3)).toThrow('fail');
             expect(error).toHaveBeenCalledWith('err:Error: fail n:3', err, 'TestClass::run');
         });
 
@@ -199,7 +201,7 @@ describe('createLegacyLog (experimentalDecorators)', () => {
                 }
             }
 
-            expect(() => new TestClass().run()).toThrow('oops');
+            expect(() => void new TestClass().run()).toThrow('oops');
             expect(error).toHaveBeenCalledWith(
                 expect.stringMatching(/^run:throw \(\d+\.\d+ms\)$/u),
                 err,
@@ -218,7 +220,7 @@ describe('createLegacyLog (experimentalDecorators)', () => {
                 }
             }
 
-            expect(() => new TestClass().run()).toThrow('oops');
+            expect(() => void new TestClass().run()).toThrow('oops');
             expect(error).not.toHaveBeenCalled();
         });
     });

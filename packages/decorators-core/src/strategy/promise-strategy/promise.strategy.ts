@@ -8,7 +8,8 @@ export const promiseStrategy: ResultStrategyInterface = {
         (value as unknown as PromiseLike<unknown>).then(
             (resolved: unknown) => {
                 onSuccess(resolved);
-                return resolved;
+                
+return resolved;
             },
             (error: unknown) => {
                 onError(error);

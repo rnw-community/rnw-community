@@ -8,14 +8,11 @@ import type { Stage3DecoratorType } from '../../type/stage3-decorator-type/stage
 export const createExclusiveLock =
     (options: CreateLockOptionsInterface) =>
     <TArgs extends readonly unknown[]>(arg: ExclusiveLockArgumentType<TArgs>): Stage3DecoratorType<TArgs> =>
-    (originalMethod, _context) => {
-        return function exclusiveLocked(this: unknown, ...args: TArgs): Promise<unknown> {
+    (originalMethod, _context) => function exclusiveLocked(this: unknown, ...args: TArgs): Promise<unknown> {
             const { key, options: acquireOptions } = resolveLockKey(arg, args);
-            const self = this;
 
             return runWithLock(options.store, key, 'exclusive', acquireOptions, () =>
                 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                (originalMethod as (this: unknown, ...fnArgs: any[]) => unknown).apply(self, [...args])
+                (originalMethod as (this: unknown, ...fnArgs: any[]) => unknown).apply(this, [...args])
             );
         };
-    };

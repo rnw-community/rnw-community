@@ -1,15 +1,17 @@
 import { describe, expect, it, jest } from '@jest/globals';
 
-import type { HistogramTransportInterface } from '../interface/histogram-transport.interface';
 import { inMemoryHistogramTransport } from '../transport/in-memory-histogram-transport';
+
 import { createLegacyHistogramMetric } from './create-legacy-histogram-metric';
+
+import type { HistogramTransportInterface } from '../interface/histogram-transport.interface';
 
 const makeTransportMock = (): jest.Mocked<HistogramTransportInterface> => ({
     observe: jest.fn(),
 });
 
-const applyLegacyDecorator = <T extends object>(
-    proto: T,
+const applyLegacyDecorator = (
+    proto: object,
     methodName: string,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     decoratorFn: (target: object, propertyKey: string, descriptor: TypedPropertyDescriptor<any>) => TypedPropertyDescriptor<any>
@@ -25,7 +27,7 @@ describe('createLegacyHistogramMetric', () => {
         const decorator = createLegacyHistogramMetric({ transport })();
 
         class LegacyService {
-            // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
+             
             doWork() {
                 return 1;
             }
@@ -43,7 +45,7 @@ describe('createLegacyHistogramMetric', () => {
         const decorator = createLegacyHistogramMetric({ transport })({ name: 'my_custom_ms' });
 
         class Svc {
-            // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
+             
             work() {
                 return 'done';
             }
@@ -62,7 +64,7 @@ describe('createLegacyHistogramMetric', () => {
         });
 
         class Svc {
-            // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
+             
             ping() {
                 return 'ok';
             }
@@ -80,7 +82,7 @@ describe('createLegacyHistogramMetric', () => {
         const decorator = createLegacyHistogramMetric({ transport })({ labels: labelFn });
 
         class Svc {
-            // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
+             
             fetch(_userId: string) {
                 return 'found';
             }
@@ -98,7 +100,7 @@ describe('createLegacyHistogramMetric', () => {
         const decorator = createLegacyHistogramMetric({ transport })();
 
         class Svc {
-            // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
+             
             compute() {
                 return 'result';
             }
@@ -135,9 +137,12 @@ describe('createLegacyHistogramMetric', () => {
         const decorator = createLegacyHistogramMetric({ transport })();
 
         class Svc {
-            // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
+             
             async asyncWork() {
-                await new Promise<void>((resolve) => setTimeout(resolve, 1));
+                await new Promise<void>((resolve) => {
+                    setTimeout(resolve, 1);
+                });
+
                 return 42;
             }
         }
@@ -156,9 +161,11 @@ describe('createLegacyHistogramMetric', () => {
         const boom = new Error('legacy-async-error');
 
         class Svc {
-            // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
+             
             async asyncFail() {
-                await new Promise<void>((resolve) => setTimeout(resolve, 1));
+                await new Promise<void>((resolve) => {
+                    setTimeout(resolve, 1);
+                });
                 throw boom;
             }
         }
@@ -175,7 +182,7 @@ describe('createLegacyHistogramMetric', () => {
         const decorator = createLegacyHistogramMetric({ transport })();
 
         class Svc {
-            // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
+             
             noop() {
                 return undefined;
             }
@@ -191,12 +198,12 @@ describe('createLegacyHistogramMetric', () => {
         const transport = makeTransportMock();
         const nonMatchingStrategy = {
             matches: () => false,
-            handle: <T>(v: T): T => v,
+            handle: <T>(value: T): T => value,
         };
         const decorator = createLegacyHistogramMetric({ transport, strategies: [nonMatchingStrategy] })();
 
         class Svc {
-            // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
+             
             run() {
                 return 7;
             }
@@ -216,7 +223,7 @@ describe('createLegacyHistogramMetric', () => {
         });
 
         class Svc {
-            // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
+             
             process() {
                 return 'done';
             }

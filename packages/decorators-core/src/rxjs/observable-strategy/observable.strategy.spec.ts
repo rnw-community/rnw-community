@@ -26,11 +26,11 @@ describe('observableStrategy', () => {
         });
 
         it('returns false for undefined', () => {
-            expect(observableStrategy.matches(undefined)).toBe(false);
+            expect(observableStrategy.matches(void 0)).toBe(false);
         });
 
         it('returns false for a plain object', () => {
-            expect(observableStrategy.matches({ subscribe: () => undefined })).toBe(false);
+            expect(observableStrategy.matches({ subscribe: () => void 0 })).toBe(false);
         });
 
         it('returns false for a Promise', () => {
@@ -47,8 +47,8 @@ describe('observableStrategy', () => {
             const collected: unknown[] = [];
 
             (result as unknown as Observable<unknown>).subscribe({
-                next: (v) => {
-                    collected.push(v);
+                next: (val) => {
+                    collected.push(val);
                 },
                 error: done,
                 complete: () => {

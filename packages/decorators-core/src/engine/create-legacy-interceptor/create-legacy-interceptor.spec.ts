@@ -1,22 +1,24 @@
 import { describe, expect, it } from '@jest/globals';
 
+import { createLegacyInterceptor } from './create-legacy-interceptor';
+
 import type { ExecutionContextInterface } from '../../type/execution-context-interface/execution-context.interface';
 import type { InterceptorInterface } from '../../type/interceptor-interface/interceptor.interface';
 import type { ResultStrategyInterface } from '../../type/result-strategy-interface/result-strategy.interface';
-import { createLegacyInterceptor } from './create-legacy-interceptor';
 
 interface RecordedCallInterface {
     readonly kind: 'enter' | 'success' | 'error';
-    readonly context: ExecutionContextInterface<readonly unknown[]>;
+    readonly context: ExecutionContextInterface;
     readonly value?: unknown;
     readonly durationMs?: number;
 }
 
 const makeRecorder = (): {
     readonly calls: RecordedCallInterface[];
-    readonly interceptor: InterceptorInterface<readonly unknown[], unknown>;
+    readonly interceptor: InterceptorInterface;
 } => {
     const calls: RecordedCallInterface[] = [];
+
     return {
         calls,
         interceptor: {
@@ -40,9 +42,9 @@ describe('createLegacyInterceptor', () => {
 
         class Svc {
             value = 10;
-            // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
-            add(n: number) {
-                return this.value + n;
+
+            add(num: number) {
+                return this.value + num;
             }
         }
 
@@ -68,10 +70,11 @@ describe('createLegacyInterceptor', () => {
         const decorator = createLegacyInterceptor({ interceptor });
 
         class AsyncSvc {
-            // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
-            async compute(n: number) {
-                await new Promise((resolve) => setTimeout(resolve, 1));
-                return n * 2;
+
+            async compute(num: number) {
+                await new Promise((resolve) => { setTimeout(resolve, 1); });
+
+                return num * 2;
             }
         }
         const descriptor = Object.getOwnPropertyDescriptor(AsyncSvc.prototype, 'compute') as PropertyDescriptor;
@@ -79,7 +82,7 @@ describe('createLegacyInterceptor', () => {
 
         const result = await new AsyncSvc().compute(4);
         expect(result).toBe(8);
-        expect(calls.map((c) => c.kind)).toEqual(['enter', 'success']);
+        expect(calls.map((call) => call.kind)).toEqual(['enter', 'success']);
         expect(calls[1]?.value).toBe(8);
     });
 
@@ -97,7 +100,7 @@ describe('createLegacyInterceptor', () => {
         Object.defineProperty(Svc.prototype, 'fail', decorator(Svc.prototype, 'fail', descriptor as never));
 
         expect(() => new Svc().fail()).toThrow(boom);
-        expect(calls.map((c) => c.kind)).toEqual(['enter', 'error']);
+        expect(calls.map((call) => call.kind)).toEqual(['enter', 'error']);
         expect(calls[1]?.value).toBe(boom);
     });
 
@@ -107,9 +110,9 @@ describe('createLegacyInterceptor', () => {
         const boom = new Error('async-boom');
 
         class AsyncSvc {
-            // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
+
             async fail() {
-                await new Promise((resolve) => setTimeout(resolve, 1));
+                await new Promise((resolve) => { setTimeout(resolve, 1); });
                 throw boom;
             }
         }
@@ -117,7 +120,7 @@ describe('createLegacyInterceptor', () => {
         Object.defineProperty(AsyncSvc.prototype, 'fail', decorator(AsyncSvc.prototype, 'fail', descriptor as never));
 
         await expect(new AsyncSvc().fail()).rejects.toBe(boom);
-        expect(calls.map((c) => c.kind)).toEqual(['enter', 'error']);
+        expect(calls.map((call) => call.kind)).toEqual(['enter', 'error']);
         expect(calls[1]?.value).toBe(boom);
     });
 
@@ -128,6 +131,7 @@ describe('createLegacyInterceptor', () => {
             handle: (value, onSuccess) => {
                 hits.push('A');
                 onSuccess(value);
+
                 return value;
             },
         };
@@ -142,7 +146,7 @@ describe('createLegacyInterceptor', () => {
         const decorator = createLegacyInterceptor({ interceptor, strategies: [strategyA, strategyB] });
 
         class Svc {
-            // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
+
             value() {
                 return 7;
             }
@@ -196,7 +200,7 @@ describe('createLegacyInterceptor', () => {
         const decorator = createLegacyInterceptor({ interceptor, strategies: [strategy] });
 
         class Svc {
-            // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
+
             value() {
                 return 'v';
             }
@@ -204,18 +208,19 @@ describe('createLegacyInterceptor', () => {
         const descriptor = Object.getOwnPropertyDescriptor(Svc.prototype, 'value') as PropertyDescriptor;
         Object.defineProperty(Svc.prototype, 'value', decorator(Svc.prototype, 'value', descriptor as never));
         expect(new Svc().value()).toBe('v');
-        expect(calls.map((c) => c.kind)).toEqual(['enter', 'success']);
+        expect(calls.map((call) => call.kind)).toEqual(['enter', 'success']);
     });
 
     it('dispatches to a matching ResultStrategy and does not auto-handle Promise', () => {
         const matched: unknown[] = [];
         const strategy: ResultStrategyInterface = {
             matches: (value) =>
-                typeof value === 'object' && value !== null && (value as { readonly __obs?: boolean }).__obs === true,
+                typeof value === 'object' && value !== null && (value as { readonly isObservableMarker?: boolean }).isObservableMarker === true,
             handle: (value, onSuccess, onError) => {
                 matched.push(value);
                 onSuccess('strategy-resolved');
                 onError('strategy-errored');
+
                 return value;
             },
         };
@@ -223,9 +228,9 @@ describe('createLegacyInterceptor', () => {
         const decorator = createLegacyInterceptor({ interceptor, strategies: [strategy] });
 
         class Svc {
-            // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
+
             stream() {
-                return { __obs: true, value: 42 } as const;
+                return { isObservableMarker: true, value: 42 } as const;
             }
         }
         const descriptor = Object.getOwnPropertyDescriptor(Svc.prototype, 'stream') as PropertyDescriptor;
@@ -233,8 +238,8 @@ describe('createLegacyInterceptor', () => {
 
         const out = new Svc().stream();
         expect(matched).toHaveLength(1);
-        expect(out).toEqual({ __obs: true, value: 42 });
-        expect(calls.map((c) => c.kind)).toEqual(['enter', 'success', 'error']);
+        expect(out).toEqual({ isObservableMarker: true, value: 42 });
+        expect(calls.map((call) => call.kind)).toEqual(['enter', 'success', 'error']);
         expect(calls[1]?.value).toBe('strategy-resolved');
         expect(calls[2]?.value).toBe('strategy-errored');
     });
@@ -316,7 +321,7 @@ describe('createLegacyInterceptor', () => {
         const decorator = createLegacyInterceptor({ interceptor: {} });
 
         class Svc {
-            // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
+
             async fail() {
                 throw new Error('no-hook-async');
             }
@@ -331,9 +336,9 @@ describe('createLegacyInterceptor', () => {
         const decorator = createLegacyInterceptor({ interceptor });
 
         class Svc {
-            // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
+
             thenable() {
-                return { then: (onResolve: (v: number) => void) => onResolve(21) };
+                return { then: (onResolve: (val: number) => void) => void onResolve(21) };
             }
         }
         const descriptor = Object.getOwnPropertyDescriptor(Svc.prototype, 'thenable') as PropertyDescriptor;
@@ -344,7 +349,7 @@ describe('createLegacyInterceptor', () => {
         );
         const out = await (new Svc().thenable() as unknown as Promise<number>);
         expect(out).toBe(21);
-        expect(calls.map((c) => c.kind)).toEqual(['enter', 'success']);
+        expect(calls.map((call) => call.kind)).toEqual(['enter', 'success']);
         expect(calls[1]?.value).toBe(21);
     });
 
@@ -354,10 +359,10 @@ describe('createLegacyInterceptor', () => {
         const boom = new Error('thenable-fail');
 
         class Svc {
-            // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
+
             thenable() {
                 return {
-                    then: (_: (v: unknown) => void, onReject: (e: unknown) => void) => onReject(boom),
+                    then: (_: (val: unknown) => void, onReject: (err: unknown) => void) => void onReject(boom),
                 };
             }
         }
@@ -368,7 +373,7 @@ describe('createLegacyInterceptor', () => {
             decorator(Svc.prototype, 'thenable', descriptor as never)
         );
         await expect(new Svc().thenable() as unknown as Promise<unknown>).rejects.toBe(boom);
-        expect(calls.map((c) => c.kind)).toEqual(['enter', 'error']);
+        expect(calls.map((call) => call.kind)).toEqual(['enter', 'error']);
     });
 
     it('returns the descriptor unchanged when value is not a function', () => {
@@ -384,7 +389,7 @@ describe('createLegacyInterceptor', () => {
         const decorator = createLegacyInterceptor({ interceptor });
 
         class Base {
-            // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
+
             greet() {
                 return 'hello';
             }
@@ -404,8 +409,8 @@ describe('createLegacyInterceptor', () => {
 
         const bareTarget = Object.create(null) as { ping?: () => number };
         const descriptor: PropertyDescriptor = {
-            // eslint-disable-next-line @typescript-eslint/naming-convention
-            value: function ping(): number {
+
+            value: function value(): number {
                 return 1;
             },
             writable: true,
@@ -414,6 +419,7 @@ describe('createLegacyInterceptor', () => {
         };
         const updated = decorator(bareTarget as object, 'ping', descriptor as never);
         Object.defineProperty(bareTarget, 'ping', updated);
+        // eslint-disable-next-line no-useless-call
         (bareTarget.ping as () => number).call(null);
 
         expect(calls[0]?.context.className).toBe('Object');
@@ -424,7 +430,7 @@ describe('createLegacyInterceptor', () => {
         const decorator = createLegacyInterceptor({ interceptor });
 
         class Svc {
-            // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
+
             ping() {
                 return 1;
             }
@@ -433,8 +439,8 @@ describe('createLegacyInterceptor', () => {
         Object.defineProperty(Svc.prototype, 'ping', decorator(Svc.prototype, 'ping', descriptor as never));
 
         const instance = new Svc();
-        const detached = instance.ping;
-        detached.call(undefined);
+        const detached = instance.ping.bind(void 0);
+        detached();
         expect(calls[0]?.context.className).toBe('Svc');
     });
 
@@ -442,6 +448,7 @@ describe('createLegacyInterceptor', () => {
         const { calls, interceptor } = makeRecorder();
         const decorator = createLegacyInterceptor({ interceptor });
 
+        // eslint-disable-next-line @typescript-eslint/no-extraneous-class
         class StaticSvc {
             static compute(): number {
                 return 99;
@@ -460,10 +467,12 @@ describe('createLegacyInterceptor', () => {
         const { calls, interceptor } = makeRecorder();
         const decorator = createLegacyInterceptor({ interceptor });
 
-        const anonFn = function (): void {};
+        const anonFn = function (): void {
+            void 0;
+        };
         Object.defineProperty(anonFn, 'name', { value: '' });
         const descriptor: PropertyDescriptor = {
-            value: function compute(): number {
+            value: function value(): number {
                 return 1;
             },
             writable: true,

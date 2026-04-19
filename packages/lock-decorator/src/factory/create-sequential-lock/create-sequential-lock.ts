@@ -8,14 +8,11 @@ import type { Stage3DecoratorType } from '../../type/stage3-decorator-type/stage
 export const createSequentialLock =
     (options: CreateLockOptionsInterface) =>
     <TArgs extends readonly unknown[]>(arg: SequentialLockArgumentType<TArgs>): Stage3DecoratorType<TArgs> =>
-    (originalMethod, _context) => {
-        return function sequentialLocked(this: unknown, ...args: TArgs): Promise<unknown> {
+    (originalMethod, _context) => function sequentialLocked(this: unknown, ...args: TArgs): Promise<unknown> {
             const { key, options: acquireOptions } = resolveLockKey(arg, args);
-            const self = this;
 
             return runWithLock(options.store, key, 'sequential', acquireOptions, () =>
                 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                (originalMethod as (this: unknown, ...fnArgs: any[]) => unknown).apply(self, [...args])
+                (originalMethod as (this: unknown, ...fnArgs: any[]) => unknown).apply(this, [...args])
             );
         };
-    };

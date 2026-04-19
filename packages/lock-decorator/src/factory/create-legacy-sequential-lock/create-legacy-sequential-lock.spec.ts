@@ -2,8 +2,10 @@ import { describe, expect, it, jest } from '@jest/globals';
 
 import { LockAcquireTimeoutError } from '../../error/lock-acquire-timeout-error/lock-acquire-timeout.error';
 import { createInMemoryLockStore } from '../../store/create-in-memory-lock-store/create-in-memory-lock-store';
-import type { LockStoreInterface } from '../../interface/lock-store-interface/lock-store.interface';
+
 import { createLegacySequentialLock } from './create-legacy-sequential-lock';
+
+import type { LockStoreInterface } from '../../interface/lock-store-interface/lock-store.interface';
 
 describe('createLegacySequentialLock (legacy decorator)', () => {
     it('wraps and calls original async method', async () => {
@@ -36,9 +38,12 @@ describe('createLegacySequentialLock (legacy decorator)', () => {
         const store = createInMemoryLockStore();
         const SequentialLock = createLegacySequentialLock({ store });
 
+        const offset = 100;
+        const input = 5;
+
         class Svc {
             compute(x: number): number {
-                return x + 100;
+                return x + offset;
             }
         }
 
@@ -53,7 +58,7 @@ describe('createLegacySequentialLock (legacy decorator)', () => {
         const svc = new Svc();
         svc.compute = result.value as typeof svc.compute;
 
-        expect(await (svc.compute(5) as unknown as Promise<number>)).toBe(105);
+        expect(await (svc.compute(input) as unknown as Promise<number>)).toBe(input + offset);
     });
 
     it('uses function key form', async () => {
@@ -90,7 +95,7 @@ describe('createLegacySequentialLock (legacy decorator)', () => {
 
         class Svc {
             async op(): Promise<void> {
-                return;
+                await Promise.resolve();
             }
         }
 
@@ -118,9 +123,9 @@ describe('createLegacySequentialLock (legacy decorator)', () => {
         const SequentialLock = createLegacySequentialLock({ store });
         const order: number[] = [];
 
-        const makeDescriptor = (n: number): PropertyDescriptor => ({
-            value: async function (this: unknown): Promise<void> {
-                order.push(n);
+        const makeDescriptor = (num: number): PropertyDescriptor => ({
+            async value (this: unknown): Promise<void> {
+                order.push(num);
             },
             writable: true,
             configurable: true,
@@ -176,9 +181,9 @@ describe('createLegacySequentialLock (legacy decorator)', () => {
 
         await expect(svc.fail()).rejects.toThrow('legacy fail');
 
-        const h = await store.acquire('lerr', 'sequential');
-        expect(h.key).toBe('lerr');
-        h.release();
+        const handle = await store.acquire('lerr', 'sequential');
+        expect(handle.key).toBe('lerr');
+        void handle.release();
     });
 
     it('swallows release errors silently', async () => {
@@ -229,12 +234,12 @@ describe('createLegacySequentialLock (legacy decorator)', () => {
 
     it('rejects with LockAcquireTimeoutError when timed out', async () => {
         const store = createInMemoryLockStore();
-        const h = await store.acquire('lto', 'sequential');
+        const held = await store.acquire('lto', 'sequential');
         const SequentialLock = createLegacySequentialLock({ store });
 
         class Svc {
             async op(): Promise<void> {
-                return;
+                await Promise.resolve();
             }
         }
 
@@ -250,6 +255,6 @@ describe('createLegacySequentialLock (legacy decorator)', () => {
         svc.op = result.value as typeof svc.op;
 
         await expect(svc.op()).rejects.toBeInstanceOf(LockAcquireTimeoutError);
-        h.release();
+        void held.release();
     });
 });

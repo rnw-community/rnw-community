@@ -3,6 +3,9 @@ import type { SanitizerFnType } from './types';
 const MAX_STRING_LENGTH = 200;
 const MAX_ARRAY_LENGTH = 20;
 
+type SanitizePath = WeakSet<object>;
+type SanitizeFn = (value: unknown, path: SanitizePath) => unknown;
+
 const sanitizeString = (value: string): string =>
     value.length > MAX_STRING_LENGTH ? `<truncated:${value.length.toString()}>` : value;
 
@@ -14,22 +17,39 @@ const sanitizeError = (err: Error): { name: string; message: string; stack?: str
     if (typeof err.stack === 'string') {
         out.stack = sanitizeString(err.stack);
     }
+
     return out;
 };
 
-const sanitizeInner = (value: unknown, path: WeakSet<object>): unknown => {
-    if (value === null || value === undefined) {
-        return value;
+const sanitizeArray = (value: unknown[], path: SanitizePath, sanitize: SanitizeFn): unknown => {
+    if (value.length > MAX_ARRAY_LENGTH) {
+        return { length: value.length };
     }
-
-    if (typeof value === 'string') {
-        return sanitizeString(value);
+    if (path.has(value)) {
+        return '[Circular]';
     }
+    path.add(value);
+    const arrResult = value.map((item: unknown) => sanitize(item, path));
+    path.delete(value);
 
-    if (typeof value !== 'object' && typeof value !== 'function') {
-        return value;
+    return arrResult;
+};
+
+const sanitizeObject = (value: object, path: SanitizePath, sanitize: SanitizeFn): unknown => {
+    if (path.has(value)) {
+        return '[Circular]';
     }
+    path.add(value);
+    const result: Record<string, unknown> = {};
+    for (const key of Object.keys(value)) {
+        result[key] = sanitize((value as Record<string, unknown>)[key], path);
+    }
+    path.delete(value);
 
+    return result;
+};
+
+const sanitizeBuiltin = (value: object): unknown => {
     if (value instanceof Error) {
         return sanitizeError(value);
     }
@@ -46,33 +66,37 @@ const sanitizeInner = (value: unknown, path: WeakSet<object>): unknown => {
         return { _type: 'Set', size: value.size };
     }
 
+    return void 0;
+};
+
+const sanitizeSpecialObject = (value: object, path: SanitizePath, sanitize: SanitizeFn): unknown => {
+    const builtin = sanitizeBuiltin(value);
+    if (builtin !== void 0) {
+        return builtin;
+    }
     if (Array.isArray(value)) {
-        if (value.length > MAX_ARRAY_LENGTH) {
-            return { length: value.length };
-        }
-        if (path.has(value)) {
-            return '[Circular]';
-        }
-        path.add(value);
-        const arrResult = value.map((item: unknown) => sanitizeInner(item, path));
-        path.delete(value);
-        return arrResult;
+        return sanitizeArray(value, path, sanitize);
     }
 
-    if (path.has(value as object)) {
-        return '[Circular]';
-    }
-    path.add(value as object);
+    return sanitizeObject(value, path, sanitize);
+};
 
-    const result: Record<string, unknown> = {};
-    for (const key of Object.keys(value as object)) {
-        result[key] = sanitizeInner((value as Record<string, unknown>)[key], path);
+const sanitizeInner = (value: unknown, path: SanitizePath): unknown => {
+    if (value === null || value === void 0) {
+        return value;
     }
-    path.delete(value as object);
-    return result;
+    if (typeof value === 'string') {
+        return sanitizeString(value);
+    }
+    if (typeof value !== 'object' && typeof value !== 'function') {
+        return value;
+    }
+
+    return sanitizeSpecialObject(value, path, sanitizeInner);
 };
 
 export const defaultSanitizer: SanitizerFnType = (value: unknown): unknown => {
-    const path = new WeakSet<object>();
+    const path: SanitizePath = new WeakSet();
+
     return sanitizeInner(value, path);
 };

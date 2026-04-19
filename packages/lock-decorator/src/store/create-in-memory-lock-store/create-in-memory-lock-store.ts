@@ -8,6 +8,85 @@ import type { LockHandleInterface } from '../../interface/lock-handle-interface/
 import type { LockStoreInterface } from '../../interface/lock-store-interface/lock-store.interface';
 import type { LockModeType } from '../../type/lock-mode-type/lock-mode.type';
 
+type SettleFn = (action: 'resolve' | 'reject', value?: unknown) => void;
+
+const buildSettle = (
+    resolve: () => void,
+    reject: (reason?: unknown) => void,
+    clearTimer: () => void,
+    removeListener: () => void
+): SettleFn => {
+    let settled = false;
+
+    return (action, value) => {
+        if (settled) {
+            return;
+        }
+        settled = true;
+        clearTimer();
+        removeListener();
+        if (action === 'resolve') {
+            resolve();
+        } else {
+            reject(value as Error);
+        }
+    };
+};
+
+const buildTimer = (
+    key: string,
+    timeoutMs: number,
+    resolveSlot: () => void,
+    settle: SettleFn
+): ReturnType<typeof setTimeout> =>
+    setTimeout(() => {
+        resolveSlot();
+        settle('reject', new LockAcquireTimeoutError(key, timeoutMs));
+    }, timeoutMs);
+
+interface WaitForTurnContext {
+    readonly resolve: () => void;
+    readonly reject: (reason?: unknown) => void;
+    readonly resolveSlot: () => void;
+    readonly currentTail: Promise<void>;
+    readonly key: string;
+    readonly timeoutMs: number | undefined;
+    readonly signal: AbortSignal | undefined;
+}
+
+// eslint-disable-next-line max-statements
+const buildWaitForTurn = (ctx: WaitForTurnContext): void => {
+    const { resolve, reject, resolveSlot, currentTail, key, timeoutMs, signal } = ctx;
+    let timerId: ReturnType<typeof setTimeout> | undefined;
+    let removeListener: () => void = () => void 0;
+
+    const clearTimer = (): void => { if (isDefined(timerId)) { clearTimeout(timerId); } };
+    const settle = buildSettle(resolve, reject, clearTimer, () => void removeListener());
+
+    if (signal?.aborted === true) {
+        resolveSlot();
+        reject(new DOMException('The operation was aborted.', 'AbortError'));
+
+        return;
+    }
+
+    if (isDefined(signal)) {
+        const onAbort = (): void => { resolveSlot(); settle('reject', new DOMException('The operation was aborted.', 'AbortError')); };
+        signal.addEventListener('abort', onAbort);
+        removeListener = () => { signal.removeEventListener('abort', onAbort); };
+    }
+
+    if (isDefined(timeoutMs)) {
+        timerId = buildTimer(key, timeoutMs, resolveSlot, settle);
+    }
+
+    void currentTail.then(
+        () => void settle('resolve'),
+        /* istanbul ignore next */
+        () => void settle('resolve')
+    );
+};
+
 const acquireSequential = (
     sequentialChains: Map<string, Promise<void>>,
     key: string,
@@ -15,82 +94,22 @@ const acquireSequential = (
 ): Promise<LockHandleInterface> => {
     const timeoutMs = options?.timeoutMs;
     const signal = options?.signal;
-
     const currentTail = sequentialChains.get(key) ?? Promise.resolve();
 
-    let resolveSlot: () => void;
-    const slotPromise = new Promise<void>((res) => {
-        resolveSlot = res;
-    });
+    let resolveSlot!: () => void;
+     
+    const slotPromise = new Promise<void>((resolve) => { resolveSlot = resolve; });
 
     const nextTail = currentTail.then(() => slotPromise);
     sequentialChains.set(key, nextTail);
 
     const waitForTurn = new Promise<void>((resolve, reject) => {
-        let settled = false;
-
-        const settle = (action: 'resolve' | 'reject', value?: unknown): void => {
-            if (settled) {
-                return;
-            }
-            settled = true;
-            clearTimer();
-            removeSignalListener();
-            if (action === 'resolve') {
-                resolve();
-            } else {
-                reject(value as Error);
-            }
-        };
-
-        let timerId: ReturnType<typeof setTimeout> | undefined;
-        const clearTimer = (): void => {
-            if (isDefined(timerId)) {
-                clearTimeout(timerId);
-            }
-        };
-
-        const onAbort = (): void => {
-            resolveSlot();
-            settle('reject', new DOMException('The operation was aborted.', 'AbortError'));
-        };
-
-        const removeSignalListener = (): void => {
-            if (isDefined(signal)) {
-                signal.removeEventListener('abort', onAbort);
-            }
-        };
-
-        if (signal?.aborted === true) {
-            resolveSlot();
-            reject(new DOMException('The operation was aborted.', 'AbortError'));
-            return;
-        }
-
-        if (isDefined(signal)) {
-            signal.addEventListener('abort', onAbort);
-        }
-
-        if (isDefined(timeoutMs)) {
-            timerId = setTimeout(() => {
-                resolveSlot();
-                settle('reject', new LockAcquireTimeoutError(key, timeoutMs));
-            }, timeoutMs);
-        }
-
-        currentTail.then(
-            () => {
-                settle('resolve');
-            },
-            /* istanbul ignore next */
-            () => {
-                settle('resolve');
-            }
-        );
+        buildWaitForTurn({ resolve, reject, resolveSlot, currentTail, key, timeoutMs, signal });
     });
 
     return waitForTurn.then(() => {
         let released = false;
+
         return {
             key,
             mode: 'sequential' as const,

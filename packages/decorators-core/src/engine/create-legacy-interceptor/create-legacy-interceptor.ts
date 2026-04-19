@@ -1,7 +1,8 @@
-import type { InterceptorInterface } from '../../type/interceptor-interface/interceptor.interface';
-import type { ResultStrategyInterface } from '../../type/result-strategy-interface/result-strategy.interface';
 import { buildContext } from '../build-context/build-context';
 import { runInterception } from '../run-interception/run-interception';
+
+import type { InterceptorInterface } from '../../type/interceptor-interface/interceptor.interface';
+import type { ResultStrategyInterface } from '../../type/result-strategy-interface/result-strategy.interface';
 
 export interface CreateLegacyInterceptorOptionsInterface<TArgs extends readonly unknown[], TResult> {
     readonly interceptor: InterceptorInterface<TArgs, TResult>;
@@ -16,12 +17,13 @@ export type LegacyMethodDecoratorType = <T extends (this: unknown, ...args: read
 
 const resolveFallbackClassName = (target: object): string => {
     if (typeof target === 'function') {
-        const name = (target as { readonly name?: string }).name;
+        const { name } = (target as { readonly name?: string });
         if (typeof name === 'string' && name.length > 0) {
             return name;
         }
     }
     const ctorName = (target as { readonly constructor?: { readonly name?: string } }).constructor?.name;
+
     return typeof ctorName === 'string' && ctorName.length > 0 ? ctorName : 'Object';
 };
 
@@ -41,9 +43,9 @@ export const createLegacyInterceptor = <TArgs extends readonly unknown[], TResul
 
         const interceptedMethod = function interceptedMethod(this: unknown, ...args: TArgs): TResult {
             const execContext = buildContext(this, fallbackClassName, methodName, args);
-            const self = this;
+
             return runInterception(options.interceptor, strategies, execContext, () =>
-                (originalMethod as unknown as (this: unknown, ...methodArgs: unknown[]) => TResult).apply(self, [...args])
+                (originalMethod as unknown as (this: unknown, ...methodArgs: unknown[]) => TResult).apply(this, [...args])
             );
         };
 

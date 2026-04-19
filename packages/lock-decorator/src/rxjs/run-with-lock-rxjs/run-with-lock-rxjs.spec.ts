@@ -1,11 +1,13 @@
 import { describe, expect, it, jest } from '@jest/globals';
 import { Observable, lastValueFrom, of, throwError } from 'rxjs';
 
-import { createInMemoryLockStore } from '../../store/create-in-memory-lock-store/create-in-memory-lock-store';
 import { LockBusyError } from '../../error/lock-busy-error/lock-busy.error';
+import { createInMemoryLockStore } from '../../store/create-in-memory-lock-store/create-in-memory-lock-store';
+
+import { runWithLock$ } from './run-with-lock-rxjs';
+
 import type { LockHandleInterface } from '../../interface/lock-handle-interface/lock-handle.interface';
 import type { LockStoreInterface } from '../../interface/lock-store-interface/lock-store.interface';
-import { runWithLock$ } from './run-with-lock-rxjs';
 
 describe('runWithLock$', () => {
     it('acquires, invokes, emits the values, and releases on complete', async () => {
@@ -15,11 +17,13 @@ describe('runWithLock$', () => {
         const spyStore = {
             acquire: async (...args: Parameters<typeof store.acquire>) => {
                 const handle = await store.acquire(...args);
+
                 return {
                     key: handle.key,
                     mode: handle.mode,
                     release: () => {
                         releaseSpy();
+
                         return handle.release();
                     },
                 };
@@ -38,11 +42,13 @@ describe('runWithLock$', () => {
         const spyStore = {
             acquire: async (...args: Parameters<typeof store.acquire>) => {
                 const handle = await store.acquire(...args);
+
                 return {
                     key: handle.key,
                     mode: handle.mode,
                     release: () => {
                         releaseSpy();
+
                         return handle.release();
                     },
                 };
@@ -63,11 +69,13 @@ describe('runWithLock$', () => {
         const spyStore = {
             acquire: async (...args: Parameters<typeof store.acquire>) => {
                 const handle = await store.acquire(...args);
+
                 return {
                     key: handle.key,
                     mode: handle.mode,
                     release: () => {
                         releaseSpy();
+
                         return handle.release();
                     },
                 };
@@ -91,7 +99,7 @@ describe('runWithLock$', () => {
             lastValueFrom(runWithLock$(store, 'busy', 'exclusive', {}, () => of(1)))
         ).rejects.toBeInstanceOf(LockBusyError);
 
-        held.release();
+        void held.release();
     });
 
     it('swallows release rejection silently so it does not poison the subscriber', async () => {
@@ -116,11 +124,13 @@ describe('runWithLock$', () => {
         const spyStore = {
             acquire: async (...args: Parameters<typeof store.acquire>) => {
                 const handle = await store.acquire(...args);
+
                 return {
                     key: handle.key,
                     mode: handle.mode,
                     release: () => {
                         releaseSpy();
+
                         return handle.release();
                     },
                 };
@@ -131,9 +141,11 @@ describe('runWithLock$', () => {
             sub.next(1);
         });
         const sub = runWithLock$(spyStore, 'k', 'sequential', {}, () => neverCompleting$).subscribe();
-        await new Promise((r) => setTimeout(r, 5));
+        // eslint-disable-next-line no-promise-executor-return
+        await new Promise((resolve) => setTimeout(resolve, 5));
         sub.unsubscribe();
-        await new Promise((r) => setTimeout(r, 5));
+        // eslint-disable-next-line no-promise-executor-return
+        await new Promise((resolve) => setTimeout(resolve, 5));
         expect(releaseSpy).toHaveBeenCalledTimes(1);
     });
 
@@ -158,7 +170,8 @@ describe('runWithLock$', () => {
                 releaseSpy();
             },
         });
-        await new Promise((r) => setTimeout(r, 5));
+        // eslint-disable-next-line no-promise-executor-return
+        await new Promise((resolve) => setTimeout(resolve, 5));
 
         expect(releaseSpy).toHaveBeenCalledTimes(1);
     });
@@ -169,7 +182,7 @@ describe('runWithLock$', () => {
         const aborted: boolean[] = [];
         const signalingStore: LockStoreInterface = {
             acquire: (_key, _mode, options) =>
-                new Promise<LockHandleInterface>((_, reject) => {
+                new Promise<LockHandleInterface>((_resolve, reject) => {
                     const signal = options?.signal;
                     if (signal !== undefined) {
                         capturedSignals.push(signal);
@@ -184,9 +197,11 @@ describe('runWithLock$', () => {
         const sub = runWithLock$(signalingStore, 'k', 'sequential', {}, () => of(1)).subscribe({
             error: () => void 0,
         });
-        await new Promise((r) => setTimeout(r, 1));
+        // eslint-disable-next-line no-promise-executor-return
+        await new Promise((resolve) => setTimeout(resolve, 1));
         sub.unsubscribe();
-        await new Promise((r) => setTimeout(r, 5));
+        // eslint-disable-next-line no-promise-executor-return
+        await new Promise((resolve) => setTimeout(resolve, 5));
 
         expect(capturedSignals).toHaveLength(1);
         expect(aborted).toEqual([true]);
@@ -196,9 +211,9 @@ describe('runWithLock$', () => {
         expect.hasAssertions();
         const signalingStore: LockStoreInterface = {
             acquire: (_key, _mode, options) =>
-                new Promise<LockHandleInterface>((_, reject) => {
+                new Promise<LockHandleInterface>((_resolve, reject) => {
                     options?.signal?.addEventListener('abort', () =>
-                        reject(new DOMException('The operation was aborted.', 'AbortError'))
+                        void reject(new DOMException('The operation was aborted.', 'AbortError'))
                     );
                 }),
         };
@@ -208,9 +223,11 @@ describe('runWithLock$', () => {
         runWithLock$(signalingStore, 'k', 'sequential', { signal: userController.signal }, () => of(1)).subscribe({
             error: errorSpy,
         });
-        await new Promise((r) => setTimeout(r, 1));
+        // eslint-disable-next-line no-promise-executor-return
+        await new Promise((resolve) => setTimeout(resolve, 1));
         userController.abort();
-        await new Promise((r) => setTimeout(r, 5));
+        // eslint-disable-next-line no-promise-executor-return
+        await new Promise((resolve) => setTimeout(resolve, 5));
 
         expect(errorSpy).toHaveBeenCalledTimes(1);
         expect((errorSpy as jest.Mock).mock.calls[0]?.[0]).toMatchObject({ name: 'AbortError' });
@@ -222,6 +239,7 @@ describe('runWithLock$', () => {
         const signalingStore: LockStoreInterface = {
             acquire: (_key, _mode, options) => {
                 capturedAbortedAtCall.push(options?.signal?.aborted === true);
+
                 return Promise.reject(new DOMException('The operation was aborted.', 'AbortError'));
             },
         };
@@ -232,7 +250,8 @@ describe('runWithLock$', () => {
         runWithLock$(signalingStore, 'k', 'sequential', { signal: controller.signal }, () => of(1)).subscribe({
             error: errorSpy,
         });
-        await new Promise((r) => setTimeout(r, 5));
+        // eslint-disable-next-line no-promise-executor-return
+        await new Promise((resolve) => setTimeout(resolve, 5));
 
         expect(capturedAbortedAtCall).toEqual([true]);
         expect(errorSpy).toHaveBeenCalledTimes(1);
