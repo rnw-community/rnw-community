@@ -26,9 +26,9 @@ yarn add @rnw-community/histogram-metric-decorator @rnw-community/decorators-cor
 ## Usage
 
 ```ts
-import { createLegacyHistogramMetric, inMemoryHistogramTransport } from '@rnw-community/histogram-metric-decorator';
+import { createHistogramMetric, inMemoryHistogramTransport } from '@rnw-community/histogram-metric-decorator';
 
-const HistogramMetric = createLegacyHistogramMetric({ transport: inMemoryHistogramTransport() });
+const HistogramMetric = createHistogramMetric({ transport: inMemoryHistogramTransport() });
 
 class OrderService {
     @HistogramMetric()
@@ -41,7 +41,7 @@ class OrderService {
 
 ## Public API
 
-- [`createLegacyHistogramMetric`](src/factory/create-legacy-histogram-metric/create-legacy-histogram-metric.ts) — decorator factory
+- [`createHistogramMetric`](src/factory/create-histogram-metric/create-histogram-metric.ts) — decorator factory
 - [`inMemoryHistogramTransport`](src/transport/in-memory-histogram-transport.ts) — test-ready transport with `snapshot()`
 - [`HistogramTransportInterface`](src/interface/histogram-transport.interface.ts) — transport contract
 - [`HistogramOptionsInterface`](src/interface/histogram-options.interface.ts) — per-decoration options (`name`, `labels`)

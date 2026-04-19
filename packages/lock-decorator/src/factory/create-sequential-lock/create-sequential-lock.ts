@@ -1,14 +1,13 @@
-
 import { resolveLockKey } from '../../util/resolve-lock-key/resolve-lock-key';
 import { runWithLock } from '../../util/run-with-lock/run-with-lock';
 
 import type { CreateLockOptionsInterface } from '../../interface/create-lock-options.interface';
+import type { PromiseMethodDecoratorType } from '../../type/promise-method-decorator.type';
 import type { SequentialLockArgumentType } from '../../type/sequential-lock-argument.type';
-import type { MethodDecoratorType } from '@rnw-community/decorators-core';
 
 export const createSequentialLock =
     (options: CreateLockOptionsInterface) =>
-    <TArgs extends readonly unknown[]>(arg: SequentialLockArgumentType<TArgs>): MethodDecoratorType =>
+    <TArgs extends readonly unknown[]>(arg: SequentialLockArgumentType<TArgs>): PromiseMethodDecoratorType =>
     (_target, _propertyKey, descriptor) => {
         const originalMethod = descriptor.value;
         if (typeof originalMethod !== 'function') {
