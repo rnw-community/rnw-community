@@ -17,7 +17,10 @@
         "packages/react-native-payments-example-expo/app.json",
         "packages/react-native-payments-example-expo/metro.config.js",
         "packages/react-native-payments-example/metro.config.js",
-        "packages/wdio/src/util/get-platform/**"
+        "packages/wdio/src/util/get-platform/**",
+        "packages/fast-style/src/enum/**",
+        "packages/wdio/src/component/mocks/**",
+        "packages/wdio/src/rooted-component/mocks/**"
     ],
     "ignoreBinaries": [
         "run"
@@ -46,9 +49,6 @@
         "ioredis",
         "prom-client",
         "redlock",
-        "rxjs",
-        "expo-updates",
-        "@expo/metro-config",
-        "@react-native/metro-babel-transformer"
+        "rxjs"
     ]
 }
