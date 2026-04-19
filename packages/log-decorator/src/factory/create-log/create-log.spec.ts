@@ -1,27 +1,28 @@
 import { describe, expect, it, jest } from '@jest/globals';
 
-import type { LogTransportInterface } from '../../types';
 import { createLog } from '../../create-log';
+
+import type { LogTransportInterface } from '../../types';
 
 const makeTransport = () => {
     const log = jest.fn<LogTransportInterface['log']>();
     const debug = jest.fn<LogTransportInterface['debug']>();
     const error = jest.fn<LogTransportInterface['error']>();
     const mock: LogTransportInterface = { log, debug, error };
-    return { mock, log, debug, error };
+    
+return { mock, log, debug, error };
 };
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-const makeContext = (name: string): ClassMethodDecoratorContext<unknown, any> =>
+const makeContext = (name: string): ClassMethodDecoratorContext<any, any> =>
     ({
         kind: 'method',
         name,
         static: false,
         private: false,
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        access: { get: () => undefined as any },
+        access: { get: (): unknown => void 0 },
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } as unknown as ClassMethodDecoratorContext<unknown, any>);
+    } as unknown as ClassMethodDecoratorContext<any, any>);
 
 describe('createLog (stage-3 decorator)', () => {
     describe('preLog', () => {
@@ -190,7 +191,7 @@ describe('createLog (stage-3 decorator)', () => {
                 readonly run = wrapped;
             }
 
-            expect(() => new TestClass().run()).toThrow('boom');
+            expect(() => void new TestClass().run()).toThrow('boom');
             expect(error).toHaveBeenCalledWith('failed', err, 'TestClass::run');
         });
 
@@ -199,7 +200,7 @@ describe('createLog (stage-3 decorator)', () => {
             const Log = createLog({ transport: mock });
 
             const originalFn = function (this: unknown): void {
-                throw 'string-error';
+                throw ('string-error' as unknown);
             };
             const wrapped = Log<readonly unknown[], void>(undefined, undefined, 'failed')(
                 originalFn,
@@ -210,7 +211,7 @@ describe('createLog (stage-3 decorator)', () => {
                 readonly run = wrapped;
             }
 
-            expect(() => new TestClass().run()).toThrow('string-error');
+            expect(() => void new TestClass().run()).toThrow('string-error');
             expect(error).toHaveBeenCalledWith('failed', undefined, 'TestClass::run');
         });
 
@@ -235,7 +236,7 @@ describe('createLog (stage-3 decorator)', () => {
                 readonly run = wrapped;
             }
 
-            expect(() => (new TestClass().run as unknown as (s: string) => void)('input')).toThrow('boom');
+            expect(() => void (new TestClass().run as unknown as (s: string) => void)('input')).toThrow('boom');
             expect(error).toHaveBeenCalledWith('err: Error: boom arg: input', err, 'TestClass::run');
         });
 
@@ -244,7 +245,7 @@ describe('createLog (stage-3 decorator)', () => {
             const Log = createLog({ transport: mock });
 
             const originalFn = function (this: unknown): void {
-                throw 'non-error-value';
+                throw ('non-error-value' as unknown);
             };
             const wrapped = Log<readonly [number], void>(
                 undefined,
@@ -259,7 +260,7 @@ describe('createLog (stage-3 decorator)', () => {
                 readonly run = wrapped;
             }
 
-            expect(() => (new TestClass().run as unknown as (n: number) => void)(9)).toThrow('non-error-value');
+            expect(() => void (new TestClass().run as unknown as (n: number) => void)(9)).toThrow('non-error-value');
             expect(error).toHaveBeenCalledWith('caught:non-error-value n:9', undefined, 'TestClass::run');
         });
 
@@ -277,7 +278,7 @@ describe('createLog (stage-3 decorator)', () => {
                 readonly run = wrapped;
             }
 
-            expect(() => new TestClass().run()).toThrow('oops');
+            expect(() => void new TestClass().run()).toThrow('oops');
             expect(error).toHaveBeenCalledWith(
                 expect.stringMatching(/^run:throw \(\d+\.\d+ms\)$/u),
                 err,
@@ -298,7 +299,7 @@ describe('createLog (stage-3 decorator)', () => {
                 readonly run = wrapped;
             }
 
-            expect(() => new TestClass().run()).toThrow('oops');
+            expect(() => void new TestClass().run()).toThrow('oops');
             expect(error).not.toHaveBeenCalled();
         });
     });

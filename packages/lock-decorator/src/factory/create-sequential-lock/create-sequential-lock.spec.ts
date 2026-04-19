@@ -2,8 +2,10 @@ import { describe, expect, it, jest } from '@jest/globals';
 
 import { LockAcquireTimeoutError } from '../../error/lock-acquire-timeout-error/lock-acquire-timeout.error';
 import { createInMemoryLockStore } from '../../store/create-in-memory-lock-store/create-in-memory-lock-store';
-import type { LockStoreInterface } from '../../interface/lock-store-interface/lock-store.interface';
+
 import { createSequentialLock } from './create-sequential-lock';
+
+import type { LockStoreInterface } from '../../interface/lock-store-interface/lock-store.interface';
 
 describe('createSequentialLock (stage-3)', () => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -15,6 +17,7 @@ describe('createSequentialLock (stage-3)', () => {
             private: false,
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             access: { get: (): any => undefined },
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
         }) as unknown as ClassMethodDecoratorContext<any, any>;
 
     it('wraps and calls original method (async)', async () => {
@@ -26,7 +29,11 @@ describe('createSequentialLock (stage-3)', () => {
             return x * 2;
         };
 
-        const wrapped = decorator(original as (this: unknown, ...args: readonly unknown[]) => unknown, makeCtx('work'));
+        const wrapped = decorator(
+            original as (this: unknown, ...args: readonly unknown[]) => unknown,
+             
+            makeCtx('work')
+        );
 
         class Svc {
             readonly work = wrapped;
@@ -44,14 +51,17 @@ describe('createSequentialLock (stage-3)', () => {
             return x + 1;
         };
 
-        const wrapped = decorator(original as (this: unknown, ...args: readonly unknown[]) => unknown, makeCtx('add'));
-
-        function decorator(
+        const wrapFn = (
             fn: (this: unknown, ...args: readonly unknown[]) => unknown,
             ctx: ClassMethodDecoratorContext<unknown, (this: unknown, ...args: readonly unknown[]) => unknown>
-        ): (this: unknown, ...args: readonly unknown[]) => Promise<unknown> {
-            return SequentialLock('sync-key')(fn, ctx);
-        }
+        ): (this: unknown, ...args: readonly unknown[]) => Promise<unknown> =>
+            SequentialLock('sync-key')(fn, ctx);
+
+        const wrapped = wrapFn(
+            original as (this: unknown, ...args: readonly unknown[]) => unknown,
+             
+            makeCtx('add')
+        );
 
         class Svc {
             readonly add = wrapped;
@@ -75,6 +85,7 @@ describe('createSequentialLock (stage-3)', () => {
 
         const wrapped = decorator(
             original as (this: unknown, ...args: readonly unknown[]) => unknown,
+             
             makeCtx('run')
         );
 
@@ -93,11 +104,12 @@ describe('createSequentialLock (stage-3)', () => {
 
         const decorator = SequentialLock({ key: 'obj-key', timeoutMs: 500 });
         const original = async function (this: unknown): Promise<void> {
-            return;
+            await Promise.resolve();
         };
 
         const wrapped = decorator(
             original as (this: unknown, ...args: readonly unknown[]) => unknown,
+             
             makeCtx('run')
         );
 
@@ -117,11 +129,12 @@ describe('createSequentialLock (stage-3)', () => {
         const controller = new AbortController();
         const decorator = SequentialLock({ key: 'sig-key', signal: controller.signal });
         const original = async function (this: unknown): Promise<void> {
-            return;
+            await Promise.resolve();
         };
 
         const wrapped = decorator(
             original as (this: unknown, ...args: readonly unknown[]) => unknown,
+             
             makeCtx('run')
         );
 
@@ -135,17 +148,18 @@ describe('createSequentialLock (stage-3)', () => {
 
     it('signal aborts mid-wait', async () => {
         const store = createInMemoryLockStore();
-        const h = await store.acquire('mid-wait', 'sequential');
+        const handle = await store.acquire('mid-wait', 'sequential');
 
         const SequentialLock = createSequentialLock({ store });
         const controller = new AbortController();
         const decorator = SequentialLock({ key: 'mid-wait', signal: controller.signal });
         const original = async function (this: unknown): Promise<void> {
-            return;
+            await Promise.resolve();
         };
 
         const wrapped = decorator(
             original as (this: unknown, ...args: readonly unknown[]) => unknown,
+             
             makeCtx('op')
         );
 
@@ -159,7 +173,7 @@ describe('createSequentialLock (stage-3)', () => {
         }, 10);
 
         await expect(waitPromise).rejects.toMatchObject({ name: 'AbortError' });
-        h.release();
+        void handle.release();
     });
 
     it('runs sequential calls in FIFO order', async () => {
@@ -167,19 +181,22 @@ describe('createSequentialLock (stage-3)', () => {
         const SequentialLock = createSequentialLock({ store });
         const order: number[] = [];
 
-        const makeMethod = (n: number): ((this: unknown) => Promise<void>) =>
+        const makeMethod = (num: number): ((this: unknown) => Promise<void>) =>
             async function (this: unknown): Promise<void> {
-                order.push(n);
+                order.push(num);
             };
 
         const decorator = SequentialLock('fifo');
-        class Svc {}
 
+        const svc = {};
+
+         
         const wrapped1 = decorator(makeMethod(1), makeCtx('m1'));
+         
         const wrapped2 = decorator(makeMethod(2), makeCtx('m2'));
+         
         const wrapped3 = decorator(makeMethod(3), makeCtx('m3'));
 
-        const svc = new Svc();
         await Promise.all([wrapped1.call(svc), wrapped2.call(svc), wrapped3.call(svc)]);
 
         expect(order).toEqual([1, 2, 3]);
@@ -196,6 +213,7 @@ describe('createSequentialLock (stage-3)', () => {
         const decorator = SequentialLock('err-key');
         const wrapped = decorator(
             original as (this: unknown, ...args: readonly unknown[]) => unknown,
+             
             makeCtx('fail')
         );
 
@@ -205,15 +223,15 @@ describe('createSequentialLock (stage-3)', () => {
 
         await expect(new Svc().fail()).rejects.toThrow('method failed');
 
-        const h = await store.acquire('err-key', 'sequential');
-        expect(h.key).toBe('err-key');
-        h.release();
+        const handle = await store.acquire('err-key', 'sequential');
+        expect(handle.key).toBe('err-key');
+        void handle.release();
     });
 
     it('swallows release errors silently', async () => {
         const releaseError = new Error('release boom');
         const mockHandle = {
-            key: 'r',
+            key: 'rel',
             mode: 'sequential' as const,
             release: jest.fn<() => Promise<void>>().mockRejectedValue(releaseError),
         };
@@ -223,44 +241,46 @@ describe('createSequentialLock (stage-3)', () => {
         } as unknown as LockStoreInterface;
 
         const SequentialLock = createSequentialLock({ store: mockStore });
-        const decorator = SequentialLock('r');
+        const decorator = SequentialLock('rel');
         const original = async function (this: unknown): Promise<string> {
             return 'ok';
         };
 
         const wrapped = decorator(
             original as (this: unknown, ...args: readonly unknown[]) => unknown,
-            makeCtx('m')
+             
+            makeCtx('method')
         );
 
         class Svc {
-            readonly m = wrapped;
+            readonly method = wrapped;
         }
 
-        const result = await new Svc().m();
+        const result = await new Svc().method();
         expect(result).toBe('ok');
     });
 
     it('rejects with LockAcquireTimeoutError when timed out', async () => {
         const store = createInMemoryLockStore();
-        const h = await store.acquire('to', 'sequential');
+        const held = await store.acquire('to', 'sequential');
 
         const SequentialLock = createSequentialLock({ store });
         const decorator = SequentialLock({ key: 'to', timeoutMs: 10 });
         const original = async function (this: unknown): Promise<void> {
-            return;
+            await Promise.resolve();
         };
         const wrapped = decorator(
             original as (this: unknown, ...args: readonly unknown[]) => unknown,
-            makeCtx('m')
+             
+            makeCtx('method')
         );
 
         class Svc {
-            readonly m = wrapped;
+            readonly method = wrapped;
         }
 
-        await expect(new Svc().m()).rejects.toBeInstanceOf(LockAcquireTimeoutError);
-        h.release();
+        await expect(new Svc().method()).rejects.toBeInstanceOf(LockAcquireTimeoutError);
+        void held.release();
     });
 
     it('handles symbol method name in context', async () => {
@@ -274,10 +294,11 @@ describe('createSequentialLock (stage-3)', () => {
         const decorator = SequentialLock('sym-key');
         const wrapped = decorator(
             original as (this: unknown, ...args: readonly unknown[]) => unknown,
+             
             makeCtx(sym)
         );
 
-        const result = await wrapped.call(null);
+        const result = await wrapped();
         expect(result).toBe(1);
     });
 });

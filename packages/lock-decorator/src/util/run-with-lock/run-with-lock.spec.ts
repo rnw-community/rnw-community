@@ -1,6 +1,7 @@
 import { describe, expect, it, jest } from '@jest/globals';
 
 import { createInMemoryLockStore } from '../../store/create-in-memory-lock-store/create-in-memory-lock-store';
+
 import { runWithLock } from './run-with-lock';
 
 describe('runWithLock', () => {
@@ -24,9 +25,9 @@ describe('runWithLock', () => {
             })
         ).rejects.toThrow('boom');
 
-        const h = await store.acquire('k', 'sequential');
-        expect(h.key).toBe('k');
-        h.release();
+        const handle = await store.acquire('k', 'sequential');
+        expect(handle.key).toBe('k');
+        void handle.release();
     });
 
     it('releases lock even when async fn rejects', async () => {
@@ -37,9 +38,9 @@ describe('runWithLock', () => {
             })
         ).rejects.toThrow('async boom');
 
-        const h = await store.acquire('k', 'sequential');
-        expect(h.key).toBe('k');
-        h.release();
+        const handle = await store.acquire('k', 'sequential');
+        expect(handle.key).toBe('k');
+        void handle.release();
     });
 
     it('swallows release errors silently', async () => {
@@ -71,14 +72,17 @@ describe('runWithLock', () => {
 
         const lockRunPromise = runWithLock(store, 'thenable-key', 'sequential', {}, () => thenable);
 
-        await new Promise((r) => setTimeout(r, 10));
+        // eslint-disable-next-line no-promise-executor-return
+        await new Promise((resolve) => setTimeout(resolve, 10));
 
-        const concurrentAcquire = store.acquire('thenable-key', 'sequential').then((h) => {
+        const concurrentAcquire = store.acquire('thenable-key', 'sequential').then((handle) => {
             lockReleasedBeforeResolution = true;
-            h.release();
+
+            return handle.release();
         });
 
-        await new Promise((r) => setTimeout(r, 10));
+        // eslint-disable-next-line no-promise-executor-return
+        await new Promise((resolve) => setTimeout(resolve, 10));
         expect(lockReleasedBeforeResolution).toBe(false);
 
         thenableResolve('thenable-result');

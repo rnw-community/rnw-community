@@ -1,10 +1,7 @@
 import { Inject } from '@nestjs/common';
 
 import { LockBusyError } from '@rnw-community/lock-decorator';
-import type { LockHandleInterface } from '@rnw-community/lock-decorator';
-
 import { isDefined, isPromise } from '@rnw-community/shared';
-import type { AbstractConstructor, AnyFn, MethodDecoratorType } from '@rnw-community/shared';
 
 import {
     LOCK_SERVICE_NOT_INJECTED_MESSAGE,
@@ -13,10 +10,42 @@ import {
     resolveResources,
 } from '../adapter/lock-service-store.adapter';
 
-import type { LockServiceInterface } from '../interface/lock-service.interface';
 import type { PreDecoratorFunction } from '../../../type/pre-decorator-function.type';
+import type { LockServiceInterface } from '../interface/lock-service.interface';
+import type { LockHandleInterface } from '@rnw-community/lock-decorator';
+import type { AbstractConstructor, AnyFn, MethodDecoratorType } from '@rnw-community/shared';
 
 type LockModeType = 'sequential' | 'exclusive';
+
+const safeRelease = async (handle: LockHandleInterface | undefined): Promise<void> => {
+    if (!isDefined(handle)) {
+        return;
+    }
+    try {
+        await handle.release();
+    } catch {
+        /* release errors are silently swallowed */
+    }
+};
+
+const handleLockError = <TResult>(
+    error: unknown,
+    mode: LockModeType,
+    catchErrorFn: ((error: unknown) => TResult) | undefined
+): TResult | undefined => {
+    const isExclusiveBusy = error instanceof LockBusyError && mode === 'exclusive' && !isDefined(catchErrorFn);
+    const normalized =
+        error instanceof LockBusyError
+            ? new Error(`Lock not acquired for keys: ${error.key.split(RESOURCE_SEPARATOR).join(', ')}`)
+            : error;
+    if (isExclusiveBusy) {
+        return void 0;
+    }
+    if (isDefined(catchErrorFn)) {
+        return catchErrorFn(normalized);
+    }
+    throw normalized;
+};
 
 export const createPromiseLockDecorators = (
     serviceToken: AbstractConstructor<LockServiceInterface>,
@@ -30,18 +59,17 @@ export const createPromiseLockDecorators = (
             preLock: PreDecoratorFunction<TArgs, string[]> | string[],
             catchErrorFn?: (error: unknown) => TResult,
             duration?: number
-            // eslint-disable-next-line @typescript-eslint/max-params
         ): MethodDecoratorType<K> =>
         (target, propertyKey, descriptor) => {
             Inject(serviceToken)(target, serviceSymbol);
 
             const methodName = `${target.constructor.name}::${String(propertyKey)}`;
-            const originalMethod = descriptor.value as unknown as (this: unknown, ...a: TArgs) => unknown;
+            const originalMethod = descriptor.value as unknown as (this: unknown, ...args: TArgs) => unknown;
             const effectiveDuration = duration ?? defaultDuration;
 
-            descriptor.value = async function (this: unknown, ...args: TArgs): Promise<unknown> {
-                const self = this;
-                const lockService = (self as Record<symbol, unknown>)[serviceSymbol] as LockServiceInterface | undefined;
+            // eslint-disable-next-line max-statements
+            descriptor.value = async function promiseLockDecorator(this: unknown, ...args: TArgs): Promise<unknown> {
+                const lockService = (this as Record<symbol, unknown>)[serviceSymbol] as LockServiceInterface | undefined;
                 if (!isDefined(lockService)) {
                     throw new Error(LOCK_SERVICE_NOT_INJECTED_MESSAGE);
                 }
@@ -52,32 +80,16 @@ export const createPromiseLockDecorators = (
                 let handle: LockHandleInterface | undefined;
                 try {
                     handle = await store.acquire(joinedKey, mode);
-                    const result = originalMethod.apply(self, args);
+                    const result = originalMethod.apply(this, args);
                     if (!isPromise(result)) {
                         throw new Error(`Method ${methodName} does not return a promise`);
                     }
+
                     return await result;
                 } catch (error) {
-                    if (error instanceof LockBusyError && mode === 'exclusive' && !isDefined(catchErrorFn)) {
-                        // eslint-disable-next-line no-undefined
-                        return undefined;
-                    }
-                    const normalized =
-                        error instanceof LockBusyError
-                            ? new Error(`Lock not acquired for keys: ${error.key.split(RESOURCE_SEPARATOR).join(', ')}`)
-                            : error;
-                    if (isDefined(catchErrorFn)) {
-                        return catchErrorFn(normalized);
-                    }
-                    throw normalized;
+                    return handleLockError(error, mode, catchErrorFn);
                 } finally {
-                    if (isDefined(handle)) {
-                        try {
-                            await handle.release();
-                        } catch {
-                            // release errors are silently swallowed
-                        }
-                    }
+                    await safeRelease(handle);
                 }
             } as K;
 

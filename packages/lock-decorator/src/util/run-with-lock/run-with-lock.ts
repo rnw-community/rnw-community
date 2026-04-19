@@ -5,13 +5,15 @@ import type { LockHandleInterface } from '../../interface/lock-handle-interface/
 import type { LockStoreInterface } from '../../interface/lock-store-interface/lock-store.interface';
 import type { LockModeType } from '../../type/lock-mode-type/lock-mode.type';
 
-export const runWithLock = async (
-    store: LockStoreInterface,
-    key: string,
-    mode: LockModeType,
-    options: AcquireOptionsInterface,
-    fn: () => unknown
-): Promise<unknown> => {
+interface RunWithLockArgs {
+    readonly store: LockStoreInterface;
+    readonly key: string;
+    readonly mode: LockModeType;
+    readonly options: AcquireOptionsInterface;
+    readonly fn: () => unknown;
+}
+
+const runWithLockImpl = async ({ store, key, mode, options, fn }: RunWithLockArgs): Promise<unknown> => {
     let handle: LockHandleInterface | undefined;
 
     try {
@@ -21,10 +23,17 @@ export const runWithLock = async (
         return isPromise(result) ? await result : result;
     } finally {
         if (isDefined(handle)) {
-            try {
-                await handle.release();
-            } catch {
-            }
+            await Promise.resolve(handle.release()).catch(() => void 0);
         }
     }
 };
+
+/* eslint-disable @typescript-eslint/max-params */
+export const runWithLock = (
+    store: LockStoreInterface,
+    key: string,
+    mode: LockModeType,
+    options: AcquireOptionsInterface,
+    fn: () => unknown
+): Promise<unknown> => runWithLockImpl({ store, key, mode, options, fn });
+/* eslint-enable @typescript-eslint/max-params */

@@ -1,8 +1,9 @@
 import { createLegacyInterceptor } from '@rnw-community/decorators-core';
-import type { LegacyMethodDecoratorType } from '@rnw-community/decorators-core';
+
+import { createLogInterceptor } from './create-log-interceptor';
 
 import type { CreateLogOptionsInterface, ErrorLogInputType, PostLogInputType, PreLogInputType } from './types';
-import { createLogInterceptor } from './create-log-interceptor';
+import type { LegacyMethodDecoratorType } from '@rnw-community/decorators-core';
 
 export const createLegacyLog =
     (options: CreateLogOptionsInterface) =>

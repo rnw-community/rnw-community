@@ -23,6 +23,8 @@ jest.mock('@nestjs/common', () => ({
     },
 }));
 
+const SCALAR_CATCH_RESULT = 777;
+
 const mockErrorFn = jest.fn();
 const mockResultFn = jest.fn();
 
@@ -88,7 +90,7 @@ class TestClass {
     @SequentialLock$(['test'], (err: unknown): number => {
         mockErrorFn(err);
 
-        return 777;
+        return SCALAR_CATCH_RESULT;
     })
     testLockFailedScalarCatch$(): Observable<number> {
         return of(this.field);
@@ -190,7 +192,7 @@ describe('createObservableLockDecorators', () => {
 
             mockAcquire.mockRejectedValueOnce(new Error('acquire-failed'));
 
-            await expect(lastValueFrom(instance.testLockFailedScalarCatch$())).resolves.toBe(777);
+            await expect(lastValueFrom(instance.testLockFailedScalarCatch$())).resolves.toBe(SCALAR_CATCH_RESULT);
             expect(mockAcquire).toHaveBeenCalledWith(['test'], 1000);
             expect(mockRelease).not.toHaveBeenCalled();
         });
@@ -461,7 +463,8 @@ describe('createObservableLockDecorators', () => {
                 class CatchSetupClass {
                     @SeqLockCatch$(() => [], (err: unknown) => {
                         catchSpy(err);
-                        return of(0);
+                        
+return of(0);
                     })
                     test$(): Observable<number> {
                         return of(1);
@@ -474,6 +477,7 @@ describe('createObservableLockDecorators', () => {
                 await expect(lastValueFrom(instanceLocal.test$())).rejects.toThrow('Lock key is not defined');
                 expect(catchSpy).not.toHaveBeenCalled();
             } finally {
+                // eslint-disable-next-line require-atomic-updates
                 injectedSymbol = savedSymbol;
             }
         });

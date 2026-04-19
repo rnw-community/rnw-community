@@ -12,8 +12,9 @@ describe('defaultSanitizer', () => {
     });
 
     it('passes through numbers', () => {
+        const pi = 3.14;
         expect(defaultSanitizer(42)).toBe(42);
-        expect(defaultSanitizer(3.14)).toBe(3.14);
+        expect(defaultSanitizer(pi)).toBe(pi);
     });
 
     it('passes through booleans', () => {

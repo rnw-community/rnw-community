@@ -1,7 +1,8 @@
 import { describe, expect, it, jest } from '@jest/globals';
 
-import type { HistogramTransportInterface } from '../interface/histogram-transport.interface';
 import { createHistogramMetric } from './create-histogram-metric';
+
+import type { HistogramTransportInterface } from '../interface/histogram-transport.interface';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const makeStage3Context = <TFn extends (this: unknown, ...args: any) => any>(
@@ -84,7 +85,7 @@ describe('createHistogramMetric', () => {
         const decorator = createHistogramMetric({ transport })({ labels: labelFn });
 
         const original = function (this: unknown, _id: string): void {
-            // eslint-disable-next-line no-empty
+            void _id;
         };
         const wrapped = decorator(original, makeStage3Context<typeof original>('fetch'));
 
@@ -143,7 +144,10 @@ describe('createHistogramMetric', () => {
         const decorator = createHistogramMetric({ transport })();
 
         const original = async function (this: unknown): Promise<number> {
-            await new Promise<void>((resolve) => setTimeout(resolve, 1));
+            await new Promise<void>((resolve) => {
+                setTimeout(resolve, 1);
+            });
+
             return 99;
         };
         const wrapped = decorator(original, makeStage3Context<typeof original>('asyncWork'));
@@ -165,7 +169,9 @@ describe('createHistogramMetric', () => {
         const boom = new Error('async-error');
 
         const original = async function (this: unknown): Promise<never> {
-            await new Promise<void>((resolve) => setTimeout(resolve, 1));
+            await new Promise<void>((resolve) => {
+                setTimeout(resolve, 1);
+            });
             throw boom;
         };
         const wrapped = decorator(original, makeStage3Context<typeof original>('asyncFail'));
@@ -185,7 +191,7 @@ describe('createHistogramMetric', () => {
         const decorator = createHistogramMetric({ transport })();
 
         const original = function (this: unknown): void {
-            // eslint-disable-next-line no-empty
+            void 0;
         };
         const wrapped = decorator(original, makeStage3Context<typeof original>('noop'));
 
@@ -202,7 +208,7 @@ describe('createHistogramMetric', () => {
         const transport = makeTransportMock();
         const nonMatchingStrategy = {
             matches: () => false,
-            handle: <T>(v: T): T => v,
+            handle: <T>(value: T): T => value,
         };
         const decorator = createHistogramMetric({ transport, strategies: [nonMatchingStrategy] })();
 

@@ -1,17 +1,18 @@
 import { describe, expect, it } from '@jest/globals';
 
-import type { ExecutionContextInterface } from '../../type/execution-context-interface/execution-context.interface';
 import { createInterceptor } from './create-interceptor';
+
+import type { ExecutionContextInterface } from '../../type/execution-context-interface/execution-context.interface';
 
 describe('createInterceptor (stage-3)', () => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const makeContext = <TFn extends (this: unknown, ...args: any) => any>(
         name: string | symbol
     ): ClassMethodDecoratorContext<unknown, TFn> =>
-        ({ kind: 'method', name, static: false, private: false, access: { get: () => undefined as unknown as TFn } } as unknown as ClassMethodDecoratorContext<unknown, TFn>);
+        ({ kind: 'method', name, static: false, private: false, access: { get: () => void 0 as unknown as TFn } } as unknown as ClassMethodDecoratorContext<unknown, TFn>);
 
     it('wraps a sync method and emits enter + success', () => {
-        const records: { kind: string; ctx: ExecutionContextInterface<readonly unknown[]>; value?: unknown }[] = [];
+        const records: { kind: string; ctx: ExecutionContextInterface; value?: unknown }[] = [];
         const decorator = createInterceptor({
             interceptor: {
                 onEnter: (ctx) => records.push({ kind: 'enter', ctx }),
@@ -21,6 +22,7 @@ describe('createInterceptor (stage-3)', () => {
 
         const original = function (this: unknown, ...args: readonly unknown[]): string {
             const [greeting] = args as readonly [string];
+
             return `${greeting} ${(this as { readonly name: string }).name}`;
         };
         const wrapped = decorator(original as (this: unknown, ...args: readonly unknown[]) => string, makeContext<typeof original>('greet'));
@@ -32,14 +34,14 @@ describe('createInterceptor (stage-3)', () => {
 
         const out = new Service().greet('hello');
         expect(out).toBe('hello World');
-        expect(records.map((r) => r.kind)).toEqual(['enter', 'success']);
+        expect(records.map((record) => record.kind)).toEqual(['enter', 'success']);
         expect(records[0]?.ctx.methodName).toBe('greet');
         expect(records[0]?.ctx.className).toBe('Service');
         expect(records[1]?.value).toBe('hello World');
     });
 
     it('handles a symbol method name', () => {
-        const records: { kind: string; ctx: ExecutionContextInterface<readonly unknown[]> }[] = [];
+        const records: { kind: string; ctx: ExecutionContextInterface }[] = [];
         const decorator = createInterceptor({
             interceptor: { onEnter: (ctx) => records.push({ kind: 'enter', ctx }) },
         });
@@ -75,7 +77,7 @@ describe('createInterceptor (stage-3)', () => {
     });
 
     it('reports "Object" when `this` has no meaningful constructor name', () => {
-        const records: { ctx: ExecutionContextInterface<readonly unknown[]> }[] = [];
+        const records: { ctx: ExecutionContextInterface }[] = [];
         const decorator = createInterceptor({
             interceptor: { onEnter: (ctx) => records.push({ ctx }) },
         });
@@ -83,6 +85,7 @@ describe('createInterceptor (stage-3)', () => {
             return 0;
         };
         const wrapped = decorator(original, makeContext<typeof original>('run'));
+        // eslint-disable-next-line no-useless-call
         wrapped.call(null);
         wrapped.call(Object.create(null) as object);
         expect(records[0]?.ctx.className).toBe('Object');
@@ -90,7 +93,7 @@ describe('createInterceptor (stage-3)', () => {
     });
 
     it('uses function name when `this` is a constructor (static method context)', () => {
-        const records: { ctx: ExecutionContextInterface<readonly unknown[]> }[] = [];
+        const records: { ctx: ExecutionContextInterface }[] = [];
         const decorator = createInterceptor({
             interceptor: { onEnter: (ctx) => records.push({ ctx }) },
         });
@@ -99,7 +102,12 @@ describe('createInterceptor (stage-3)', () => {
         };
         const wrapped = decorator(original, makeContext<typeof original>('staticMethod'));
 
-        class MyService {}
+        // eslint-disable-next-line @typescript-eslint/no-extraneous-class
+        class MyService {
+            static run(): number {
+                return 0;
+            }
+        }
         wrapped.call(MyService);
         expect(records[0]?.ctx.className).toBe('MyService');
     });

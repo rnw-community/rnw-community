@@ -1,15 +1,14 @@
 import {
-    LockBusyError,
     type AcquireOptionsInterface,
+    LockBusyError,
     type LockHandleInterface,
     type LockModeType,
     type LockStoreInterface,
 } from '@rnw-community/lock-decorator';
-
 import { isDefined, isNotEmptyArray } from '@rnw-community/shared';
 
-import type { LockServiceInterface } from '../interface/lock-service.interface';
 import type { PreDecoratorFunction } from '../../../type/pre-decorator-function.type';
+import type { LockServiceInterface } from '../interface/lock-service.interface';
 
 export const RESOURCE_SEPARATOR = '\x00';
 
@@ -24,7 +23,8 @@ export const resolveResources = <TArgs extends unknown[]>(
     if (!isNotEmptyArray(resources)) {
         throw new Error('Lock key is not defined');
     }
-    return resources as string[];
+    
+return resources as string[];
 };
 
 export const createLockServiceStore = (lockService: LockServiceInterface, duration: number): LockStoreInterface => ({
@@ -40,10 +40,12 @@ export const createLockServiceStore = (lockService: LockServiceInterface, durati
             if (!isDefined(handle)) {
                 throw new LockBusyError(key);
             }
-            return { key, mode, release: () => handle.release() };
+            
+return { key, mode, release: () => handle.release() };
         }
 
         const handle = await lockService.acquire(resources, duration);
-        return { key, mode, release: () => handle.release() };
+        
+return { key, mode, release: () => handle.release() };
     },
 });

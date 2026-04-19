@@ -1,11 +1,12 @@
 import { describe, expect, it, jest } from '@jest/globals';
 
+import { runInterception } from './run-interception';
+
 import type { ExecutionContextInterface } from '../../type/execution-context-interface/execution-context.interface';
 import type { InterceptorInterface } from '../../type/interceptor-interface/interceptor.interface';
 import type { ResultStrategyInterface } from '../../type/result-strategy-interface/result-strategy.interface';
-import { runInterception } from './run-interception';
 
-const makeContext = (): ExecutionContextInterface<readonly unknown[]> => ({
+const makeContext = (): ExecutionContextInterface => ({
     className: 'TestClass',
     methodName: 'testMethod',
     args: [],
@@ -59,7 +60,8 @@ describe('runInterception', () => {
             handle: (value, onSuccess) => {
                 hits.push('A');
                 onSuccess(value);
-                return value;
+                
+return value;
             },
         };
         const strategyB: ResultStrategyInterface = {

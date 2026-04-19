@@ -17,6 +17,7 @@ describe('multiple factories on same class do not conflict', () => {
             private: false,
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             access: { get: (): any => undefined },
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
         }) as unknown as ClassMethodDecoratorContext<any, any>;
 
     it('stage-3 sequential and exclusive with separate stores do not interfere', async () => {
@@ -38,15 +39,16 @@ describe('multiple factories on same class do not conflict', () => {
 
         const seqWrapped = seqDecorator(
             seqMethod as (this: unknown, ...args: readonly unknown[]) => unknown,
+             
             makeCtx('seq')
         );
         const exWrapped = exDecorator(
             exMethod as (this: unknown, ...args: readonly unknown[]) => unknown,
+             
             makeCtx('ex')
         );
 
-        class Svc {}
-        const svc = new Svc();
+        const svc = {};
 
         const [r1, r2] = await Promise.all([seqWrapped.call(svc), exWrapped.call(svc)]);
         expect(r1).toBe('seq');
@@ -59,8 +61,8 @@ describe('multiple factories on same class do not conflict', () => {
         const ExLock2 = createExclusiveLock({ store });
 
         let releaseHeld!: () => void;
-        const holdLock = new Promise<void>((res) => {
-            releaseHeld = res;
+        const holdLock = new Promise<void>((resolve) => {
+            releaseHeld = resolve;
         });
 
         const method1 = async function (this: unknown): Promise<void> {
@@ -68,20 +70,21 @@ describe('multiple factories on same class do not conflict', () => {
         };
 
         const method2 = async function (this: unknown): Promise<void> {
-            return;
+            await Promise.resolve();
         };
 
         const wrapped1 = ExLock1('same-key')(
             method1 as (this: unknown, ...args: readonly unknown[]) => unknown,
+             
             makeCtx('m1')
         );
         const wrapped2 = ExLock2('same-key')(
             method2 as (this: unknown, ...args: readonly unknown[]) => unknown,
+             
             makeCtx('m2')
         );
 
-        class Svc {}
-        const svc = new Svc();
+        const svc = {};
 
         const p1 = wrapped1.call(svc);
         await expect(wrapped2.call(svc)).rejects.toBeInstanceOf(LockBusyError);
@@ -98,7 +101,7 @@ describe('multiple factories on same class do not conflict', () => {
         const LExLock = createLegacyExclusiveLock({ store: storeB });
 
         const makeDescriptor = (retVal: string): PropertyDescriptor => ({
-            value: async function (this: unknown): Promise<string> {
+            async value (this: unknown): Promise<string> {
                 return retVal;
             },
             writable: true,

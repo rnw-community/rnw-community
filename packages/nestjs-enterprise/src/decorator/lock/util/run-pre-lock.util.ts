@@ -10,5 +10,6 @@ export const runPreLock = <TArgs extends unknown[] = unknown[]>(
     if (!isNotEmptyArray(keys)) {
         throw new Error('Lock key is not defined');
     }
-    return keys;
+    
+return keys;
 };
