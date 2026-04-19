@@ -1,6 +1,6 @@
 import { describe, expect, it } from '@jest/globals';
 
-import { defaultSanitizer } from './default-sanitizer';
+import { defaultSanitizer } from '../../default-sanitizer';
 
 describe('defaultSanitizer', () => {
     it('passes through null', () => {

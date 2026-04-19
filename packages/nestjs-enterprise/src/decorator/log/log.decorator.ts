@@ -25,37 +25,11 @@ const nestLogTransport: LogTransportInterface = {
     },
 };
 
-const identity = <T>(value: T): T => value;
-
 const baseLog = createLegacyLog({
     transport: nestLogTransport,
     strategies: [observableStrategy],
-    sanitizer: identity,
+    sanitizer: <T>(value: T): T => value,
 });
-
-const toArrayStylePreLog = <TArgs extends unknown[]>(
-    preLog: PreDecoratorFunction<TArgs> | string
-): string | ((args: TArgs) => string) =>
-    typeof preLog === 'function' ? (args: TArgs): string => (preLog as (...spread: TArgs) => string)(...args) : preLog;
-
-const toArrayStylePostLog = <TArgs extends unknown[], TResult>(
-    postLog: PostLogFunction<TResult, TArgs> | string | undefined
-): string | ((result: TResult, args: TArgs) => string) | undefined => {
-    if (!isDefined(postLog) || typeof postLog === 'string') {
-        return postLog;
-    }
-    return (result: TResult, args: TArgs): string =>
-        (postLog as (result: TResult, ...spread: TArgs) => string)(result, ...args);
-};
-
-const toArrayStyleErrorLog = <TArgs extends unknown[]>(
-    errorLog: ErrorLogFunction<TArgs> | string | undefined
-): string | ((error: unknown, args: TArgs) => string) | undefined => {
-    if (!isDefined(errorLog) || typeof errorLog === 'string') {
-        return errorLog;
-    }
-    return (error: unknown, args: TArgs): string => (errorLog as (error: unknown, ...spread: TArgs) => string)(error, ...args);
-};
 
 export const Log =
     <K extends AnyFn, TResult extends ReturnType<K>, TArgs extends Parameters<K>>(
@@ -64,7 +38,13 @@ export const Log =
             errorLog?: ErrorLogFunction<TArgs> | string
         ): MethodDecoratorType<K> =>
         baseLog<TArgs, GetResultType<TResult>>(
-            toArrayStylePreLog<TArgs>(preLog),
-            toArrayStylePostLog<TArgs, GetResultType<TResult>>(postLog),
-            toArrayStyleErrorLog<TArgs>(errorLog)
+            typeof preLog === 'function' ? (args: TArgs): string => (preLog as (...spread: TArgs) => string)(...args) : preLog,
+            !isDefined(postLog) || typeof postLog === 'string'
+                ? postLog
+                : (result: GetResultType<TResult>, args: TArgs): string =>
+                      (postLog as (result: GetResultType<TResult>, ...spread: TArgs) => string)(result, ...args),
+            !isDefined(errorLog) || typeof errorLog === 'string'
+                ? errorLog
+                : (error: unknown, args: TArgs): string =>
+                      (errorLog as (error: unknown, ...spread: TArgs) => string)(error, ...args)
         ) as MethodDecoratorType<K>;

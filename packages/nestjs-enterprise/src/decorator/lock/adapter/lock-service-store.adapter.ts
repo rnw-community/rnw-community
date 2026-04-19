@@ -6,11 +6,26 @@ import {
     type LockStoreInterface,
 } from '@rnw-community/lock-decorator';
 
-import { isDefined } from '@rnw-community/shared';
+import { isDefined, isNotEmptyArray } from '@rnw-community/shared';
 
 import type { LockServiceInterface } from '../interface/lock-service.interface';
+import type { PreDecoratorFunction } from '../../../type/pre-decorator-function.type';
 
 export const RESOURCE_SEPARATOR = '\x00';
+
+export const LOCK_SERVICE_NOT_INJECTED_MESSAGE =
+    'LockService was not injected. Ensure the lock service provider is registered in the NestJS module.';
+
+export const resolveResources = <TArgs extends unknown[]>(
+    preLock: PreDecoratorFunction<TArgs, string[]> | string[],
+    args: TArgs
+): string[] => {
+    const resources = Array.isArray(preLock) ? preLock : preLock(...args);
+    if (!isNotEmptyArray(resources)) {
+        throw new Error('Lock key is not defined');
+    }
+    return resources as string[];
+};
 
 export const createLockServiceStore = (lockService: LockServiceInterface, duration: number): LockStoreInterface => ({
     acquire: async (

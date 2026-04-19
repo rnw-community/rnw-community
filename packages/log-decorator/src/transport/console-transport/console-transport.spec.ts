@@ -1,6 +1,6 @@
 import { describe, expect, it, jest } from '@jest/globals';
 
-import { consoleTransport } from './console-transport';
+import { consoleTransport } from '../../console-transport';
 
 describe('consoleTransport', () => {
     it('calls console.log with formatted message', () => {

@@ -1,4 +1,4 @@
-import type { HistogramTransportInterface } from '../../interface/histogram-transport-interface/histogram-transport.interface';
+import type { HistogramTransportInterface } from '../interface/histogram-transport.interface';
 
 export interface InMemoryObservationInterface {
     readonly name: string;

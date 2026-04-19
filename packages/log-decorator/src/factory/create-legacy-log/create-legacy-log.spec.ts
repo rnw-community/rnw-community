@@ -1,7 +1,7 @@
 import { describe, expect, it, jest } from '@jest/globals';
 
-import type { LogTransportInterface } from '../../interface/log-transport-interface/log-transport.interface';
-import { createLegacyLog } from './create-legacy-log';
+import type { LogTransportInterface } from '../../types';
+import { createLegacyLog } from '../../create-legacy-log';
 
 const makeTransport = () => {
     const log = jest.fn<LogTransportInterface['log']>();

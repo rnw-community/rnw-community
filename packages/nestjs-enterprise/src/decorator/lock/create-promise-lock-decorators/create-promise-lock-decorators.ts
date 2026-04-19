@@ -1,62 +1,22 @@
 import { Inject } from '@nestjs/common';
 
-import {
-    LockBusyError,
-    createLegacyExclusiveLock,
-    createLegacySequentialLock,
-} from '@rnw-community/lock-decorator';
-import type { LockStoreInterface } from '@rnw-community/lock-decorator';
+import { LockBusyError } from '@rnw-community/lock-decorator';
+import type { LockHandleInterface } from '@rnw-community/lock-decorator';
 
-import { isDefined, isNotEmptyArray, isPromise } from '@rnw-community/shared';
+import { isDefined, isPromise } from '@rnw-community/shared';
 import type { AbstractConstructor, AnyFn, MethodDecoratorType } from '@rnw-community/shared';
 
-import { RESOURCE_SEPARATOR, createLockServiceStore } from '../adapter/lock-service-store.adapter';
+import {
+    LOCK_SERVICE_NOT_INJECTED_MESSAGE,
+    RESOURCE_SEPARATOR,
+    createLockServiceStore,
+    resolveResources,
+} from '../adapter/lock-service-store.adapter';
 
 import type { LockServiceInterface } from '../interface/lock-service.interface';
 import type { PreDecoratorFunction } from '../../../type/pre-decorator-function.type';
 
 type LockModeType = 'sequential' | 'exclusive';
-
-const LOCK_SERVICE_NOT_INJECTED_MESSAGE =
-    'LockService was not injected. Ensure the lock service provider is registered in the NestJS module.';
-
-const resolveResources = <TArgs extends unknown[]>(
-    preLock: PreDecoratorFunction<TArgs, string[]> | string[],
-    args: TArgs
-): string[] => {
-    const resources = Array.isArray(preLock) ? preLock : preLock(...args);
-    if (!isNotEmptyArray(resources)) {
-        throw new Error('Lock key is not defined');
-    }
-    return resources as string[];
-};
-
-const selectFactory = (mode: LockModeType) =>
-    mode === 'sequential' ? createLegacySequentialLock : createLegacyExclusiveLock;
-
-const buildLockedFn = <TArgs extends unknown[]>(
-    mode: LockModeType,
-    store: LockStoreInterface,
-    joinedKey: string,
-    methodName: string,
-    originalMethod: (this: unknown, ...args: TArgs) => unknown
-): ((this: unknown, ...args: TArgs) => Promise<unknown>) => {
-    const wrappedMethod = function (this: unknown, ...wrappedArgs: TArgs): Promise<unknown> {
-        const result = originalMethod.apply(this, wrappedArgs);
-        if (isPromise(result)) {
-            return result;
-        }
-        throw new Error(`Method ${methodName} does not return a promise`);
-    };
-
-    const lockDecorator = selectFactory(mode)({ store })<TArgs>(joinedKey);
-    const lockedDescriptor = lockDecorator(
-        {} as object,
-        'locked',
-        { value: wrappedMethod as never, writable: true, configurable: true, enumerable: true } as never
-    );
-    return (lockedDescriptor as unknown as { value: (this: unknown, ...args: TArgs) => Promise<unknown> }).value;
-};
 
 export const createPromiseLockDecorators = (
     serviceToken: AbstractConstructor<LockServiceInterface>,
@@ -88,10 +48,15 @@ export const createPromiseLockDecorators = (
                 const resources = resolveResources(preLock, args);
                 const joinedKey = resources.join(RESOURCE_SEPARATOR);
                 const store = createLockServiceStore(lockService, effectiveDuration);
-                const lockedFn = buildLockedFn<TArgs>(mode, store, joinedKey, methodName, originalMethod);
 
+                let handle: LockHandleInterface | undefined;
                 try {
-                    return await lockedFn.apply(self, args);
+                    handle = await store.acquire(joinedKey, mode);
+                    const result = originalMethod.apply(self, args);
+                    if (!isPromise(result)) {
+                        throw new Error(`Method ${methodName} does not return a promise`);
+                    }
+                    return await result;
                 } catch (error) {
                     if (error instanceof LockBusyError && mode === 'exclusive' && !isDefined(catchErrorFn)) {
                         // eslint-disable-next-line no-undefined
@@ -105,6 +70,14 @@ export const createPromiseLockDecorators = (
                         return catchErrorFn(normalized);
                     }
                     throw normalized;
+                } finally {
+                    if (isDefined(handle)) {
+                        try {
+                            await handle.release();
+                        } catch {
+                            // release errors are silently swallowed
+                        }
+                    }
                 }
             } as K;
 

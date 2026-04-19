@@ -4,29 +4,20 @@ import { EMPTY, type Observable, catchError, defer, isObservable, of } from 'rxj
 import { LockBusyError } from '@rnw-community/lock-decorator';
 import { runWithLock$ } from '@rnw-community/lock-decorator/rxjs';
 
-import { isDefined, isNotEmptyArray } from '@rnw-community/shared';
+import { isDefined } from '@rnw-community/shared';
 import type { AbstractConstructor, AnyFn, MethodDecoratorType } from '@rnw-community/shared';
 
-import { RESOURCE_SEPARATOR, createLockServiceStore } from '../adapter/lock-service-store.adapter';
+import {
+    LOCK_SERVICE_NOT_INJECTED_MESSAGE,
+    RESOURCE_SEPARATOR,
+    createLockServiceStore,
+    resolveResources,
+} from '../adapter/lock-service-store.adapter';
 
 import type { LockServiceInterface } from '../interface/lock-service.interface';
 import type { PreDecoratorFunction } from '../../../type/pre-decorator-function.type';
 
 type LockModeType = 'sequential' | 'exclusive';
-
-const LOCK_SERVICE_NOT_INJECTED_MESSAGE =
-    'LockService was not injected. Ensure the lock service provider is registered in the NestJS module.';
-
-const resolveResources = <TArgs extends unknown[]>(
-    preLock: PreDecoratorFunction<TArgs, string[]> | string[],
-    args: TArgs
-): string[] => {
-    const resources = Array.isArray(preLock) ? preLock : preLock(...args);
-    if (!isNotEmptyArray(resources)) {
-        throw new Error('Lock key is not defined');
-    }
-    return resources as string[];
-};
 
 const requireObservable = (result: unknown, methodName: string): Observable<unknown> => {
     if (!isObservable(result)) {

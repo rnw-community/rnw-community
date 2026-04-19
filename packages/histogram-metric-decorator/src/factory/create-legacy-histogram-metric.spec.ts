@@ -1,7 +1,7 @@
 import { describe, expect, it, jest } from '@jest/globals';
 
-import type { HistogramTransportInterface } from '../../interface/histogram-transport-interface/histogram-transport.interface';
-import { inMemoryHistogramTransport } from '../../transport/in-memory-histogram-transport/in-memory-histogram-transport';
+import type { HistogramTransportInterface } from '../interface/histogram-transport.interface';
+import { inMemoryHistogramTransport } from '../transport/in-memory-histogram-transport';
 import { createLegacyHistogramMetric } from './create-legacy-histogram-metric';
 
 const makeTransportMock = (): jest.Mocked<HistogramTransportInterface> => ({
