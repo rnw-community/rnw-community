@@ -14,7 +14,7 @@ describe('createInMemoryLockStore', () => {
             const handle = await store.acquire('ex', 'exclusive');
             expect(store.exclusiveHeldCount()).toBe(1);
 
-            handle.release();
+            void handle.release();
             expect(store.exclusiveHeldCount()).toBe(0);
         });
     });
@@ -29,8 +29,10 @@ describe('createInMemoryLockStore', () => {
             await expect(waiterThatTimesOut).rejects.toBeInstanceOf(LockAcquireTimeoutError);
             expect(store.sequentialChainCount()).toBe(1);
 
-            holder.release();
-            await new Promise((flush) => setTimeout(flush, 5));
+            void holder.release();
+            await new Promise<void>((resolve) => {
+                setTimeout(resolve, 5);
+            });
             expect(store.sequentialChainCount()).toBe(0);
         });
 
@@ -45,8 +47,10 @@ describe('createInMemoryLockStore', () => {
             await expect(waiterThatAborts).rejects.toMatchObject({ name: 'AbortError' });
             expect(store.sequentialChainCount()).toBe(1);
 
-            holder.release();
-            await new Promise((flush) => setTimeout(flush, 5));
+            void holder.release();
+            await new Promise<void>((resolve) => {
+                setTimeout(resolve, 5);
+            });
             expect(store.sequentialChainCount()).toBe(0);
         });
     });
