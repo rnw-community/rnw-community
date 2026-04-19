@@ -6,7 +6,7 @@ import { type AnyFn, type MethodDecoratorType, isDefined } from '@rnw-community/
 
 import type { ErrorLogFunction } from './type/error-log-function.type';
 import type { PostLogFunction } from './type/post-log-function.type';
-import type { PreDecoratorFunction } from '../../type/pre-decorator-function.type';
+import type { PreDecoratorFunction } from '../../pre-decorator-function.type';
 import type { LogTransportInterface } from '@rnw-community/log-decorator';
 import type { Observable } from 'rxjs';
 

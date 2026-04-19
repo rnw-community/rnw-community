@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it, jest } from '@jest/globals';
 import Redis from 'ioredis';
 import { EMPTY, Observable, lastValueFrom, of, tap } from 'rxjs';
 
-import { LockableService } from '../service/lockable.service';
+import { LockableService } from '../lockable.service';
 
 import { LockObservable } from './lock-observable.decorator';
 

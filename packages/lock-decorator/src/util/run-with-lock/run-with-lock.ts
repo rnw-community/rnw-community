@@ -1,9 +1,9 @@
 import { isDefined, isPromise } from '@rnw-community/shared';
 
-import type { AcquireOptionsInterface } from '../../interface/acquire-options-interface/acquire-options.interface';
-import type { LockHandleInterface } from '../../interface/lock-handle-interface/lock-handle.interface';
-import type { LockStoreInterface } from '../../interface/lock-store-interface/lock-store.interface';
-import type { LockModeType } from '../../type/lock-mode-type/lock-mode.type';
+import type { AcquireOptionsInterface } from '../../interface/acquire-options.interface';
+import type { LockHandleInterface } from '../../interface/lock-handle.interface';
+import type { LockStoreInterface } from '../../interface/lock-store.interface';
+import type { LockModeType } from '../../type/lock-mode.type';
 
 interface RunWithLockArgs {
     readonly store: LockStoreInterface;

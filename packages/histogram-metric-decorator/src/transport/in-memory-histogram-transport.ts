@@ -1,14 +1,5 @@
-import type { HistogramTransportInterface } from '../interface/histogram-transport.interface';
-
-export interface InMemoryObservationInterface {
-    readonly name: string;
-    readonly durationMs: number;
-    readonly labels?: Readonly<Record<string, string>>;
-}
-
-export interface InMemoryHistogramTransportInterface extends HistogramTransportInterface {
-    readonly snapshot: () => ReadonlyArray<InMemoryObservationInterface>;
-}
+import type { InMemoryHistogramTransportInterface } from './in-memory-histogram-transport.interface';
+import type { InMemoryObservationInterface } from './in-memory-observation.interface';
 
 export const inMemoryHistogramTransport = (): InMemoryHistogramTransportInterface => {
     const observations: InMemoryObservationInterface[] = [];

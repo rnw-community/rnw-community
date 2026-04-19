@@ -5,7 +5,7 @@ import { createInMemoryLockStore } from '../../store/create-in-memory-lock-store
 
 import { createExclusiveLock } from './create-exclusive-lock';
 
-import type { LockStoreInterface } from '../../interface/lock-store-interface/lock-store.interface';
+import type { LockStoreInterface } from '../../interface/lock-store.interface';
 
 describe('createExclusiveLock (stage-3)', () => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -30,7 +30,7 @@ describe('createExclusiveLock (stage-3)', () => {
         };
 
         const wrapped = decorator(
-            original as (this: unknown, ...args: readonly unknown[]) => unknown,
+            original as (this: unknown, ...args: readonly unknown[]) => Promise<unknown>,
              
             makeCtx('op')
         );
@@ -52,7 +52,7 @@ describe('createExclusiveLock (stage-3)', () => {
         };
 
         const wrapped = decorator(
-            original as (this: unknown, ...args: readonly unknown[]) => unknown,
+            original as unknown as (this: unknown, ...args: readonly unknown[]) => Promise<unknown>,
 
             makeCtx('sync')
         );
@@ -79,7 +79,7 @@ describe('createExclusiveLock (stage-3)', () => {
 
         const decorator = ExclusiveLock('busy-key');
         const wrapped = decorator(
-            original as (this: unknown, ...args: readonly unknown[]) => unknown,
+            original as (this: unknown, ...args: readonly unknown[]) => Promise<unknown>,
              
             makeCtx('op')
         );
@@ -107,7 +107,7 @@ describe('createExclusiveLock (stage-3)', () => {
         };
 
         const wrapped = decorator(
-            original as (this: unknown, ...args: readonly unknown[]) => unknown,
+            original as (this: unknown, ...args: readonly unknown[]) => Promise<unknown>,
              
             makeCtx('run')
         );
@@ -131,7 +131,7 @@ describe('createExclusiveLock (stage-3)', () => {
         };
 
         const wrapped = decorator(
-            original as (this: unknown, ...args: readonly unknown[]) => unknown,
+            original as (this: unknown, ...args: readonly unknown[]) => Promise<unknown>,
              
             makeCtx('run')
         );
@@ -163,7 +163,7 @@ describe('createExclusiveLock (stage-3)', () => {
         };
 
         const wrapped = decorator(
-            original as (this: unknown, ...args: readonly unknown[]) => unknown,
+            original as (this: unknown, ...args: readonly unknown[]) => Promise<unknown>,
              
             makeCtx('method')
         );
@@ -186,7 +186,7 @@ describe('createExclusiveLock (stage-3)', () => {
 
         const decorator = ExclusiveLock('efail');
         const wrapped = decorator(
-            original as (this: unknown, ...args: readonly unknown[]) => unknown,
+            original as (this: unknown, ...args: readonly unknown[]) => Promise<unknown>,
              
             makeCtx('fail')
         );
@@ -208,7 +208,7 @@ describe('createExclusiveLock (stage-3)', () => {
 
         const decorator = ExclusiveLock('sym-ex');
         const wrapped = decorator(
-            original as (this: unknown, ...args: readonly unknown[]) => unknown,
+            original as (this: unknown, ...args: readonly unknown[]) => Promise<unknown>,
              
             makeCtx(sym)
         );

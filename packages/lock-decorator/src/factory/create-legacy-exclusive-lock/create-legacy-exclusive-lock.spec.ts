@@ -5,7 +5,7 @@ import { createInMemoryLockStore } from '../../store/create-in-memory-lock-store
 
 import { createLegacyExclusiveLock } from './create-legacy-exclusive-lock';
 
-import type { LockStoreInterface } from '../../interface/lock-store-interface/lock-store.interface';
+import type { LockStoreInterface } from '../../interface/lock-store.interface';
 
 describe('createLegacyExclusiveLock (legacy decorator)', () => {
     it('wraps and calls original async method', async () => {

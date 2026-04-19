@@ -2,8 +2,8 @@
 import { resolveLockKey } from '../../util/resolve-lock-key/resolve-lock-key';
 import { runWithLock } from '../../util/run-with-lock/run-with-lock';
 
-import type { CreateLockOptionsInterface } from '../../interface/create-lock-options-interface/create-lock-options.interface';
-import type { SequentialLockArgumentType } from '../../type/sequential-lock-argument-type/sequential-lock-argument.type';
+import type { CreateLockOptionsInterface } from '../../interface/create-lock-options.interface';
+import type { SequentialLockArgumentType } from '../../type/sequential-lock-argument.type';
 import type { LegacyMethodDecoratorType } from '@rnw-community/decorators-core';
 
 export const createLegacySequentialLock =

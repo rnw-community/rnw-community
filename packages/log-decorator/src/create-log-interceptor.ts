@@ -1,6 +1,9 @@
 import { defaultSanitizer } from './default-sanitizer';
 
-import type { CreateLogOptionsInterface, ErrorLogInputType, PostLogInputType, PreLogInputType } from './types';
+import type { CreateLogOptionsInterface } from './create-log-options.interface';
+import type { ErrorLogInputType } from './error-log-input.type';
+import type { PostLogInputType } from './post-log-input.type';
+import type { PreLogInputType } from './pre-log-input.type';
 import type { ExecutionContextInterface, InterceptorInterface } from '@rnw-community/decorators-core';
 
 type TransportType = CreateLogOptionsInterface['transport'];

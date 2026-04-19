@@ -1,6 +1,6 @@
 import { isNotEmptyArray } from '@rnw-community/shared';
 
-import type { PreDecoratorFunction } from '../../../type/pre-decorator-function.type';
+import type { PreDecoratorFunction } from '../../../pre-decorator-function.type';
 
 export const runPreLock = <TArgs extends unknown[] = unknown[]>(
     preLock: PreDecoratorFunction<TArgs, string[]> | string[],

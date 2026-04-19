@@ -1,8 +1,8 @@
 import { isPromise } from '@rnw-community/shared';
 
-import type { ExecutionContextInterface } from '../../type/execution-context-interface/execution-context.interface';
-import type { InterceptorInterface } from '../../type/interceptor-interface/interceptor.interface';
-import type { ResultStrategyInterface } from '../../type/result-strategy-interface/result-strategy.interface';
+import type { ExecutionContextInterface } from '../../type/execution-context.interface';
+import type { InterceptorInterface } from '../../type/interceptor.interface';
+import type { ResultStrategyInterface } from '../../type/result-strategy.interface';
 
 const swallow = (fn: () => void): void => {
     try {

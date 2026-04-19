@@ -5,14 +5,12 @@ import { EMPTY, type Observable, catchError, defer, isObservable, of } from 'rxj
 import { LockBusyError } from '@rnw-community/lock-decorator';
 import { isDefined } from '@rnw-community/shared';
 
-import {
-    LOCK_SERVICE_NOT_INJECTED_MESSAGE,
-    RESOURCE_SEPARATOR,
-    createLockServiceStore,
-    resolveResources,
-} from '../adapter/lock-service-store.adapter';
+import { createLockServiceStore } from '../create-lock-service-store';
+import { LOCK_SERVICE_NOT_INJECTED_MESSAGE } from '../lock-service-not-injected-message.const';
+import { resolveResources } from '../resolve-resources';
+import { RESOURCE_SEPARATOR } from '../resource-separator.const';
 
-import type { PreDecoratorFunction } from '../../../type/pre-decorator-function.type';
+import type { PreDecoratorFunction } from '../../../pre-decorator-function.type';
 import type { LockServiceInterface } from '../interface/lock-service.interface';
 import type { AbstractConstructor, AnyFn, MethodDecoratorType } from '@rnw-community/shared';
 

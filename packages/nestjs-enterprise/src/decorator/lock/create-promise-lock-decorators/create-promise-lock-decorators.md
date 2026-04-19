@@ -132,3 +132,5 @@ Static keys or a type-safe function that receives the decorated method's argumen
 2. If lock is held by another process, returns `undefined` immediately
 3. If acquired, executes the decorated method
 4. `release()` in `finally` block
+
+> **Contention contract.** When the lock is already held and no `catchErrorFn` is supplied, `ExclusiveLock` resolves to `undefined` — the decorated method is skipped, not retried, and no error is thrown. The return type stays structurally `Promise<T>` for compatibility, but the runtime value on a busy lock is `undefined`. If your caller cannot handle that no-op path, either supply a `catchErrorFn` (which receives a normalized `Error('Lock not acquired for keys: …')`) or model the method's return as `Promise<T | undefined>`.

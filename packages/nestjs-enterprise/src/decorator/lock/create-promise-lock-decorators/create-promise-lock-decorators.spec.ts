@@ -45,11 +45,13 @@ class TestClass {
         return Promise.resolve([this.field, id]);
     }
 
+    // @ts-expect-error runtime guard test
     @SequentialLock(['test'])
     testSync(): number {
         return this.field;
     }
 
+    // @ts-expect-error runtime guard test
     @SequentialLock([])
     testEmptyResource(): number {
         return this.field;
@@ -91,11 +93,13 @@ class TestClass {
         return Promise.resolve([this.field, id]);
     }
 
+    // @ts-expect-error runtime guard test
     @ExclusiveLock(['test'])
     testExclusiveSync(): number {
         return this.field;
     }
 
+    // @ts-expect-error runtime guard test
     @ExclusiveLock([])
     testExclusiveEmptyResource(): number {
         return this.field;

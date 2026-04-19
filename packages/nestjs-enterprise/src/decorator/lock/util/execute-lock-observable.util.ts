@@ -4,7 +4,7 @@ import { isDefined } from '@rnw-community/shared';
 
 import { runPreLock } from './run-pre-lock.util';
 
-import type { PreDecoratorFunction } from '../../../type/pre-decorator-function.type';
+import type { PreDecoratorFunction } from '../../../pre-decorator-function.type';
 import type { LockServiceInterface } from '../interface/lock-service.interface';
 
 export const executeLockObservable = <TResult, TArgs extends unknown[] = unknown[]>(
