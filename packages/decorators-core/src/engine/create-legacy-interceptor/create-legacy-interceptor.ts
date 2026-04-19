@@ -1,19 +1,8 @@
 import { buildContext } from '../build-context/build-context';
 import { runInterception } from '../run-interception/run-interception';
 
-import type { InterceptorInterface } from '../../type/interceptor-interface/interceptor.interface';
-import type { ResultStrategyInterface } from '../../type/result-strategy-interface/result-strategy.interface';
-
-export interface CreateLegacyInterceptorOptionsInterface<TArgs extends readonly unknown[], TResult> {
-    readonly interceptor: InterceptorInterface<TArgs, TResult>;
-    readonly strategies?: readonly ResultStrategyInterface[];
-}
-
-export type LegacyMethodDecoratorType = <T extends (this: unknown, ...args: readonly never[]) => unknown>(
-    target: object,
-    propertyKey: string | symbol,
-    descriptor: TypedPropertyDescriptor<T>
-) => TypedPropertyDescriptor<T>;
+import type { CreateLegacyInterceptorOptionsInterface } from './create-legacy-interceptor-options.interface';
+import type { LegacyMethodDecoratorType } from './legacy-method-decorator.type';
 
 const resolveFallbackClassName = (target: object): string => {
     if (typeof target === 'function') {

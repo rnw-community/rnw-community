@@ -2,6 +2,8 @@
 
 Framework-agnostic sequential and exclusive method lock decorators. Supports both TC39 stage-3 decorators and legacy `experimentalDecorators`. Dual ESM+CJS build.
 
+**Async-only contract.** All lock decorators in this package — `createSequentialLock`, `createExclusiveLock`, and their legacy `experimentalDecorators` counterparts — require the decorated method to return a `Promise`. A sync method wrapped by one of these decorators is rejected at runtime with `Error('Locked method must return a Promise')`. The narrowed generic signatures reject this mismatch at compile time too. If you need to run an `Observable` pipeline under a lock, use `runWithLock$` from `@rnw-community/lock-decorator/rxjs`.
+
 [![npm version](https://badge.fury.io/js/%40rnw-community%2Flock-decorator.svg)](https://badge.fury.io/js/%40rnw-community%2Flock-decorator)
 [![npm downloads](https://img.shields.io/npm/dm/%40rnw-community%2Flock-decorator.svg)](https://www.npmjs.com/package/%40rnw-community/lock-decorator)
 

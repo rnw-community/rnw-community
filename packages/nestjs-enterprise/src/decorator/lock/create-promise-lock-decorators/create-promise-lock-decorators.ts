@@ -3,17 +3,15 @@ import { Inject } from '@nestjs/common';
 import { LockBusyError } from '@rnw-community/lock-decorator';
 import { isDefined, isPromise } from '@rnw-community/shared';
 
-import {
-    LOCK_SERVICE_NOT_INJECTED_MESSAGE,
-    RESOURCE_SEPARATOR,
-    createLockServiceStore,
-    resolveResources,
-} from '../adapter/lock-service-store.adapter';
+import { createLockServiceStore } from '../create-lock-service-store';
+import { LOCK_SERVICE_NOT_INJECTED_MESSAGE } from '../lock-service-not-injected-message.const';
+import { resolveResources } from '../resolve-resources';
+import { RESOURCE_SEPARATOR } from '../resource-separator.const';
 
-import type { PreDecoratorFunction } from '../../../type/pre-decorator-function.type';
+import type { PreDecoratorFunction } from '../../../pre-decorator-function.type';
 import type { LockServiceInterface } from '../interface/lock-service.interface';
 import type { LockHandleInterface } from '@rnw-community/lock-decorator';
-import type { AbstractConstructor, AnyFn, MethodDecoratorType } from '@rnw-community/shared';
+import type { AbstractConstructor, MethodDecoratorType } from '@rnw-community/shared';
 
 type LockModeType = 'sequential' | 'exclusive';
 
@@ -55,7 +53,8 @@ export const createPromiseLockDecorators = (
 
     const makeDecorator =
         (mode: LockModeType) =>
-        <K extends AnyFn, TResult extends ReturnType<K>, TArgs extends Parameters<K>>(
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        <K extends (...args: any[]) => Promise<any>, TResult extends ReturnType<K>, TArgs extends Parameters<K>>(
             preLock: PreDecoratorFunction<TArgs, string[]> | string[],
             catchErrorFn?: (error: unknown) => TResult,
             duration?: number
@@ -87,7 +86,7 @@ export const createPromiseLockDecorators = (
 
                     return await result;
                 } catch (error) {
-                    return handleLockError(error, mode, catchErrorFn);
+                    return await Promise.resolve(handleLockError(error, mode, catchErrorFn));
                 } finally {
                     await safeRelease(handle);
                 }

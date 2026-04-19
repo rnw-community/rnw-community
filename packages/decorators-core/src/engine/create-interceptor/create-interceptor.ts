@@ -1,13 +1,7 @@
 import { buildContext } from '../build-context/build-context';
 import { runInterception } from '../run-interception/run-interception';
 
-import type { InterceptorInterface } from '../../type/interceptor-interface/interceptor.interface';
-import type { ResultStrategyInterface } from '../../type/result-strategy-interface/result-strategy.interface';
-
-export interface CreateInterceptorOptionsInterface<TArgs extends readonly unknown[], TResult> {
-    readonly interceptor: InterceptorInterface<TArgs, TResult>;
-    readonly strategies?: readonly ResultStrategyInterface[];
-}
+import type { CreateInterceptorOptionsInterface } from './create-interceptor-options.interface';
 
 type Stage3ReplaceType<TArgs extends readonly unknown[], TResult> = (
     originalMethod: (this: unknown, ...args: TArgs) => TResult,

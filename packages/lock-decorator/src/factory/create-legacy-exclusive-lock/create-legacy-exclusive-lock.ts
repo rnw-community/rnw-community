@@ -1,14 +1,13 @@
-
 import { resolveLockKey } from '../../util/resolve-lock-key/resolve-lock-key';
 import { runWithLock } from '../../util/run-with-lock/run-with-lock';
 
-import type { CreateLockOptionsInterface } from '../../interface/create-lock-options-interface/create-lock-options.interface';
-import type { ExclusiveLockArgumentType } from '../../type/exclusive-lock-argument-type/exclusive-lock-argument.type';
-import type { LegacyMethodDecoratorType } from '@rnw-community/decorators-core';
+import type { CreateLockOptionsInterface } from '../../interface/create-lock-options.interface';
+import type { ExclusiveLockArgumentType } from '../../type/exclusive-lock-argument.type';
+import type { PromiseLegacyMethodDecoratorType } from '../../type/promise-legacy-method-decorator.type';
 
 export const createLegacyExclusiveLock =
     (options: CreateLockOptionsInterface) =>
-    <TArgs extends readonly unknown[]>(arg: ExclusiveLockArgumentType<TArgs>): LegacyMethodDecoratorType =>
+    <TArgs extends readonly unknown[]>(arg: ExclusiveLockArgumentType<TArgs>): PromiseLegacyMethodDecoratorType =>
     (_target, _propertyKey, descriptor) => {
         const originalMethod = descriptor.value;
         if (typeof originalMethod !== 'function') {

@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, jest } from '@jest/globals';
 import Redis from 'ioredis';
 
-import { LockableService } from '../service/lockable.service';
+import { LockableService } from '../lockable.service';
 
 import { LockPromise } from './lock-promise.decorator';
 

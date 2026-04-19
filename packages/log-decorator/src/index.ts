@@ -1,4 +1,9 @@
-export type { LogTransportInterface, CreateLogOptionsInterface, PreLogInputType, PostLogInputType, ErrorLogInputType, SanitizerFnType } from './types';
+export type { LogTransportInterface } from './log-transport.interface';
+export type { SanitizerFnType } from './sanitizer-fn.type';
+export type { CreateLogOptionsInterface } from './create-log-options.interface';
+export type { PreLogInputType } from './pre-log-input.type';
+export type { PostLogInputType } from './post-log-input.type';
+export type { ErrorLogInputType } from './error-log-input.type';
 
 export { consoleTransport } from './console-transport';
 export { defaultSanitizer } from './default-sanitizer';

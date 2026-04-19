@@ -3,10 +3,10 @@ import { isDefined } from '@rnw-community/shared';
 import { LockAcquireTimeoutError } from '../../error/lock-acquire-timeout-error/lock-acquire-timeout.error';
 import { LockBusyError } from '../../error/lock-busy-error/lock-busy.error';
 
-import type { AcquireOptionsInterface } from '../../interface/acquire-options-interface/acquire-options.interface';
-import type { LockHandleInterface } from '../../interface/lock-handle-interface/lock-handle.interface';
-import type { LockStoreInterface } from '../../interface/lock-store-interface/lock-store.interface';
-import type { LockModeType } from '../../type/lock-mode-type/lock-mode.type';
+import type { AcquireOptionsInterface } from '../../interface/acquire-options.interface';
+import type { LockHandleInterface } from '../../interface/lock-handle.interface';
+import type { LockModeType } from '../../type/lock-mode.type';
+import type { InMemoryLockStoreInterface } from '../in-memory-lock-store.interface';
 
 type SettleFn = (action: 'resolve' | 'reject', value?: unknown) => void;
 
@@ -159,11 +159,6 @@ const acquireExclusive = (exclusiveHeld: Set<string>, key: string): Promise<Lock
 
     return Promise.resolve(handle);
 };
-
-export interface InMemoryLockStoreInterface extends LockStoreInterface {
-    readonly sequentialChainCount: () => number;
-    readonly exclusiveHeldCount: () => number;
-}
 
 export const createInMemoryLockStore = (): InMemoryLockStoreInterface => {
     const sequentialChains = new Map<string, Promise<void>>();

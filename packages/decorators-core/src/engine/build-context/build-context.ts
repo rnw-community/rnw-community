@@ -1,6 +1,6 @@
 import { isDefined } from '@rnw-community/shared';
 
-import type { ExecutionContextInterface } from '../../type/execution-context-interface/execution-context.interface';
+import type { ExecutionContextInterface } from '../../type/execution-context.interface';
 
 const resolveNameFromFunction = (fn: { readonly name?: string }): string | null => {
     const { name } = fn;

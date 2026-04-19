@@ -2,7 +2,7 @@ import { describe, expect, it } from '@jest/globals';
 
 import { createInterceptor } from './create-interceptor';
 
-import type { ExecutionContextInterface } from '../../type/execution-context-interface/execution-context.interface';
+import type { ExecutionContextInterface } from '../../type/execution-context.interface';
 
 describe('createInterceptor (stage-3)', () => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any

@@ -56,15 +56,30 @@ All packages publish dual format via `exports` field:
 
 ## Code Style & Conventions
 
-### File Organization (strict, one-entity-per-folder)
+### File Organization (strict: one exported entity per file; folder only to group related siblings)
 
-Every exported entity lives in its own directory named after the entity; the directory contains exactly one implementation file, one (co-located) `.spec.ts`, and optionally an `.md` doc. Layout:
+**One exported entity per file.** Every file exports exactly one public entity. A file that exports two types, an interface + a constant, or multiple helpers MUST be split. Barrel files (`index.ts`) are allowed and re-export only; they are not "multi-export files" in the semantic sense.
+
+**Folder only when there is more than one sibling file for the same entity.** Put source + spec (+ optional `.md`) together in a named folder when grouping makes sense; a single lone file does NOT need its own folder.
+
+When an entity has a `.spec.ts` and/or a focused `.md`, use the folder layout:
 
 ```
 src/<category>/<entity-name>/<entity-name>.<suffix>.ts
 src/<category>/<entity-name>/<entity-name>.spec.ts
 src/<category>/<entity-name>/<entity-name>.md         (optional — short, one example)
 ```
+
+When an entity has **only** a source file (no spec, no `.md`) — e.g., many `.interface.ts` / `.type.ts` / constant files — place it flat at the category level, **without** a surrounding one-file folder:
+
+```
+src/interface/execution-context.interface.ts          (good — single file, no folder needed)
+src/type/pre-decorator-function.type.ts               (good)
+src/interface/execution-context-interface/            (BAD — folder with a single `.interface.ts` inside)
+    execution-context.interface.ts
+```
+
+Create folders only to group siblings that share an entity (source + spec + md). Never create a folder that wraps a single file with nothing to group it with.
 
 Suffix patterns:
 - `.type.ts` for `export type` entities

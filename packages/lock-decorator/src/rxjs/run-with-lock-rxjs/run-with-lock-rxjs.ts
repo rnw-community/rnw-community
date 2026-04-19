@@ -2,25 +2,28 @@ import { Observable, type Subscriber, Subscription, finalize, isObservable } fro
 
 import { isDefined } from '@rnw-community/shared';
 
-import type { AcquireOptionsInterface } from '../../interface/acquire-options-interface/acquire-options.interface';
-import type { LockHandleInterface } from '../../interface/lock-handle-interface/lock-handle.interface';
-import type { LockStoreInterface } from '../../interface/lock-store-interface/lock-store.interface';
-import type { LockModeType } from '../../type/lock-mode-type/lock-mode.type';
+import type { AcquireOptionsInterface } from '../../interface/acquire-options.interface';
+import type { LockHandleInterface } from '../../interface/lock-handle.interface';
+import type { LockStoreInterface } from '../../interface/lock-store.interface';
+import type { LockModeType } from '../../type/lock-mode.type';
 
 const releaseSilently = (handle: LockHandleInterface): void => {
     void Promise.resolve(handle.release()).catch(() => void 0);
 };
 
-const bridgeSignal = (external: AbortSignal | undefined, controller: AbortController): void => {
+const bridgeSignal = (external: AbortSignal | undefined, controller: AbortController): (() => void) => {
     if (!isDefined(external)) {
-        return;
+        return () => void 0;
     }
     if (external.aborted) {
         controller.abort();
 
-        return;
+        return () => void 0;
     }
-    external.addEventListener('abort', () => void controller.abort(), { once: true });
+    const forward = (): void => void controller.abort();
+    external.addEventListener('abort', forward, { once: true });
+
+    return () => void external.removeEventListener('abort', forward);
 };
 
 const invokeAndWire = (
@@ -76,7 +79,7 @@ export const runWithLock$ = (
 ): Observable<unknown> =>
     new Observable<unknown>((subscriber) => {
         const controller = new AbortController();
-        bridgeSignal(options.signal, controller);
+        const releaseBridge = bridgeSignal(options.signal, controller);
 
         const cancelledRef = { value: false };
         const innerSubscription = new Subscription();
@@ -96,6 +99,7 @@ export const runWithLock$ = (
         return () => {
             cancelledRef.value = true;
             controller.abort();
+            releaseBridge();
             innerSubscription.unsubscribe();
         };
     });

@@ -1,9 +1,6 @@
-import { readFileSync } from 'node:fs';
-import { resolve as resolvePath } from 'node:path';
-
 import { describe, expect, it, jest } from '@jest/globals';
 import { Histogram, register } from 'prom-client';
-import { EMPTY, Observable, of } from 'rxjs';
+import { EMPTY, Observable, lastValueFrom, of } from 'rxjs';
 
 import { HistogramMetric } from './histogram-metric.decorator';
 
@@ -141,7 +138,7 @@ return 1;
             expect(mockObserve).toHaveBeenCalledTimes(1);
         });
 
-        it('Observable with multiple next values reports exactly ONE observation — not one per emission', () => {
+        it('Observable with multiple next values is not specially handled — exactly one sync observation, independent of emission count', async () => {
             expect.assertions(1);
 
             class MultiEmitClass {
@@ -152,12 +149,12 @@ return 1;
             }
 
             mockObserve.mockClear();
-            new MultiEmitClass().stream();
+            await lastValueFrom(new MultiEmitClass().stream());
 
             expect(mockObserve).toHaveBeenCalledTimes(1);
         });
 
-        it('Observable that completes without emitting still reports ONE observation', () => {
+        it('Observable that completes without emitting is not specially handled — exactly one sync observation', async () => {
             expect.assertions(1);
 
             class EmptyEmitClass {
@@ -168,15 +165,9 @@ return 1;
             }
 
             mockObserve.mockClear();
-            new EmptyEmitClass().stream();
+            await lastValueFrom(new EmptyEmitClass().stream(), { defaultValue: undefined });
 
             expect(mockObserve).toHaveBeenCalledTimes(1);
-        });
-
-        it('does not wire a per-emission observable strategy (Observable support intentionally removed)', () => {
-            expect.assertions(1);
-            const sourceText = readFileSync(resolvePath(__dirname, 'histogram-metric.decorator.ts'), 'utf8');
-            expect(sourceText).not.toContain('observableStrategy');
         });
     });
 });

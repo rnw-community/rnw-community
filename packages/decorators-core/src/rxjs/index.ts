@@ -1,1 +1,1 @@
-export { observableStrategy } from './observable-strategy/observable.strategy';
+export { observableStrategy } from '../strategy/observable-strategy/observable.strategy';

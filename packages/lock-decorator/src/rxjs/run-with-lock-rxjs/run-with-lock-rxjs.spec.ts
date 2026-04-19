@@ -6,8 +6,8 @@ import { createInMemoryLockStore } from '../../store/create-in-memory-lock-store
 
 import { runWithLock$ } from './run-with-lock-rxjs';
 
-import type { LockHandleInterface } from '../../interface/lock-handle-interface/lock-handle.interface';
-import type { LockStoreInterface } from '../../interface/lock-store-interface/lock-store.interface';
+import type { LockHandleInterface } from '../../interface/lock-handle.interface';
+import type { LockStoreInterface } from '../../interface/lock-store.interface';
 
 describe('runWithLock$', () => {
     it('acquires, invokes, emits the values, and releases on complete', async () => {
@@ -249,6 +249,25 @@ describe('runWithLock$', () => {
             message: 'Locked method must return an Observable',
         });
         expect(store.sequentialChainCount()).toBe(0);
+    });
+
+    it('removes the abort listener from a user-supplied signal when the subscriber unsubscribes', async () => {
+        expect.hasAssertions();
+        const store = createInMemoryLockStore();
+        const controller = new AbortController();
+        const addSpy = jest.spyOn(controller.signal, 'addEventListener');
+        const removeSpy = jest.spyOn(controller.signal, 'removeEventListener');
+
+        const sub = runWithLock$(store, 'k', 'sequential', { signal: controller.signal }, () => of(1)).subscribe();
+        // eslint-disable-next-line no-promise-executor-return
+        await new Promise((resolve) => setTimeout(resolve, 5));
+        sub.unsubscribe();
+
+        expect(addSpy).toHaveBeenCalledWith('abort', expect.any(Function), { once: true });
+        expect(removeSpy).toHaveBeenCalledWith('abort', expect.any(Function));
+        const [, addedListener] = addSpy.mock.calls[0] as [string, (...args: unknown[]) => unknown, unknown];
+        const [, removedListener] = removeSpy.mock.calls[0] as [string, (...args: unknown[]) => unknown];
+        expect(removedListener).toBe(addedListener);
     });
 
     it('forwards an already-aborted user signal to the store immediately', async () => {

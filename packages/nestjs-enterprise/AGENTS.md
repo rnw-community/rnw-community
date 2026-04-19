@@ -18,19 +18,19 @@ yarn lint:fix           # Fix lint issues
 
 ```
 src/
+  pre-decorator-function.type.ts  — PreDecoratorFunction type
   decorator/
     log/                — Log decorator (thin adapter over @rnw-community/log-decorator)
     histogram-metric/   — HistogramMetric decorator (decorators-core + prom-client startTimer bridge)
     lock/
-      adapter/          — LockServiceStoreAdapter: bridges LockServiceInterface ↔ LockStoreInterface
+      lock-service-store.adapter.ts  — LockServiceStoreAdapter: bridges LockServiceInterface ↔ LockStoreInterface
+      lockable.service.ts            — DEPRECATED: LockableService base class
       interface/        — LockServiceInterface, LockHandle
       create-promise-lock-decorators/    — Modern DI-based promise lock factory (@rnw-community/lock-decorator)
       create-observable-lock-decorators/ — Modern DI-based observable lock factory
       lock-promise/     — DEPRECATED: inheritance-based promise lock
       lock-observable/  — DEPRECATED: inheritance-based observable lock
-      service/          — DEPRECATED: LockableService base class
       util/             — Legacy lock utilities (used only by deprecated decorators)
-  type/                 — PreDecoratorFunction type
 ```
 
 ### Subpath Exports

@@ -5,7 +5,7 @@ import { createInMemoryLockStore } from '../../store/create-in-memory-lock-store
 
 import { createSequentialLock } from './create-sequential-lock';
 
-import type { LockStoreInterface } from '../../interface/lock-store-interface/lock-store.interface';
+import type { LockStoreInterface } from '../../interface/lock-store.interface';
 
 describe('createSequentialLock (stage-3)', () => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -30,7 +30,7 @@ describe('createSequentialLock (stage-3)', () => {
         };
 
         const wrapped = decorator(
-            original as (this: unknown, ...args: readonly unknown[]) => unknown,
+            original as (this: unknown, ...args: readonly unknown[]) => Promise<unknown>,
              
             makeCtx('work')
         );
@@ -52,13 +52,13 @@ describe('createSequentialLock (stage-3)', () => {
         };
 
         const wrapFn = (
-            fn: (this: unknown, ...args: readonly unknown[]) => unknown,
-            ctx: ClassMethodDecoratorContext<unknown, (this: unknown, ...args: readonly unknown[]) => unknown>
+            fn: (this: unknown, ...args: readonly unknown[]) => Promise<unknown>,
+            ctx: ClassMethodDecoratorContext<unknown, (this: unknown, ...args: readonly unknown[]) => Promise<unknown>>
         ): (this: unknown, ...args: readonly unknown[]) => Promise<unknown> =>
             SequentialLock('sync-key')(fn, ctx);
 
         const wrapped = wrapFn(
-            original as (this: unknown, ...args: readonly unknown[]) => unknown,
+            original as unknown as (this: unknown, ...args: readonly unknown[]) => Promise<unknown>,
 
             makeCtx('add')
         );
@@ -83,7 +83,7 @@ describe('createSequentialLock (stage-3)', () => {
         };
 
         const wrapped = decorator(
-            original as (this: unknown, ...args: readonly unknown[]) => unknown,
+            original as (this: unknown, ...args: readonly unknown[]) => Promise<unknown>,
              
             makeCtx('run')
         );
@@ -107,7 +107,7 @@ describe('createSequentialLock (stage-3)', () => {
         };
 
         const wrapped = decorator(
-            original as (this: unknown, ...args: readonly unknown[]) => unknown,
+            original as (this: unknown, ...args: readonly unknown[]) => Promise<unknown>,
              
             makeCtx('run')
         );
@@ -132,7 +132,7 @@ describe('createSequentialLock (stage-3)', () => {
         };
 
         const wrapped = decorator(
-            original as (this: unknown, ...args: readonly unknown[]) => unknown,
+            original as (this: unknown, ...args: readonly unknown[]) => Promise<unknown>,
              
             makeCtx('run')
         );
@@ -157,7 +157,7 @@ describe('createSequentialLock (stage-3)', () => {
         };
 
         const wrapped = decorator(
-            original as (this: unknown, ...args: readonly unknown[]) => unknown,
+            original as (this: unknown, ...args: readonly unknown[]) => Promise<unknown>,
              
             makeCtx('op')
         );
@@ -211,7 +211,7 @@ describe('createSequentialLock (stage-3)', () => {
 
         const decorator = SequentialLock('err-key');
         const wrapped = decorator(
-            original as (this: unknown, ...args: readonly unknown[]) => unknown,
+            original as (this: unknown, ...args: readonly unknown[]) => Promise<unknown>,
              
             makeCtx('fail')
         );
@@ -246,7 +246,7 @@ describe('createSequentialLock (stage-3)', () => {
         };
 
         const wrapped = decorator(
-            original as (this: unknown, ...args: readonly unknown[]) => unknown,
+            original as (this: unknown, ...args: readonly unknown[]) => Promise<unknown>,
              
             makeCtx('method')
         );
@@ -269,7 +269,7 @@ describe('createSequentialLock (stage-3)', () => {
             await Promise.resolve();
         };
         const wrapped = decorator(
-            original as (this: unknown, ...args: readonly unknown[]) => unknown,
+            original as (this: unknown, ...args: readonly unknown[]) => Promise<unknown>,
              
             makeCtx('method')
         );
@@ -292,7 +292,7 @@ describe('createSequentialLock (stage-3)', () => {
 
         const decorator = SequentialLock('sym-key');
         const wrapped = decorator(
-            original as (this: unknown, ...args: readonly unknown[]) => unknown,
+            original as (this: unknown, ...args: readonly unknown[]) => Promise<unknown>,
              
             makeCtx(sym)
         );
