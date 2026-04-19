@@ -1,30 +1,15 @@
 # Log Decorator
 
-Universal method decorator that adds structured pre/post/error logging hooks. Supports both TC39 stage-3 and legacy (`experimentalDecorators`) decorator styles. Zero framework dependencies.
+Universal method decorator that adds structured pre/post/error logging hooks. Built on top of TypeScript's `experimentalDecorators` mode. Zero framework dependencies.
 
 [![npm version](https://badge.fury.io/js/%40rnw-community%2Flog-decorator.svg)](https://badge.fury.io/js/%40rnw-community%2Flog-decorator)
 [![npm downloads](https://img.shields.io/npm/dm/%40rnw-community%2Flog-decorator.svg)](https://www.npmjs.com/package/%40rnw-community%2Flog-decorator)
 
 ## Factories
 
-### [createLog](src/factory/create-log/create-log.ts)
+### [createLegacyLog](src/create-legacy-log/create-legacy-log.ts)
 
-Creates a stage-3 (TC39) method decorator factory bound to a transport and options.
-
-```ts
-import { createLog, consoleTransport } from '@rnw-community/log-decorator';
-
-const Log = createLog({ transport: consoleTransport });
-
-class UserService {
-    @Log('fetching user', 'user fetched', 'fetch failed')
-    getUser(id: string): User { /* ... */ }
-}
-```
-
-### [createLegacyLog](src/factory/create-legacy-log/create-legacy-log.ts)
-
-Same API as `createLog` but targets `experimentalDecorators` (TypeScript `legacy` decorator mode).
+Creates a method decorator factory bound to a transport and options.
 
 ```ts
 import { createLegacyLog, consoleTransport } from '@rnw-community/log-decorator';
@@ -32,48 +17,54 @@ import { createLegacyLog, consoleTransport } from '@rnw-community/log-decorator'
 const Log = createLegacyLog({ transport: consoleTransport });
 
 class OrderService {
-    @Log(undefined, (result, args) => `order ${args[0]} placed: ${result.id}`)
-    placeOrder(id: string): Order { /* ... */ }
+    @Log<[string], { id: string }>(
+        orderId => `placing order ${orderId}`,
+        (result, orderId) => `order ${orderId} placed: ${result.id}`,
+        (error, orderId) => `order ${orderId} failed: ${String(error)}`
+    )
+    placeOrder(orderId: string): { id: string } { /* ... */ }
 }
 ```
 
+When `preLog`/`postLog`/`errorLog` are omitted, the decorator emits nothing on that lifecycle event.
+
 ## Transport
 
-### [consoleTransport](src/transport/console-transport/console-transport.ts)
+### [consoleTransport](src/console-transport/console-transport.ts)
 
 Built-in `LogTransportInterface` implementation that forwards to `console.log` / `console.debug` / `console.error`.
 
 ```ts
-import { createLog, consoleTransport } from '@rnw-community/log-decorator';
+import { createLegacyLog, consoleTransport } from '@rnw-community/log-decorator';
 
-const Log = createLog({ transport: consoleTransport });
+const Log = createLegacyLog({ transport: consoleTransport });
 ```
 
 ## Interfaces
 
-### [LogTransportInterface](src/interface/log-transport-interface/log-transport.interface.ts)
+### [LogTransportInterface](src/log-transport.interface.ts)
 
 Implement this to plug in any logging backend (Pino, Winston, NestJS Logger, etc.).
 
-### [CreateLogOptionsInterface](src/interface/create-log-options-interface/create-log-options.interface.ts)
+### [CreateLogOptionsInterface](src/create-log-options.interface.ts)
 
-Options accepted by `createLog` / `createLegacyLog`: `transport`, optional `strategies`.
+Options accepted by `createLegacyLog`: `transport`, optional `strategies`.
 
 ## Types
 
-- [`PreLogInputType`](src/type/pre-log-input-type/pre-log-input.type.ts) — string or `(args) => string` for the entry log.
-- [`PostLogInputType`](src/type/post-log-input-type/post-log-input.type.ts) — string or `(result, args) => string` for the success log.
-- [`ErrorLogInputType`](src/type/error-log-input-type/error-log-input.type.ts) — string or `(error, args) => string` for the error log.
+- [`PreLogInputType`](src/pre-log-input.type.ts) — string or `(...args) => string` for the entry log.
+- [`PostLogInputType`](src/post-log-input.type.ts) — string or `(result, ...args) => string` for the success log.
+- [`ErrorLogInputType`](src/error-log-input.type.ts) — string or `(error, ...args) => string` for the error log.
 
 ## Observable support
 
 Pass an `observableStrategy` from `@rnw-community/decorators-core/rxjs` via the `strategies` option to handle RxJS Observable return values:
 
 ```ts
-import { createLog, consoleTransport } from '@rnw-community/log-decorator';
-import { rxjsStrategy } from '@rnw-community/decorators-core/rxjs';
+import { createLegacyLog, consoleTransport } from '@rnw-community/log-decorator';
+import { observableStrategy } from '@rnw-community/decorators-core/rxjs';
 
-const Log = createLog({ transport: consoleTransport, strategies: [rxjsStrategy] });
+const Log = createLegacyLog({ transport: consoleTransport, strategies: [observableStrategy] });
 ```
 
 ## License

@@ -14,8 +14,5 @@ export { LockAcquireTimeoutError } from './error/lock-acquire-timeout-error/lock
 export type { InMemoryLockStoreInterface } from './store/in-memory-lock-store.interface';
 export { createInMemoryLockStore } from './store/create-in-memory-lock-store/create-in-memory-lock-store';
 
-export { createSequentialLock } from './factory/create-sequential-lock/create-sequential-lock';
-export { createExclusiveLock } from './factory/create-exclusive-lock/create-exclusive-lock';
-
 export { createLegacySequentialLock } from './factory/create-legacy-sequential-lock/create-legacy-sequential-lock';
 export { createLegacyExclusiveLock } from './factory/create-legacy-exclusive-lock/create-legacy-exclusive-lock';

@@ -1,5 +1,7 @@
 import { describe, expect, it, jest } from '@jest/globals';
 
+import { wait } from '@rnw-community/shared';
+
 import { LockAcquireTimeoutError } from '../../error/lock-acquire-timeout-error/lock-acquire-timeout.error';
 import { createInMemoryLockStore } from '../../store/create-in-memory-lock-store/create-in-memory-lock-store';
 
@@ -7,253 +9,245 @@ import { createLegacySequentialLock } from './create-legacy-sequential-lock';
 
 import type { LockStoreInterface } from '../../interface/lock-store.interface';
 
-describe('createLegacySequentialLock (legacy decorator)', () => {
-    it('wraps and calls original async method', async () => {
-        const store = createInMemoryLockStore();
-        const SequentialLock = createLegacySequentialLock({ store });
+const store = createInMemoryLockStore();
+const SequentialLock = createLegacySequentialLock({ store });
 
-        class Svc {
-            async work(x: number): Promise<number> {
-                return x * 2;
-            }
+class OrderService {
+    readonly inventory = new Map<string, number>([['sku-1', 10]]);
+
+    @SequentialLock('order-create')
+    async createOrder(productId: string, qty: number): Promise<{ readonly id: string; readonly productId: string; readonly qty: number }> {
+        const stock = this.inventory.get(productId) ?? 0;
+        if (stock < qty) {
+            throw new Error(`out of stock: ${productId}`);
         }
+        this.inventory.set(productId, stock - qty);
+        
+return { id: `order-${productId}-${qty.toString()}`, productId, qty };
+    }
 
-        const proto = Svc.prototype as unknown as Record<string, unknown>;
-        const descriptor: PropertyDescriptor = {
-            value: proto['work'],
-            writable: true,
-            configurable: true,
-        };
+    @SequentialLock<readonly [string]>((args) => `update:${args[0]}`)
+    async updateOrder(productId: string): Promise<{ readonly productId: string; readonly stock: number }> {
+        return { productId, stock: this.inventory.get(productId) ?? 0 };
+    }
 
-        const result = SequentialLock<readonly [number]>('lseq-key')(proto as object, 'work', descriptor);
-        expect(result).toBeDefined();
+    @SequentialLock('order-read')
+    async getInventory(productId: string): Promise<number> {
+        return this.inventory.get(productId) ?? 0;
+    }
 
-        const svc = new Svc();
-        svc.work = result.value as typeof svc.work;
+    @SequentialLock('validate-sku')
+    syncValidateSku(sku: string): boolean {
+        return this.inventory.has(sku);
+    }
+}
 
-        expect(await svc.work(10)).toBe(20);
+describe('createLegacySequentialLock', () => {
+    it('executes the decorated method and returns its result', async () => {
+        expect.hasAssertions();
+
+        const service = new OrderService();
+        const result = await service.createOrder('sku-1', 3);
+
+        expect(result).toStrictEqual({ id: 'order-sku-1-3', productId: 'sku-1', qty: 3 });
     });
 
-    it('rejects a sync method at call time (explicit async-only contract — no silent promisification)', async () => {
-        const store = createInMemoryLockStore();
-        const SequentialLock = createLegacySequentialLock({ store });
+    it('releases the lock after the method succeeds', async () => {
+        expect.hasAssertions();
 
-        class Svc {
-            compute(x: number): number {
-                return x + 1;
+        const localStore = createInMemoryLockStore();
+        const spy = jest.spyOn(localStore, 'acquire');
+        const LocalSeqLock = createLegacySequentialLock({ store: localStore });
+
+        class InvoiceService {
+            @LocalSeqLock('invoice-gen')
+            async generateInvoice(orderId: string): Promise<string> {
+                return `invoice-${orderId}`;
             }
         }
 
-        const proto = Svc.prototype as unknown as Record<string, unknown>;
-        const descriptor: PropertyDescriptor = {
-            value: proto['compute'],
-            writable: true,
-            configurable: true,
-        };
+        const svc = new InvoiceService();
+        await svc.generateInvoice('order-42');
 
-        const result = SequentialLock<readonly [number]>('sync-legacy')(proto as object, 'compute', descriptor);
-        const svc = new Svc();
-        svc.compute = result.value as typeof svc.compute;
+        expect(spy).toHaveBeenCalledWith('invoice-gen', 'sequential', expect.anything());
+        const handle = await localStore.acquire('invoice-gen', 'sequential');
+        expect(handle.key).toBe('invoice-gen');
+        void handle.release();
+    });
 
-        await expect(svc.compute(5) as unknown as Promise<number>).rejects.toThrow(
+    it('releases the lock after the method throws', async () => {
+        expect.hasAssertions();
+
+        const localStore = createInMemoryLockStore();
+        const LocalSeqLock = createLegacySequentialLock({ store: localStore });
+
+        class FulfillmentService {
+            @LocalSeqLock('fulfill')
+            async fulfill(orderId: string): Promise<void> {
+                throw new Error(`cannot fulfill ${orderId}`);
+            }
+        }
+
+        const svc = new FulfillmentService();
+        await expect(svc.fulfill('order-99')).rejects.toThrow('cannot fulfill order-99');
+
+        const handle = await localStore.acquire('fulfill', 'sequential');
+        expect(handle.key).toBe('fulfill');
+        void handle.release();
+    });
+
+    it('rejects when the decorated method does not return a Promise', async () => {
+        expect.hasAssertions();
+
+        const service = new OrderService();
+        await expect((service.syncValidateSku as unknown as (sku: string) => Promise<unknown>)('sku-1')).rejects.toThrow(
             'Locked method must return a Promise'
         );
     });
 
-    it('uses function key form', async () => {
-        const store = createInMemoryLockStore();
-        const SequentialLock = createLegacySequentialLock({ store });
-        const spy = jest.spyOn(store, 'acquire');
+    it('builds the lock key from a function key form using method arguments', async () => {
+        expect.hasAssertions();
 
-        class Svc {
-            async fetch(id: string): Promise<string> {
-                return `data:${id}`;
+        const localStore = createInMemoryLockStore();
+        const spy = jest.spyOn(localStore, 'acquire');
+        const LocalSeqLock = createLegacySequentialLock({ store: localStore });
+
+        class CatalogService {
+            @LocalSeqLock<readonly [string]>(args => `price:${args[0]}`)
+            async updatePrice(sku: string): Promise<string> {
+                return `updated:${sku}`;
             }
         }
 
-        const proto = Svc.prototype as unknown as Record<string, unknown>;
-        const descriptor: PropertyDescriptor = {
-            value: proto['fetch'],
-            writable: true,
-            configurable: true,
-        };
+        const svc = new CatalogService();
+        await svc.updatePrice('sku-1');
 
-        const keyFn = (args: readonly [string]): string => `entity:${args[0]}`;
-        const result = SequentialLock<readonly [string]>(keyFn)(proto as object, 'fetch', descriptor);
-        const svc = new Svc();
-        svc.fetch = result.value as typeof svc.fetch;
-
-        await svc.fetch('42');
-        expect(spy).toHaveBeenCalledWith('entity:42', 'sequential', expect.anything());
+        expect(spy).toHaveBeenCalledWith('price:sku-1', 'sequential', expect.anything());
     });
 
-    it('uses object key form with timeoutMs', async () => {
-        const store = createInMemoryLockStore();
-        const SequentialLock = createLegacySequentialLock({ store });
-        const spy = jest.spyOn(store, 'acquire');
+    it('passes timeoutMs to the store acquire via object key form', async () => {
+        expect.hasAssertions();
 
-        class Svc {
-            async op(): Promise<void> {
-                await Promise.resolve();
+        const localStore = createInMemoryLockStore();
+        const spy = jest.spyOn(localStore, 'acquire');
+        const LocalSeqLock = createLegacySequentialLock({ store: localStore });
+
+        class ShippingService {
+            @LocalSeqLock({ key: 'ship-schedule', timeoutMs: 250 })
+            async scheduleShipment(orderId: string): Promise<string> {
+                return `shipment-${orderId}`;
             }
         }
 
-        const proto = Svc.prototype as unknown as Record<string, unknown>;
-        const descriptor: PropertyDescriptor = {
-            value: proto['op'],
-            writable: true,
-            configurable: true,
-        };
+        const svc = new ShippingService();
+        await svc.scheduleShipment('order-7');
 
-        const result = SequentialLock<readonly []>({ key: 'obj-lseq', timeoutMs: 200 })(
-            proto as object,
-            'op',
-            descriptor
-        );
-        const svc = new Svc();
-        svc.op = result.value as typeof svc.op;
-
-        await svc.op();
-        expect(spy).toHaveBeenCalledWith('obj-lseq', 'sequential', { timeoutMs: 200, signal: undefined });
+        expect(spy).toHaveBeenCalledWith('ship-schedule', 'sequential', { timeoutMs: 250, signal: undefined });
     });
 
-    it('runs sequential calls in FIFO order', async () => {
-        const store = createInMemoryLockStore();
-        const SequentialLock = createLegacySequentialLock({ store });
-        const order: number[] = [];
+    it('queues concurrent calls on the same key in FIFO order', async () => {
+        expect.hasAssertions();
 
-        const makeDescriptor = (num: number): PropertyDescriptor => ({
-            async value (this: unknown): Promise<void> {
-                order.push(num);
-            },
-            writable: true,
-            configurable: true,
-        });
+        const localStore = createInMemoryLockStore();
+        const LocalSeqLock = createLegacySequentialLock({ store: localStore });
+        const processedOrder: number[] = [];
 
-        class Svc {
-            m1(): Promise<void> {
-                return Promise.resolve();
-            }
-            m2(): Promise<void> {
-                return Promise.resolve();
-            }
-            m3(): Promise<void> {
-                return Promise.resolve();
+        class OrderQueue {
+            @LocalSeqLock('order-queue')
+            async processSlot1(): Promise<void> { processedOrder.push(1); }
+
+            @LocalSeqLock('order-queue')
+            async processSlot2(): Promise<void> { processedOrder.push(2); }
+
+            @LocalSeqLock('order-queue')
+            async processSlot3(): Promise<void> { processedOrder.push(3); }
+        }
+
+        const queue = new OrderQueue();
+        await Promise.all([queue.processSlot1(), queue.processSlot2(), queue.processSlot3()]);
+
+        expect(processedOrder).toStrictEqual([1, 2, 3]);
+    });
+
+    it('rejects with LockAcquireTimeoutError when the timeout elapses before the lock is free', async () => {
+        expect.hasAssertions();
+
+        const localStore = createInMemoryLockStore();
+        const held = await localStore.acquire('payment-timeout', 'sequential');
+        const LocalSeqLock = createLegacySequentialLock({ store: localStore });
+
+        class PaymentGateway {
+            @LocalSeqLock({ key: 'payment-timeout', timeoutMs: 10 })
+            async authorizePayment(amount: number): Promise<string> {
+                return `authorized:${amount.toString()}`;
             }
         }
 
-        const proto = Svc.prototype as object;
-        const r1 = SequentialLock<readonly []>('lfifo')(proto, 'm1', makeDescriptor(1));
-        const r2 = SequentialLock<readonly []>('lfifo')(proto, 'm2', makeDescriptor(2));
-        const r3 = SequentialLock<readonly []>('lfifo')(proto, 'm3', makeDescriptor(3));
-
-        const svc = new Svc();
-        await Promise.all([
-            (r1.value as () => Promise<void>).call(svc),
-            (r2.value as () => Promise<void>).call(svc),
-            (r3.value as () => Promise<void>).call(svc),
-        ]);
-
-        expect(order).toEqual([1, 2, 3]);
+        const gateway = new PaymentGateway();
+        await expect(gateway.authorizePayment(50)).rejects.toBeInstanceOf(LockAcquireTimeoutError);
+        void held.release();
     });
 
-    it('propagates method errors and releases lock', async () => {
-        const store = createInMemoryLockStore();
-        const SequentialLock = createLegacySequentialLock({ store });
+    it('swallows errors thrown during lock release', async () => {
+        expect.hasAssertions();
 
-        class Svc {
-            async fail(): Promise<void> {
-                throw new Error('legacy fail');
-            }
-        }
-
-        const proto = Svc.prototype as unknown as Record<string, unknown>;
-        const descriptor: PropertyDescriptor = {
-            value: proto['fail'],
-            writable: true,
-            configurable: true,
-        };
-
-        const result = SequentialLock<readonly []>('lerr')(proto as object, 'fail', descriptor);
-        const svc = new Svc();
-        svc.fail = result.value as typeof svc.fail;
-
-        await expect(svc.fail()).rejects.toThrow('legacy fail');
-
-        const handle = await store.acquire('lerr', 'sequential');
-        expect(handle.key).toBe('lerr');
-        void handle.release();
-    });
-
-    it('swallows release errors silently', async () => {
-        const releaseError = new Error('rel fail');
-        const mockHandle = {
-            key: 'lr',
+        const failingHandle = {
+            key: 'order-release',
             mode: 'sequential' as const,
-            release: jest.fn<() => Promise<void>>().mockRejectedValue(releaseError),
+            release: jest.fn<() => Promise<void>>().mockRejectedValue(new Error('release failure')),
         };
         const mockStore = {
-            acquire: jest.fn<typeof mockHandle.release>().mockResolvedValue(mockHandle as never),
+            acquire: jest.fn<() => Promise<typeof failingHandle>>().mockResolvedValue(failingHandle),
         } as unknown as LockStoreInterface;
 
-        const SequentialLock = createLegacySequentialLock({ store: mockStore });
+        const LocalSeqLock = createLegacySequentialLock({ store: mockStore });
 
-        class Svc {
-            async work(): Promise<string> {
-                return 'done';
+        class InventoryService {
+            @LocalSeqLock('order-release')
+            async adjustStock(_sku: string, delta: number): Promise<number> {
+                return delta;
             }
         }
 
-        const proto = Svc.prototype as unknown as Record<string, unknown>;
-        const descriptor: PropertyDescriptor = {
-            value: proto['work'],
-            writable: true,
-            configurable: true,
-        };
-
-        const result = SequentialLock<readonly []>('lr')(proto as object, 'work', descriptor);
-        const svc = new Svc();
-        svc.work = result.value as typeof svc.work;
-
-        expect(await svc.work()).toBe('done');
+        const svc = new InventoryService();
+        await expect(svc.adjustStock('sku-1', 5)).resolves.toBe(5);
     });
 
-    it('returns original descriptor when value is not a function', () => {
-        const store = createInMemoryLockStore();
-        const SequentialLock = createLegacySequentialLock({ store });
+    it('returns the original descriptor unchanged when applied to a non-function property', () => {
+        expect.hasAssertions();
 
-        const descriptor: PropertyDescriptor = {
-            get: (): string => 'prop',
-            configurable: true,
-        };
+        const localStore = createInMemoryLockStore();
+        const LocalSeqLock = createLegacySequentialLock({ store: localStore });
 
-        const result = SequentialLock<readonly []>('noop')({} as object, 'prop', descriptor);
+        const descriptor: PropertyDescriptor = { get: (): string => 'catalog-value', configurable: true };
+        const result = LocalSeqLock('catalog-prop')({} as object, 'catalogProp', descriptor);
+
         expect(result).toBe(descriptor);
     });
 
-    it('rejects with LockAcquireTimeoutError when timed out', async () => {
-        const store = createInMemoryLockStore();
-        const held = await store.acquire('lto', 'sequential');
-        const SequentialLock = createLegacySequentialLock({ store });
+    it('second call times out while the first is running on the same key', async () => {
+        expect.hasAssertions();
 
-        class Svc {
-            async op(): Promise<void> {
-                await Promise.resolve();
+        const localStore = createInMemoryLockStore();
+        const LocalSeqLock = createLegacySequentialLock({ store: localStore });
+
+        class WarehouseService {
+            @LocalSeqLock('warehouse-dispatch')
+            async dispatch(orderId: string): Promise<string> {
+                await wait(50);
+                
+return `dispatched:${orderId}`;
+            }
+
+            @LocalSeqLock({ key: 'warehouse-dispatch', timeoutMs: 10 })
+            async dispatchFast(orderId: string): Promise<string> {
+                return `fast:${orderId}`;
             }
         }
 
-        const proto = Svc.prototype as unknown as Record<string, unknown>;
-        const descriptor: PropertyDescriptor = {
-            value: proto['op'],
-            writable: true,
-            configurable: true,
-        };
-
-        const result = SequentialLock<readonly []>({ key: 'lto', timeoutMs: 10 })(proto as object, 'op', descriptor);
-        const svc = new Svc();
-        svc.op = result.value as typeof svc.op;
-
-        await expect(svc.op()).rejects.toBeInstanceOf(LockAcquireTimeoutError);
-        void held.release();
+        const svc = new WarehouseService();
+        const slowDispatch = svc.dispatch('order-A');
+        await expect(svc.dispatchFast('order-B')).rejects.toBeInstanceOf(LockAcquireTimeoutError);
+        await expect(slowDispatch).resolves.toBe('dispatched:order-A');
     });
 });

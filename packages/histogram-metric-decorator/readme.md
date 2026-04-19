@@ -5,7 +5,7 @@ Framework-agnostic method decorator for recording call durations into any histog
 [![npm version](https://badge.fury.io/js/%40rnw-community%2Fhistogram-metric-decorator.svg)](https://badge.fury.io/js/%40rnw-community%2Fhistogram-metric-decorator)
 [![npm downloads](https://img.shields.io/npm/dm/%40rnw-community%2Fhistogram-metric-decorator.svg)](https://www.npmjs.com/package/%40rnw-community%2Fhistogram-metric-decorator)
 
-Built on [@rnw-community/decorators-core](../decorators-core). Ships both TC39 stage-3 and legacy (`experimentalDecorators`) factories. Measures sync method duration on return and Promise method duration on settlement.
+Built on [@rnw-community/decorators-core](../decorators-core). Targets TypeScript's `experimentalDecorators` mode. Measures sync method duration on return and Promise method duration on settlement.
 
 ## Supported return shapes
 
@@ -23,12 +23,12 @@ Built on [@rnw-community/decorators-core](../decorators-core). Ships both TC39 s
 yarn add @rnw-community/histogram-metric-decorator @rnw-community/decorators-core
 ```
 
-## Usage — stage-3
+## Usage
 
 ```ts
-import { createHistogramMetric, inMemoryHistogramTransport } from '@rnw-community/histogram-metric-decorator';
+import { createLegacyHistogramMetric, inMemoryHistogramTransport } from '@rnw-community/histogram-metric-decorator';
 
-const HistogramMetric = createHistogramMetric({ transport: inMemoryHistogramTransport() });
+const HistogramMetric = createLegacyHistogramMetric({ transport: inMemoryHistogramTransport() });
 
 class OrderService {
     @HistogramMetric()
@@ -39,18 +39,9 @@ class OrderService {
 }
 ```
 
-## Usage — legacy (`experimentalDecorators`)
-
-```ts
-import { createLegacyHistogramMetric } from '@rnw-community/histogram-metric-decorator';
-
-const HistogramMetric = createLegacyHistogramMetric({ transport: myTransport });
-```
-
 ## Public API
 
-- [`createHistogramMetric`](src/factory/create-histogram-metric.ts) — stage-3 decorator factory
-- [`createLegacyHistogramMetric`](src/factory/create-legacy-histogram-metric.ts) — legacy decorator factory
+- [`createLegacyHistogramMetric`](src/factory/create-legacy-histogram-metric/create-legacy-histogram-metric.ts) — decorator factory
 - [`inMemoryHistogramTransport`](src/transport/in-memory-histogram-transport.ts) — test-ready transport with `snapshot()`
 - [`HistogramTransportInterface`](src/interface/histogram-transport.interface.ts) — transport contract
 - [`HistogramOptionsInterface`](src/interface/histogram-options.interface.ts) — per-decoration options (`name`, `labels`)

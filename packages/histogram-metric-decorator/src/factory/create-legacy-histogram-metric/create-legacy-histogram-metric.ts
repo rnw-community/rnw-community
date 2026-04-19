@@ -1,8 +1,7 @@
 import { createLegacyInterceptor } from '@rnw-community/decorators-core';
 
-
-import type { CreateHistogramMetricOptionsInterface } from '../interface/create-histogram-metric-options.interface';
-import type { HistogramOptionsInterface } from '../interface/histogram-options.interface';
+import type { CreateHistogramMetricOptionsInterface } from '../../interface/create-histogram-metric-options.interface';
+import type { HistogramOptionsInterface } from '../../interface/histogram-options.interface';
 import type { LegacyMethodDecoratorType } from '@rnw-community/decorators-core';
 
 export const createLegacyHistogramMetric =

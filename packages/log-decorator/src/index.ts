@@ -4,7 +4,6 @@ export type { PreLogInputType } from './pre-log-input.type';
 export type { PostLogInputType } from './post-log-input.type';
 export type { ErrorLogInputType } from './error-log-input.type';
 
-export { consoleTransport } from './console-transport';
+export { consoleTransport } from './console-transport/console-transport';
 
-export { createLog } from './create-log';
-export { createLegacyLog } from './create-legacy-log';
+export { createLegacyLog } from './create-legacy-log/create-legacy-log';
