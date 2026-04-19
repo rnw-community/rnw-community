@@ -1,0 +1,304 @@
+import { describe, expect, it } from '@jest/globals';
+
+import { LockAcquireTimeoutError } from '../../error/lock-acquire-timeout-error/lock-acquire-timeout.error';
+import { LockBusyError } from '../../error/lock-busy-error/lock-busy.error';
+import { createInMemoryLockStore } from './create-in-memory-lock-store';
+
+describe('createInMemoryLockStore', () => {
+    describe('sequential mode', () => {
+        it('acquires a lock and releases it', async () => {
+            const store = createInMemoryLockStore();
+            const handle = await store.acquire('k', 'sequential');
+            expect(handle.key).toBe('k');
+            expect(handle.mode).toBe('sequential');
+            handle.release();
+        });
+
+        it('runs concurrent sequential calls in FIFO order', async () => {
+            const store = createInMemoryLockStore();
+            const order: number[] = [];
+
+            const h1 = await store.acquire('k', 'sequential');
+
+            const p2 = store.acquire('k', 'sequential').then(async (h) => {
+                order.push(2);
+                h.release();
+            });
+            const p3 = store.acquire('k', 'sequential').then(async (h) => {
+                order.push(3);
+                h.release();
+            });
+
+            order.push(1);
+            h1.release();
+
+            await Promise.all([p2, p3]);
+            expect(order).toEqual([1, 2, 3]);
+        });
+
+        it('three concurrent sequential calls run in order', async () => {
+            const store = createInMemoryLockStore();
+            const order: number[] = [];
+
+            const makeTask = (n: number): Promise<void> =>
+                store.acquire('queue-key', 'sequential').then((h) => {
+                    order.push(n);
+                    h.release();
+                });
+
+            await Promise.all([makeTask(1), makeTask(2), makeTask(3)]);
+            expect(order).toEqual([1, 2, 3]);
+        });
+
+        it('different keys do not block each other', async () => {
+            const store = createInMemoryLockStore();
+            const h1 = await store.acquire('a', 'sequential');
+            const h2 = await store.acquire('b', 'sequential');
+            expect(h1.key).toBe('a');
+            expect(h2.key).toBe('b');
+            h1.release();
+            h2.release();
+        });
+
+        it('cleans up chain map when last holder releases', async () => {
+            const store = createInMemoryLockStore();
+            const h = await store.acquire('cleanup', 'sequential');
+            h.release();
+            const h2 = await store.acquire('cleanup', 'sequential');
+            expect(h2.key).toBe('cleanup');
+            h2.release();
+        });
+
+        it('rejects with LockAcquireTimeoutError when timeout expires', async () => {
+            const store = createInMemoryLockStore();
+            const h = await store.acquire('t', 'sequential');
+
+            const err = await store.acquire('t', 'sequential', { timeoutMs: 10 }).catch((e: unknown) => e);
+            expect(err).toBeInstanceOf(LockAcquireTimeoutError);
+            expect((err as LockAcquireTimeoutError).key).toBe('t');
+            expect((err as LockAcquireTimeoutError).timeoutMs).toBe(10);
+
+            h.release();
+        });
+
+        it('rejects immediately if signal is already aborted', async () => {
+            const store = createInMemoryLockStore();
+            const h = await store.acquire('ab', 'sequential');
+
+            const controller = new AbortController();
+            controller.abort();
+
+            await expect(store.acquire('ab', 'sequential', { signal: controller.signal })).rejects.toMatchObject({
+                name: 'AbortError',
+            });
+
+            h.release();
+        });
+
+        it('rejects with AbortError when signal aborts during wait', async () => {
+            const store = createInMemoryLockStore();
+            const h = await store.acquire('sig', 'sequential');
+
+            const controller = new AbortController();
+            const waitPromise = store.acquire('sig', 'sequential', { signal: controller.signal });
+
+            setTimeout(() => {
+                controller.abort();
+            }, 10);
+
+            await expect(waitPromise).rejects.toMatchObject({ name: 'AbortError' });
+
+            h.release();
+        });
+
+        it('abort while not the tail: chain remains for subsequent waiters', async () => {
+            const store = createInMemoryLockStore();
+            const h = await store.acquire('chain-abort', 'sequential');
+
+            const controller = new AbortController();
+
+            const p2 = store.acquire('chain-abort', 'sequential', { signal: controller.signal });
+            const p3 = store.acquire('chain-abort', 'sequential');
+
+            controller.abort();
+
+            await expect(p2).rejects.toMatchObject({ name: 'AbortError' });
+
+            h.release();
+            const h3 = await p3;
+            expect(h3.key).toBe('chain-abort');
+            h3.release();
+        });
+
+        it('pre-aborted signal while not the tail: chain remains for subsequent waiters', async () => {
+            const store = createInMemoryLockStore();
+            const h = await store.acquire('pre-chain-abort', 'sequential');
+
+            const controller = new AbortController();
+            controller.abort();
+
+            const p2 = store.acquire('pre-chain-abort', 'sequential', { signal: controller.signal });
+            const p3 = store.acquire('pre-chain-abort', 'sequential');
+
+            await expect(p2).rejects.toMatchObject({ name: 'AbortError' });
+
+            h.release();
+            const h3 = await p3;
+            expect(h3.key).toBe('pre-chain-abort');
+            h3.release();
+        });
+
+        it('REGRESSION: timed-out sole waiter must NOT let the next acquirer bypass the active holder', async () => {
+            const store = createInMemoryLockStore();
+            const h = await store.acquire('race', 'sequential');
+
+            const timedOut = store.acquire('race', 'sequential', { timeoutMs: 10 });
+            await expect(timedOut).rejects.toBeInstanceOf(LockAcquireTimeoutError);
+
+            let cAcquired = false;
+            const p3 = store.acquire('race', 'sequential').then((h3) => {
+                cAcquired = true;
+                h3.release();
+            });
+
+            await new Promise((r) => setTimeout(r, 20));
+            expect(cAcquired).toBe(false);
+
+            h.release();
+            await p3;
+            expect(cAcquired).toBe(true);
+        });
+
+        it('REGRESSION: aborted sole waiter must NOT let the next acquirer bypass the active holder', async () => {
+            const store = createInMemoryLockStore();
+            const h = await store.acquire('abort-race', 'sequential');
+
+            const controller = new AbortController();
+            const aborted = store.acquire('abort-race', 'sequential', { signal: controller.signal });
+            controller.abort();
+            await expect(aborted).rejects.toMatchObject({ name: 'AbortError' });
+
+            let cAcquired = false;
+            const p3 = store.acquire('abort-race', 'sequential').then((h3) => {
+                cAcquired = true;
+                h3.release();
+            });
+
+            await new Promise((r) => setTimeout(r, 20));
+            expect(cAcquired).toBe(false);
+
+            h.release();
+            await p3;
+            expect(cAcquired).toBe(true);
+        });
+
+        it('allows next waiter to proceed after timeout of previous waiter', async () => {
+            const store = createInMemoryLockStore();
+            const h = await store.acquire('next', 'sequential');
+
+            const timedOut = store.acquire('next', 'sequential', { timeoutMs: 10 });
+
+            const p3 = store.acquire('next', 'sequential');
+
+            await expect(timedOut).rejects.toBeInstanceOf(LockAcquireTimeoutError);
+            h.release();
+
+            const h3 = await p3;
+            expect(h3.key).toBe('next');
+            h3.release();
+        });
+    });
+
+    describe('exclusive mode', () => {
+        it('acquires and releases', async () => {
+            const store = createInMemoryLockStore();
+            const h = await store.acquire('ek', 'exclusive');
+            expect(h.key).toBe('ek');
+            expect(h.mode).toBe('exclusive');
+            h.release();
+        });
+
+        it('throws LockBusyError if key already held', async () => {
+            const store = createInMemoryLockStore();
+            const h = await store.acquire('busy', 'exclusive');
+
+            await expect(store.acquire('busy', 'exclusive')).rejects.toBeInstanceOf(LockBusyError);
+
+            const err = await store.acquire('busy', 'exclusive').catch((e: unknown) => e);
+            expect((err as LockBusyError).key).toBe('busy');
+
+            h.release();
+        });
+
+        it('can re-acquire after release', async () => {
+            const store = createInMemoryLockStore();
+            const h = await store.acquire('reacquire', 'exclusive');
+            h.release();
+            const h2 = await store.acquire('reacquire', 'exclusive');
+            expect(h2.key).toBe('reacquire');
+            h2.release();
+        });
+
+        it('different keys do not conflict', async () => {
+            const store = createInMemoryLockStore();
+            const h1 = await store.acquire('x', 'exclusive');
+            const h2 = await store.acquire('y', 'exclusive');
+            expect(h1.key).toBe('x');
+            expect(h2.key).toBe('y');
+            h1.release();
+            h2.release();
+        });
+
+        it('is idempotent: double release on the same handle is a no-op', async () => {
+            const store = createInMemoryLockStore();
+            const h = await store.acquire('idem', 'exclusive');
+            h.release();
+            h.release();
+            const h2 = await store.acquire('idem', 'exclusive');
+            expect(h2.key).toBe('idem');
+            h2.release();
+        });
+
+        it('stale double-release does NOT evict a fresh holder of the same key', async () => {
+            const store = createInMemoryLockStore();
+            const h1 = await store.acquire('shared', 'exclusive');
+            h1.release();
+            const h2 = await store.acquire('shared', 'exclusive');
+
+            h1.release();
+
+            await expect(store.acquire('shared', 'exclusive')).rejects.toBeInstanceOf(LockBusyError);
+            h2.release();
+        });
+    });
+
+    describe('sequential mode idempotency', () => {
+        it('is idempotent: double release on the same handle is a no-op', async () => {
+            const store = createInMemoryLockStore();
+            const h = await store.acquire('seq-idem', 'sequential');
+            h.release();
+            h.release();
+            const h2 = await store.acquire('seq-idem', 'sequential');
+            expect(h2.key).toBe('seq-idem');
+            h2.release();
+        });
+
+        it('stale double-release does NOT disturb a fresh holder', async () => {
+            const store = createInMemoryLockStore();
+            const h1 = await store.acquire('seq-shared', 'sequential');
+            h1.release();
+            const h2 = await store.acquire('seq-shared', 'sequential');
+            h1.release();
+            let p3Done = false;
+            const p3 = store.acquire('seq-shared', 'sequential').then((h) => {
+                p3Done = true;
+                h.release();
+            });
+            await new Promise((r) => setTimeout(r, 5));
+            expect(p3Done).toBe(false);
+            h2.release();
+            await p3;
+            expect(p3Done).toBe(true);
+        });
+    });
+});

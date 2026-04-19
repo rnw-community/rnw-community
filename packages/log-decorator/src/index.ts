@@ -1,12 +1,14 @@
-export type { LogTransportInterface } from './log-transport.interface';
-export { consoleTransport } from './console-transport';
+export type { LogTransportInterface } from './interface/log-transport-interface/log-transport.interface';
+export type { CreateLogOptionsInterface } from './interface/create-log-options-interface/create-log-options.interface';
 
-export type { PreLogInputType, PostLogInputType, ErrorLogInputType } from './log-input.type';
+export type { PreLogInputType } from './type/pre-log-input-type/pre-log-input.type';
+export type { PostLogInputType } from './type/post-log-input-type/post-log-input.type';
+export type { ErrorLogInputType } from './type/error-log-input-type/error-log-input.type';
+export type { SanitizerFnType } from './type/sanitizer-fn-type/sanitizer-fn.type';
 
-export type { SanitizerFnType } from './sanitizer';
-export { defaultSanitizer } from './sanitizer';
+export { consoleTransport } from './transport/console-transport/console-transport';
 
-export type { CreateLogOptionsInterface } from './create-log-options.interface';
+export { defaultSanitizer } from './util/default-sanitizer/default-sanitizer';
 
-export { createLog } from './create-log';
-export { createLegacyLog } from './create-legacy-log';
+export { createLog } from './factory/create-log/create-log';
+export { createLegacyLog } from './factory/create-legacy-log/create-legacy-log';

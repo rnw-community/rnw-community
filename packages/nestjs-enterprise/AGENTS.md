@@ -1,6 +1,6 @@
 # @rnw-community/nestjs-enterprise
 
-Enterprise-grade NestJS method decorators: distributed locking (Promise + Observable), structured logging, and Prometheus histogram metrics.
+Thin-adapter layer exposing NestJS-flavored decorators (`Log`, `HistogramMetric`, `SequentialLock`/`ExclusiveLock`, `SequentialLock$`/`ExclusiveLock$`) built on top of the universal decorator suite: `@rnw-community/decorators-core`, `@rnw-community/log-decorator`, and `@rnw-community/lock-decorator`.
 
 ## Package Commands
 
@@ -19,16 +19,17 @@ yarn lint:fix           # Fix lint issues
 ```
 src/
   decorator/
-    log/                — Log decorator (pre/post/error hooks via NestJS Logger)
-    histogram-metric/   — HistogramMetric decorator (prom-client histogram timing)
+    log/                — Log decorator (thin adapter over @rnw-community/log-decorator)
+    histogram-metric/   — HistogramMetric decorator (decorators-core + prom-client startTimer bridge)
     lock/
+      adapter/          — LockServiceStoreAdapter: bridges LockServiceInterface ↔ LockStoreInterface
       interface/        — LockServiceInterface, LockHandle
-      create-promise-lock-decorators/   — Modern DI-based promise lock factory
+      create-promise-lock-decorators/    — Modern DI-based promise lock factory (@rnw-community/lock-decorator)
       create-observable-lock-decorators/ — Modern DI-based observable lock factory
       lock-promise/     — DEPRECATED: inheritance-based promise lock
       lock-observable/  — DEPRECATED: inheritance-based observable lock
       service/          — DEPRECATED: LockableService base class
-      util/             — Lock utility functions (execute, inject, get-service, run-pre-lock)
+      util/             — Legacy lock utilities (used only by deprecated decorators)
   type/                 — PreDecoratorFunction type
 ```
 
@@ -36,24 +37,36 @@ src/
 
 PascalCase convention: `./HistogramMetric`, `./Log`, `./LockPromise`, `./LockObservable`, `./CreatePromiseLockDecorators`, `./CreateObservableLockDecorators`
 
-### Key Patterns
+### Thin-adapter architecture
+
+All three live decorator families delegate to the universal decorator suite:
+
+- **Log**: `createLegacyLog` from `@rnw-community/log-decorator` + a NestJS `Logger` transport; Observable support via `observableStrategy` from `@rnw-community/decorators-core/rxjs`; a call-shape bridge converts upstream's spread-style `(...args) => string` pre/post/error functions to the new array-style signature
+- **HistogramMetric**: `createLegacyInterceptor` from `@rnw-community/decorators-core` + a per-invocation `WeakMap<ExecutionContext, endTimer>` that preserves prom-client's native `startTimer`/`endTimer` idiom (keeping existing mock expectations intact) while driving duration through the engine (correctly awaits Promises — fixes a latent async-duration bug)
+- **Locks**: `createLegacySequentialLock` / `createLegacyExclusiveLock` from `@rnw-community/lock-decorator` + a `LockServiceStoreAdapter` that encodes multi-resource arrays into a single NUL-separated key for the new single-key store interface; setup errors (missing DI, empty key) bypass `catchErrorFn` matching upstream; `LockBusyError` is translated to the legacy `undefined`/`EMPTY` + `Error("Lock not acquired for keys: …")` shapes
+
+### Key patterns preserved from upstream
 
 - **DI-based lock factories** (modern): `createPromiseLockDecorators(LockService, duration)` returns `{ SequentialLock, ExclusiveLock }`
 - Each factory call creates a unique `Symbol('LockService')` for DI isolation — multiple factories can coexist on the same class
 - `@Inject(serviceToken)(target, symbol)` wires NestJS DI at decoration time
-- `retryCount: undefined` = sequential/blocking (waits), `retryCount: 0` = exclusive/non-blocking (skips if locked)
-- Lock release errors are silently swallowed in `finally` to avoid polluting business logic
+- Lock release errors silently swallowed
 - `preLock` can be static `string[]` or a function `(...args) => string[]`
+- Methods that return a non-Promise/non-Observable throw a descriptive error with the class-qualified method name
+- Observable error logging: `{ err: Error }` wrapping only when the error IS an Error instance; non-Error throws use the 2-arg form — applies uniformly across sync/Promise/Observable paths
 
 ### Dependencies
 
-- `@rnw-community/shared` — type guards, utility types
+- `@rnw-community/shared` — `isDefined`, `isPromise`, `isNotEmptyArray`
+- `@rnw-community/decorators-core` — interceptor engine + `observableStrategy` via `/rxjs` subpath
+- `@rnw-community/log-decorator` — `createLegacyLog` engine behind `Log`
+- `@rnw-community/lock-decorator` — `createLegacySequentialLock` / `createLegacyExclusiveLock` + `LockBusyError`
 - **Required peers**: `@nestjs/common`, `rxjs`
 - **Optional peers** (`peerDependenciesMeta`): `ioredis`, `redlock`, `prom-client` (feature-specific)
 
 ### Coverage
 
-Custom thresholds: branches **92.1%**, statements **98%**, functions **94.1%**, lines **99.9%**.
+Default monorepo threshold: **99.9%** on all metrics. Currently **100%**.
 
 ### Important Notes
 

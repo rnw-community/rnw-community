@@ -13,6 +13,9 @@ import type { PreDecoratorFunction } from '../../../type/pre-decorator-function.
 
 type LockModeType = 'sequential' | 'exclusive';
 
+const LOCK_SERVICE_NOT_INJECTED_MESSAGE =
+    'LockService was not injected. Ensure the lock service provider is registered in the NestJS module.';
+
 const resolveResources = <TArgs extends unknown[]>(
     preLock: PreDecoratorFunction<TArgs, string[]> | string[],
     args: TArgs
@@ -22,6 +25,51 @@ const resolveResources = <TArgs extends unknown[]>(
         throw new Error('Lock key is not defined');
     }
     return resources as string[];
+};
+
+const invokeOriginal = <TArgs extends unknown[]>(
+    originalMethod: (this: unknown, ...a: TArgs) => unknown,
+    self: unknown,
+    args: TArgs,
+    handle: LockHandleInterface,
+    methodName: string
+): Observable<unknown> => {
+    let result: unknown;
+    try {
+        result = originalMethod.apply(self, args);
+    } catch (err: unknown) {
+        void Promise.resolve(handle.release()).catch(() => void 0);
+        throw err;
+    }
+    if (!isObservable(result)) {
+        void Promise.resolve(handle.release()).catch(() => void 0);
+        throw new Error(`Method ${methodName} does not return an observable`);
+    }
+    return (result as Observable<unknown>).pipe(
+        finalize(() => {
+            void Promise.resolve(handle.release()).catch(() => void 0);
+        })
+    );
+};
+
+const recoverFromLockError = <TResult>(
+    error: unknown,
+    mode: LockModeType,
+    catchErrorFn$: ((error: unknown) => TResult) | undefined
+): Observable<unknown> => {
+    let normalized: unknown = error;
+    if (error instanceof LockBusyError) {
+        if (mode === 'exclusive' && !isDefined(catchErrorFn$)) {
+            return EMPTY;
+        }
+        const keys = error.key.split(RESOURCE_SEPARATOR).join(', ');
+        normalized = new Error(`Lock not acquired for keys: ${keys}`);
+    }
+    if (isDefined(catchErrorFn$)) {
+        const recovery = catchErrorFn$(normalized);
+        return isObservable(recovery) ? (recovery as Observable<unknown>) : of(recovery);
+    }
+    throw normalized;
 };
 
 export const createObservableLockDecorators = (
@@ -42,65 +90,26 @@ export const createObservableLockDecorators = (
             Inject(serviceToken)(target, serviceSymbol);
 
             const methodName = `${target.constructor.name}::${String(propertyKey)}`;
-            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-            const originalMethod = descriptor.value!;
+            const originalMethod = descriptor.value as unknown as (this: unknown, ...a: TArgs) => unknown;
             const effectiveDuration = duration ?? defaultDuration;
 
-            // eslint-disable-next-line func-names
             descriptor.value = function (this: unknown, ...args: TArgs): TResult {
                 const self = this;
 
-                // eslint-disable-next-line max-statements
                 return defer(() => {
-                    // Setup errors thrown HERE surface as Observable errors on subscription
-                    // (matching upstream). They reach the subscriber directly — NOT through
-                    // the catchError below, which sits on the inner pipe and therefore only
-                    // catches runtime errors from store.acquire / method invocation.
-                    const lockService = (self as Record<symbol, unknown>)[serviceSymbol] as LockServiceInterface | undefined;
-                    if (lockService === undefined) {
-                        throw new Error(
-                            'LockService was not injected. Ensure the lock service provider is registered in the NestJS module.'
-                        );
+                    const lockService = (self as Record<symbol, unknown>)[serviceSymbol] as
+                        | LockServiceInterface
+                        | undefined;
+                    if (!isDefined(lockService)) {
+                        throw new Error(LOCK_SERVICE_NOT_INJECTED_MESSAGE);
                     }
                     const resources = resolveResources(preLock, args);
                     const joinedKey = resources.join(RESOURCE_SEPARATOR);
                     const store = createLockServiceStore(lockService, effectiveDuration);
 
                     return from(store.acquire(joinedKey, mode, {})).pipe(
-                        concatMap((handle: LockHandleInterface) => {
-                            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-                            const result = (originalMethod as unknown as (this: unknown, ...a: TArgs) => unknown).apply(
-                                self,
-                                args
-                            ) as Observable<unknown>;
-
-                            if (!isObservable(result)) {
-                                void handle.release();
-                                throw new Error(`Method ${methodName} does not return an observable`);
-                            }
-
-                            return result.pipe(
-                                finalize(() => {
-                                    void Promise.resolve(handle.release()).catch(() => void 0);
-                                })
-                            );
-                        }),
-                        catchError((error: unknown) => {
-                            let normalized: unknown = error;
-                            if (error instanceof LockBusyError) {
-                                if (mode === 'exclusive' && !isDefined(catchErrorFn$)) {
-                                    return EMPTY;
-                                }
-                                const keys = error.key.split(RESOURCE_SEPARATOR).join(', ');
-                                normalized = new Error(`Lock not acquired for keys: ${keys}`);
-                            }
-                            if (isDefined(catchErrorFn$)) {
-                                return of(catchErrorFn$(normalized)) as unknown as Observable<unknown>;
-                            }
-                            throw normalized;
-                        }),
-                        // Flatten Observable<Observable<T>> from catchErrorFn$ if user returned an Observable
-                        concatMap((value: unknown) => (isObservable(value) ? (value as Observable<unknown>) : of(value)))
+                        concatMap((handle) => invokeOriginal(originalMethod, self, args, handle, methodName)),
+                        catchError((error: unknown) => recoverFromLockError(error, mode, catchErrorFn$))
                     );
                 }) as TResult;
             } as K;

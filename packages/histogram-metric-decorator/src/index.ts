@@ -1,8 +1,12 @@
-export type { HistogramTransportInterface } from './histogram-transport.interface';
-export type { HistogramOptionsInterface } from './histogram-options.interface';
-export type { CreateHistogramMetricOptionsInterface } from './create-histogram-metric-options.interface';
-export type { InMemoryObservationInterface } from './in-memory-histogram-transport';
+export type { HistogramTransportInterface } from './interface/histogram-transport-interface/histogram-transport.interface';
+export type { HistogramOptionsInterface } from './interface/histogram-options-interface/histogram-options.interface';
+export type { CreateHistogramMetricOptionsInterface } from './interface/create-histogram-metric-options-interface/create-histogram-metric-options.interface';
 
-export { inMemoryHistogramTransport } from './in-memory-histogram-transport';
-export { createHistogramMetric } from './create-histogram-metric';
-export { createLegacyHistogramMetric } from './create-legacy-histogram-metric';
+export type {
+    InMemoryObservationInterface,
+    InMemoryHistogramTransportInterface,
+} from './transport/in-memory-histogram-transport/in-memory-histogram-transport';
+export { inMemoryHistogramTransport } from './transport/in-memory-histogram-transport/in-memory-histogram-transport';
+
+export { createHistogramMetric } from './factory/create-histogram-metric/create-histogram-metric';
+export { createLegacyHistogramMetric } from './factory/create-legacy-histogram-metric/create-legacy-histogram-metric';

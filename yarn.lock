@@ -5595,24 +5595,15 @@ __metadata:
 "@rnw-community/decorators-core@workspace:^, @rnw-community/decorators-core@workspace:packages/decorators-core":
   version: 0.0.0-use.local
   resolution: "@rnw-community/decorators-core@workspace:packages/decorators-core"
-  peerDependencies:
-    typescript: ">=5.0.0"
-  peerDependenciesMeta:
-    typescript:
-      optional: true
-  languageName: unknown
-  linkType: soft
-
-"@rnw-community/decorators-rxjs@workspace:^, @rnw-community/decorators-rxjs@workspace:packages/decorators-rxjs":
-  version: 0.0.0-use.local
-  resolution: "@rnw-community/decorators-rxjs@workspace:packages/decorators-rxjs"
   dependencies:
-    "@rnw-community/decorators-core": "workspace:^"
-    rxjs: "npm:^7.8.0"
+    "@rnw-community/shared": "npm:^1.12.1"
+    rxjs: "npm:^7.8.2"
   peerDependencies:
     rxjs: ^7.8.0
     typescript: ">=5.0.0"
   peerDependenciesMeta:
+    rxjs:
+      optional: true
     typescript:
       optional: true
   languageName: unknown
@@ -5662,6 +5653,7 @@ __metadata:
   resolution: "@rnw-community/lock-decorator@workspace:packages/lock-decorator"
   dependencies:
     "@rnw-community/decorators-core": "workspace:^"
+    "@rnw-community/shared": "workspace:^"
   peerDependencies:
     typescript: ">=5.0.0"
   peerDependenciesMeta:
@@ -5689,7 +5681,6 @@ __metadata:
   dependencies:
     "@nestjs/common": "npm:^10.4.22"
     "@rnw-community/decorators-core": "workspace:^"
-    "@rnw-community/decorators-rxjs": "workspace:^"
     "@rnw-community/log-decorator": "workspace:^"
     "@rnw-community/shared": "npm:^1.12.1"
     ioredis: "npm:^5.9.3"
@@ -5924,7 +5915,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@rnw-community/shared@npm:^1.12.1, @rnw-community/shared@workspace:*, @rnw-community/shared@workspace:packages/shared":
+"@rnw-community/shared@npm:^1.12.1, @rnw-community/shared@workspace:*, @rnw-community/shared@workspace:^, @rnw-community/shared@workspace:packages/shared":
   version: 0.0.0-use.local
   resolution: "@rnw-community/shared@workspace:packages/shared"
   languageName: unknown
@@ -18823,7 +18814,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"rxjs@npm:^7.8.0, rxjs@npm:^7.8.2":
+"rxjs@npm:^7.8.2":
   version: 7.8.2
   resolution: "rxjs@npm:7.8.2"
   dependencies:
