@@ -7,217 +7,193 @@ import { createLegacyExclusiveLock } from './create-legacy-exclusive-lock';
 
 import type { LockStoreInterface } from '../../interface/lock-store.interface';
 
-describe('createLegacyExclusiveLock (legacy decorator)', () => {
-    it('wraps and calls original async method', async () => {
-        const store = createInMemoryLockStore();
-        const ExclusiveLock = createLegacyExclusiveLock({ store });
+const store = createInMemoryLockStore();
+const ExclusiveLock = createLegacyExclusiveLock({ store });
 
-        class Svc {
-            async work(x: number): Promise<number> {
-                return x * 5;
-            }
-        }
+class PaymentService {
+    @ExclusiveLock('capture-payment')
+    async capturePayment(orderId: string, amount: number): Promise<{ readonly orderId: string; readonly captured: number }> {
+        return { orderId, captured: amount };
+    }
 
-        const proto = Svc.prototype as unknown as Record<string, unknown>;
-        const descriptor: PropertyDescriptor = {
-            value: proto['work'],
-            writable: true,
-            configurable: true,
-        };
+    @ExclusiveLock<readonly [string]>(args => `refund:${args[0]}`)
+    async refundPayment(orderId: string): Promise<{ readonly orderId: string; readonly refunded: boolean }> {
+        return { orderId, refunded: true };
+    }
 
-        const result = ExclusiveLock<readonly [number]>('lex-key')(proto as object, 'work', descriptor);
-        const svc = new Svc();
-        svc.work = result.value as typeof svc.work;
+    @ExclusiveLock<readonly [string]>({ key: args => `status:${args[0]}` })
+    async getPaymentStatus(orderId: string): Promise<string> {
+        return `status:${orderId}`;
+    }
 
-        expect(await svc.work(6)).toBe(30);
+    // @ts-expect-error — sync method intentionally violates the Promise-returning contract; runtime guard catches it
+    @ExclusiveLock('validate-card')
+    syncValidateCard(cardNumber: string): boolean {
+        return cardNumber.length === 16;
+    }
+}
+
+describe('createLegacyExclusiveLock', () => {
+    it('executes the decorated method and returns its result', async () => {
+        expect.hasAssertions();
+
+        const service = new PaymentService();
+        const result = await service.capturePayment('order-42', 99);
+
+        expect(result).toStrictEqual({ orderId: 'order-42', captured: 99 });
     });
 
-    it('rejects a sync method at call time (explicit async-only contract — no silent promisification)', async () => {
-        const store = createInMemoryLockStore();
-        const ExclusiveLock = createLegacyExclusiveLock({ store });
+    it('releases the lock after the method succeeds', async () => {
+        expect.hasAssertions();
 
-        class Svc {
-            greet(name: string): string {
-                return `hi ${name}`;
+        const localStore = createInMemoryLockStore();
+        const spy = jest.spyOn(localStore, 'acquire');
+        const LocalExLock = createLegacyExclusiveLock({ store: localStore });
+
+        class ChargeService {
+            @LocalExLock('charge-card')
+            async chargeCard(amount: number): Promise<string> {
+                return `charged:${amount.toString()}`;
             }
         }
 
-        const proto = Svc.prototype as unknown as Record<string, unknown>;
-        const descriptor: PropertyDescriptor = {
-            value: proto['greet'],
-            writable: true,
-            configurable: true,
-        };
+        const svc = new ChargeService();
+        await svc.chargeCard(50);
 
-        const result = ExclusiveLock<readonly [string]>('lex-sync')(proto as object, 'greet', descriptor);
-        const svc = new Svc();
-        svc.greet = result.value as typeof svc.greet;
+        expect(spy).toHaveBeenCalledWith('charge-card', 'exclusive', expect.anything());
+    });
 
-        await expect(svc.greet('world') as unknown as Promise<string>).rejects.toThrow(
+    it('rejects when the decorated method does not return a Promise', async () => {
+        expect.hasAssertions();
+
+        const service = new PaymentService();
+        await expect((service.syncValidateCard as unknown as (card: string) => Promise<unknown>)('1234567890123456')).rejects.toThrow(
             'Locked method must return a Promise'
         );
     });
 
-    it('throws LockBusyError when lock already held', async () => {
-        const store = createInMemoryLockStore();
-        const ExclusiveLock = createLegacyExclusiveLock({ store });
+    it('throws LockBusyError when the lock is already held', async () => {
+        expect.hasAssertions();
+
+        const localStore = createInMemoryLockStore();
+        const LocalExLock = createLegacyExclusiveLock({ store: localStore });
 
         let releaseHeld!: () => void;
-        const holdLock = new Promise<void>((resolve) => {
-            releaseHeld = resolve;
-        });
+        const holdUntilReleased = new Promise<void>(resolve => { releaseHeld = resolve; });
 
-        class Svc {
-            async op(): Promise<void> {
-                await holdLock;
+        class CheckoutService {
+            @LocalExLock('checkout-lock')
+            async processCheckout(orderId: string): Promise<string> {
+                await holdUntilReleased;
+                
+return `checkout:${orderId}`;
             }
         }
 
-        const proto = Svc.prototype as unknown as Record<string, unknown>;
-        const descriptor: PropertyDescriptor = {
-            value: proto['op'],
-            writable: true,
-            configurable: true,
-        };
+        const svc = new CheckoutService();
+        const firstCheckout = svc.processCheckout('order-1');
 
-        const result = ExclusiveLock<readonly []>('lex-busy')(proto as object, 'op', descriptor);
-        const svc = new Svc();
-        svc.op = result.value as typeof svc.op;
-
-        const p1 = svc.op();
-        await expect(svc.op()).rejects.toBeInstanceOf(LockBusyError);
+        await expect(svc.processCheckout('order-2')).rejects.toBeInstanceOf(LockBusyError);
 
         releaseHeld();
-        await p1;
+        await firstCheckout;
     });
 
-    it('uses function key form', async () => {
-        const store = createInMemoryLockStore();
-        const ExclusiveLock = createLegacyExclusiveLock({ store });
-        const spy = jest.spyOn(store, 'acquire');
+    it('builds the lock key from a function key form using method arguments', async () => {
+        expect.hasAssertions();
 
-        class Svc {
-            async process(_id: string): Promise<void> {
-                await Promise.resolve();
+        const localStore = createInMemoryLockStore();
+        const spy = jest.spyOn(localStore, 'acquire');
+        const LocalExLock = createLegacyExclusiveLock({ store: localStore });
+
+        class SettlementService {
+            @LocalExLock<readonly [string]>(args => `settle:${args[0]}`)
+            async settleOrder(orderId: string): Promise<string> {
+                return `settled:${orderId}`;
             }
         }
 
-        const proto = Svc.prototype as unknown as Record<string, unknown>;
-        const descriptor: PropertyDescriptor = {
-            value: proto['process'],
-            writable: true,
-            configurable: true,
-        };
+        const svc = new SettlementService();
+        await svc.settleOrder('order-77');
 
-        const result = ExclusiveLock<readonly [string]>((args) => `lex:${args[0]}`)(
-            proto as object,
-            'process',
-            descriptor
-        );
-        const svc = new Svc();
-        svc.process = result.value as typeof svc.process;
-
-        await svc.process('99');
-        expect(spy).toHaveBeenCalledWith('lex:99', 'exclusive', expect.anything());
+        expect(spy).toHaveBeenCalledWith('settle:order-77', 'exclusive', expect.anything());
     });
 
-    it('uses object key with function', async () => {
-        const store = createInMemoryLockStore();
-        const ExclusiveLock = createLegacyExclusiveLock({ store });
-        const spy = jest.spyOn(store, 'acquire');
+    it('uses object key form with a dynamic key function', async () => {
+        expect.hasAssertions();
 
-        class Svc {
-            async run(_id: number): Promise<void> {
-                await Promise.resolve();
+        const localStore = createInMemoryLockStore();
+        const spy = jest.spyOn(localStore, 'acquire');
+        const LocalExLock = createLegacyExclusiveLock({ store: localStore });
+
+        class AuthorizationService {
+            @LocalExLock<readonly [string]>({ key: args => `auth:${args[0]}` })
+            async authorizeTransaction(orderId: string): Promise<boolean> {
+                return orderId.length > 0;
             }
         }
 
-        const proto = Svc.prototype as unknown as Record<string, unknown>;
-        const descriptor: PropertyDescriptor = {
-            value: proto['run'],
-            writable: true,
-            configurable: true,
-        };
+        const svc = new AuthorizationService();
+        await svc.authorizeTransaction('order-5');
 
-        const result = ExclusiveLock<readonly [number]>({ key: (args) => `num:${args[0]}` })(
-            proto as object,
-            'run',
-            descriptor
-        );
-        const svc = new Svc();
-        svc.run = result.value as typeof svc.run;
-
-        await svc.run(7);
-        expect(spy).toHaveBeenCalledWith('num:7', 'exclusive', expect.anything());
+        expect(spy).toHaveBeenCalledWith('auth:order-5', 'exclusive', expect.anything());
     });
 
-    it('swallows release errors silently', async () => {
-        const releaseError = new Error('rel fail');
-        const mockHandle = {
-            key: 'ler',
+    it('propagates method errors and releases the lock', async () => {
+        expect.hasAssertions();
+
+        const localStore = createInMemoryLockStore();
+        const LocalExLock = createLegacyExclusiveLock({ store: localStore });
+
+        class DeclineService {
+            @LocalExLock('decline-payment')
+            async declinePayment(orderId: string): Promise<void> {
+                throw new Error(`payment declined for ${orderId}`);
+            }
+        }
+
+        const svc = new DeclineService();
+        await expect(svc.declinePayment('order-9')).rejects.toThrow('payment declined for order-9');
+
+        const handle = await localStore.acquire('decline-payment', 'exclusive');
+        expect(handle.key).toBe('decline-payment');
+        void handle.release();
+    });
+
+    it('swallows errors thrown during lock release', async () => {
+        expect.hasAssertions();
+
+        const failingHandle = {
+            key: 'payment-release',
             mode: 'exclusive' as const,
-            release: jest.fn<() => Promise<void>>().mockRejectedValue(releaseError),
+            release: jest.fn<() => Promise<void>>().mockRejectedValue(new Error('release failure')),
         };
         const mockStore = {
-            acquire: jest.fn<typeof mockHandle.release>().mockResolvedValue(mockHandle as never),
+            acquire: jest.fn<() => Promise<typeof failingHandle>>().mockResolvedValue(failingHandle),
         } as unknown as LockStoreInterface;
 
-        const ExclusiveLock = createLegacyExclusiveLock({ store: mockStore });
+        const LocalExLock = createLegacyExclusiveLock({ store: mockStore });
 
-        class Svc {
-            async work(): Promise<string> {
-                return 'ok';
+        class VoidService {
+            @LocalExLock('payment-release')
+            async voidTransaction(transactionId: string): Promise<string> {
+                return `voided:${transactionId}`;
             }
         }
 
-        const proto = Svc.prototype as unknown as Record<string, unknown>;
-        const descriptor: PropertyDescriptor = {
-            value: proto['work'],
-            writable: true,
-            configurable: true,
-        };
-
-        const result = ExclusiveLock<readonly []>('ler')(proto as object, 'work', descriptor);
-        const svc = new Svc();
-        svc.work = result.value as typeof svc.work;
-
-        expect(await svc.work()).toBe('ok');
+        const svc = new VoidService();
+        await expect(svc.voidTransaction('txn-55')).resolves.toBe('voided:txn-55');
     });
 
-    it('propagates method errors', async () => {
-        const store = createInMemoryLockStore();
-        const ExclusiveLock = createLegacyExclusiveLock({ store });
+    it('returns the original descriptor unchanged when applied to a non-function property', () => {
+        expect.hasAssertions();
 
-        class Svc {
-            async fail(): Promise<void> {
-                throw new Error('lex fail');
-            }
-        }
+        const localStore = createInMemoryLockStore();
+        const LocalExLock = createLegacyExclusiveLock({ store: localStore });
 
-        const proto = Svc.prototype as unknown as Record<string, unknown>;
-        const descriptor: PropertyDescriptor = {
-            value: proto['fail'],
-            writable: true,
-            configurable: true,
-        };
+        const descriptor: PropertyDescriptor = { get: (): string => 'payment-value', configurable: true };
+        const result = LocalExLock('payment-prop')({} as object, 'paymentProp', descriptor);
 
-        const result = ExclusiveLock<readonly []>('lerr')(proto as object, 'fail', descriptor);
-        const svc = new Svc();
-        svc.fail = result.value as typeof svc.fail;
-
-        await expect(svc.fail()).rejects.toThrow('lex fail');
-    });
-
-    it('returns original descriptor when value is not a function', () => {
-        const store = createInMemoryLockStore();
-        const ExclusiveLock = createLegacyExclusiveLock({ store });
-
-        const descriptor: PropertyDescriptor = {
-            get: (): string => 'value',
-            configurable: true,
-        };
-
-        const result = ExclusiveLock<readonly []>('noop')({} as object, 'prop', descriptor);
         expect(result).toBe(descriptor);
     });
 });

@@ -101,6 +101,10 @@ Allowed pragma comments only (no other exceptions):
 
 No JSDoc usage examples in source. No `@example`, no `@see`. Examples live in `readme.md` and per-entity `.md` files.
 
+### Decorator factories — legacy decorators only
+
+This codebase ships method decorators built on TypeScript's `experimentalDecorators` mode (legacy decorator semantics). TC39 stage-3 decorators are NOT supported. The decision is driven by test-runtime ergonomics: the project's Jest+Babel pipeline uses `@babel/plugin-proposal-decorators` with `{ legacy: true }`, which silently no-ops stage-3 decorators when applied via `@` syntax. Consumers must enable `experimentalDecorators: true` in their tsconfig. Every decorator factory exposes a single `createLegacy*` entry point.
+
 ### Decorator factories — automatic type inference
 
 Every decorator factory in this codebase MUST let TypeScript infer callback parameter types from the decorated method's signature. Consumers must NOT have to spell out generics like `@Log<readonly unknown[], number>(...)` to get a typed `arg`. Factory call shapes use spread form: callbacks like `preLog`, `postLog`, `errorLog`, `catchErrorFn`, lock key-fns, and histogram `labels` accept `(...args: TArgs) => ...` so a real-world call like `@Log((id, qty) => …)` resolves `id` and `qty` to the actual method arg types. The factory's generic shape is `<TArgs extends readonly unknown[], TResult>` where `TArgs` and `TResult` derive from the decorated method's `Parameters` and `ReturnType`. Legacy `experimentalDecorators` decorators have a known TypeScript limitation here — when full inference is impossible without consumer-side generics, prefer the spread-form callback shape and document the limitation in the package's readme rather than papering over it with array-form callbacks.

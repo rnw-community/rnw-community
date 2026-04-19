@@ -6,5 +6,4 @@ export type { InMemoryObservationInterface } from './transport/in-memory-observa
 export type { InMemoryHistogramTransportInterface } from './transport/in-memory-histogram-transport.interface';
 export { inMemoryHistogramTransport } from './transport/in-memory-histogram-transport';
 
-export { createHistogramMetric } from './factory/create-histogram-metric';
-export { createLegacyHistogramMetric } from './factory/create-legacy-histogram-metric';
+export { createLegacyHistogramMetric } from './factory/create-legacy-histogram-metric/create-legacy-histogram-metric';
