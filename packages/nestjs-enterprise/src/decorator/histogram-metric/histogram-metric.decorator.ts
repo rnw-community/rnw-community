@@ -29,12 +29,13 @@ export const HistogramMetric =
         // decorators-core engine drives the enter/success/error lifecycle.
         const timers = new WeakMap<ExecutionContextInterface<TArgs>, EndTimerFnType>();
 
+        // The timer MUST have been set by onEnter before onSuccess/onError fire for the
+        // same ExecutionContext — the decorators-core engine guarantees this ordering.
+        // Using optional-call + unconditional delete removes the "missing entry" branch
+        // entirely while staying safe against a hypothetical contract violation.
         const endTimer = (context: ExecutionContextInterface<TArgs>): void => {
-            const end = timers.get(context);
-            if (end !== undefined) {
-                end();
-                timers.delete(context);
-            }
+            timers.get(context)?.();
+            timers.delete(context);
         };
 
         return createLegacyInterceptor<TArgs, TResult>({

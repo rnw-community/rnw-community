@@ -1,5 +1,5 @@
 import { describe, expect, it, jest } from '@jest/globals';
-import { Histogram } from 'prom-client';
+import { Histogram, register } from 'prom-client';
 
 import { HistogramMetric } from './histogram-metric.decorator';
 
@@ -70,5 +70,26 @@ describe(`HistogramMetric decorator`, () => {
             help: 'test-metric',
         });
         expect(mockEndTimer).toHaveBeenCalledWith();
+    });
+
+    it('should reuse an already-registered histogram without constructing a new one', () => {
+        expect.assertions(2);
+
+        const existingHistogram = { startTimer: jest.fn().mockImplementation(() => mockEndTimer) };
+        (Histogram as unknown as jest.Mock).mockClear();
+        (register.getSingleMetric as jest.Mock).mockReturnValueOnce(existingHistogram);
+
+        class ReuseTestClass {
+            @HistogramMetric('reuse-metric')
+            run(): number {
+                return 42;
+            }
+        }
+
+        new ReuseTestClass().run();
+
+        // The decorator saw an existing metric and must NOT construct a new Histogram
+        expect(Histogram).not.toHaveBeenCalled();
+        expect(existingHistogram.startTimer).toHaveBeenCalledWith();
     });
 });

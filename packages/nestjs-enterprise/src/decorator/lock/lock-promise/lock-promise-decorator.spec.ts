@@ -222,6 +222,21 @@ describe('LockPromiseDecorator', () => {
         expect(resultCallOrder).toBeLessThan(releaseCallOrder);
     });
 
+    it('swallows release errors silently when sync method triggers the non-Promise throw path', async () => {
+        expect.assertions(2);
+
+        const instance = new TestClass();
+        // Release will reject — the decorator must swallow that rejection via .catch(() => void 0)
+        // on the sync-early-exit path (before throwing "does not return a promise").
+        mockRelease.mockRejectedValueOnce(new Error('release-failed-on-sync-path'));
+
+        // testSync returns a number (not Promise) — triggers the early release + throw path
+        await expect(instance.testSync()).rejects.toThrow(
+            'Method TestClass::testSync does not return a promise'
+        );
+        expect(mockRelease).toHaveBeenCalledWith();
+    });
+
     it('should funnel "Lock not acquired" into catchErrorFn when exclusive tryAcquire fails', async () => {
         expect.assertions(3);
 

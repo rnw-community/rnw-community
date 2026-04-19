@@ -236,6 +236,19 @@ describe('LockObservableDecorator', () => {
         expect(resultCallOrder).toBeLessThan(releaseCallOrder);
     });
 
+    it('swallows release errors silently when sync method triggers the non-Observable throw path', async () => {
+        expect.assertions(2);
+
+        const instance = new TestObservableClass();
+        mockRelease.mockRejectedValueOnce(new Error('release-failed-on-sync-path'));
+
+        // testExclusiveSync returns a number (not Observable) — early release + throw path
+        await expect(lastValueFrom(instance.testExclusiveSync() as unknown as Observable<unknown>)).rejects.toThrow(
+            'Method TestObservableClass::testExclusiveSync does not return an observable'
+        );
+        expect(mockRelease).toHaveBeenCalledWith();
+    });
+
     it('should funnel "Lock not acquired" into catchErrorFn$ when exclusive tryAcquire fails', async () => {
         expect.assertions(3);
 
