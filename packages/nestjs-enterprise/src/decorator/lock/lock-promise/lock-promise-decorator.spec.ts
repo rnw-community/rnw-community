@@ -83,6 +83,15 @@ class TestClass extends LockableService {
     testExclusiveSync(): number {
         return this.field;
     }
+
+    @LockPromise(['test'], 1000, (err: unknown) => {
+        mockErrorFn(err);
+
+        return Promise.resolve(0);
+    }, 0)
+    async testExclusiveLockNotAcquiredErrorFn(): Promise<number> {
+        return Promise.resolve(this.field);
+    }
 }
 
  
@@ -211,6 +220,21 @@ describe('LockPromiseDecorator', () => {
         const [releaseCallOrder] = mockRelease.mock.invocationCallOrder;
 
         expect(resultCallOrder).toBeLessThan(releaseCallOrder);
+    });
+
+    it('should funnel "Lock not acquired" into catchErrorFn when exclusive tryAcquire fails', async () => {
+        expect.assertions(3);
+
+        mockErrorFn.mockReset();
+        const instance = new TestClass();
+        // getRedlockService wraps exclusive acquire with .catch(() => undefined) — simulate that
+        mockAcquire.mockRejectedValueOnce(new Error('redlock acquire failed'));
+
+        await expect(instance.testExclusiveLockNotAcquiredErrorFn()).resolves.toBe(0);
+        expect(mockErrorFn).toHaveBeenCalledWith(
+            expect.objectContaining({ message: expect.stringContaining('Lock not acquired') })
+        );
+        expect(mockRelease).not.toHaveBeenCalled();
     });
 
     describe('retryCount: 0 (exclusive mode)', () => {

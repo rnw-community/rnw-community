@@ -6,7 +6,6 @@ import type { SanitizerFnType } from './sanitizer';
 export interface CreateLogOptionsInterface {
     readonly transport: LogTransportInterface;
     readonly sanitizer?: SanitizerFnType;
-    readonly devGate?: () => boolean;
     readonly strategies?: readonly ResultStrategyInterface[];
     readonly measureDuration?: boolean;
 }

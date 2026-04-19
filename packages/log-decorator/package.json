@@ -1,7 +1,7 @@
 {
     "name": "@rnw-community/log-decorator",
     "version": "0.1.0",
-    "description": "Universal log method decorator (pre/post/error hooks, sanitizer, devGate, duration). Stage-3 + legacy (experimentalDecorators). Zero framework dependencies.",
+    "description": "Universal log method decorator (pre/post/error hooks, sanitizer, optional duration). Stage-3 + legacy (experimentalDecorators). Zero framework dependencies.",
     "keywords": [
         "decorator",
         "log",

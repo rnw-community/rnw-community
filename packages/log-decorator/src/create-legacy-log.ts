@@ -11,18 +11,8 @@ export const createLegacyLog =
         preLog?: PreLogInputType<TArgs>,
         postLog?: PostLogInputType<TArgs, TResult>,
         errorLog?: ErrorLogInputType<TArgs>
-    ): LegacyMethodDecoratorType => {
-        if (options.devGate !== undefined && !options.devGate()) {
-            const identityDecorator: LegacyMethodDecoratorType = <T extends (this: unknown, ...args: readonly never[]) => unknown>(
-                _target: object,
-                _propertyKey: string | symbol,
-                descriptor: TypedPropertyDescriptor<T>
-            ): TypedPropertyDescriptor<T> => descriptor;
-            return identityDecorator;
-        }
-
-        return createLegacyInterceptor<TArgs, TResult>({
+    ): LegacyMethodDecoratorType =>
+        createLegacyInterceptor<TArgs, TResult>({
             interceptor: createLogInterceptor<TArgs, TResult>(options, preLog, postLog, errorLog),
             strategies: options.strategies,
         });
-    };
