@@ -1,3 +1,6 @@
+import { readFileSync } from 'node:fs';
+import { resolve as resolvePath } from 'node:path';
+
 import { describe, expect, it, jest } from '@jest/globals';
 import { Histogram, register } from 'prom-client';
 import { EMPTY, Observable, of } from 'rxjs';
@@ -107,7 +110,8 @@ describe(`HistogramMetric decorator`, () => {
                     await new Promise<void>((resolve) => {
                         setTimeout(resolve, 2);
                     });
-                    return 1;
+                    
+return 1;
                 }
             }
 
@@ -171,10 +175,7 @@ describe(`HistogramMetric decorator`, () => {
 
         it('does not wire a per-emission observable strategy (Observable support intentionally removed)', () => {
             expect.assertions(1);
-            const sourceText = require('fs').readFileSync(
-                require('path').resolve(__dirname, 'histogram-metric.decorator.ts'),
-                'utf8'
-            ) as string;
+            const sourceText = readFileSync(resolvePath(__dirname, 'histogram-metric.decorator.ts'), 'utf8');
             expect(sourceText).not.toContain('observableStrategy');
         });
     });
