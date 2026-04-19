@@ -3,6 +3,8 @@ import { Observable, lastValueFrom, of, throwError } from 'rxjs';
 
 import { createInMemoryLockStore } from '../../store/create-in-memory-lock-store/create-in-memory-lock-store';
 import { LockBusyError } from '../../error/lock-busy-error/lock-busy.error';
+import type { LockHandleInterface } from '../../interface/lock-handle-interface/lock-handle.interface';
+import type { LockStoreInterface } from '../../interface/lock-store-interface/lock-store.interface';
 import { runWithLock$ } from './run-with-lock-rxjs';
 
 describe('runWithLock$', () => {
