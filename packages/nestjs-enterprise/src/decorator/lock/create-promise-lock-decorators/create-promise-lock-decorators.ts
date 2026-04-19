@@ -8,7 +8,7 @@ import { LOCK_SERVICE_NOT_INJECTED_MESSAGE } from '../lock-service-not-injected-
 import { resolveResources } from '../resolve-resources';
 import { RESOURCE_SEPARATOR } from '../resource-separator.const';
 
-import type { PreDecoratorFunction } from '../../../pre-decorator-function.type';
+import type { PreDecoratorFunction } from '../../../type/pre-decorator-function.type';
 import type { LockServiceInterface } from '../interface/lock-service.interface';
 import type { LockHandleInterface } from '@rnw-community/lock-decorator';
 import type { AbstractConstructor, MethodDecoratorType } from '@rnw-community/shared';

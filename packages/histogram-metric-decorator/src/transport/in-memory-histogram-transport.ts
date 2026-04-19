@@ -1,5 +1,5 @@
-import type { InMemoryHistogramTransportInterface } from './in-memory-histogram-transport.interface';
-import type { InMemoryObservationInterface } from './in-memory-observation.interface';
+import type { InMemoryHistogramTransportInterface } from '../interface/in-memory-histogram-transport.interface';
+import type { InMemoryObservationInterface } from '../interface/in-memory-observation.interface';
 
 export const inMemoryHistogramTransport = (): InMemoryHistogramTransportInterface => {
     const observations: InMemoryObservationInterface[] = [];

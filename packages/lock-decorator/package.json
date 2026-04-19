@@ -1,7 +1,7 @@
 {
     "name": "@rnw-community/lock-decorator",
     "version": "0.1.0",
-    "description": "Framework-agnostic sequential and exclusive method lock decorators. Dual ESM+CJS. Legacy (experimentalDecorators) + TC39 stage-3.",
+    "description": "Framework-agnostic sequential and exclusive method lock decorators. Dual ESM+CJS. Built on TypeScript's experimentalDecorators.",
     "keywords": [
         "decorator",
         "lock",
@@ -9,8 +9,6 @@
         "sequential",
         "exclusive",
         "method decorator",
-        "stage-3",
-        "tc39",
         "framework-agnostic"
     ],
     "repository": "https://github.com/rnw-community/rnw-community/tree/master/packages/lock-decorator",
@@ -20,23 +18,11 @@
             "types": "./dist/esm/index.d.ts",
             "import": "./dist/esm/index.js",
             "require": "./dist/cjs/index.js"
-        },
-        "./rxjs": {
-            "types": "./dist/esm/rxjs/index.d.ts",
-            "import": "./dist/esm/rxjs/index.js",
-            "require": "./dist/cjs/rxjs/index.js"
         }
     },
     "main": "dist/cjs/index.js",
     "module": "dist/esm/index.js",
     "types": "dist/esm/index.d.ts",
-    "typesVersions": {
-        "*": {
-            "rxjs": [
-                "./dist/esm/rxjs/index.d.ts"
-            ]
-        }
-    },
     "files": [
         "dist/**/*"
     ],

@@ -1,10 +1,11 @@
-export type { ExecutionContextInterface } from './type/execution-context.interface';
-export type { InterceptorInterface } from './type/interceptor.interface';
-export type { ResultStrategyInterface } from './type/result-strategy.interface';
+export type { ExecutionContextInterface } from './interface/execution-context.interface';
+export type { InterceptorInterface } from './interface/interceptor.interface';
+export type { ResultStrategyInterface } from './interface/result-strategy.interface';
+export type { MethodDecoratorType } from './type/method-decorator.type';
 
-export type { CreateLegacyInterceptorOptionsInterface } from './engine/create-legacy-interceptor/create-legacy-interceptor-options.interface';
-export type { LegacyMethodDecoratorType } from './engine/create-legacy-interceptor/legacy-method-decorator.type';
+export type { CreateInterceptorOptionsInterface } from './interface/create-interceptor-options.interface';
 
-export { createLegacyInterceptor } from './engine/create-legacy-interceptor/create-legacy-interceptor';
+export { createInterceptor } from './engine/create-interceptor/create-interceptor';
 
 export { promiseStrategy } from './strategy/promise-strategy/promise.strategy';
+export { observableStrategy } from './strategy/observable-strategy/observable.strategy';

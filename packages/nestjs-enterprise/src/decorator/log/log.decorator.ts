@@ -1,17 +1,17 @@
 import { Logger } from '@nestjs/common';
-import { observableStrategy } from '@rnw-community/decorators-core/rxjs';
 
+import { observableStrategy } from '@rnw-community/decorators-core';
 import {
     type CreateLogOptionsInterface,
     type ErrorLogInputType,
     type LogTransportInterface,
     type PostLogInputType,
     type PreLogInputType,
-    createLegacyLog,
+    createLog,
 } from '@rnw-community/log-decorator';
 import { type AnyFn } from '@rnw-community/shared';
 
-import type { LegacyMethodDecoratorType } from '@rnw-community/decorators-core';
+import type { MethodDecoratorType } from '@rnw-community/decorators-core';
 import type { Observable } from 'rxjs';
 
 type GetResultType<T> = T extends Promise<infer U> ? U : T extends Observable<infer U> ? U : T;
@@ -33,12 +33,12 @@ const options: CreateLogOptionsInterface = {
     strategies: [observableStrategy],
 };
 
-const baseLog = createLegacyLog(options);
+const baseLog = createLog(options);
 
 export const Log =
     <K extends AnyFn, TResult extends ReturnType<K>, TArgs extends Parameters<K>>(
         preLog: PreLogInputType<TArgs>,
         postLog?: PostLogInputType<TArgs, GetResultType<TResult>>,
         errorLog?: ErrorLogInputType<TArgs>
-    ): LegacyMethodDecoratorType =>
+    ): MethodDecoratorType =>
         baseLog<TArgs, GetResultType<TResult>>(preLog, postLog, errorLog);

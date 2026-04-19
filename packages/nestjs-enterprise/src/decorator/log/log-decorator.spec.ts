@@ -38,14 +38,14 @@ class TestClass {
         throw new Error(errorLogText);
     }
 
-    // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+     
     @Log(preLogText, postLogText, (error, arg) => `${String(error)}-${arg}`)
 
     async testPromiseErrorFunction(_arg: number): Promise<number> {
         throw new Error(errorLogText);
     }
 
-    // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+     
     @Log(preLogText, (result, arg) => `${result}-${postLogText}-${arg}`)
     testObservableStrings(arg: number): Observable<number> {
         return of(arg + this.field);
@@ -56,7 +56,7 @@ class TestClass {
         return of(arg + this.field);
     }
 
-    // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+     
     @Log(arg => `${preLogText}-${arg}`, (result, arg) => `${result}-${postLogText}-${arg}`)
     testFunctions(arg: number): number {
         return arg + this.field;
@@ -67,7 +67,7 @@ class TestClass {
         throw new Error(errorLogText);
     }
 
-    // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+     
     @Log(preLogText, postLogText, (error, arg) => `${String(error)}-${errorLogText}-${arg}`)
     testErrorFunction(_arg: number): number {
         throw new Error(errorLogText);
@@ -83,25 +83,25 @@ class TestClass {
         return throwError(() => errorLogText);
     }
 
-    // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+     
     @Log(preLogText, postLogText, (error, arg) => `${String(error)}-${arg}`)
     testObservableErrorArg(_arg: number): Observable<string> {
         return throwError(() => errorLogText);
     }
 
-    // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+     
     @Log(arg => `${preLogText}-${arg}`, (result, arg) => `${result}-${postLogText}-${arg}`)
     testGeneric<T>(arg: T): T {
         return arg;
     }
 
-    // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+     
     @Log(arg => `${preLogText}-${arg}`, (result, arg) => `${result}-${postLogText}-${arg}`)
     async testGenericPromise<T>(arg: T): Promise<T> {
         return await arg;
     }
 
-    // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+     
     @Log(arg => `${preLogText}-${arg}`, (result, arg) => `${result}-${postLogText}-${arg}`)
     testGenericObservable<T>(arg: T): Observable<T> {
         return of(arg);
