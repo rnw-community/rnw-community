@@ -20,11 +20,23 @@
             "types": "./dist/esm/index.d.ts",
             "import": "./dist/esm/index.js",
             "require": "./dist/cjs/index.js"
+        },
+        "./rxjs": {
+            "types": "./dist/esm/rxjs/index.d.ts",
+            "import": "./dist/esm/rxjs/index.js",
+            "require": "./dist/cjs/rxjs/index.js"
         }
     },
     "main": "dist/cjs/index.js",
     "module": "dist/esm/index.js",
     "types": "dist/esm/index.d.ts",
+    "typesVersions": {
+        "*": {
+            "rxjs": [
+                "./dist/esm/rxjs/index.d.ts"
+            ]
+        }
+    },
     "files": [
         "dist/**/*"
     ],
@@ -52,10 +64,17 @@
         "@rnw-community/decorators-core": "workspace:^",
         "@rnw-community/shared": "workspace:^"
     },
+    "devDependencies": {
+        "rxjs": "^7.8.2"
+    },
     "peerDependencies": {
+        "rxjs": "^7.8.0",
         "typescript": ">=5.0.0"
     },
     "peerDependenciesMeta": {
+        "rxjs": {
+            "optional": true
+        },
         "typescript": {
             "optional": true
         }

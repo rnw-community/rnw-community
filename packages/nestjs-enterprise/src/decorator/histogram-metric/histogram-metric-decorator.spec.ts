@@ -3,6 +3,16 @@ import { Histogram, register } from 'prom-client';
 
 import { HistogramMetric } from './histogram-metric.decorator';
 
+const mockObserve = jest.fn();
+jest.mock('prom-client', () => ({
+    Histogram: jest.fn().mockImplementation(() => ({
+        observe: mockObserve,
+    })),
+    register: {
+        getSingleMetric: jest.fn().mockReturnValue(undefined),
+    },
+}));
+
 class TestClass {
     @HistogramMetric('test-metric')
     testMethod(): number {
@@ -20,20 +30,11 @@ class TestClass {
     }
 }
 
-const mockEndTimer = jest.fn();
-jest.mock('prom-client', () => ({
-    Histogram: jest.fn().mockImplementation(() => ({
-        startTimer: jest.fn().mockImplementation(() => mockEndTimer),
-    })),
-    register: {
-        getSingleMetric: jest.fn().mockReturnValue(undefined),
-    },
-}));
-
 describe(`HistogramMetric decorator`, () => {
-    it('should create and run histogram metric', () => {
-        expect.assertions(2);
+    it('should create a histogram and record the observation on success', () => {
+        expect.assertions(3);
 
+        mockObserve.mockClear();
         const testClass = new TestClass();
         testClass.testMethod();
 
@@ -41,12 +42,14 @@ describe(`HistogramMetric decorator`, () => {
             name: 'test-metric',
             help: 'test-metric',
         });
-        expect(mockEndTimer).toHaveBeenCalledWith();
+        expect(mockObserve).toHaveBeenCalledTimes(1);
+        expect(typeof (mockObserve as jest.Mock).mock.calls[0]?.[0]).toBe('number');
     });
 
-    it('should create and run histogram metric with configuration', () => {
+    it('should create a histogram honouring the supplied configuration', () => {
         expect.assertions(2);
 
+        mockObserve.mockClear();
         const testClass = new TestClass();
         testClass.testMethodConfiguration();
 
@@ -55,27 +58,28 @@ describe(`HistogramMetric decorator`, () => {
             help: 'test-help',
             buckets: [1],
         });
-        expect(mockEndTimer).toHaveBeenCalledWith();
+        expect(mockObserve).toHaveBeenCalledTimes(1);
     });
 
-    it('should create and run histogram metric with method error', () => {
+    it('records the observation on error paths and rethrows the original error', () => {
         expect.assertions(3);
 
+        mockObserve.mockClear();
         const testClass = new TestClass();
 
         expect(() => testClass.testMethodError()).toThrow('test-error');
-
         expect(Histogram).toHaveBeenCalledWith({
             name: 'test-metric',
             help: 'test-metric',
         });
-        expect(mockEndTimer).toHaveBeenCalledWith();
+        expect(mockObserve).toHaveBeenCalledTimes(1);
     });
 
-    it('should reuse an already-registered histogram without constructing a new one', () => {
+    it('reuses an already-registered histogram without constructing a new one', () => {
         expect.assertions(2);
 
-        const existingHistogram = { startTimer: jest.fn().mockImplementation(() => mockEndTimer) };
+        const existingObserve = jest.fn();
+        const existingHistogram = { observe: existingObserve };
         (Histogram as unknown as jest.Mock).mockClear();
         (register.getSingleMetric as jest.Mock).mockReturnValueOnce(existingHistogram);
 
@@ -88,8 +92,7 @@ describe(`HistogramMetric decorator`, () => {
 
         new ReuseTestClass().run();
 
-        // The decorator saw an existing metric and must NOT construct a new Histogram
         expect(Histogram).not.toHaveBeenCalled();
-        expect(existingHistogram.startTimer).toHaveBeenCalledWith();
+        expect(existingObserve).toHaveBeenCalledTimes(1);
     });
 });

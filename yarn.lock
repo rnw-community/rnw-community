@@ -5635,7 +5635,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@rnw-community/histogram-metric-decorator@workspace:packages/histogram-metric-decorator":
+"@rnw-community/histogram-metric-decorator@workspace:^, @rnw-community/histogram-metric-decorator@workspace:packages/histogram-metric-decorator":
   version: 0.0.0-use.local
   resolution: "@rnw-community/histogram-metric-decorator@workspace:packages/histogram-metric-decorator"
   dependencies:
@@ -5648,15 +5648,19 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@rnw-community/lock-decorator@workspace:packages/lock-decorator":
+"@rnw-community/lock-decorator@workspace:^, @rnw-community/lock-decorator@workspace:packages/lock-decorator":
   version: 0.0.0-use.local
   resolution: "@rnw-community/lock-decorator@workspace:packages/lock-decorator"
   dependencies:
     "@rnw-community/decorators-core": "workspace:^"
     "@rnw-community/shared": "workspace:^"
+    rxjs: "npm:^7.8.2"
   peerDependencies:
+    rxjs: ^7.8.0
     typescript: ">=5.0.0"
   peerDependenciesMeta:
+    rxjs:
+      optional: true
     typescript:
       optional: true
   languageName: unknown
@@ -5681,6 +5685,8 @@ __metadata:
   dependencies:
     "@nestjs/common": "npm:^10.4.22"
     "@rnw-community/decorators-core": "workspace:^"
+    "@rnw-community/histogram-metric-decorator": "workspace:^"
+    "@rnw-community/lock-decorator": "workspace:^"
     "@rnw-community/log-decorator": "workspace:^"
     "@rnw-community/shared": "npm:^1.12.1"
     ioredis: "npm:^5.9.3"

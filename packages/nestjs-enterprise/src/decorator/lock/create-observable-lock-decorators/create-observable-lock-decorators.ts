@@ -1,7 +1,8 @@
 import { Inject } from '@nestjs/common';
-import { EMPTY, type Observable, catchError, concatMap, defer, finalize, from, isObservable, of } from 'rxjs';
+import { EMPTY, type Observable, catchError, defer, isObservable, of } from 'rxjs';
 
-import { LockBusyError, type LockHandleInterface } from '@rnw-community/lock-decorator';
+import { LockBusyError } from '@rnw-community/lock-decorator';
+import { runWithLock$ } from '@rnw-community/lock-decorator/rxjs';
 
 import { isDefined, isNotEmptyArray } from '@rnw-community/shared';
 import type { AbstractConstructor, AnyFn, MethodDecoratorType } from '@rnw-community/shared';
@@ -27,29 +28,11 @@ const resolveResources = <TArgs extends unknown[]>(
     return resources as string[];
 };
 
-const invokeOriginal = <TArgs extends unknown[]>(
-    originalMethod: (this: unknown, ...a: TArgs) => unknown,
-    self: unknown,
-    args: TArgs,
-    handle: LockHandleInterface,
-    methodName: string
-): Observable<unknown> => {
-    let result: unknown;
-    try {
-        result = originalMethod.apply(self, args);
-    } catch (err: unknown) {
-        void Promise.resolve(handle.release()).catch(() => void 0);
-        throw err;
-    }
+const requireObservable = (result: unknown, methodName: string): Observable<unknown> => {
     if (!isObservable(result)) {
-        void Promise.resolve(handle.release()).catch(() => void 0);
         throw new Error(`Method ${methodName} does not return an observable`);
     }
-    return (result as Observable<unknown>).pipe(
-        finalize(() => {
-            void Promise.resolve(handle.release()).catch(() => void 0);
-        })
-    );
+    return result as Observable<unknown>;
 };
 
 const recoverFromLockError = <TResult>(
@@ -107,10 +90,9 @@ export const createObservableLockDecorators = (
                     const joinedKey = resources.join(RESOURCE_SEPARATOR);
                     const store = createLockServiceStore(lockService, effectiveDuration);
 
-                    return from(store.acquire(joinedKey, mode, {})).pipe(
-                        concatMap((handle) => invokeOriginal(originalMethod, self, args, handle, methodName)),
-                        catchError((error: unknown) => recoverFromLockError(error, mode, catchErrorFn$))
-                    );
+                    return runWithLock$(store, joinedKey, mode, {}, () =>
+                        requireObservable(originalMethod.apply(self, args), methodName)
+                    ).pipe(catchError((error: unknown) => recoverFromLockError(error, mode, catchErrorFn$)));
                 }) as TResult;
             } as K;
 
