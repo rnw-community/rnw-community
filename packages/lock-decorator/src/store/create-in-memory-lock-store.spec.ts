@@ -215,5 +215,62 @@ describe('createInMemoryLockStore', () => {
             h1.release();
             h2.release();
         });
+
+        it('is idempotent: double release on the same handle is a no-op', async () => {
+            const store = createInMemoryLockStore();
+            const h = await store.acquire('idem', 'exclusive');
+            h.release();
+            h.release(); // must be safe
+            const h2 = await store.acquire('idem', 'exclusive');
+            expect(h2.key).toBe('idem');
+            h2.release();
+        });
+
+        it('stale double-release does NOT evict a fresh holder of the same key', async () => {
+            const store = createInMemoryLockStore();
+            // h1 acquires + releases, h2 acquires the same key afterwards
+            const h1 = await store.acquire('shared', 'exclusive');
+            h1.release();
+            const h2 = await store.acquire('shared', 'exclusive');
+
+            // Buggy client calls h1.release() a second time — it must not evict h2
+            h1.release();
+
+            // h2 still holds the lock, so a fresh attempt must fail with LockBusyError
+            await expect(store.acquire('shared', 'exclusive')).rejects.toBeInstanceOf(LockBusyError);
+            h2.release();
+        });
+    });
+
+    describe('sequential mode idempotency', () => {
+        it('is idempotent: double release on the same handle is a no-op', async () => {
+            const store = createInMemoryLockStore();
+            const h = await store.acquire('seq-idem', 'sequential');
+            h.release();
+            h.release(); // must be safe
+            const h2 = await store.acquire('seq-idem', 'sequential');
+            expect(h2.key).toBe('seq-idem');
+            h2.release();
+        });
+
+        it('stale double-release does NOT disturb a fresh holder', async () => {
+            const store = createInMemoryLockStore();
+            const h1 = await store.acquire('seq-shared', 'sequential');
+            h1.release();
+            const h2 = await store.acquire('seq-shared', 'sequential');
+            // Buggy stale release — must be a no-op
+            h1.release();
+            // h2 still holds; queue a third and ensure it waits on h2, not proceeds immediately
+            let p3Done = false;
+            const p3 = store.acquire('seq-shared', 'sequential').then((h) => {
+                p3Done = true;
+                h.release();
+            });
+            await new Promise((r) => setTimeout(r, 5));
+            expect(p3Done).toBe(false);
+            h2.release();
+            await p3;
+            expect(p3Done).toBe(true);
+        });
     });
 });

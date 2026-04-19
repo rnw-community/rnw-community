@@ -121,6 +121,72 @@ describe('createLegacyInterceptor', () => {
         expect(calls[1]?.value).toBe(boom);
     });
 
+    it('dispatches to the FIRST matching strategy when multiple could match', () => {
+        const hits: string[] = [];
+        const strategyA: ResultStrategyInterface = {
+            matches: () => true,
+            handle: (value, onSuccess) => {
+                hits.push('A');
+                onSuccess(value);
+                return value;
+            },
+        };
+        const strategyB: ResultStrategyInterface = {
+            matches: () => true,
+            handle: () => {
+                hits.push('B');
+                throw new Error('should not run');
+            },
+        };
+        const { interceptor } = makeRecorder();
+        const decorator = createLegacyInterceptor({ interceptor, strategies: [strategyA, strategyB] });
+
+        class Svc {
+            // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
+            value() {
+                return 7;
+            }
+        }
+        const descriptor = Object.getOwnPropertyDescriptor(Svc.prototype, 'value') as PropertyDescriptor;
+        Object.defineProperty(Svc.prototype, 'value', decorator(Svc.prototype, 'value', descriptor as never));
+        new Svc().value();
+        expect(hits).toEqual(['A']);
+    });
+
+    it('preserves ExecutionContext identity across onEnter, onSuccess, and onError', () => {
+        // HistogramMetric's per-invocation WeakMap bridge relies on this contract.
+        const seenContexts: unknown[] = [];
+        const decorator = createLegacyInterceptor({
+            interceptor: {
+                onEnter: (ctx) => seenContexts.push(ctx),
+                onSuccess: (ctx) => seenContexts.push(ctx),
+                onError: (ctx) => seenContexts.push(ctx),
+            },
+        });
+
+        class Svc {
+            ok(): number {
+                return 1;
+            }
+            fail(): never {
+                throw new Error('x');
+            }
+        }
+        const okDesc = Object.getOwnPropertyDescriptor(Svc.prototype, 'ok') as PropertyDescriptor;
+        Object.defineProperty(Svc.prototype, 'ok', decorator(Svc.prototype, 'ok', okDesc as never));
+        const failDesc = Object.getOwnPropertyDescriptor(Svc.prototype, 'fail') as PropertyDescriptor;
+        Object.defineProperty(Svc.prototype, 'fail', decorator(Svc.prototype, 'fail', failDesc as never));
+
+        new Svc().ok();
+        expect(() => new Svc().fail()).toThrow('x');
+
+        // Two invocations → two DISTINCT contexts; hooks within each invocation share one context
+        expect(seenContexts).toHaveLength(4);
+        expect(seenContexts[0]).toBe(seenContexts[1]); // onEnter & onSuccess of ok() — same context
+        expect(seenContexts[2]).toBe(seenContexts[3]); // onEnter & onError of fail() — same context
+        expect(seenContexts[0]).not.toBe(seenContexts[2]); // different invocations — different contexts
+    });
+
     it('skips non-matching strategies and falls through to default sync handling', () => {
         const strategy: ResultStrategyInterface = {
             matches: () => false,

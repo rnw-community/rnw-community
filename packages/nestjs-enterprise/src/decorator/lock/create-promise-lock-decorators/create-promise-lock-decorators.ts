@@ -53,19 +53,21 @@ export const createPromiseLockDecorators = (
             // eslint-disable-next-line max-statements, func-names
             descriptor.value = async function (this: unknown, ...args: TArgs): Promise<unknown> {
                 const self = this;
+
+                // Setup errors (missing DI, empty lock key) propagate unhandled — matching upstream
+                // behaviour where getLockServiceFn + runPreLock sit OUTSIDE the try/catch block
+                // so programmer errors surface loudly instead of being swallowed by catchErrorFn.
                 const lockService = (self as Record<symbol, unknown>)[serviceSymbol] as LockServiceInterface | undefined;
+                if (lockService === undefined) {
+                    throw new Error(
+                        'LockService was not injected. Ensure the lock service provider is registered in the NestJS module.'
+                    );
+                }
+                const resources = resolveResources(preLock, args);
+                const joinedKey = resources.join(RESOURCE_SEPARATOR);
+                const store: LockStoreInterface = createLockServiceStore(lockService, effectiveDuration);
 
                 try {
-                    if (lockService === undefined) {
-                        throw new Error(
-                            'LockService was not injected. Ensure the lock service provider is registered in the NestJS module.'
-                        );
-                    }
-
-                    const resources = resolveResources(preLock, args);
-                    const joinedKey = resources.join(RESOURCE_SEPARATOR);
-                    const store: LockStoreInterface = createLockServiceStore(lockService, effectiveDuration);
-
                     // Wrap originalMethod so a non-Promise return fails loudly while still
                     // giving runWithLock's finally block a chance to release the lock.
                     const wrappedMethod = function (this: unknown, ...wrappedArgs: TArgs): Promise<unknown> {
