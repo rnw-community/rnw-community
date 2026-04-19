@@ -1,4 +1,4 @@
-import { Observable, Subscription, finalize } from 'rxjs';
+import { Observable, Subscription, finalize, isObservable } from 'rxjs';
 
 import { isDefined } from '@rnw-community/shared';
 
@@ -51,6 +51,12 @@ export const runWithLock$ = (
                 } catch (err: unknown) {
                     releaseSilently(handle);
                     subscriber.error(err);
+
+                    return void 0;
+                }
+                if (!isObservable(result$)) {
+                    releaseSilently(handle);
+                    subscriber.error(new Error('Locked method must return an Observable'));
 
                     return void 0;
                 }

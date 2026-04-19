@@ -43,7 +43,7 @@ describe('createSequentialLock (stage-3)', () => {
         expect(result).toBe(42);
     });
 
-    it('wraps a sync method (returns value through promise)', async () => {
+    it('rejects a sync method at call time (explicit async-only contract — no silent promisification)', async () => {
         const store = createInMemoryLockStore();
         const SequentialLock = createSequentialLock({ store });
 
@@ -59,7 +59,7 @@ describe('createSequentialLock (stage-3)', () => {
 
         const wrapped = wrapFn(
             original as (this: unknown, ...args: readonly unknown[]) => unknown,
-             
+
             makeCtx('add')
         );
 
@@ -67,8 +67,7 @@ describe('createSequentialLock (stage-3)', () => {
             readonly add = wrapped;
         }
 
-        const result = await new Svc().add(5);
-        expect(result).toBe(6);
+        await expect(new Svc().add(5)).rejects.toThrow('Locked method must return a Promise');
     });
 
     it('uses function key form', async () => {

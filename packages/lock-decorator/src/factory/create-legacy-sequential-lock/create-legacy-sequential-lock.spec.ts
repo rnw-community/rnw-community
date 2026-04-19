@@ -34,16 +34,13 @@ describe('createLegacySequentialLock (legacy decorator)', () => {
         expect(await svc.work(10)).toBe(20);
     });
 
-    it('wraps a sync method', async () => {
+    it('rejects a sync method at call time (explicit async-only contract — no silent promisification)', async () => {
         const store = createInMemoryLockStore();
         const SequentialLock = createLegacySequentialLock({ store });
 
-        const offset = 100;
-        const input = 5;
-
         class Svc {
             compute(x: number): number {
-                return x + offset;
+                return x + 1;
             }
         }
 
@@ -58,7 +55,9 @@ describe('createLegacySequentialLock (legacy decorator)', () => {
         const svc = new Svc();
         svc.compute = result.value as typeof svc.compute;
 
-        expect(await (svc.compute(input) as unknown as Promise<number>)).toBe(input + offset);
+        await expect(svc.compute(5) as unknown as Promise<number>).rejects.toThrow(
+            'Locked method must return a Promise'
+        );
     });
 
     it('uses function key form', async () => {

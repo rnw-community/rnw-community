@@ -1,4 +1,3 @@
-import { observableStrategy } from '@rnw-community/decorators-core/rxjs';
 import { Histogram, type HistogramConfiguration, register } from 'prom-client';
 
 import { createLegacyHistogramMetric } from '@rnw-community/histogram-metric-decorator';
@@ -17,8 +16,8 @@ const resolveHistogram = <M extends string>(
     if (isDefined(existing)) {
         return existing;
     }
-    
-return new Histogram({
+
+    return new Histogram({
         help: metricName,
         ...configuration,
         name: metricName,
@@ -30,8 +29,8 @@ const createPromClientTransport = <M extends string>(
     configuration?: Omit<HistogramConfiguration<M>, 'name'>
 ): HistogramTransportInterface => {
     const histogram = resolveHistogram(metricName, configuration);
-    
-return {
+
+    return {
         observe: (_name, durationMs) => {
             histogram.observe(durationMs / MS_PER_SECOND);
         },
@@ -44,5 +43,4 @@ export const HistogramMetric = <M extends string, K extends AnyFn>(
 ): MethodDecoratorType<K> =>
     createLegacyHistogramMetric({
         transport: createPromClientTransport(metricName, configuration),
-        strategies: [observableStrategy],
     })({ name: metricName }) as unknown as MethodDecoratorType<K>;
