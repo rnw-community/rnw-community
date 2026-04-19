@@ -394,6 +394,36 @@ describe('createObservableLockDecorators', () => {
             );
         });
 
+        it('does NOT funnel "Lock key is not defined" through catchErrorFn$ (setup errors bypass)', async () => {
+            expect.hasAssertions();
+
+            // Preserve the shared injectedSymbol so subsequent tests still find their DI slot.
+            const savedSymbol = injectedSymbol;
+            const catchSpy = jest.fn();
+
+            try {
+                const { SequentialLock$: SeqLockCatch$ } = createObservableLockDecorators(MockLockService, 1000);
+
+                class CatchSetupClass {
+                    @SeqLockCatch$(() => [], (err: unknown) => {
+                        catchSpy(err);
+                        return of(0);
+                    })
+                    test$(): Observable<number> {
+                        return of(1);
+                    }
+                }
+
+                const instanceLocal = new CatchSetupClass();
+                (instanceLocal as unknown as Record<symbol, unknown>)[injectedSymbol] = getMockLockService();
+
+                await expect(lastValueFrom(instanceLocal.test$())).rejects.toThrow('Lock key is not defined');
+                expect(catchSpy).not.toHaveBeenCalled();
+            } finally {
+                injectedSymbol = savedSymbol;
+            }
+        });
+
         it('should release lock after result function', async () => {
             expect.hasAssertions();
 

@@ -449,5 +449,53 @@ describe('createPromiseLockDecorators', () => {
 
             await expect(emptyInstance.test()).rejects.toThrow('Lock key is not defined');
         });
+
+        it('does NOT funnel "Lock key is not defined" through catchErrorFn (setup errors bypass)', async () => {
+            expect.hasAssertions();
+
+            const { SequentialLock: SeqLockCatch } = createPromiseLockDecorators(MockLockService, 1000);
+            const catchSpy = jest.fn();
+
+            class CatchSetupClass {
+                @SeqLockCatch(() => [], (err: unknown) => {
+                    catchSpy(err);
+                    return Promise.resolve(0);
+                })
+                async test(): Promise<number> {
+                    return Promise.resolve(1);
+                }
+            }
+
+            const instanceLocal = new CatchSetupClass();
+            for (const sym of injectedSymbols) {
+                (instanceLocal as unknown as Record<symbol, unknown>)[sym] = getMockLockService();
+            }
+
+            await expect(instanceLocal.test()).rejects.toThrow('Lock key is not defined');
+            expect(catchSpy).not.toHaveBeenCalled();
+        });
+
+        it('does NOT funnel "LockService was not injected" through catchErrorFn (setup errors bypass)', async () => {
+            expect.hasAssertions();
+
+            const { SequentialLock: SeqLockCatch } = createPromiseLockDecorators(MockLockService, 1000);
+            const catchSpy = jest.fn();
+
+            class NoDIClass {
+                @SeqLockCatch(['test'], (err: unknown) => {
+                    catchSpy(err);
+                    return Promise.resolve(0);
+                })
+                async test(): Promise<number> {
+                    return Promise.resolve(1);
+                }
+            }
+
+            // Do NOT inject the lock service
+            const instanceLocal = new NoDIClass();
+
+            await expect(instanceLocal.test()).rejects.toThrow('LockService was not injected');
+            expect(catchSpy).not.toHaveBeenCalled();
+        });
     });
 });

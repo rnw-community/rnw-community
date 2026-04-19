@@ -52,13 +52,16 @@ export const createObservableLockDecorators = (
 
                 // eslint-disable-next-line max-statements
                 return defer(() => {
+                    // Setup errors thrown HERE surface as Observable errors on subscription
+                    // (matching upstream). They reach the subscriber directly — NOT through
+                    // the catchError below, which sits on the inner pipe and therefore only
+                    // catches runtime errors from store.acquire / method invocation.
                     const lockService = (self as Record<symbol, unknown>)[serviceSymbol] as LockServiceInterface | undefined;
                     if (lockService === undefined) {
                         throw new Error(
                             'LockService was not injected. Ensure the lock service provider is registered in the NestJS module.'
                         );
                     }
-
                     const resources = resolveResources(preLock, args);
                     const joinedKey = resources.join(RESOURCE_SEPARATOR);
                     const store = createLockServiceStore(lockService, effectiveDuration);
@@ -81,26 +84,25 @@ export const createObservableLockDecorators = (
                                     void Promise.resolve(handle.release()).catch(() => void 0);
                                 })
                             );
-                        })
-                    );
-                }).pipe(
-                    catchError((error: unknown) => {
-                        let normalized: unknown = error;
-                        if (error instanceof LockBusyError) {
-                            if (mode === 'exclusive' && !isDefined(catchErrorFn$)) {
-                                return EMPTY;
+                        }),
+                        catchError((error: unknown) => {
+                            let normalized: unknown = error;
+                            if (error instanceof LockBusyError) {
+                                if (mode === 'exclusive' && !isDefined(catchErrorFn$)) {
+                                    return EMPTY;
+                                }
+                                const keys = error.key.split(RESOURCE_SEPARATOR).join(', ');
+                                normalized = new Error(`Lock not acquired for keys: ${keys}`);
                             }
-                            const keys = error.key.split(RESOURCE_SEPARATOR).join(', ');
-                            normalized = new Error(`Lock not acquired for keys: ${keys}`);
-                        }
-                        if (isDefined(catchErrorFn$)) {
-                            return of(catchErrorFn$(normalized)) as unknown as Observable<unknown>;
-                        }
-                        throw normalized;
-                    }),
-                    // Flatten Observable<Observable<T>> from catchErrorFn$ if user returned an Observable
-                    concatMap((value: unknown) => (isObservable(value) ? (value as Observable<unknown>) : of(value)))
-                ) as TResult;
+                            if (isDefined(catchErrorFn$)) {
+                                return of(catchErrorFn$(normalized)) as unknown as Observable<unknown>;
+                            }
+                            throw normalized;
+                        }),
+                        // Flatten Observable<Observable<T>> from catchErrorFn$ if user returned an Observable
+                        concatMap((value: unknown) => (isObservable(value) ? (value as Observable<unknown>) : of(value)))
+                    );
+                }) as TResult;
             } as K;
 
             return descriptor;

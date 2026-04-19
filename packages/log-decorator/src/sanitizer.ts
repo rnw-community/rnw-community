@@ -3,42 +3,82 @@ export type SanitizerFnType = (value: unknown) => unknown;
 const MAX_STRING_LENGTH = 200;
 const MAX_ARRAY_LENGTH = 20;
 
-const sanitizeInner = (value: unknown, seen: WeakSet<object>): unknown => {
+const sanitizeString = (value: string): string =>
+    value.length > MAX_STRING_LENGTH ? `<truncated:${value.length.toString()}>` : value;
+
+const sanitizeError = (err: Error): { name: string; message: string; stack?: string } => {
+    const out: { name: string; message: string; stack?: string } = {
+        name: err.name,
+        message: sanitizeString(err.message),
+    };
+    if (typeof err.stack === 'string') {
+        out.stack = sanitizeString(err.stack);
+    }
+    return out;
+};
+
+const sanitizeInner = (value: unknown, path: WeakSet<object>): unknown => {
     if (value === null || value === undefined) {
         return value;
     }
 
     if (typeof value === 'string') {
-        if (value.length > MAX_STRING_LENGTH) {
-            return `<truncated:${value.length.toString()}>`;
-        }
-        return value;
+        return sanitizeString(value);
     }
 
     if (typeof value !== 'object' && typeof value !== 'function') {
         return value;
     }
 
+    // Preserve the semantic identity of common built-ins that lose their data
+    // under a naive Object.keys shallow-copy (Error.message is non-enumerable;
+    // Date/Map/Set/RegExp have no enumerable own keys at all).
+    if (value instanceof Error) {
+        return sanitizeError(value);
+    }
+    if (value instanceof Date) {
+        return value.toISOString();
+    }
+    if (value instanceof RegExp) {
+        return value.toString();
+    }
+    if (value instanceof Map) {
+        return { _type: 'Map', size: value.size };
+    }
+    if (value instanceof Set) {
+        return { _type: 'Set', size: value.size };
+    }
+
     if (Array.isArray(value)) {
         if (value.length > MAX_ARRAY_LENGTH) {
             return { length: value.length };
         }
-        return value;
+        // Cycle guard: track THIS array as an ancestor; sanitize elements; remove on exit.
+        if (path.has(value)) {
+            return '[Circular]';
+        }
+        path.add(value);
+        const arrResult = value.map((item: unknown) => sanitizeInner(item, path));
+        path.delete(value);
+        return arrResult;
     }
 
-    if (seen.has(value as object)) {
+    // Cycle guard: a path-local set (ancestors only). Sibling references to the same
+    // object are NOT flagged as circular — only genuine back-edges in the recursion path.
+    if (path.has(value as object)) {
         return '[Circular]';
     }
-    seen.add(value as object);
+    path.add(value as object);
 
     const result: Record<string, unknown> = {};
     for (const key of Object.keys(value as object)) {
-        result[key] = sanitizeInner((value as Record<string, unknown>)[key], seen);
+        result[key] = sanitizeInner((value as Record<string, unknown>)[key], path);
     }
+    path.delete(value as object);
     return result;
 };
 
 export const defaultSanitizer: SanitizerFnType = (value: unknown): unknown => {
-    const seen = new WeakSet<object>();
-    return sanitizeInner(value, seen);
+    const path = new WeakSet<object>();
+    return sanitizeInner(value, path);
 };

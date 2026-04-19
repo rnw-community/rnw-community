@@ -109,10 +109,17 @@ export const createInMemoryLockStore = (): LockStoreInterface => {
             );
         });
 
+        let released = false;
         return {
             key,
             mode: 'sequential',
             release: (): void => {
+                // Guard against double-release. A stale release() from an old handle
+                // must not affect a new acquirer of the same key.
+                if (released) {
+                    return;
+                }
+                released = true;
                 resolveSlot();
                 // Clean up map if we are the current tail
                 if (sequentialChains.get(key) === nextTail) {
@@ -129,10 +136,18 @@ export const createInMemoryLockStore = (): LockStoreInterface => {
 
         exclusiveHeld.add(key);
 
+        let released = false;
         const handle: LockHandleInterface = {
             key,
             mode: 'exclusive',
             release: (): void => {
+                // Guard against double-release: without this, a stale handle's release()
+                // after a new acquirer has taken the same key would evict the new holder
+                // from the held set — silently corrupting the exclusive invariant.
+                if (released) {
+                    return;
+                }
+                released = true;
                 exclusiveHeld.delete(key);
             },
         };
