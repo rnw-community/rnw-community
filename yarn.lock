@@ -5603,7 +5603,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@rnw-community/decorators-rxjs@workspace:packages/decorators-rxjs":
+"@rnw-community/decorators-rxjs@workspace:^, @rnw-community/decorators-rxjs@workspace:packages/decorators-rxjs":
   version: 0.0.0-use.local
   resolution: "@rnw-community/decorators-rxjs@workspace:packages/decorators-rxjs"
   dependencies:
@@ -5670,7 +5670,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@rnw-community/log-decorator@workspace:packages/log-decorator":
+"@rnw-community/log-decorator@workspace:^, @rnw-community/log-decorator@workspace:packages/log-decorator":
   version: 0.0.0-use.local
   resolution: "@rnw-community/log-decorator@workspace:packages/log-decorator"
   dependencies:
@@ -5688,6 +5688,9 @@ __metadata:
   resolution: "@rnw-community/nestjs-enterprise@workspace:packages/nestjs-enterprise"
   dependencies:
     "@nestjs/common": "npm:^10.4.22"
+    "@rnw-community/decorators-core": "workspace:^"
+    "@rnw-community/decorators-rxjs": "workspace:^"
+    "@rnw-community/log-decorator": "workspace:^"
     "@rnw-community/shared": "npm:^1.12.1"
     ioredis: "npm:^5.9.3"
     prom-client: "npm:^15.1.3"

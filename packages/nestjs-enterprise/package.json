@@ -73,6 +73,9 @@
     },
     "gitHead": "4fd24bd92936d1793f8f7ff08d6420fce4f211d9",
     "dependencies": {
+        "@rnw-community/decorators-core": "workspace:^",
+        "@rnw-community/decorators-rxjs": "workspace:^",
+        "@rnw-community/log-decorator": "workspace:^",
         "@rnw-community/shared": "^1.12.1"
     },
     "engines": {

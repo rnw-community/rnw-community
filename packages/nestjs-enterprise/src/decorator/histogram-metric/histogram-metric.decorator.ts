@@ -1,39 +1,54 @@
 import { Histogram, type HistogramConfiguration, register } from 'prom-client';
 
+import { createLegacyInterceptor } from '@rnw-community/decorators-core';
+import type { ExecutionContextInterface } from '@rnw-community/decorators-core';
+import { observableStrategy } from '@rnw-community/decorators-rxjs';
+
 import { type AnyFn, type MethodDecoratorType, isDefined } from '@rnw-community/shared';
 
+type EndTimerFnType = ReturnType<Histogram['startTimer']>;
 
 export const HistogramMetric =
     <M extends string, K extends AnyFn, TResult extends ReturnType<K>, TArgs extends Parameters<K>>(
             metricName: string,
             configuration?: Omit<HistogramConfiguration<M>, 'name'>
-        ): MethodDecoratorType<K> =>
-        (_target, _propertyKey, descriptor) => {
-            let histogram = register.getSingleMetric(metricName) as Histogram<M> | undefined;
+        ): MethodDecoratorType<K> => {
+        let histogram = register.getSingleMetric(metricName) as Histogram<M> | undefined;
 
-            if (!isDefined(histogram)) {
-                histogram = new Histogram({
-                    help: metricName,
-                    ...configuration,
-                    name: metricName,
-                });
+        if (!isDefined(histogram)) {
+            histogram = new Histogram({
+                help: metricName,
+                ...configuration,
+                name: metricName,
+            });
+        }
+
+        // Per-invocation endTimer storage keyed by the ExecutionContext object the engine
+        // produces once per call. This preserves prom-client's native startTimer/endTimer
+        // idiom (so register/Histogram/endTimer mock expectations stay intact) while the
+        // decorators-core engine drives the enter/success/error lifecycle.
+        const timers = new WeakMap<ExecutionContextInterface<TArgs>, EndTimerFnType>();
+
+        const endTimer = (context: ExecutionContextInterface<TArgs>): void => {
+            const end = timers.get(context);
+            if (end !== undefined) {
+                end();
+                timers.delete(context);
             }
-
-            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-            const originalMethod = descriptor.value!;
-
-            // eslint-disable-next-line func-names
-            descriptor.value = function (...args: TArgs): TResult {
-                const endHistogram = histogram.startTimer();
-
-                try {
-                    // @ts-expect-error We need this to handle generic methods correctly
-                    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-                    return originalMethod.apply(this, args);
-                } finally {
-                    endHistogram();
-                }
-            } as K;
-
-            return descriptor;
         };
+
+        return createLegacyInterceptor<TArgs, TResult>({
+            interceptor: {
+                onEnter: (context) => {
+                    timers.set(context, histogram.startTimer());
+                },
+                onSuccess: (context) => {
+                    endTimer(context);
+                },
+                onError: (context) => {
+                    endTimer(context);
+                },
+            },
+            strategies: [observableStrategy],
+        }) as unknown as MethodDecoratorType<K>;
+    };
