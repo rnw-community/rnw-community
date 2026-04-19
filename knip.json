@@ -1,0 +1,11 @@
+{
+    "$schema": "https://unpkg.com/knip@5/schema.json",
+    "workspaces": {
+        "packages/decorators-core": {
+            "entry": ["src/index.ts", "src/rxjs/index.ts"]
+        },
+        "packages/lock-decorator": {
+            "entry": ["src/index.ts", "src/rxjs/index.ts"]
+        }
+    }
+}

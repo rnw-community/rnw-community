@@ -1,15 +1,10 @@
 import type { AcquireOptionsInterface } from '../../interface/acquire-options-interface/acquire-options.interface';
 import type { LockArgumentType } from '../../type/lock-argument-type/lock-argument.type';
 
-export interface ResolvedLockArgType {
-    readonly key: string;
-    readonly options: AcquireOptionsInterface;
-}
-
 export const resolveLockKey = <TArgs extends readonly unknown[]>(
     arg: LockArgumentType<TArgs>,
     args: TArgs
-): ResolvedLockArgType => {
+): { readonly key: string; readonly options: AcquireOptionsInterface } => {
     if (typeof arg === 'string') {
         return { key: arg, options: {} };
     }
