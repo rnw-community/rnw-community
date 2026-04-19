@@ -1,4 +1,6 @@
-import { type Observable, concatMap, defer, finalize, from } from 'rxjs';
+import { Observable, Subscription, finalize } from 'rxjs';
+
+import { isDefined } from '@rnw-community/shared';
 
 import type { AcquireOptionsInterface } from '../../interface/acquire-options-interface/acquire-options.interface';
 import type { LockHandleInterface } from '../../interface/lock-handle-interface/lock-handle.interface';
@@ -9,15 +11,15 @@ const releaseSilently = (handle: LockHandleInterface): void => {
     void Promise.resolve(handle.release()).catch(() => void 0);
 };
 
-const invokeAndWire = (fn: () => Observable<unknown>, handle: LockHandleInterface): Observable<unknown> => {
-    let result: Observable<unknown>;
-    try {
-        result = fn();
-    } catch (err: unknown) {
-        releaseSilently(handle);
-        throw err;
+const bridgeSignal = (external: AbortSignal | undefined, controller: AbortController): void => {
+    if (!isDefined(external)) {
+        return;
     }
-    return result.pipe(finalize(() => releaseSilently(handle)));
+    if (external.aborted) {
+        controller.abort();
+        return;
+    }
+    external.addEventListener('abort', () => controller.abort(), { once: true });
 };
 
 export const runWithLock$ = (
@@ -28,6 +30,41 @@ export const runWithLock$ = (
     fn: () => Observable<unknown>
     // eslint-disable-next-line @typescript-eslint/max-params
 ): Observable<unknown> =>
-    defer(() =>
-        from(store.acquire(key, mode, options)).pipe(concatMap((handle) => invokeAndWire(fn, handle)))
-    );
+    new Observable<unknown>((subscriber) => {
+        const controller = new AbortController();
+        bridgeSignal(options.signal, controller);
+
+        let cancelled = false;
+        const innerSubscription = new Subscription();
+
+        void store.acquire(key, mode, { ...options, signal: controller.signal }).then(
+            (handle) => {
+                if (cancelled) {
+                    releaseSilently(handle);
+                    return;
+                }
+                let result$: Observable<unknown>;
+                try {
+                    result$ = fn();
+                } catch (err: unknown) {
+                    releaseSilently(handle);
+                    subscriber.error(err);
+                    return;
+                }
+                innerSubscription.add(
+                    result$.pipe(finalize(() => releaseSilently(handle))).subscribe(subscriber)
+                );
+            },
+            (err: unknown) => {
+                if (!cancelled) {
+                    subscriber.error(err);
+                }
+            }
+        );
+
+        return () => {
+            cancelled = true;
+            controller.abort();
+            innerSubscription.unsubscribe();
+        };
+    });
