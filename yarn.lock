@@ -5592,6 +5592,32 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@rnw-community/decorators-core@workspace:^, @rnw-community/decorators-core@workspace:packages/decorators-core":
+  version: 0.0.0-use.local
+  resolution: "@rnw-community/decorators-core@workspace:packages/decorators-core"
+  peerDependencies:
+    typescript: ">=5.0.0"
+  peerDependenciesMeta:
+    typescript:
+      optional: true
+  languageName: unknown
+  linkType: soft
+
+"@rnw-community/decorators-rxjs@workspace:packages/decorators-rxjs":
+  version: 0.0.0-use.local
+  resolution: "@rnw-community/decorators-rxjs@workspace:packages/decorators-rxjs"
+  dependencies:
+    "@rnw-community/decorators-core": "workspace:^"
+    rxjs: "npm:^7.8.0"
+  peerDependencies:
+    rxjs: ^7.8.0
+    typescript: ">=5.0.0"
+  peerDependenciesMeta:
+    typescript:
+      optional: true
+  languageName: unknown
+  linkType: soft
+
 "@rnw-community/eslint-plugin@workspace:packages/eslint-plugin":
   version: 0.0.0-use.local
   resolution: "@rnw-community/eslint-plugin@workspace:packages/eslint-plugin"
@@ -5615,6 +5641,45 @@ __metadata:
   peerDependencies:
     react: ">=18"
     react-native: ">=0.64"
+  languageName: unknown
+  linkType: soft
+
+"@rnw-community/histogram-metric-decorator@workspace:packages/histogram-metric-decorator":
+  version: 0.0.0-use.local
+  resolution: "@rnw-community/histogram-metric-decorator@workspace:packages/histogram-metric-decorator"
+  dependencies:
+    "@rnw-community/decorators-core": "workspace:^"
+  peerDependencies:
+    typescript: ">=5.0.0"
+  peerDependenciesMeta:
+    typescript:
+      optional: true
+  languageName: unknown
+  linkType: soft
+
+"@rnw-community/lock-decorator@workspace:packages/lock-decorator":
+  version: 0.0.0-use.local
+  resolution: "@rnw-community/lock-decorator@workspace:packages/lock-decorator"
+  dependencies:
+    "@rnw-community/decorators-core": "workspace:^"
+  peerDependencies:
+    typescript: ">=5.0.0"
+  peerDependenciesMeta:
+    typescript:
+      optional: true
+  languageName: unknown
+  linkType: soft
+
+"@rnw-community/log-decorator@workspace:packages/log-decorator":
+  version: 0.0.0-use.local
+  resolution: "@rnw-community/log-decorator@workspace:packages/log-decorator"
+  dependencies:
+    "@rnw-community/decorators-core": "workspace:^"
+  peerDependencies:
+    typescript: ">=5.0.0"
+  peerDependenciesMeta:
+    typescript:
+      optional: true
   languageName: unknown
   linkType: soft
 
@@ -18755,7 +18820,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"rxjs@npm:^7.8.2":
+"rxjs@npm:^7.8.0, rxjs@npm:^7.8.2":
   version: 7.8.2
   resolution: "rxjs@npm:7.8.2"
   dependencies:
