@@ -134,4 +134,105 @@ describe('runWithLock$', () => {
         await new Promise((r) => setTimeout(r, 5));
         expect(releaseSpy).toHaveBeenCalledTimes(1);
     });
+
+    it('releases the handle when acquire resolves AFTER the subscriber has already unsubscribed', async () => {
+        expect.hasAssertions();
+        const releaseSpy = jest.fn();
+        let resolveAcquire: ((handle: LockHandleInterface) => void) | undefined;
+        const pendingStore: LockStoreInterface = {
+            acquire: () =>
+                new Promise<LockHandleInterface>((resolve) => {
+                    resolveAcquire = resolve;
+                }),
+        };
+
+        const sub = runWithLock$(pendingStore, 'k', 'sequential', {}, () => of(1)).subscribe();
+
+        sub.unsubscribe();
+        resolveAcquire?.({
+            key: 'k',
+            mode: 'sequential',
+            release: () => {
+                releaseSpy();
+            },
+        });
+        await new Promise((r) => setTimeout(r, 5));
+
+        expect(releaseSpy).toHaveBeenCalledTimes(1);
+    });
+
+    it('aborts the acquire via AbortSignal when the subscriber unsubscribes before acquire resolves', async () => {
+        expect.hasAssertions();
+        const capturedSignals: AbortSignal[] = [];
+        const aborted: boolean[] = [];
+        const signalingStore: LockStoreInterface = {
+            acquire: (_key, _mode, options) =>
+                new Promise<LockHandleInterface>((_, reject) => {
+                    const signal = options?.signal;
+                    if (signal !== undefined) {
+                        capturedSignals.push(signal);
+                        signal.addEventListener('abort', () => {
+                            aborted.push(true);
+                            reject(new DOMException('The operation was aborted.', 'AbortError'));
+                        });
+                    }
+                }),
+        };
+
+        const sub = runWithLock$(signalingStore, 'k', 'sequential', {}, () => of(1)).subscribe({
+            error: () => void 0,
+        });
+        await new Promise((r) => setTimeout(r, 1));
+        sub.unsubscribe();
+        await new Promise((r) => setTimeout(r, 5));
+
+        expect(capturedSignals).toHaveLength(1);
+        expect(aborted).toEqual([true]);
+    });
+
+    it('bridges a user-supplied AbortSignal so aborting it rejects the acquire downstream', async () => {
+        expect.hasAssertions();
+        const signalingStore: LockStoreInterface = {
+            acquire: (_key, _mode, options) =>
+                new Promise<LockHandleInterface>((_, reject) => {
+                    options?.signal?.addEventListener('abort', () =>
+                        reject(new DOMException('The operation was aborted.', 'AbortError'))
+                    );
+                }),
+        };
+
+        const userController = new AbortController();
+        const errorSpy = jest.fn();
+        runWithLock$(signalingStore, 'k', 'sequential', { signal: userController.signal }, () => of(1)).subscribe({
+            error: errorSpy,
+        });
+        await new Promise((r) => setTimeout(r, 1));
+        userController.abort();
+        await new Promise((r) => setTimeout(r, 5));
+
+        expect(errorSpy).toHaveBeenCalledTimes(1);
+        expect((errorSpy as jest.Mock).mock.calls[0]?.[0]).toMatchObject({ name: 'AbortError' });
+    });
+
+    it('forwards an already-aborted user signal to the store immediately', async () => {
+        expect.hasAssertions();
+        const capturedAbortedAtCall: boolean[] = [];
+        const signalingStore: LockStoreInterface = {
+            acquire: (_key, _mode, options) => {
+                capturedAbortedAtCall.push(options?.signal?.aborted === true);
+                return Promise.reject(new DOMException('The operation was aborted.', 'AbortError'));
+            },
+        };
+
+        const controller = new AbortController();
+        controller.abort();
+        const errorSpy = jest.fn();
+        runWithLock$(signalingStore, 'k', 'sequential', { signal: controller.signal }, () => of(1)).subscribe({
+            error: errorSpy,
+        });
+        await new Promise((r) => setTimeout(r, 5));
+
+        expect(capturedAbortedAtCall).toEqual([true]);
+        expect(errorSpy).toHaveBeenCalledTimes(1);
+    });
 });
