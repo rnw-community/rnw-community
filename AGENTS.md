@@ -4,7 +4,7 @@ This file provides guidance to AI coding agents when working with code in this r
 
 ## AI Model Requirements
 
-**ALWAYS use the latest and most capable model available.** As of now, that is **Claude Opus 4.6** (`claude-opus-4-6`). Never use older or less capable models for this codebase — the strict type system, high coverage thresholds, and complex decorator patterns require top-tier reasoning.
+**ALWAYS use the latest and most capable model available.** As of now, that is **Claude Opus 4.7** (`claude-opus-4-7`). Never use older or less capable models for this codebase — the strict type system, high coverage thresholds, and complex decorator patterns require top-tier reasoning.
 
 ## Project Overview
 
@@ -56,9 +56,52 @@ All packages publish dual format via `exports` field:
 
 ## Code Style & Conventions
 
-### File Organization
-- One exported entity per file (one type, one function, one constant, etc.)
-- Each file lives in its own directory named after the entity (e.g., `type/maybe-type/maybe.type.ts`)
+### File Organization (strict, one-entity-per-folder)
+
+Every exported entity lives in its own directory named after the entity; the directory contains exactly one implementation file, one (co-located) `.spec.ts`, and optionally an `.md` doc. Layout:
+
+```
+src/<category>/<entity-name>/<entity-name>.<suffix>.ts
+src/<category>/<entity-name>/<entity-name>.spec.ts
+src/<category>/<entity-name>/<entity-name>.md         (optional — short, one example)
+```
+
+Suffix patterns:
+- `.type.ts` for `export type` entities
+- `.interface.ts` for `export interface` entities
+- `.ts` for values (functions, constants, classes)
+- `.decorator.ts` / `.util.ts` for kind-specific clarity (legacy packages)
+
+### Comments policy — prefer zero comments
+
+**Do NOT write code comments.** Replace explanatory commentary with:
+- **Descriptive names** — rename the variable / function / type until the name reveals intent
+- **Composition** — extract a small helper with a good name instead of writing a block comment
+- **`readme.md`** at the package root — documents what each public export does, with one minimal usage example per entity
+- **Per-entity `<entity>.md`** (optional) — a 5–20 line file next to the source with a focused example
+
+Allowed pragma comments only (no other exceptions):
+- `// eslint-disable-next-line <rule>` — suppressing a specific lint rule with good reason
+- `/* istanbul ignore <next|else|if> -- <why> */` — **last resort** for truly unreachable branches; PREFER restructuring code to eliminate the dead branch entirely
+
+No JSDoc usage examples in source. No `@example`, no `@see`. Examples live in `readme.md` and per-entity `.md` files.
+
+### Guards from `@rnw-community/shared` (use them)
+
+Use these guards instead of inline checks — they narrow types, compose cleanly, and read like intent:
+
+- `isDefined(v)` instead of `v !== null && v !== undefined`
+- `isPromise(v)` instead of `v instanceof Promise` (also catches thenables and cross-realm promises)
+- `isNotEmptyArray(v)` / `isEmptyArray(v)` / `isArray(v)`
+- `isNotEmptyString(v)` / `isEmptyString(v)` / `isString(v)`
+- `isNumber(v)` / `isPositiveNumber(v)`
+- `isBoolean(v)` / `isError(v)`
+
+### Docs location
+
+- `readme.md` at the package root — short summary + badges + per-export section with one usage example
+- `<entity>.md` (optional) colocated next to source — 5–20 line file with focused example
+- `AGENTS.md` at the package root — agent-facing architecture notes (commands, layout, patterns, dependencies, coverage)
 
 ### TypeScript — Strict mode with all strict flags enabled, decorators enabled
 
@@ -83,10 +126,11 @@ Groups: builtin → external → `@rnw-community/*` → parent → sibling → i
 Format: `type(scope): description` — scope must be a package name (e.g., `shared`, `react-native-payments`)
 
 ### Testing
-- Jest 29, test files colocated: `src/**/*.spec.ts`
+- Jest 29, test files colocated next to the source they cover: `src/**/<entity>/<entity>.spec.ts`
 - Imports from `@jest/globals` (not global Jest)
 - **Coverage threshold: 99.9%** for statements, branches, functions, and lines
 - Mock files (`*.mock.ts`) excluded from coverage
+- Test the BEHAVIOR, not the comments — behavior is self-documenting when a comment would otherwise be needed
 
 ## Planning Convention
 

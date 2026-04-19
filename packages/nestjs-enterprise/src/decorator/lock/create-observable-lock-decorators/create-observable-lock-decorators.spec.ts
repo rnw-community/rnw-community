@@ -51,6 +51,11 @@ class TestClass {
         return this.field;
     }
 
+    @SequentialLock$(['test'])
+    testSyncThrow$(): Observable<number> {
+        throw new Error('sync-throw-before-observable');
+    }
+
     @SequentialLock$([])
     testEmptyResource$(): Observable<number> {
         return of(this.field);
@@ -77,6 +82,15 @@ class TestClass {
 
     @SequentialLock$(['test'], undefined, 5000)
     testOverrideDuration$(): Observable<number> {
+        return of(this.field);
+    }
+
+    @SequentialLock$(['test'], (err: unknown): number => {
+        mockErrorFn(err);
+
+        return 777;
+    })
+    testLockFailedScalarCatch$(): Observable<number> {
         return of(this.field);
     }
 
@@ -141,6 +155,46 @@ describe('createObservableLockDecorators', () => {
     });
 
     describe('SequentialLock$', () => {
+        it('releases the lock when the method throws SYNCHRONOUSLY before returning an observable', async () => {
+            expect.hasAssertions();
+
+            await expect(lastValueFrom(instance.testSyncThrow$())).rejects.toThrow('sync-throw-before-observable');
+            expect(mockAcquire).toHaveBeenCalledWith(['test'], 1000);
+            expect(mockRelease).toHaveBeenCalledWith();
+        });
+
+        it('swallows release rejection silently when the method throws synchronously', async () => {
+            expect.hasAssertions();
+
+            mockRelease.mockRejectedValueOnce(new Error('release-failed-after-sync-throw'));
+
+            await expect(lastValueFrom(instance.testSyncThrow$())).rejects.toThrow('sync-throw-before-observable');
+            expect(mockAcquire).toHaveBeenCalledWith(['test'], 1000);
+            expect(mockRelease).toHaveBeenCalledWith();
+        });
+
+        it('swallows release rejection silently when the method returns a non-Observable', async () => {
+            expect.hasAssertions();
+
+            mockRelease.mockRejectedValueOnce(new Error('release-failed-after-non-observable'));
+
+            await expect(lastValueFrom(instance.testSync() as unknown as Observable<unknown>)).rejects.toThrow(
+                'does not return an observable'
+            );
+            expect(mockAcquire).toHaveBeenCalledWith(['test'], 1000);
+            expect(mockRelease).toHaveBeenCalledWith();
+        });
+
+        it('wraps a scalar return from catchErrorFn$ in an Observable', async () => {
+            expect.hasAssertions();
+
+            mockAcquire.mockRejectedValueOnce(new Error('acquire-failed'));
+
+            await expect(lastValueFrom(instance.testLockFailedScalarCatch$())).resolves.toBe(777);
+            expect(mockAcquire).toHaveBeenCalledWith(['test'], 1000);
+            expect(mockRelease).not.toHaveBeenCalled();
+        });
+
         it('should lock resource with key as array and duration', async () => {
             expect.hasAssertions();
 

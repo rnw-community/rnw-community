@@ -1,0 +1,32 @@
+import type { LegacyMethodDecoratorType } from '@rnw-community/decorators-core';
+
+import { resolveExclusiveLockKey } from '../../util/resolve-lock-key/resolve-lock-key';
+import { runWithLock } from '../../util/run-with-lock/run-with-lock';
+
+import type { CreateLockOptionsInterface } from '../../interface/create-lock-options-interface/create-lock-options.interface';
+import type { ExclusiveLockArgumentType } from '../../type/exclusive-lock-argument-type/exclusive-lock-argument.type';
+
+export const createLegacyExclusiveLock =
+    (options: CreateLockOptionsInterface) =>
+    <TArgs extends readonly unknown[]>(arg: ExclusiveLockArgumentType<TArgs>): LegacyMethodDecoratorType =>
+    (_target, _propertyKey, descriptor) => {
+        const originalMethod = descriptor.value;
+        if (typeof originalMethod !== 'function') {
+            return descriptor;
+        }
+
+        const interceptedMethod = function (this: unknown, ...args: TArgs): Promise<unknown> {
+            const { key, options: acquireOptions } = resolveExclusiveLockKey(arg, args);
+            const self = this;
+
+            return runWithLock(options.store, key, 'exclusive', acquireOptions, () =>
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                (originalMethod as unknown as (this: unknown, ...fnArgs: any[]) => unknown).apply(self, [...args])
+            );
+        };
+
+        return {
+            ...descriptor,
+            value: interceptedMethod as unknown as typeof descriptor.value,
+        };
+    };
