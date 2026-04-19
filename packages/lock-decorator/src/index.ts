@@ -11,6 +11,7 @@ export type { CreateLockOptionsInterface } from './interface/create-lock-options
 export { LockBusyError } from './error/lock-busy-error/lock-busy.error';
 export { LockAcquireTimeoutError } from './error/lock-acquire-timeout-error/lock-acquire-timeout.error';
 
+export type { InMemoryLockStoreInterface } from './store/create-in-memory-lock-store/create-in-memory-lock-store';
 export { createInMemoryLockStore } from './store/create-in-memory-lock-store/create-in-memory-lock-store';
 
 export { createSequentialLock } from './factory/create-sequential-lock/create-sequential-lock';

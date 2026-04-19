@@ -11,10 +11,11 @@ describe('runWithLock', () => {
         expect(result).toBe(42);
     });
 
-    it('runs sync fn and returns result', async () => {
+    it('rejects when fn returns a non-Promise value', async () => {
         const store = createInMemoryLockStore();
-        const result = await runWithLock(store, 'k', 'sequential', {}, () => 'sync');
-        expect(result).toBe('sync');
+        await expect(runWithLock(store, 'k', 'sequential', {}, () => 'sync')).rejects.toThrow(
+            'Locked method must return a Promise'
+        );
     });
 
     it('releases lock even when fn throws', async () => {
@@ -54,7 +55,7 @@ describe('runWithLock', () => {
             acquire: jest.fn<typeof mockHandle.release>().mockResolvedValue(mockHandle as never),
         };
 
-        const result = await runWithLock(mockStore as never, 'k', 'sequential', {}, () => 'ok');
+        const result = await runWithLock(mockStore as never, 'k', 'sequential', {}, () => Promise.resolve('ok'));
         expect(result).toBe('ok');
     });
 

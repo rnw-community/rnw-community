@@ -123,7 +123,18 @@ Groups: builtin → external → `@rnw-community/*` → parent → sibling → i
 - `expect.hasAssertions()` in every test case
 
 ### Commit Messages (Conventional Commits, enforced by commitlint + husky)
-Format: `type(scope): description` — scope must be a package name (e.g., `shared`, `react-native-payments`)
+Format: `type(scope): description` — scope must be a package name (e.g., `shared`, `react-native-payments`). Header ≤100 chars.
+
+### No AI-tool or bot attribution anywhere
+
+**Never** mention AI tools, review bots, or any assistant by name in:
+- source code (no `CODEX-fix`, `// fix per Claude`, describe blocks named after tools, etc.)
+- test names / describe blocks (describe sections by behaviour, not by who requested them)
+- commit messages (no `Co-Authored-By: Claude …`, no `per review bot X …`)
+- PR titles / descriptions (no `addresses CODEX review`, `macroscope flagged`, etc.)
+- readme / AGENTS / .md docs
+
+Describe **what changed and why** in code-intrinsic terms. A regression fix is documented by the invariant it restores, not by the reviewer that noticed the bug.
 
 ### Testing
 - Jest 29, test files colocated next to the source they cover: `src/**/<entity>/<entity>.spec.ts`

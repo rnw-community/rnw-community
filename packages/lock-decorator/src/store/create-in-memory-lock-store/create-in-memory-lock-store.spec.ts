@@ -6,6 +6,51 @@ import { LockBusyError } from '../../error/lock-busy-error/lock-busy.error';
 import { createInMemoryLockStore } from './create-in-memory-lock-store';
 
 describe('createInMemoryLockStore', () => {
+    describe('monitoring counters', () => {
+        it('exposes exclusiveHeldCount alongside sequentialChainCount', async () => {
+            const store = createInMemoryLockStore();
+            expect(store.exclusiveHeldCount()).toBe(0);
+
+            const handle = await store.acquire('ex', 'exclusive');
+            expect(store.exclusiveHeldCount()).toBe(1);
+
+            handle.release();
+            expect(store.exclusiveHeldCount()).toBe(0);
+        });
+    });
+
+    describe('stale tail cleanup on terminal paths with no later acquirer', () => {
+        it('cleans up the chain map after a timeout, once the holder releases, with no later acquirer', async () => {
+            const store = createInMemoryLockStore();
+            const holder = await store.acquire('t1', 'sequential');
+            expect(store.sequentialChainCount()).toBe(1);
+
+            const waiterThatTimesOut = store.acquire('t1', 'sequential', { timeoutMs: 10 });
+            await expect(waiterThatTimesOut).rejects.toBeInstanceOf(LockAcquireTimeoutError);
+            expect(store.sequentialChainCount()).toBe(1);
+
+            holder.release();
+            await new Promise((flush) => setTimeout(flush, 5));
+            expect(store.sequentialChainCount()).toBe(0);
+        });
+
+        it('cleans up the chain map after an abort, once the holder releases, with no later acquirer', async () => {
+            const store = createInMemoryLockStore();
+            const holder = await store.acquire('t2', 'sequential');
+            expect(store.sequentialChainCount()).toBe(1);
+
+            const controller = new AbortController();
+            const waiterThatAborts = store.acquire('t2', 'sequential', { signal: controller.signal });
+            controller.abort();
+            await expect(waiterThatAborts).rejects.toMatchObject({ name: 'AbortError' });
+            expect(store.sequentialChainCount()).toBe(1);
+
+            holder.release();
+            await new Promise((flush) => setTimeout(flush, 5));
+            expect(store.sequentialChainCount()).toBe(0);
+        });
+    });
+
     describe('sequential mode', () => {
         it('acquires a lock and releases it', async () => {
             const store = createInMemoryLockStore();

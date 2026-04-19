@@ -42,7 +42,7 @@ describe('createExclusiveLock (stage-3)', () => {
         expect(await new Svc().op(7)).toBe(21);
     });
 
-    it('wraps a sync method', async () => {
+    it('rejects a sync method at call time (explicit async-only contract — no silent promisification)', async () => {
         const store = createInMemoryLockStore();
         const ExclusiveLock = createExclusiveLock({ store });
         const decorator = ExclusiveLock('sync-ex');
@@ -53,7 +53,7 @@ describe('createExclusiveLock (stage-3)', () => {
 
         const wrapped = decorator(
             original as (this: unknown, ...args: readonly unknown[]) => unknown,
-             
+
             makeCtx('sync')
         );
 
@@ -61,7 +61,7 @@ describe('createExclusiveLock (stage-3)', () => {
             readonly sync = wrapped;
         }
 
-        expect(await new Svc().sync()).toBe('sync');
+        await expect(new Svc().sync()).rejects.toThrow('Locked method must return a Promise');
     });
 
     it('throws LockBusyError when lock already held', async () => {

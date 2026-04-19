@@ -32,7 +32,7 @@ describe('createLegacyExclusiveLock (legacy decorator)', () => {
         expect(await svc.work(6)).toBe(30);
     });
 
-    it('wraps a sync method', async () => {
+    it('rejects a sync method at call time (explicit async-only contract — no silent promisification)', async () => {
         const store = createInMemoryLockStore();
         const ExclusiveLock = createLegacyExclusiveLock({ store });
 
@@ -53,7 +53,9 @@ describe('createLegacyExclusiveLock (legacy decorator)', () => {
         const svc = new Svc();
         svc.greet = result.value as typeof svc.greet;
 
-        expect(await (svc.greet('world') as unknown as Promise<string>)).toBe('hi world');
+        await expect(svc.greet('world') as unknown as Promise<string>).rejects.toThrow(
+            'Locked method must return a Promise'
+        );
     });
 
     it('throws LockBusyError when lock already held', async () => {

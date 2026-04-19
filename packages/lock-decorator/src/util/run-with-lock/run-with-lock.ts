@@ -19,8 +19,11 @@ const runWithLockImpl = async ({ store, key, mode, options, fn }: RunWithLockArg
     try {
         handle = await store.acquire(key, mode, options);
         const result = fn();
+        if (!isPromise(result)) {
+            throw new Error('Locked method must return a Promise');
+        }
 
-        return isPromise(result) ? await result : result;
+        return await result;
     } finally {
         if (isDefined(handle)) {
             await Promise.resolve(handle.release()).catch(() => void 0);

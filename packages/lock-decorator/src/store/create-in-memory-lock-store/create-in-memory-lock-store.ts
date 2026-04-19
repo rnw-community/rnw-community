@@ -107,24 +107,34 @@ const acquireSequential = (
         buildWaitForTurn({ resolve, reject, resolveSlot, currentTail, key, timeoutMs, signal });
     });
 
-    return waitForTurn.then(() => {
-        let released = false;
+    const deleteTailIfStillOurs = (): void => {
+        if (sequentialChains.get(key) === nextTail) {
+            sequentialChains.delete(key);
+        }
+    };
 
-        return {
-            key,
-            mode: 'sequential' as const,
-            release: (): void => {
-                if (released) {
-                    return;
-                }
-                released = true;
-                resolveSlot();
-                if (sequentialChains.get(key) === nextTail) {
-                    sequentialChains.delete(key);
-                }
-            },
-        };
-    });
+    return waitForTurn.then(
+        () => {
+            let released = false;
+
+            return {
+                key,
+                mode: 'sequential' as const,
+                release: (): void => {
+                    if (released) {
+                        return;
+                    }
+                    released = true;
+                    resolveSlot();
+                    deleteTailIfStillOurs();
+                },
+            };
+        },
+        (err: unknown) => {
+            void nextTail.then(deleteTailIfStillOurs);
+            throw err;
+        }
+    );
 };
 
 const acquireExclusive = (exclusiveHeld: Set<string>, key: string): Promise<LockHandleInterface> => {
@@ -150,7 +160,12 @@ const acquireExclusive = (exclusiveHeld: Set<string>, key: string): Promise<Lock
     return Promise.resolve(handle);
 };
 
-export const createInMemoryLockStore = (): LockStoreInterface => {
+export interface InMemoryLockStoreInterface extends LockStoreInterface {
+    readonly sequentialChainCount: () => number;
+    readonly exclusiveHeldCount: () => number;
+}
+
+export const createInMemoryLockStore = (): InMemoryLockStoreInterface => {
     const sequentialChains = new Map<string, Promise<void>>();
     const exclusiveHeld = new Set<string>();
 
@@ -162,5 +177,7 @@ export const createInMemoryLockStore = (): LockStoreInterface => {
 
             return acquireExclusive(exclusiveHeld, key);
         },
+        sequentialChainCount: () => sequentialChains.size,
+        exclusiveHeldCount: () => exclusiveHeld.size,
     };
 };

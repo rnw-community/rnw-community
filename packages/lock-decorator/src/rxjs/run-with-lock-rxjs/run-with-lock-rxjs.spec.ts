@@ -233,6 +233,24 @@ describe('runWithLock$', () => {
         expect((errorSpy as jest.Mock).mock.calls[0]?.[0]).toMatchObject({ name: 'AbortError' });
     });
 
+    it('rejects when fn returns a non-Observable (releases the handle and errors the subscriber)', async () => {
+        expect.hasAssertions();
+        const store = createInMemoryLockStore();
+
+        const errorSpy = jest.fn();
+        runWithLock$(store, 'sync', 'sequential', {}, () => 'not-observable' as unknown as Observable<unknown>).subscribe({
+            error: errorSpy,
+        });
+        // eslint-disable-next-line no-promise-executor-return
+        await new Promise((resolve) => setTimeout(resolve, 5));
+
+        expect(errorSpy).toHaveBeenCalledTimes(1);
+        expect((errorSpy as jest.Mock).mock.calls[0]?.[0]).toMatchObject({
+            message: 'Locked method must return an Observable',
+        });
+        expect(store.sequentialChainCount()).toBe(0);
+    });
+
     it('forwards an already-aborted user signal to the store immediately', async () => {
         expect.hasAssertions();
         const capturedAbortedAtCall: boolean[] = [];
