@@ -9,7 +9,7 @@ const makeTransport = () => {
     const debug = jest.fn<LogTransportInterface['debug']>();
     const error = jest.fn<LogTransportInterface['error']>();
     const mock: LogTransportInterface = { log, debug, error };
-    
+
 return { mock, log, debug, error };
 };
 
@@ -27,6 +27,7 @@ const makeContext = (name: string): ClassMethodDecoratorContext<any, any> =>
 describe('createLog (stage-3 decorator)', () => {
     describe('preLog', () => {
         it('logs string preLog message', () => {
+            expect.hasAssertions();
             const { mock, log } = makeTransport();
             const Log = createLog({ transport: mock });
 
@@ -43,7 +44,8 @@ describe('createLog (stage-3 decorator)', () => {
             expect(log).toHaveBeenCalledWith('starting', 'TestClass::run');
         });
 
-        it('logs function preLog message with sanitized args', () => {
+        it('logs function preLog message with args', () => {
+            expect.hasAssertions();
             const { mock, log } = makeTransport();
             const Log = createLog({ transport: mock });
 
@@ -51,7 +53,7 @@ describe('createLog (stage-3 decorator)', () => {
                 void 0;
             };
             const wrapped = Log<readonly [number, string], void>(
-                args => `calling with ${args[0].toString()} ${args[1]}`
+                (n, s) => `calling with ${n.toString()} ${s}`
             )(originalFn as (this: unknown, ...args: readonly [number, string]) => void, makeContext('run'));
 
             class TestClass {
@@ -62,24 +64,8 @@ describe('createLog (stage-3 decorator)', () => {
             expect(log).toHaveBeenCalledWith('calling with 5 test', 'TestClass::run');
         });
 
-        it('emits :begin when no preLog and measureDuration=true', () => {
-            const { mock, log } = makeTransport();
-            const Log = createLog({ transport: mock, measureDuration: true });
-
-            const originalFn = function (this: unknown): void {
-                void 0;
-            };
-            const wrapped = Log<readonly unknown[], void>()(originalFn, makeContext('run'));
-
-            class TestClass {
-                readonly run = wrapped;
-            }
-
-            new TestClass().run();
-            expect(log).toHaveBeenCalledWith('run:begin', 'TestClass::run');
-        });
-
-        it('does not emit anything when no preLog and measureDuration=false', () => {
+        it('does not emit anything when no preLog is supplied', () => {
+            expect.hasAssertions();
             const { mock, log } = makeTransport();
             const Log = createLog({ transport: mock });
 
@@ -99,6 +85,7 @@ describe('createLog (stage-3 decorator)', () => {
 
     describe('postLog', () => {
         it('logs string postLog message via debug', () => {
+            expect.hasAssertions();
             const { mock, debug } = makeTransport();
             const Log = createLog({ transport: mock });
 
@@ -115,7 +102,8 @@ describe('createLog (stage-3 decorator)', () => {
             expect(debug).toHaveBeenCalledWith('done', 'TestClass::run');
         });
 
-        it('logs function postLog with result and sanitized args', () => {
+        it('logs function postLog with result and args', () => {
+            expect.hasAssertions();
             const { mock, debug } = makeTransport();
             const Log = createLog({ transport: mock });
 
@@ -124,7 +112,7 @@ describe('createLog (stage-3 decorator)', () => {
             };
             const wrapped = Log<readonly [number], number>(
                 undefined,
-                (result, args) => `result=${result.toString()} arg=${args[0].toString()}`
+                (result, n) => `result=${result.toString()} arg=${n.toString()}`
             )(originalFn as (this: unknown, ...args: readonly [number]) => number, makeContext('run'));
 
             class TestClass {
@@ -135,27 +123,8 @@ describe('createLog (stage-3 decorator)', () => {
             expect(debug).toHaveBeenCalledWith('result=6 arg=3', 'TestClass::run');
         });
 
-        it('emits :done with duration when no postLog and measureDuration=true', () => {
-            const { mock, debug } = makeTransport();
-            const Log = createLog({ transport: mock, measureDuration: true });
-
-            const originalFn = function (this: unknown): void {
-                void 0;
-            };
-            const wrapped = Log<readonly unknown[], void>()(originalFn, makeContext('run'));
-
-            class TestClass {
-                readonly run = wrapped;
-            }
-
-            new TestClass().run();
-            expect(debug).toHaveBeenCalledWith(
-                expect.stringMatching(/^run:done \(\d+\.\d+ms\)$/u),
-                'TestClass::run'
-            );
-        });
-
-        it('does not emit debug when no postLog and measureDuration=false', () => {
+        it('does not emit debug when no postLog is supplied', () => {
+            expect.hasAssertions();
             const { mock, debug } = makeTransport();
             const Log = createLog({ transport: mock });
 
@@ -175,6 +144,7 @@ describe('createLog (stage-3 decorator)', () => {
 
     describe('errorLog', () => {
         it('logs string errorLog with Error instance', () => {
+            expect.hasAssertions();
             const { mock, error } = makeTransport();
             const Log = createLog({ transport: mock });
             const err = new Error('boom');
@@ -196,6 +166,7 @@ describe('createLog (stage-3 decorator)', () => {
         });
 
         it('logs string errorLog with non-Error as undefined', () => {
+            expect.hasAssertions();
             const { mock, error } = makeTransport();
             const Log = createLog({ transport: mock });
 
@@ -215,7 +186,8 @@ describe('createLog (stage-3 decorator)', () => {
             expect(error).toHaveBeenCalledWith('failed', undefined, 'TestClass::run');
         });
 
-        it('logs function errorLog with Error instance and sanitized args', () => {
+        it('logs function errorLog with Error instance and args', () => {
+            expect.hasAssertions();
             const { mock, error } = makeTransport();
             const Log = createLog({ transport: mock });
             const err = new Error('boom');
@@ -226,7 +198,7 @@ describe('createLog (stage-3 decorator)', () => {
             const wrapped = Log<readonly [string], void>(
                 undefined,
                 undefined,
-                (e, args) => `err: ${String(e)} arg: ${args[0]}`
+                (e, s) => `err: ${String(e)} arg: ${s}`
             )(
                 originalFn as (this: unknown, ...args: readonly [string]) => void,
                 makeContext('run')
@@ -241,6 +213,7 @@ describe('createLog (stage-3 decorator)', () => {
         });
 
         it('logs function errorLog with non-Error as undefined', () => {
+            expect.hasAssertions();
             const { mock, error } = makeTransport();
             const Log = createLog({ transport: mock });
 
@@ -250,7 +223,7 @@ describe('createLog (stage-3 decorator)', () => {
             const wrapped = Log<readonly [number], void>(
                 undefined,
                 undefined,
-                (e, args) => `caught:${String(e)} n:${args[0].toString()}`
+                (e, n) => `caught:${String(e)} n:${n.toString()}`
             )(
                 originalFn as (this: unknown, ...args: readonly [number]) => void,
                 makeContext('run')
@@ -264,29 +237,8 @@ describe('createLog (stage-3 decorator)', () => {
             expect(error).toHaveBeenCalledWith('caught:non-error-value n:9', undefined, 'TestClass::run');
         });
 
-        it('emits :throw with duration when no errorLog and measureDuration=true', () => {
-            const { mock, error } = makeTransport();
-            const Log = createLog({ transport: mock, measureDuration: true });
-            const err = new Error('oops');
-
-            const originalFn = function (this: unknown): void {
-                throw err;
-            };
-            const wrapped = Log<readonly unknown[], void>()(originalFn, makeContext('run'));
-
-            class TestClass {
-                readonly run = wrapped;
-            }
-
-            expect(() => void new TestClass().run()).toThrow('oops');
-            expect(error).toHaveBeenCalledWith(
-                expect.stringMatching(/^run:throw \(\d+\.\d+ms\)$/u),
-                err,
-                'TestClass::run'
-            );
-        });
-
-        it('does not emit error when no errorLog and measureDuration=false', () => {
+        it('does not emit error when no errorLog is supplied', () => {
+            expect.hasAssertions();
             const { mock, error } = makeTransport();
             const Log = createLog({ transport: mock });
 
@@ -306,6 +258,7 @@ describe('createLog (stage-3 decorator)', () => {
 
     describe('async methods (Promise)', () => {
         it('logs postLog after promise resolves', async () => {
+            expect.hasAssertions();
             const { mock, debug } = makeTransport();
             const Log = createLog({ transport: mock });
 
@@ -326,6 +279,7 @@ describe('createLog (stage-3 decorator)', () => {
         });
 
         it('logs errorLog after promise rejects', async () => {
+            expect.hasAssertions();
             const { mock, error } = makeTransport();
             const Log = createLog({ transport: mock });
             const err = new Error('async-fail');
@@ -344,50 +298,6 @@ describe('createLog (stage-3 decorator)', () => {
 
             await expect(new TestClass().run()).rejects.toThrow('async-fail');
             expect(error).toHaveBeenCalledWith('async-failed', err, 'TestClass::run');
-        });
-
-        it('emits :done with duration for promise with measureDuration', async () => {
-            const { mock, debug } = makeTransport();
-            const Log = createLog({ transport: mock, measureDuration: true });
-
-            const originalFn = async function (this: unknown): Promise<string> {
-                return 'done';
-            };
-            const wrapped = Log<readonly unknown[], Promise<string>>()(originalFn, makeContext('run'));
-
-            class TestClass {
-                readonly run = wrapped;
-            }
-
-            await new TestClass().run();
-            expect(debug).toHaveBeenCalledWith(
-                expect.stringMatching(/^run:done \(\d+\.\d+ms\)$/u),
-                'TestClass::run'
-            );
-        });
-    });
-
-    describe('custom sanitizer', () => {
-        it('uses custom sanitizer for preLog function args', () => {
-            const { mock, log } = makeTransport();
-            const customSanitizer = jest.fn<(v: unknown) => unknown>((v) => `sanitized:${String(v)}`);
-            const Log = createLog({ transport: mock, sanitizer: customSanitizer });
-
-            const originalFn = function (this: unknown): void {
-                void 0;
-            };
-            const wrapped = Log<readonly [string], void>(args => `arg=${args[0]}`)(
-                originalFn as (this: unknown, ...args: readonly [string]) => void,
-                makeContext('run')
-            );
-
-            class TestClass {
-                readonly run = wrapped;
-            }
-
-            (new TestClass().run as unknown as (s: string) => void)('hello');
-            expect(customSanitizer).toHaveBeenCalledWith('hello');
-            expect(log).toHaveBeenCalledWith('arg=sanitized:hello', 'TestClass::run');
         });
     });
 });
