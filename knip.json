@@ -7,5 +7,48 @@
         "packages/lock-decorator": {
             "entry": ["src/index.ts", "src/rxjs/index.ts"]
         }
-    }
+    },
+    "ignore": [
+        ".yarn/**",
+        "packages/nestjs-webpack-swc/src/config/**",
+        "packages/react-native-payments/src/@standard/**",
+        "packages/react-native-payments/src/app.plugin.ts",
+        "packages/react-native-payments/src/expo-plugins/**",
+        "packages/react-native-payments-example-expo/app.json",
+        "packages/react-native-payments-example-expo/metro.config.js",
+        "packages/react-native-payments-example/metro.config.js",
+        "packages/wdio/src/util/get-platform/**"
+    ],
+    "ignoreBinaries": [
+        "run"
+    ],
+    "ignoreDependencies": [
+        "@babel/preset-env",
+        "@babel/preset-typescript",
+        "@babel/runtime",
+        "babel-jest",
+        "husky",
+        "reflect-metadata",
+        "rimraf",
+        "@types/hapi__joi",
+        "@types/webpack-node-externals",
+        "run-script-webpack-plugin",
+        "terser-webpack-plugin",
+        "webpack",
+        "webpack-node-externals",
+        "@react-native-community/cli",
+        "@react-native-community/cli-platform-android",
+        "@react-native-community/cli-platform-ios",
+        "@react-navigation/native",
+        "react-dom",
+        "react-native-gesture-handler",
+        "@expo/config-plugins",
+        "ioredis",
+        "prom-client",
+        "redlock",
+        "rxjs",
+        "expo-updates",
+        "@expo/metro-config",
+        "@react-native/metro-babel-transformer"
+    ]
 }
