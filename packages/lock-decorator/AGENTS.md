@@ -37,8 +37,8 @@ src/
     run-with-lock/                       — acquire → run → release; rejects non-Promise results at runtime
     run-with-lock-rxjs/                  — runWithLock$; bridges AbortSignal, releases on complete/error/unsubscribe
   factory/
-    create-sequential-lock/              — returns MethodDecoratorType<K> with K constrained to Promise-returning; runtime-rejects non-Promise methods
-    create-exclusive-lock/               — returns MethodDecoratorType<K> with K constrained to Promise-returning; runtime-rejects non-Promise methods
+    create-sequential-lock-decorator/    — returns MethodDecoratorType<K> with K constrained to Promise-returning; runtime-rejects non-Promise methods
+    create-exclusive-lock-decorator/     — returns MethodDecoratorType<K> with K constrained to Promise-returning; runtime-rejects non-Promise methods
   index.ts
 ```
 

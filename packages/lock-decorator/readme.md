@@ -13,14 +13,14 @@ For `Observable` pipelines under a lock, use `runWithLock$` — also exported fr
 
 ## Factories
 
-### [createSequentialLock](src/factory/create-sequential-lock/create-sequential-lock.ts)
+### [createSequentialLockDecorator](src/factory/create-sequential-lock-decorator/create-sequential-lock-decorator.ts)
 
 FIFO queue on the key. Supports `timeoutMs` (→ `LockAcquireTimeoutError`) and `AbortSignal` (→ `DOMException('AbortError')`).
 
 ```ts
-import { createSequentialLock, createInMemoryLockStore } from '@rnw-community/lock-decorator';
+import { createSequentialLockDecorator, createInMemoryLockStore } from '@rnw-community/lock-decorator';
 
-const SequentialLock = createSequentialLock({ store: createInMemoryLockStore() });
+const SequentialLock = createSequentialLockDecorator({ store: createInMemoryLockStore() });
 
 class DataService {
     @SequentialLock('fetch-data')
@@ -33,14 +33,14 @@ class DataService {
 
 Key-fn `args` is inferred from the method signature — no annotations needed.
 
-### [createExclusiveLock](src/factory/create-exclusive-lock/create-exclusive-lock.ts)
+### [createExclusiveLockDecorator](src/factory/create-exclusive-lock-decorator/create-exclusive-lock-decorator.ts)
 
 Rejects immediately with `LockBusyError` if the key is held. No waiting, no timeout, no signal — skip-on-busy semantics.
 
 ```ts
-import { createExclusiveLock, createInMemoryLockStore } from '@rnw-community/lock-decorator';
+import { createExclusiveLockDecorator, createInMemoryLockStore } from '@rnw-community/lock-decorator';
 
-const ExclusiveLock = createExclusiveLock({ store: createInMemoryLockStore() });
+const ExclusiveLock = createExclusiveLockDecorator({ store: createInMemoryLockStore() });
 
 class Cache {
     @ExclusiveLock('cache-write')

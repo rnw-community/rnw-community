@@ -14,7 +14,7 @@ export { LockAcquireTimeoutError } from './error/lock-acquire-timeout-error/lock
 
 export { createInMemoryLockStore } from './store/create-in-memory-lock-store/create-in-memory-lock-store';
 
-export { createSequentialLock } from './factory/create-sequential-lock/create-sequential-lock';
-export { createExclusiveLock } from './factory/create-exclusive-lock/create-exclusive-lock';
+export { createSequentialLockDecorator } from './factory/create-sequential-lock-decorator/create-sequential-lock-decorator';
+export { createExclusiveLockDecorator } from './factory/create-exclusive-lock-decorator/create-exclusive-lock-decorator';
 
 export { runWithLock$ } from './util/run-with-lock-rxjs/run-with-lock-rxjs';

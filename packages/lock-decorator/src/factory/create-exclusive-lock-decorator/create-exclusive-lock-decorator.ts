@@ -5,7 +5,7 @@ import type { CreateLockOptionsInterface } from '../../interface/create-lock-opt
 import type { ExclusiveLockArgumentType } from '../../type/exclusive-lock-argument.type';
 import type { MethodDecoratorType } from '@rnw-community/shared';
 
-export const createExclusiveLock =
+export const createExclusiveLockDecorator =
     (options: CreateLockOptionsInterface) =>
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     <K extends (...args: readonly any[]) => Promise<unknown>, TArgs extends Parameters<K> = Parameters<K>>(

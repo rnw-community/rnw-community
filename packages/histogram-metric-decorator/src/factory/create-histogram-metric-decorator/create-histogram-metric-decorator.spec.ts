@@ -1,10 +1,10 @@
 import { beforeEach, describe, expect, it } from '@jest/globals';
 import { EMPTY, Observable, lastValueFrom, of, throwError } from 'rxjs';
 
-import { createHistogramMetric, inMemoryHistogramTransport } from '../../index';
+import { createHistogramMetricDecorator, inMemoryHistogramTransport } from '../../index';
 
 const transport = inMemoryHistogramTransport();
-const HistogramMetric = createHistogramMetric({ transport });
+const HistogramMetric = createHistogramMetricDecorator({ transport });
 
 class OrderService {
     @HistogramMetric()
@@ -33,7 +33,7 @@ class OrderService {
     }
 }
 
-describe('createHistogramMetric', () => {
+describe('createHistogramMetricDecorator', () => {
     beforeEach(() => {
         transport.snapshot();
     });

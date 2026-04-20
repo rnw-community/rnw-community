@@ -23,7 +23,7 @@ src/
     in-memory-histogram-transport.interface.ts
     in-memory-observation.interface.ts
   factory/
-    create-histogram-metric/      — decorator factory + spec
+    create-histogram-metric-decorator/      — decorator factory + spec
   transport/
     in-memory-histogram-transport.ts  — test-ready transport
     in-memory-histogram-transport.spec.ts
