@@ -11,9 +11,7 @@ import {
 } from '@rnw-community/log-decorator';
 import { type AnyFn, type MethodDecoratorType, isError } from '@rnw-community/shared';
 
-import type { Observable } from 'rxjs';
-
-type GetResultType<T> = T extends Promise<infer U> ? U : T extends Observable<infer U> ? U : T;
+import type { GetResultType } from '@rnw-community/decorators-core';
 
 const nestLogTransport: LogTransportInterface = {
     log: (message, logContext) => void Logger.log(message, logContext),
