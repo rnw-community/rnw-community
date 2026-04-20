@@ -5,14 +5,18 @@ import { EMPTY, Observable, lastValueFrom, of } from 'rxjs';
 import { HistogramMetric } from './histogram-metric.decorator';
 
 const mockObserve = jest.fn();
-jest.mock('prom-client', () => ({
-    Histogram: jest.fn().mockImplementation(() => ({
-        observe: mockObserve,
-    })),
-    register: {
-        getSingleMetric: jest.fn().mockReturnValue(undefined),
-    },
-}));
+jest.mock('prom-client', () => {
+    const HistogramMock = jest.fn().mockImplementation(function (this: { observe: unknown }) {
+        this.observe = mockObserve;
+    });
+
+    return {
+        Histogram: HistogramMock,
+        register: {
+            getSingleMetric: jest.fn().mockReturnValue(undefined),
+        },
+    };
+});
 
 class TestClass {
     @HistogramMetric('test-metric')
@@ -80,7 +84,10 @@ describe(`HistogramMetric decorator`, () => {
         expect.assertions(2);
 
         const existingObserve = jest.fn();
-        const existingHistogram = { observe: existingObserve };
+        (Histogram as unknown as jest.Mock).mockImplementationOnce(function (this: { observe: unknown }) {
+            this.observe = existingObserve;
+        });
+        const existingHistogram = new Histogram({ name: 'reuse-metric', help: 'reuse-metric' });
         (Histogram as unknown as jest.Mock).mockClear();
         (register.getSingleMetric as jest.Mock).mockReturnValueOnce(existingHistogram);
 
@@ -97,11 +104,37 @@ describe(`HistogramMetric decorator`, () => {
         expect(existingObserve).toHaveBeenCalledTimes(1);
     });
 
+    it('ignores a non-Histogram metric of the same name and constructs a fresh histogram', () => {
+        expect.assertions(3);
+
+        mockObserve.mockClear();
+        const counterObserve = jest.fn();
+        const imposter = { observe: counterObserve };
+        (Histogram as unknown as jest.Mock).mockClear();
+        (register.getSingleMetric as jest.Mock).mockReturnValueOnce(imposter);
+
+        class CounterImposterClass {
+            @HistogramMetric('imposter-metric')
+            run(): number {
+                return 99;
+            }
+        }
+
+        new CounterImposterClass().run();
+
+        expect(Histogram).toHaveBeenCalledTimes(1);
+        expect(counterObserve).not.toHaveBeenCalled();
+        expect(mockObserve).toHaveBeenCalledTimes(1);
+    });
+
     it('looks up an existing histogram in the supplied custom registry instead of the global register', () => {
         expect.assertions(3);
 
         const customObserve = jest.fn();
-        const existingInCustom = { observe: customObserve };
+        (Histogram as unknown as jest.Mock).mockImplementationOnce(function (this: { observe: unknown }) {
+            this.observe = customObserve;
+        });
+        const existingInCustom = new Histogram({ name: 'custom-reg-metric', help: 'custom-reg-metric' });
         const getSingleMetricSpy = jest.fn((_name: string) => existingInCustom as unknown);
         const customRegistry = { getSingleMetric: getSingleMetricSpy } as unknown as typeof register;
         (Histogram as unknown as jest.Mock).mockClear();
@@ -124,8 +157,12 @@ describe(`HistogramMetric decorator`, () => {
         expect.assertions(4);
 
         const laterObserve = jest.fn();
+        (Histogram as unknown as jest.Mock).mockImplementationOnce(function (this: { observe: unknown }) {
+            this.observe = laterObserve;
+        });
+        const laterHistogram = new Histogram({ name: 'multi-reg-metric', help: 'multi-reg-metric' });
         const firstRegistryGetSingleMetric = jest.fn().mockReturnValue(undefined);
-        const secondRegistryGetSingleMetric = jest.fn().mockReturnValue({ observe: laterObserve } as unknown);
+        const secondRegistryGetSingleMetric = jest.fn().mockReturnValue(laterHistogram as unknown);
         const firstRegistry = { getSingleMetric: firstRegistryGetSingleMetric } as unknown as typeof register;
         const secondRegistry = { getSingleMetric: secondRegistryGetSingleMetric } as unknown as typeof register;
         (Histogram as unknown as jest.Mock).mockClear();
@@ -146,6 +183,46 @@ describe(`HistogramMetric decorator`, () => {
         expect(secondRegistryGetSingleMetric).toHaveBeenCalledWith('multi-reg-metric');
         expect(Histogram).not.toHaveBeenCalled();
         expect(laterObserve).toHaveBeenCalledTimes(1);
+    });
+
+    it('forwards labels from the configuration to prom-client observations', () => {
+        expect.assertions(2);
+
+        mockObserve.mockClear();
+
+        class LabeledClass {
+            @HistogramMetric<'tenant', [string]>('labeled-metric', {
+                help: 'labeled-metric',
+                labelNames: ['tenant'],
+                labels: ([tenantId]: [string]) => ({ tenant: tenantId }),
+            })
+            run(_tenantId: string): number {
+                return 1;
+            }
+        }
+
+        new LabeledClass().run('acme');
+
+        expect(mockObserve).toHaveBeenCalledTimes(1);
+        expect((mockObserve as jest.Mock).mock.calls[0]?.[0]).toStrictEqual({ tenant: 'acme' });
+    });
+
+    it('observes without labels when no labels callback is supplied', () => {
+        expect.assertions(2);
+
+        mockObserve.mockClear();
+
+        class UnlabeledClass {
+            @HistogramMetric('unlabeled-metric')
+            run(): number {
+                return 1;
+            }
+        }
+
+        new UnlabeledClass().run();
+
+        expect(mockObserve).toHaveBeenCalledTimes(1);
+        expect(typeof (mockObserve as jest.Mock).mock.calls[0]?.[0]).toBe('number');
     });
 
     describe('Observable and Promise duration semantics', () => {

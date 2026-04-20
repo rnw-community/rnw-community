@@ -1,11 +1,15 @@
-import { Histogram, type HistogramConfiguration, register } from 'prom-client';
+import { Histogram, type HistogramConfiguration, type LabelValues, register } from 'prom-client';
 
 import { createHistogramMetricDecorator } from '@rnw-community/histogram-metric-decorator';
 import { isDefined } from '@rnw-community/shared';
 
-import type { HistogramTransportInterface } from '@rnw-community/histogram-metric-decorator';
+import type { HistogramOptionsInterface, HistogramTransportInterface } from '@rnw-community/histogram-metric-decorator';
 
 const MS_PER_SECOND = 1000;
+
+type HistogramMetricConfig<M extends string, TArgs extends readonly unknown[]> = Omit<HistogramConfiguration<M>, 'name'> & {
+    readonly labels?: (args: TArgs) => Readonly<Record<string, string>>;
+};
 
 const resolveExistingHistogram = <M extends string>(
     metricName: string,
@@ -14,10 +18,10 @@ const resolveExistingHistogram = <M extends string>(
     const registries = configuration?.registers ?? [register];
 
     for (const item of registries) {
-        const existing = item.getSingleMetric(metricName) as Histogram<M> | undefined;
+        const existing = item.getSingleMetric(metricName);
 
-        if (isDefined(existing)) {
-            return existing;
+        if (existing instanceof Histogram) {
+            return existing as Histogram<M>;
         }
     }
 
@@ -42,16 +46,25 @@ const createPromClientTransport = <M extends string>(
     const histogram = resolveHistogram(metricName, configuration);
 
     return {
-        observe: (_name, durationMs) => {
-            histogram.observe(durationMs / MS_PER_SECOND);
+        observe: (_name, durationMs, labelValues) => {
+            const seconds = durationMs / MS_PER_SECOND;
+            if (isDefined(labelValues)) {
+                histogram.observe(labelValues as LabelValues<M>, seconds);
+
+                return;
+            }
+            histogram.observe(seconds);
         },
     };
 };
 
-export const HistogramMetric = <M extends string>(
+export const HistogramMetric = <M extends string, TArgs extends readonly unknown[] = readonly unknown[]>(
     metricName: string,
-    configuration?: Omit<HistogramConfiguration<M>, 'name'>
-) =>
-    createHistogramMetricDecorator({
-        transport: createPromClientTransport(metricName, configuration),
-    })({ name: metricName });
+    configuration?: HistogramMetricConfig<M, TArgs>
+) => {
+    const { labels, ...promConfig } = configuration ?? {};
+
+    return createHistogramMetricDecorator({
+        transport: createPromClientTransport(metricName, promConfig as Omit<HistogramConfiguration<M>, 'name'>),
+    })({ name: metricName, labels: labels as HistogramOptionsInterface<readonly unknown[]>['labels'] });
+};
