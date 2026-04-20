@@ -1,7 +1,7 @@
 import { Histogram, type HistogramConfiguration, register } from 'prom-client';
 
-import { createHistogramMetric } from '@rnw-community/histogram-metric-decorator';
-import { type AnyFn, type MethodDecoratorType, isDefined } from '@rnw-community/shared';
+import { createHistogramMetricDecorator } from '@rnw-community/histogram-metric-decorator';
+import { isDefined } from '@rnw-community/shared';
 
 import type { HistogramTransportInterface } from '@rnw-community/histogram-metric-decorator';
 
@@ -48,10 +48,10 @@ const createPromClientTransport = <M extends string>(
     };
 };
 
-export const HistogramMetric = <M extends string, K extends AnyFn>(
+export const HistogramMetric = <M extends string>(
     metricName: string,
     configuration?: Omit<HistogramConfiguration<M>, 'name'>
-): MethodDecoratorType<K> =>
-    createHistogramMetric({
+) =>
+    createHistogramMetricDecorator({
         transport: createPromClientTransport(metricName, configuration),
-    })({ name: metricName }) as unknown as MethodDecoratorType<K>;
+    })({ name: metricName });

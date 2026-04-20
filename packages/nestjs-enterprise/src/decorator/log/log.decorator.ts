@@ -1,7 +1,7 @@
 import { Logger } from '@nestjs/common';
 
 import { observableStrategy } from '@rnw-community/decorators-core';
-import { type LogTransportInterface, createLog } from '@rnw-community/log-decorator';
+import { type LogTransportInterface, createLogDecorator } from '@rnw-community/log-decorator';
 import { isError } from '@rnw-community/shared';
 
 const nestLogTransport: LogTransportInterface = {
@@ -16,4 +16,4 @@ const nestLogTransport: LogTransportInterface = {
     },
 };
 
-export const Log = createLog({ transport: nestLogTransport, strategies: [observableStrategy] });
+export const Log = createLogDecorator({ transport: nestLogTransport, strategies: [observableStrategy] });

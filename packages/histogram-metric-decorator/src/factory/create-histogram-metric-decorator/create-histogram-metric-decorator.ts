@@ -4,7 +4,7 @@ import type { CreateHistogramMetricOptionsInterface } from '../../interface/crea
 import type { HistogramOptionsInterface } from '../../interface/histogram-options.interface';
 import type { AnyFn, MethodDecoratorType } from '@rnw-community/shared';
 
-export const createHistogramMetric =
+export const createHistogramMetricDecorator =
     (options: CreateHistogramMetricOptionsInterface) =>
     <K extends AnyFn, TArgs extends Parameters<K> = Parameters<K>>(
         config?: HistogramOptionsInterface<TArgs>

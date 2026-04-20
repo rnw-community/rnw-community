@@ -23,7 +23,7 @@ src/
     log/                — Log decorator (thin adapter over @rnw-community/log-decorator)
     histogram-metric/   — HistogramMetric decorator (thin adapter over @rnw-community/histogram-metric-decorator + prom-client transport)
     lock/
-      lock-service-store.adapter.ts  — LockServiceStoreAdapter: bridges LockServiceInterface ↔ LockStoreInterface
+      create-lock-service-store.ts   — createLockServiceStore: bridges LockServiceInterface → LockStoreInterface (NUL-joins multi-resource keys)
       lockable.service.ts            — DEPRECATED: LockableService base class
       interface/        — LockServiceInterface, LockHandle
       create-promise-lock-decorators/    — Modern DI-based promise lock factory (@rnw-community/lock-decorator)
@@ -41,9 +41,9 @@ PascalCase convention: `./HistogramMetric`, `./Log`, `./LockPromise`, `./LockObs
 
 All three live decorator families delegate to the universal decorator suite:
 
-- **Log**: `createLog` from `@rnw-community/log-decorator` + a NestJS `Logger` transport; Observable support via `observableStrategy` from `@rnw-community/decorators-core`; a call-shape bridge converts upstream's spread-style `(...args) => string` pre/post/error functions to the new array-style signature
-- **HistogramMetric**: `createHistogramMetric` from `@rnw-community/histogram-metric-decorator` + a prom-client `Histogram` transport that converts the engine's milliseconds into prom-client's canonical seconds via `histogram.observe(durationMs / 1000)`. Sync and Promise paths emit one observation on completion or rejection; Observables are not specially handled (see the histogram package readme)
-- **Locks**: `createPromiseLockDecorators` / `createObservableLockDecorators` in-package, each driving a NestJS DI binding through a `LockServiceStoreAdapter` that bridges the multi-resource `LockServiceInterface` to the single-key `LockStoreInterface` from `@rnw-community/lock-decorator` (multi-key resources are NUL-joined into one store key). Setup errors (missing DI, empty key) bypass `catchErrorFn`. `LockBusyError` is translated to the legacy `undefined`/`EMPTY` + `Error("Lock not acquired for keys: …")` shapes
+- **Log**: `createLogDecorator` from `@rnw-community/log-decorator` + a NestJS `Logger` transport; Observable support via `observableStrategy` from `@rnw-community/decorators-core`; a call-shape bridge converts upstream's spread-style `(...args) => string` pre/post/error functions to the new array-style signature
+- **HistogramMetric**: `createHistogramMetricDecorator` from `@rnw-community/histogram-metric-decorator` + a prom-client `Histogram` transport that converts the engine's milliseconds into prom-client's canonical seconds via `histogram.observe(durationMs / 1000)`. Sync and Promise paths emit one observation on completion or rejection; Observable paths emit one observation on stream `complete` or `error` via `completionObservableStrategy` (wired by default in `createHistogramMetricDecorator`)
+- **Locks**: `createPromiseLockDecorators` / `createObservableLockDecorators` in-package, each driving a NestJS DI binding through `createLockServiceStore` that bridges the multi-resource `LockServiceInterface` to the single-key `LockStoreInterface` from `@rnw-community/lock-decorator` (multi-key resources are NUL-joined into one store key). Setup errors (missing DI, empty key) bypass `catchErrorFn`. `LockBusyError` is translated to the legacy `undefined`/`EMPTY` + `Error("Lock not acquired for keys: …")` shapes
 
 ### Key patterns preserved from upstream
 
@@ -60,8 +60,8 @@ All three live decorator families delegate to the universal decorator suite:
 
 - `@rnw-community/shared` — `isDefined`, `isPromise`, `isNotEmptyArray`
 - `@rnw-community/decorators-core` — interceptor engine + `observableStrategy`
-- `@rnw-community/log-decorator` — `createLog` engine behind `Log`
-- `@rnw-community/histogram-metric-decorator` — `createHistogramMetric` engine behind `HistogramMetric`
+- `@rnw-community/log-decorator` — `createLogDecorator` engine behind `Log`
+- `@rnw-community/histogram-metric-decorator` — `createHistogramMetricDecorator` engine behind `HistogramMetric`
 - `@rnw-community/lock-decorator` — `LockBusyError`, `LockStoreInterface`
 - **Required peers**: `@nestjs/common`, `rxjs`
 - **Optional peers** (`peerDependenciesMeta`): `ioredis`, `redlock`, `prom-client` (feature-specific)

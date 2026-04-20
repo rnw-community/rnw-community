@@ -6,4 +6,4 @@ export type { InMemoryHistogramTransportInterface } from './interface/in-memory-
 
 export { inMemoryHistogramTransport } from './transport/in-memory-histogram-transport';
 
-export { createHistogramMetric } from './factory/create-histogram-metric/create-histogram-metric';
+export { createHistogramMetricDecorator } from './factory/create-histogram-metric-decorator/create-histogram-metric-decorator';

@@ -7,4 +7,4 @@ export type { ErrorLogInputType } from './type/error-log-input.type';
 
 export { consoleTransport } from './console-transport/console-transport';
 
-export { createLog } from './create-log/create-log';
+export { createLogDecorator } from './create-log-decorator/create-log-decorator';

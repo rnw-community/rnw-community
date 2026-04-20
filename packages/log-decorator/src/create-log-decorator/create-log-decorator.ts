@@ -9,7 +9,7 @@ import type { PreLogInputType } from '../type/pre-log-input.type';
 import type { GetResultType } from '@rnw-community/decorators-core';
 import type { AnyFn, MethodDecoratorType } from '@rnw-community/shared';
 
-export const createLog =
+export const createLogDecorator =
     (options: CreateLogOptionsInterface) =>
     <K extends AnyFn, TResult extends GetResultType<ReturnType<K>>, TArgs extends Parameters<K>>(
         preLog?: PreLogInputType<TArgs>,

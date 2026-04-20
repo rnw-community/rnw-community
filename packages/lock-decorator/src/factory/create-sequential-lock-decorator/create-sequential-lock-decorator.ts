@@ -5,7 +5,7 @@ import type { CreateLockOptionsInterface } from '../../interface/create-lock-opt
 import type { SequentialLockArgumentType } from '../../type/sequential-lock-argument.type';
 import type { MethodDecoratorType } from '@rnw-community/shared';
 
-export const createSequentialLock =
+export const createSequentialLockDecorator =
     (options: CreateLockOptionsInterface) =>
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     <K extends (...args: readonly any[]) => Promise<unknown>, TArgs extends Parameters<K> = Parameters<K>>(

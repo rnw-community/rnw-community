@@ -5,12 +5,12 @@ import { wait } from '@rnw-community/shared';
 import { LockAcquireTimeoutError } from '../../error/lock-acquire-timeout-error/lock-acquire-timeout.error';
 import { createInMemoryLockStore } from '../../store/create-in-memory-lock-store/create-in-memory-lock-store';
 
-import { createSequentialLock } from './create-sequential-lock';
+import { createSequentialLockDecorator } from './create-sequential-lock-decorator';
 
 import type { LockStoreInterface } from '../../interface/lock-store.interface';
 
 const store = createInMemoryLockStore();
-const SequentialLock = createSequentialLock({ store });
+const SequentialLock = createSequentialLockDecorator({ store });
 
 class OrderService {
     readonly inventory = new Map<string, number>([['sku-1', 10]]);
@@ -46,7 +46,7 @@ class OrderService {
     }
 }
 
-describe('createSequentialLock', () => {
+describe('createSequentialLockDecorator', () => {
     it('executes the decorated method and returns its result', async () => {
         expect.hasAssertions();
 
@@ -61,7 +61,7 @@ describe('createSequentialLock', () => {
 
         const localStore = createInMemoryLockStore();
         const spy = jest.spyOn(localStore, 'acquire');
-        const LocalSeqLock = createSequentialLock({ store: localStore });
+        const LocalSeqLock = createSequentialLockDecorator({ store: localStore });
 
         class InvoiceService {
             @LocalSeqLock('invoice-gen')
@@ -83,7 +83,7 @@ describe('createSequentialLock', () => {
         expect.hasAssertions();
 
         const localStore = createInMemoryLockStore();
-        const LocalSeqLock = createSequentialLock({ store: localStore });
+        const LocalSeqLock = createSequentialLockDecorator({ store: localStore });
 
         class FulfillmentService {
             @LocalSeqLock('fulfill')
@@ -114,7 +114,7 @@ describe('createSequentialLock', () => {
 
         const localStore = createInMemoryLockStore();
         const spy = jest.spyOn(localStore, 'acquire');
-        const LocalSeqLock = createSequentialLock({ store: localStore });
+        const LocalSeqLock = createSequentialLockDecorator({ store: localStore });
 
         class CatalogService {
             @LocalSeqLock(args => `price:${args[0]}`)
@@ -134,7 +134,7 @@ describe('createSequentialLock', () => {
 
         const localStore = createInMemoryLockStore();
         const spy = jest.spyOn(localStore, 'acquire');
-        const LocalSeqLock = createSequentialLock({ store: localStore });
+        const LocalSeqLock = createSequentialLockDecorator({ store: localStore });
 
         class ShippingService {
             @LocalSeqLock({ key: 'ship-schedule', timeoutMs: 250 })
@@ -153,7 +153,7 @@ describe('createSequentialLock', () => {
         expect.hasAssertions();
 
         const localStore = createInMemoryLockStore();
-        const LocalSeqLock = createSequentialLock({ store: localStore });
+        const LocalSeqLock = createSequentialLockDecorator({ store: localStore });
         const processedOrder: number[] = [];
 
         class OrderQueue {
@@ -184,7 +184,7 @@ describe('createSequentialLock', () => {
 
         const localStore = createInMemoryLockStore();
         const held = await localStore.acquire('payment-timeout', 'sequential');
-        const LocalSeqLock = createSequentialLock({ store: localStore });
+        const LocalSeqLock = createSequentialLockDecorator({ store: localStore });
 
         class PaymentGateway {
             @LocalSeqLock({ key: 'payment-timeout', timeoutMs: 10 })
@@ -210,7 +210,7 @@ describe('createSequentialLock', () => {
             acquire: jest.fn<() => Promise<typeof failingHandle>>().mockResolvedValue(failingHandle),
         } as unknown as LockStoreInterface;
 
-        const LocalSeqLock = createSequentialLock({ store: mockStore });
+        const LocalSeqLock = createSequentialLockDecorator({ store: mockStore });
 
         class InventoryService {
             @LocalSeqLock('order-release')
@@ -227,7 +227,7 @@ describe('createSequentialLock', () => {
         expect.hasAssertions();
 
         const localStore = createInMemoryLockStore();
-        const LocalSeqLock = createSequentialLock({ store: localStore });
+        const LocalSeqLock = createSequentialLockDecorator({ store: localStore });
 
         const descriptor: PropertyDescriptor = { get: (): string => 'catalog-value', configurable: true };
         const result = LocalSeqLock('catalog-prop')({} as object, 'catalogProp', descriptor);
@@ -239,7 +239,7 @@ describe('createSequentialLock', () => {
         expect.hasAssertions();
 
         const localStore = createInMemoryLockStore();
-        const LocalSeqLock = createSequentialLock({ store: localStore });
+        const LocalSeqLock = createSequentialLockDecorator({ store: localStore });
 
         class WarehouseService {
             @LocalSeqLock('warehouse-dispatch')

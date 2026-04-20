@@ -3,7 +3,7 @@ import { Observable, lastValueFrom, of, throwError } from 'rxjs';
 
 import { observableStrategy } from '@rnw-community/decorators-core';
 
-import { createLog } from './create-log';
+import { createLogDecorator } from './create-log-decorator';
 
 import type { LogTransportInterface } from '../interface/log-transport.interface';
 
@@ -14,8 +14,8 @@ const transport: LogTransportInterface = { log: transportLog, debug: transportDe
 const PI = 3.14159;
 const FIXED_EPOCH_MS = 1_700_000_000_000;
 
-const Log = createLog({ transport });
-const Log$ = createLog({ transport, strategies: [observableStrategy] });
+const Log = createLogDecorator({ transport });
+const Log$ = createLogDecorator({ transport, strategies: [observableStrategy] });
 
 class OrderService {
     @Log(
@@ -112,7 +112,7 @@ class OrderService {
     }
 }
 
-describe('createLog (experimentalDecorators)', () => {
+describe('createLogDecorator (experimentalDecorators)', () => {
     beforeEach(() => {
         transportLog.mockReset();
         transportDebug.mockReset();

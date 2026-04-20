@@ -10,9 +10,9 @@ Universal method decorator with pre/post/error logging hooks and a pluggable tra
 Callback parameter types are inferred from the decorated method. Do NOT spell out factory generics or annotate callback params.
 
 ```ts
-import { createLog, consoleTransport } from '@rnw-community/log-decorator';
+import { createLogDecorator, consoleTransport } from '@rnw-community/log-decorator';
 
-const Log = createLog({ transport: consoleTransport });
+const Log = createLogDecorator({ transport: consoleTransport });
 
 class OrderService {
     @Log(
@@ -32,7 +32,7 @@ Omit any hook to skip that lifecycle event. Empty-string hook results (static `'
 
 ## Public API
 
-- [`createLog`](src/create-log/create-log.ts) — decorator factory; returns `<K extends AnyFn>(...) => MethodDecoratorType<K>`
+- [`createLogDecorator`](src/create-log-decorator/create-log-decorator.ts) — decorator factory; returns `<K extends AnyFn>(...) => MethodDecoratorType<K>`
 - [`consoleTransport`](src/console-transport/console-transport.ts) — default `LogTransportInterface` forwarding to `console.log`/`debug`/`error`
 - [`LogTransportInterface`](src/interface/log-transport.interface.ts) — plug in Pino, Winston, Nest `Logger`, anything
 - [`CreateLogOptionsInterface`](src/interface/create-log-options.interface.ts) — `{ transport, strategies? }`
@@ -43,10 +43,10 @@ Omit any hook to skip that lifecycle event. Empty-string hook results (static `'
 Opt in by passing [`observableStrategy`](../decorators-core/src/strategy/observable-strategy/observable.strategy.ts) from [`@rnw-community/decorators-core`](../decorators-core):
 
 ```ts
-import { createLog, consoleTransport } from '@rnw-community/log-decorator';
+import { createLogDecorator, consoleTransport } from '@rnw-community/log-decorator';
 import { observableStrategy } from '@rnw-community/decorators-core';
 
-const Log = createLog({ transport: consoleTransport, strategies: [observableStrategy] });
+const Log = createLogDecorator({ transport: consoleTransport, strategies: [observableStrategy] });
 ```
 
 `postLog` then fires per emission; `errorLog` fires on stream error. `rxjs` is an optional peer — install it only when using `observableStrategy`.
