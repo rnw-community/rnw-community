@@ -1,17 +1,8 @@
 import { Logger } from '@nestjs/common';
 
 import { observableStrategy } from '@rnw-community/decorators-core';
-import {
-    type CreateLogOptionsInterface,
-    type ErrorLogInputType,
-    type LogTransportInterface,
-    type PostLogInputType,
-    type PreLogInputType,
-    createLog,
-} from '@rnw-community/log-decorator';
-import { type AnyFn, type MethodDecoratorType, isError } from '@rnw-community/shared';
-
-import type { GetResultType } from '@rnw-community/decorators-core';
+import { type LogTransportInterface, createLog } from '@rnw-community/log-decorator';
+import { isError } from '@rnw-community/shared';
 
 const nestLogTransport: LogTransportInterface = {
     log: (message, logContext) => void Logger.log(message, logContext),
@@ -25,10 +16,4 @@ const nestLogTransport: LogTransportInterface = {
     },
 };
 
-const boundLog = createLog({ transport: nestLogTransport, strategies: [observableStrategy] } satisfies CreateLogOptionsInterface);
-
-export const Log = <K extends AnyFn, TResult extends GetResultType<ReturnType<K>>, TArgs extends Parameters<K>>(
-    preLog?: PreLogInputType<TArgs>,
-    postLog?: PostLogInputType<TArgs, TResult>,
-    errorLog?: ErrorLogInputType<TArgs>
-): MethodDecoratorType<K> => boundLog<K, TResult, TArgs>(preLog, postLog, errorLog);
+export const Log = createLog({ transport: nestLogTransport, strategies: [observableStrategy] });
