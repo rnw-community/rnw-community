@@ -46,7 +46,7 @@
         "clear:deps": "rm -rf ./node_modules && rm -rf ./dist"
     },
     "dependencies": {
-        "@rnw-community/shared": "^1.12.1"
+        "@rnw-community/shared": "workspace:^"
     },
     "engines": {
         "node": ">=18.0.0"

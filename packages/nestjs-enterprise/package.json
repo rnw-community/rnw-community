@@ -77,7 +77,7 @@
         "@rnw-community/histogram-metric-decorator": "workspace:^",
         "@rnw-community/lock-decorator": "workspace:^",
         "@rnw-community/log-decorator": "workspace:^",
-        "@rnw-community/shared": "^1.12.1"
+        "@rnw-community/shared": "workspace:^"
     },
     "engines": {
         "node": ">=18.0.0"

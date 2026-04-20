@@ -35,11 +35,14 @@ src/
 - One entity per file; folders only to group `source + spec` (+ optional `.md`)
 - Observation emitted on BOTH success and error paths (via `onSuccess` + `onError` engine hooks)
 - Metric name defaults to `<ClassName>_<methodName>_duration_ms` when omitted; consumer can override via `{ name }`
-- Sync returns emit on return; Promise returns emit on settle (resolve or reject). Observable returns are NOT specially handled — observations fire once on the sync return of the Observable reference, not on stream completion
+- Sync returns emit on return; Promise returns emit on settle (resolve or reject); Observable returns emit one observation on stream `complete` or `error` via `completionObservableStrategy` from `@rnw-community/decorators-core` (wired by default in the factory)
+- `labels` is a function that receives the method's args as a tuple — inferred from the method signature, no annotations required
 
 ## Dependencies
 
-- `@rnw-community/decorators-core` — interceptor engine
+- `@rnw-community/decorators-core` — interceptor engine + `completionObservableStrategy`
+- `@rnw-community/shared` — `MethodDecoratorType`, `AnyFn`
+- **Optional peer**: `rxjs` (only needed when methods return `Observable`)
 
 ## Coverage
 
