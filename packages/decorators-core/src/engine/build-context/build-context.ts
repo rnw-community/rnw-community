@@ -1,17 +1,14 @@
-import { isDefined } from '@rnw-community/shared';
+import { isDefined, isNotEmptyString } from '@rnw-community/shared';
 
 import type { ExecutionContextInterface } from '../../interface/execution-context.interface';
 
-const resolveNameFromFunction = (fn: { readonly name?: string }): string | null => {
-    const { name } = fn;
-
-    return typeof name === 'string' && name.length > 0 ? name : null;
-};
+const resolveNameFromFunction = (fn: { readonly name?: string }): string | null =>
+    isNotEmptyString(fn.name) ? fn.name : null;
 
 const resolveNameFromConstructor = (self: object): string | null => {
     const ctorName = (self as { readonly constructor?: { readonly name?: string } }).constructor?.name;
 
-    return typeof ctorName === 'string' && ctorName.length > 0 ? ctorName : null;
+    return isNotEmptyString(ctorName) ? ctorName : null;
 };
 
 const getAttachedName = (self: unknown): string | null => {

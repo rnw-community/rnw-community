@@ -1,6 +1,6 @@
 import { Observable, type Subscriber, Subscription, finalize, isObservable } from 'rxjs';
 
-import { isDefined } from '@rnw-community/shared';
+import { type EmptyFn, emptyFn, isDefined } from '@rnw-community/shared';
 
 import type { AcquireOptionsInterface } from '../../interface/acquire-options.interface';
 import type { LockHandleInterface } from '../../interface/lock-handle.interface';
@@ -8,17 +8,17 @@ import type { LockStoreInterface } from '../../interface/lock-store.interface';
 import type { LockModeType } from '../../type/lock-mode.type';
 
 const releaseSilently = (handle: LockHandleInterface): void => {
-    void Promise.resolve(handle.release()).catch(() => void 0);
+    void Promise.resolve(handle.release()).catch(emptyFn);
 };
 
-const bridgeSignal = (external: AbortSignal | undefined, controller: AbortController): (() => void) => {
+const bridgeSignal = (external: AbortSignal | undefined, controller: AbortController): EmptyFn => {
     if (!isDefined(external)) {
-        return () => void 0;
+        return emptyFn;
     }
     if (external.aborted) {
         controller.abort();
 
-        return () => void 0;
+        return emptyFn;
     }
     const forward = (): void => void controller.abort();
     external.addEventListener('abort', forward, { once: true });

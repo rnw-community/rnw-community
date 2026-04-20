@@ -1,6 +1,6 @@
 import { EMPTY, type Observable, catchError, concatMap, defer, finalize, from, isObservable, tap } from 'rxjs';
 
-import { isDefined } from '@rnw-community/shared';
+import { emptyFn, isDefined } from '@rnw-community/shared';
 
 import { runPreLock } from './run-pre-lock.util';
 
@@ -39,14 +39,14 @@ export const executeLockObservable = <TResult, TArgs extends unknown[] = unknown
                 const result = originalMethod.apply(this, args) as Observable<TResult>;
 
                 if (!isObservable(result)) {
-                    void currentLock.release().catch(() => void 0);
+                    void currentLock.release().catch(emptyFn);
 
                     throw new Error(`Method ${methodName} does not return an observable`);
                 }
 
                 return result.pipe(
                     finalize(() => {
-                        void currentLock.release().catch(() => void 0);
+                        void currentLock.release().catch(emptyFn);
                     })
                 );
             }),
