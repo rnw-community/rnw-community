@@ -13,11 +13,7 @@ type GetResultType<T> = T extends Promise<infer U> ? U : T extends Observable<in
 
 export const createLog =
     (options: CreateLogOptionsInterface) =>
-    <
-        K extends AnyFn,
-        TArgs extends Parameters<K> = Parameters<K>,
-        TResult extends GetResultType<ReturnType<K>> = GetResultType<ReturnType<K>>,
-    >(
+    <K extends AnyFn, TResult extends GetResultType<ReturnType<K>>, TArgs extends Parameters<K>>(
         preLog?: PreLogInputType<TArgs>,
         postLog?: PostLogInputType<TArgs, TResult>,
         errorLog?: ErrorLogInputType<TArgs>

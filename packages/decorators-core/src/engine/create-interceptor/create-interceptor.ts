@@ -1,10 +1,9 @@
-import { isNotEmptyString } from '@rnw-community/shared';
+import { type AnyFn, type MethodDecoratorType, isNotEmptyString } from '@rnw-community/shared';
 
 import { buildContext } from '../build-context/build-context';
 import { runInterception } from '../run-interception/run-interception';
 
 import type { CreateInterceptorOptionsInterface } from '../../interface/create-interceptor-options.interface';
-import type { MethodDecoratorType } from '../../type/method-decorator.type';
 
 const resolveFallbackClassName = (target: object): string => {
     if (typeof target === 'function') {
@@ -20,7 +19,7 @@ const resolveFallbackClassName = (target: object): string => {
 
 export const createInterceptor = <TArgs extends readonly unknown[], TResult>(
     options: CreateInterceptorOptionsInterface<TArgs, TResult>
-): MethodDecoratorType => {
+): MethodDecoratorType<AnyFn> => {
     const strategies = options.strategies ?? [];
 
     return (target, propertyKey, descriptor) => {

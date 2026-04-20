@@ -9,9 +9,8 @@ import {
     type PreLogInputType,
     createLog,
 } from '@rnw-community/log-decorator';
-import { type AnyFn, isError } from '@rnw-community/shared';
+import { type AnyFn, type MethodDecoratorType, isError } from '@rnw-community/shared';
 
-import type { MethodDecoratorType } from '@rnw-community/decorators-core';
 import type { Observable } from 'rxjs';
 
 type GetResultType<T> = T extends Promise<infer U> ? U : T extends Observable<infer U> ? U : T;
@@ -28,17 +27,10 @@ const nestLogTransport: LogTransportInterface = {
     },
 };
 
-const options: CreateLogOptionsInterface = {
-    transport: nestLogTransport,
-    strategies: [observableStrategy],
-};
+const boundLog = createLog({ transport: nestLogTransport, strategies: [observableStrategy] } satisfies CreateLogOptionsInterface);
 
-const baseLog = createLog(options);
-
-export const Log =
-    <K extends AnyFn, TResult extends ReturnType<K>, TArgs extends Parameters<K>>(
-        preLog: PreLogInputType<TArgs>,
-        postLog?: PostLogInputType<TArgs, GetResultType<TResult>>,
-        errorLog?: ErrorLogInputType<TArgs>
-    ): MethodDecoratorType =>
-        baseLog<TArgs, GetResultType<TResult>>(preLog, postLog, errorLog);
+export const Log = <K extends AnyFn, TResult extends GetResultType<ReturnType<K>>, TArgs extends Parameters<K>>(
+    preLog?: PreLogInputType<TArgs>,
+    postLog?: PostLogInputType<TArgs, TResult>,
+    errorLog?: ErrorLogInputType<TArgs>
+): MethodDecoratorType<K> => boundLog<K, TResult, TArgs>(preLog, postLog, errorLog);

@@ -160,6 +160,10 @@ The `shared` package exists so the rest of the monorepo does NOT re-invent guard
 
 If a needed primitive does NOT exist in `shared`, extend `shared` rather than creating it locally — that is where all cross-package utility surface lives.
 
+### Never re-export types from other packages
+
+A package MUST NOT re-export (`export type { X } from '@rnw-community/other'`) a type owned by another workspace package. Consumers import the type directly from its origin: `import type { MethodDecoratorType } from '@rnw-community/shared'`, not `from '@rnw-community/decorators-core'`. Re-exports create phantom ownership, bloat bundles with duplicate type graphs, and make refactors ambiguous ("which package owns this?"). The rule is hard: one type, one home, direct imports everywhere.
+
 ### Docs location
 
 - `readme.md` at the package root — short summary + badges + per-export section with one usage example
