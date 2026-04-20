@@ -41,6 +41,16 @@ First argument is the metric name; second is an optional `Omit<HistogramConfigur
 
 Pass `registers: [myRegistry]` to route observations to a registry other than the global default. The adapter looks up existing histograms in the first supplied registry before creating a new one — multiple decorations of the same metric name share the same `Histogram` instance.
 
-## Default metric name
+## Labels
 
-Omit the name argument and the default becomes `<ClassName>_<methodName>_duration_ms`. Use an explicit name when you want a stable metric across refactors.
+Pass `labels: (args) => ({...})` on the `configuration` object to attach per-call label values. The callback receives the decorated method's argument tuple; the return becomes prom-client's `LabelValues` for the observation.
+
+```typescript
+@HistogramMetric<'tenant' | 'operation'>('cats_find_all_duration', {
+    labelNames: ['tenant', 'operation'],
+    labels: ([tenantId, op]: [string, string]) => ({ tenant: tenantId, operation: op }),
+})
+async findAll(tenantId: string, op: string): Promise<Cat[]> { /* ... */ }
+```
+
+Label names must be declared in prom-client's `labelNames` field for the histogram, otherwise the observation is rejected at runtime.
