@@ -1,4 +1,6 @@
-import { completionObservableStrategy, createInterceptor } from '@rnw-community/decorators-core';
+import { completionObservableStrategy } from '@rnw-community/decorators-core/rxjs';
+
+import { createInterceptor } from '@rnw-community/decorators-core';
 
 import type { CreateHistogramMetricOptionsInterface } from '../../interface/create-histogram-metric-options.interface';
 import type { HistogramOptionsInterface } from '../../interface/histogram-options.interface';
