@@ -1,4 +1,4 @@
-import { isDefined } from '@rnw-community/shared';
+import { type EmptyFn, emptyFn, isDefined } from '@rnw-community/shared';
 
 import { LockAcquireTimeoutError } from '../../error/lock-acquire-timeout-error/lock-acquire-timeout.error';
 import { LockBusyError } from '../../error/lock-busy-error/lock-busy.error';
@@ -11,10 +11,10 @@ import type { LockModeType } from '../../type/lock-mode.type';
 type SettleFn = (action: 'resolve' | 'reject', value?: unknown) => void;
 
 const buildSettle = (
-    resolve: () => void,
+    resolve: EmptyFn,
     reject: (reason?: unknown) => void,
-    clearTimer: () => void,
-    removeListener: () => void
+    clearTimer: EmptyFn,
+    removeListener: EmptyFn
 ): SettleFn => {
     let settled = false;
 
@@ -36,7 +36,7 @@ const buildSettle = (
 const buildTimer = (
     key: string,
     timeoutMs: number,
-    resolveSlot: () => void,
+    resolveSlot: EmptyFn,
     settle: SettleFn
 ): ReturnType<typeof setTimeout> =>
     setTimeout(() => {
@@ -45,9 +45,9 @@ const buildTimer = (
     }, timeoutMs);
 
 interface WaitForTurnContext {
-    readonly resolve: () => void;
+    readonly resolve: EmptyFn;
     readonly reject: (reason?: unknown) => void;
-    readonly resolveSlot: () => void;
+    readonly resolveSlot: EmptyFn;
     readonly currentTail: Promise<void>;
     readonly key: string;
     readonly timeoutMs: number | undefined;
@@ -58,7 +58,7 @@ interface WaitForTurnContext {
 const buildWaitForTurn = (ctx: WaitForTurnContext): void => {
     const { resolve, reject, resolveSlot, currentTail, key, timeoutMs, signal } = ctx;
     let timerId: ReturnType<typeof setTimeout> | undefined;
-    let removeListener: () => void = () => void 0;
+    let removeListener: EmptyFn = emptyFn;
 
     const clearTimer = (): void => { if (isDefined(timerId)) { clearTimeout(timerId); } };
     const settle = buildSettle(resolve, reject, clearTimer, () => void removeListener());
@@ -96,8 +96,8 @@ const acquireSequential = (
     const signal = options?.signal;
     const currentTail = sequentialChains.get(key) ?? Promise.resolve();
 
-    let resolveSlot!: () => void;
-     
+    let resolveSlot!: EmptyFn;
+
     const slotPromise = new Promise<void>((resolve) => { resolveSlot = resolve; });
 
     const nextTail = currentTail.then(() => slotPromise);

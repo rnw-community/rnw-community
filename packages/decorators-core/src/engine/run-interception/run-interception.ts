@@ -3,8 +3,9 @@ import { isPromise } from '@rnw-community/shared';
 import type { ExecutionContextInterface } from '../../interface/execution-context.interface';
 import type { InterceptorInterface } from '../../interface/interceptor.interface';
 import type { ResultStrategyInterface } from '../../interface/result-strategy.interface';
+import type { EmptyFn } from '@rnw-community/shared';
 
-const swallow = (fn: () => void): void => {
+const swallow = (fn: EmptyFn): void => {
     try {
         fn();
     } catch {
@@ -15,7 +16,7 @@ const swallow = (fn: () => void): void => {
 const makeEmitEnter = <TArgs extends readonly unknown[], TResult>(
     interceptor: InterceptorInterface<TArgs, TResult>,
     context: ExecutionContextInterface<TArgs>
-): (() => void) =>
+): EmptyFn =>
     (): void => {
         if (interceptor.onEnter !== void 0) {
             swallow(() => void interceptor.onEnter?.(context));

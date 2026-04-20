@@ -1,11 +1,12 @@
+import { isError, isString } from '@rnw-community/shared';
+
 import type { CreateLogOptionsInterface } from '../interface/create-log-options.interface';
 import type { ErrorLogInputType } from '../type/error-log-input.type';
 import type { PostLogInputType } from '../type/post-log-input.type';
 import type { PreLogInputType } from '../type/pre-log-input.type';
 import type { ExecutionContextInterface, InterceptorInterface } from '@rnw-community/decorators-core';
 
-const toErrorOrVoid = (error: unknown): Error | undefined =>
-    error instanceof Error ? error : void 0;
+const toErrorOrVoid = (error: unknown): Error | undefined => (isError(error) ? error : void 0);
 
 export const createLogInterceptor = <TArgs extends readonly unknown[], TResult>(
     options: CreateLogOptionsInterface,
@@ -23,7 +24,7 @@ export const createLogInterceptor = <TArgs extends readonly unknown[], TResult>(
 
             const { logContext, args } = context;
 
-            if (typeof preLog === 'string') {
+            if (isString(preLog)) {
                 transport.log(preLog, logContext);
             } else {
                 transport.log(preLog(...args), logContext);
@@ -37,7 +38,7 @@ export const createLogInterceptor = <TArgs extends readonly unknown[], TResult>(
 
             const { logContext, args } = context;
 
-            if (typeof postLog === 'string') {
+            if (isString(postLog)) {
                 transport.debug(postLog, logContext);
             } else {
                 transport.debug(postLog(result, ...args), logContext);
@@ -51,7 +52,7 @@ export const createLogInterceptor = <TArgs extends readonly unknown[], TResult>(
 
             const { logContext, args } = context;
 
-            if (typeof errorLog === 'string') {
+            if (isString(errorLog)) {
                 transport.error(errorLog, toErrorOrVoid(error), logContext);
             } else {
                 transport.error(errorLog(error, ...args), toErrorOrVoid(error), logContext);

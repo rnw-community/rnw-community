@@ -5670,6 +5670,7 @@ __metadata:
   resolution: "@rnw-community/log-decorator@workspace:packages/log-decorator"
   dependencies:
     "@rnw-community/decorators-core": "workspace:^"
+    "@rnw-community/shared": "workspace:^"
   peerDependencies:
     typescript: ">=5.0.0"
   peerDependenciesMeta:

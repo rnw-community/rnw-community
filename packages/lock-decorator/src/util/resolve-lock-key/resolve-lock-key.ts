@@ -1,3 +1,5 @@
+import { isString } from '@rnw-community/shared';
+
 import type { AcquireOptionsInterface } from '../../interface/acquire-options.interface';
 import type { LockArgumentType } from '../../type/lock-argument.type';
 
@@ -13,7 +15,7 @@ export const resolveLockKey = <TArgs extends readonly unknown[]>(
     arg: LockArgumentType<TArgs>,
     args: TArgs
 ): { readonly key: string; readonly options: AcquireOptionsInterface } => {
-    if (typeof arg === 'string') {
+    if (isString(arg)) {
         return { key: assertNonEmptyKey(arg), options: {} };
     }
 

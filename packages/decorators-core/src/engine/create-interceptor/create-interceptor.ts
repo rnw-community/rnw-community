@@ -1,3 +1,5 @@
+import { isNotEmptyString } from '@rnw-community/shared';
+
 import { buildContext } from '../build-context/build-context';
 import { runInterception } from '../run-interception/run-interception';
 
@@ -7,13 +9,13 @@ import type { MethodDecoratorType } from '../../type/method-decorator.type';
 const resolveFallbackClassName = (target: object): string => {
     if (typeof target === 'function') {
         const { name } = (target as { readonly name?: string });
-        if (typeof name === 'string' && name.length > 0) {
+        if (isNotEmptyString(name)) {
             return name;
         }
     }
     const ctorName = (target as { readonly constructor?: { readonly name?: string } }).constructor?.name;
 
-    return typeof ctorName === 'string' && ctorName.length > 0 ? ctorName : 'Object';
+    return isNotEmptyString(ctorName) ? ctorName : 'Object';
 };
 
 export const createInterceptor = <TArgs extends readonly unknown[], TResult>(

@@ -1,4 +1,4 @@
-import { isDefined, isPromise } from '@rnw-community/shared';
+import { emptyFn, isDefined, isPromise } from '@rnw-community/shared';
 
 import type { AcquireOptionsInterface } from '../../interface/acquire-options.interface';
 import type { LockHandleInterface } from '../../interface/lock-handle.interface';
@@ -26,7 +26,7 @@ const runWithLockImpl = async ({ store, key, mode, options, fn }: RunWithLockArg
         return await result;
     } finally {
         if (isDefined(handle)) {
-            await Promise.resolve(handle.release()).catch(() => void 0);
+            await Promise.resolve(handle.release()).catch(emptyFn);
         }
     }
 };

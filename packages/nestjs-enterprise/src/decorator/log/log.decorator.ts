@@ -9,7 +9,7 @@ import {
     type PreLogInputType,
     createLog,
 } from '@rnw-community/log-decorator';
-import { type AnyFn } from '@rnw-community/shared';
+import { type AnyFn, isError } from '@rnw-community/shared';
 
 import type { MethodDecoratorType } from '@rnw-community/decorators-core';
 import type { Observable } from 'rxjs';
@@ -20,7 +20,7 @@ const nestLogTransport: LogTransportInterface = {
     log: (message, logContext) => void Logger.log(message, logContext),
     debug: (message, logContext) => void Logger.debug(message, logContext),
     error: (message, error, logContext) => {
-        if (error instanceof Error) {
+        if (isError(error)) {
             Logger.error(message, { err: error }, logContext);
         } else {
             Logger.error(message, logContext);
