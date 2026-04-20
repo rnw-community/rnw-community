@@ -26,7 +26,7 @@ const safeRelease = async (handle: LockHandleInterface | undefined): Promise<voi
     try {
         await handle.release();
     } catch {
-        /* release errors are silently swallowed */
+        void 0;
     }
 };
 

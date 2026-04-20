@@ -3,14 +3,19 @@ import { getMethodName } from '../util/get-method-name.util';
 import { getRedlockService } from '../util/get-redlock-service.util';
 
 import type { PreDecoratorFunction } from '../../../type/pre-decorator-function.type';
-import type { AnyFn, MethodDecoratorType } from '@rnw-community/shared';
+import type { MethodDecoratorType } from '@rnw-community/shared';
+import type { Observable } from 'rxjs';
 
 /**
  * @deprecated Use `createObservableLockDecorators` instead. This decorator requires class inheritance from `LockableService`.
  * @see {@link createObservableLockDecorators} for the DI-based approach.
  */
 export const LockObservable =
-    <K extends AnyFn, TArgs extends Parameters<K>>(
+    <
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        K extends (...args: readonly any[]) => Observable<unknown>,
+        TArgs extends Parameters<K>,
+    >(
         preLock: PreDecoratorFunction<TArgs, string[]> | string[],
         duration: number,
         catchErrorFn$?: (error: unknown) => ReturnType<K>,
