@@ -263,6 +263,110 @@ describe('runWithLock$', () => {
         expect(removedListener).toBe(addedListener);
     });
 
+    it('errors the subscriber with AbortError when the user signal aborts during inner stream', async () => {
+        expect.hasAssertions();
+        const store = createInMemoryLockStore();
+        const releaseSpy = jest.fn();
+        const spyStore = {
+            acquire: async (...args: Parameters<typeof store.acquire>) => {
+                const handle = await store.acquire(...args);
+
+                return {
+                    key: handle.key,
+                    mode: handle.mode,
+                    release: () => {
+                        releaseSpy();
+
+                        return handle.release();
+                    },
+                };
+            },
+        };
+
+        const neverCompleting$ = new Observable<number>((sub) => {
+            sub.next(1);
+        });
+
+        const userController = new AbortController();
+        const errorSpy = jest.fn();
+        runWithLock$(spyStore, 'k', 'sequential', { signal: userController.signal }, () => neverCompleting$).subscribe({
+            error: errorSpy,
+        });
+        await wait(5);
+        userController.abort();
+        await wait(5);
+
+        expect(errorSpy).toHaveBeenCalledTimes(1);
+        expect((errorSpy as jest.Mock).mock.calls[0]?.[0]).toMatchObject({ name: 'AbortError' });
+        expect(releaseSpy).toHaveBeenCalledTimes(1);
+    });
+
+    it('does not error the subscriber when the user signal aborts AFTER the inner stream completes', async () => {
+        expect.hasAssertions();
+        const store = createInMemoryLockStore();
+        const releaseSpy = jest.fn();
+        const spyStore = {
+            acquire: async (...args: Parameters<typeof store.acquire>) => {
+                const handle = await store.acquire(...args);
+
+                return {
+                    key: handle.key,
+                    mode: handle.mode,
+                    release: () => {
+                        releaseSpy();
+
+                        return handle.release();
+                    },
+                };
+            },
+        };
+
+        const userController = new AbortController();
+        const errorSpy = jest.fn();
+        const result = await lastValueFrom(
+            runWithLock$(spyStore, 'k', 'sequential', { signal: userController.signal }, () => of(1))
+        );
+        expect(result).toBe(1);
+        await wait(5);
+        userController.abort();
+        await wait(5);
+
+        expect(errorSpy).not.toHaveBeenCalled();
+        expect(releaseSpy).toHaveBeenCalledTimes(1);
+    });
+
+    it('errors the subscriber when acquire resolves in the same microtask tick as an external abort', async () => {
+        expect.hasAssertions();
+        const releaseSpy = jest.fn();
+        let resolveAcquire: ((handle: LockHandleInterface) => void) | undefined;
+        const pendingStore: LockStoreInterface = {
+            acquire: () =>
+                new Promise<LockHandleInterface>((resolve) => {
+                    resolveAcquire = resolve;
+                }),
+        };
+
+        const userController = new AbortController();
+        const errorSpy = jest.fn();
+        runWithLock$(pendingStore, 'k', 'sequential', { signal: userController.signal }, () => of(1)).subscribe({
+            error: errorSpy,
+        });
+
+        resolveAcquire?.({
+            key: 'k',
+            mode: 'sequential',
+            release: () => {
+                releaseSpy();
+            },
+        });
+        userController.abort();
+        await wait(5);
+
+        expect(errorSpy).toHaveBeenCalledTimes(1);
+        expect((errorSpy as jest.Mock).mock.calls[0]?.[0]).toMatchObject({ name: 'AbortError' });
+        expect(releaseSpy).toHaveBeenCalledTimes(1);
+    });
+
     it('forwards an already-aborted user signal to the store immediately', async () => {
         expect.hasAssertions();
         const capturedAbortedAtCall: boolean[] = [];
