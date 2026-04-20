@@ -1,5 +1,5 @@
 import { Inject } from '@nestjs/common';
-import { EMPTY, type Observable, catchError, defer, isObservable, of } from 'rxjs';
+import { EMPTY, type Observable, catchError, defer, isObservable, of, throwError } from 'rxjs';
 
 import { LockBusyError, runWithLock$ } from '@rnw-community/lock-decorator';
 import { isDefined } from '@rnw-community/shared';
@@ -28,7 +28,11 @@ const requireObservable = (result: unknown, methodName: string): Observable<unkn
     return result;
 };
 
-const recoverFromLockError = <TResult>(
+class MethodThrownError {
+    constructor(readonly cause: unknown) {}
+}
+
+const recoverFromAcquireError = <TResult>(
     error: unknown,
     mode: LockModeType,
     catchErrorFn$: ((error: unknown) => TResult | Observable<TResult>) | undefined
@@ -47,6 +51,18 @@ const recoverFromLockError = <TResult>(
         return isObservable(recovery) ? (recovery as Observable<unknown>) : of(recovery);
     }
     throw normalized;
+};
+
+const recoverFromMethodError = <TResult>(
+    error: unknown,
+    catchErrorFn$: ((error: unknown) => TResult | Observable<TResult>) | undefined
+): Observable<unknown> => {
+    if (isDefined(catchErrorFn$)) {
+        const recovery = catchErrorFn$(error);
+
+        return isObservable(recovery) ? (recovery as Observable<unknown>) : of(recovery);
+    }
+    throw error;
 };
 
 export const createObservableLockDecorators = (
@@ -80,8 +96,16 @@ export const createObservableLockDecorators = (
                     const store = createLockServiceStore(lockService, effectiveDuration);
 
                     return runWithLock$(store, joinedKey, mode, {}, () =>
-                        requireObservable(originalMethod.apply(this, args), methodName)
-                    ).pipe(catchError((error: unknown) => recoverFromLockError(error, mode, catchErrorFn$)));
+                        requireObservable(originalMethod.apply(this, args), methodName).pipe(
+                            catchError((error: unknown) => throwError(() => new MethodThrownError(error)))
+                        )
+                    ).pipe(
+                        catchError((error: unknown) =>
+                            error instanceof MethodThrownError
+                                ? recoverFromMethodError(error.cause, catchErrorFn$)
+                                : recoverFromAcquireError(error, mode, catchErrorFn$)
+                        )
+                    );
                 });
             } as unknown as K;
 
