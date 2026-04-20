@@ -6,10 +6,8 @@ import type { CreateLogOptionsInterface } from '../interface/create-log-options.
 import type { ErrorLogInputType } from '../type/error-log-input.type';
 import type { PostLogInputType } from '../type/post-log-input.type';
 import type { PreLogInputType } from '../type/pre-log-input.type';
+import type { GetResultType } from '@rnw-community/decorators-core';
 import type { AnyFn, MethodDecoratorType } from '@rnw-community/shared';
-import type { Observable } from 'rxjs';
-
-type GetResultType<T> = T extends Promise<infer U> ? U : T extends Observable<infer U> ? U : T;
 
 export const createLog =
     (options: CreateLogOptionsInterface) =>
