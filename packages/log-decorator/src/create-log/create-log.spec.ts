@@ -395,6 +395,52 @@ describe('createLog (experimentalDecorators)', () => {
         });
     });
 
+    describe('unification: one decorator handles sync, Promise, and Observable on the same class', () => {
+        it('same @Log$ fires correct hooks for every return shape without any per-method configuration', async () => {
+            expect.hasAssertions();
+
+            class Unified {
+                @Log$(
+                    (id, qty) => `sync:${id}:${qty.toString()}`,
+                    (result, id, qty) => `sync-ok:${id}:${qty.toString()}=${result.toUpperCase()}`
+                )
+                syncMethod(id: string, qty: number): string {
+                    return `${id}-${qty.toString()}`;
+                }
+
+                @Log$(
+                    id => `promise:${id}`,
+                    (result, id) => `promise-ok:${id}=${result.total.toFixed(2)}`
+                )
+                async promiseMethod(_id: string): Promise<{ readonly total: number }> {
+                    return { total: 9.99 };
+                }
+
+                @Log$(
+                    label => `stream:${label}`,
+                    (tick, label) => `stream-ok:${label}=${tick.toFixed(0)}`
+                )
+                streamMethod(_label: string): Observable<number> {
+                    return of(42);
+                }
+            }
+
+            const svc = new Unified();
+
+            svc.syncMethod('sku', 3);
+            expect(transportLog).toHaveBeenCalledWith('sync:sku:3', 'Unified::syncMethod');
+            expect(transportDebug).toHaveBeenCalledWith('sync-ok:sku:3=SKU-3', 'Unified::syncMethod');
+
+            await svc.promiseMethod('ord-1');
+            expect(transportLog).toHaveBeenCalledWith('promise:ord-1', 'Unified::promiseMethod');
+            expect(transportDebug).toHaveBeenCalledWith('promise-ok:ord-1=9.99', 'Unified::promiseMethod');
+
+            await lastValueFrom(svc.streamMethod('feed'));
+            expect(transportLog).toHaveBeenCalledWith('stream:feed', 'Unified::streamMethod');
+            expect(transportDebug).toHaveBeenCalledWith('stream-ok:feed=42', 'Unified::streamMethod');
+        });
+    });
+
     describe('Observable methods (via observableStrategy)', () => {
         it('emits preLog on subscribe and postLog on each emitted value', async () => {
             expect.hasAssertions();

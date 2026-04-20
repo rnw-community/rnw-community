@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it } from '@jest/globals';
+import { EMPTY, Observable, lastValueFrom, of, throwError } from 'rxjs';
 
 import { createHistogramMetric, inMemoryHistogramTransport } from '../../index';
 
@@ -93,5 +94,56 @@ describe('createHistogramMetric', () => {
         expect.hasAssertions();
         expect(() => new OrderService().submitOrder()).toThrow('out of stock');
         expect(transport.snapshot()).toHaveLength(1);
+    });
+
+    describe('Observable return shapes (completion-aware)', () => {
+        it('records exactly one observation on stream completion, regardless of emission count', async () => {
+            expect.hasAssertions();
+
+            class StreamService {
+                @HistogramMetric({ name: 'stream_complete_ms' })
+                stream$(): Observable<number> {
+                    return of(1, 2, 3);
+                }
+            }
+
+            transport.snapshot();
+            await lastValueFrom(new StreamService().stream$());
+            const observations = transport.snapshot();
+            expect(observations).toHaveLength(1);
+            expect(observations[0]).toMatchObject({ name: 'stream_complete_ms' });
+        });
+
+        it('records exactly one observation when the stream completes without emitting', async () => {
+            expect.hasAssertions();
+
+            class EmptyStream {
+                @HistogramMetric({ name: 'stream_empty_ms' })
+                stream$(): Observable<never> {
+                    return EMPTY;
+                }
+            }
+
+            transport.snapshot();
+            await lastValueFrom(new EmptyStream().stream$(), { defaultValue: undefined });
+            expect(transport.snapshot()).toHaveLength(1);
+        });
+
+        it('records exactly one observation when the stream errors, and propagates the error', async () => {
+            expect.hasAssertions();
+
+            class FailingStream {
+                @HistogramMetric({ name: 'stream_error_ms' })
+                stream$(): Observable<number> {
+                    return throwError(() => new Error('stream-boom'));
+                }
+            }
+
+            transport.snapshot();
+            await expect(lastValueFrom(new FailingStream().stream$())).rejects.toThrow('stream-boom');
+            const observations = transport.snapshot();
+            expect(observations).toHaveLength(1);
+            expect(observations[0]).toMatchObject({ name: 'stream_error_ms' });
+        });
     });
 });
