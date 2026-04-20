@@ -49,7 +49,7 @@ describe('createInterceptor', () => {
         }
 
         const descriptor = Object.getOwnPropertyDescriptor(Svc.prototype, 'add') as PropertyDescriptor;
-        const updated = decorator(Svc.prototype, 'add', descriptor as never);
+        const updated = decorator(Svc.prototype, 'add', descriptor as never) as PropertyDescriptor;
         Object.defineProperty(Svc.prototype, 'add', updated);
 
         expect(new Svc().add(5)).toBe(15);
@@ -78,7 +78,7 @@ describe('createInterceptor', () => {
             }
         }
         const descriptor = Object.getOwnPropertyDescriptor(AsyncSvc.prototype, 'compute') as PropertyDescriptor;
-        Object.defineProperty(AsyncSvc.prototype, 'compute', decorator(AsyncSvc.prototype, 'compute', descriptor as never));
+        Object.defineProperty(AsyncSvc.prototype, 'compute', decorator(AsyncSvc.prototype, 'compute', descriptor as never) as PropertyDescriptor);
 
         const result = await new AsyncSvc().compute(4);
         expect(result).toBe(8);
@@ -97,7 +97,7 @@ describe('createInterceptor', () => {
             }
         }
         const descriptor = Object.getOwnPropertyDescriptor(Svc.prototype, 'fail') as PropertyDescriptor;
-        Object.defineProperty(Svc.prototype, 'fail', decorator(Svc.prototype, 'fail', descriptor as never));
+        Object.defineProperty(Svc.prototype, 'fail', decorator(Svc.prototype, 'fail', descriptor as never) as PropertyDescriptor);
 
         expect(() => new Svc().fail()).toThrow(boom);
         expect(calls.map((call) => call.kind)).toEqual(['enter', 'error']);
@@ -117,7 +117,7 @@ describe('createInterceptor', () => {
             }
         }
         const descriptor = Object.getOwnPropertyDescriptor(AsyncSvc.prototype, 'fail') as PropertyDescriptor;
-        Object.defineProperty(AsyncSvc.prototype, 'fail', decorator(AsyncSvc.prototype, 'fail', descriptor as never));
+        Object.defineProperty(AsyncSvc.prototype, 'fail', decorator(AsyncSvc.prototype, 'fail', descriptor as never) as PropertyDescriptor);
 
         await expect(new AsyncSvc().fail()).rejects.toBe(boom);
         expect(calls.map((call) => call.kind)).toEqual(['enter', 'error']);
@@ -152,7 +152,7 @@ describe('createInterceptor', () => {
             }
         }
         const descriptor = Object.getOwnPropertyDescriptor(Svc.prototype, 'value') as PropertyDescriptor;
-        Object.defineProperty(Svc.prototype, 'value', decorator(Svc.prototype, 'value', descriptor as never));
+        Object.defineProperty(Svc.prototype, 'value', decorator(Svc.prototype, 'value', descriptor as never) as PropertyDescriptor);
         new Svc().value();
         expect(hits).toEqual(['A']);
     });
@@ -176,9 +176,9 @@ describe('createInterceptor', () => {
             }
         }
         const okDesc = Object.getOwnPropertyDescriptor(Svc.prototype, 'ok') as PropertyDescriptor;
-        Object.defineProperty(Svc.prototype, 'ok', decorator(Svc.prototype, 'ok', okDesc as never));
+        Object.defineProperty(Svc.prototype, 'ok', decorator(Svc.prototype, 'ok', okDesc as never) as PropertyDescriptor);
         const failDesc = Object.getOwnPropertyDescriptor(Svc.prototype, 'fail') as PropertyDescriptor;
-        Object.defineProperty(Svc.prototype, 'fail', decorator(Svc.prototype, 'fail', failDesc as never));
+        Object.defineProperty(Svc.prototype, 'fail', decorator(Svc.prototype, 'fail', failDesc as never) as PropertyDescriptor);
 
         new Svc().ok();
         expect(() => new Svc().fail()).toThrow('x');
@@ -206,7 +206,7 @@ describe('createInterceptor', () => {
             }
         }
         const descriptor = Object.getOwnPropertyDescriptor(Svc.prototype, 'value') as PropertyDescriptor;
-        Object.defineProperty(Svc.prototype, 'value', decorator(Svc.prototype, 'value', descriptor as never));
+        Object.defineProperty(Svc.prototype, 'value', decorator(Svc.prototype, 'value', descriptor as never) as PropertyDescriptor);
         expect(new Svc().value()).toBe('v');
         expect(calls.map((call) => call.kind)).toEqual(['enter', 'success']);
     });
@@ -234,7 +234,7 @@ describe('createInterceptor', () => {
             }
         }
         const descriptor = Object.getOwnPropertyDescriptor(Svc.prototype, 'stream') as PropertyDescriptor;
-        Object.defineProperty(Svc.prototype, 'stream', decorator(Svc.prototype, 'stream', descriptor as never));
+        Object.defineProperty(Svc.prototype, 'stream', decorator(Svc.prototype, 'stream', descriptor as never) as PropertyDescriptor);
 
         const out = new Svc().stream();
         expect(matched).toHaveLength(1);
@@ -265,7 +265,7 @@ describe('createInterceptor', () => {
             }
         }
         const descriptor = Object.getOwnPropertyDescriptor(Svc.prototype, 'ok') as PropertyDescriptor;
-        Object.defineProperty(Svc.prototype, 'ok', decorator(Svc.prototype, 'ok', descriptor as never));
+        Object.defineProperty(Svc.prototype, 'ok', decorator(Svc.prototype, 'ok', descriptor as never) as PropertyDescriptor);
 
         expect(new Svc().ok()).toBe(7);
     });
@@ -285,7 +285,7 @@ describe('createInterceptor', () => {
             }
         }
         const descriptor = Object.getOwnPropertyDescriptor(Svc.prototype, 'fail') as PropertyDescriptor;
-        Object.defineProperty(Svc.prototype, 'fail', decorator(Svc.prototype, 'fail', descriptor as never));
+        Object.defineProperty(Svc.prototype, 'fail', decorator(Svc.prototype, 'fail', descriptor as never) as PropertyDescriptor);
 
         expect(() => new Svc().fail()).toThrow('original');
     });
@@ -299,7 +299,7 @@ describe('createInterceptor', () => {
             }
         }
         const descriptor = Object.getOwnPropertyDescriptor(Svc.prototype, 'val') as PropertyDescriptor;
-        Object.defineProperty(Svc.prototype, 'val', decorator(Svc.prototype, 'val', descriptor as never));
+        Object.defineProperty(Svc.prototype, 'val', decorator(Svc.prototype, 'val', descriptor as never) as PropertyDescriptor);
 
         expect(new Svc().val()).toBe('x');
     });
@@ -313,7 +313,7 @@ describe('createInterceptor', () => {
             }
         }
         const descriptor = Object.getOwnPropertyDescriptor(Svc.prototype, 'fail') as PropertyDescriptor;
-        Object.defineProperty(Svc.prototype, 'fail', decorator(Svc.prototype, 'fail', descriptor as never));
+        Object.defineProperty(Svc.prototype, 'fail', decorator(Svc.prototype, 'fail', descriptor as never) as PropertyDescriptor);
         expect(() => new Svc().fail()).toThrow('no-hook');
     });
 
@@ -327,7 +327,7 @@ describe('createInterceptor', () => {
             }
         }
         const descriptor = Object.getOwnPropertyDescriptor(Svc.prototype, 'fail') as PropertyDescriptor;
-        Object.defineProperty(Svc.prototype, 'fail', decorator(Svc.prototype, 'fail', descriptor as never));
+        Object.defineProperty(Svc.prototype, 'fail', decorator(Svc.prototype, 'fail', descriptor as never) as PropertyDescriptor);
         await expect(new Svc().fail()).rejects.toThrow('no-hook-async');
     });
 
@@ -345,7 +345,7 @@ describe('createInterceptor', () => {
         Object.defineProperty(
             Svc.prototype,
             'thenable',
-            decorator(Svc.prototype, 'thenable', descriptor as never)
+            decorator(Svc.prototype, 'thenable', descriptor as never) as PropertyDescriptor
         );
         const out = await (new Svc().thenable() as unknown as Promise<number>);
         expect(out).toBe(21);
@@ -370,7 +370,7 @@ describe('createInterceptor', () => {
         Object.defineProperty(
             Svc.prototype,
             'thenable',
-            decorator(Svc.prototype, 'thenable', descriptor as never)
+            decorator(Svc.prototype, 'thenable', descriptor as never) as PropertyDescriptor
         );
         await expect(new Svc().thenable() as unknown as Promise<unknown>).rejects.toBe(boom);
         expect(calls.map((call) => call.kind)).toEqual(['enter', 'error']);
@@ -380,7 +380,7 @@ describe('createInterceptor', () => {
         const decorator = createInterceptor({ interceptor: {} });
 
         const input: PropertyDescriptor = { value: 42, writable: true, configurable: true, enumerable: true };
-        const output = decorator({}, 'x', input as never);
+        const output = decorator({}, 'x', input as never) as PropertyDescriptor;
         expect(output).toBe(input);
     });
 
@@ -395,7 +395,7 @@ describe('createInterceptor', () => {
             }
         }
         const descriptor = Object.getOwnPropertyDescriptor(Base.prototype, 'greet') as PropertyDescriptor;
-        Object.defineProperty(Base.prototype, 'greet', decorator(Base.prototype, 'greet', descriptor as never));
+        Object.defineProperty(Base.prototype, 'greet', decorator(Base.prototype, 'greet', descriptor as never) as PropertyDescriptor);
 
         class Child extends Base {}
         new Child().greet();
@@ -417,7 +417,7 @@ describe('createInterceptor', () => {
             configurable: true,
             enumerable: true,
         };
-        const updated = decorator(bareTarget as object, 'ping', descriptor as never);
+        const updated = decorator(bareTarget as object, 'ping', descriptor as never) as PropertyDescriptor;
         Object.defineProperty(bareTarget, 'ping', updated);
         // eslint-disable-next-line no-useless-call
         (bareTarget.ping as () => number).call(null);
@@ -436,7 +436,7 @@ describe('createInterceptor', () => {
             }
         }
         const descriptor = Object.getOwnPropertyDescriptor(Svc.prototype, 'ping') as PropertyDescriptor;
-        Object.defineProperty(Svc.prototype, 'ping', decorator(Svc.prototype, 'ping', descriptor as never));
+        Object.defineProperty(Svc.prototype, 'ping', decorator(Svc.prototype, 'ping', descriptor as never) as PropertyDescriptor);
 
         const instance = new Svc();
         const detached = instance.ping.bind(void 0);
@@ -456,7 +456,7 @@ describe('createInterceptor', () => {
         }
 
         const descriptor = Object.getOwnPropertyDescriptor(StaticSvc, 'compute') as PropertyDescriptor;
-        Object.defineProperty(StaticSvc, 'compute', decorator(StaticSvc as unknown as object, 'compute', descriptor as never));
+        Object.defineProperty(StaticSvc, 'compute', decorator(StaticSvc as unknown as object, 'compute', descriptor as never) as PropertyDescriptor);
 
         StaticSvc.compute();
         expect(calls[0]?.context.className).toBe('StaticSvc');
@@ -479,7 +479,7 @@ describe('createInterceptor', () => {
             configurable: true,
             enumerable: true,
         };
-        const updated = decorator(anonFn as unknown as object, 'compute', descriptor as never);
+        const updated = decorator(anonFn as unknown as object, 'compute', descriptor as never) as PropertyDescriptor;
         Object.defineProperty(anonFn, 'compute', updated);
         (anonFn as unknown as { compute: () => number }).compute.call(null);
 

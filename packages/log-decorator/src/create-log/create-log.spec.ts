@@ -1,4 +1,7 @@
 import { beforeEach, describe, expect, it, jest } from '@jest/globals';
+import { Observable, lastValueFrom, of, throwError } from 'rxjs';
+
+import { observableStrategy } from '@rnw-community/decorators-core';
 
 import { createLog } from './create-log';
 
@@ -12,11 +15,12 @@ const PI = 3.14159;
 const FIXED_EPOCH_MS = 1_700_000_000_000;
 
 const Log = createLog({ transport });
+const Log$ = createLog({ transport, strategies: [observableStrategy] });
 
 class OrderService {
     @Log(
-        (productId: string, qty: number) => `placing order ${productId} qty=${qty.toString()}`,
-        (receiptId: string, productId: string, qty: number) => `placed ${productId} qty=${qty.toString()} -> ${receiptId}`
+        (productId, qty) => `placing order ${productId} qty=${qty.toString()}`,
+        (receiptId, productId, qty) => `placed ${productId} qty=${qty.toString()} -> ${receiptId}`
     )
     async placeOrder(productId: string, qty: number): Promise<string> {
         return `receipt-${productId}-${qty.toString()}`;
@@ -37,7 +41,7 @@ class OrderService {
         return 'receipt-001';
     }
 
-    @Log(undefined, (receiptId: string, orderId: string) => `fetched ${receiptId} for order ${orderId}`)
+    @Log(undefined, (receiptId, orderId) => `fetched ${receiptId} for order ${orderId}`)
     fetchReceiptFn(orderId: string): string {
         return `receipt-${orderId}`;
     }
@@ -52,12 +56,12 @@ class OrderService {
         throw 42 as unknown;
     }
 
-    @Log(undefined, undefined, (error: unknown, orderId: string) => `refund failed for ${orderId}: ${String(error)}`)
+    @Log(undefined, undefined, (error, orderId) => `refund failed for ${orderId}: ${String(error)}`)
     refundOrderFn(orderId: string): void {
         throw new Error(`insufficient balance for ${orderId}`);
     }
 
-    @Log(undefined, undefined, (error: unknown, orderId: string) => `refund failed for ${orderId}: ${String(error)}`)
+    @Log(undefined, undefined, (error, orderId) => `refund failed for ${orderId}: ${String(error)}`)
     refundOrderFnNonError(_orderId: string): void {
         throw 'non-error-value' as unknown;
     }
@@ -209,14 +213,7 @@ describe('createLog (experimentalDecorators)', () => {
     });
 
     describe('automatic type narrowing from the decorated method signature', () => {
-        // Every callback below is UNANNOTATED: params have no `: string` / `: number` hints.
-        // Narrowing flows from the method's own signature through the factory's
-        // generics (`K extends AnyFn`, `TArgs extends Parameters<K>`, `TResult extends
-        // GetResultType<ReturnType<K>>`) into the callback body. If that chain broke,
-        // calling .toUpperCase / .toFixed / .getTime / object member access on the
-        // unannotated params would fail type-checking and this suite would not compile.
-
-        it('narrows a string arg: `.toUpperCase()` / `.slice()` without annotation', () => {
+        it('narrows a string arg without annotation', () => {
             expect.hasAssertions();
 
             class StringNarrow {
@@ -230,7 +227,7 @@ describe('createLog (experimentalDecorators)', () => {
             expect(transportLog).toHaveBeenCalledWith('enter SKU-42', 'StringNarrow::run');
         });
 
-        it('narrows a number arg: `.toFixed()` / arithmetic without annotation', () => {
+        it('narrows a number arg without annotation', () => {
             expect.hasAssertions();
 
             class NumberNarrow {
@@ -244,7 +241,7 @@ describe('createLog (experimentalDecorators)', () => {
             expect(transportLog).toHaveBeenCalledWith('qty=3.14 doubled=6.28318', 'NumberNarrow::run');
         });
 
-        it('narrows a boolean arg: ternary over the inferred type without annotation', () => {
+        it('narrows a boolean arg without annotation', () => {
             expect.hasAssertions();
 
             class BoolNarrow {
@@ -258,7 +255,7 @@ describe('createLog (experimentalDecorators)', () => {
             expect(transportLog).toHaveBeenCalledWith('on', 'BoolNarrow::run');
         });
 
-        it('narrows a Date arg: `.getTime()` without annotation', () => {
+        it('narrows a Date arg without annotation', () => {
             expect.hasAssertions();
 
             class DateNarrow {
@@ -272,7 +269,7 @@ describe('createLog (experimentalDecorators)', () => {
             expect(transportLog).toHaveBeenCalledWith('ts=1700000000000', 'DateNarrow::run');
         });
 
-        it('narrows a heterogeneous arg tuple: string + number + object destructuring without annotation', () => {
+        it('narrows a heterogeneous arg tuple with destructuring and no annotation', () => {
             expect.hasAssertions();
 
             class MixedNarrow {
@@ -288,7 +285,7 @@ describe('createLog (experimentalDecorators)', () => {
             expect(transportLog).toHaveBeenCalledWith('ORD-1:3:0007', 'MixedNarrow::run');
         });
 
-        it('narrows postLog `result` from a sync number-returning method without annotation', () => {
+        it('narrows postLog result from a sync number-returning method', () => {
             expect.hasAssertions();
 
             class PostNumberNarrow {
@@ -302,7 +299,7 @@ describe('createLog (experimentalDecorators)', () => {
             expect(transportDebug).toHaveBeenCalledWith('3.00 from 1.50', 'PostNumberNarrow::compute');
         });
 
-        it('narrows postLog `result` from a sync string-returning method without annotation', () => {
+        it('narrows postLog result from a sync string-returning method', () => {
             expect.hasAssertions();
 
             class PostStringNarrow {
@@ -316,7 +313,7 @@ describe('createLog (experimentalDecorators)', () => {
             expect(transportDebug).toHaveBeenCalledWith('RECEIPT-ABC (3)', 'PostStringNarrow::describe');
         });
 
-        it('narrows postLog `result` over a Promise-returning method: TResult is the awaited value, not the Promise', async () => {
+        it('narrows postLog result over a Promise-returning method (TResult is awaited)', async () => {
             expect.hasAssertions();
 
             class PromiseNarrow {
@@ -330,7 +327,21 @@ describe('createLog (experimentalDecorators)', () => {
             expect(transportDebug).toHaveBeenCalledWith('paid=42.50', 'PromiseNarrow::pay');
         });
 
-        it('errorLog `error` is deliberately `unknown` — typed args still narrow from the method signature', () => {
+        it('narrows postLog result over an Observable-returning method (TResult is emitted value)', async () => {
+            expect.hasAssertions();
+
+            class ObservableNarrow {
+                @Log$(undefined, (result, _label) => `tick=${result.count.toFixed(0)}`)
+                stream$(_label: string): Observable<{ readonly count: number }> {
+                    return of({ count: 7 });
+                }
+            }
+
+            await lastValueFrom(new ObservableNarrow().stream$('feed'));
+            expect(transportDebug).toHaveBeenCalledWith('tick=7', 'ObservableNarrow::stream$');
+        });
+
+        it('narrows errorLog typed args from the method signature (error stays unknown by design)', () => {
             expect.hasAssertions();
 
             class ErrorNarrow {
@@ -347,13 +358,9 @@ describe('createLog (experimentalDecorators)', () => {
             expect(transportError).toHaveBeenCalledWith('ORD-9: boom-ord-9', expect.any(Error), 'ErrorNarrow::fail');
         });
 
-        it('proves narrowing is ACTIVE (not falling back to unknown): assigns inferred arg to a matching-type local', () => {
+        it('assigns inferred arg to a matching-type local without a cast (narrowing sentinel)', () => {
             expect.hasAssertions();
 
-            // If narrowing broke, `id` would be `unknown` (the constraint's upper bound
-            // when K falls back to AnyFn). Assigning `unknown` to `string` requires a
-            // cast. The assignment below compiles WITHOUT a cast ONLY because
-            // TArgs narrowed to [string] from `run(id: string)`.
             class NarrowingActive {
                 @Log(id => {
                     const asString: string = id;
@@ -369,11 +376,9 @@ describe('createLog (experimentalDecorators)', () => {
             expect(transportLog).toHaveBeenCalledWith('HELLO', 'NarrowingActive::run');
         });
 
-        it('proves postLog TResult narrowing is ACTIVE: assigns inferred result to a matching-type local', () => {
+        it('assigns inferred result to a matching-type local without a cast (TResult sentinel)', () => {
             expect.hasAssertions();
 
-            // Same pattern for TResult: `result` assigned to `number` without cast
-            // only compiles if TResult narrowed to `number` from `compute(): number`.
             class ResultNarrowingActive {
                 @Log(undefined, result => {
                     const asNumber: number = result;
@@ -387,6 +392,46 @@ describe('createLog (experimentalDecorators)', () => {
 
             new ResultNarrowingActive().compute();
             expect(transportDebug).toHaveBeenCalledWith('3.1', 'ResultNarrowingActive::compute');
+        });
+    });
+
+    describe('Observable methods (via observableStrategy)', () => {
+        it('emits preLog on subscribe and postLog on each emitted value', async () => {
+            expect.hasAssertions();
+
+            class StreamService {
+                @Log$(
+                    label => `subscribe ${label.toUpperCase()}`,
+                    (tick, label) => `${label}=${tick.toFixed(0)}`
+                )
+                stream$(_label: string): Observable<number> {
+                    return of(1, 2, 3);
+                }
+            }
+
+            await lastValueFrom(new StreamService().stream$('feed'));
+            expect(transportLog).toHaveBeenCalledWith('subscribe FEED', 'StreamService::stream$');
+            expect(transportDebug).toHaveBeenNthCalledWith(1, 'feed=1', 'StreamService::stream$');
+            expect(transportDebug).toHaveBeenNthCalledWith(2, 'feed=2', 'StreamService::stream$');
+            expect(transportDebug).toHaveBeenNthCalledWith(3, 'feed=3', 'StreamService::stream$');
+        });
+
+        it('emits errorLog when the Observable errors', async () => {
+            expect.hasAssertions();
+
+            class StreamService {
+                @Log$(undefined, undefined, (error, label) => `${label}-fail: ${String(error)}`)
+                stream$(label: string): Observable<number> {
+                    return throwError(() => new Error(`stream-boom-${label}`));
+                }
+            }
+
+            await expect(lastValueFrom(new StreamService().stream$('feed'))).rejects.toThrow('stream-boom-feed');
+            expect(transportError).toHaveBeenCalledWith(
+                'feed-fail: Error: stream-boom-feed',
+                expect.any(Error),
+                'StreamService::stream$'
+            );
         });
     });
 

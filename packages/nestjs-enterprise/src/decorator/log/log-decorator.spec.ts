@@ -82,16 +82,19 @@ class TestClass {
         return throwError(() => errorLogText);
     }
 
+    // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
     @Log(arg => `${preLogText}-${arg}`, (result, arg) => `${result}-${postLogText}-${arg}`)
     testGeneric<T>(arg: T): T {
         return arg;
     }
 
+    // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
     @Log(arg => `${preLogText}-${arg}`, (result, arg) => `${result}-${postLogText}-${arg}`)
     async testGenericPromise<T>(arg: T): Promise<T> {
         return await arg;
     }
 
+    // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
     @Log(arg => `${preLogText}-${arg}`, (result, arg) => `${result}-${postLogText}-${arg}`)
     testGenericObservable<T>(arg: T): Observable<T> {
         return of(arg);
