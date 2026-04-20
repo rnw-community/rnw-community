@@ -24,7 +24,7 @@ src/
     post-log-input.type.ts
     error-log-input.type.ts
   console-transport/      — default consoleTransport + spec
-  create-log/             — legacy-decorator factory + spec
+  create-log/             — decorator factory + spec
   util/
     create-log-interceptor.ts  — internal (wraps createInterceptor from decorators-core)
   index.ts

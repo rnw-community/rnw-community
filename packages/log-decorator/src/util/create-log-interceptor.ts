@@ -1,4 +1,4 @@
-import { isError, isString } from '@rnw-community/shared';
+import { isError, isNotEmptyString, isString } from '@rnw-community/shared';
 
 import type { CreateLogOptionsInterface } from '../interface/create-log-options.interface';
 import type { ErrorLogInputType } from '../type/error-log-input.type';
@@ -21,13 +21,9 @@ export const createLogInterceptor = <TArgs extends readonly unknown[], TResult>(
             if (preLog === void 0) {
                 return;
             }
-
-            const { logContext, args } = context;
-
-            if (isString(preLog)) {
-                transport.log(preLog, logContext);
-            } else {
-                transport.log(preLog(...args), logContext);
+            const message = isString(preLog) ? preLog : preLog(...context.args);
+            if (isNotEmptyString(message)) {
+                transport.log(message, context.logContext);
             }
         },
 
@@ -35,13 +31,9 @@ export const createLogInterceptor = <TArgs extends readonly unknown[], TResult>(
             if (postLog === void 0) {
                 return;
             }
-
-            const { logContext, args } = context;
-
-            if (isString(postLog)) {
-                transport.debug(postLog, logContext);
-            } else {
-                transport.debug(postLog(result, ...args), logContext);
+            const message = isString(postLog) ? postLog : postLog(result, ...context.args);
+            if (isNotEmptyString(message)) {
+                transport.debug(message, context.logContext);
             }
         },
 
@@ -49,13 +41,9 @@ export const createLogInterceptor = <TArgs extends readonly unknown[], TResult>(
             if (errorLog === void 0) {
                 return;
             }
-
-            const { logContext, args } = context;
-
-            if (isString(errorLog)) {
-                transport.error(errorLog, toErrorOrVoid(error), logContext);
-            } else {
-                transport.error(errorLog(error, ...args), toErrorOrVoid(error), logContext);
+            const message = isString(errorLog) ? errorLog : errorLog(error, ...context.args);
+            if (isNotEmptyString(message)) {
+                transport.error(message, toErrorOrVoid(error), context.logContext);
             }
         },
     };

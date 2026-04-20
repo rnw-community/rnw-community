@@ -28,7 +28,7 @@ Class property decorator that locks the ***async*** method execution based on th
   }
 ```
 
-## Legacy usage
+## Usage (deprecated)
 
 ```ts
 import { Injectable } from '@nestjs/common';
