@@ -144,6 +144,15 @@ describe('runInterception', () => {
         expect(runInterception({}, builtIns, makeContext(), () => 'hello')).toBe('hello');
     });
 
+    it('falls back to syncStrategy when strategies array is empty', () => {
+        const records: string[] = [];
+        const interceptor: InterceptorInterface<readonly unknown[], number> = {
+            onSuccess: () => records.push('success'),
+        };
+        expect(runInterception(interceptor, [], makeContext(), () => 99)).toBe(99);
+        expect(records).toEqual(['success']);
+    });
+
     it('skips non-matching strategies and falls through to sync handling', () => {
         const strategy: ResultStrategyInterface = {
             matches: () => false,

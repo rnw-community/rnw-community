@@ -10,6 +10,8 @@
     },
     "ignore": [
         ".yarn/**",
+        ".agents/**",
+        ".claude/**",
         "packages/nestjs-webpack-swc/src/config/**",
         "packages/react-native-payments/src/@standard/**",
         "packages/react-native-payments/src/app.plugin.ts",
