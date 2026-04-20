@@ -1,5 +1,7 @@
 import { beforeEach, describe, expect, it, jest } from '@jest/globals';
 
+import { LockBusyError } from '@rnw-community/lock-decorator';
+
 import { createPromiseLockDecorators } from './create-promise-lock-decorators';
 
 import type { LockHandle } from '../interface/lock-handle.interface';
@@ -504,6 +506,56 @@ describe('createPromiseLockDecorators', () => {
 
             await expect(instanceLocal.test()).rejects.toThrow('LockService was not injected');
             expect(catchSpy).not.toHaveBeenCalled();
+        });
+    });
+
+    describe('method-thrown errors are not conflated with acquisition failures', () => {
+        it('propagates a method-thrown LockBusyError as-is (no "Lock not acquired" remap, no exclusive swallow)', async () => {
+            expect.hasAssertions();
+
+            const { ExclusiveLock: ExclusiveLockLocal } = createPromiseLockDecorators(MockLockService, 1000);
+            const innerBusy = new LockBusyError('inner-resource');
+
+            class MethodThrowsClass {
+                @ExclusiveLockLocal(['outer-resource'])
+                async test(): Promise<number> {
+                    throw innerBusy;
+                }
+            }
+
+            const instanceLocal = new MethodThrowsClass();
+            for (const sym of injectedSymbols) {
+                (instanceLocal as unknown as Record<symbol, unknown>)[sym] = getMockLockService();
+            }
+
+            await expect(instanceLocal.test()).rejects.toBe(innerBusy);
+        });
+
+        it('routes a method-thrown error through catchErrorFn without the acquisition-error remap', async () => {
+            expect.hasAssertions();
+
+            const { ExclusiveLock: ExclusiveLockLocal } = createPromiseLockDecorators(MockLockService, 1000);
+            const seen: unknown[] = [];
+            const methodError = new Error('method-side failure');
+
+            class MethodThrowsWithCatchClass {
+                @ExclusiveLockLocal(['outer-resource'], (err: unknown) => {
+                    seen.push(err);
+
+                    return Promise.resolve(0);
+                })
+                async test(): Promise<number> {
+                    throw methodError;
+                }
+            }
+
+            const instanceLocal = new MethodThrowsWithCatchClass();
+            for (const sym of injectedSymbols) {
+                (instanceLocal as unknown as Record<symbol, unknown>)[sym] = getMockLockService();
+            }
+
+            await expect(instanceLocal.test()).resolves.toBe(0);
+            expect(seen).toStrictEqual([methodError]);
         });
     });
 });

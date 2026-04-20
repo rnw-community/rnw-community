@@ -1,6 +1,8 @@
 import { beforeEach, describe, expect, it, jest } from '@jest/globals';
 import { EMPTY, Observable, lastValueFrom, of, tap } from 'rxjs';
 
+import { LockBusyError } from '@rnw-community/lock-decorator';
+
 import { createObservableLockDecorators } from './create-observable-lock-decorators';
 
 import type { LockHandle } from '../interface/lock-handle.interface';
@@ -497,6 +499,77 @@ describe('createObservableLockDecorators', () => {
             const [releaseCallOrder] = mockRelease.mock.invocationCallOrder;
 
             expect(resultCallOrder).toBeLessThan(releaseCallOrder);
+        });
+    });
+
+    describe('method-thrown errors are not conflated with acquisition failures', () => {
+        it('propagates a method-thrown LockBusyError as-is (no "Lock not acquired" remap, no exclusive swallow)', async () => {
+            expect.hasAssertions();
+
+            const { ExclusiveLock$: ExclusiveLockLocal$ } = createObservableLockDecorators(MockLockService, 1000);
+            const innerBusy = new LockBusyError('inner-resource');
+
+            class MethodThrowsClass {
+                @ExclusiveLockLocal$(['outer-resource'])
+                test$(): Observable<number> {
+                    return new Observable<number>(subscriber => void subscriber.error(innerBusy));
+                }
+            }
+
+            const instanceLocal = new MethodThrowsClass();
+            (instanceLocal as unknown as Record<symbol, unknown>)[injectedSymbol] = getMockLockService();
+
+            await expect(lastValueFrom(instanceLocal.test$())).rejects.toBe(innerBusy);
+        });
+
+        it('routes a method-thrown error through catchErrorFn$ without the acquisition-error remap', async () => {
+            expect.hasAssertions();
+
+            const { ExclusiveLock$: ExclusiveLockLocal$ } = createObservableLockDecorators(MockLockService, 1000);
+            const seen: unknown[] = [];
+            const methodError = new Error('method-side failure');
+
+            class MethodThrowsWithCatchClass {
+                @ExclusiveLockLocal$(
+                    ['outer-resource'],
+                    (err: unknown) => {
+                        seen.push(err);
+
+                        return of(0);
+                    }
+                )
+                test$(): Observable<number> {
+                    return new Observable<number>(subscriber => void subscriber.error(methodError));
+                }
+            }
+
+            const instanceLocal = new MethodThrowsWithCatchClass();
+            (instanceLocal as unknown as Record<symbol, unknown>)[injectedSymbol] = getMockLockService();
+
+            await expect(lastValueFrom(instanceLocal.test$())).resolves.toBe(0);
+            expect(seen).toStrictEqual([methodError]);
+        });
+
+        it('lifts a scalar catchErrorFn$ result into an Observable for method-thrown errors', async () => {
+            expect.hasAssertions();
+
+            const { ExclusiveLock$: ExclusiveLockLocal$ } = createObservableLockDecorators(MockLockService, 1000);
+            const methodError = new Error('method-side failure');
+
+            class MethodThrowsScalarCatchClass {
+                @ExclusiveLockLocal$(
+                    ['outer-resource'],
+                    (_err: unknown) => SCALAR_CATCH_RESULT
+                )
+                test$(): Observable<number> {
+                    return new Observable<number>(subscriber => void subscriber.error(methodError));
+                }
+            }
+
+            const instanceLocal = new MethodThrowsScalarCatchClass();
+            (instanceLocal as unknown as Record<symbol, unknown>)[injectedSymbol] = getMockLockService();
+
+            await expect(lastValueFrom(instanceLocal.test$())).resolves.toBe(SCALAR_CATCH_RESULT);
         });
     });
 });

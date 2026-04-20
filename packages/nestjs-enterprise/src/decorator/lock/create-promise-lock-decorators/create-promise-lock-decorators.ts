@@ -19,10 +19,7 @@ type PromiseRecoveryFnType<K extends (...args: any[]) => Promise<unknown>> = (
     error: unknown
 ) => PromiseRecoveryType<ReturnType<K>>;
 
-const safeRelease = async (handle: LockHandleInterface | undefined): Promise<void> => {
-    if (!isDefined(handle)) {
-        return;
-    }
+const safeRelease = async (handle: LockHandleInterface): Promise<void> => {
     try {
         await handle.release();
     } catch {
@@ -80,9 +77,13 @@ export const createPromiseLockDecorators = (
                 const joinedKey = resources.join(RESOURCE_SEPARATOR);
                 const store = createLockServiceStore(lockService, effectiveDuration);
 
-                let handle: LockHandleInterface | undefined;
+                let handle: LockHandleInterface;
                 try {
                     handle = await store.acquire(joinedKey, mode);
+                } catch (error) {
+                    return await Promise.resolve(handleLockError(error, mode, catchErrorFn));
+                }
+                try {
                     const result = originalMethod.apply(this, args);
                     if (!isPromise(result)) {
                         throw new Error(`Method ${methodName} does not return a promise`);
@@ -90,7 +91,10 @@ export const createPromiseLockDecorators = (
 
                     return await result;
                 } catch (error) {
-                    return await Promise.resolve(handleLockError(error, mode, catchErrorFn));
+                    if (isDefined(catchErrorFn)) {
+                        return await Promise.resolve(catchErrorFn(error));
+                    }
+                    throw error;
                 } finally {
                     await safeRelease(handle);
                 }
