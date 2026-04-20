@@ -1,15 +1,13 @@
 {
     "name": "@rnw-community/histogram-metric-decorator",
     "version": "0.1.0",
-    "description": "Transport-agnostic histogram/duration method decorator (stage-3 + legacy). Built on @rnw-community/decorators-core. Zero runtime dependencies — consumers wire their own transport.",
+    "description": "Transport-agnostic histogram/duration method decorator built on @rnw-community/decorators-core. Built on TypeScript's experimentalDecorators. Zero runtime dependencies — consumers wire their own transport.",
     "keywords": [
         "decorator",
         "histogram",
         "metrics",
         "duration",
         "method decorator",
-        "stage-3",
-        "tc39",
         "framework-agnostic"
     ],
     "repository": "https://github.com/rnw-community/rnw-community/tree/master/packages/histogram-metric-decorator",

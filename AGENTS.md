@@ -8,7 +8,7 @@ This file provides guidance to AI coding agents when working with code in this r
 
 ## Project Overview
 
-TypeScript monorepo with 18 packages providing NestJS, React, React Native, and React Native Web utilities. Uses Yarn Workspaces (v4), Turbo for task orchestration, and Lerna for publishing.
+TypeScript monorepo with 23 packages providing NestJS, React, React Native, and React Native Web utilities. Uses Yarn Workspaces (v4), Turbo for task orchestration, and Lerna for publishing.
 
 ## Common Commands
 
@@ -39,6 +39,8 @@ yarn lint:fix           # Fix lint issues in this package
 ### Package Categories
 
 - **shared** — Core utility hub (type guards, helpers, types); many packages depend on it
+- **decorators-core** — Framework-agnostic interceptor primitive for building method decorators (foundation for log/histogram/lock)
+- **log-decorator, histogram-metric-decorator, lock-decorator** — Universal method decorators built on decorators-core
 - **nestjs-\*** — NestJS modules (enterprise decorators, rxjs-logger, rxjs-metrics, rxjs-lock, rxjs-redis, typed-config, webpack-swc)
 - **rxjs-errors** — RxJS error utilities
 - **react-native-payments** — Payment Request API for Apple Pay/Google Pay (with 3 example packages)

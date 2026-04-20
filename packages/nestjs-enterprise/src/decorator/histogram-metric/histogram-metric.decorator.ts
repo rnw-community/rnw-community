@@ -12,7 +12,8 @@ const resolveHistogram = <M extends string>(
     metricName: string,
     configuration?: Omit<HistogramConfiguration<M>, 'name'>
 ): Histogram<M> => {
-    const existing = register.getSingleMetric(metricName) as Histogram<M> | undefined;
+    const registry = configuration?.registers?.[0] ?? register;
+    const existing = registry.getSingleMetric(metricName) as Histogram<M> | undefined;
     if (isDefined(existing)) {
         return existing;
     }

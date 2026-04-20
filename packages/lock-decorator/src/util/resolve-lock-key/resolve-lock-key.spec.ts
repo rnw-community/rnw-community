@@ -73,3 +73,21 @@ describe('resolveLockKey (exclusive arg forms)', () => {
         expect(result).toEqual({ key: 'item-42', options: { timeoutMs: undefined, signal: undefined } });
     });
 });
+
+describe('resolveLockKey (empty-key rejection)', () => {
+    it('throws when a static string key is empty', () => {
+        expect(() => resolveLockKey('', [])).toThrow('Lock key cannot be empty');
+    });
+
+    it('throws when a key function returns empty', () => {
+        expect(() => resolveLockKey(() => '', [])).toThrow('Lock key cannot be empty');
+    });
+
+    it('throws when an object with an empty static key is passed', () => {
+        expect(() => resolveLockKey({ key: '' }, [])).toThrow('Lock key cannot be empty');
+    });
+
+    it('throws when an object with a key function returning empty is passed', () => {
+        expect(() => resolveLockKey({ key: () => '' }, [])).toThrow('Lock key cannot be empty');
+    });
+});

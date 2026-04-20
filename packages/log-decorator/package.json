@@ -1,14 +1,12 @@
 {
     "name": "@rnw-community/log-decorator",
     "version": "0.1.0",
-    "description": "Universal log method decorator (pre/post/error hooks, sanitizer, optional duration). Stage-3 + legacy (experimentalDecorators). Zero framework dependencies.",
+    "description": "Universal log method decorator with pluggable transport and pre/post/error hooks. Built on TypeScript's experimentalDecorators. Zero framework dependencies.",
     "keywords": [
         "decorator",
         "log",
         "logging",
         "method decorator",
-        "stage-3",
-        "tc39",
         "universal",
         "framework-agnostic"
     ],
