@@ -7,6 +7,7 @@ export type { CreateInterceptorOptionsInterface } from './interface/create-inter
 
 export { createInterceptor } from './engine/create-interceptor/create-interceptor';
 
+export { syncStrategy } from './strategy/sync-strategy/sync.strategy';
 export { promiseStrategy } from './strategy/promise-strategy/promise.strategy';
 export { observableStrategy } from './strategy/observable-strategy/observable.strategy';
 export { completionObservableStrategy } from './strategy/completion-observable-strategy/completion-observable.strategy';

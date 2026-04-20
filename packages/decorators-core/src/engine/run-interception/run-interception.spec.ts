@@ -1,5 +1,8 @@
 import { describe, expect, it, jest } from '@jest/globals';
 
+import { promiseStrategy } from '../../strategy/promise-strategy/promise.strategy';
+import { syncStrategy } from '../../strategy/sync-strategy/sync.strategy';
+
 import { runInterception } from './run-interception';
 
 import type { ExecutionContextInterface } from '../../interface/execution-context.interface';
@@ -13,6 +16,8 @@ const makeContext = (): ExecutionContextInterface => ({
     logContext: 'TestClass::testMethod',
 });
 
+const builtIns: readonly ResultStrategyInterface[] = [promiseStrategy, syncStrategy];
+
 describe('runInterception', () => {
     it('calls onEnter and onSuccess for a sync invocation', () => {
         const records: string[] = [];
@@ -20,7 +25,7 @@ describe('runInterception', () => {
             onEnter: () => records.push('enter'),
             onSuccess: () => records.push('success'),
         };
-        const result = runInterception(interceptor, [], makeContext(), () => 42);
+        const result = runInterception(interceptor, builtIns, makeContext(), () => 42);
         expect(result).toBe(42);
         expect(records).toEqual(['enter', 'success']);
     });
@@ -33,7 +38,7 @@ describe('runInterception', () => {
             onError: () => records.push('error'),
         };
         expect(() =>
-            runInterception(interceptor, [], makeContext(), () => {
+            runInterception(interceptor, builtIns, makeContext(), () => {
                 throw boom;
             })
         ).toThrow(boom);
@@ -43,7 +48,7 @@ describe('runInterception', () => {
     it('awaits a Promise and emits success with resolved value', async () => {
         const onSuccess = jest.fn();
         const interceptor: InterceptorInterface<readonly unknown[], Promise<number>> = { onSuccess };
-        const result = runInterception(interceptor, [], makeContext(), () => Promise.resolve(99));
+        const result = runInterception(interceptor, builtIns, makeContext(), () => Promise.resolve(99));
         expect(await result).toBe(99);
         expect(onSuccess).toHaveBeenCalledWith(makeContext(), 99, expect.any(Number));
     });
@@ -52,7 +57,7 @@ describe('runInterception', () => {
         const onError = jest.fn();
         const boom = new Error('async');
         const interceptor: InterceptorInterface<readonly unknown[], Promise<never>> = { onError };
-        const result = runInterception(interceptor, [], makeContext(), () => Promise.reject(boom));
+        const result = runInterception(interceptor, builtIns, makeContext(), () => Promise.reject(boom));
         await expect(result).rejects.toBe(boom);
         expect(onError).toHaveBeenCalledWith(makeContext(), boom, expect.any(Number));
     });
@@ -88,7 +93,7 @@ describe('runInterception', () => {
                 throw new Error('hook-success');
             },
         };
-        expect(runInterception(interceptor, [], makeContext(), () => 5)).toBe(5);
+        expect(runInterception(interceptor, builtIns, makeContext(), () => 5)).toBe(5);
     });
 
     it('swallows errors thrown inside onError and still rethrows original', () => {
@@ -99,7 +104,7 @@ describe('runInterception', () => {
             },
         };
         expect(() =>
-            runInterception(interceptor, [], makeContext(), () => {
+            runInterception(interceptor, builtIns, makeContext(), () => {
                 throw boom;
             })
         ).toThrow(boom);
@@ -112,7 +117,7 @@ describe('runInterception', () => {
             onSuccess: ctx => seen.push(ctx),
         };
         const ctx = makeContext();
-        runInterception(interceptor, [], ctx, () => 1);
+        runInterception(interceptor, builtIns, ctx, () => 1);
         expect(seen).toHaveLength(2);
         expect(seen[0]).toBe(seen[1]);
         expect(seen[0]).toBe(ctx);
@@ -126,7 +131,7 @@ describe('runInterception', () => {
         };
         const ctx = makeContext();
         expect(() =>
-            runInterception(interceptor, [], ctx, () => {
+            runInterception(interceptor, builtIns, ctx, () => {
                 throw new Error('x');
             })
         ).toThrow('x');
@@ -136,7 +141,7 @@ describe('runInterception', () => {
     });
 
     it('works without any hooks defined', () => {
-        expect(runInterception({}, [], makeContext(), () => 'hello')).toBe('hello');
+        expect(runInterception({}, builtIns, makeContext(), () => 'hello')).toBe('hello');
     });
 
     it('skips non-matching strategies and falls through to sync handling', () => {
@@ -150,7 +155,7 @@ describe('runInterception', () => {
         const interceptor: InterceptorInterface<readonly unknown[], string> = {
             onSuccess: () => records.push('success'),
         };
-        expect(runInterception(interceptor, [strategy], makeContext(), () => 'val')).toBe('val');
+        expect(runInterception(interceptor, [strategy, ...builtIns], makeContext(), () => 'val')).toBe('val');
         expect(records).toEqual(['success']);
     });
 });

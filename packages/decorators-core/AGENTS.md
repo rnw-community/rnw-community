@@ -40,7 +40,9 @@ src/
 - Per-invocation `ExecutionContext` identity is stable across `onEnter`/`onSuccess`/`onError` — consumers depend on this
 - Hook errors are swallowed inside the engine — transport failures never poison the decorated method
 - Strategies are passed as an immutable factory option (no global mutation registry)
-- Promise handling is built-in via `@rnw-community/shared`'s `isPromise`; Observable support requires opting into `observableStrategy`
+- **Engine is a strategy coordinator.** `createInterceptor` builds a dispatch chain `[...userStrategies, promiseStrategy, syncStrategy]`; the engine finds the first matching strategy and delegates. `syncStrategy.matches` returns `true` unconditionally (terminal catch-all)
+- Promise and sync handling auto-wired via the built-in strategies; Observable support requires opting into `observableStrategy` or `completionObservableStrategy`
+- `ResultStrategyInterface.handle` MUST NOT throw synchronously — exceptions propagate unguarded past `onError`
 
 ## Dependencies
 
