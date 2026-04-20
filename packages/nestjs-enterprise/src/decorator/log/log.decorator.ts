@@ -1,6 +1,6 @@
 import { Logger } from '@nestjs/common';
+import { observableStrategy } from '@rnw-community/decorators-core/rxjs';
 
-import { observableStrategy } from '@rnw-community/decorators-core';
 import { type LogTransportInterface, createLogDecorator } from '@rnw-community/log-decorator';
 import { isError } from '@rnw-community/shared';
 

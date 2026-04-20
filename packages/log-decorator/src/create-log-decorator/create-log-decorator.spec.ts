@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, jest } from '@jest/globals';
+import { observableStrategy } from '@rnw-community/decorators-core/rxjs';
 import { Observable, lastValueFrom, of, throwError } from 'rxjs';
 
-import { observableStrategy } from '@rnw-community/decorators-core';
 
 import { createLogDecorator } from './create-log-decorator';
 
