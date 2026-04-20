@@ -1,39 +1,46 @@
-# lock-decorator
+# Lock Decorator
 
-Framework-agnostic sequential and exclusive method lock decorators built on top of TypeScript's `experimentalDecorators` mode. Dual ESM+CJS build.
-
-**Async-only contract.** All lock decorators in this package — `createSequentialLock` and `createExclusiveLock` — require the decorated method to return a `Promise`. A sync method wrapped by one of these decorators is rejected at compile time by the decorator's type constraint, and at runtime with `Error('Locked method must return a Promise')` if the type check is bypassed. If you need to run an `Observable` pipeline under a lock, use `runWithLock$`, also exported from this package.
+Framework-agnostic sequential and exclusive method lock decorators. TypeScript `experimentalDecorators`. Dual ESM + CJS.
 
 [![npm version](https://badge.fury.io/js/%40rnw-community%2Flock-decorator.svg)](https://badge.fury.io/js/%40rnw-community%2Flock-decorator)
 [![npm downloads](https://img.shields.io/npm/dm/%40rnw-community%2Flock-decorator.svg)](https://www.npmjs.com/package/%40rnw-community/lock-decorator)
+
+## Async-only
+
+Both factories require the decorated method to return a `Promise`. The factory's `K` generic is constrained to `(...args) => Promise<unknown>`, so applying either to a sync method is a compile-time error. A runtime guard catches any cast-bypassed mismatch.
+
+For `Observable` pipelines under a lock, use `runWithLock$` — also exported from this package.
 
 ## Factories
 
 ### [createSequentialLock](src/factory/create-sequential-lock/create-sequential-lock.ts)
 
-Queues concurrent calls in FIFO order. Accepts [`SequentialLockArgumentType`](src/type/sequential-lock-argument.type.ts) — a string key, a key-fn, or an object with `key`, optional `timeoutMs` and optional `signal`.
+FIFO queue on the key. Supports `timeoutMs` (→ `LockAcquireTimeoutError`) and `AbortSignal` (→ `DOMException('AbortError')`).
 
 ```ts
 import { createSequentialLock, createInMemoryLockStore } from '@rnw-community/lock-decorator';
 
-const store = createInMemoryLockStore();
-const SequentialLock = createSequentialLock({ store });
+const SequentialLock = createSequentialLock({ store: createInMemoryLockStore() });
 
 class DataService {
     @SequentialLock('fetch-data')
     async fetchData(): Promise<void> { /* ... */ }
+
+    @SequentialLock(args => `price:${args[0]}`)
+    async updatePrice(sku: string): Promise<void> { /* ... */ }
 }
 ```
 
+Key-fn `args` is inferred from the method signature — no annotations needed.
+
 ### [createExclusiveLock](src/factory/create-exclusive-lock/create-exclusive-lock.ts)
 
-Rejects immediately with [`LockBusyError`](src/error/lock-busy-error/lock-busy.error.ts) if the key is already held. Accepts [`ExclusiveLockArgumentType`](src/type/exclusive-lock-argument.type.ts) — a string key, a key-fn, or an object with `key`.
+Rejects immediately with `LockBusyError` if the key is held. No waiting, no timeout, no signal — skip-on-busy semantics.
 
 ```ts
 import { createExclusiveLock, createInMemoryLockStore } from '@rnw-community/lock-decorator';
 
-const store = createInMemoryLockStore();
-const ExclusiveLock = createExclusiveLock({ store });
+const ExclusiveLock = createExclusiveLock({ store: createInMemoryLockStore() });
 
 class Cache {
     @ExclusiveLock('cache-write')
@@ -41,25 +48,9 @@ class Cache {
 }
 ```
 
-## Store
+## RxJS — [`runWithLock$`](src/util/run-with-lock-rxjs/run-with-lock-rxjs.ts)
 
-### [createInMemoryLockStore](src/store/create-in-memory-lock-store/create-in-memory-lock-store.ts)
-
-Built-in in-memory implementation of [`LockStoreInterface`](src/interface/lock-store.interface.ts). Sequential mode chains acquires in FIFO order; exclusive mode rejects immediately on contention.
-
-```ts
-import { createInMemoryLockStore } from '@rnw-community/lock-decorator';
-
-const store = createInMemoryLockStore();
-const handle = await store.acquire('my-key', 'sequential', { timeoutMs: 3000 });
-handle.release();
-```
-
-## RxJS
-
-### [runWithLock$](src/util/run-with-lock-rxjs/run-with-lock-rxjs.ts)
-
-Observable helper that acquires the lock, subscribes to the inner `Observable` from `fn()`, and releases on completion, error, or unsubscription. Bridges an external `AbortSignal` into the acquire path and cleans up its listener on teardown.
+Observable helper that acquires, subscribes, and releases on complete / error / unsubscribe. Bridges an external `AbortSignal` and cleans up its listener on teardown.
 
 ```ts
 import { runWithLock$, createInMemoryLockStore } from '@rnw-community/lock-decorator';
@@ -68,25 +59,29 @@ const store = createInMemoryLockStore();
 const result$ = runWithLock$(store, 'stream-key', 'sequential', { timeoutMs: 1000 }, () => source$);
 ```
 
+## Store
+
+### [createInMemoryLockStore](src/store/create-in-memory-lock-store/create-in-memory-lock-store.ts)
+
+Single-process FIFO chain + exclusive set. Terminal waiters (timeout / abort) clean up the chain map when they still own the tail, so the store does not retain dead entries.
+
+```ts
+const store = createInMemoryLockStore();
+const handle = await store.acquire('my-key', 'sequential', { timeoutMs: 3000 });
+handle.release();
+```
+
 ## Errors
 
-- [`LockBusyError`](src/error/lock-busy-error/lock-busy.error.ts) — thrown by exclusive acquire when the key is already held.
-- [`LockAcquireTimeoutError`](src/error/lock-acquire-timeout-error/lock-acquire-timeout.error.ts) — thrown by sequential acquire when `timeoutMs` expires.
+- [`LockBusyError`](src/error/lock-busy-error/lock-busy.error.ts) — exclusive key already held
+- [`LockAcquireTimeoutError`](src/error/lock-acquire-timeout-error/lock-acquire-timeout.error.ts) — sequential `timeoutMs` expired
 
-## Types
+## Types & interfaces
 
-- [`SequentialLockArgumentType`](src/type/sequential-lock-argument.type.ts) — argument accepted by sequential factories; supports `signal` for abort.
-- [`ExclusiveLockArgumentType`](src/type/exclusive-lock-argument.type.ts) — argument accepted by exclusive factories; key-only, no wait options.
-- [`LockArgumentType`](src/type/lock-argument.type.ts) — union alias for backwards compatibility.
-- [`LockModeType`](src/type/lock-mode.type.ts) — `'sequential' | 'exclusive'`.
-
-## Interfaces
-
-- [`AcquireOptionsInterface`](src/interface/acquire-options.interface.ts) — `{ timeoutMs?, signal? }`.
-- [`LockHandleInterface`](src/interface/lock-handle.interface.ts) — handle returned by `store.acquire`.
-- [`LockStoreInterface`](src/interface/lock-store.interface.ts) — contract for custom store implementations.
-- [`CreateLockOptionsInterface`](src/interface/create-lock-options.interface.ts) — options passed to factory creators.
+- [`SequentialLockArgumentType`](src/type/sequential-lock-argument.type.ts) / [`ExclusiveLockArgumentType`](src/type/exclusive-lock-argument.type.ts) — string key, key-fn, or object form
+- [`LockModeType`](src/type/lock-mode.type.ts) — `'sequential' | 'exclusive'`
+- [`AcquireOptionsInterface`](src/interface/acquire-options.interface.ts) / [`LockHandleInterface`](src/interface/lock-handle.interface.ts) / [`LockStoreInterface`](src/interface/lock-store.interface.ts)
 
 ## License
 
-This library is licensed under The [MIT License](./LICENSE.md).
+[MIT](./LICENSE.md)
