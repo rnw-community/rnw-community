@@ -1,6 +1,6 @@
 # @rnw-community/log-decorator
 
-Framework-agnostic `@Log` method decorator with pluggable transport, cycle-safe sanitizer, and optional duration measurement. Built on `@rnw-community/decorators-core`. Targets TypeScript's `experimentalDecorators` mode.
+Framework-agnostic `@Log` method decorator with pluggable transport and structured pre/post/error hooks. Built on `@rnw-community/decorators-core`. Targets TypeScript's `experimentalDecorators` mode.
 
 ## Package Commands
 

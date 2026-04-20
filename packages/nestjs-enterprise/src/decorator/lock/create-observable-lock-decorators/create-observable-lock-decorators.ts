@@ -11,11 +11,8 @@ import { RESOURCE_SEPARATOR } from '../resource-separator.const';
 
 import type { PreDecoratorFunction } from '../../../type/pre-decorator-function.type';
 import type { LockServiceInterface } from '../interface/lock-service.interface';
+import type { LockModeType } from '@rnw-community/lock-decorator';
 import type { AbstractConstructor, AnyFn, MethodDecoratorType } from '@rnw-community/shared';
-
-
-
-type LockModeType = 'sequential' | 'exclusive';
 
 const requireObservable = (result: unknown, methodName: string): Observable<unknown> => {
     if (!isObservable(result)) {

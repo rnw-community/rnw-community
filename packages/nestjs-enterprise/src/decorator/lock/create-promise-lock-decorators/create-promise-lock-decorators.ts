@@ -10,10 +10,8 @@ import { RESOURCE_SEPARATOR } from '../resource-separator.const';
 
 import type { PreDecoratorFunction } from '../../../type/pre-decorator-function.type';
 import type { LockServiceInterface } from '../interface/lock-service.interface';
-import type { LockHandleInterface } from '@rnw-community/lock-decorator';
+import type { LockHandleInterface, LockModeType } from '@rnw-community/lock-decorator';
 import type { AbstractConstructor, MethodDecoratorType } from '@rnw-community/shared';
-
-type LockModeType = 'sequential' | 'exclusive';
 
 const safeRelease = async (handle: LockHandleInterface | undefined): Promise<void> => {
     if (!isDefined(handle)) {

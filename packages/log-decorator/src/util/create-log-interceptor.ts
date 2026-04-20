@@ -30,7 +30,7 @@ export const createLogInterceptor = <TArgs extends readonly unknown[], TResult>(
             }
         },
 
-        onSuccess: (context: ExecutionContextInterface<TArgs>, result: TResult, _durationMs: number): void => {
+        onSuccess: (context: ExecutionContextInterface<TArgs>, result: TResult): void => {
             if (postLog === void 0) {
                 return;
             }
@@ -44,7 +44,7 @@ export const createLogInterceptor = <TArgs extends readonly unknown[], TResult>(
             }
         },
 
-        onError: (context: ExecutionContextInterface<TArgs>, error: unknown, _durationMs: number): void => {
+        onError: (context: ExecutionContextInterface<TArgs>, error: unknown): void => {
             if (errorLog === void 0) {
                 return;
             }
