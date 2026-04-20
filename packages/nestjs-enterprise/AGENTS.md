@@ -30,7 +30,7 @@ src/
       create-observable-lock-decorators/ — Modern DI-based observable lock factory
       lock-promise/     — DEPRECATED: inheritance-based promise lock
       lock-observable/  — DEPRECATED: inheritance-based observable lock
-      util/             — Legacy lock utilities (used only by deprecated decorators)
+      util/             — Deprecated lock utilities (used only by the deprecated inheritance-based decorators)
 ```
 
 ### Subpath Exports

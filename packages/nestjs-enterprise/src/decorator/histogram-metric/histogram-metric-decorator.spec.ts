@@ -97,6 +97,29 @@ describe(`HistogramMetric decorator`, () => {
         expect(existingObserve).toHaveBeenCalledTimes(1);
     });
 
+    it('looks up an existing histogram in the supplied custom registry instead of the global register', () => {
+        expect.assertions(3);
+
+        const customObserve = jest.fn();
+        const existingInCustom = { observe: customObserve };
+        const getSingleMetricSpy = jest.fn((_name: string) => existingInCustom as unknown);
+        const customRegistry = { getSingleMetric: getSingleMetricSpy } as unknown as typeof register;
+        (Histogram as unknown as jest.Mock).mockClear();
+
+        class CustomRegistryClass {
+            @HistogramMetric('custom-reg-metric', { help: 'custom-reg-metric', registers: [customRegistry] })
+            run(): number {
+                return 7;
+            }
+        }
+
+        new CustomRegistryClass().run();
+
+        expect(getSingleMetricSpy).toHaveBeenCalledWith('custom-reg-metric');
+        expect(Histogram).not.toHaveBeenCalled();
+        expect(customObserve).toHaveBeenCalledTimes(1);
+    });
+
     describe('Observable and Promise duration semantics', () => {
         it('records exactly one observation after a Promise resolves (end-to-end duration)', async () => {
             expect.assertions(2);

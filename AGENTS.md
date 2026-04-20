@@ -103,24 +103,62 @@ Allowed pragma comments only (no other exceptions):
 
 No JSDoc usage examples in source. No `@example`, no `@see`. Examples live in `readme.md` and per-entity `.md` files.
 
-### Decorator factories — legacy decorators only
+### Decorator factories — `experimentalDecorators` only
 
-This codebase ships method decorators built on TypeScript's `experimentalDecorators` mode (legacy decorator semantics). TC39 stage-3 decorators are NOT supported. The decision is driven by test-runtime ergonomics: the project's Jest+Babel pipeline uses `@babel/plugin-proposal-decorators` with `{ legacy: true }`, which silently no-ops stage-3 decorators when applied via `@` syntax. Consumers must enable `experimentalDecorators: true` in their tsconfig. Every decorator factory exposes a single `createLegacy*` entry point.
+This codebase ships method decorators built on TypeScript's `experimentalDecorators` mode. TC39 stage-3 decorators are NOT supported. The decision is driven by test-runtime ergonomics: the project's Jest+Babel pipeline uses `@babel/plugin-proposal-decorators` with `{ legacy: true }`, which silently no-ops stage-3 decorators when applied via `@` syntax. Consumers must enable `experimentalDecorators: true` in their tsconfig. Decorator factories carry NO `createLegacy*` / `Legacy*` prefix — the `experimentalDecorators` runtime is a package-wide invariant, not a per-factory variant.
 
-### Decorator factories — automatic type inference
+### Decorator application — no paren wrapping
 
-Every decorator factory in this codebase MUST let TypeScript infer callback parameter types from the decorated method's signature. Consumers must NOT have to spell out generics like `@Log<readonly unknown[], number>(...)` to get a typed `arg`. Factory call shapes use spread form: callbacks like `preLog`, `postLog`, `errorLog`, `catchErrorFn`, lock key-fns, and histogram `labels` accept `(...args: TArgs) => ...` so a real-world call like `@Log((id, qty) => …)` resolves `id` and `qty` to the actual method arg types. The factory's generic shape is `<TArgs extends readonly unknown[], TResult>` where `TArgs` and `TResult` derive from the decorated method's `Parameters` and `ReturnType`. Legacy `experimentalDecorators` decorators have a known TypeScript limitation here — when full inference is impossible without consumer-side generics, prefer the spread-form callback shape and document the limitation in the package's readme rather than papering over it with array-form callbacks.
+Apply decorator factories with plain `@Name(...)`, never `@(Name(...))`. Wrapping in parens is not idiomatic and usually only needed to disambiguate factory-level generic type arguments (`@Log<[string]>(...)`). Since factories in this codebase are designed for inference from annotated callback params (see "Automatic type narrowing" below), explicit factory generics are not required and `@(...)` wrapping must not appear in source or tests.
 
-### Guards from `@rnw-community/shared` (use them)
+### Automatic type narrowing — core feature
 
-Use these guards instead of inline checks — they narrow types, compose cleanly, and read like intent:
+Every decorator factory in this codebase MUST let TypeScript infer callback parameter types from either the decorated method's signature or from the annotated callback params themselves. Consumers must NOT be forced to spell out factory generics like `@Log<[string, number], string>(...)` just to get typed `productId` / `qty`. Factory call shapes use spread form: callbacks like `preLog`, `postLog`, `errorLog`, `catchErrorFn`, lock key-fns, and histogram `labels` accept `(...args: TArgs) => ...` so TypeScript can infer `TArgs` from the callback's annotated params:
+
+```ts
+@Log(
+    (productId: string, qty: number) => `placing order ${productId} qty=${qty}`,
+    (receiptId: string, productId: string, qty: number) => `placed ${productId} -> ${receiptId}`
+)
+async placeOrder(productId: string, qty: number): Promise<string> { ... }
+```
+
+Factory generic shape is `<TArgs extends readonly unknown[] = readonly unknown[], TResult = unknown>` with DEFAULT values so string-only hook forms (`@Log('enter')`) do not require generics. `experimentalDecorators` has a known limitation: the method's own signature cannot flow backward into the factory's generic slots. The SOTA workaround is therefore annotated callback params, NOT explicit factory generics. Tests and readmes demonstrate this pattern as the canonical shape.
+
+### Always use `@rnw-community/shared` primitives
+
+The `shared` package exists so the rest of the monorepo does NOT re-invent guards, no-ops, or TS utility types. Before introducing any inline check, no-op function, or ad-hoc helper, scan `shared` first — if a primitive exists there, use it. This is a hard rule, not a suggestion. New packages gain `@rnw-community/shared` as a direct dependency rather than shadowing its surface.
+
+**Type guards — use instead of inline checks:**
 
 - `isDefined(v)` instead of `v !== null && v !== undefined`
 - `isPromise(v)` instead of `v instanceof Promise` (also catches thenables and cross-realm promises)
-- `isNotEmptyArray(v)` / `isEmptyArray(v)` / `isArray(v)`
-- `isNotEmptyString(v)` / `isEmptyString(v)` / `isString(v)`
-- `isNumber(v)` / `isPositiveNumber(v)`
-- `isBoolean(v)` / `isError(v)`
+- `isError(v)` instead of `v instanceof Error`
+- `isArray(v)` instead of `Array.isArray(v)` when the input type is unknown; keep `Array.isArray` only for function-vs-array unions where the shared guard's intersection-narrow cannot collapse the function side to `never`
+- `isNotEmptyArray(v)` / `isEmptyArray(v)`
+- `isString(v)` / `isNotEmptyString(v)` / `isEmptyString(v)` instead of `typeof v === 'string'` (+ optional length check)
+- `isNumber(v)` / `isPositiveNumber(v)` instead of `typeof v === 'number'`
+- `isBoolean(v)`
+
+**Types — import from `shared`, never redefine:**
+
+- `EmptyFn` — `(...args: any[]) => void`; use as the type for no-arg/no-return callbacks, abort-listener cleanup handlers, and placeholder slots
+- `AnyFn` — generic function constraint for decorator method type parameters
+- `Maybe<T>` — `T | null`
+- `ClassType<T>` / `AbstractConstructor<T>` — DI/reflection constructor shapes
+- `MethodDecoratorType<K>` — typed method-decorator factory result
+- `IsNotEmptyArray<T>` / `ReadonlyIsNotEmptyArray<T>` — tuples asserting at least one element
+- `Enum<D>` — enum-like record
+- `OnEventFn<T, R>` — single-event callback
+
+**Utilities — prefer over ad-hoc:**
+
+- `emptyFn` — the canonical no-op. Use `.catch(emptyFn)` instead of `.catch(() => void 0)`; initialize `let cleanup: EmptyFn = emptyFn;` instead of `() => void 0`; pass `emptyFn` to any callback slot that deliberately does nothing
+- `wait(ms)` — Promise-based sleep; never re-implement with `new Promise(r => setTimeout(r, ms))`
+- `getErrorMessage(err, fallback?)` — type-safe `.message` extraction in catch blocks
+- `getDefined(value, defaultFn)` — lazy default when `value` is nullish
+
+If a needed primitive does NOT exist in `shared`, extend `shared` rather than creating it locally — that is where all cross-package utility surface lives.
 
 ### Docs location
 

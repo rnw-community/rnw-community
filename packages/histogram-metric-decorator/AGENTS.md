@@ -1,6 +1,6 @@
 # @rnw-community/histogram-metric-decorator
 
-Framework-agnostic method decorator for recording call durations into any histogram transport. Built on `@rnw-community/decorators-core`.
+Framework-agnostic method decorator for recording call durations into any histogram transport. Built on `@rnw-community/decorators-core`. Targets TypeScript's `experimentalDecorators` mode.
 
 ## Package Commands
 
@@ -17,28 +17,29 @@ yarn lint:fix           # Fix lint issues
 ```
 src/
   interface/
-    create-histogram-metric-options-interface/
-    histogram-options-interface/
-    histogram-transport-interface/
+    create-histogram-metric-options.interface.ts
+    histogram-options.interface.ts
+    histogram-transport.interface.ts
+    in-memory-histogram-transport.interface.ts
+    in-memory-observation.interface.ts
   factory/
-    create-histogram-metric/      — stage-3 factory + spec
-    create-legacy-histogram-metric/ — legacy factory + spec
+    create-histogram-metric/      — decorator factory + spec
   transport/
-    in-memory-histogram-transport/ — test-ready transport + spec
+    in-memory-histogram-transport.ts  — test-ready transport
+    in-memory-histogram-transport.spec.ts
   index.ts
 ```
 
 ## Key Patterns
 
-- One entity per folder (`<entity-name>/<entity-name>.<suffix>.ts` + colocated `.spec.ts`)
+- One entity per file; folders only to group `source + spec` (+ optional `.md`)
 - Observation emitted on BOTH success and error paths (via `onSuccess` + `onError` engine hooks)
-- Metric name defaults to `<ClassName>_<methodName>_duration_ms` when omitted; consumer can override
-- Awaits Promises natively (via decorators-core engine); Observable support opt-in via `observableStrategy` from `@rnw-community/decorators-core/rxjs`
+- Metric name defaults to `<ClassName>_<methodName>_duration_ms` when omitted; consumer can override via `{ name }`
+- Sync returns emit on return; Promise returns emit on settle (resolve or reject). Observable returns are NOT specially handled — observations fire once on the sync return of the Observable reference, not on stream completion
 
 ## Dependencies
 
-- `@rnw-community/decorators-core` — interceptor engine + optional `/rxjs` strategy
-- `@rnw-community/shared` — type guards
+- `@rnw-community/decorators-core` — interceptor engine
 
 ## Coverage
 

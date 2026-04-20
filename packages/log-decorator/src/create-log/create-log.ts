@@ -10,7 +10,7 @@ import type { MethodDecoratorType } from '@rnw-community/decorators-core';
 
 export const createLog =
     (options: CreateLogOptionsInterface) =>
-    <TArgs extends readonly unknown[], TResult>(
+    <TArgs extends readonly unknown[] = readonly unknown[], TResult = unknown>(
         preLog?: PreLogInputType<TArgs>,
         postLog?: PostLogInputType<TArgs, TResult>,
         errorLog?: ErrorLogInputType<TArgs>
