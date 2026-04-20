@@ -12,8 +12,8 @@ Framework-agnostic interceptor primitive for building method decorators (log, me
 | `createInterceptor` | Build a method decorator from an `InterceptorInterface` + optional strategies |
 | `syncStrategy` | Catch-all strategy (`matches: () => true`) — auto-appended as terminal fallback |
 | `promiseStrategy` | Built-in result strategy for Promises / thenables — auto-appended after user strategies |
-| `observableStrategy` | Built-in result strategy for RxJS `Observable` (per-emission, value-oriented) |
-| `completionObservableStrategy` | Built-in result strategy for RxJS `Observable` (completion-latency — fires once on `complete` or `error`) |
+| `observableStrategy` | RxJS `Observable` strategy (per-emission) — imported from `@rnw-community/decorators-core/rxjs` |
+| `completionObservableStrategy` | RxJS `Observable` strategy (completion-latency) — imported from `@rnw-community/decorators-core/rxjs` |
 | `InterceptorInterface` | `onEnter`, `onSuccess`, `onError` hook contract |
 | `ResultStrategyInterface` | `{ matches, handle }` for custom return-type handling |
 | `ExecutionContextInterface` | Per-invocation context: `className`, `methodName`, `args`, `logContext` |
@@ -58,8 +58,11 @@ class UserService {
 
 ## Observable support
 
+Observable strategies live under the `/rxjs` subpath so the root entrypoint stays rxjs-free. Sync-only consumers can install and run `@rnw-community/decorators-core` without `rxjs` in their tree.
+
 ```ts
-import { createInterceptor, observableStrategy } from '@rnw-community/decorators-core';
+import { createInterceptor } from '@rnw-community/decorators-core';
+import { observableStrategy } from '@rnw-community/decorators-core/rxjs';
 
 const withLog = createInterceptor({ interceptor: logInterceptor, strategies: [observableStrategy] });
 ```
