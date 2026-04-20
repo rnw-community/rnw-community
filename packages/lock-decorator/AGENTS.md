@@ -21,7 +21,6 @@ src/
     lock-argument.type.ts                — union alias: SequentialLockArgumentType | ExclusiveLockArgumentType
     sequential-lock-argument.type.ts     — string | (args) => string | {key, timeoutMs?, signal?}
     exclusive-lock-argument.type.ts      — string | (args) => string | {key}  (no waiting, so no timeoutMs/signal)
-    promise-method-decorator.type.ts     — method decorator constrained to Promise-returning methods
   interface/
     acquire-options.interface.ts         — timeoutMs, signal
     lock-handle.interface.ts             — key, mode, release()
@@ -38,14 +37,14 @@ src/
     run-with-lock/                       — acquire → run → release; rejects non-Promise results at runtime
     run-with-lock-rxjs/                  — runWithLock$; bridges AbortSignal, releases on complete/error/unsubscribe
   factory/
-    create-sequential-lock/              — returns PromiseMethodDecoratorType; runtime-rejects non-Promise methods
-    create-exclusive-lock/               — returns PromiseMethodDecoratorType; runtime-rejects non-Promise methods
+    create-sequential-lock/              — returns MethodDecoratorType<K> with K constrained to Promise-returning; runtime-rejects non-Promise methods
+    create-exclusive-lock/               — returns MethodDecoratorType<K> with K constrained to Promise-returning; runtime-rejects non-Promise methods
   index.ts
 ```
 
 ## Key Patterns
 
-- **Async-only at the type level** — both factories return `PromiseMethodDecoratorType`; applying them to a sync method is a compile-time error and, if bypassed with a cast, a runtime rejection (`Error('Locked method must return a Promise')`)
+- **Async-only at the type level** — both factories return `MethodDecoratorType<K>` where `K extends (...args) => Promise<unknown>`; applying them to a sync method is a compile-time error and, if bypassed with a cast, a runtime rejection (`Error('Locked method must return a Promise')`)
 - **Exclusive locks don't wait** — argument type does NOT accept `timeoutMs` or `signal`; acquire either succeeds or throws `LockBusyError`
 - **Sequential locks can wait** — accept `timeoutMs` (→ `LockAcquireTimeoutError`) and `signal: AbortSignal` (→ `DOMException('AbortError')`) threaded through the store
 - **Release is idempotent** on both modes — a stale handle's second `release()` is a no-op

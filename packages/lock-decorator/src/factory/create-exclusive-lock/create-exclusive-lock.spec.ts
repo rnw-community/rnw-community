@@ -16,12 +16,12 @@ class PaymentService {
         return { orderId, captured: amount };
     }
 
-    @ExclusiveLock<readonly [string]>(args => `refund:${args[0]}`)
+    @ExclusiveLock(args => `refund:${args[0]}`)
     async refundPayment(orderId: string): Promise<{ readonly orderId: string; readonly refunded: boolean }> {
         return { orderId, refunded: true };
     }
 
-    @ExclusiveLock<readonly [string]>({ key: args => `status:${args[0]}` })
+    @ExclusiveLock({ key: args => `status:${args[0]}` })
     async getPaymentStatus(orderId: string): Promise<string> {
         return `status:${orderId}`;
     }
@@ -67,9 +67,9 @@ describe('createExclusiveLock', () => {
         expect.hasAssertions();
 
         const service = new PaymentService();
-        await expect((service.syncValidateCard as unknown as (card: string) => Promise<unknown>)('1234567890123456')).rejects.toThrow(
-            'Locked method must return a Promise'
-        );
+        await expect(
+            (service.syncValidateCard as unknown as (card: string) => Promise<unknown>)('1234567890123456')
+        ).rejects.toThrow('Locked method must return a Promise');
     });
 
     it('throws LockBusyError when the lock is already held', async () => {
@@ -79,14 +79,16 @@ describe('createExclusiveLock', () => {
         const LocalExLock = createExclusiveLock({ store: localStore });
 
         let releaseHeld!: () => void;
-        const holdUntilReleased = new Promise<void>(resolve => { releaseHeld = resolve; });
+        const holdUntilReleased = new Promise<void>(resolve => {
+            releaseHeld = resolve;
+        });
 
         class CheckoutService {
             @LocalExLock('checkout-lock')
             async processCheckout(orderId: string): Promise<string> {
                 await holdUntilReleased;
-                
-return `checkout:${orderId}`;
+
+                return `checkout:${orderId}`;
             }
         }
 
@@ -107,7 +109,7 @@ return `checkout:${orderId}`;
         const LocalExLock = createExclusiveLock({ store: localStore });
 
         class SettlementService {
-            @LocalExLock<readonly [string]>(args => `settle:${args[0]}`)
+            @LocalExLock(args => `settle:${args[0]}`)
             async settleOrder(orderId: string): Promise<string> {
                 return `settled:${orderId}`;
             }
@@ -127,7 +129,7 @@ return `checkout:${orderId}`;
         const LocalExLock = createExclusiveLock({ store: localStore });
 
         class AuthorizationService {
-            @LocalExLock<readonly [string]>({ key: args => `auth:${args[0]}` })
+            @LocalExLock({ key: args => `auth:${args[0]}` })
             async authorizeTransaction(orderId: string): Promise<boolean> {
                 return orderId.length > 0;
             }

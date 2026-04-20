@@ -3,11 +3,14 @@ import { runWithLock } from '../../util/run-with-lock/run-with-lock';
 
 import type { CreateLockOptionsInterface } from '../../interface/create-lock-options.interface';
 import type { ExclusiveLockArgumentType } from '../../type/exclusive-lock-argument.type';
-import type { PromiseMethodDecoratorType } from '../../type/promise-method-decorator.type';
+import type { MethodDecoratorType } from '@rnw-community/shared';
 
 export const createExclusiveLock =
     (options: CreateLockOptionsInterface) =>
-    <TArgs extends readonly unknown[]>(arg: ExclusiveLockArgumentType<TArgs>): PromiseMethodDecoratorType =>
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    <K extends (...args: readonly any[]) => Promise<unknown>, TArgs extends Parameters<K> = Parameters<K>>(
+        arg: ExclusiveLockArgumentType<TArgs>
+    ): MethodDecoratorType<K> =>
     (_target, _propertyKey, descriptor) => {
         const originalMethod = descriptor.value;
         if (typeof originalMethod !== 'function') {

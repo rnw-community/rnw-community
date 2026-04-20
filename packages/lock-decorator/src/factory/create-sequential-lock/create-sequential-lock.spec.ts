@@ -16,17 +16,20 @@ class OrderService {
     readonly inventory = new Map<string, number>([['sku-1', 10]]);
 
     @SequentialLock('order-create')
-    async createOrder(productId: string, qty: number): Promise<{ readonly id: string; readonly productId: string; readonly qty: number }> {
+    async createOrder(
+        productId: string,
+        qty: number
+    ): Promise<{ readonly id: string; readonly productId: string; readonly qty: number }> {
         const stock = this.inventory.get(productId) ?? 0;
         if (stock < qty) {
             throw new Error(`out of stock: ${productId}`);
         }
         this.inventory.set(productId, stock - qty);
-        
-return { id: `order-${productId}-${qty.toString()}`, productId, qty };
+
+        return { id: `order-${productId}-${qty.toString()}`, productId, qty };
     }
 
-    @SequentialLock<readonly [string]>((args) => `update:${args[0]}`)
+    @SequentialLock(args => `update:${args[0]}`)
     async updateOrder(productId: string): Promise<{ readonly productId: string; readonly stock: number }> {
         return { productId, stock: this.inventory.get(productId) ?? 0 };
     }
@@ -114,7 +117,7 @@ describe('createSequentialLock', () => {
         const LocalSeqLock = createSequentialLock({ store: localStore });
 
         class CatalogService {
-            @LocalSeqLock<readonly [string]>(args => `price:${args[0]}`)
+            @LocalSeqLock(args => `price:${args[0]}`)
             async updatePrice(sku: string): Promise<string> {
                 return `updated:${sku}`;
             }
@@ -155,13 +158,19 @@ describe('createSequentialLock', () => {
 
         class OrderQueue {
             @LocalSeqLock('order-queue')
-            async processSlot1(): Promise<void> { processedOrder.push(1); }
+            async processSlot1(): Promise<void> {
+                processedOrder.push(1);
+            }
 
             @LocalSeqLock('order-queue')
-            async processSlot2(): Promise<void> { processedOrder.push(2); }
+            async processSlot2(): Promise<void> {
+                processedOrder.push(2);
+            }
 
             @LocalSeqLock('order-queue')
-            async processSlot3(): Promise<void> { processedOrder.push(3); }
+            async processSlot3(): Promise<void> {
+                processedOrder.push(3);
+            }
         }
 
         const queue = new OrderQueue();
@@ -236,8 +245,8 @@ describe('createSequentialLock', () => {
             @LocalSeqLock('warehouse-dispatch')
             async dispatch(orderId: string): Promise<string> {
                 await wait(50);
-                
-return `dispatched:${orderId}`;
+
+                return `dispatched:${orderId}`;
             }
 
             @LocalSeqLock({ key: 'warehouse-dispatch', timeoutMs: 10 })

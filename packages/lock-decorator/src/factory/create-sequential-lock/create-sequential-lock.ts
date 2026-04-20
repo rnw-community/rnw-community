@@ -2,12 +2,15 @@ import { resolveLockKey } from '../../util/resolve-lock-key/resolve-lock-key';
 import { runWithLock } from '../../util/run-with-lock/run-with-lock';
 
 import type { CreateLockOptionsInterface } from '../../interface/create-lock-options.interface';
-import type { PromiseMethodDecoratorType } from '../../type/promise-method-decorator.type';
 import type { SequentialLockArgumentType } from '../../type/sequential-lock-argument.type';
+import type { MethodDecoratorType } from '@rnw-community/shared';
 
 export const createSequentialLock =
     (options: CreateLockOptionsInterface) =>
-    <TArgs extends readonly unknown[]>(arg: SequentialLockArgumentType<TArgs>): PromiseMethodDecoratorType =>
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    <K extends (...args: readonly any[]) => Promise<unknown>, TArgs extends Parameters<K> = Parameters<K>>(
+        arg: SequentialLockArgumentType<TArgs>
+    ): MethodDecoratorType<K> =>
     (_target, _propertyKey, descriptor) => {
         const originalMethod = descriptor.value;
         if (typeof originalMethod !== 'function') {

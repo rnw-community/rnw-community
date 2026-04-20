@@ -6,16 +6,23 @@ import type { CreateLogOptionsInterface } from '../interface/create-log-options.
 import type { ErrorLogInputType } from '../type/error-log-input.type';
 import type { PostLogInputType } from '../type/post-log-input.type';
 import type { PreLogInputType } from '../type/pre-log-input.type';
-import type { MethodDecoratorType } from '@rnw-community/decorators-core';
+import type { AnyFn, MethodDecoratorType } from '@rnw-community/shared';
+import type { Observable } from 'rxjs';
+
+type GetResultType<T> = T extends Promise<infer U> ? U : T extends Observable<infer U> ? U : T;
 
 export const createLog =
     (options: CreateLogOptionsInterface) =>
-    <TArgs extends readonly unknown[] = readonly unknown[], TResult = unknown>(
+    <
+        K extends AnyFn,
+        TArgs extends Parameters<K> = Parameters<K>,
+        TResult extends GetResultType<ReturnType<K>> = GetResultType<ReturnType<K>>,
+    >(
         preLog?: PreLogInputType<TArgs>,
         postLog?: PostLogInputType<TArgs, TResult>,
         errorLog?: ErrorLogInputType<TArgs>
-    ): MethodDecoratorType =>
+    ): MethodDecoratorType<K> =>
         createInterceptor<TArgs, TResult>({
             interceptor: createLogInterceptor<TArgs, TResult>(options, preLog, postLog, errorLog),
             strategies: options.strategies,
-        });
+        }) as unknown as MethodDecoratorType<K>;

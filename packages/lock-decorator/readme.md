@@ -79,7 +79,6 @@ const result$ = runWithLock$(store, 'stream-key', 'sequential', { timeoutMs: 100
 - [`ExclusiveLockArgumentType`](src/type/exclusive-lock-argument.type.ts) — argument accepted by exclusive factories; key-only, no wait options.
 - [`LockArgumentType`](src/type/lock-argument.type.ts) — union alias for backwards compatibility.
 - [`LockModeType`](src/type/lock-mode.type.ts) — `'sequential' | 'exclusive'`.
-- [`PromiseMethodDecoratorType`](src/type/promise-method-decorator.type.ts) — method decorator constrained to `Promise`-returning methods.
 
 ## Interfaces
 

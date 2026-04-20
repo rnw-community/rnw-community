@@ -5640,6 +5640,7 @@ __metadata:
   resolution: "@rnw-community/histogram-metric-decorator@workspace:packages/histogram-metric-decorator"
   dependencies:
     "@rnw-community/decorators-core": "workspace:^"
+    "@rnw-community/shared": "workspace:^"
   peerDependencies:
     typescript: ">=5.0.0"
   peerDependenciesMeta:
@@ -5671,9 +5672,13 @@ __metadata:
   dependencies:
     "@rnw-community/decorators-core": "workspace:^"
     "@rnw-community/shared": "workspace:^"
+    rxjs: "npm:^7.8.2"
   peerDependencies:
+    rxjs: ^7.8.0
     typescript: ">=5.0.0"
   peerDependenciesMeta:
+    rxjs:
+      optional: true
     typescript:
       optional: true
   languageName: unknown

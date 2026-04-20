@@ -10,20 +10,23 @@ import type { AnyFn, MethodDecoratorType } from '@rnw-community/shared';
  * @see {@link createObservableLockDecorators} for the DI-based approach.
  */
 export const LockObservable =
-    <K extends AnyFn, TResult extends ReturnType<K>, TArgs extends Parameters<K>>(
-            preLock: PreDecoratorFunction<TArgs, string[]> | string[],
-            duration: number,
-            catchErrorFn$?: (error: unknown) => TResult,
-            retryCount?: number
-        ): MethodDecoratorType<K> =>
-        (target, propertyKey, descriptor) => {
-            descriptor.value = executeLockObservable(
-                getRedlockService, preLock, duration, retryCount,
-                // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-                descriptor.value!,
-                getMethodName(target, propertyKey),
-                catchErrorFn$
-            ) as K;
+    <K extends AnyFn, TArgs extends Parameters<K>>(
+        preLock: PreDecoratorFunction<TArgs, string[]> | string[],
+        duration: number,
+        catchErrorFn$?: (error: unknown) => ReturnType<K>,
+        retryCount?: number
+    ): MethodDecoratorType<K> =>
+    (target, propertyKey, descriptor) => {
+        descriptor.value = executeLockObservable(
+            getRedlockService,
+            preLock,
+            duration,
+            retryCount,
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+            descriptor.value!,
+            getMethodName(target, propertyKey),
+            catchErrorFn$
+        ) as unknown as K;
 
-            return descriptor;
-        };
+        return descriptor;
+    };

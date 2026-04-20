@@ -13,6 +13,12 @@ import type { LockServiceInterface } from '../interface/lock-service.interface';
 import type { LockHandleInterface, LockModeType } from '@rnw-community/lock-decorator';
 import type { AbstractConstructor, MethodDecoratorType } from '@rnw-community/shared';
 
+type PromiseRecoveryType<TResult> = TResult extends Promise<infer TValue> ? TValue | Promise<TValue> : never;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type PromiseRecoveryFnType<K extends (...args: any[]) => Promise<unknown>> = (
+    error: unknown
+) => PromiseRecoveryType<ReturnType<K>>;
+
 const safeRelease = async (handle: LockHandleInterface | undefined): Promise<void> => {
     if (!isDefined(handle)) {
         return;
@@ -27,8 +33,8 @@ const safeRelease = async (handle: LockHandleInterface | undefined): Promise<voi
 const handleLockError = <TResult>(
     error: unknown,
     mode: LockModeType,
-    catchErrorFn: ((error: unknown) => TResult) | undefined
-): TResult | undefined => {
+    catchErrorFn: ((error: unknown) => TResult | Promise<TResult>) | undefined
+): TResult | Promise<TResult> | undefined => {
     const isExclusiveBusy = error instanceof LockBusyError && mode === 'exclusive' && !isDefined(catchErrorFn);
     const normalized =
         error instanceof LockBusyError
@@ -52,9 +58,9 @@ export const createPromiseLockDecorators = (
     const makeDecorator =
         (mode: LockModeType) =>
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        <K extends (...args: any[]) => Promise<any>, TResult extends ReturnType<K>, TArgs extends Parameters<K>>(
+        <K extends (...args: any[]) => Promise<unknown>, TArgs extends Parameters<K>>(
             preLock: PreDecoratorFunction<TArgs, string[]> | string[],
-            catchErrorFn?: (error: unknown) => TResult,
+            catchErrorFn?: PromiseRecoveryFnType<K>,
             duration?: number
         ): MethodDecoratorType<K> =>
         (target, propertyKey, descriptor) => {
@@ -88,7 +94,7 @@ export const createPromiseLockDecorators = (
                 } finally {
                     await safeRelease(handle);
                 }
-            } as K;
+            } as unknown as K;
 
             return descriptor;
         };

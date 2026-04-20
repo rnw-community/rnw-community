@@ -6,7 +6,6 @@ import { createObservableLockDecorators } from './create-observable-lock-decorat
 import type { LockHandle } from '../interface/lock-handle.interface';
 import type { LockServiceInterface } from '../interface/lock-service.interface';
 
-
 const mockRelease = jest.fn<() => Promise<void>>().mockResolvedValue();
 const mockAcquire = jest
     .fn<(resources: string[], duration: number) => Promise<LockHandle>>()
@@ -329,7 +328,9 @@ describe('createObservableLockDecorators', () => {
 
             mockTryAcquire.mockResolvedValueOnce(undefined);
 
-            await expect(lastValueFrom(instance.testExclusiveArray$(), { defaultValue: undefined })).resolves.toBeUndefined();
+            await expect(
+                lastValueFrom(instance.testExclusiveArray$(), { defaultValue: undefined })
+            ).resolves.toBeUndefined();
             expect(mockTryAcquire).toHaveBeenCalledWith(['test'], 1000);
             expect(mockRelease).not.toHaveBeenCalled();
         });
@@ -342,7 +343,9 @@ describe('createObservableLockDecorators', () => {
             await expect(lastValueFrom(instance.testExclusiveLockFailedErrorFn$())).resolves.toBe(0);
             expect(mockTryAcquire).toHaveBeenCalledWith(['test'], 1000);
             expect(mockRelease).not.toHaveBeenCalled();
-            expect(mockErrorFn).toHaveBeenCalledWith(expect.objectContaining({ message: expect.stringContaining('Lock not acquired') }));
+            expect(mockErrorFn).toHaveBeenCalledWith(
+                expect.objectContaining({ message: expect.stringContaining('Lock not acquired') })
+            );
         });
 
         it('should handle throwing error in catchErrorFn$ when lock is already held', async () => {
@@ -354,9 +357,7 @@ describe('createObservableLockDecorators', () => {
                 throw new Error(catchErrorFnErrorMsg);
             });
 
-            await expect(lastValueFrom(instance.testExclusiveLockFailedErrorFn$())).rejects.toThrow(
-                catchErrorFnErrorMsg
-            );
+            await expect(lastValueFrom(instance.testExclusiveLockFailedErrorFn$())).rejects.toThrow(catchErrorFnErrorMsg);
             expect(mockTryAcquire).toHaveBeenCalledWith(['test'], 1000);
             expect(mockRelease).not.toHaveBeenCalled();
         });
@@ -364,9 +365,7 @@ describe('createObservableLockDecorators', () => {
         it('should throw error if resources argument is not defined or empty array is passed', async () => {
             expect.hasAssertions();
 
-            await expect(lastValueFrom(instance.testExclusiveEmptyResource$())).rejects.toThrow(
-                'Lock key is not defined'
-            );
+            await expect(lastValueFrom(instance.testExclusiveEmptyResource$())).rejects.toThrow('Lock key is not defined');
             expect(mockTryAcquire).not.toHaveBeenCalled();
             expect(mockRelease).not.toHaveBeenCalled();
         });
@@ -427,9 +426,7 @@ describe('createObservableLockDecorators', () => {
                 throw new Error(catchErrorFnErrorMsg);
             });
 
-            await expect(lastValueFrom(instance.testExclusiveLockFailedErrorFn$())).rejects.toThrow(
-                catchErrorFnErrorMsg
-            );
+            await expect(lastValueFrom(instance.testExclusiveLockFailedErrorFn$())).rejects.toThrow(catchErrorFnErrorMsg);
             expect(mockTryAcquire).toHaveBeenCalledWith(['test'], 1000);
             expect(mockRelease).not.toHaveBeenCalled();
         });
@@ -461,11 +458,14 @@ describe('createObservableLockDecorators', () => {
                 const { SequentialLock$: SeqLockCatch$ } = createObservableLockDecorators(MockLockService, 1000);
 
                 class CatchSetupClass {
-                    @SeqLockCatch$(() => [], (err: unknown) => {
-                        catchSpy(err);
-                        
-return of(0);
-                    })
+                    @SeqLockCatch$(
+                        () => [],
+                        (err: unknown) => {
+                            catchSpy(err);
+
+                            return of(0);
+                        }
+                    )
                     test$(): Observable<number> {
                         return of(1);
                     }
