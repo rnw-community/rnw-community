@@ -1,6 +1,6 @@
 # @rnw-community/decorators-core
 
-Framework-agnostic interceptor primitive for building method decorators. Ships `createInterceptor` — a factory for `experimentalDecorators` method decorators — plus two built-in result strategies: `promiseStrategy` and `observableStrategy`.
+Framework-agnostic interceptor primitive for building method decorators. Ships `createInterceptor` — a factory for `experimentalDecorators` method decorators — plus four built-in result strategies: `syncStrategy`, `promiseStrategy`, `observableStrategy`, and `completionObservableStrategy`.
 
 ## Package Commands
 
@@ -22,16 +22,20 @@ src/
     result-strategy.interface.ts
     create-interceptor-options.interface.ts
   type/
-    method-decorator.type.ts
+    get-result.type.ts        — GetResultType unwrap helper (Promise / Observable → inner)
   strategy/
-    promise-strategy/       — promiseStrategy + spec
-    observable-strategy/    — observableStrategy + spec (RxJS; optional peer)
+    sync-strategy/            — syncStrategy + spec (catch-all, zero deps)
+    promise-strategy/         — promiseStrategy + spec (zero deps)
+    observable-strategy/      — observableStrategy + spec (per-emission; rxjs peer)
+    completion-observable-strategy/ — completionObservableStrategy + spec (completion-latency; rxjs peer)
   engine/
-    build-context/          — buildContext + spec
-    run-interception/       — runInterception + spec
-    create-interceptor/     — createInterceptor + spec
+    build-context/            — buildContext + spec
+    run-interception/         — runInterception + spec
+    create-interceptor/       — createInterceptor + spec
   index.ts
 ```
+
+`MethodDecoratorType<K>` is owned by `@rnw-community/shared` — not re-exported from this package.
 
 ## Key Patterns
 
@@ -46,8 +50,8 @@ src/
 
 ## Dependencies
 
-- `@rnw-community/shared` — `isPromise`, `isDefined`
-- **Optional peer**: `rxjs` (only needed when importing `observableStrategy`)
+- `@rnw-community/shared` — `isPromise`, `isDefined`, `EmptyFn`, `emptyFn`, `isNotEmptyString`, `MethodDecoratorType`
+- **Optional peer**: `rxjs` (only needed when importing `observableStrategy` or `completionObservableStrategy`)
 
 ## Coverage
 

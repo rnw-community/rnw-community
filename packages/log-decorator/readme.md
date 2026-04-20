@@ -5,9 +5,9 @@ Universal method decorator with pre/post/error logging hooks and a pluggable tra
 [![npm version](https://badge.fury.io/js/%40rnw-community%2Flog-decorator.svg)](https://badge.fury.io/js/%40rnw-community%2Flog-decorator)
 [![npm downloads](https://img.shields.io/npm/dm/%40rnw-community%2Flog-decorator.svg)](https://www.npmjs.com/package/%40rnw-community%2Flog-decorator)
 
-## Type narrowing — no generics, no annotations
+## Type narrowing — no generics
 
-Callback parameter types are inferred from the decorated method. Do NOT spell out factory generics or annotate callback params.
+Callback parameter types flow from the decorated method's signature through the factory's `<K extends AnyFn, TArgs extends Parameters<K>, TResult extends GetResultType<ReturnType<K>>>` generic shape. In simple cases — sync or Promise-returning methods with typed arguments — the callback params narrow automatically. Under `experimentalDecorators` TypeScript occasionally fails to back-flow the method signature into unannotated callback params (the generic binds at the decoration site, not at the factory call); when you see callback params typed as `unknown` or `any`, annotate the callback params directly. Never spell out factory generics.
 
 ```ts
 import { createLogDecorator, consoleTransport } from '@rnw-community/log-decorator';

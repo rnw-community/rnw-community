@@ -15,7 +15,6 @@ everyday usage.
 This package provides a set of convenient type guards for everyday usage with the following types:
 
 - Generic:
-    - [isObject](src/type-guard/generic/is-object/is-object.md)
     - [isDefined](src/type-guard/generic/is-defined/is-defined.md)
     - [isError](src/type-guard/generic/is-error/is-error.md)
     - [isPromise](src/type-guard/generic/is-promise/is-promise.md)
@@ -23,6 +22,7 @@ This package provides a set of convenient type guards for everyday usage with th
     - [isArray](src/type-guard/array/is-array/is-array.md)
     - [isEmptyArray](src/type-guard/array/is-empty-array/is-empty-array.md)
     - [isNotEmptyArray](src/type-guard/array/is-not-empty-array/is-not-empty-array.md)
+    - [isNotEmptyArrayOf](src/type-guard/array/is-not-empty-array-of/is-not-empty-array-of.md)
 - String:
     - [isString](src/type-guard/string/is-string/is-string.md)
     - [isEmptyString](src/type-guard/string/is-empty-string/is-empty-string.md)
@@ -30,6 +30,8 @@ This package provides a set of convenient type guards for everyday usage with th
 - Number:
     - [isNumber](src/type-guard/number/is-number/is-number.md)
     - [isPositiveNumber](src/type-guard/number/is-positive-number/is-positive-number.md)
+- Boolean:
+    - [isBoolean](src/type-guard/boolean/is-boolean/is-boolean.md)
 
 ## Utils
 
@@ -39,8 +41,7 @@ Utility functions that helps with everyday tasks:
 - [emptyFn](src/util/empty-fn/empty-fn.md) - Useful default react prop callback value.
 - [cs](src/util/cs/cs.md) - Conditional styling util.
 - [getDefined](src/util/get-defined/get-defined.md) - Get fallback value if passed variable is not defined.
-- [getDefinedAsync](src/util/get-defined-async/get-defined-async.md) - Get async fallback value if passed variable is not
-  defined.
+- [wait](src/util/wait/wait.md) - Promise-based sleep via `setTimeout`.
 
 ## Types
 
