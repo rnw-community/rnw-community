@@ -189,7 +189,7 @@ describe(`HistogramMetric decorator`, () => {
             expect(mockObserve).toHaveBeenCalledTimes(1);
         });
 
-        it('Observable with multiple next values is not specially handled — exactly one sync observation, independent of emission count', async () => {
+        it('records exactly one observation on Observable completion, regardless of emission count', async () => {
             expect.assertions(1);
 
             class MultiEmitClass {
@@ -205,7 +205,7 @@ describe(`HistogramMetric decorator`, () => {
             expect(mockObserve).toHaveBeenCalledTimes(1);
         });
 
-        it('Observable that completes without emitting is not specially handled — exactly one sync observation', async () => {
+        it('records exactly one observation when the Observable completes without emitting', async () => {
             expect.assertions(1);
 
             class EmptyEmitClass {

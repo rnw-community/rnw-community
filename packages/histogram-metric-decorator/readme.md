@@ -12,8 +12,10 @@ Framework-agnostic method decorator that records call duration into any histogra
 | `T` (sync) | on return |
 | `Promise<T>` | on resolve |
 | `Promise<T>` that rejects | on reject (duration still emitted; error propagates) |
+| `Observable<T>` | on `complete` (completion-latency) |
+| `Observable<T>` that errors | on stream error (duration still emitted; error propagates) |
 
-Observable-returning methods are NOT specially handled — an `Observable<T>` is a completion-oriented value, and a single `histogram.observe` on construction is almost never what you want. Measure completion latency with `tap()`/`finalize()` inside your stream explicitly.
+One decorator, correct duration semantics for all four shapes. Observable handling uses `completionObservableStrategy` from `@rnw-community/decorators-core` — wired by default. `rxjs` is an optional peer; install it when your methods return `Observable`.
 
 ## Usage
 
