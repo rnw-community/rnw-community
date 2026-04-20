@@ -37,7 +37,7 @@ class OrderService {
 }
 ```
 
-`labels` receives the method's args as a tuple — inferred from the method signature, no annotations needed. Default metric name is `<ClassName>_<methodName>_duration_ms`.
+`labels` receives the method's args as a tuple — inferred from the method signature, no annotations needed. Both destructuring (`labels: ([id]) => ({ orderId: id })`) and indexed access (`labels: (args) => ({ orderId: args[0] })`) work; pick whichever reads clearer for the call site. Default metric name is `<ClassName>_<methodName>_duration_ms`.
 
 ## Public API
 

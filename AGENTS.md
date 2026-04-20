@@ -113,7 +113,13 @@ Apply decorator factories with plain `@Name(...)`, never `@(Name(...))`. Wrappin
 
 ### Automatic type narrowing — core feature
 
-Every decorator factory in this codebase MUST let TypeScript infer callback parameter types from either the decorated method's signature or from the annotated callback params themselves. Consumers must NOT be forced to spell out factory generics like `@Log<[string, number], string>(...)` just to get typed `productId` / `qty`. Factory call shapes use spread form: callbacks like `preLog`, `postLog`, `errorLog`, `catchErrorFn`, lock key-fns, and histogram `labels` accept `(...args: TArgs) => ...` so TypeScript can infer `TArgs` from the callback's annotated params:
+Every decorator factory in this codebase MUST let TypeScript infer callback parameter types from either the decorated method's signature or from the annotated callback params themselves. Consumers must NOT be forced to spell out factory generics like `@Log<[string, number], string>(...)` just to get typed `productId` / `qty`. Factory call shapes vary by package — documented in each package's readme:
+
+- **Log / HistogramMetric / `nestjs-enterprise`'s `PreDecoratorFunction`**: spread form — `(...args: TArgs) => ...`. Preferred when TS needs to infer TArgs from the callback's own annotated params.
+- **Lock factories (`createSequentialLockDecorator`, `createExclusiveLockDecorator`)**: array form — `(args: TArgs) => ...`. Callers access params via `args[0]` or destructure (`([id]) => ...`).
+- **Histogram `labels`**: array form — `(args: TArgs) => ...`. Both destructure and indexed access work.
+
+The spread-form example below uses `Log` as the representative:
 
 ```ts
 @Log(

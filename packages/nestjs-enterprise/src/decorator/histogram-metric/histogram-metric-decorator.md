@@ -1,25 +1,46 @@
-# @HistogramMetric decorator
+# `@HistogramMetric` decorator
 
-Class property decorator that runs [Prometheus](https://prometheus.io) [histogram metric](https://prometheus.io/docs/concepts/metric_types/#histogram) on your method.
+Method decorator that records call duration into a [`prom-client`](https://github.com/siimon/prom-client) `Histogram`. One decorator, correct duration semantics for every return shape.
+
+## When the observation fires
+
+| Return | When |
+|---|---|
+| `T` (sync) | on return |
+| `Promise<T>` | on resolve |
+| `Promise<T>` that rejects | on reject (duration still emitted; error propagates) |
+| `Observable<T>` | on stream `complete` |
+| `Observable<T>` that errors | on stream error (duration still emitted; error propagates) |
+
+Observable support uses `completionObservableStrategy` from [`@rnw-community/decorators-core`](../../../../../decorators-core); wired by default. `rxjs` is required when methods return `Observable`.
 
 ## Installation
 
-For using this decorator you need to install following packages:
-- [`prom-client` package](https://github.com/siimon/prom-client)
-- [`willsoto/nestjs-prometheus` package](https://github.com/willsoto/nestjs-prometheus)
+Only `prom-client` is required. Nothing else:
+
+```bash
+yarn add prom-client
+```
+
+No `nestjs-prometheus` or other wrapper — `@HistogramMetric` uses `prom-client` directly and resolves histograms via the global registry (or a custom `configuration.registers`).
 
 ## Usage
 
-Please follow official documentation for [histogram metrics configuration](https://github.com/siimon/prom-client?tab=readme-ov-file#histogram) options.
-
 ```typescript
-import {HistogramMetric} from '@rnw-community/nestjs-enterprise';
+import { HistogramMetric } from '@rnw-community/nestjs-enterprise';
 
 class CatsService {
-    @HistogramMetric('cats_find_all', {buckets: [0.1, 5, 15, 50, 100, 500]})
-    findAll() {
-        return 'This action returns all cats';
-    }
+    @HistogramMetric('cats_find_all_duration', { buckets: [0.01, 0.1, 0.5, 1, 5] })
+    async findAll(): Promise<Cat[]> { /* ... */ }
 }
 ```
 
+First argument is the metric name; second is an optional `Omit<HistogramConfiguration, 'name'>` — same shape `prom-client` accepts on `new Histogram(...)`. Buckets are seconds (`prom-client`'s convention); the adapter converts the engine's milliseconds internally via `durationMs / 1000`.
+
+## Custom registry
+
+Pass `registers: [myRegistry]` to route observations to a registry other than the global default. The adapter looks up existing histograms in the first supplied registry before creating a new one — multiple decorations of the same metric name share the same `Histogram` instance.
+
+## Default metric name
+
+Omit the name argument and the default becomes `<ClassName>_<methodName>_duration_ms`. Use an explicit name when you want a stable metric across refactors.

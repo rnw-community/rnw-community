@@ -19,22 +19,25 @@ yarn lint:fix           # Fix lint issues
 
 ```
 src/
-  type/           — TypeScript utility types (Maybe, AnyFn, ClassType, EmptyFn, Enum, etc.)
+  type/           — TypeScript utility types (Maybe, AnyFn, ClassType, EmptyFn, Enum, MethodDecoratorType, etc.)
   type-guard/     — Runtime type narrowing functions
-    generic/      — isDefined, isError, isPromise (isObject exists but is internal-only)
-    array/        — isArray, isEmptyArray, isNotEmptyArray
+    generic/      — isDefined, isError, isPromise (isObject exists but is internal-only and NOT exported)
+    array/        — isArray, isEmptyArray, isNotEmptyArray, isNotEmptyArrayOf
+    boolean/      — isBoolean
     number/       — isNumber, isPositiveNumber
     string/       — isString, isEmptyString, isNotEmptyString
-  util/           — Runtime utilities (cs, emptyFn, getDefined, getDefinedAsync, getErrorMessage)
+  util/           — Runtime utilities (cs, emptyFn, getDefined, getErrorMessage, wait)
 ```
+
+Source for `getDefinedAsync` exists on disk but is intentionally NOT re-exported from `src/index.ts` — treat it as internal.
 
 ### Key Conventions
 
-- **One entity per file**, file in own directory: `type/maybe-type/maybe.type.ts`
+- **One entity per file.** This package predates the monorepo-wide flat-layout-for-single-file-entities rule codified in the root `AGENTS.md`; the shared package's existing layout places every entity (including single-file interfaces) in its own folder. Root convention now prefers flat `src/<category>/<entity>.<suffix>.ts` for lone files — new packages should follow root convention; do not restructure existing shared folders without a separate refactor.
 - Each entity directory contains: implementation `.ts`, test `.spec.ts`, documentation `.md`
 - Types are always `export type` — never import types as values from this package
 - `isDefined` is the foundation guard — most other guards compose with it
-- `isObject` exists but is intentionally **not exported** (internal use only)
+- `isObject` and `getDefinedAsync` exist but are intentionally **not exported** (internal use only)
 - Composition over re-implementation: guards chain (`isString` → `isDefined`, `isNotEmptyArray` → `isArray`)
 
 ### Coverage
@@ -46,10 +49,10 @@ Default monorepo threshold: **99.9%** for statements, branches, functions, and l
 | Type | Definition | Purpose |
 |------|-----------|---------|
 | `Maybe<T>` | `T \| null` | Nullable values |
-| `EmptyFn` | `(...args: any[]) => void` | Default event handlers |
-| `AnyFn` | `(...args: any) => any` | Generic function constraint |
+| `EmptyFn` | `(...args: any[]) => void` | Default event handlers, no-op slots, abort-listener cleanup |
+| `AnyFn` | `(...args: any) => any` | Generic function constraint for decorator factories |
 | `ClassType<T>` | `new (...args: any[]) => T` | Concrete constructor (DI, reflection) |
 | `AbstractConstructor<T>` | `abstract new (...args: any[]) => T` | Abstract class mixins |
-| `MethodDecoratorType<K>` | Typed method decorator | NestJS decorator factories |
+| `MethodDecoratorType<K>` | Typed method-decorator factory result | Used across every decorator package in the monorepo (not just NestJS) — the canonical home for the decorator-return type |
 | `IsNotEmptyArray<T>` | `[T, ...T[]]` | Non-empty array assertion |
 | `Enum<D>` | `Record<string, D>` | Enum-like object |
