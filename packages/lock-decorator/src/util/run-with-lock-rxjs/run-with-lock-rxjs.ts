@@ -1,4 +1,4 @@
-import { Observable, type Subscriber, Subscription, finalize, isObservable } from 'rxjs';
+import { Observable, Subscription, finalize, isObservable } from 'rxjs';
 
 import { type EmptyFn, emptyFn, isDefined } from '@rnw-community/shared';
 
@@ -11,62 +11,18 @@ const releaseSilently = (handle: LockHandleInterface): void => {
     void Promise.resolve(handle.release()).catch(emptyFn);
 };
 
-const bridgeSignal = (external: AbortSignal | undefined, controller: AbortController): EmptyFn => {
+const bridgeSignal = (external: AbortSignal | undefined, onAbort: () => void): EmptyFn => {
     if (!isDefined(external)) {
         return emptyFn;
     }
     if (external.aborted) {
-        controller.abort();
+        onAbort();
 
         return emptyFn;
     }
-    const forward = (): void => void controller.abort();
-    external.addEventListener('abort', forward, { once: true });
+    external.addEventListener('abort', onAbort, { once: true });
 
-    return () => void external.removeEventListener('abort', forward);
-};
-
-const invokeAndWire = (
-    fn: () => Observable<unknown>,
-    handle: LockHandleInterface,
-    subscriber: Subscriber<unknown>,
-    innerSubscription: Subscription
-): void => {
-    let result$: Observable<unknown>;
-    try {
-        result$ = fn();
-    } catch (err: unknown) {
-        releaseSilently(handle);
-        subscriber.error(err);
-
-        return;
-    }
-    if (!isObservable(result$)) {
-        releaseSilently(handle);
-        subscriber.error(new Error('Locked method must return an Observable'));
-
-        return;
-    }
-    innerSubscription.add(
-        result$.pipe(finalize(() => void releaseSilently(handle))).subscribe(subscriber)
-    );
-};
-
-interface OnHandleAcquiredArgs {
-    readonly handle: LockHandleInterface;
-    readonly cancelledRef: { readonly value: boolean };
-    readonly fn: () => Observable<unknown>;
-    readonly subscriber: Subscriber<unknown>;
-    readonly innerSubscription: Subscription;
-}
-
-const onHandleAcquired = ({ handle, cancelledRef, fn, subscriber, innerSubscription }: OnHandleAcquiredArgs): void => {
-    if (cancelledRef.value) {
-        releaseSilently(handle);
-
-        return;
-    }
-    invokeAndWire(fn, handle, subscriber, innerSubscription);
+    return () => void external.removeEventListener('abort', onAbort);
 };
 
 export const runWithLock$ = (
@@ -79,19 +35,50 @@ export const runWithLock$ = (
 ): Observable<unknown> =>
     new Observable<unknown>((subscriber) => {
         const controller = new AbortController();
-        const releaseBridge = bridgeSignal(options.signal, controller);
-
         const cancelledRef = { value: false };
         const innerSubscription = new Subscription();
+        let externallyAborted = false;
 
-        void store.acquire(key, mode, { ...options, signal: controller.signal })
+        const onExternalAbort = (): void => {
+            externallyAborted = true;
+            controller.abort();
+            subscriber.error(new DOMException('The operation was aborted.', 'AbortError'));
+        };
+
+        const releaseBridge = bridgeSignal(options.signal, onExternalAbort);
+
+        void store
+            .acquire(key, mode, { ...options, signal: controller.signal })
+            // eslint-disable-next-line max-statements
             .then((handle) => {
-                onHandleAcquired({ handle, cancelledRef, fn, subscriber, innerSubscription });
+                if (cancelledRef.value || externallyAborted) {
+                    releaseSilently(handle);
+
+                    return null;
+                }
+                let result$: Observable<unknown>;
+                try {
+                    result$ = fn();
+                } catch (err: unknown) {
+                    releaseSilently(handle);
+                    subscriber.error(err);
+
+                    return null;
+                }
+                if (!isObservable(result$)) {
+                    releaseSilently(handle);
+                    subscriber.error(new Error('Locked method must return an Observable'));
+
+                    return null;
+                }
+                innerSubscription.add(
+                    result$.pipe(finalize(() => void releaseSilently(handle))).subscribe(subscriber)
+                );
 
                 return null;
             })
             .catch((err: unknown) => {
-                if (!cancelledRef.value) {
+                if (!cancelledRef.value && !externallyAborted) {
                     subscriber.error(err);
                 }
             });
