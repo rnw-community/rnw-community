@@ -12,10 +12,13 @@ import { RESOURCE_SEPARATOR } from '../resource-separator.const';
 import type { PreDecoratorFunction } from '../../../type/pre-decorator-function.type';
 import type { LockServiceInterface } from '../interface/lock-service.interface';
 import type { LockModeType } from '@rnw-community/lock-decorator';
-import type { AbstractConstructor, AnyFn, MethodDecoratorType } from '@rnw-community/shared';
+import type { AbstractConstructor, MethodDecoratorType } from '@rnw-community/shared';
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type ObservableReturningFn = (...args: readonly any[]) => Observable<unknown>;
 
 type ObservableRecoveryType<TResult> = TResult extends Observable<infer TValue> ? TValue | Observable<TValue> : never;
-type ObservableRecoveryFnType<K extends AnyFn> = (error: unknown) => ObservableRecoveryType<ReturnType<K>>;
+type ObservableRecoveryFnType<K extends ObservableReturningFn> = (error: unknown) => ObservableRecoveryType<ReturnType<K>>;
 
 const requireObservable = (result: unknown, methodName: string): Observable<unknown> => {
     if (!isObservable(result)) {
@@ -54,7 +57,7 @@ export const createObservableLockDecorators = (
 
     const makeDecorator =
         (mode: LockModeType) =>
-        <K extends AnyFn, TArgs extends Parameters<K>>(
+        <K extends ObservableReturningFn, TArgs extends Parameters<K>>(
             preLock: PreDecoratorFunction<TArgs, string[]> | string[],
             catchErrorFn$?: ObservableRecoveryFnType<K>,
             duration?: number

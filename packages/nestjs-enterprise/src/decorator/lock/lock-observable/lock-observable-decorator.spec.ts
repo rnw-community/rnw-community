@@ -44,6 +44,7 @@ class TestObservableClass extends LockableService {
         return of([this.field, id]);
     }
 
+    // @ts-expect-error — sync method intentionally violates the Observable-returning contract; runtime guard catches it
     @LockObservable(['test'], 1000)
     testSync(): number {
         return this.field;
@@ -83,6 +84,7 @@ class TestObservableClass extends LockableService {
         return of({ field: this.field, id });
     }
 
+    // @ts-expect-error — sync method intentionally violates the Observable-returning contract; runtime guard catches it
     @LockObservable(['test'], 1000, undefined, 0)
     testExclusiveSync(): number {
         return this.field;

@@ -47,6 +47,7 @@ class TestClass {
         return of({ field: this.field, id });
     }
 
+    // @ts-expect-error — sync method intentionally violates the Observable-returning contract; runtime guard catches it
     @SequentialLock$(['test'])
     testSync(): number {
         return this.field;
@@ -105,6 +106,7 @@ class TestClass {
         return of({ field: this.field, id });
     }
 
+    // @ts-expect-error — sync method intentionally violates the Observable-returning contract; runtime guard catches it
     @ExclusiveLock$(['test'])
     testExclusiveSync(): number {
         return this.field;
