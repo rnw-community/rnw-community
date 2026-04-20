@@ -1,29 +1,25 @@
 # Histogram Metric Decorator
 
-Framework-agnostic method decorator for recording call durations into any histogram transport — Prometheus, OpenTelemetry, in-memory, whatever you wire up.
+Framework-agnostic method decorator that records call duration into any histogram transport (Prometheus, OpenTelemetry, in-memory, …). Built on [`@rnw-community/decorators-core`](../decorators-core). TypeScript `experimentalDecorators`.
 
 [![npm version](https://badge.fury.io/js/%40rnw-community%2Fhistogram-metric-decorator.svg)](https://badge.fury.io/js/%40rnw-community%2Fhistogram-metric-decorator)
 [![npm downloads](https://img.shields.io/npm/dm/%40rnw-community%2Fhistogram-metric-decorator.svg)](https://www.npmjs.com/package/%40rnw-community%2Fhistogram-metric-decorator)
 
-Built on [@rnw-community/decorators-core](../decorators-core). Targets TypeScript's `experimentalDecorators` mode. Measures sync method duration on return and Promise method duration on settlement.
+## When the observation fires
 
-## Supported return shapes
-
-| Return | When the observation fires |
+| Return | When |
 |---|---|
-| `T` (sync) | when the method returns |
-| `Promise<T>` | when the Promise resolves |
-| `Promise<T>` that rejects | when the Promise rejects (duration is still emitted; the error propagates) |
+| `T` (sync) | on return |
+| `Promise<T>` | on resolve |
+| `Promise<T>` that rejects | on reject (duration still emitted; error propagates) |
 
-**Observable-returning methods are not specially handled.** Observables are completion-oriented by nature and a histogram wants completion-latency, not per-emission latency. If you need completion-latency for an RxJS pipeline today, measure it explicitly with `tap(() => ...)` / `finalize(...)` inside your stream. A dedicated completion-aware strategy may ship in a future release if a real consumer needs it.
+Observable-returning methods are NOT specially handled — an `Observable<T>` is a completion-oriented value, and a single `histogram.observe` on construction is almost never what you want. Measure completion latency with `tap()`/`finalize()` inside your stream explicitly.
 
-## Installation
+## Usage
 
 ```bash
 yarn add @rnw-community/histogram-metric-decorator @rnw-community/decorators-core
 ```
-
-## Usage
 
 ```ts
 import { createHistogramMetric, inMemoryHistogramTransport } from '@rnw-community/histogram-metric-decorator';
@@ -39,14 +35,16 @@ class OrderService {
 }
 ```
 
+`labels` receives the method's args as a tuple — inferred from the method signature, no annotations needed. Default metric name is `<ClassName>_<methodName>_duration_ms`.
+
 ## Public API
 
-- [`createHistogramMetric`](src/factory/create-histogram-metric/create-histogram-metric.ts) — decorator factory
+- [`createHistogramMetric`](src/factory/create-histogram-metric/create-histogram-metric.ts) — factory; returns `<K extends AnyFn>(...) => MethodDecoratorType<K>`
 - [`inMemoryHistogramTransport`](src/transport/in-memory-histogram-transport.ts) — test-ready transport with `snapshot()`
-- [`HistogramTransportInterface`](src/interface/histogram-transport.interface.ts) — transport contract
-- [`HistogramOptionsInterface`](src/interface/histogram-options.interface.ts) — per-decoration options (`name`, `labels`)
-- [`CreateHistogramMetricOptionsInterface`](src/interface/create-histogram-metric-options.interface.ts) — factory options
+- [`HistogramTransportInterface`](src/interface/histogram-transport.interface.ts) — implement for any backend
+- [`HistogramOptionsInterface`](src/interface/histogram-options.interface.ts) — per-decoration `{ name?, labels? }`
+- [`CreateHistogramMetricOptionsInterface`](src/interface/create-histogram-metric-options.interface.ts) — `{ transport }`
 
 ## License
 
-MIT — see [LICENSE](../../LICENSE.md).
+[MIT](../../LICENSE.md)
