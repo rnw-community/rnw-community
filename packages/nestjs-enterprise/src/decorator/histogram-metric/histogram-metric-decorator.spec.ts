@@ -120,6 +120,34 @@ describe(`HistogramMetric decorator`, () => {
         expect(customObserve).toHaveBeenCalledTimes(1);
     });
 
+    it('reuses an existing histogram from later custom registries before constructing a new one', () => {
+        expect.assertions(4);
+
+        const laterObserve = jest.fn();
+        const firstRegistryGetSingleMetric = jest.fn().mockReturnValue(undefined);
+        const secondRegistryGetSingleMetric = jest.fn().mockReturnValue({ observe: laterObserve } as unknown);
+        const firstRegistry = { getSingleMetric: firstRegistryGetSingleMetric } as unknown as typeof register;
+        const secondRegistry = { getSingleMetric: secondRegistryGetSingleMetric } as unknown as typeof register;
+        (Histogram as unknown as jest.Mock).mockClear();
+
+        class MultiRegistryClass {
+            @HistogramMetric('multi-reg-metric', {
+                help: 'multi-reg-metric',
+                registers: [firstRegistry, secondRegistry],
+            })
+            run(): number {
+                return 7;
+            }
+        }
+
+        new MultiRegistryClass().run();
+
+        expect(firstRegistryGetSingleMetric).toHaveBeenCalledWith('multi-reg-metric');
+        expect(secondRegistryGetSingleMetric).toHaveBeenCalledWith('multi-reg-metric');
+        expect(Histogram).not.toHaveBeenCalled();
+        expect(laterObserve).toHaveBeenCalledTimes(1);
+    });
+
     describe('Observable and Promise duration semantics', () => {
         it('records exactly one observation after a Promise resolves (end-to-end duration)', async () => {
             expect.assertions(2);
@@ -127,11 +155,11 @@ describe(`HistogramMetric decorator`, () => {
             class AsyncSuccessClass {
                 @HistogramMetric('promise-success-metric')
                 async work(): Promise<number> {
-                    await new Promise<void>((resolve) => {
+                    await new Promise<void>(resolve => {
                         setTimeout(resolve, 2);
                     });
-                    
-return 1;
+
+                    return 1;
                 }
             }
 
@@ -148,7 +176,7 @@ return 1;
             class AsyncErrorClass {
                 @HistogramMetric('promise-error-metric')
                 async work(): Promise<number> {
-                    await new Promise<void>((resolve) => {
+                    await new Promise<void>(resolve => {
                         setTimeout(resolve, 2);
                     });
                     throw new Error('async-boom');

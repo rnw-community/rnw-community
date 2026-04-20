@@ -2,11 +2,13 @@ import { createInterceptor } from '@rnw-community/decorators-core';
 
 import type { CreateHistogramMetricOptionsInterface } from '../../interface/create-histogram-metric-options.interface';
 import type { HistogramOptionsInterface } from '../../interface/histogram-options.interface';
-import type { MethodDecoratorType } from '@rnw-community/decorators-core';
+import type { AnyFn, MethodDecoratorType } from '@rnw-community/shared';
 
 export const createHistogramMetric =
     (options: CreateHistogramMetricOptionsInterface) =>
-    <TArgs extends readonly unknown[]>(config?: HistogramOptionsInterface<TArgs>): MethodDecoratorType =>
+    <K extends AnyFn, TArgs extends Parameters<K> = Parameters<K>>(
+        config?: HistogramOptionsInterface<TArgs>
+    ): MethodDecoratorType<K> =>
         createInterceptor<TArgs, unknown>({
             interceptor: {
                 onSuccess: (ctx, _result, durationMs) => {
@@ -24,4 +26,4 @@ export const createHistogramMetric =
                     );
                 },
             },
-        });
+        }) as unknown as MethodDecoratorType<K>;

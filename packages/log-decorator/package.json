@@ -49,10 +49,17 @@
         "@rnw-community/decorators-core": "workspace:^",
         "@rnw-community/shared": "workspace:^"
     },
+    "devDependencies": {
+        "rxjs": "^7.8.2"
+    },
     "peerDependencies": {
+        "rxjs": "^7.8.0",
         "typescript": ">=5.0.0"
     },
     "peerDependenciesMeta": {
+        "rxjs": {
+            "optional": true
+        },
         "typescript": {
             "optional": true
         }

@@ -17,14 +17,18 @@ import { createLog, consoleTransport } from '@rnw-community/log-decorator';
 const Log = createLog({ transport: consoleTransport });
 
 class OrderService {
-    @Log<[string], { id: string }>(
-        orderId => `placing order ${orderId}`,
+    @Log(
+        (orderId: string) => `placing order ${orderId}`,
         (result, orderId) => `order ${orderId} placed: ${result.id}`,
         (error, orderId) => `order ${orderId} failed: ${String(error)}`
     )
-    placeOrder(orderId: string): { id: string } { /* ... */ }
+    placeOrder(orderId: string): { id: string } {
+        /* ... */
+    }
 }
 ```
+
+If TypeScript loses callback context under legacy `experimentalDecorators`, annotate the callback parameters directly. Do not add decorator generics.
 
 When `preLog`/`postLog`/`errorLog` are omitted, the decorator emits nothing on that lifecycle event.
 

@@ -32,7 +32,11 @@ describe('runInterception', () => {
             onEnter: () => records.push('enter'),
             onError: () => records.push('error'),
         };
-        expect(() => runInterception(interceptor, [], makeContext(), () => { throw boom; })).toThrow(boom);
+        expect(() =>
+            runInterception(interceptor, [], makeContext(), () => {
+                throw boom;
+            })
+        ).toThrow(boom);
         expect(records).toEqual(['enter', 'error']);
     });
 
@@ -60,8 +64,8 @@ describe('runInterception', () => {
             handle: (value, onSuccess) => {
                 hits.push('A');
                 onSuccess(value);
-                
-return value;
+
+                return value;
             },
         };
         const strategyB: ResultStrategyInterface = {
@@ -77,8 +81,12 @@ return value;
 
     it('swallows errors thrown inside onEnter and still returns the method value', () => {
         const interceptor: InterceptorInterface<readonly unknown[], number> = {
-            onEnter: () => { throw new Error('hook-enter'); },
-            onSuccess: () => { throw new Error('hook-success'); },
+            onEnter: () => {
+                throw new Error('hook-enter');
+            },
+            onSuccess: () => {
+                throw new Error('hook-success');
+            },
         };
         expect(runInterception(interceptor, [], makeContext(), () => 5)).toBe(5);
     });
@@ -86,16 +94,22 @@ return value;
     it('swallows errors thrown inside onError and still rethrows original', () => {
         const boom = new Error('original');
         const interceptor: InterceptorInterface<readonly unknown[], never> = {
-            onError: () => { throw new Error('hook-error'); },
+            onError: () => {
+                throw new Error('hook-error');
+            },
         };
-        expect(() => runInterception(interceptor, [], makeContext(), () => { throw boom; })).toThrow(boom);
+        expect(() =>
+            runInterception(interceptor, [], makeContext(), () => {
+                throw boom;
+            })
+        ).toThrow(boom);
     });
 
     it('preserves context identity across onEnter and onSuccess', () => {
         const seen: unknown[] = [];
         const interceptor: InterceptorInterface<readonly unknown[], number> = {
-            onEnter: (ctx) => seen.push(ctx),
-            onSuccess: (ctx) => seen.push(ctx),
+            onEnter: ctx => seen.push(ctx),
+            onSuccess: ctx => seen.push(ctx),
         };
         const ctx = makeContext();
         runInterception(interceptor, [], ctx, () => 1);
@@ -107,11 +121,15 @@ return value;
     it('preserves context identity across onEnter and onError', () => {
         const seen: unknown[] = [];
         const interceptor: InterceptorInterface<readonly unknown[], never> = {
-            onEnter: (ctx) => seen.push(ctx),
-            onError: (ctx) => seen.push(ctx),
+            onEnter: ctx => seen.push(ctx),
+            onError: ctx => seen.push(ctx),
         };
         const ctx = makeContext();
-        expect(() => runInterception(interceptor, [], ctx, () => { throw new Error('x'); })).toThrow('x');
+        expect(() =>
+            runInterception(interceptor, [], ctx, () => {
+                throw new Error('x');
+            })
+        ).toThrow('x');
         expect(seen).toHaveLength(2);
         expect(seen[0]).toBe(seen[1]);
         expect(seen[0]).toBe(ctx);
@@ -124,7 +142,9 @@ return value;
     it('skips non-matching strategies and falls through to sync handling', () => {
         const strategy: ResultStrategyInterface = {
             matches: () => false,
-            handle: () => { throw new Error('must not run'); },
+            handle: () => {
+                throw new Error('must not run');
+            },
         };
         const records: string[] = [];
         const interceptor: InterceptorInterface<readonly unknown[], string> = {

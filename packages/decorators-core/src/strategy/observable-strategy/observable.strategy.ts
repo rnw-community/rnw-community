@@ -9,8 +9,8 @@ export const observableStrategy: ResultStrategyInterface = {
             tap(onSuccess),
             catchError((error: unknown) => {
                 onError(error);
-                
-return throwError(() => error);
+
+                return throwError(() => error);
             })
         ) as unknown as TResult,
 };

@@ -5,7 +5,6 @@ import { createPromiseLockDecorators } from './create-promise-lock-decorators';
 import type { LockHandle } from '../interface/lock-handle.interface';
 import type { LockServiceInterface } from '../interface/lock-service.interface';
 
-
 const mockRelease = jest.fn<() => Promise<void>>().mockResolvedValue();
 const mockAcquire = jest
     .fn<(resources: string[], duration: number) => Promise<LockHandle>>()
@@ -177,9 +176,7 @@ describe('createPromiseLockDecorators', () => {
         it('should throw error if decorated method does not return promise', async () => {
             expect.hasAssertions();
 
-            await expect(instance.testSync()).rejects.toThrow(
-                'Method TestClass::testSync does not return a promise'
-            );
+            await expect(instance.testSync()).rejects.toThrow('Method TestClass::testSync does not return a promise');
             expect(mockAcquire).toHaveBeenCalledWith(['test'], 1000);
             expect(mockRelease).toHaveBeenCalledWith();
         });
@@ -288,7 +285,9 @@ describe('createPromiseLockDecorators', () => {
             await expect(instance.testExclusiveLockFailedErrorFn()).resolves.toBe(0);
             expect(mockTryAcquire).toHaveBeenCalledWith(['test'], 1000);
             expect(mockRelease).not.toHaveBeenCalled();
-            expect(mockErrorFn).toHaveBeenCalledWith(expect.objectContaining({ message: expect.stringContaining('Lock not acquired') }));
+            expect(mockErrorFn).toHaveBeenCalledWith(
+                expect.objectContaining({ message: expect.stringContaining('Lock not acquired') })
+            );
         });
 
         it('should handle throwing error in catchErrorFn when lock is already held', async () => {
@@ -461,11 +460,14 @@ describe('createPromiseLockDecorators', () => {
             const catchSpy = jest.fn();
 
             class CatchSetupClass {
-                @SeqLockCatch(() => [], (err: unknown) => {
-                    catchSpy(err);
-                    
-return Promise.resolve(0);
-                })
+                @SeqLockCatch(
+                    () => [],
+                    (err: unknown) => {
+                        catchSpy(err);
+
+                        return Promise.resolve(0);
+                    }
+                )
                 async test(): Promise<number> {
                     return Promise.resolve(1);
                 }
@@ -489,8 +491,8 @@ return Promise.resolve(0);
             class NoDIClass {
                 @SeqLockCatch(['test'], (err: unknown) => {
                     catchSpy(err);
-                    
-return Promise.resolve(0);
+
+                    return Promise.resolve(0);
                 })
                 async test(): Promise<number> {
                     return Promise.resolve(1);

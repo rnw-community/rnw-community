@@ -33,12 +33,7 @@ const buildSettle = (
     };
 };
 
-const buildTimer = (
-    key: string,
-    timeoutMs: number,
-    resolveSlot: EmptyFn,
-    settle: SettleFn
-): ReturnType<typeof setTimeout> =>
+const buildTimer = (key: string, timeoutMs: number, resolveSlot: EmptyFn, settle: SettleFn): ReturnType<typeof setTimeout> =>
     setTimeout(() => {
         resolveSlot();
         settle('reject', new LockAcquireTimeoutError(key, timeoutMs));
@@ -60,7 +55,11 @@ const buildWaitForTurn = (ctx: WaitForTurnContext): void => {
     let timerId: ReturnType<typeof setTimeout> | undefined;
     let removeListener: EmptyFn = emptyFn;
 
-    const clearTimer = (): void => { if (isDefined(timerId)) { clearTimeout(timerId); } };
+    const clearTimer = (): void => {
+        if (isDefined(timerId)) {
+            clearTimeout(timerId);
+        }
+    };
     const settle = buildSettle(resolve, reject, clearTimer, () => void removeListener());
 
     if (signal?.aborted === true) {
@@ -71,9 +70,14 @@ const buildWaitForTurn = (ctx: WaitForTurnContext): void => {
     }
 
     if (isDefined(signal)) {
-        const onAbort = (): void => { resolveSlot(); settle('reject', new DOMException('The operation was aborted.', 'AbortError')); };
+        const onAbort = (): void => {
+            resolveSlot();
+            settle('reject', new DOMException('The operation was aborted.', 'AbortError'));
+        };
         signal.addEventListener('abort', onAbort);
-        removeListener = () => { signal.removeEventListener('abort', onAbort); };
+        removeListener = () => {
+            signal.removeEventListener('abort', onAbort);
+        };
     }
 
     if (isDefined(timeoutMs)) {
@@ -98,7 +102,9 @@ const acquireSequential = (
 
     let resolveSlot!: EmptyFn;
 
-    const slotPromise = new Promise<void>((resolve) => { resolveSlot = resolve; });
+    const slotPromise = new Promise<void>(resolve => {
+        resolveSlot = resolve;
+    });
 
     const nextTail = currentTail.then(() => slotPromise);
     sequentialChains.set(key, nextTail);
@@ -131,7 +137,7 @@ const acquireSequential = (
             };
         },
         (err: unknown) => {
-            void nextTail.then(deleteTailIfStillOurs);
+            void nextTail.finally(deleteTailIfStillOurs);
             throw err;
         }
     );
