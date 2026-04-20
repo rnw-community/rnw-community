@@ -1,5 +1,3 @@
-import { isPromise } from '@rnw-community/shared';
-
 import type { ExecutionContextInterface } from '../../interface/execution-context.interface';
 import type { InterceptorInterface } from '../../interface/interceptor.interface';
 import type { ResultStrategyInterface } from '../../interface/result-strategy.interface';
@@ -45,23 +43,6 @@ const makeEmitError = <TArgs extends readonly unknown[], TResult>(
         }
     };
 
-const handlePromiseResult = <TResult>(
-    rawResult: TResult,
-    emitSuccess: (resolved: unknown) => void,
-    emitError: (error: unknown) => void
-): TResult =>
-    Promise.resolve(rawResult).then(
-        (resolved: unknown) => {
-            emitSuccess(resolved);
-
-            return resolved;
-        },
-        (error: unknown) => {
-            emitError(error);
-            throw error;
-        }
-    ) as TResult;
-
 const invokeAndEmitError = <TResult>(invoke: () => TResult, emitError: (error: unknown) => void): TResult => {
     try {
         return invoke();
@@ -78,17 +59,8 @@ const dispatchResult = <TResult>(
     emitError: (error: unknown) => void
 ): TResult => {
     const strategy = strategies.find((item) => item.matches(rawResult));
-    if (strategy !== void 0) {
-        return strategy.handle(rawResult, emitSuccess, emitError);
-    }
 
-    if (isPromise(rawResult)) {
-        return handlePromiseResult(rawResult, emitSuccess, emitError);
-    }
-
-    emitSuccess(rawResult);
-
-    return rawResult;
+    return (strategy as ResultStrategyInterface).handle(rawResult, emitSuccess, emitError);
 };
 
 export const runInterception = <TArgs extends readonly unknown[], TResult>(

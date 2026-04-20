@@ -5,7 +5,7 @@ import type { ResultStrategyInterface } from '../../interface/result-strategy.in
 export const promiseStrategy: ResultStrategyInterface = {
     matches: isPromise,
     handle: <TResult>(value: TResult, onSuccess: (resolved: unknown) => void, onError: (error: unknown) => void): TResult =>
-        (value as unknown as PromiseLike<unknown>).then(
+        Promise.resolve(value).then(
             (resolved: unknown) => {
                 onSuccess(resolved);
 

@@ -485,4 +485,65 @@ describe('createInterceptor', () => {
 
         expect(calls[0]?.context.className).toBe('Function');
     });
+
+    it('runs user-supplied strategies BEFORE auto-appended promiseStrategy', async () => {
+        const userHandled: unknown[] = [];
+        const userStrategy: ResultStrategyInterface = {
+            matches: value => value instanceof Promise,
+            handle: <TResult>(value: TResult, onSuccess: (resolved: unknown) => void, onError: (error: unknown) => void): TResult => {
+                userHandled.push(value);
+
+                return Promise.resolve(value).then(
+                    (resolved: unknown) => {
+                        onSuccess(resolved);
+
+                        return resolved;
+                    },
+                    (err: unknown) => {
+                        onError(err);
+                        throw err;
+                    }
+                ) as TResult;
+            },
+        };
+        const { calls, interceptor } = makeRecorder();
+        const decorator = createInterceptor({ interceptor, strategies: [userStrategy] });
+
+        class Svc {
+            async run(): Promise<number> {
+                return 7;
+            }
+        }
+        const descriptor = Object.getOwnPropertyDescriptor(Svc.prototype, 'run') as PropertyDescriptor;
+        Object.defineProperty(Svc.prototype, 'run', decorator(Svc.prototype, 'run', descriptor as never) as PropertyDescriptor);
+
+        await new Svc().run();
+
+        expect(userHandled).toHaveLength(1);
+        expect(calls.map(call => call.kind)).toEqual(['enter', 'success']);
+        expect(calls[1]?.value).toBe(7);
+    });
+
+    it('auto-appends syncStrategy as the terminal catch-all when no strategy matches', () => {
+        const notMatching: ResultStrategyInterface = {
+            matches: () => false,
+            handle: () => {
+                throw new Error('must not fire');
+            },
+        };
+        const { calls, interceptor } = makeRecorder();
+        const decorator = createInterceptor({ interceptor, strategies: [notMatching] });
+
+        class Svc {
+            run(): number {
+                return 42;
+            }
+        }
+        const descriptor = Object.getOwnPropertyDescriptor(Svc.prototype, 'run') as PropertyDescriptor;
+        Object.defineProperty(Svc.prototype, 'run', decorator(Svc.prototype, 'run', descriptor as never) as PropertyDescriptor);
+
+        expect(new Svc().run()).toBe(42);
+        expect(calls.map(call => call.kind)).toEqual(['enter', 'success']);
+        expect(calls[1]?.value).toBe(42);
+    });
 });
