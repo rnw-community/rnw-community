@@ -1,8 +1,8 @@
 import { Inject } from '@nestjs/common';
-import { EMPTY, type Observable, catchError, concatMap, defer, finalize, isObservable, of, throwError } from 'rxjs';
+import { EMPTY, type Observable, catchError, defer, isObservable, of, throwError } from 'rxjs';
 
-import { LockBusyError, createLockResource$ } from '@rnw-community/lock-decorator';
-import { emptyFn, isDefined } from '@rnw-community/shared';
+import { LockBusyError, createLockMiddleware$ } from '@rnw-community/lock-decorator';
+import { isDefined } from '@rnw-community/shared';
 
 import { createLockServiceStore } from '../create-lock-service-store';
 import { LOCK_SERVICE_NOT_INJECTED_MESSAGE } from '../lock-service-not-injected-message.const';
@@ -89,32 +89,26 @@ export const createObservableLockDecorators = (
                     const resources = resolveResources(preLock, args);
                     const joinedKey = resources.join(RESOURCE_SEPARATOR);
                     const store = createLockServiceStore(lockService, effectiveDuration);
-                    const resource$ = createLockResource$<TArgs>(store, mode, joinedKey);
+                    const middleware = createLockMiddleware$<TArgs>(store, mode, joinedKey);
+                    const context = { className: '', methodName, args, logContext: methodName };
 
-                    return resource$
-                        .acquire$({ className: '', methodName, args, logContext: methodName })
+                    return middleware
+                        .invoke(context, () => {
+                            let innerResult: unknown;
+                            try {
+                                innerResult = originalMethod.apply(this, args);
+                            } catch (err: unknown) {
+                                return throwError(() => new MethodThrownError(err));
+                            }
+                            if (!isObservable(innerResult)) {
+                                return throwError(() => new MethodThrownError(new Error(`Method ${methodName} does not return an observable`)));
+                            }
+
+                            return innerResult.pipe(
+                                catchError((error: unknown) => throwError(() => new MethodThrownError(error)))
+                            );
+                        })
                         .pipe(
-                            concatMap((handle) => {
-                                const releaseOnce = (): void => {
-                                    void Promise.resolve(handle.release()).catch(emptyFn);
-                                };
-                                let innerResult: unknown;
-                                try {
-                                    innerResult = originalMethod.apply(this, args);
-                                } catch (err: unknown) {
-                                    releaseOnce();
-                                    throw new MethodThrownError(err);
-                                }
-                                if (!isObservable(innerResult)) {
-                                    releaseOnce();
-                                    throw new MethodThrownError(new Error(`Method ${methodName} does not return an observable`));
-                                }
-
-                                return innerResult.pipe(
-                                    catchError((error: unknown) => throwError(() => new MethodThrownError(error))),
-                                    finalize(releaseOnce)
-                                );
-                            }),
                             catchError((error: unknown) =>
                                 error instanceof MethodThrownError
                                     ? recoverFromMethodError(error.cause, catchErrorFn$)

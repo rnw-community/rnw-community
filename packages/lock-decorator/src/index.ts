@@ -19,5 +19,5 @@ export { createExclusiveLockDecorator } from './factory/create-exclusive-lock-de
 export { createSequentialLockDecorator$ } from './factory/create-sequential-lock-decorator-observable/create-sequential-lock-decorator-observable';
 export { createExclusiveLockDecorator$ } from './factory/create-exclusive-lock-decorator-observable/create-exclusive-lock-decorator-observable';
 
-export { createLockResource } from './util/create-lock-resource/create-lock-resource';
-export { createLockResource$ } from './util/create-lock-resource-observable/create-lock-resource-observable';
+export { createLockMiddleware } from './util/create-lock-middleware/create-lock-middleware';
+export { createLockMiddleware$ } from './util/create-lock-middleware-observable/create-lock-middleware-observable';

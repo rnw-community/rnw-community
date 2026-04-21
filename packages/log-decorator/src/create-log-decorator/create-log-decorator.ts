@@ -1,6 +1,6 @@
 import { createInterceptor } from '@rnw-community/decorators-core';
 
-import { createLogInterceptor } from '../util/create-log-interceptor';
+import { createLogMiddleware } from '../util/create-log-middleware/create-log-middleware';
 
 import type { CreateLogOptionsInterface } from '../interface/create-log-options.interface';
 import type { ErrorLogInputType } from '../type/error-log-input.type';
@@ -17,6 +17,5 @@ export const createLogDecorator =
         errorLog?: ErrorLogInputType<TArgs>
     ): MethodDecoratorType<K> =>
         createInterceptor<TArgs, TResult>({
-            interceptor: createLogInterceptor<TArgs, TResult>(options, preLog, postLog, errorLog),
-            strategies: options.strategies,
+            middlewares: [createLogMiddleware<TArgs, TResult>(options, preLog, postLog, errorLog)],
         }) as unknown as MethodDecoratorType<K>;

@@ -11,7 +11,7 @@
             "entry": ["src/index.ts"]
         },
         "packages/log-decorator": {
-            "entry": ["src/index.ts", "src/type/post-log-input.type-test.ts"]
+            "entry": ["src/index.ts"]
         }
     },
     "ignore": [
