@@ -1,24 +1,13 @@
-import { type AnyFn, type MethodDecoratorType, isNotEmptyString } from '@rnw-community/shared';
 
 import { promiseStrategy } from '../../strategy/promise-strategy/promise.strategy';
 import { syncStrategy } from '../../strategy/sync-strategy/sync.strategy';
+import { resolveFallbackClassName } from '../../util/resolve-fallback-class-name/resolve-fallback-class-name';
 import { buildContext } from '../build-context/build-context';
 import { runInterception } from '../run-interception/run-interception';
 
 import type { CreateInterceptorOptionsInterface } from '../../interface/create-interceptor-options.interface';
 import type { ResultStrategyInterface } from '../../interface/result-strategy.interface';
-
-const resolveFallbackClassName = (target: object): string => {
-    if (typeof target === 'function') {
-        const { name } = (target as { readonly name?: string });
-        if (isNotEmptyString(name)) {
-            return name;
-        }
-    }
-    const ctorName = (target as { readonly constructor?: { readonly name?: string } }).constructor?.name;
-
-    return isNotEmptyString(ctorName) ? ctorName : 'Object';
-};
+import type { AnyFn, MethodDecoratorType } from '@rnw-community/shared';
 
 export const createInterceptor = <TArgs extends readonly unknown[], TResult>(
     options: CreateInterceptorOptionsInterface<TArgs, TResult>
