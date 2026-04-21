@@ -100,15 +100,6 @@ describe('createSequentialLockDecorator', () => {
         void handle.release();
     });
 
-    it('rejects when the decorated method does not return a Promise', async () => {
-        expect.hasAssertions();
-
-        const service = new OrderService();
-        await expect((service.syncValidateSku as unknown as (sku: string) => Promise<unknown>)('sku-1')).rejects.toThrow(
-            'Locked method must return a Promise'
-        );
-    });
-
     it('builds the lock key from a function key form using method arguments', async () => {
         expect.hasAssertions();
 

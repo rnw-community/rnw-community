@@ -47,6 +47,7 @@
         "node": ">=18.0.0"
     },
     "dependencies": {
+        "@rnw-community/decorators-core": "workspace:^",
         "@rnw-community/shared": "workspace:^"
     },
     "devDependencies": {

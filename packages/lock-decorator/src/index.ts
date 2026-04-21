@@ -16,5 +16,10 @@ export { createInMemoryLockStore } from './store/create-in-memory-lock-store/cre
 
 export { createSequentialLockDecorator } from './factory/create-sequential-lock-decorator/create-sequential-lock-decorator';
 export { createExclusiveLockDecorator } from './factory/create-exclusive-lock-decorator/create-exclusive-lock-decorator';
+export { createSequentialLockDecorator$ } from './factory/create-sequential-lock-decorator-observable/create-sequential-lock-decorator-observable';
+export { createExclusiveLockDecorator$ } from './factory/create-exclusive-lock-decorator-observable/create-exclusive-lock-decorator-observable';
+
+export { createLockResource } from './util/create-lock-resource/create-lock-resource';
+export { createLockResource$ } from './util/create-lock-resource-observable/create-lock-resource-observable';
 
 export { runWithLock$ } from './util/run-with-lock-rxjs/run-with-lock-rxjs';

@@ -1,5 +1,6 @@
-import { resolveLockKey } from '../../util/resolve-lock-key/resolve-lock-key';
-import { runWithLock } from '../../util/run-with-lock/run-with-lock';
+import { createPromiseInterceptor } from '@rnw-community/decorators-core';
+
+import { createLockResource } from '../../util/create-lock-resource/create-lock-resource';
 
 import type { CreateLockOptionsInterface } from '../../interface/create-lock-options.interface';
 import type { ExclusiveLockArgumentType } from '../../type/exclusive-lock-argument.type';
@@ -7,27 +8,11 @@ import type { MethodDecoratorType } from '@rnw-community/shared';
 
 export const createExclusiveLockDecorator =
     (options: CreateLockOptionsInterface) =>
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- decorator generic must accept any-parameter method
     <K extends (...args: readonly any[]) => Promise<unknown>, TArgs extends Parameters<K> = Parameters<K>>(
         arg: ExclusiveLockArgumentType<TArgs>
     ): MethodDecoratorType<K> =>
-    (_target, _propertyKey, descriptor) => {
-        const originalMethod = descriptor.value;
-        if (typeof originalMethod !== 'function') {
-            return descriptor;
-        }
-
-        const interceptedMethod = function interceptedMethod(this: unknown, ...args: TArgs): Promise<unknown> {
-            const { key, options: acquireOptions } = resolveLockKey(arg, args);
-
-            return runWithLock(options.store, key, 'exclusive', acquireOptions, () =>
-                // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                (originalMethod as unknown as (this: unknown, ...fnArgs: any[]) => unknown).apply(this, [...args])
-            );
-        };
-
-        return {
-            ...descriptor,
-            value: interceptedMethod as unknown as typeof descriptor.value,
-        };
-    };
+        createPromiseInterceptor<K, TArgs>({
+            interceptor: {},
+            resource: createLockResource<TArgs>(options.store, 'exclusive', arg),
+        });
