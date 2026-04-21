@@ -63,23 +63,36 @@ export const createPromiseInterceptor = <
                 }
             }
 
-            try {
-                if (interceptor.onEnter !== void 0) {
-                    swallow(() => void interceptor.onEnter?.(execContext));
-                }
-                const rawResult = (originalMethod as (this: unknown, ...methodArgs: unknown[]) => unknown).apply(this, [...args]);
-                /* istanbul ignore next -- syncStrategy matches everything; ?? fallback defensive-only and unreachable with default strategies array */
-                const strategy = strategies.find((item) => item.matches(rawResult)) ?? syncStrategy;
+            if (interceptor.onEnter !== void 0) {
+                swallow(() => void interceptor.onEnter?.(execContext));
+            }
 
-                return strategy.handle(rawResult, emitSuccess, emitError);
-            } catch (methodErr) {
-                emitError(methodErr);
-                throw methodErr;
-            } finally {
+            let rawResult: unknown;
+            try {
+                rawResult = (originalMethod as (this: unknown, ...methodArgs: unknown[]) => unknown).apply(this, [...args]);
+            } catch (syncErr) {
+                emitError(syncErr);
                 if (isDefined(handle)) {
                     await safeRelease(handle);
                 }
+                throw syncErr;
             }
+
+            /* istanbul ignore next -- syncStrategy matches everything; ?? fallback defensive-only and unreachable with default strategies array */
+            const strategy = strategies.find((item) => item.matches(rawResult)) ?? syncStrategy;
+            const handled = strategy.handle(rawResult, emitSuccess, emitError);
+
+            // Tie release to the settled value of the strategy's Promise so `finally`-style
+            // cleanup does not run before the method completes. The strategy's own .catch
+            // (e.g. promiseStrategy) already called emitError on rejection; we MUST NOT
+            // re-catch here or onError would double-fire.
+            if (isDefined(handle)) {
+                const releasingHandle = handle;
+
+                return await Promise.resolve(handled).finally(() => safeRelease(releasingHandle));
+            }
+
+            return await Promise.resolve(handled);
         };
 
         return {

@@ -171,6 +171,23 @@ describe('createPromiseInterceptor — with resource', () => {
         expect(result).toBe(descriptor);
     });
 
+    it('propagates a synchronous method throw without a resource (no release to await)', async () => {
+        expect.hasAssertions();
+        const boom = new Error('sync-no-resource');
+        const onError = jest.fn();
+        const Dec = createPromiseInterceptor({ interceptor: { onError } });
+
+        class Service {
+            // @ts-expect-error — see note
+            @Dec
+            run(): Promise<void> {
+                throw boom;
+            }
+        }
+        await expect(new Service().run()).rejects.toBe(boom);
+        expect(onError).toHaveBeenCalledTimes(1);
+    });
+
     it('catches a synchronous throw from a non-async method body via the method-phase catch', async () => {
         expect.hasAssertions();
         const { handle, release } = makeHandleSpy();
