@@ -4,7 +4,13 @@
         "packages/decorators-core": {
             "entry": ["src/index.ts", "src/rxjs/index.ts"]
         },
+        "packages/histogram-metric-decorator": {
+            "entry": ["src/index.ts"]
+        },
         "packages/lock-decorator": {
+            "entry": ["src/index.ts"]
+        },
+        "packages/log-decorator": {
             "entry": ["src/index.ts"]
         }
     },

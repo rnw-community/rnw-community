@@ -261,7 +261,7 @@ export default defineConfig(
                     'newlines-between': 'always',
                     pathGroups: [
                         {
-                            group: 'object',
+                            group: 'external',
                             pattern: '@rnw-community/*',
                             position: 'after',
                         },
