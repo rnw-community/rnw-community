@@ -1,8 +1,8 @@
 import { Inject } from '@nestjs/common';
-import { EMPTY, type Observable, catchError, defer, isObservable, of, throwError } from 'rxjs';
+import { EMPTY, type Observable, catchError, concatMap, defer, finalize, isObservable, of, throwError } from 'rxjs';
 
-import { LockBusyError, runWithLock$ } from '@rnw-community/lock-decorator';
-import { isDefined } from '@rnw-community/shared';
+import { LockBusyError, createLockResource$ } from '@rnw-community/lock-decorator';
+import { emptyFn, isDefined } from '@rnw-community/shared';
 
 import { createLockServiceStore } from '../create-lock-service-store';
 import { LOCK_SERVICE_NOT_INJECTED_MESSAGE } from '../lock-service-not-injected-message.const';
@@ -14,22 +14,17 @@ import type { LockServiceInterface } from '../interface/lock-service.interface';
 import type { LockModeType } from '@rnw-community/lock-decorator';
 import type { AbstractConstructor, MethodDecoratorType } from '@rnw-community/shared';
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+// eslint-disable-next-line @typescript-eslint/no-explicit-any -- decorator generic must accept any-parameter method
 type ObservableReturningFn = (...args: readonly any[]) => Observable<unknown>;
 
 type ObservableRecoveryType<TResult> = TResult extends Observable<infer TValue> ? TValue | Observable<TValue> : never;
 type ObservableRecoveryFnType<K extends ObservableReturningFn> = (error: unknown) => ObservableRecoveryType<ReturnType<K>>;
 
-const requireObservable = (result: unknown, methodName: string): Observable<unknown> => {
-    if (!isObservable(result)) {
-        throw new Error(`Method ${methodName} does not return an observable`);
+class MethodThrownError extends Error {
+    constructor(readonly cause: unknown) {
+        super('method-thrown');
+        this.name = 'MethodThrownError';
     }
-
-    return result;
-};
-
-class MethodThrownError {
-    constructor(readonly cause: unknown) {}
 }
 
 const recoverFromAcquireError = <TResult>(
@@ -94,18 +89,38 @@ export const createObservableLockDecorators = (
                     const resources = resolveResources(preLock, args);
                     const joinedKey = resources.join(RESOURCE_SEPARATOR);
                     const store = createLockServiceStore(lockService, effectiveDuration);
+                    const resource$ = createLockResource$<TArgs>(store, mode, joinedKey);
 
-                    return runWithLock$(store, joinedKey, mode, {}, () =>
-                        requireObservable(originalMethod.apply(this, args), methodName).pipe(
-                            catchError((error: unknown) => throwError(() => new MethodThrownError(error)))
-                        )
-                    ).pipe(
-                        catchError((error: unknown) =>
-                            error instanceof MethodThrownError
-                                ? recoverFromMethodError(error.cause, catchErrorFn$)
-                                : recoverFromAcquireError(error, mode, catchErrorFn$)
-                        )
-                    );
+                    return resource$
+                        .acquire$({ className: '', methodName, args, logContext: methodName })
+                        .pipe(
+                            concatMap((handle) => {
+                                const releaseOnce = (): void => {
+                                    void Promise.resolve(handle.release()).catch(emptyFn);
+                                };
+                                let innerResult: unknown;
+                                try {
+                                    innerResult = originalMethod.apply(this, args);
+                                } catch (err: unknown) {
+                                    releaseOnce();
+                                    throw new MethodThrownError(err);
+                                }
+                                if (!isObservable(innerResult)) {
+                                    releaseOnce();
+                                    throw new MethodThrownError(new Error(`Method ${methodName} does not return an observable`));
+                                }
+
+                                return innerResult.pipe(
+                                    catchError((error: unknown) => throwError(() => new MethodThrownError(error))),
+                                    finalize(releaseOnce)
+                                );
+                            }),
+                            catchError((error: unknown) =>
+                                error instanceof MethodThrownError
+                                    ? recoverFromMethodError(error.cause, catchErrorFn$)
+                                    : recoverFromAcquireError(error, mode, catchErrorFn$)
+                            )
+                        );
                 });
             } as unknown as K;
 
