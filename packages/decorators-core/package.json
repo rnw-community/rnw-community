@@ -1,17 +1,16 @@
 {
     "name": "@rnw-community/decorators-core",
     "version": "0.1.0",
-    "description": "Framework-agnostic interceptor primitive for building method decorators (Log, metrics, lock, retry, ...). Promise and RxJS Observable strategies. Dual ESM+CJS. Built on TypeScript's experimentalDecorators.",
+    "description": "Framework-agnostic interceptor primitive for building method decorators (Log, metrics, lock, retry, ...). Pure middleware composition. Dual ESM+CJS. Built on TypeScript's experimentalDecorators.",
     "keywords": [
         "decorator",
         "decorators",
         "interceptor",
+        "middleware",
         "method decorator",
         "aspect",
         "universal",
-        "framework-agnostic",
-        "rxjs",
-        "observable"
+        "framework-agnostic"
     ],
     "repository": "https://github.com/rnw-community/rnw-community/tree/master/packages/decorators-core",
     "license": "MIT",
@@ -20,11 +19,6 @@
             "types": "./dist/esm/index.d.ts",
             "import": "./dist/esm/index.js",
             "require": "./dist/cjs/index.js"
-        },
-        "./rxjs": {
-            "types": "./dist/esm/rxjs/index.d.ts",
-            "import": "./dist/esm/rxjs/index.js",
-            "require": "./dist/cjs/rxjs/index.js"
         }
     },
     "main": "dist/cjs/index.js",
