@@ -13,20 +13,7 @@ const swallow = (fn: EmptyFn): void => {
     }
 };
 
-const runStrategy = <TResult>(
-    strategy: ResultStrategyInterface,
-    rawResult: TResult,
-    emitSuccess: (resolved: unknown) => void,
-    emitError: (error: unknown) => void
-): TResult => {
-    try {
-        return strategy.handle(rawResult, emitSuccess, emitError);
-    } catch (error) {
-        emitError(error);
-        throw error;
-    }
-};
-
+// eslint-disable-next-line max-statements -- single cohesive control flow: setup + invoke + strategy dispatch, splitting reduces readability
 export const runInterception = <TArgs extends readonly unknown[], TResult>(
     interceptor: InterceptorInterface<TArgs, TResult>,
     strategies: readonly ResultStrategyInterface[],
@@ -61,5 +48,10 @@ export const runInterception = <TArgs extends readonly unknown[], TResult>(
 
     const strategy = strategies.find((item) => item.matches(rawResult)) ?? syncStrategy;
 
-    return runStrategy(strategy, rawResult, emitSuccess, emitError);
+    try {
+        return strategy.handle(rawResult, emitSuccess, emitError);
+    } catch (error) {
+        emitError(error);
+        throw error;
+    }
 };
