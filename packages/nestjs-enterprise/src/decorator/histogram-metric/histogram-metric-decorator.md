@@ -54,3 +54,19 @@ async findAll(tenantId: string, op: string): Promise<Cat[]> { /* ... */ }
 ```
 
 Label names must be declared in prom-client's `labelNames` field for the histogram, otherwise the observation is rejected at runtime.
+
+## Config mismatch detection
+
+Two decorators registering the same metric name with DIFFERENT `buckets` or `labelNames` throw at decoration time:
+
+```
+HistogramMetric "my_metric" already registered with different buckets/labelNames.
+Existing: { "buckets": [0.01, 0.1] }. Requested: { "buckets": [0.5, 1] }.
+Use a unique name or align configurations.
+```
+
+Tracking is per-registry via a `WeakMap<Registry, Map<name, config>>`, so fresh custom registries stay isolated.
+
+**Boundary:** if an external caller pre-registers a `Histogram` via `prom-client` directly BEFORE any decorator runs, the decorator adopts it on first sight and silently ignores bucket differences for that adoption. Subsequent decorator applications are still guarded.
+
+**Testing:** if you call `prom-client`'s `register.clear()` in tests, import `__resetHistogramTracking` from `@rnw-community/nestjs-enterprise/HistogramMetric` and call it with the same `Registry` — the WeakMap entry is not automatically cleared by `register.clear()` and would otherwise cause false-positive mismatch throws on re-registration after reset. This helper is test-only infrastructure (`__` prefix); do not call it in production.

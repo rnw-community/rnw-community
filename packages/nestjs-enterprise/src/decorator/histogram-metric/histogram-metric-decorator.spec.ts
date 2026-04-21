@@ -1,8 +1,8 @@
-import { describe, expect, it, jest } from '@jest/globals';
+import { beforeEach, describe, expect, it, jest } from '@jest/globals';
 import { Histogram, register } from 'prom-client';
 import { EMPTY, Observable, lastValueFrom, of } from 'rxjs';
 
-import { HistogramMetric } from './histogram-metric.decorator';
+import { HistogramMetric, __resetHistogramTracking } from './histogram-metric.decorator';
 
 const mockObserve = jest.fn();
 jest.mock('prom-client', () => {
@@ -24,7 +24,7 @@ class TestClass {
         return 0;
     }
 
-    @HistogramMetric('test-metric', { buckets: [1], help: 'test-help' })
+    @HistogramMetric('test-metric-with-config', { buckets: [1], help: 'test-help' })
     testMethodConfiguration(): number {
         return 0;
     }
@@ -36,6 +36,10 @@ class TestClass {
 }
 
 describe(`HistogramMetric decorator`, () => {
+    beforeEach(() => {
+        __resetHistogramTracking(register);
+    });
+
     it('should create a histogram and record the observation on success', () => {
         expect.assertions(3);
 
@@ -59,7 +63,7 @@ describe(`HistogramMetric decorator`, () => {
         testClass.testMethodConfiguration();
 
         expect(Histogram).toHaveBeenCalledWith({
-            name: 'test-metric',
+            name: 'test-metric-with-config',
             help: 'test-help',
             buckets: [1],
         });
@@ -296,6 +300,233 @@ describe(`HistogramMetric decorator`, () => {
             await lastValueFrom(new EmptyEmitClass().stream(), { defaultValue: undefined });
 
             expect(mockObserve).toHaveBeenCalledTimes(1);
+        });
+    });
+
+    describe('config mismatch detection', () => {
+        const applyFirst = (): void => {
+            class First {
+                @HistogramMetric('mismatch-metric', { help: 'h', buckets: [0.01, 0.1, 1], labelNames: ['tenant'] })
+                run(): number {
+                    return 0;
+                }
+            }
+            new First();
+        };
+
+        it('allows re-registration with IDENTICAL buckets and labelNames', () => {
+            expect.hasAssertions();
+            applyFirst();
+
+            expect(() => {
+                class Second {
+                    @HistogramMetric('mismatch-metric', { help: 'h', buckets: [0.01, 0.1, 1], labelNames: ['tenant'] })
+                    run(): number {
+                        return 0;
+                    }
+                }
+                new Second();
+            }).not.toThrow();
+        });
+
+        it('allows re-registration with labelNames in a different order (set equality)', () => {
+            expect.hasAssertions();
+            class A {
+                @HistogramMetric('set-order-metric', { help: 'h', labelNames: ['a', 'b'] })
+                run(): number {
+                    return 0;
+                }
+            }
+            new A();
+
+            expect(() => {
+                class B {
+                    @HistogramMetric('set-order-metric', { help: 'h', labelNames: ['b', 'a'] })
+                    run(): number {
+                        return 0;
+                    }
+                }
+                new B();
+            }).not.toThrow();
+        });
+
+        it('throws on re-registration with DIFFERENT buckets', () => {
+            expect.hasAssertions();
+            applyFirst();
+
+            expect(() => {
+                class Second {
+                    @HistogramMetric('mismatch-metric', { help: 'h', buckets: [0.5, 1], labelNames: ['tenant'] })
+                    run(): number {
+                        return 0;
+                    }
+                }
+                new Second();
+            }).toThrow(/already registered with different buckets\/labelNames/);
+        });
+
+        it('throws on re-registration with DIFFERENT labelNames (different set)', () => {
+            expect.hasAssertions();
+            applyFirst();
+
+            expect(() => {
+                class Second {
+                    @HistogramMetric('mismatch-metric', { help: 'h', buckets: [0.01, 0.1, 1], labelNames: ['tenant', 'region'] })
+                    run(): number {
+                        return 0;
+                    }
+                }
+                new Second();
+            }).toThrow(/already registered with different buckets\/labelNames/);
+        });
+
+        it('treats buckets: undefined vs buckets: [...] as different', () => {
+            expect.hasAssertions();
+            class NoBuckets {
+                @HistogramMetric('undef-vs-empty')
+                run(): number {
+                    return 0;
+                }
+            }
+            new NoBuckets();
+
+            expect(() => {
+                class WithBuckets {
+                    @HistogramMetric('undef-vs-empty', { help: 'h', buckets: [0.5] })
+                    run(): number {
+                        return 0;
+                    }
+                }
+                new WithBuckets();
+            }).toThrow(/already registered with different/);
+        });
+
+        it('does not conflate two different metric names', () => {
+            expect.hasAssertions();
+            class M1 {
+                @HistogramMetric('name-a', { help: 'h', buckets: [1] })
+                run(): number {
+                    return 0;
+                }
+            }
+            new M1();
+
+            expect(() => {
+                class M2 {
+                    @HistogramMetric('name-b', { help: 'h', buckets: [2] })
+                    run(): number {
+                        return 0;
+                    }
+                }
+                new M2();
+            }).not.toThrow();
+        });
+
+        it('__resetHistogramTracking(register) clears state so re-registration with different buckets succeeds', () => {
+            expect.hasAssertions();
+            applyFirst();
+
+            __resetHistogramTracking(register);
+
+            expect(() => {
+                class AfterReset {
+                    @HistogramMetric('mismatch-metric', { help: 'h', buckets: [0.5, 1] })
+                    run(): number {
+                        return 0;
+                    }
+                }
+                new AfterReset();
+            }).not.toThrow();
+        });
+
+        it('error message includes previous and requested configs plus the metric name', () => {
+            expect.hasAssertions();
+            applyFirst();
+
+            expect(() => {
+                class Second {
+                    @HistogramMetric('mismatch-metric', { help: 'h', buckets: [0.5] })
+                    run(): number {
+                        return 0;
+                    }
+                }
+                new Second();
+            }).toThrow(/mismatch-metric.*Existing.*Requested/s);
+        });
+
+        it('treats labelNames: undefined vs labelNames: [...] as different', () => {
+            expect.hasAssertions();
+            class NoLabels {
+                @HistogramMetric('labels-undef-vs-set')
+                run(): number {
+                    return 0;
+                }
+            }
+            new NoLabels();
+
+            expect(() => {
+                class WithLabels {
+                    @HistogramMetric('labels-undef-vs-set', { help: 'h', labelNames: ['tenant'] })
+                    run(): number {
+                        return 0;
+                    }
+                }
+                new WithLabels();
+            }).toThrow(/already registered with different/);
+        });
+
+        it('on IDENTICAL re-registration where getSingleMetric returns the histogram, reuses without re-tracking', () => {
+            expect.hasAssertions();
+
+            class First {
+                @HistogramMetric('reuse-tracked-metric', { help: 'h', buckets: [0.5] })
+                run(): number {
+                    return 0;
+                }
+            }
+            new First();
+
+            const preExisting = jest.fn();
+            (Histogram as unknown as jest.Mock).mockImplementationOnce(function (this: { observe: unknown }) {
+                this.observe = preExisting;
+            });
+            const recognizedInstance = new Histogram({ name: 'reuse-tracked-metric', help: 'h' });
+            (Histogram as unknown as jest.Mock).mockClear();
+            (register.getSingleMetric as jest.Mock).mockReturnValueOnce(recognizedInstance);
+
+            class Second {
+                @HistogramMetric('reuse-tracked-metric', { help: 'h', buckets: [0.5] })
+                run(): number {
+                    return 0;
+                }
+            }
+            new Second().run();
+
+            expect(Histogram).not.toHaveBeenCalled();
+            expect(preExisting).toHaveBeenCalledTimes(1);
+        });
+
+        it('adopts a pre-registered Histogram on first sight and records its config in tracking', () => {
+            expect.hasAssertions();
+
+            const preExisting = jest.fn();
+            (Histogram as unknown as jest.Mock).mockImplementationOnce(function (this: { observe: unknown }) {
+                this.observe = preExisting;
+            });
+            const preRegistered = new Histogram({ name: 'adopt-metric', help: 'pre' });
+            (Histogram as unknown as jest.Mock).mockClear();
+            (register.getSingleMetric as jest.Mock).mockReturnValueOnce(preRegistered);
+
+            class Adopter {
+                @HistogramMetric('adopt-metric', { help: 'h', buckets: [1] })
+                run(): number {
+                    return 0;
+                }
+            }
+            new Adopter().run();
+
+            expect(Histogram).not.toHaveBeenCalled();
+            expect(preExisting).toHaveBeenCalledTimes(1);
         });
     });
 });
