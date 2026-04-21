@@ -82,10 +82,6 @@ export const createPromiseInterceptor = <
             const strategy = strategies.find((item) => item.matches(rawResult)) ?? syncStrategy;
             const handled = strategy.handle(rawResult, emitSuccess, emitError);
 
-            // Tie release to the settled value of the strategy's Promise so `finally`-style
-            // cleanup does not run before the method completes. The strategy's own .catch
-            // (e.g. promiseStrategy) already called emitError on rejection; we MUST NOT
-            // re-catch here or onError would double-fire.
             if (isDefined(handle)) {
                 const releasingHandle = handle;
 

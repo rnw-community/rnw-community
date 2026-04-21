@@ -21,5 +21,3 @@ export { createExclusiveLockDecorator$ } from './factory/create-exclusive-lock-d
 
 export { createLockResource } from './util/create-lock-resource/create-lock-resource';
 export { createLockResource$ } from './util/create-lock-resource-observable/create-lock-resource-observable';
-
-export { runWithLock$ } from './util/run-with-lock-rxjs/run-with-lock-rxjs';
