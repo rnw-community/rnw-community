@@ -1,5 +1,5 @@
 import { describe, expect, it, jest } from '@jest/globals';
-import { EMPTY, Observable, of, throwError } from 'rxjs';
+import { EMPTY, Observable, Subject, of, throwError } from 'rxjs';
 
 import { completionObservableStrategy } from './completion-observable.strategy';
 
@@ -82,6 +82,56 @@ describe('completionObservableStrategy', () => {
                     expect(collected).toEqual([1, 2, 3]);
                     done();
                 },
+            });
+        });
+
+        describe('semantic regression: hooks only fire on terminal events (never on unsubscribe)', () => {
+            it('does NOT call onSuccess or onError when the consumer unsubscribes before completion', () => {
+                expect.hasAssertions();
+                const onSuccess = jest.fn();
+                const onError = jest.fn();
+                const source$ = new Subject<number>();
+                const result = completionObservableStrategy.handle(source$, onSuccess, onError);
+
+                const subscription = (result as unknown as Observable<number>).subscribe();
+                source$.next(1);
+                source$.next(2);
+                subscription.unsubscribe();
+
+                source$.next(3);
+                source$.complete();
+
+                expect(onSuccess).not.toHaveBeenCalled();
+                expect(onError).not.toHaveBeenCalled();
+            });
+
+            it('still calls onSuccess exactly once when a long-running Subject eventually completes', () => {
+                expect.hasAssertions();
+                const onSuccess = jest.fn();
+                const onError = jest.fn();
+                const source$ = new Subject<number>();
+                const result = completionObservableStrategy.handle(source$, onSuccess, onError);
+
+                (result as unknown as Observable<number>).subscribe();
+                source$.next(10);
+                source$.next(20);
+                source$.complete();
+
+                expect(onSuccess).toHaveBeenCalledTimes(1);
+                expect(onSuccess).toHaveBeenCalledWith(20);
+                expect(onError).not.toHaveBeenCalled();
+            });
+
+            it('does NOT call either hook when the returned Observable is never subscribed', () => {
+                expect.hasAssertions();
+                const onSuccess = jest.fn();
+                const onError = jest.fn();
+                const source$ = of(1, 2, 3);
+
+                completionObservableStrategy.handle(source$, onSuccess, onError);
+
+                expect(onSuccess).not.toHaveBeenCalled();
+                expect(onError).not.toHaveBeenCalled();
             });
         });
     });

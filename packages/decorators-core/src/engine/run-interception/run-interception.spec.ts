@@ -167,4 +167,75 @@ describe('runInterception', () => {
         expect(runInterception(interceptor, [strategy, ...builtIns], makeContext(), () => 'val')).toBe('val');
         expect(records).toEqual(['success']);
     });
+
+    describe('strategy.handle sync-throw guard', () => {
+        it('routes a thrown Error through onError and rethrows with identity preserved', () => {
+            expect.hasAssertions();
+            const boom = new Error('strategy blew up');
+            const badStrategy: ResultStrategyInterface = {
+                matches: () => true,
+                handle: () => {
+                    throw boom;
+                },
+            };
+            const onError = jest.fn();
+            const interceptor: InterceptorInterface<readonly unknown[], number> = { onError };
+
+            expect(() => runInterception(interceptor, [badStrategy], makeContext(), () => 1)).toThrow(boom);
+            expect(onError).toHaveBeenCalledWith(makeContext(), boom, expect.any(Number));
+            expect(onError).toHaveBeenCalledTimes(1);
+        });
+
+        it('rethrows non-Error throws (string, null) unchanged', () => {
+            expect.hasAssertions();
+            const badStrategy = (thrown: unknown): ResultStrategyInterface => ({
+                matches: () => true,
+                handle: () => {
+                    throw thrown;
+                },
+            });
+            const onError = jest.fn();
+            const interceptor: InterceptorInterface<readonly unknown[], number> = { onError };
+
+            expect(() => runInterception(interceptor, [badStrategy('string-reason')], makeContext(), () => 1)).toThrow(
+                'string-reason'
+            );
+            expect(onError).toHaveBeenLastCalledWith(makeContext(), 'string-reason', expect.any(Number));
+
+            expect(() => runInterception(interceptor, [badStrategy(null)], makeContext(), () => 1)).toThrow();
+            expect(onError).toHaveBeenLastCalledWith(makeContext(), null, expect.any(Number));
+        });
+
+        it('still propagates the throw when onError is undefined', () => {
+            expect.hasAssertions();
+            const boom = new Error('no-hook');
+            const badStrategy: ResultStrategyInterface = {
+                matches: () => true,
+                handle: () => {
+                    throw boom;
+                },
+            };
+            expect(() => runInterception({}, [badStrategy], makeContext(), () => 1)).toThrow(boom);
+        });
+
+        it('does not fire onError when the strategy returns without throwing (regression)', () => {
+            expect.hasAssertions();
+            const normalStrategy: ResultStrategyInterface = {
+                matches: () => true,
+                handle: (value, onSuccess) => {
+                    onSuccess(value);
+
+                    return value;
+                },
+            };
+            const onError = jest.fn();
+            const onSuccess = jest.fn();
+            const interceptor: InterceptorInterface<readonly unknown[], number> = { onSuccess, onError };
+
+            const result = runInterception(interceptor, [normalStrategy], makeContext(), () => 42);
+            expect(result).toBe(42);
+            expect(onSuccess).toHaveBeenCalledTimes(1);
+            expect(onError).not.toHaveBeenCalled();
+        });
+    });
 });
