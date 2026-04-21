@@ -191,7 +191,7 @@ describe('createPromiseInterceptor — with resource', () => {
     it('catches a synchronous throw from a non-async method body via the method-phase catch', async () => {
         expect.hasAssertions();
         const { handle, release } = makeHandleSpy();
-        const resource: ResourceInterface<readonly unknown[]> = { acquire: async () => handle };
+        const resource: ResourceInterface = { acquire: async () => handle };
         const boom = new Error('sync-from-promise-method');
         const onError = jest.fn();
         const Dec = createPromiseInterceptor({ interceptor: { onError }, resource });

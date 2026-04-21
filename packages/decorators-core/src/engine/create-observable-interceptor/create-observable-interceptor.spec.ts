@@ -177,7 +177,7 @@ describe('createObservableInterceptor — with resource$', () => {
     it('acquire failure without onError hook still rejects the subscription cleanly', async () => {
         expect.hasAssertions();
         const acquireBoom = new Error('acquire-no-hook');
-        const resource$: ResourceObservableInterface<readonly unknown[]> = {
+        const resource$: ResourceObservableInterface = {
             acquire$: () => throwError(() => acquireBoom),
         };
         const Dec = createObservableInterceptor({ interceptor: {}, resource$ });
