@@ -3,4 +3,5 @@ import type { HistogramTransportInterface } from './histogram-transport.interfac
 
 export interface CreateHistogramMetricOptionsInterface {
     readonly transport: HistogramTransportInterface;
+    readonly onLabelsError?: (err: unknown, args: readonly unknown[]) => void;
 }
