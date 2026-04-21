@@ -6,6 +6,23 @@ import type { CreateHistogramMetricOptionsInterface } from '../../interface/crea
 import type { HistogramOptionsInterface } from '../../interface/histogram-options.interface';
 import type { AnyFn, MethodDecoratorType } from '@rnw-community/shared';
 
+const resolveLabelsSafely = <TArgs extends readonly unknown[]>(
+    labelsFn: HistogramOptionsInterface<TArgs>['labels'],
+    args: TArgs,
+    onLabelsError: CreateHistogramMetricOptionsInterface['onLabelsError']
+): Readonly<Record<string, string>> | undefined => {
+    if (labelsFn === undefined) {
+        return undefined;
+    }
+    try {
+        return labelsFn(args);
+    } catch (err) {
+        onLabelsError?.(err, args);
+
+        return undefined;
+    }
+};
+
 export const createHistogramMetricDecorator =
     (options: CreateHistogramMetricOptionsInterface) =>
     <K extends AnyFn, TArgs extends Parameters<K> = Parameters<K>>(
@@ -17,14 +34,14 @@ export const createHistogramMetricDecorator =
                     options.transport.observe(
                         config?.name ?? `${ctx.className}_${ctx.methodName}_duration_ms`,
                         durationMs,
-                        config?.labels?.(ctx.args)
+                        resolveLabelsSafely(config?.labels, ctx.args, options.onLabelsError)
                     );
                 },
                 onError: (ctx, _error, durationMs) => {
                     options.transport.observe(
                         config?.name ?? `${ctx.className}_${ctx.methodName}_duration_ms`,
                         durationMs,
-                        config?.labels?.(ctx.args)
+                        resolveLabelsSafely(config?.labels, ctx.args, options.onLabelsError)
                     );
                 },
             },

@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it } from '@jest/globals';
+import { beforeEach, describe, expect, it, jest } from '@jest/globals';
 import { EMPTY, Observable, lastValueFrom, of, throwError } from 'rxjs';
 
 import { createHistogramMetricDecorator, inMemoryHistogramTransport } from '../../index';
@@ -144,6 +144,119 @@ describe('createHistogramMetricDecorator', () => {
             const observations = transport.snapshot();
             expect(observations).toHaveLength(1);
             expect(observations[0]).toMatchObject({ name: 'stream_error_ms' });
+        });
+    });
+
+    describe('labels() safe boundary', () => {
+        it('records an observation without labels when labels() throws on success path', () => {
+            expect.hasAssertions();
+            const boom = new Error('labels-boom');
+            const Safe = createHistogramMetricDecorator({ transport });
+
+            class Service {
+                @Safe({
+                    name: 'safe_ok_ms',
+                    labels: () => {
+                        throw boom;
+                    },
+                })
+                run(_id: string): string {
+                    return 'ok';
+                }
+            }
+
+            transport.snapshot();
+            expect(new Service().run('x')).toBe('ok');
+            const observations = transport.snapshot();
+            expect(observations).toHaveLength(1);
+            expect(observations[0]).toMatchObject({ name: 'safe_ok_ms' });
+            expect(observations[0].labels).toBeUndefined();
+        });
+
+        it('records an observation without labels when labels() throws on error path', () => {
+            expect.hasAssertions();
+            const boom = new Error('labels-boom');
+            const Safe = createHistogramMetricDecorator({ transport });
+
+            class Service {
+                @Safe({
+                    name: 'safe_err_ms',
+                    labels: () => {
+                        throw boom;
+                    },
+                })
+                run(_id: string): string {
+                    throw new Error('method failed');
+                }
+            }
+
+            transport.snapshot();
+            expect(() => new Service().run('x')).toThrow('method failed');
+            const observations = transport.snapshot();
+            expect(observations).toHaveLength(1);
+            expect(observations[0]).toMatchObject({ name: 'safe_err_ms' });
+            expect(observations[0].labels).toBeUndefined();
+        });
+
+        it('invokes onLabelsError with the thrown value and the method args', () => {
+            expect.hasAssertions();
+            const boom = new Error('labels-boom');
+            const onLabelsError = jest.fn();
+            const Safe = createHistogramMetricDecorator({ transport, onLabelsError });
+
+            class Service {
+                @Safe({
+                    labels: () => {
+                        throw boom;
+                    },
+                })
+                run(_id: string, _qty: number): string {
+                    return 'ok';
+                }
+            }
+
+            transport.snapshot();
+            new Service().run('sku-1', 5);
+            expect(onLabelsError).toHaveBeenCalledTimes(1);
+            expect(onLabelsError).toHaveBeenCalledWith(boom, ['sku-1', 5]);
+        });
+
+        it('leaves successful labels resolution unchanged', () => {
+            expect.hasAssertions();
+            const onLabelsError = jest.fn();
+            const Safe = createHistogramMetricDecorator({ transport, onLabelsError });
+
+            class Service {
+                @Safe({ labels: ([id]: readonly [string]) => ({ id }) })
+                run(_id: string): string {
+                    return 'ok';
+                }
+            }
+
+            transport.snapshot();
+            new Service().run('abc');
+            expect(transport.snapshot()[0]).toMatchObject({ labels: { id: 'abc' } });
+            expect(onLabelsError).not.toHaveBeenCalled();
+        });
+
+        it('does not throw when onLabelsError is omitted and labels() throws', () => {
+            expect.hasAssertions();
+            const Safe = createHistogramMetricDecorator({ transport });
+
+            class Service {
+                @Safe({
+                    labels: () => {
+                        throw new Error('silent-boom');
+                    },
+                })
+                run(_id: string): string {
+                    return 'ok';
+                }
+            }
+
+            transport.snapshot();
+            expect(() => new Service().run('x')).not.toThrow();
+            expect(transport.snapshot()).toHaveLength(1);
         });
     });
 });
