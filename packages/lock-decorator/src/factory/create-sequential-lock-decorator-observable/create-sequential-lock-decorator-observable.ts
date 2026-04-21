@@ -1,6 +1,6 @@
-import { createObservableInterceptor } from '@rnw-community/decorators-core/rxjs';
+import { createInterceptor } from '@rnw-community/decorators-core';
 
-import { createLockResource$ } from '../../util/create-lock-resource-observable/create-lock-resource-observable';
+import { createLockMiddleware$ } from '../../util/create-lock-middleware-observable/create-lock-middleware-observable';
 
 import type { CreateLockOptionsInterface } from '../../interface/create-lock-options.interface';
 import type { SequentialLockArgumentType } from '../../type/sequential-lock-argument.type';
@@ -13,7 +13,6 @@ export const createSequentialLockDecorator$ =
     <K extends (...args: readonly any[]) => Observable<unknown>, TArgs extends Parameters<K> = Parameters<K>>(
         arg: SequentialLockArgumentType<TArgs>
     ): MethodDecoratorType<K> =>
-        createObservableInterceptor<K, TArgs>({
-            interceptor: {},
-            resource$: createLockResource$<TArgs>(options.store, 'sequential', arg),
-        });
+        createInterceptor<TArgs, Observable<unknown>>({
+            middlewares: [createLockMiddleware$<TArgs>(options.store, 'sequential', arg)],
+        }) as unknown as MethodDecoratorType<K>;

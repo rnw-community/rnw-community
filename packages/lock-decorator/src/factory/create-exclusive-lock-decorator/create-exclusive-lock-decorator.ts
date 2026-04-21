@@ -1,6 +1,6 @@
-import { createPromiseInterceptor } from '@rnw-community/decorators-core';
+import { createInterceptor } from '@rnw-community/decorators-core';
 
-import { createLockResource } from '../../util/create-lock-resource/create-lock-resource';
+import { createLockMiddleware } from '../../util/create-lock-middleware/create-lock-middleware';
 
 import type { CreateLockOptionsInterface } from '../../interface/create-lock-options.interface';
 import type { ExclusiveLockArgumentType } from '../../type/exclusive-lock-argument.type';
@@ -12,7 +12,6 @@ export const createExclusiveLockDecorator =
     <K extends (...args: readonly any[]) => Promise<unknown>, TArgs extends Parameters<K> = Parameters<K>>(
         arg: ExclusiveLockArgumentType<TArgs>
     ): MethodDecoratorType<K> =>
-        createPromiseInterceptor<K, TArgs>({
-            interceptor: {},
-            resource: createLockResource<TArgs>(options.store, 'exclusive', arg),
-        });
+        createInterceptor<TArgs, unknown>({
+            middlewares: [createLockMiddleware<TArgs>(options.store, 'exclusive', arg)],
+        }) as unknown as MethodDecoratorType<K>;

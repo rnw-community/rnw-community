@@ -1,549 +1,243 @@
-import { describe, expect, it } from '@jest/globals';
+import { describe, expect, it, jest } from '@jest/globals';
+import { Observable, Subject, lastValueFrom, of, throwError } from 'rxjs';
 
 import { createInterceptor } from './create-interceptor';
 
-import type { ExecutionContextInterface } from '../../interface/execution-context.interface';
-import type { InterceptorInterface } from '../../interface/interceptor.interface';
-import type { ResultStrategyInterface } from '../../interface/result-strategy.interface';
+import type { InterceptorMiddleware } from '../../interface/interceptor-middleware.interface';
 
-interface RecordedCallInterface {
-    readonly kind: 'enter' | 'success' | 'error';
-    readonly context: ExecutionContextInterface;
-    readonly value?: unknown;
-    readonly durationMs?: number;
-}
+describe('createInterceptor — pure middleware engine', () => {
+    it('invokes the method with no middlewares and returns the sync value', () => {
+        expect.hasAssertions();
+        const Dec = createInterceptor({ middlewares: [] });
 
-const makeRecorder = (): {
-    readonly calls: RecordedCallInterface[];
-    readonly interceptor: InterceptorInterface;
-} => {
-    const calls: RecordedCallInterface[] = [];
-
-    return {
-        calls,
-        interceptor: {
-            onEnter: (context) => {
-                calls.push({ kind: 'enter', context });
-            },
-            onSuccess: (context, value, durationMs) => {
-                calls.push({ kind: 'success', context, value, durationMs });
-            },
-            onError: (context, error, durationMs) => {
-                calls.push({ kind: 'error', context, value: error, durationMs });
-            },
-        },
-    };
-};
-
-describe('createInterceptor', () => {
-    it('wraps a sync method and emits enter + success with duration', () => {
-        const { calls, interceptor } = makeRecorder();
-        const decorator = createInterceptor({ interceptor });
-
-        class Svc {
-            value = 10;
-
-            add(num: number) {
-                return this.value + num;
+        class Service {
+            @Dec
+            add(a: number, b: number): number {
+                return a + b;
             }
         }
-
-        const descriptor = Object.getOwnPropertyDescriptor(Svc.prototype, 'add') as PropertyDescriptor;
-        const updated = decorator(Svc.prototype, 'add', descriptor as never) as PropertyDescriptor;
-        Object.defineProperty(Svc.prototype, 'add', updated);
-
-        expect(new Svc().add(5)).toBe(15);
-        expect(calls).toHaveLength(2);
-        expect(calls[0]?.kind).toBe('enter');
-        expect(calls[0]?.context.className).toBe('Svc');
-        expect(calls[0]?.context.methodName).toBe('add');
-        expect(calls[0]?.context.logContext).toBe('Svc::add');
-        expect(calls[0]?.context.args).toEqual([5]);
-        expect(calls[1]?.kind).toBe('success');
-        expect(calls[1]?.value).toBe(15);
-        expect(typeof calls[1]?.durationMs).toBe('number');
-        expect(calls[1]?.durationMs).toBeGreaterThanOrEqual(0);
+        expect(new Service().add(2, 3)).toBe(5);
     });
 
-    it('awaits a Promise return and emits success after resolution', async () => {
-        const { calls, interceptor } = makeRecorder();
-        const decorator = createInterceptor({ interceptor });
+    it('runs middlewares in outer-to-inner order around invoke', () => {
+        expect.hasAssertions();
+        const log: string[] = [];
+        const mw = (name: string): InterceptorMiddleware<readonly unknown[], string> => ({
+            invoke: (_ctx, next) => {
+                log.push(`${name}:before`);
+                const result = next();
+                log.push(`${name}:after`);
 
-        class AsyncSvc {
+                return result;
+            },
+        });
+        const Dec = createInterceptor({ middlewares: [mw('A'), mw('B'), mw('C')] });
 
-            async compute(num: number) {
-                await new Promise((resolve) => { setTimeout(resolve, 1); });
+        class Service {
+            @Dec
+            run(): string {
+                log.push('method');
 
-                return num * 2;
+                return 'ok';
             }
         }
-        const descriptor = Object.getOwnPropertyDescriptor(AsyncSvc.prototype, 'compute') as PropertyDescriptor;
-        Object.defineProperty(AsyncSvc.prototype, 'compute', decorator(AsyncSvc.prototype, 'compute', descriptor as never) as PropertyDescriptor);
-
-        const result = await new AsyncSvc().compute(4);
-        expect(result).toBe(8);
-        expect(calls.map((call) => call.kind)).toEqual(['enter', 'success']);
-        expect(calls[1]?.value).toBe(8);
+        expect(new Service().run()).toBe('ok');
+        expect(log).toEqual(['A:before', 'B:before', 'C:before', 'method', 'C:after', 'B:after', 'A:after']);
     });
 
-    it('emits error and rethrows for a sync throw', () => {
-        const { calls, interceptor } = makeRecorder();
-        const decorator = createInterceptor({ interceptor });
-        const boom = new Error('boom');
+    it('passes execution context with className, methodName, args, logContext', () => {
+        expect.hasAssertions();
+        const seen: unknown[] = [];
+        const mw: InterceptorMiddleware<readonly unknown[], number> = {
+            invoke: (ctx, next) => {
+                seen.push(ctx);
 
-        class Svc {
-            fail(): never {
+                return next();
+            },
+        };
+        const Dec = createInterceptor({ middlewares: [mw] });
+
+        class OrderService {
+            @Dec
+            place(_id: string, qty: number): number {
+                return qty;
+            }
+        }
+        new OrderService().place('sku-1', 3);
+        expect(seen[0]).toMatchObject({
+            className: 'OrderService',
+            methodName: 'place',
+            args: ['sku-1', 3],
+            logContext: 'OrderService::place',
+        });
+    });
+
+    it('forwards a Promise return shape when the innermost middleware awaits', async () => {
+        expect.hasAssertions();
+        const mw: InterceptorMiddleware<readonly unknown[], Promise<string>> = {
+            invoke: async (_ctx, next) => {
+                const value = await next();
+
+                return `wrapped-${value}`;
+            },
+        };
+        const Dec = createInterceptor({ middlewares: [mw] });
+
+        class Service {
+            @Dec
+            async run(): Promise<string> {
+                return 'raw';
+            }
+        }
+        expect(await new Service().run()).toBe('wrapped-raw');
+    });
+
+    it('forwards an Observable return shape when middleware returns an Observable', async () => {
+        expect.hasAssertions();
+        const mw: InterceptorMiddleware<readonly unknown[], Observable<number>> = {
+            invoke: (_ctx, next) => next(),
+        };
+        const Dec = createInterceptor({ middlewares: [mw] });
+
+        class Service {
+            @Dec
+            stream(): Observable<number> {
+                return of(10);
+            }
+        }
+        expect(await lastValueFrom(new Service().stream())).toBe(10);
+    });
+
+    it('a middleware can short-circuit without calling next (e.g. resource failure)', async () => {
+        expect.hasAssertions();
+        const methodSpy = jest.fn();
+        const mw: InterceptorMiddleware<readonly unknown[], Promise<never>> = {
+            invoke: async () => {
+                throw new Error('short-circuit');
+            },
+        };
+        const Dec = createInterceptor({ middlewares: [mw] });
+
+        class Service {
+            @Dec
+            async run(): Promise<void> {
+                methodSpy();
+            }
+        }
+        await expect(new Service().run()).rejects.toThrow('short-circuit');
+        expect(methodSpy).not.toHaveBeenCalled();
+    });
+
+    it('releases resource via closure in the middleware (setup/invoke/teardown pattern)', async () => {
+        expect.hasAssertions();
+        const release = jest.fn();
+        const mw: InterceptorMiddleware<readonly unknown[], Promise<string>> = {
+            invoke: async (_ctx, next) => {
+                const handle = { release };
+                try {
+                    return await next();
+                } finally {
+                    handle.release();
+                }
+            },
+        };
+        const Dec = createInterceptor({ middlewares: [mw] });
+
+        class Service {
+            @Dec
+            async run(): Promise<string> {
+                return 'done';
+            }
+        }
+        expect(await new Service().run()).toBe('done');
+        expect(release).toHaveBeenCalledTimes(1);
+    });
+
+    it('releases resource even when the method throws', async () => {
+        expect.hasAssertions();
+        const release = jest.fn();
+        const boom = new Error('method-boom');
+        const mw: InterceptorMiddleware<readonly unknown[], Promise<never>> = {
+            invoke: async (_ctx, next) => {
+                try {
+                    return await next();
+                } finally {
+                    release();
+                }
+            },
+        };
+        const Dec = createInterceptor({ middlewares: [mw] });
+
+        class Service {
+            @Dec
+            async run(): Promise<void> {
                 throw boom;
             }
         }
-        const descriptor = Object.getOwnPropertyDescriptor(Svc.prototype, 'fail') as PropertyDescriptor;
-        Object.defineProperty(Svc.prototype, 'fail', decorator(Svc.prototype, 'fail', descriptor as never) as PropertyDescriptor);
-
-        expect(() => new Svc().fail()).toThrow(boom);
-        expect(calls.map((call) => call.kind)).toEqual(['enter', 'error']);
-        expect(calls[1]?.value).toBe(boom);
+        await expect(new Service().run()).rejects.toBe(boom);
+        expect(release).toHaveBeenCalledTimes(1);
     });
 
-    it('emits error and rethrows for a rejected Promise', async () => {
-        const { calls, interceptor } = makeRecorder();
-        const decorator = createInterceptor({ interceptor });
-        const boom = new Error('async-boom');
-
-        class AsyncSvc {
-
-            async fail() {
-                await new Promise((resolve) => { setTimeout(resolve, 1); });
-                throw boom;
-            }
-        }
-        const descriptor = Object.getOwnPropertyDescriptor(AsyncSvc.prototype, 'fail') as PropertyDescriptor;
-        Object.defineProperty(AsyncSvc.prototype, 'fail', decorator(AsyncSvc.prototype, 'fail', descriptor as never) as PropertyDescriptor);
-
-        await expect(new AsyncSvc().fail()).rejects.toBe(boom);
-        expect(calls.map((call) => call.kind)).toEqual(['enter', 'error']);
-        expect(calls[1]?.value).toBe(boom);
-    });
-
-    it('dispatches to the FIRST matching strategy when multiple could match', () => {
-        const hits: string[] = [];
-        const strategyA: ResultStrategyInterface = {
-            matches: () => true,
-            handle: (value, onSuccess) => {
-                hits.push('A');
-                onSuccess(value);
-
-                return value;
-            },
-        };
-        const strategyB: ResultStrategyInterface = {
-            matches: () => true,
-            handle: () => {
-                hits.push('B');
-                throw new Error('should not run');
-            },
-        };
-        const { interceptor } = makeRecorder();
-        const decorator = createInterceptor({ interceptor, strategies: [strategyA, strategyB] });
-
-        class Svc {
-
-            value() {
-                return 7;
-            }
-        }
-        const descriptor = Object.getOwnPropertyDescriptor(Svc.prototype, 'value') as PropertyDescriptor;
-        Object.defineProperty(Svc.prototype, 'value', decorator(Svc.prototype, 'value', descriptor as never) as PropertyDescriptor);
-        new Svc().value();
-        expect(hits).toEqual(['A']);
-    });
-
-    it('preserves ExecutionContext identity across onEnter, onSuccess, and onError', () => {
-        const seenContexts: unknown[] = [];
-        const decorator = createInterceptor({
-            interceptor: {
-                onEnter: (ctx) => seenContexts.push(ctx),
-                onSuccess: (ctx) => seenContexts.push(ctx),
-                onError: (ctx) => seenContexts.push(ctx),
-            },
-        });
-
-        class Svc {
-            ok(): number {
-                return 1;
-            }
-            fail(): never {
-                throw new Error('x');
-            }
-        }
-        const okDesc = Object.getOwnPropertyDescriptor(Svc.prototype, 'ok') as PropertyDescriptor;
-        Object.defineProperty(Svc.prototype, 'ok', decorator(Svc.prototype, 'ok', okDesc as never) as PropertyDescriptor);
-        const failDesc = Object.getOwnPropertyDescriptor(Svc.prototype, 'fail') as PropertyDescriptor;
-        Object.defineProperty(Svc.prototype, 'fail', decorator(Svc.prototype, 'fail', failDesc as never) as PropertyDescriptor);
-
-        new Svc().ok();
-        expect(() => new Svc().fail()).toThrow('x');
-
-        expect(seenContexts).toHaveLength(4);
-        expect(seenContexts[0]).toBe(seenContexts[1]);
-        expect(seenContexts[2]).toBe(seenContexts[3]);
-        expect(seenContexts[0]).not.toBe(seenContexts[2]);
-    });
-
-    it('skips non-matching strategies and falls through to default sync handling', () => {
-        const strategy: ResultStrategyInterface = {
-            matches: () => false,
-            handle: () => {
-                throw new Error('should not be called');
-            },
-        };
-        const { calls, interceptor } = makeRecorder();
-        const decorator = createInterceptor({ interceptor, strategies: [strategy] });
-
-        class Svc {
-
-            value() {
-                return 'v';
-            }
-        }
-        const descriptor = Object.getOwnPropertyDescriptor(Svc.prototype, 'value') as PropertyDescriptor;
-        Object.defineProperty(Svc.prototype, 'value', decorator(Svc.prototype, 'value', descriptor as never) as PropertyDescriptor);
-        expect(new Svc().value()).toBe('v');
-        expect(calls.map((call) => call.kind)).toEqual(['enter', 'success']);
-    });
-
-    it('dispatches to a matching ResultStrategy and does not auto-handle Promise', () => {
-        const matched: unknown[] = [];
-        const strategy: ResultStrategyInterface = {
-            matches: (value) =>
-                typeof value === 'object' && value !== null && (value as { readonly isObservableMarker?: boolean }).isObservableMarker === true,
-            handle: (value, onSuccess, onError) => {
-                matched.push(value);
-                onSuccess('strategy-resolved');
-                onError('strategy-errored');
-
-                return value;
-            },
-        };
-        const { calls, interceptor } = makeRecorder();
-        const decorator = createInterceptor({ interceptor, strategies: [strategy] });
-
-        class Svc {
-
-            stream() {
-                return { isObservableMarker: true, value: 42 } as const;
-            }
-        }
-        const descriptor = Object.getOwnPropertyDescriptor(Svc.prototype, 'stream') as PropertyDescriptor;
-        Object.defineProperty(Svc.prototype, 'stream', decorator(Svc.prototype, 'stream', descriptor as never) as PropertyDescriptor);
-
-        const out = new Svc().stream();
-        expect(matched).toHaveLength(1);
-        expect(out).toEqual({ isObservableMarker: true, value: 42 });
-        expect(calls.map((call) => call.kind)).toEqual(['enter', 'success', 'error']);
-        expect(calls[1]?.value).toBe('strategy-resolved');
-        expect(calls[2]?.value).toBe('strategy-errored');
-    });
-
-    it('swallows errors thrown inside hooks and still returns the method value', () => {
-        const decorator = createInterceptor({
-            interceptor: {
-                onEnter: () => {
-                    throw new Error('enter-fail');
-                },
-                onSuccess: () => {
-                    throw new Error('success-fail');
-                },
-                onError: () => {
-                    throw new Error('error-fail');
-                },
-            },
-        });
-
-        class Svc {
-            ok(): number {
-                return 7;
-            }
-        }
-        const descriptor = Object.getOwnPropertyDescriptor(Svc.prototype, 'ok') as PropertyDescriptor;
-        Object.defineProperty(Svc.prototype, 'ok', decorator(Svc.prototype, 'ok', descriptor as never) as PropertyDescriptor);
-
-        expect(new Svc().ok()).toBe(7);
-    });
-
-    it('swallows hook errors on error path and still rethrows original', () => {
-        const decorator = createInterceptor({
-            interceptor: {
-                onError: () => {
-                    throw new Error('hook');
-                },
-            },
-        });
-
-        class Svc {
-            fail(): never {
-                throw new Error('original');
-            }
-        }
-        const descriptor = Object.getOwnPropertyDescriptor(Svc.prototype, 'fail') as PropertyDescriptor;
-        Object.defineProperty(Svc.prototype, 'fail', decorator(Svc.prototype, 'fail', descriptor as never) as PropertyDescriptor);
-
-        expect(() => new Svc().fail()).toThrow('original');
-    });
-
-    it('works without any interceptor hooks defined', () => {
-        const decorator = createInterceptor({ interceptor: {} });
-
-        class Svc {
-            val(): string {
-                return 'x';
-            }
-        }
-        const descriptor = Object.getOwnPropertyDescriptor(Svc.prototype, 'val') as PropertyDescriptor;
-        Object.defineProperty(Svc.prototype, 'val', decorator(Svc.prototype, 'val', descriptor as never) as PropertyDescriptor);
-
-        expect(new Svc().val()).toBe('x');
-    });
-
-    it('rethrows sync errors when no onError hook is defined', () => {
-        const decorator = createInterceptor({ interceptor: {} });
-
-        class Svc {
-            fail(): never {
-                throw new Error('no-hook');
-            }
-        }
-        const descriptor = Object.getOwnPropertyDescriptor(Svc.prototype, 'fail') as PropertyDescriptor;
-        Object.defineProperty(Svc.prototype, 'fail', decorator(Svc.prototype, 'fail', descriptor as never) as PropertyDescriptor);
-        expect(() => new Svc().fail()).toThrow('no-hook');
-    });
-
-    it('rethrows async errors when no onError hook is defined', async () => {
-        const decorator = createInterceptor({ interceptor: {} });
-
-        class Svc {
-
-            async fail() {
-                throw new Error('no-hook-async');
-            }
-        }
-        const descriptor = Object.getOwnPropertyDescriptor(Svc.prototype, 'fail') as PropertyDescriptor;
-        Object.defineProperty(Svc.prototype, 'fail', decorator(Svc.prototype, 'fail', descriptor as never) as PropertyDescriptor);
-        await expect(new Svc().fail()).rejects.toThrow('no-hook-async');
-    });
-
-    it('auto-handles Promise returns when no strategies are configured', async () => {
-        const { calls, interceptor } = makeRecorder();
-        const decorator = createInterceptor({ interceptor });
-
-        class Svc {
-
-            thenable() {
-                return { then: (onResolve: (val: number) => void) => void onResolve(21) };
-            }
-        }
-        const descriptor = Object.getOwnPropertyDescriptor(Svc.prototype, 'thenable') as PropertyDescriptor;
-        Object.defineProperty(
-            Svc.prototype,
-            'thenable',
-            decorator(Svc.prototype, 'thenable', descriptor as never) as PropertyDescriptor
+    it('returns the descriptor unchanged when applied to a non-function descriptor', () => {
+        expect.hasAssertions();
+        const Dec = createInterceptor({ middlewares: [] });
+        const descriptor = { value: 42, writable: true, enumerable: false, configurable: true };
+        const result = (Dec as unknown as (t: object, p: string, d: typeof descriptor) => typeof descriptor)(
+            {},
+            'notAMethod',
+            descriptor
         );
-        const out = await (new Svc().thenable() as unknown as Promise<number>);
-        expect(out).toBe(21);
-        expect(calls.map((call) => call.kind)).toEqual(['enter', 'success']);
-        expect(calls[1]?.value).toBe(21);
+        expect(result).toBe(descriptor);
     });
 
-    it('emits error from a rejected thenable with no strategies', async () => {
-        const { calls, interceptor } = makeRecorder();
-        const decorator = createInterceptor({ interceptor });
-        const boom = new Error('thenable-fail');
+    it('Observable middleware: releases on unsubscribe via inner unsubscribe hook', async () => {
+        expect.hasAssertions();
+        const release = jest.fn();
+        const source = new Subject<number>();
+        const mw: InterceptorMiddleware<readonly unknown[], Observable<number>> = {
+            invoke: (_ctx, next) =>
+                new Observable<number>((sub) => {
+                    const inner$ = next();
+                    const subscription = inner$.subscribe({
+                        next: (v) => void sub.next(v),
+                        error: (e: unknown) => void sub.error(e),
+                        complete: () => void sub.complete(),
+                    });
 
-        class Svc {
-
-            thenable() {
-                return {
-                    then: (_: (val: unknown) => void, onReject: (err: unknown) => void) => void onReject(boom),
-                };
-            }
-        }
-        const descriptor = Object.getOwnPropertyDescriptor(Svc.prototype, 'thenable') as PropertyDescriptor;
-        Object.defineProperty(
-            Svc.prototype,
-            'thenable',
-            decorator(Svc.prototype, 'thenable', descriptor as never) as PropertyDescriptor
-        );
-        await expect(new Svc().thenable() as unknown as Promise<unknown>).rejects.toBe(boom);
-        expect(calls.map((call) => call.kind)).toEqual(['enter', 'error']);
-    });
-
-    it('returns the descriptor unchanged when value is not a function', () => {
-        const decorator = createInterceptor({ interceptor: {} });
-
-        const input: PropertyDescriptor = { value: 42, writable: true, configurable: true, enumerable: true };
-        const output = decorator({}, 'x', input as never) as PropertyDescriptor;
-        expect(output).toBe(input);
-    });
-
-    it('resolves className from `this` at call time (subclass)', () => {
-        const { calls, interceptor } = makeRecorder();
-        const decorator = createInterceptor({ interceptor });
-
-        class Base {
-
-            greet() {
-                return 'hello';
-            }
-        }
-        const descriptor = Object.getOwnPropertyDescriptor(Base.prototype, 'greet') as PropertyDescriptor;
-        Object.defineProperty(Base.prototype, 'greet', decorator(Base.prototype, 'greet', descriptor as never) as PropertyDescriptor);
-
-        class Child extends Base {}
-        new Child().greet();
-
-        expect(calls[0]?.context.className).toBe('Child');
-    });
-
-    it('falls back to "Object" when target has no constructor name at decoration time', () => {
-        const { calls, interceptor } = makeRecorder();
-        const decorator = createInterceptor({ interceptor });
-
-        const bareTarget = Object.create(null) as { ping?: () => number };
-        const descriptor: PropertyDescriptor = {
-
-            value: function value(): number {
-                return 1;
-            },
-            writable: true,
-            configurable: true,
-            enumerable: true,
+                    return () => {
+                        subscription.unsubscribe();
+                        release();
+                    };
+                }),
         };
-        const updated = decorator(bareTarget as object, 'ping', descriptor as never) as PropertyDescriptor;
-        Object.defineProperty(bareTarget, 'ping', updated);
-        // eslint-disable-next-line no-useless-call
-        (bareTarget.ping as () => number).call(null);
+        const Dec = createInterceptor({ middlewares: [mw] });
 
-        expect(calls[0]?.context.className).toBe('Object');
-    });
-
-    it('falls back to target.constructor.name when called with detached this', () => {
-        const { calls, interceptor } = makeRecorder();
-        const decorator = createInterceptor({ interceptor });
-
-        class Svc {
-
-            ping() {
-                return 1;
+        class Service {
+            @Dec
+            stream(): Observable<number> {
+                return source;
             }
         }
-        const descriptor = Object.getOwnPropertyDescriptor(Svc.prototype, 'ping') as PropertyDescriptor;
-        Object.defineProperty(Svc.prototype, 'ping', decorator(Svc.prototype, 'ping', descriptor as never) as PropertyDescriptor);
-
-        const instance = new Svc();
-        const detached = instance.ping.bind(void 0);
-        detached();
-        expect(calls[0]?.context.className).toBe('Svc');
+        const subscription = new Service().stream().subscribe();
+        source.next(1);
+        subscription.unsubscribe();
+        await Promise.resolve();
+        expect(release).toHaveBeenCalledTimes(1);
     });
 
-    it('uses target.name when target is a constructor (static method decoration)', () => {
-        const { calls, interceptor } = makeRecorder();
-        const decorator = createInterceptor({ interceptor });
+    it('propagates Observable errors through the chain', async () => {
+        expect.hasAssertions();
+        const mw: InterceptorMiddleware<readonly unknown[], Observable<number>> = {
+            invoke: (_ctx, next) => next(),
+        };
+        const Dec = createInterceptor({ middlewares: [mw] });
 
-        // eslint-disable-next-line @typescript-eslint/no-extraneous-class
-        class StaticSvc {
-            static compute(): number {
-                return 99;
+        class Service {
+            @Dec
+            stream(): Observable<number> {
+                return throwError(() => new Error('stream-boom'));
             }
         }
-
-        const descriptor = Object.getOwnPropertyDescriptor(StaticSvc, 'compute') as PropertyDescriptor;
-        Object.defineProperty(StaticSvc, 'compute', decorator(StaticSvc as unknown as object, 'compute', descriptor as never) as PropertyDescriptor);
-
-        StaticSvc.compute();
-        expect(calls[0]?.context.className).toBe('StaticSvc');
-        expect(calls[0]?.context.methodName).toBe('compute');
-    });
-
-    it('falls back to constructor.name when target is an anonymous function', () => {
-        const { calls, interceptor } = makeRecorder();
-        const decorator = createInterceptor({ interceptor });
-
-        const anonFn = function (): void {
-            void 0;
-        };
-        Object.defineProperty(anonFn, 'name', { value: '' });
-        const descriptor: PropertyDescriptor = {
-            value: function value(): number {
-                return 1;
-            },
-            writable: true,
-            configurable: true,
-            enumerable: true,
-        };
-        const updated = decorator(anonFn as unknown as object, 'compute', descriptor as never) as PropertyDescriptor;
-        Object.defineProperty(anonFn, 'compute', updated);
-        (anonFn as unknown as { compute: () => number }).compute.call(null);
-
-        expect(calls[0]?.context.className).toBe('Function');
-    });
-
-    it('runs user-supplied strategies BEFORE auto-appended promiseStrategy', async () => {
-        const userHandled: unknown[] = [];
-        const userStrategy: ResultStrategyInterface = {
-            matches: value => value instanceof Promise,
-            handle: <TResult>(value: TResult, onSuccess: (resolved: unknown) => void, onError: (error: unknown) => void): TResult => {
-                userHandled.push(value);
-
-                return Promise.resolve(value).then(
-                    (resolved: unknown) => {
-                        onSuccess(resolved);
-
-                        return resolved;
-                    },
-                    (err: unknown) => {
-                        onError(err);
-                        throw err;
-                    }
-                ) as TResult;
-            },
-        };
-        const { calls, interceptor } = makeRecorder();
-        const decorator = createInterceptor({ interceptor, strategies: [userStrategy] });
-
-        class Svc {
-            async run(): Promise<number> {
-                return 7;
-            }
-        }
-        const descriptor = Object.getOwnPropertyDescriptor(Svc.prototype, 'run') as PropertyDescriptor;
-        Object.defineProperty(Svc.prototype, 'run', decorator(Svc.prototype, 'run', descriptor as never) as PropertyDescriptor);
-
-        await new Svc().run();
-
-        expect(userHandled).toHaveLength(1);
-        expect(calls.map(call => call.kind)).toEqual(['enter', 'success']);
-        expect(calls[1]?.value).toBe(7);
-    });
-
-    it('auto-appends syncStrategy as the terminal catch-all when no strategy matches', () => {
-        const notMatching: ResultStrategyInterface = {
-            matches: () => false,
-            handle: () => {
-                throw new Error('must not fire');
-            },
-        };
-        const { calls, interceptor } = makeRecorder();
-        const decorator = createInterceptor({ interceptor, strategies: [notMatching] });
-
-        class Svc {
-            run(): number {
-                return 42;
-            }
-        }
-        const descriptor = Object.getOwnPropertyDescriptor(Svc.prototype, 'run') as PropertyDescriptor;
-        Object.defineProperty(Svc.prototype, 'run', decorator(Svc.prototype, 'run', descriptor as never) as PropertyDescriptor);
-
-        expect(new Svc().run()).toBe(42);
-        expect(calls.map(call => call.kind)).toEqual(['enter', 'success']);
-        expect(calls[1]?.value).toBe(42);
+        await expect(lastValueFrom(new Service().stream())).rejects.toThrow('stream-boom');
     });
 });

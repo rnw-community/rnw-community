@@ -1,31 +1,10 @@
-import { completionObservableStrategy } from '@rnw-community/decorators-core/rxjs';
-
 import { createInterceptor } from '@rnw-community/decorators-core';
+
+import { createHistogramMiddleware } from '../../util/create-histogram-middleware/create-histogram-middleware';
 
 import type { CreateHistogramMetricOptionsInterface } from '../../interface/create-histogram-metric-options.interface';
 import type { HistogramOptionsInterface } from '../../interface/histogram-options.interface';
 import type { AnyFn, MethodDecoratorType } from '@rnw-community/shared';
-
-const resolveLabelsSafely = <TArgs extends readonly unknown[]>(
-    labelsFn: HistogramOptionsInterface<TArgs>['labels'],
-    args: TArgs,
-    onLabelsError: CreateHistogramMetricOptionsInterface['onLabelsError']
-): Readonly<Record<string, string>> | undefined => {
-    if (labelsFn === void 0) {
-        return void 0;
-    }
-    try {
-        return labelsFn(args);
-    } catch (err) {
-        try {
-            onLabelsError?.(err, args);
-        } catch {
-            void 0;
-        }
-
-        return void 0;
-    }
-};
 
 export const createHistogramMetricDecorator =
     (options: CreateHistogramMetricOptionsInterface) =>
@@ -33,21 +12,5 @@ export const createHistogramMetricDecorator =
         config?: HistogramOptionsInterface<TArgs>
     ): MethodDecoratorType<K> =>
         createInterceptor<TArgs, unknown>({
-            interceptor: {
-                onSuccess: (ctx, _result, durationMs) => {
-                    options.transport.observe(
-                        config?.name ?? `${ctx.className}_${ctx.methodName}_duration_ms`,
-                        durationMs,
-                        resolveLabelsSafely(config?.labels, ctx.args, options.onLabelsError)
-                    );
-                },
-                onError: (ctx, _error, durationMs) => {
-                    options.transport.observe(
-                        config?.name ?? `${ctx.className}_${ctx.methodName}_duration_ms`,
-                        durationMs,
-                        resolveLabelsSafely(config?.labels, ctx.args, options.onLabelsError)
-                    );
-                },
-            },
-            strategies: [completionObservableStrategy],
+            middlewares: [createHistogramMiddleware<TArgs>(options, config)],
         }) as unknown as MethodDecoratorType<K>;

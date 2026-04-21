@@ -1,7 +1,5 @@
 import { beforeEach, describe, expect, it, jest } from '@jest/globals';
-import { observableStrategy } from '@rnw-community/decorators-core/rxjs';
 import { Observable, lastValueFrom, of, throwError } from 'rxjs';
-
 
 import { createLogDecorator } from './create-log-decorator';
 
@@ -15,7 +13,7 @@ const PI = 3.14159;
 const FIXED_EPOCH_MS = 1_700_000_000_000;
 
 const Log = createLogDecorator({ transport });
-const Log$ = createLogDecorator({ transport, strategies: [observableStrategy] });
+const Log$ = Log;
 
 class OrderService {
     @Log(

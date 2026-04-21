@@ -1,7 +1,5 @@
-import type { InterceptorInterface } from './interceptor.interface';
-import type { ResultStrategyInterface } from './result-strategy.interface';
+import type { InterceptorMiddleware } from './interceptor-middleware.interface';
 
 export interface CreateInterceptorOptionsInterface<TArgs extends readonly unknown[], TResult> {
-    readonly interceptor: InterceptorInterface<TArgs, TResult>;
-    readonly strategies?: readonly ResultStrategyInterface[];
+    readonly middlewares: readonly InterceptorMiddleware<TArgs, TResult>[];
 }
