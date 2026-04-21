@@ -27,21 +27,21 @@ export const createLogInterceptor = <TArgs extends readonly unknown[], TResult>(
             }
         },
 
-        onSuccess: (context: ExecutionContextInterface<TArgs>, result: TResult): void => {
+        onSuccess: (context: ExecutionContextInterface<TArgs>, result: TResult, durationMs: number): void => {
             if (postLog === void 0) {
                 return;
             }
-            const message = isString(postLog) ? postLog : postLog(result, ...context.args);
+            const message = isString(postLog) ? postLog : postLog(result, durationMs, ...context.args);
             if (isNotEmptyString(message)) {
                 transport.debug(message, context.logContext);
             }
         },
 
-        onError: (context: ExecutionContextInterface<TArgs>, error: unknown): void => {
+        onError: (context: ExecutionContextInterface<TArgs>, error: unknown, durationMs: number): void => {
             if (errorLog === void 0) {
                 return;
             }
-            const message = isString(errorLog) ? errorLog : errorLog(error, ...context.args);
+            const message = isString(errorLog) ? errorLog : errorLog(error, durationMs, ...context.args);
             if (isNotEmptyString(message)) {
                 transport.error(message, toErrorOrVoid(error), context.logContext);
             }
