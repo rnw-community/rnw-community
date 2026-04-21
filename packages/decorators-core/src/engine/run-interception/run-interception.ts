@@ -47,5 +47,10 @@ export const runInterception = <TArgs extends readonly unknown[], TResult>(
 
     const strategy = strategies.find((item) => item.matches(rawResult)) ?? syncStrategy;
 
-    return strategy.handle(rawResult, emitSuccess, emitError);
+    try {
+        return strategy.handle(rawResult, emitSuccess, emitError);
+    } catch (error) {
+        emitError(error);
+        throw error;
+    }
 };
