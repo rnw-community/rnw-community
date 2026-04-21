@@ -1,19 +1,11 @@
 import { syncStrategy } from '../../strategy/sync-strategy/sync.strategy';
+import { swallow } from '../../util/swallow/swallow';
 
 import type { ExecutionContextInterface } from '../../interface/execution-context.interface';
 import type { InterceptorInterface } from '../../interface/interceptor.interface';
 import type { ResultStrategyInterface } from '../../interface/result-strategy.interface';
-import type { EmptyFn } from '@rnw-community/shared';
 
-const swallow = (fn: EmptyFn): void => {
-    try {
-        fn();
-    } catch {
-        void 0;
-    }
-};
-
-// eslint-disable-next-line max-statements -- single cohesive control flow: setup + invoke + strategy dispatch, splitting reduces readability
+ 
 export const runInterception = <TArgs extends readonly unknown[], TResult>(
     interceptor: InterceptorInterface<TArgs, TResult>,
     strategies: readonly ResultStrategyInterface[],
