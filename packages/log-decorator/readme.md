@@ -17,8 +17,8 @@ const Log = createLogDecorator({ transport: consoleTransport });
 class OrderService {
     @Log(
         orderId => `placing order ${orderId}`,
-        (result, orderId) => `order ${orderId} placed: ${result.id}`,
-        (error, orderId) => `order ${orderId} failed: ${String(error)}`
+        (result, durationMs, orderId) => `order ${orderId} placed in ${durationMs.toFixed(1)}ms: ${result.id}`,
+        (error, durationMs, orderId) => `order ${orderId} failed after ${durationMs.toFixed(1)}ms: ${String(error)}`
     )
     placeOrder(orderId: string): { id: string } {
         return { id: `ord-${orderId}` };
@@ -26,7 +26,7 @@ class OrderService {
 }
 ```
 
-`orderId` is `string`, `result` is `{ id: string }`, `error` is `unknown`. Promise/Observable return types unwrap automatically (`TResult` is the awaited or emitted value).
+`orderId` is `string`, `result` is `{ id: string }`, `error` is `unknown`, `durationMs` is `number` (method duration in milliseconds). Promise/Observable return types unwrap automatically (`TResult` is the awaited or emitted value).
 
 Omit any hook to skip that lifecycle event. Empty-string hook results (static `''` or callback returning `''`) are skipped too.
 

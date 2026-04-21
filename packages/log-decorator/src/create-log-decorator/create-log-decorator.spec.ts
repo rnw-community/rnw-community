@@ -20,7 +20,7 @@ const Log$ = createLogDecorator({ transport, strategies: [observableStrategy] })
 class OrderService {
     @Log(
         (productId, qty) => `placing order ${productId} qty=${qty.toString()}`,
-        (receiptId, productId, qty) => `placed ${productId} qty=${qty.toString()} -> ${receiptId}`
+        (receiptId, _durationMs, productId, qty) => `placed ${productId} qty=${qty.toString()} -> ${receiptId}`
     )
     async placeOrder(productId: string, qty: number): Promise<string> {
         return `receipt-${productId}-${qty.toString()}`;
@@ -41,7 +41,7 @@ class OrderService {
         return 'receipt-001';
     }
 
-    @Log(undefined, (receiptId, orderId) => `fetched ${receiptId} for order ${orderId}`)
+    @Log(undefined, (receiptId, _durationMs, orderId) => `fetched ${receiptId} for order ${orderId}`)
     fetchReceiptFn(orderId: string): string {
         return `receipt-${orderId}`;
     }
@@ -56,12 +56,12 @@ class OrderService {
         throw 42 as unknown;
     }
 
-    @Log(undefined, undefined, (error, orderId) => `refund failed for ${orderId}: ${String(error)}`)
+    @Log(undefined, undefined, (error, _durationMs, orderId) => `refund failed for ${orderId}: ${String(error)}`)
     refundOrderFn(orderId: string): void {
         throw new Error(`insufficient balance for ${orderId}`);
     }
 
-    @Log(undefined, undefined, (error, orderId) => `refund failed for ${orderId}: ${String(error)}`)
+    @Log(undefined, undefined, (error, _durationMs, orderId) => `refund failed for ${orderId}: ${String(error)}`)
     refundOrderFnNonError(_orderId: string): void {
         throw 'non-error-value' as unknown;
     }
@@ -289,7 +289,7 @@ describe('createLogDecorator (experimentalDecorators)', () => {
             expect.hasAssertions();
 
             class PostNumberNarrow {
-                @Log(undefined, (result, input) => `${result.toFixed(2)} from ${input.toFixed(2)}`)
+                @Log(undefined, (result, _durationMs, input) => `${result.toFixed(2)} from ${input.toFixed(2)}`)
                 compute(input: number): number {
                     return input * 2;
                 }
@@ -303,7 +303,7 @@ describe('createLogDecorator (experimentalDecorators)', () => {
             expect.hasAssertions();
 
             class PostStringNarrow {
-                @Log(undefined, (result, id) => `${result.toUpperCase()} (${id.length.toString()})`)
+                @Log(undefined, (result, _durationMs, id) => `${result.toUpperCase()} (${id.length.toString()})`)
                 describe(id: string): string {
                     return `receipt-${id}`;
                 }
@@ -317,7 +317,7 @@ describe('createLogDecorator (experimentalDecorators)', () => {
             expect.hasAssertions();
 
             class PromiseNarrow {
-                @Log(undefined, (result, _label) => `paid=${result.total.toFixed(2)}`)
+                @Log(undefined, (result, _durationMs, _label) => `paid=${result.total.toFixed(2)}`)
                 async pay(_label: string): Promise<{ readonly total: number }> {
                     return { total: 42.5 };
                 }
@@ -331,7 +331,7 @@ describe('createLogDecorator (experimentalDecorators)', () => {
             expect.hasAssertions();
 
             class ObservableNarrow {
-                @Log$(undefined, (result, _label) => `tick=${result.count.toFixed(0)}`)
+                @Log$(undefined, (result, _durationMs, _label) => `tick=${result.count.toFixed(0)}`)
                 stream$(_label: string): Observable<{ readonly count: number }> {
                     return of({ count: 7 });
                 }
@@ -345,7 +345,7 @@ describe('createLogDecorator (experimentalDecorators)', () => {
             expect.hasAssertions();
 
             class ErrorNarrow {
-                @Log(undefined, undefined, (error, id) =>
+                @Log(undefined, undefined, (error, _durationMs, id) =>
                     `${id.toUpperCase()}: ${error instanceof Error ? error.message.toLowerCase() : String(error)}`)
                 fail(id: string): void {
                     throw new Error(`BOOM-${id}`);
@@ -402,7 +402,7 @@ describe('createLogDecorator (experimentalDecorators)', () => {
             class Unified {
                 @Log$(
                     (id, qty) => `sync:${id}:${qty.toString()}`,
-                    (result, id, qty) => `sync-ok:${id}:${qty.toString()}=${result.toUpperCase()}`
+                    (result, _durationMs, id, qty) => `sync-ok:${id}:${qty.toString()}=${result.toUpperCase()}`
                 )
                 syncMethod(id: string, qty: number): string {
                     return `${id}-${qty.toString()}`;
@@ -410,7 +410,7 @@ describe('createLogDecorator (experimentalDecorators)', () => {
 
                 @Log$(
                     id => `promise:${id}`,
-                    (result, id) => `promise-ok:${id}=${result.total.toFixed(2)}`
+                    (result, _durationMs, id) => `promise-ok:${id}=${result.total.toFixed(2)}`
                 )
                 async promiseMethod(_id: string): Promise<{ readonly total: number }> {
                     return { total: 9.99 };
@@ -418,7 +418,7 @@ describe('createLogDecorator (experimentalDecorators)', () => {
 
                 @Log$(
                     label => `stream:${label}`,
-                    (tick, label) => `stream-ok:${label}=${tick.toFixed(0)}`
+                    (tick, _durationMs, label) => `stream-ok:${label}=${tick.toFixed(0)}`
                 )
                 streamMethod(_label: string): Observable<number> {
                     return of(42);
@@ -448,7 +448,7 @@ describe('createLogDecorator (experimentalDecorators)', () => {
             class StreamService {
                 @Log$(
                     label => `subscribe ${label.toUpperCase()}`,
-                    (tick, label) => `${label}=${tick.toFixed(0)}`
+                    (tick, _durationMs, label) => `${label}=${tick.toFixed(0)}`
                 )
                 stream$(_label: string): Observable<number> {
                     return of(1, 2, 3);
@@ -466,7 +466,7 @@ describe('createLogDecorator (experimentalDecorators)', () => {
             expect.hasAssertions();
 
             class StreamService {
-                @Log$(undefined, undefined, (error, label) => `${label}-fail: ${String(error)}`)
+                @Log$(undefined, undefined, (error, _durationMs, label) => `${label}-fail: ${String(error)}`)
                 stream$(label: string): Observable<number> {
                     return throwError(() => new Error(`stream-boom-${label}`));
                 }
@@ -538,6 +538,62 @@ describe('createLogDecorator (experimentalDecorators)', () => {
                 expect.any(Error),
                 'OrderService::rejectOrderAsync'
             );
+        });
+    });
+
+    describe('durationMs threading', () => {
+        it('passes a non-negative number as durationMs to postLog callback', () => {
+            expect.hasAssertions();
+            let captured: number | undefined;
+
+            class Probe {
+                @Log(undefined, (_result, durationMs) => {
+                    captured = durationMs;
+
+                    return 'seen';
+                })
+                run(): string {
+                    return 'ok';
+                }
+            }
+
+            new Probe().run();
+            expect(typeof captured).toBe('number');
+            expect((captured as number) >= 0).toBe(true);
+        });
+
+        it('passes a non-negative number as durationMs to errorLog callback', () => {
+            expect.hasAssertions();
+            let captured: number | undefined;
+
+            class Probe {
+                @Log(undefined, undefined, (_error, durationMs) => {
+                    captured = durationMs;
+
+                    return 'seen';
+                })
+                run(): void {
+                    throw new Error('boom');
+                }
+            }
+
+            expect(() => new Probe().run()).toThrow('boom');
+            expect(typeof captured).toBe('number');
+            expect((captured as number) >= 0).toBe(true);
+        });
+
+        it('keeps args after durationMs positionally correct in postLog callback', () => {
+            expect.hasAssertions();
+
+            class Probe {
+                @Log(undefined, (_result, _durationMs, id, qty) => `id=${id} qty=${qty.toFixed(0)}`)
+                run(id: string, qty: number): string {
+                    return `${id}-${qty.toString()}`;
+                }
+            }
+
+            new Probe().run('abc', 7);
+            expect(transportDebug).toHaveBeenCalledWith('id=abc qty=7', 'Probe::run');
         });
     });
 });
