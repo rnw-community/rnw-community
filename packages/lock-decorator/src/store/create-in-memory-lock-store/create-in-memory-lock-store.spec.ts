@@ -206,6 +206,7 @@ describe('createInMemoryLockStore', () => {
                 const handle = await store.acquire('race', 'sequential');
 
                 const timedOut = store.acquire('race', 'sequential', { timeoutMs: 10 });
+                // eslint-disable-next-line jest/valid-expect -- rejection assertion must be set up before advancing fake timers; awaited below
                 const expectRejected = expect(timedOut).rejects.toBeInstanceOf(LockAcquireTimeoutError);
                 await jest.advanceTimersByTimeAsync(10);
                 await expectRejected;

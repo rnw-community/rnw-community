@@ -239,6 +239,34 @@ describe('createHistogramMetricDecorator', () => {
             expect(onLabelsError).not.toHaveBeenCalled();
         });
 
+        it('still records the observation when onLabelsError itself throws', () => {
+            expect.hasAssertions();
+            const onLabelsError = jest.fn(() => {
+                throw new Error('handler-blew-up');
+            });
+            const Safe = createHistogramMetricDecorator({ transport, onLabelsError });
+
+            class Service {
+                @Safe({
+                    name: 'handler_throw_ms',
+                    labels: () => {
+                        throw new Error('labels-boom');
+                    },
+                })
+                run(_id: string): string {
+                    return 'ok';
+                }
+            }
+
+            transport.snapshot();
+            expect(() => new Service().run('x')).not.toThrow();
+            const observations = transport.snapshot();
+            expect(observations).toHaveLength(1);
+            expect(observations[0]).toMatchObject({ name: 'handler_throw_ms' });
+            expect(observations[0].labels).toBeUndefined();
+            expect(onLabelsError).toHaveBeenCalledTimes(1);
+        });
+
         it('does not throw when onLabelsError is omitted and labels() throws', () => {
             expect.hasAssertions();
             const Safe = createHistogramMetricDecorator({ transport });

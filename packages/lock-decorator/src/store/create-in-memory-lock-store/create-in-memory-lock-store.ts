@@ -176,6 +176,7 @@ export const createInMemoryLockStore = (): InMemoryLockStoreInterface => {
             try {
                 assertValidTimeoutMs(options?.timeoutMs);
             } catch (err: unknown) {
+                // eslint-disable-next-line @typescript-eslint/prefer-promise-reject-errors -- assertValidTimeoutMs always throws TypeError, an Error subclass
                 return Promise.reject(err);
             }
             if (mode === 'sequential') {

@@ -13,6 +13,20 @@ const swallow = (fn: EmptyFn): void => {
     }
 };
 
+const runStrategy = <TResult>(
+    strategy: ResultStrategyInterface,
+    rawResult: TResult,
+    emitSuccess: (resolved: unknown) => void,
+    emitError: (error: unknown) => void
+): TResult => {
+    try {
+        return strategy.handle(rawResult, emitSuccess, emitError);
+    } catch (error) {
+        emitError(error);
+        throw error;
+    }
+};
+
 export const runInterception = <TArgs extends readonly unknown[], TResult>(
     interceptor: InterceptorInterface<TArgs, TResult>,
     strategies: readonly ResultStrategyInterface[],
@@ -47,10 +61,5 @@ export const runInterception = <TArgs extends readonly unknown[], TResult>(
 
     const strategy = strategies.find((item) => item.matches(rawResult)) ?? syncStrategy;
 
-    try {
-        return strategy.handle(rawResult, emitSuccess, emitError);
-    } catch (error) {
-        emitError(error);
-        throw error;
-    }
+    return runStrategy(strategy, rawResult, emitSuccess, emitError);
 };

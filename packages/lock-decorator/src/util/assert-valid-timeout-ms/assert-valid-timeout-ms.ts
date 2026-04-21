@@ -1,5 +1,5 @@
 export const assertValidTimeoutMs = (value: number | undefined): void => {
-    if (value === undefined) {
+    if (value === void 0) {
         return;
     }
     if (!Number.isFinite(value) || value <= 0) {

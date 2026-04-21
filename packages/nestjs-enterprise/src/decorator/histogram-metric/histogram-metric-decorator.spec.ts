@@ -2,7 +2,12 @@ import { beforeEach, describe, expect, it, jest } from '@jest/globals';
 import { Histogram, register } from 'prom-client';
 import { EMPTY, Observable, lastValueFrom, of } from 'rxjs';
 
-import { HistogramMetric, __resetHistogramTracking } from './histogram-metric.decorator';
+import { histogramMetricTracking } from './histogram-metric-tracking';
+import { HistogramMetric } from './histogram-metric.decorator';
+
+const BUCKET_SMALL = 0.01;
+const BUCKET_MEDIUM = 0.1;
+const BUCKET_LARGE = 1;
 
 const mockObserve = jest.fn();
 jest.mock('prom-client', () => {
@@ -37,7 +42,7 @@ class TestClass {
 
 describe(`HistogramMetric decorator`, () => {
     beforeEach(() => {
-        __resetHistogramTracking(register);
+        histogramMetricTracking.reset(register);
     });
 
     it('should create a histogram and record the observation on success', () => {
@@ -306,12 +311,12 @@ describe(`HistogramMetric decorator`, () => {
     describe('config mismatch detection', () => {
         const applyFirst = (): void => {
             class First {
-                @HistogramMetric('mismatch-metric', { help: 'h', buckets: [0.01, 0.1, 1], labelNames: ['tenant'] })
+                @HistogramMetric('mismatch-metric', { help: 'h', buckets: [BUCKET_SMALL, BUCKET_MEDIUM, BUCKET_LARGE], labelNames: ['tenant'] })
                 run(): number {
                     return 0;
                 }
             }
-            new First();
+            new First().run();
         };
 
         it('allows re-registration with IDENTICAL buckets and labelNames', () => {
@@ -320,33 +325,35 @@ describe(`HistogramMetric decorator`, () => {
 
             expect(() => {
                 class Second {
-                    @HistogramMetric('mismatch-metric', { help: 'h', buckets: [0.01, 0.1, 1], labelNames: ['tenant'] })
+                    @HistogramMetric('mismatch-metric', { help: 'h', buckets: [BUCKET_SMALL, BUCKET_MEDIUM, BUCKET_LARGE], labelNames: ['tenant'] })
                     run(): number {
                         return 0;
                     }
                 }
-                new Second();
+
+                return new Second().run();
             }).not.toThrow();
         });
 
         it('allows re-registration with labelNames in a different order (set equality)', () => {
             expect.hasAssertions();
-            class A {
+            class SetOrderFirst {
                 @HistogramMetric('set-order-metric', { help: 'h', labelNames: ['a', 'b'] })
                 run(): number {
                     return 0;
                 }
             }
-            new A();
+            new SetOrderFirst().run();
 
             expect(() => {
-                class B {
+                class SetOrderSecond {
                     @HistogramMetric('set-order-metric', { help: 'h', labelNames: ['b', 'a'] })
                     run(): number {
                         return 0;
                     }
                 }
-                new B();
+
+                return new SetOrderSecond().run();
             }).not.toThrow();
         });
 
@@ -361,7 +368,8 @@ describe(`HistogramMetric decorator`, () => {
                         return 0;
                     }
                 }
-                new Second();
+
+                return new Second().run();
             }).toThrow(/already registered with different buckets\/labelNames/);
         });
 
@@ -371,12 +379,13 @@ describe(`HistogramMetric decorator`, () => {
 
             expect(() => {
                 class Second {
-                    @HistogramMetric('mismatch-metric', { help: 'h', buckets: [0.01, 0.1, 1], labelNames: ['tenant', 'region'] })
+                    @HistogramMetric('mismatch-metric', { help: 'h', buckets: [BUCKET_SMALL, BUCKET_MEDIUM, BUCKET_LARGE], labelNames: ['tenant', 'region'] })
                     run(): number {
                         return 0;
                     }
                 }
-                new Second();
+
+                return new Second().run();
             }).toThrow(/already registered with different buckets\/labelNames/);
         });
 
@@ -388,7 +397,7 @@ describe(`HistogramMetric decorator`, () => {
                     return 0;
                 }
             }
-            new NoBuckets();
+            new NoBuckets().run();
 
             expect(() => {
                 class WithBuckets {
@@ -397,36 +406,38 @@ describe(`HistogramMetric decorator`, () => {
                         return 0;
                     }
                 }
-                new WithBuckets();
+
+                return new WithBuckets().run();
             }).toThrow(/already registered with different/);
         });
 
         it('does not conflate two different metric names', () => {
             expect.hasAssertions();
-            class M1 {
+            class MetricOne {
                 @HistogramMetric('name-a', { help: 'h', buckets: [1] })
                 run(): number {
                     return 0;
                 }
             }
-            new M1();
+            new MetricOne().run();
 
             expect(() => {
-                class M2 {
+                class MetricTwo {
                     @HistogramMetric('name-b', { help: 'h', buckets: [2] })
                     run(): number {
                         return 0;
                     }
                 }
-                new M2();
+
+                return new MetricTwo().run();
             }).not.toThrow();
         });
 
-        it('__resetHistogramTracking(register) clears state so re-registration with different buckets succeeds', () => {
+        it('histogramMetricTracking.reset(register) clears state so re-registration with different buckets succeeds', () => {
             expect.hasAssertions();
             applyFirst();
 
-            __resetHistogramTracking(register);
+            histogramMetricTracking.reset(register);
 
             expect(() => {
                 class AfterReset {
@@ -435,7 +446,8 @@ describe(`HistogramMetric decorator`, () => {
                         return 0;
                     }
                 }
-                new AfterReset();
+
+                return new AfterReset().run();
             }).not.toThrow();
         });
 
@@ -450,7 +462,8 @@ describe(`HistogramMetric decorator`, () => {
                         return 0;
                     }
                 }
-                new Second();
+
+                return new Second().run();
             }).toThrow(/mismatch-metric.*Existing.*Requested/s);
         });
 
@@ -462,7 +475,7 @@ describe(`HistogramMetric decorator`, () => {
                     return 0;
                 }
             }
-            new NoLabels();
+            new NoLabels().run();
 
             expect(() => {
                 class WithLabels {
@@ -471,7 +484,30 @@ describe(`HistogramMetric decorator`, () => {
                         return 0;
                     }
                 }
-                new WithLabels();
+
+                return new WithLabels().run();
+            }).toThrow(/already registered with different/);
+        });
+
+        it('distinguishes labelNames with different duplicate counts', () => {
+            expect.hasAssertions();
+            class DupFirst {
+                @HistogramMetric('dup-count-metric', { help: 'h', labelNames: ['x', 'x'] })
+                run(): number {
+                    return 0;
+                }
+            }
+            new DupFirst().run();
+
+            expect(() => {
+                class DupSecond {
+                    @HistogramMetric('dup-count-metric', { help: 'h', labelNames: ['x', 'y'] })
+                    run(): number {
+                        return 0;
+                    }
+                }
+
+                return new DupSecond().run();
             }).toThrow(/already registered with different/);
         });
 
@@ -484,7 +520,7 @@ describe(`HistogramMetric decorator`, () => {
                     return 0;
                 }
             }
-            new First();
+            new First().run();
 
             const preExisting = jest.fn();
             (Histogram as unknown as jest.Mock).mockImplementationOnce(function (this: { observe: unknown }) {

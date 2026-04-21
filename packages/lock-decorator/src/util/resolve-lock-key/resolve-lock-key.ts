@@ -27,7 +27,7 @@ export const resolveLockKey = <TArgs extends readonly unknown[]>(
 
     const keyOrFn = arg.key;
     const resolvedKey = typeof keyOrFn === 'function' ? keyOrFn(args) : keyOrFn;
-    const timeoutMs = (arg as { timeoutMs?: number }).timeoutMs;
+    const { timeoutMs } = arg as { timeoutMs?: number };
 
     assertValidTimeoutMs(timeoutMs);
 

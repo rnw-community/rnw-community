@@ -11,15 +11,19 @@ const resolveLabelsSafely = <TArgs extends readonly unknown[]>(
     args: TArgs,
     onLabelsError: CreateHistogramMetricOptionsInterface['onLabelsError']
 ): Readonly<Record<string, string>> | undefined => {
-    if (labelsFn === undefined) {
-        return undefined;
+    if (labelsFn === void 0) {
+        return void 0;
     }
     try {
         return labelsFn(args);
     } catch (err) {
-        onLabelsError?.(err, args);
+        try {
+            onLabelsError?.(err, args);
+        } catch {
+            void 0;
+        }
 
-        return undefined;
+        return void 0;
     }
 };
 

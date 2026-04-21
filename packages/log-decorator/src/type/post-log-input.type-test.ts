@@ -17,20 +17,20 @@ class InferenceSentinel {
     @Log(
         (id, qty) => `${id}:${qty.toFixed(0)}`,
         (result, durationMs, id, qty) => {
-            const r: string = result;
-            const d: number = durationMs;
-            const i: string = id;
-            const q: number = qty;
+            const resultSentinel: string = result;
+            const durationSentinel: number = durationMs;
+            const idSentinel: string = id;
+            const qtySentinel: number = qty;
 
-            return `${r}-${d.toString()}-${i}-${q.toString()}`;
+            return `${resultSentinel}-${durationSentinel.toString()}-${idSentinel}-${qtySentinel.toString()}`;
         },
         (error, durationMs, id, qty) => {
-            const e: unknown = error;
-            const d: number = durationMs;
-            const i: string = id;
-            const q: number = qty;
+            const errorSentinel: unknown = error;
+            const durationSentinel: number = durationMs;
+            const idSentinel: string = id;
+            const qtySentinel: number = qty;
 
-            return `${String(e)}-${d.toString()}-${i}-${q.toString()}`;
+            return `${String(errorSentinel)}-${durationSentinel.toString()}-${idSentinel}-${qtySentinel.toString()}`;
         }
     )
     sync(id: string, qty: number): string {
@@ -39,20 +39,20 @@ class InferenceSentinel {
 }
 
 const assertCompatiblePost: PostLogInputType<readonly [number], boolean> = (result, durationMs, flag) => {
-    const r: boolean = result;
-    const d: number = durationMs;
-    const f: number = flag;
+    const resultSentinel: boolean = result;
+    const durationSentinel: number = durationMs;
+    const flagSentinel: number = flag;
 
-    return `${r.toString()}-${d.toString()}-${f.toString()}`;
+    return `${resultSentinel.toString()}-${durationSentinel.toString()}-${flagSentinel.toString()}`;
 };
 
 const assertCompatibleError: ErrorLogInputType<readonly [string, number]> = (error, durationMs, name, count) => {
-    const e: unknown = error;
-    const d: number = durationMs;
-    const n: string = name;
-    const c: number = count;
+    const errorSentinel: unknown = error;
+    const durationSentinel: number = durationMs;
+    const nameSentinel: string = name;
+    const countSentinel: number = count;
 
-    return `${String(e)}-${d.toString()}-${n}-${c.toString()}`;
+    return `${String(errorSentinel)}-${durationSentinel.toString()}-${nameSentinel}-${countSentinel.toString()}`;
 };
 
 export { InferenceSentinel, assertCompatiblePost, assertCompatibleError };
