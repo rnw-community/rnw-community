@@ -12,4 +12,17 @@ describe('LockAcquireTimeoutError', () => {
         expect(err.message).toContain('500');
         expect(err).toBeInstanceOf(Error);
     });
+
+    it('has undefined cause by default', () => {
+        expect.hasAssertions();
+        const err = new LockAcquireTimeoutError('k', 100);
+        expect(err.cause).toBeUndefined();
+    });
+
+    it('forwards cause via options', () => {
+        expect.hasAssertions();
+        const underlying = new Error('driver timeout');
+        const err = new LockAcquireTimeoutError('k', 100, { cause: underlying });
+        expect(err.cause).toBe(underlying);
+    });
 });

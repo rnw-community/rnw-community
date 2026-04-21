@@ -2,6 +2,7 @@ import { type EmptyFn, emptyFn, isDefined } from '@rnw-community/shared';
 
 import { LockAcquireTimeoutError } from '../../error/lock-acquire-timeout-error/lock-acquire-timeout.error';
 import { LockBusyError } from '../../error/lock-busy-error/lock-busy.error';
+import { assertValidTimeoutMs } from '../../util/assert-valid-timeout-ms/assert-valid-timeout-ms';
 
 import type { AcquireOptionsInterface } from '../../interface/acquire-options.interface';
 import type { InMemoryLockStoreInterface } from '../../interface/in-memory-lock-store.interface';
@@ -172,6 +173,11 @@ export const createInMemoryLockStore = (): InMemoryLockStoreInterface => {
 
     return {
         acquire: (key: string, mode: LockModeType, options?: AcquireOptionsInterface): Promise<LockHandleInterface> => {
+            try {
+                assertValidTimeoutMs(options?.timeoutMs);
+            } catch (err: unknown) {
+                return Promise.reject(err);
+            }
             if (mode === 'sequential') {
                 return acquireSequential(sequentialChains, key, options);
             }

@@ -91,3 +91,40 @@ describe('resolveLockKey (empty-key rejection)', () => {
         expect(() => resolveLockKey({ key: () => '' }, [])).toThrow('Lock key cannot be empty');
     });
 });
+
+describe('resolveLockKey (timeoutMs validation)', () => {
+    it('throws TypeError when timeoutMs is 0', () => {
+        expect.hasAssertions();
+        expect(() => resolveLockKey({ key: 'k', timeoutMs: 0 }, [])).toThrow(TypeError);
+    });
+
+    it('throws TypeError when timeoutMs is negative', () => {
+        expect.hasAssertions();
+        expect(() => resolveLockKey({ key: 'k', timeoutMs: -1 }, [])).toThrow(TypeError);
+    });
+
+    it('throws TypeError when timeoutMs is NaN', () => {
+        expect.hasAssertions();
+        expect(() => resolveLockKey({ key: 'k', timeoutMs: Number.NaN }, [])).toThrow(TypeError);
+    });
+
+    it('throws TypeError when timeoutMs is Infinity', () => {
+        expect.hasAssertions();
+        expect(() => resolveLockKey({ key: 'k', timeoutMs: Number.POSITIVE_INFINITY }, [])).toThrow(TypeError);
+    });
+
+    it('accepts undefined (existing behavior)', () => {
+        expect.hasAssertions();
+        expect(() => resolveLockKey({ key: 'k' }, [])).not.toThrow();
+    });
+
+    it('accepts smallest positive value (1)', () => {
+        expect.hasAssertions();
+        expect(() => resolveLockKey({ key: 'k', timeoutMs: 1 }, [])).not.toThrow();
+    });
+
+    it('error message includes the received value', () => {
+        expect.hasAssertions();
+        expect(() => resolveLockKey({ key: 'k', timeoutMs: 0 }, [])).toThrow('received 0');
+    });
+});
