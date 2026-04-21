@@ -577,7 +577,9 @@ describe('createLogDecorator (experimentalDecorators)', () => {
                 }
             }
 
-            expect(() => new Probe().run()).toThrow('boom');
+            expect(() => {
+                new Probe().run();
+            }).toThrow('boom');
             expect(typeof captured).toBe('number');
             expect((captured as number) >= 0).toBe(true);
         });
