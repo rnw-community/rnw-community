@@ -1,6 +1,8 @@
 import { Observable, Subscription, finalize, isObservable } from 'rxjs';
 
-import { type EmptyFn, emptyFn, isDefined } from '@rnw-community/shared';
+import { emptyFn } from '@rnw-community/shared';
+
+import { bridgeSignal } from '../bridge-signal/bridge-signal';
 
 import type { AcquireOptionsInterface } from '../../interface/acquire-options.interface';
 import type { LockHandleInterface } from '../../interface/lock-handle.interface';
@@ -11,27 +13,18 @@ const releaseSilently = (handle: LockHandleInterface): void => {
     void Promise.resolve(handle.release()).catch(emptyFn);
 };
 
-const bridgeSignal = (external: AbortSignal | undefined, onAbort: () => void): EmptyFn => {
-    if (!isDefined(external)) {
-        return emptyFn;
-    }
-    if (external.aborted) {
-        onAbort();
-
-        return emptyFn;
-    }
-    external.addEventListener('abort', onAbort, { once: true });
-
-    return () => void external.removeEventListener('abort', onAbort);
-};
-
+/**
+ * @deprecated Use `createObservableInterceptor` from `@rnw-community/decorators-core/rxjs`
+ * together with `createLockResource$` from `@rnw-community/lock-decorator` to build Observable
+ * lock decorators on the unified engine. Scheduled for removal in the next major release.
+ */
+/* eslint-disable @typescript-eslint/max-params -- preserved signature for backward compatibility */
 export const runWithLock$ = (
     store: LockStoreInterface,
     key: string,
     mode: LockModeType,
     options: AcquireOptionsInterface,
     fn: () => Observable<unknown>
-    // eslint-disable-next-line @typescript-eslint/max-params
 ): Observable<unknown> =>
     new Observable<unknown>((subscriber) => {
         const controller = new AbortController();
@@ -49,7 +42,7 @@ export const runWithLock$ = (
 
         void store
             .acquire(key, mode, { ...options, signal: controller.signal })
-            // eslint-disable-next-line max-statements
+            // eslint-disable-next-line max-statements -- preserved complex acquire/invoke/release sequence
             .then((handle) => {
                 if (cancelledRef.value || externallyAborted) {
                     releaseSilently(handle);
@@ -71,9 +64,7 @@ export const runWithLock$ = (
 
                     return null;
                 }
-                innerSubscription.add(
-                    result$.pipe(finalize(() => void releaseSilently(handle))).subscribe(subscriber)
-                );
+                innerSubscription.add(result$.pipe(finalize(() => { releaseSilently(handle); })).subscribe(subscriber));
 
                 return null;
             })
@@ -90,3 +81,4 @@ export const runWithLock$ = (
             innerSubscription.unsubscribe();
         };
     });
+/* eslint-enable @typescript-eslint/max-params */

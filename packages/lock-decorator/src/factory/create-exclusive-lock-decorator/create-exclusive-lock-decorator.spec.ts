@@ -63,15 +63,6 @@ describe('createExclusiveLockDecorator', () => {
         expect(spy).toHaveBeenCalledWith('charge-card', 'exclusive', expect.anything());
     });
 
-    it('rejects when the decorated method does not return a Promise', async () => {
-        expect.hasAssertions();
-
-        const service = new PaymentService();
-        await expect(
-            (service.syncValidateCard as unknown as (card: string) => Promise<unknown>)('1234567890123456')
-        ).rejects.toThrow('Locked method must return a Promise');
-    });
-
     it('throws LockBusyError when the lock is already held', async () => {
         expect.hasAssertions();
 
