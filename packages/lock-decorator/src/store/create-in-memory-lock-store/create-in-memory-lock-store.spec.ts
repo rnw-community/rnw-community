@@ -1,4 +1,4 @@
-import { describe, expect, it } from '@jest/globals';
+import { describe, expect, it, jest } from '@jest/globals';
 
 import { wait } from '@rnw-community/shared';
 
@@ -200,25 +200,32 @@ describe('createInMemoryLockStore', () => {
         });
 
         it('REGRESSION: timed-out sole waiter must NOT let the next acquirer bypass the active holder', async () => {
-            const store = createInMemoryLockStore();
-            const handle = await store.acquire('race', 'sequential');
+            jest.useFakeTimers({ legacyFakeTimers: false });
+            try {
+                const store = createInMemoryLockStore();
+                const handle = await store.acquire('race', 'sequential');
 
-            const timedOut = store.acquire('race', 'sequential', { timeoutMs: 10 });
-            await expect(timedOut).rejects.toBeInstanceOf(LockAcquireTimeoutError);
+                const timedOut = store.acquire('race', 'sequential', { timeoutMs: 10 });
+                const expectRejected = expect(timedOut).rejects.toBeInstanceOf(LockAcquireTimeoutError);
+                await jest.advanceTimersByTimeAsync(10);
+                await expectRejected;
 
-            let cAcquired = false;
-            const p3 = store.acquire('race', 'sequential').then((h3) => {
-                cAcquired = true;
+                let cAcquired = false;
+                const p3 = store.acquire('race', 'sequential').then((h3) => {
+                    cAcquired = true;
 
-                return h3.release();
-            });
+                    return h3.release();
+                });
 
-            await wait(20);
-            expect(cAcquired).toBe(false);
+                await jest.advanceTimersByTimeAsync(20);
+                expect(cAcquired).toBe(false);
 
-            void handle.release();
-            await p3;
-            expect(cAcquired).toBe(true);
+                void handle.release();
+                await p3;
+                expect(cAcquired).toBe(true);
+            } finally {
+                jest.useRealTimers();
+            }
         });
 
         it('REGRESSION: aborted sole waiter must NOT let the next acquirer bypass the active holder', async () => {
@@ -237,7 +244,9 @@ describe('createInMemoryLockStore', () => {
                 return h3.release();
             });
 
-            await wait(20);
+            await Promise.resolve();
+            await Promise.resolve();
+            await Promise.resolve();
             expect(cAcquired).toBe(false);
 
             void handle.release();
@@ -353,6 +362,54 @@ describe('createInMemoryLockStore', () => {
             void h2.release();
             await p3;
             expect(p3Done).toBe(true);
+        });
+    });
+
+    describe('timeoutMs validation at the store boundary', () => {
+        it('rejects timeoutMs: 0 with TypeError (sequential)', async () => {
+            expect.hasAssertions();
+            const store = createInMemoryLockStore();
+            await expect(store.acquire('k', 'sequential', { timeoutMs: 0 })).rejects.toBeInstanceOf(TypeError);
+        });
+
+        it('rejects timeoutMs: -1 with TypeError (sequential)', async () => {
+            expect.hasAssertions();
+            const store = createInMemoryLockStore();
+            await expect(store.acquire('k', 'sequential', { timeoutMs: -1 })).rejects.toBeInstanceOf(TypeError);
+        });
+
+        it('rejects timeoutMs: NaN with TypeError (sequential)', async () => {
+            expect.hasAssertions();
+            const store = createInMemoryLockStore();
+            await expect(store.acquire('k', 'sequential', { timeoutMs: Number.NaN })).rejects.toBeInstanceOf(TypeError);
+        });
+
+        it('rejects timeoutMs: Infinity with TypeError (sequential)', async () => {
+            expect.hasAssertions();
+            const store = createInMemoryLockStore();
+            await expect(
+                store.acquire('k', 'sequential', { timeoutMs: Number.POSITIVE_INFINITY })
+            ).rejects.toBeInstanceOf(TypeError);
+        });
+
+        it('rejects timeoutMs: 0 with TypeError (exclusive)', async () => {
+            expect.hasAssertions();
+            const store = createInMemoryLockStore();
+            await expect(store.acquire('k', 'exclusive', { timeoutMs: 0 })).rejects.toBeInstanceOf(TypeError);
+        });
+
+        it('accepts undefined timeoutMs (no timeout)', async () => {
+            expect.hasAssertions();
+            const store = createInMemoryLockStore();
+            const handle = await store.acquire('k', 'sequential');
+            expect(handle.key).toBe('k');
+            void handle.release();
+        });
+
+        it('error message includes the received value', async () => {
+            expect.hasAssertions();
+            const store = createInMemoryLockStore();
+            await expect(store.acquire('k', 'sequential', { timeoutMs: 0 })).rejects.toThrow('received 0');
         });
     });
 });

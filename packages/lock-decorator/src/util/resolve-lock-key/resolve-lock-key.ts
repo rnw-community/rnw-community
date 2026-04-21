@@ -1,5 +1,7 @@
 import { isString } from '@rnw-community/shared';
 
+import { assertValidTimeoutMs } from '../assert-valid-timeout-ms/assert-valid-timeout-ms';
+
 import type { AcquireOptionsInterface } from '../../interface/acquire-options.interface';
 import type { LockArgumentType } from '../../type/lock-argument.type';
 
@@ -25,11 +27,14 @@ export const resolveLockKey = <TArgs extends readonly unknown[]>(
 
     const keyOrFn = arg.key;
     const resolvedKey = typeof keyOrFn === 'function' ? keyOrFn(args) : keyOrFn;
+    const timeoutMs = (arg as { timeoutMs?: number }).timeoutMs;
+
+    assertValidTimeoutMs(timeoutMs);
 
     return {
         key: assertNonEmptyKey(resolvedKey),
         options: {
-            timeoutMs: (arg as { timeoutMs?: number }).timeoutMs,
+            timeoutMs,
             signal: (arg as { signal?: AbortSignal }).signal,
         },
     };
