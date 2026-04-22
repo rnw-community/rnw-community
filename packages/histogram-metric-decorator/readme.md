@@ -24,9 +24,13 @@ yarn add @rnw-community/histogram-metric-decorator @rnw-community/decorators-cor
 ```
 
 ```ts
-import { createHistogramMetricDecorator, inMemoryHistogramTransport } from '@rnw-community/histogram-metric-decorator';
+import { createHistogramMetricDecorator } from '@rnw-community/histogram-metric-decorator';
 
-const HistogramMetric = createHistogramMetricDecorator({ transport: inMemoryHistogramTransport() });
+import type { HistogramTransportInterface } from '@rnw-community/histogram-metric-decorator';
+
+declare const transport: HistogramTransportInterface;
+
+const HistogramMetric = createHistogramMetricDecorator({ transport });
 
 class OrderService {
     @HistogramMetric()
@@ -39,10 +43,11 @@ class OrderService {
 
 `labels` receives the method's args as a tuple — inferred from the method signature, no annotations needed. Both destructuring (`labels: ([id]) => ({ orderId: id })`) and indexed access (`labels: (args) => ({ orderId: args[0] })`) work; pick whichever reads clearer for the call site. Default metric name is `<ClassName>_<methodName>_duration_ms`.
 
+Wire any backend by implementing `HistogramTransportInterface`; Prometheus and OpenTelemetry adapters are typically a few lines each. The package is transport-agnostic — consumers ship their own.
+
 ## Public API
 
 - [`createHistogramMetricDecorator`](src/factory/create-histogram-metric-decorator/create-histogram-metric-decorator.ts) — factory; returns `<K extends AnyFn>(...) => MethodDecoratorType<K>`
-- [`inMemoryHistogramTransport`](src/transport/in-memory-histogram-transport.ts) — test-ready transport with `snapshot()`
 - [`HistogramTransportInterface`](src/interface/histogram-transport.interface.ts) — implement for any backend
 - [`HistogramOptionsInterface`](src/interface/histogram-options.interface.ts) — per-decoration `{ name?, labels? }`
 - [`CreateHistogramMetricOptionsInterface`](src/interface/create-histogram-metric-options.interface.ts) — `{ transport }`

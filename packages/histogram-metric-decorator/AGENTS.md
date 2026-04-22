@@ -20,15 +20,15 @@ src/
     create-histogram-metric-options.interface.ts
     histogram-options.interface.ts
     histogram-transport.interface.ts
-    in-memory-histogram-transport.interface.ts
-    in-memory-observation.interface.ts
   factory/
     create-histogram-metric-decorator/      — decorator factory + spec
   transport/
-    in-memory-histogram-transport.ts  — test-ready transport
-    in-memory-histogram-transport.spec.ts
+    in-memory-histogram-transport.mock.ts       — test-only transport (not shipped)
+    in-memory-histogram-transport.mock.spec.ts
   index.ts
 ```
+
+The in-memory transport lives as a `*.mock.ts` helper so the dist stays transport-agnostic. Build tsconfigs exclude `**/*.mock.*`, and the monorepo jest config's `coveragePathIgnorePatterns: ['.mock.ts']` keeps it out of coverage reports.
 
 ## Key Patterns
 
