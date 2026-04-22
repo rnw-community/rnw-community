@@ -213,8 +213,22 @@ Describe **what changed and why** in code-intrinsic terms. A regression fix is d
 - Jest 29, test files colocated next to the source they cover: `src/**/<entity>/<entity>.spec.ts`
 - Imports from `@jest/globals` (not global Jest)
 - **Coverage threshold: 99.9%** for statements, branches, functions, and lines
-- Mock files (`*.mock.ts`) excluded from coverage
+- Mock files matching `*.mock.ts` are excluded from coverage (`coveragePathIgnorePatterns`) — legacy `wdio` scaffolding only; see the next subsection
 - Test the BEHAVIOR, not the comments — behavior is self-documenting when a comment would otherwise be needed
+
+### Test-only code lives inside the spec that needs it — never as a separate file in `src/`
+
+**Do NOT create helpers, fixtures, factories, or any code whose sole consumers are test files** (e.g. `foo.mock.ts` used only by `foo.spec.ts` and `bar.spec.ts`). Inline the fixture directly inside the spec file(s) that use it, even at the cost of duplication across specs.
+
+Rationale:
+- A file in `src/` that only specs import still reads as part of the package to reviewers, IDE code-navigation, and anyone browsing the tree. It inflates the perceived public surface even when the build tsconfig excludes it.
+- Readers of a spec then have to jump across files to understand what the test's fixture actually does, breaking the "a test should be readable top-to-bottom in one file" property.
+- Any documentation written around the fixture (readme, per-entity `.md`, AGENTS layout tree) becomes a source of stale or misleading claims about the package API.
+- Deletion or refactoring of the fixture requires coordinated edits across multiple folders rather than a single spec.
+
+**Also:** test-only code must NEVER be exported from the package's `index.ts`, linked from `readme.md`, or described in per-entity `.md` files. If you find yourself documenting it, that is the signal to inline it.
+
+**Exception:** the pre-existing `packages/wdio/src/**/*.mock.ts` scaffolding predates this rule and forms a large, tightly cross-referenced web of fixtures; leave it alone unless a dedicated refactor is in scope. New packages and packages already restructured to this rule must follow it.
 
 ## Planning Convention
 
