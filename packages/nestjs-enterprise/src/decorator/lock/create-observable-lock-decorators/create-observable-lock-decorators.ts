@@ -92,8 +92,7 @@ export const createObservableLockDecorators = (
                     const middleware = createLockMiddleware$<TArgs>(store, mode, joinedKey);
                     const context = { className: '', methodName, args, logContext: methodName };
 
-                    return middleware
-                        .invoke(context, () => {
+                    return middleware(context, () => {
                             let innerResult: unknown;
                             try {
                                 innerResult = originalMethod.apply(this, args);

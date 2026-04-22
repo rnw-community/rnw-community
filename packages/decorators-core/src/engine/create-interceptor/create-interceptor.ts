@@ -24,7 +24,7 @@ export const createInterceptor = <TArgs extends readonly unknown[], TResult>(
             const invoke = (): TResult =>
                 (originalMethod as (this: unknown, ...methodArgs: unknown[]) => TResult).apply(this, [...args]);
             const chain = middlewares.reduceRight<() => TResult>(
-                (next, middleware) => () => middleware.invoke(context, next),
+                (next, middleware) => () => middleware(context, next),
                 invoke
             );
 

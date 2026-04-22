@@ -62,18 +62,16 @@ export const createLockMiddleware$ = <TArgs extends readonly unknown[]>(
     store: LockStoreInterface,
     mode: LockModeType,
     arg: LockArgumentType<TArgs>
-): InterceptorMiddleware<TArgs, Observable<unknown>> => ({
-    invoke: (context, next) =>
-        acquireHandle$(store, mode, arg, context.args).pipe(
-            concatMap((handle) =>
-                from(Promise.resolve(next())).pipe(
-                    concatMap((inner$) => inner$),
-                    finalize(() => {
-                        void Promise.resolve()
-                            .then(() => handle.release())
-                            .catch(emptyFn);
-                    })
-                )
+): InterceptorMiddleware<TArgs, Observable<unknown>> => (context, next) =>
+    acquireHandle$(store, mode, arg, context.args).pipe(
+        concatMap((handle) =>
+            from(Promise.resolve(next())).pipe(
+                concatMap((inner$) => inner$),
+                finalize(() => {
+                    void Promise.resolve()
+                        .then(() => handle.release())
+                        .catch(emptyFn);
+                })
             )
-        ),
-});
+        )
+    );

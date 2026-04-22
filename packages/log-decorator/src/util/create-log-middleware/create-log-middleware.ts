@@ -19,73 +19,70 @@ export const createLogMiddleware = <TArgs extends readonly unknown[], TResult>(
 ): InterceptorMiddleware<TArgs, TResult> => {
     const { transport } = options;
 
-     
-    return {
-        // eslint-disable-next-line max-statements -- single cohesive observe path: preLog + invoke + shape-aware postLog/errorLog
-        invoke: (context, next) => {
-            const start = performance.now();
-            if (preLog !== void 0) {
-                const message = isString(preLog) ? preLog : preLog(...context.args);
-                if (isNotEmptyString(message)) {
-                    transport.log(message, context.logContext);
-                }
+    // eslint-disable-next-line max-statements -- single cohesive observe path: preLog + invoke + shape-aware postLog/errorLog
+    return (context, next) => {
+        const start = performance.now();
+        if (preLog !== void 0) {
+            const message = isString(preLog) ? preLog : preLog(...context.args);
+            if (isNotEmptyString(message)) {
+                transport.log(message, context.logContext);
             }
+        }
 
-            const emitSuccess = (result: TResult): void => {
-                if (postLog === void 0) {
-                    return;
-                }
-                const durationMs = performance.now() - start;
-                const message = isString(postLog) ? postLog : postLog(result, durationMs, ...context.args);
-                if (isNotEmptyString(message)) {
-                    transport.debug(message, context.logContext);
-                }
-            };
-            const emitError = (error: unknown): void => {
-                if (errorLog === void 0) {
-                    return;
-                }
-                const durationMs = performance.now() - start;
-                const message = isString(errorLog) ? errorLog : errorLog(error, durationMs, ...context.args);
-                if (isNotEmptyString(message)) {
-                    transport.error(message, toErrorOrVoid(error), context.logContext);
-                }
-            };
-
-            let raw: TResult;
-            try {
-                raw = next();
-            } catch (err) {
-                emitError(err);
-                throw err;
+        const emitSuccess = (result: TResult): void => {
+            if (postLog === void 0) {
+                return;
             }
-
-            if (isPromise(raw)) {
-                return Promise.resolve(raw).then(
-                    (resolved) => {
-                        emitSuccess(resolved as TResult);
-
-                        return resolved;
-                    },
-                    (err: unknown) => {
-                        emitError(err);
-                        throw err;
-                    }
-                ) as TResult;
+            const durationMs = performance.now() - start;
+            const message = isString(postLog) ? postLog : postLog(result, durationMs, ...context.args);
+            if (isNotEmptyString(message)) {
+                transport.debug(message, context.logContext);
             }
-            if (isObservable(raw)) {
-                return (raw as unknown as Observable<unknown>).pipe(
-                    tap((value: unknown) => void emitSuccess(value as TResult)),
-                    catchError((err: unknown) => {
-                        emitError(err);
-
-                        return throwError(() => err);
-                    })
-                ) as unknown as TResult;
+        };
+        const emitError = (error: unknown): void => {
+            if (errorLog === void 0) {
+                return;
             }
-            emitSuccess(raw);
+            const durationMs = performance.now() - start;
+            const message = isString(errorLog) ? errorLog : errorLog(error, durationMs, ...context.args);
+            if (isNotEmptyString(message)) {
+                transport.error(message, toErrorOrVoid(error), context.logContext);
+            }
+        };
 
-            return raw;
-        },
+        let raw: TResult;
+        try {
+            raw = next();
+        } catch (err) {
+            emitError(err);
+            throw err;
+        }
+
+        if (isPromise(raw)) {
+            return Promise.resolve(raw).then(
+                (resolved) => {
+                    emitSuccess(resolved as TResult);
+
+                    return resolved;
+                },
+                (err: unknown) => {
+                    emitError(err);
+                    throw err;
+                }
+            ) as TResult;
+        }
+        if (isObservable(raw)) {
+            return (raw as unknown as Observable<unknown>).pipe(
+                tap((value: unknown) => void emitSuccess(value as TResult)),
+                catchError((err: unknown) => {
+                    emitError(err);
+
+                    return throwError(() => err);
+                })
+            ) as unknown as TResult;
+        }
+        emitSuccess(raw);
+
+        return raw;
     };
 };
