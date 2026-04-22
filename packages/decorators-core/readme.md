@@ -1,96 +1,94 @@
 # decorators-core
 
-Framework-agnostic interceptor primitive for building method decorators (log, metrics, lock, retry, …). TypeScript `experimentalDecorators`. Dual ESM + CJS. `rxjs` is an optional peer — required only when importing `observableStrategy` / `completionObservableStrategy`.
+Framework-agnostic middleware primitive for building method decorators (log, metrics, lock, retry, …). Zero runtime dependencies. TypeScript `experimentalDecorators`. Dual ESM + CJS.
 
 [![npm version](https://badge.fury.io/js/%40rnw-community%2Fdecorators-core.svg)](https://badge.fury.io/js/%40rnw-community%2Fdecorators-core)
 [![npm downloads](https://img.shields.io/npm/dm/%40rnw-community%2Fdecorators-core.svg)](https://www.npmjs.com/package/%40rnw-community%2Fdecorators-core)
+
+## The primitive
+
+`createInterceptor({ middleware })` wraps a method descriptor with a single middleware function:
+
+```ts
+type InterceptorMiddleware<TArgs, TResult> = (
+    context: ExecutionContextInterface<TArgs>,
+    next: () => TResult
+) => TResult;
+```
+
+`next()` invokes the original method. The middleware decides what to do before, after, around, or instead of that call — observe timings, retry, short-circuit, log, acquire a lock — and returns whatever shape the method returns (sync value, `Promise<T>`, `Observable<T>`, or anything else). The engine is transport-agnostic and result-shape-agnostic; the middleware owns both.
+
+Stack multiple concerns by stacking decorators at the call site, not by composing internal arrays:
+
+```ts
+class OrderService {
+    @Log(...)
+    @HistogramMetric(...)
+    @SequentialLock(...)
+    async placeOrder(id: string): Promise<Receipt> { /* ... */ }
+}
+```
 
 ## Exports
 
 | Export | Purpose |
 |---|---|
-| `createInterceptor` | Build a method decorator from an `InterceptorInterface` + optional strategies |
-| `syncStrategy` | Catch-all strategy (`matches: () => true`) — auto-appended as terminal fallback |
-| `promiseStrategy` | Built-in result strategy for Promises / thenables — auto-appended after user strategies |
-| `observableStrategy` | RxJS `Observable` strategy (per-emission) — imported from `@rnw-community/decorators-core/rxjs` |
-| `completionObservableStrategy` | RxJS `Observable` strategy (completion-latency) — imported from `@rnw-community/decorators-core/rxjs` |
-| `InterceptorInterface` | `onEnter`, `onSuccess`, `onError` hook contract |
-| `ResultStrategyInterface` | `{ matches, handle }` for custom return-type handling |
-| `ExecutionContextInterface` | Per-invocation context: `className`, `methodName`, `args`, `logContext` |
-| `CreateInterceptorOptionsInterface` | `{ interceptor, strategies? }` factory input |
+| `createInterceptor` | Method-decorator factory; takes `{ middleware }`, returns a `MethodDecoratorType<AnyFn>` |
+| `InterceptorMiddleware<TArgs, TResult>` | Function type: `(context, next) => TResult` |
+| `ExecutionContextInterface<TArgs>` | `{ className, methodName, args, logContext }` — stable identity per invocation |
+| `CreateInterceptorOptionsInterface<TArgs, TResult>` | `{ middleware }` — the sole option |
 
-Method decorator shape comes from [`@rnw-community/shared`](../shared)'s `MethodDecoratorType<K>` — import it directly, not through this package.
-
-## The engine is a strategy coordinator
-
-`createInterceptor` composes a dispatch chain from user-supplied strategies plus two auto-appended built-ins:
-
-```
-[...userStrategies, promiseStrategy, syncStrategy]
-```
-
-On every decorated-method invocation the engine finds the first strategy whose `matches` returns true and delegates to its `handle`. `syncStrategy.matches` returns `true` unconditionally, guaranteeing total coverage.
-
-**Consumers rarely need to pass strategies explicitly.** Pass only when adding Observable support or composing custom behavior.
+`MethodDecoratorType<K>` comes from [`@rnw-community/shared`](../shared) — import it directly, not through this package.
 
 ## Build your own decorator
 
 ```ts
 import { createInterceptor } from '@rnw-community/decorators-core';
-import type { InterceptorInterface } from '@rnw-community/decorators-core';
 
-const logInterceptor: InterceptorInterface = {
-    onEnter: ({ logContext, args }) => console.log(`[enter] ${logContext}`, args),
-    onSuccess: ({ logContext }, result, durationMs) => console.log(`[ok] ${logContext} (${durationMs.toFixed(2)}ms)`, result),
-    onError: ({ logContext }, error, durationMs) => console.error(`[err] ${logContext} (${durationMs.toFixed(2)}ms)`, error),
+import type { InterceptorMiddleware } from '@rnw-community/decorators-core';
+
+const logMiddleware: InterceptorMiddleware = (context, next) => {
+    const start = performance.now();
+    console.log(`[enter] ${context.logContext}`, context.args);
+    try {
+        const result = next();
+        console.log(`[ok] ${context.logContext} (${(performance.now() - start).toFixed(2)}ms)`, result);
+
+        return result;
+    } catch (error) {
+        console.error(`[err] ${context.logContext} (${(performance.now() - start).toFixed(2)}ms)`, error);
+        throw error;
+    }
 };
 
-const withLog = createInterceptor({ interceptor: logInterceptor });
+const withLog = createInterceptor({ middleware: logMiddleware });
 
 class UserService {
     @withLog
-    async getUser(id: string): Promise<{ id: string }> { return { id }; }
+    getUser(id: string): { id: string } { return { id }; }
 }
 ```
 
-`withLog` handles sync returns, `Promise<T>` returns, and anything else the built-in strategies cover. No explicit strategy wiring required.
+For `Promise` or `Observable` return types the middleware attaches callbacks to the settled/completion signal — the engine does not special-case them. See `@rnw-community/log-decorator`, `@rnw-community/histogram-metric-decorator`, and `@rnw-community/lock-decorator` for working Promise- and Observable-aware middleware implementations.
 
-## Observable support
+## Execution context
 
-Observable strategies live under the `/rxjs` subpath so the root entrypoint stays rxjs-free. Sync-only consumers can install and run `@rnw-community/decorators-core` without `rxjs` in their tree.
+`buildContext(this, fallbackClassName, methodName, args)` produces one `ExecutionContextInterface` per invocation:
 
-```ts
-import { createInterceptor } from '@rnw-community/decorators-core';
-import { observableStrategy } from '@rnw-community/decorators-core/rxjs';
+- `className` — resolved from `this.constructor.name` when `this` is a class instance, from `this.name` when the method is static (so `this` is the class constructor), and falls back to the target's name at decoration time when `this` is detached or `globalThis`. Anonymous classes fall back to `'Object'`.
+- `methodName` — the property key as a string.
+- `args` — the original method arguments (tuple-typed via `TArgs`).
+- `logContext` — convenience format `` `${className}::${methodName}` `` for consumer transports.
 
-const withLog = createInterceptor({ interceptor: logInterceptor, strategies: [observableStrategy] });
-```
-
-`observableStrategy` is **value-oriented**: `onSuccess` fires per emission, `onError` on stream error. It is NOT completion-latency — use `completionObservableStrategy` for that (fires once on `complete` with the last emitted value, or once on stream error).
-
-**Do not wire both** `observableStrategy` and `completionObservableStrategy` in the same factory — they both match `isObservable`, and whichever appears first in the strategies array silently wins. They are mutually exclusive by intent.
-
-## `syncStrategy` placement
-
-Auto-appended by `createInterceptor` as the terminal strategy. You rarely need to import it. If you're composing a strategy array manually, place it LAST:
-
-```ts
-// ✓ DO: auto-append handles it
-createInterceptor({ interceptor, strategies: [observableStrategy] });
-
-// ✗ DON'T: placing syncStrategy first breaks Promise/Observable handling
-createInterceptor({ interceptor, strategies: [syncStrategy, promiseStrategy] });
-//                                              ^^^^^^^^^^^^ matches everything; Promise returns never reach promiseStrategy
-```
+The context identity is stable across a single invocation — middleware can capture `context` in closures (timers, resource handles) without worrying about mutation.
 
 ## Engine guarantees
 
-- `onSuccess` receives `Awaited<TResult>` (the resolved value, not the Promise)
-- Per-invocation `ExecutionContext` identity is stable across `onEnter` / `onSuccess` / `onError`
-- Hook errors are swallowed — transport failures never poison the decorated method
-- Promise and sync handling are auto-wired; Observable requires opting into `observableStrategy` or `completionObservableStrategy`
-- `ResultStrategyInterface.handle` MUST NOT throw synchronously; if it does, the exception propagates unguarded — the caller sees the raw throw, `onError` does not fire
+- Non-function descriptors (getters, setters, value properties) pass through unchanged — the engine returns the input descriptor.
+- The middleware is called exactly once per decorated-method invocation.
+- `next()` is called exactly once inside the middleware unless the middleware short-circuits (and MUST NOT be called more than once; the engine does not re-enter).
+- The engine does not catch middleware-thrown errors — they propagate to the caller unchanged. Wrap in `try/catch` inside the middleware if you need to transform or observe failures.
 
 ## License
 
-MIT
+[MIT](../../LICENSE.md)
