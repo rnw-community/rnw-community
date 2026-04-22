@@ -1,4 +1,4 @@
-import { isString } from '@rnw-community/shared';
+import { isEmptyString, isString } from '@rnw-community/shared';
 
 import { assertValidTimeoutMs } from '../assert-valid-timeout-ms/assert-valid-timeout-ms';
 
@@ -6,7 +6,7 @@ import type { AcquireOptionsInterface } from '../../interface/acquire-options.in
 import type { LockArgumentType } from '../../type/lock-argument.type';
 
 const assertNonEmptyKey = (key: string): string => {
-    if (key === '') {
+    if (isEmptyString(key)) {
         throw new Error('Lock key cannot be empty');
     }
 
