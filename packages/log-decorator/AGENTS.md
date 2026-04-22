@@ -23,6 +23,7 @@ src/
     pre-log-input.type.ts
     post-log-input.type.ts
     error-log-input.type.ts
+    get-result.type.ts        — internal: unwraps Promise<U> / Observable<U> → U for factory generic constraint
   console-transport/      — default consoleTransport + spec
   create-log-decorator/   — decorator factory + spec
   util/

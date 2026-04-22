@@ -18,7 +18,6 @@ Framework-agnostic interceptor primitive for building method decorators (log, me
 | `ResultStrategyInterface` | `{ matches, handle }` for custom return-type handling |
 | `ExecutionContextInterface` | Per-invocation context: `className`, `methodName`, `args`, `logContext` |
 | `CreateInterceptorOptionsInterface` | `{ interceptor, strategies? }` factory input |
-| `GetResultType<T>` | Unwrap helper: `Promise<U>` / `Observable<U>` → `U`; otherwise `T` |
 
 Method decorator shape comes from [`@rnw-community/shared`](../shared)'s `MethodDecoratorType<K>` — import it directly, not through this package.
 

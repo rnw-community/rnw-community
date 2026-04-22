@@ -4,9 +4,9 @@ import { createLogMiddleware } from '../util/create-log-middleware/create-log-mi
 
 import type { CreateLogOptionsInterface } from '../interface/create-log-options.interface';
 import type { ErrorLogInputType } from '../type/error-log-input.type';
+import type { GetResultType } from '../type/get-result.type';
 import type { PostLogInputType } from '../type/post-log-input.type';
 import type { PreLogInputType } from '../type/pre-log-input.type';
-import type { GetResultType } from '@rnw-community/decorators-core';
 import type { AnyFn, MethodDecoratorType } from '@rnw-community/shared';
 
 export const createLogDecorator =
