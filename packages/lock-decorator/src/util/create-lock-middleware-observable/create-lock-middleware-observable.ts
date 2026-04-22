@@ -1,8 +1,7 @@
 import { Observable, concatMap, finalize, from } from 'rxjs';
 
-import { emptyFn } from '@rnw-community/shared';
+import { type EmptyFn, emptyFn, isDefined } from '@rnw-community/shared';
 
-import { bridgeSignal } from '../bridge-signal/bridge-signal';
 import { resolveLockKey } from '../resolve-lock-key/resolve-lock-key';
 
 import type { LockHandleInterface } from '../../interface/lock-handle.interface';
@@ -10,6 +9,22 @@ import type { LockStoreInterface } from '../../interface/lock-store.interface';
 import type { LockArgumentType } from '../../type/lock-argument.type';
 import type { LockModeType } from '../../type/lock-mode.type';
 import type { InterceptorMiddleware } from '@rnw-community/decorators-core';
+
+const bridgeSignal = (external: AbortSignal | undefined, onAbort: () => void): EmptyFn => {
+    if (!isDefined(external)) {
+        return emptyFn;
+    }
+    if (external.aborted) {
+        onAbort();
+
+        return emptyFn;
+    }
+    external.addEventListener('abort', onAbort, { once: true });
+
+    return () => {
+        external.removeEventListener('abort', onAbort);
+    };
+};
 
 const acquireHandle$ = <TArgs extends readonly unknown[]>(
     store: LockStoreInterface,
