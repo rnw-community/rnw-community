@@ -13,7 +13,7 @@ Universal method decorator with pre / post / error logging hooks and a pluggable
 | `Promise<T>` | before call | on resolve | on reject |
 | `Observable<T>` | before call | on each emission | on stream error |
 
-`durationMs` is `performance.now()` delta from just after `preLog` fires to just before the hook fires — Observable `postLog` timings therefore grow per emission.
+The decorator is intentionally timing-free. For duration / latency / histogram metrics, use `@rnw-community/histogram-metric-decorator` — the two decorators compose via stacking (`@HistogramMetric() @Log(...) method(...)`) with no overlap of concerns.
 
 ## Type narrowing — no factory generics needed
 
@@ -27,8 +27,8 @@ const Log = createLogDecorator({ transport: consoleTransport });
 class OrderService {
     @Log(
         orderId => `placing order ${orderId}`,
-        (result, durationMs, orderId) => `order ${orderId} placed in ${durationMs.toFixed(1)}ms: ${result.id}`,
-        (error, durationMs, orderId) => `order ${orderId} failed after ${durationMs.toFixed(1)}ms: ${String(error)}`
+        (result, orderId) => `order ${orderId} placed: ${result.id}`,
+        (error, orderId) => `order ${orderId} failed: ${String(error)}`
     )
     placeOrder(orderId: string): { id: string } {
         return { id: `ord-${orderId}` };
@@ -36,7 +36,7 @@ class OrderService {
 }
 ```
 
-`orderId` narrows to `string`, `result` to `{ id: string }`, `error` is `unknown`, `durationMs` is `number`. `Promise<T>` and `Observable<T>` return types unwrap automatically — `TResult` is the awaited or emitted value.
+`orderId` narrows to `string`, `result` to `{ id: string }`, `error` is `unknown`. `Promise<T>` and `Observable<T>` return types unwrap automatically — `TResult` is the awaited or emitted value.
 
 Omit any hook to skip that lifecycle event. Hook results that are empty strings (static `''` or a callback returning `''`) are skipped too — handy for conditional messages.
 
@@ -61,8 +61,8 @@ const Log = createLogDecorator({ transport: consoleTransport });
 class StreamService {
     @Log(
         symbol => `subscribing to ${symbol}`,
-        (tick, _durationMs, symbol) => `${symbol} tick: ${tick}`,
-        (error, _durationMs, symbol) => `${symbol} stream errored: ${String(error)}`
+        (tick, symbol) => `${symbol} tick: ${tick}`,
+        (error, symbol) => `${symbol} stream errored: ${String(error)}`
     )
     subscribe$(symbol: string): Observable<number> { /* ... */ }
 }

@@ -27,9 +27,9 @@ import { Log } from '@rnw-community/nestjs-enterprise';
 class CatsService {
     @Log(
         (offset, limit) => `finding cats offset=${offset.toString()} limit=${limit.toString()}`,
-        (result, durationMs, offset, limit) =>
-            `found ${result.length.toString()} cats for offset=${offset.toString()} in ${durationMs.toFixed(1)}ms`,
-        (error, durationMs, offset) => `failed at offset=${offset.toString()} after ${durationMs.toFixed(1)}ms: ${String(error)}`
+        (result, offset, limit) =>
+            `found ${result.length.toString()} cats for offset=${offset.toString()} limit=${limit.toString()}`,
+        (error, offset) => `failed at offset=${offset.toString()}: ${String(error)}`
     )
     async findAll(offset: number, limit: number): Promise<string[]> {
         return ['tom', 'jerry'].slice(offset, offset + limit);
@@ -37,9 +37,11 @@ class CatsService {
 }
 ```
 
-`offset`/`limit` are `number`, `result` is `string[]`, `error` is `unknown`, `durationMs` is `number` (method duration in milliseconds) — all inferred from `findAll`'s signature.
+`offset`/`limit` are `number`, `result` is `string[]`, `error` is `unknown` — all inferred from `findAll`'s signature.
 
-For `Observable<T>`-returning methods, `postLog` fires per emission (value-oriented) via `observableStrategy`, already wired inside the adapter.
+For duration / latency metrics, reach for `@HistogramMetric` from `@rnw-community/nestjs-enterprise` — that is its purpose. `Log` is intentionally timing-free so the two concerns compose via stacked decorators without overlap.
+
+For `Observable<T>`-returning methods, `postLog` fires per emission (value-oriented), already wired inside the adapter.
 
 ## Hooks are optional
 
