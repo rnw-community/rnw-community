@@ -23,7 +23,7 @@ src/
     pre-log-input.type.ts
     post-log-input.type.ts
     error-log-input.type.ts
-    get-result.type.ts        — internal: unwraps Promise<U> / Observable<U> → U for factory generic constraint
+    get-result.type.ts        — unwraps Promise<U> / Observable<U> → U; re-exported because TS2742 forces it into the inferred public type of bound factories
   console-transport/      — default consoleTransport + spec
   create-log-decorator/   — decorator factory + spec
   util/

@@ -30,9 +30,9 @@ const resolveLabelsSafely = <TArgs extends readonly unknown[]>(
 export const createHistogramMiddleware = <TArgs extends readonly unknown[]>(
     options: CreateHistogramMetricOptionsInterface,
     config?: HistogramOptionsInterface<TArgs>
-): InterceptorMiddleware<TArgs> => ({
+): InterceptorMiddleware<TArgs> => {
     // eslint-disable-next-line max-statements -- single cohesive observe-on-terminal path across sync/Promise/Observable shapes
-    invoke: (context, next) => {
+    const middleware: InterceptorMiddleware<TArgs> = (context, next) => {
         const start = performance.now();
         const observeOnTerminal = (): void => {
             options.transport.observe(
@@ -76,5 +76,7 @@ export const createHistogramMiddleware = <TArgs extends readonly unknown[]>(
         observeOnTerminal();
 
         return raw;
-    },
-});
+    };
+
+    return middleware;
+};

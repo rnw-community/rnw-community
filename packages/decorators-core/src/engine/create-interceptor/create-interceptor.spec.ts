@@ -22,15 +22,13 @@ describe('createInterceptor — pure middleware engine', () => {
     it('runs middlewares in outer-to-inner order around invoke', () => {
         expect.hasAssertions();
         const log: string[] = [];
-        const mw = (name: string): InterceptorMiddleware<readonly unknown[], string> => ({
-            invoke: (_ctx, next) => {
-                log.push(`${name}:before`);
-                const result = next();
-                log.push(`${name}:after`);
+        const mw = (name: string): InterceptorMiddleware<readonly unknown[], string> => (_ctx, next) => {
+            log.push(`${name}:before`);
+            const result = next();
+            log.push(`${name}:after`);
 
-                return result;
-            },
-        });
+            return result;
+        };
         const Dec = createInterceptor({ middlewares: [mw('A'), mw('B'), mw('C')] });
 
         class Service {
@@ -48,12 +46,10 @@ describe('createInterceptor — pure middleware engine', () => {
     it('passes execution context with className, methodName, args, logContext', () => {
         expect.hasAssertions();
         const seen: unknown[] = [];
-        const mw: InterceptorMiddleware<readonly unknown[], number> = {
-            invoke: (ctx, next) => {
-                seen.push(ctx);
+        const mw: InterceptorMiddleware<readonly unknown[], number> = (ctx, next) => {
+            seen.push(ctx);
 
-                return next();
-            },
+            return next();
         };
         const Dec = createInterceptor({ middlewares: [mw] });
 
@@ -74,12 +70,10 @@ describe('createInterceptor — pure middleware engine', () => {
 
     it('forwards a Promise return shape when the innermost middleware awaits', async () => {
         expect.hasAssertions();
-        const mw: InterceptorMiddleware<readonly unknown[], Promise<string>> = {
-            invoke: async (_ctx, next) => {
-                const value = await next();
+        const mw: InterceptorMiddleware<readonly unknown[], Promise<string>> = async (_ctx, next) => {
+            const value = await next();
 
-                return `wrapped-${value}`;
-            },
+            return `wrapped-${value}`;
         };
         const Dec = createInterceptor({ middlewares: [mw] });
 
@@ -94,9 +88,7 @@ describe('createInterceptor — pure middleware engine', () => {
 
     it('forwards an Observable return shape when middleware returns an Observable', async () => {
         expect.hasAssertions();
-        const mw: InterceptorMiddleware<readonly unknown[], Observable<number>> = {
-            invoke: (_ctx, next) => next(),
-        };
+        const mw: InterceptorMiddleware<readonly unknown[], Observable<number>> = (_ctx, next) => next();
         const Dec = createInterceptor({ middlewares: [mw] });
 
         class Service {
@@ -111,10 +103,8 @@ describe('createInterceptor — pure middleware engine', () => {
     it('a middleware can short-circuit without calling next (e.g. resource failure)', async () => {
         expect.hasAssertions();
         const methodSpy = jest.fn();
-        const mw: InterceptorMiddleware<readonly unknown[], Promise<never>> = {
-            invoke: async () => {
-                throw new Error('short-circuit');
-            },
+        const mw: InterceptorMiddleware<readonly unknown[], Promise<never>> = async () => {
+            throw new Error('short-circuit');
         };
         const Dec = createInterceptor({ middlewares: [mw] });
 
@@ -131,15 +121,13 @@ describe('createInterceptor — pure middleware engine', () => {
     it('releases resource via closure in the middleware (setup/invoke/teardown pattern)', async () => {
         expect.hasAssertions();
         const release = jest.fn();
-        const mw: InterceptorMiddleware<readonly unknown[], Promise<string>> = {
-            invoke: async (_ctx, next) => {
-                const handle = { release };
-                try {
-                    return await next();
-                } finally {
-                    handle.release();
-                }
-            },
+        const mw: InterceptorMiddleware<readonly unknown[], Promise<string>> = async (_ctx, next) => {
+            const handle = { release };
+            try {
+                return await next();
+            } finally {
+                handle.release();
+            }
         };
         const Dec = createInterceptor({ middlewares: [mw] });
 
@@ -157,14 +145,12 @@ describe('createInterceptor — pure middleware engine', () => {
         expect.hasAssertions();
         const release = jest.fn();
         const boom = new Error('method-boom');
-        const mw: InterceptorMiddleware<readonly unknown[], Promise<never>> = {
-            invoke: async (_ctx, next) => {
-                try {
-                    return await next();
-                } finally {
-                    release();
-                }
-            },
+        const mw: InterceptorMiddleware<readonly unknown[], Promise<never>> = async (_ctx, next) => {
+            try {
+                return await next();
+            } finally {
+                release();
+            }
         };
         const Dec = createInterceptor({ middlewares: [mw] });
 
@@ -194,22 +180,20 @@ describe('createInterceptor — pure middleware engine', () => {
         expect.hasAssertions();
         const release = jest.fn();
         const source = new Subject<number>();
-        const mw: InterceptorMiddleware<readonly unknown[], Observable<number>> = {
-            invoke: (_ctx, next) =>
-                new Observable<number>((sub) => {
-                    const inner$ = next();
-                    const subscription = inner$.subscribe({
-                        next: (v) => void sub.next(v),
-                        error: (e: unknown) => void sub.error(e),
-                        complete: () => void sub.complete(),
-                    });
+        const mw: InterceptorMiddleware<readonly unknown[], Observable<number>> = (_ctx, next) =>
+            new Observable<number>((sub) => {
+                const inner$ = next();
+                const subscription = inner$.subscribe({
+                    next: (v) => void sub.next(v),
+                    error: (e: unknown) => void sub.error(e),
+                    complete: () => void sub.complete(),
+                });
 
-                    return () => {
-                        subscription.unsubscribe();
-                        release();
-                    };
-                }),
-        };
+                return () => {
+                    subscription.unsubscribe();
+                    release();
+                };
+            });
         const Dec = createInterceptor({ middlewares: [mw] });
 
         class Service {
@@ -227,9 +211,7 @@ describe('createInterceptor — pure middleware engine', () => {
 
     it('propagates Observable errors through the chain', async () => {
         expect.hasAssertions();
-        const mw: InterceptorMiddleware<readonly unknown[], Observable<number>> = {
-            invoke: (_ctx, next) => next(),
-        };
+        const mw: InterceptorMiddleware<readonly unknown[], Observable<number>> = (_ctx, next) => next();
         const Dec = createInterceptor({ middlewares: [mw] });
 
         class Service {
