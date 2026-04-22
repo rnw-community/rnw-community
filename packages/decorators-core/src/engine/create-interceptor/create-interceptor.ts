@@ -8,7 +8,7 @@ import type { AnyFn, MethodDecoratorType } from '@rnw-community/shared';
 export const createInterceptor = <TArgs extends readonly unknown[], TResult>(
     options: CreateInterceptorOptionsInterface<TArgs, TResult>
 ): MethodDecoratorType<AnyFn> => {
-    const { middlewares } = options;
+    const { middleware } = options;
 
     return (target, propertyKey, descriptor) => {
         const methodName = String(propertyKey);
@@ -23,12 +23,8 @@ export const createInterceptor = <TArgs extends readonly unknown[], TResult>(
             const context = buildContext(this, fallbackClassName, methodName, args);
             const invoke = (): TResult =>
                 (originalMethod as (this: unknown, ...methodArgs: unknown[]) => TResult).apply(this, [...args]);
-            const chain = middlewares.reduceRight<() => TResult>(
-                (next, middleware) => () => middleware(context, next),
-                invoke
-            );
 
-            return chain();
+            return middleware(context, invoke);
         };
 
         return {

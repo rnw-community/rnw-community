@@ -14,5 +14,5 @@ export const createExclusiveLockDecorator$ =
         arg: ExclusiveLockArgumentType<TArgs>
     ): MethodDecoratorType<K> =>
         createInterceptor<TArgs, Observable<unknown>>({
-            middlewares: [createLockMiddleware$<TArgs>(options.store, 'exclusive', arg)],
+            middleware: createLockMiddleware$<TArgs>(options.store, 'exclusive', arg),
         }) as unknown as MethodDecoratorType<K>;

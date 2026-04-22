@@ -5,10 +5,12 @@ import { createInterceptor } from './create-interceptor';
 
 import type { InterceptorMiddleware } from '../../interface/interceptor-middleware.interface';
 
+const passthrough: InterceptorMiddleware = (_ctx, next) => next();
+
 describe('createInterceptor — pure middleware engine', () => {
-    it('invokes the method with no middlewares and returns the sync value', () => {
+    it('invokes the method via a passthrough middleware and returns the sync value', () => {
         expect.hasAssertions();
-        const Dec = createInterceptor({ middlewares: [] });
+        const Dec = createInterceptor({ middleware: passthrough });
 
         class Service {
             @Dec
@@ -19,30 +21,6 @@ describe('createInterceptor — pure middleware engine', () => {
         expect(new Service().add(2, 3)).toBe(5);
     });
 
-    it('runs middlewares in outer-to-inner order around invoke', () => {
-        expect.hasAssertions();
-        const log: string[] = [];
-        const mw = (name: string): InterceptorMiddleware<readonly unknown[], string> => (_ctx, next) => {
-            log.push(`${name}:before`);
-            const result = next();
-            log.push(`${name}:after`);
-
-            return result;
-        };
-        const Dec = createInterceptor({ middlewares: [mw('A'), mw('B'), mw('C')] });
-
-        class Service {
-            @Dec
-            run(): string {
-                log.push('method');
-
-                return 'ok';
-            }
-        }
-        expect(new Service().run()).toBe('ok');
-        expect(log).toEqual(['A:before', 'B:before', 'C:before', 'method', 'C:after', 'B:after', 'A:after']);
-    });
-
     it('passes execution context with className, methodName, args, logContext', () => {
         expect.hasAssertions();
         const seen: unknown[] = [];
@@ -51,7 +29,7 @@ describe('createInterceptor — pure middleware engine', () => {
 
             return next();
         };
-        const Dec = createInterceptor({ middlewares: [mw] });
+        const Dec = createInterceptor({ middleware: mw });
 
         class OrderService {
             @Dec
@@ -68,14 +46,14 @@ describe('createInterceptor — pure middleware engine', () => {
         });
     });
 
-    it('forwards a Promise return shape when the innermost middleware awaits', async () => {
+    it('forwards a Promise return shape when the middleware awaits', async () => {
         expect.hasAssertions();
         const mw: InterceptorMiddleware<readonly unknown[], Promise<string>> = async (_ctx, next) => {
             const value = await next();
 
             return `wrapped-${value}`;
         };
-        const Dec = createInterceptor({ middlewares: [mw] });
+        const Dec = createInterceptor({ middleware: mw });
 
         class Service {
             @Dec
@@ -89,7 +67,7 @@ describe('createInterceptor — pure middleware engine', () => {
     it('forwards an Observable return shape when middleware returns an Observable', async () => {
         expect.hasAssertions();
         const mw: InterceptorMiddleware<readonly unknown[], Observable<number>> = (_ctx, next) => next();
-        const Dec = createInterceptor({ middlewares: [mw] });
+        const Dec = createInterceptor({ middleware: mw });
 
         class Service {
             @Dec
@@ -106,7 +84,7 @@ describe('createInterceptor — pure middleware engine', () => {
         const mw: InterceptorMiddleware<readonly unknown[], Promise<never>> = async () => {
             throw new Error('short-circuit');
         };
-        const Dec = createInterceptor({ middlewares: [mw] });
+        const Dec = createInterceptor({ middleware: mw });
 
         class Service {
             @Dec
@@ -129,7 +107,7 @@ describe('createInterceptor — pure middleware engine', () => {
                 handle.release();
             }
         };
-        const Dec = createInterceptor({ middlewares: [mw] });
+        const Dec = createInterceptor({ middleware: mw });
 
         class Service {
             @Dec
@@ -152,7 +130,7 @@ describe('createInterceptor — pure middleware engine', () => {
                 release();
             }
         };
-        const Dec = createInterceptor({ middlewares: [mw] });
+        const Dec = createInterceptor({ middleware: mw });
 
         class Service {
             @Dec
@@ -166,7 +144,7 @@ describe('createInterceptor — pure middleware engine', () => {
 
     it('returns the descriptor unchanged when applied to a non-function descriptor', () => {
         expect.hasAssertions();
-        const Dec = createInterceptor({ middlewares: [] });
+        const Dec = createInterceptor({ middleware: passthrough });
         const descriptor = { value: 42, writable: true, enumerable: false, configurable: true };
         const result = (Dec as unknown as (t: object, p: string, d: typeof descriptor) => typeof descriptor)(
             {},
@@ -194,7 +172,7 @@ describe('createInterceptor — pure middleware engine', () => {
                     release();
                 };
             });
-        const Dec = createInterceptor({ middlewares: [mw] });
+        const Dec = createInterceptor({ middleware: mw });
 
         class Service {
             @Dec
@@ -212,7 +190,7 @@ describe('createInterceptor — pure middleware engine', () => {
     it('propagates Observable errors through the chain', async () => {
         expect.hasAssertions();
         const mw: InterceptorMiddleware<readonly unknown[], Observable<number>> = (_ctx, next) => next();
-        const Dec = createInterceptor({ middlewares: [mw] });
+        const Dec = createInterceptor({ middleware: mw });
 
         class Service {
             @Dec
