@@ -25,9 +25,7 @@ src/
     error-log-input.type.ts
     get-result.type.ts        — unwraps Promise<U> / Observable<U> → U; re-exported because TS2742 forces it into the inferred public type of bound factories
   console-transport/      — default consoleTransport + spec
-  create-log-decorator/   — decorator factory + spec
-  util/
-    create-log-interceptor.ts  — internal (wraps createInterceptor from decorators-core)
+  create-log-decorator/   — decorator factory + spec (middleware body is inlined in the factory file)
   index.ts
 ```
 
