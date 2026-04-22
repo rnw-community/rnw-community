@@ -2,9 +2,32 @@ import { beforeEach, describe, expect, it, jest } from '@jest/globals';
 import { EMPTY, Observable, lastValueFrom, of, throwError } from 'rxjs';
 
 import { createHistogramMetricDecorator } from '../../index';
-import { inMemoryHistogramTransportMock } from '../../transport/in-memory-histogram-transport.mock';
 
-const transport = inMemoryHistogramTransportMock();
+import type { HistogramTransportInterface } from '../../index';
+
+interface Observation {
+    readonly name: string;
+    readonly durationMs: number;
+    readonly labels?: Readonly<Record<string, string>>;
+}
+
+interface InMemoryTransport extends HistogramTransportInterface {
+    readonly snapshot: () => ReadonlyArray<Observation>;
+}
+
+const createInMemoryTransport = (): InMemoryTransport => {
+    const observations: Observation[] = [];
+
+    return {
+        observe: (name, durationMs, labels) => {
+            const entry = labels ? { labels } : {};
+            observations.push({ name, durationMs, ...entry });
+        },
+        snapshot: () => observations.splice(0),
+    };
+};
+
+const transport = createInMemoryTransport();
 const HistogramMetric = createHistogramMetricDecorator({ transport });
 
 class OrderService {
