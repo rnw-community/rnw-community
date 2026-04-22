@@ -1,9 +1,10 @@
 import { beforeEach, describe, expect, it, jest } from '@jest/globals';
 import { EMPTY, Observable, lastValueFrom, of, throwError } from 'rxjs';
 
-import { createHistogramMetricDecorator, inMemoryHistogramTransport } from '../../index';
+import { createHistogramMetricDecorator } from '../../index';
+import { inMemoryHistogramTransportMock } from '../../transport/in-memory-histogram-transport.mock';
 
-const transport = inMemoryHistogramTransport();
+const transport = inMemoryHistogramTransportMock();
 const HistogramMetric = createHistogramMetricDecorator({ transport });
 
 class OrderService {

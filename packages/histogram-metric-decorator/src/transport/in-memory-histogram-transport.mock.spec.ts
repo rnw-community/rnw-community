@@ -1,11 +1,11 @@
 import { describe, expect, it } from '@jest/globals';
 
-import { inMemoryHistogramTransport } from './in-memory-histogram-transport';
+import { inMemoryHistogramTransportMock } from './in-memory-histogram-transport.mock';
 
-describe('inMemoryHistogramTransport', () => {
+describe('inMemoryHistogramTransportMock', () => {
     it('records observations and returns them from snapshot', () => {
         expect.assertions(3);
-        const transport = inMemoryHistogramTransport();
+        const transport = inMemoryHistogramTransportMock();
 
         transport.observe('metric_a', 10);
         transport.observe('metric_b', 20, { env: 'test' });
@@ -18,7 +18,7 @@ describe('inMemoryHistogramTransport', () => {
 
     it('clears the store after snapshot', () => {
         expect.assertions(2);
-        const transport = inMemoryHistogramTransport();
+        const transport = inMemoryHistogramTransportMock();
 
         transport.observe('x', 1);
         const first = transport.snapshot();
@@ -30,7 +30,7 @@ describe('inMemoryHistogramTransport', () => {
 
     it('accumulates multiple observations between snapshots', () => {
         expect.assertions(1);
-        const transport = inMemoryHistogramTransport();
+        const transport = inMemoryHistogramTransportMock();
 
         transport.observe('m', 5);
         transport.observe('m', 7);
