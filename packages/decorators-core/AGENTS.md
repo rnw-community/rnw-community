@@ -21,8 +21,6 @@ src/
     interceptor.interface.ts
     result-strategy.interface.ts
     create-interceptor-options.interface.ts
-  type/
-    get-result.type.ts        — GetResultType unwrap helper (Promise / Observable → inner)
   strategy/
     sync-strategy/            — syncStrategy + spec (catch-all, zero deps)
     promise-strategy/         — promiseStrategy + spec (zero deps)
