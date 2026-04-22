@@ -1,11 +1,21 @@
 # Log Decorator
 
-Universal method decorator with pre/post/error logging hooks and a pluggable transport. Built on TypeScript's `experimentalDecorators`. Zero framework dependencies.
+Universal method decorator with pre / post / error logging hooks and a pluggable transport. Built on [`@rnw-community/decorators-core`](../decorators-core). Handles sync, `Promise`, and `Observable` return types automatically. TypeScript `experimentalDecorators`.
 
 [![npm version](https://badge.fury.io/js/%40rnw-community%2Flog-decorator.svg)](https://badge.fury.io/js/%40rnw-community%2Flog-decorator)
 [![npm downloads](https://img.shields.io/npm/dm/%40rnw-community%2Flog-decorator.svg)](https://www.npmjs.com/package/%40rnw-community%2Flog-decorator)
 
-## Type narrowing — no generics
+## When each hook fires
+
+| Return | `preLog` | `postLog` | `errorLog` |
+|---|---|---|---|
+| `T` (sync) | before call | after return | on sync throw |
+| `Promise<T>` | before call | on resolve | on reject |
+| `Observable<T>` | before call | on each emission | on stream error |
+
+`durationMs` is `performance.now()` delta from just after `preLog` fires to just before the hook fires — Observable `postLog` timings therefore grow per emission.
+
+## Type narrowing — no factory generics needed
 
 Callback parameter types flow from the decorated method's signature through the factory's `<K extends AnyFn, TArgs extends Parameters<K>, TResult extends GetResultType<ReturnType<K>>>` generic shape. In simple cases — sync or Promise-returning methods with typed arguments — the callback params narrow automatically. Under `experimentalDecorators` TypeScript occasionally fails to back-flow the method signature into unannotated callback params (the generic binds at the decoration site, not at the factory call); when you see callback params typed as `unknown` or `any`, annotate the callback params directly. Never spell out factory generics.
 
@@ -26,30 +36,37 @@ class OrderService {
 }
 ```
 
-`orderId` is `string`, `result` is `{ id: string }`, `error` is `unknown`, `durationMs` is `number` (method duration in milliseconds). Promise/Observable return types unwrap automatically (`TResult` is the awaited or emitted value).
+`orderId` narrows to `string`, `result` to `{ id: string }`, `error` is `unknown`, `durationMs` is `number`. `Promise<T>` and `Observable<T>` return types unwrap automatically — `TResult` is the awaited or emitted value.
 
-Omit any hook to skip that lifecycle event. Empty-string hook results (static `''` or callback returning `''`) are skipped too.
+Omit any hook to skip that lifecycle event. Hook results that are empty strings (static `''` or a callback returning `''`) are skipped too — handy for conditional messages.
 
 ## Public API
 
-- [`createLogDecorator`](src/create-log-decorator/create-log-decorator.ts) — decorator factory; returns `<K extends AnyFn>(...) => MethodDecoratorType<K>`
-- [`consoleTransport`](src/console-transport/console-transport.ts) — default `LogTransportInterface` forwarding to `console.log`/`debug`/`error`
-- [`LogTransportInterface`](src/interface/log-transport.interface.ts) — plug in Pino, Winston, Nest `Logger`, anything
-- [`CreateLogOptionsInterface`](src/interface/create-log-options.interface.ts) — `{ transport, strategies? }`
+- [`createLogDecorator`](src/create-log-decorator/create-log-decorator.ts) — factory; takes `{ transport }` and returns the `@Log(preLog?, postLog?, errorLog?)` decorator factory
+- [`consoleTransport`](src/console-transport/console-transport.ts) — default `LogTransportInterface` forwarding to `console.log` / `console.debug` / `console.error`
+- [`LogTransportInterface`](src/interface/log-transport.interface.ts) — three methods (`log`, `debug`, `error`); plug in Pino, Winston, NestJS `Logger`, anything
+- [`CreateLogOptionsInterface`](src/interface/create-log-options.interface.ts) — `{ transport }`
 - [`PreLogInputType`](src/type/pre-log-input.type.ts) / [`PostLogInputType`](src/type/post-log-input.type.ts) / [`ErrorLogInputType`](src/type/error-log-input.type.ts) — string or spread-args function
+- [`GetResultType<T>`](src/type/get-result.type.ts) — unwraps `Promise<U>` / `Observable<U>` → `U`; used by the factory's generic constraint and re-exported so consumer-bound factories (for example `nestjs-enterprise`'s `Log`) stay portable under legacy CJS module resolution
 
 ## Observable support
 
-Opt in by passing [`observableStrategy`](../decorators-core/src/strategy/observable-strategy/observable.strategy.ts) from [`@rnw-community/decorators-core`](../decorators-core):
+Observable returns are handled internally — no opt-in, no strategy wiring. `rxjs` is an optional peer; install it only when your methods return `Observable`.
 
 ```ts
 import { createLogDecorator, consoleTransport } from '@rnw-community/log-decorator';
-import { observableStrategy } from '@rnw-community/decorators-core';
 
-const Log = createLogDecorator({ transport: consoleTransport, strategies: [observableStrategy] });
+const Log = createLogDecorator({ transport: consoleTransport });
+
+class StreamService {
+    @Log(
+        symbol => `subscribing to ${symbol}`,
+        (tick, _durationMs, symbol) => `${symbol} tick: ${tick}`,
+        (error, _durationMs, symbol) => `${symbol} stream errored: ${String(error)}`
+    )
+    subscribe$(symbol: string): Observable<number> { /* ... */ }
+}
 ```
-
-`postLog` then fires per emission; `errorLog` fires on stream error. `rxjs` is an optional peer — install it only when using `observableStrategy`.
 
 ## License
 
