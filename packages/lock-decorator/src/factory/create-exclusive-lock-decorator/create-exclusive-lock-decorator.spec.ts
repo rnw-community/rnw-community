@@ -1,13 +1,13 @@
 import { describe, expect, it, jest } from '@jest/globals';
 
 import { LockBusyError } from '../../error/lock-busy-error/lock-busy.error';
-import { createInMemoryLockStore } from '../../store/create-in-memory-lock-store/create-in-memory-lock-store';
+import { createInMemoryLockStoreMock } from '../../store/create-in-memory-lock-store/create-in-memory-lock-store.mock';
 
 import { createExclusiveLockDecorator } from './create-exclusive-lock-decorator';
 
 import type { LockStoreInterface } from '../../interface/lock-store.interface';
 
-const store = createInMemoryLockStore();
+const store = createInMemoryLockStoreMock();
 const ExclusiveLock = createExclusiveLockDecorator({ store });
 
 class PaymentService {
@@ -46,7 +46,7 @@ describe('createExclusiveLockDecorator', () => {
     it('releases the lock after the method succeeds', async () => {
         expect.hasAssertions();
 
-        const localStore = createInMemoryLockStore();
+        const localStore = createInMemoryLockStoreMock();
         const spy = jest.spyOn(localStore, 'acquire');
         const LocalExLock = createExclusiveLockDecorator({ store: localStore });
 
@@ -66,7 +66,7 @@ describe('createExclusiveLockDecorator', () => {
     it('throws LockBusyError when the lock is already held', async () => {
         expect.hasAssertions();
 
-        const localStore = createInMemoryLockStore();
+        const localStore = createInMemoryLockStoreMock();
         const LocalExLock = createExclusiveLockDecorator({ store: localStore });
 
         let releaseHeld!: () => void;
@@ -95,7 +95,7 @@ describe('createExclusiveLockDecorator', () => {
     it('builds the lock key from a function key form using method arguments', async () => {
         expect.hasAssertions();
 
-        const localStore = createInMemoryLockStore();
+        const localStore = createInMemoryLockStoreMock();
         const spy = jest.spyOn(localStore, 'acquire');
         const LocalExLock = createExclusiveLockDecorator({ store: localStore });
 
@@ -115,7 +115,7 @@ describe('createExclusiveLockDecorator', () => {
     it('uses object key form with a dynamic key function', async () => {
         expect.hasAssertions();
 
-        const localStore = createInMemoryLockStore();
+        const localStore = createInMemoryLockStoreMock();
         const spy = jest.spyOn(localStore, 'acquire');
         const LocalExLock = createExclusiveLockDecorator({ store: localStore });
 
@@ -135,7 +135,7 @@ describe('createExclusiveLockDecorator', () => {
     it('propagates method errors and releases the lock', async () => {
         expect.hasAssertions();
 
-        const localStore = createInMemoryLockStore();
+        const localStore = createInMemoryLockStoreMock();
         const LocalExLock = createExclusiveLockDecorator({ store: localStore });
 
         class DeclineService {
@@ -181,7 +181,7 @@ describe('createExclusiveLockDecorator', () => {
     it('returns the original descriptor unchanged when applied to a non-function property', () => {
         expect.hasAssertions();
 
-        const localStore = createInMemoryLockStore();
+        const localStore = createInMemoryLockStoreMock();
         const LocalExLock = createExclusiveLockDecorator({ store: localStore });
 
         const descriptor: PropertyDescriptor = { get: (): string => 'payment-value', configurable: true };

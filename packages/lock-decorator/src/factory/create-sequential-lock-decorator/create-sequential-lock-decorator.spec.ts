@@ -3,13 +3,13 @@ import { describe, expect, it, jest } from '@jest/globals';
 import { wait } from '@rnw-community/shared';
 
 import { LockAcquireTimeoutError } from '../../error/lock-acquire-timeout-error/lock-acquire-timeout.error';
-import { createInMemoryLockStore } from '../../store/create-in-memory-lock-store/create-in-memory-lock-store';
+import { createInMemoryLockStoreMock } from '../../store/create-in-memory-lock-store/create-in-memory-lock-store.mock';
 
 import { createSequentialLockDecorator } from './create-sequential-lock-decorator';
 
 import type { LockStoreInterface } from '../../interface/lock-store.interface';
 
-const store = createInMemoryLockStore();
+const store = createInMemoryLockStoreMock();
 const SequentialLock = createSequentialLockDecorator({ store });
 
 class OrderService {
@@ -59,7 +59,7 @@ describe('createSequentialLockDecorator', () => {
     it('releases the lock after the method succeeds', async () => {
         expect.hasAssertions();
 
-        const localStore = createInMemoryLockStore();
+        const localStore = createInMemoryLockStoreMock();
         const spy = jest.spyOn(localStore, 'acquire');
         const LocalSeqLock = createSequentialLockDecorator({ store: localStore });
 
@@ -82,7 +82,7 @@ describe('createSequentialLockDecorator', () => {
     it('releases the lock after the method throws', async () => {
         expect.hasAssertions();
 
-        const localStore = createInMemoryLockStore();
+        const localStore = createInMemoryLockStoreMock();
         const LocalSeqLock = createSequentialLockDecorator({ store: localStore });
 
         class FulfillmentService {
@@ -103,7 +103,7 @@ describe('createSequentialLockDecorator', () => {
     it('builds the lock key from a function key form using method arguments', async () => {
         expect.hasAssertions();
 
-        const localStore = createInMemoryLockStore();
+        const localStore = createInMemoryLockStoreMock();
         const spy = jest.spyOn(localStore, 'acquire');
         const LocalSeqLock = createSequentialLockDecorator({ store: localStore });
 
@@ -123,7 +123,7 @@ describe('createSequentialLockDecorator', () => {
     it('passes timeoutMs to the store acquire via object key form', async () => {
         expect.hasAssertions();
 
-        const localStore = createInMemoryLockStore();
+        const localStore = createInMemoryLockStoreMock();
         const spy = jest.spyOn(localStore, 'acquire');
         const LocalSeqLock = createSequentialLockDecorator({ store: localStore });
 
@@ -143,7 +143,7 @@ describe('createSequentialLockDecorator', () => {
     it('queues concurrent calls on the same key in FIFO order', async () => {
         expect.hasAssertions();
 
-        const localStore = createInMemoryLockStore();
+        const localStore = createInMemoryLockStoreMock();
         const LocalSeqLock = createSequentialLockDecorator({ store: localStore });
         const processedOrder: number[] = [];
 
@@ -173,7 +173,7 @@ describe('createSequentialLockDecorator', () => {
     it('rejects with LockAcquireTimeoutError when the timeout elapses before the lock is free', async () => {
         expect.hasAssertions();
 
-        const localStore = createInMemoryLockStore();
+        const localStore = createInMemoryLockStoreMock();
         const held = await localStore.acquire('payment-timeout', 'sequential');
         const LocalSeqLock = createSequentialLockDecorator({ store: localStore });
 
@@ -217,7 +217,7 @@ describe('createSequentialLockDecorator', () => {
     it('returns the original descriptor unchanged when applied to a non-function property', () => {
         expect.hasAssertions();
 
-        const localStore = createInMemoryLockStore();
+        const localStore = createInMemoryLockStoreMock();
         const LocalSeqLock = createSequentialLockDecorator({ store: localStore });
 
         const descriptor: PropertyDescriptor = { get: (): string => 'catalog-value', configurable: true };
@@ -229,7 +229,7 @@ describe('createSequentialLockDecorator', () => {
     it('second call times out while the first is running on the same key', async () => {
         expect.hasAssertions();
 
-        const localStore = createInMemoryLockStore();
+        const localStore = createInMemoryLockStoreMock();
         const LocalSeqLock = createSequentialLockDecorator({ store: localStore });
 
         class WarehouseService {
