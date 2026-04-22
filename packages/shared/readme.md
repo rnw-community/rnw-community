@@ -7,12 +7,9 @@ Generic types, type guards and utilities commonly used across packages.
 
 ## Type guards
 
-Convenient [typescript type guards](https://www.typescriptlang.org/docs/handbook/2/narrowing.html#using-type-predicates) for
-everyday usage.
+Convenient [TypeScript type guards](https://www.typescriptlang.org/docs/handbook/2/narrowing.html#using-type-predicates) for everyday usage.
 
-> This type guards makes your code more explicit, readable and type-safe, both in runtime and typescript.
-
-This package provides a set of convenient type guards for everyday usage with the following types:
+> These type guards make your code more explicit, readable, and type-safe — both at runtime and in TypeScript's flow analysis.
 
 - Generic:
     - [isDefined](src/type-guard/generic/is-defined/is-defined.md)
