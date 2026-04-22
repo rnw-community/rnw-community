@@ -12,5 +12,5 @@ export const createHistogramMetricDecorator =
         config?: HistogramOptionsInterface<TArgs>
     ): MethodDecoratorType<K> =>
         createInterceptor<TArgs, unknown>({
-            middlewares: [createHistogramMiddleware<TArgs>(options, config)],
+            middleware: createHistogramMiddleware<TArgs>(options, config),
         }) as unknown as MethodDecoratorType<K>;

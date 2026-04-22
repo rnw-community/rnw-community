@@ -13,5 +13,5 @@ export const createSequentialLockDecorator =
         arg: SequentialLockArgumentType<TArgs>
     ): MethodDecoratorType<K> =>
         createInterceptor<TArgs, unknown>({
-            middlewares: [createLockMiddleware<TArgs>(options.store, 'sequential', arg)],
+            middleware: createLockMiddleware<TArgs>(options.store, 'sequential', arg),
         }) as unknown as MethodDecoratorType<K>;

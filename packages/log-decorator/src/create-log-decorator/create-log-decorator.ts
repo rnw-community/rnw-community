@@ -17,5 +17,5 @@ export const createLogDecorator =
         errorLog?: ErrorLogInputType<TArgs>
     ): MethodDecoratorType<K> =>
         createInterceptor<TArgs, TResult>({
-            middlewares: [createLogMiddleware<TArgs, TResult>(options, preLog, postLog, errorLog)],
+            middleware: createLogMiddleware<TArgs, TResult>(options, preLog, postLog, errorLog),
         }) as unknown as MethodDecoratorType<K>;
