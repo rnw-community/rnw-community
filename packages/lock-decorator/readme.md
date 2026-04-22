@@ -1,19 +1,20 @@
 # Lock Decorator
 
-Framework-agnostic sequential and exclusive method lock decorators. TypeScript `experimentalDecorators`. Dual ESM + CJS.
+Framework-agnostic sequential and exclusive method lock decorators. Promise and Observable return shapes both supported. TypeScript `experimentalDecorators`. Dual ESM + CJS. `rxjs` is an optional peer — required only when using the `$`-suffixed Observable factories or `createLockMiddleware$`.
 
 [![npm version](https://badge.fury.io/js/%40rnw-community%2Flock-decorator.svg)](https://badge.fury.io/js/%40rnw-community%2Flock-decorator)
 [![npm downloads](https://img.shields.io/npm/dm/%40rnw-community%2Flock-decorator.svg)](https://www.npmjs.com/package/%40rnw-community/lock-decorator)
 
-## Async-only
+## The four decorator factories
 
-Both factories require the decorated method to return a `Promise`. The factory's `K` generic is constrained to `(...args) => Promise<unknown>`, so applying either to a sync method is a compile-time error. A runtime guard catches any cast-bypassed mismatch.
+|   | Promise-returning methods | Observable-returning methods |
+|---|---|---|
+| **Sequential** (FIFO queue on key) | `createSequentialLockDecorator` | `createSequentialLockDecorator$` |
+| **Exclusive** (skip-on-busy) | `createExclusiveLockDecorator` | `createExclusiveLockDecorator$` |
 
-For `Observable` pipelines under a lock, use `runWithLock$` — also exported from this package.
+Each factory takes `{ store }: CreateLockOptionsInterface` and returns a decorator factory that accepts the same key argument shape (string, `(args) => string`, or `{ key, timeoutMs?, signal? }` for sequential; `{ key }` only for exclusive — exclusive does not wait, so timeout/signal make no sense).
 
-## Factories
-
-### [createSequentialLockDecorator](src/factory/create-sequential-lock-decorator/create-sequential-lock-decorator.ts)
+## Sequential (Promise)
 
 FIFO queue on the key. Supports `timeoutMs` (→ `LockAcquireTimeoutError`) and `AbortSignal` (→ `DOMException('AbortError')`).
 
@@ -32,14 +33,17 @@ class DataService {
 
     @SequentialLock(args => `price:${args[0]}`)
     async updatePrice(sku: string): Promise<void> { /* ... */ }
+
+    @SequentialLock({ key: 'payment', timeoutMs: 5000 })
+    async charge(amount: number): Promise<string> { /* ... */ }
 }
 ```
 
-Key-fn `args` is inferred from the method signature — no annotations needed.
+Key-fn `args` is inferred from the method signature — no annotations needed. The `K` generic constrains the decorated method to `(...args) => Promise<unknown>`; sync methods fail at compile time and, if cast-bypassed, reject at runtime.
 
-### [createExclusiveLockDecorator](src/factory/create-exclusive-lock-decorator/create-exclusive-lock-decorator.ts)
+## Exclusive (Promise)
 
-Rejects immediately with `LockBusyError` if the key is held. No waiting, no timeout, no signal — skip-on-busy semantics.
+Rejects immediately with `LockBusyError` if the key is held. No waiting, no timeout, no signal.
 
 ```ts
 import { createExclusiveLockDecorator } from '@rnw-community/lock-decorator';
@@ -56,9 +60,54 @@ class Cache {
 }
 ```
 
-## Store
+## Observable variants — `$` factories
 
-Bring your own [`LockStoreInterface`](src/interface/lock-store.interface.ts) implementation — Redis, in-process, cluster-aware, whatever fits the deployment target. The interface is a two-method contract (`acquire(key, mode, options)` returning `LockHandleInterface`), so a minimal adapter is usually a few dozen lines.
+For methods that return `Observable<T>`, use `createSequentialLockDecorator$` / `createExclusiveLockDecorator$`. Same store contract, same key-argument shapes. The acquired handle is released on the inner Observable's `complete`, `error`, or `unsubscribe` — the lock tracks the subscription lifecycle.
+
+```ts
+import { createSequentialLockDecorator$ } from '@rnw-community/lock-decorator';
+
+import type { LockStoreInterface } from '@rnw-community/lock-decorator';
+import type { Observable } from 'rxjs';
+
+declare const store: LockStoreInterface;
+
+const SequentialLock$ = createSequentialLockDecorator$({ store });
+
+class StreamService {
+    @SequentialLock$({ key: 'feed', timeoutMs: 1000 })
+    subscribe$(symbol: string): Observable<number> { /* ... */ }
+}
+```
+
+## Raw middleware (`createLockMiddleware` / `createLockMiddleware$`)
+
+If you are building a custom decorator (for example a DI-aware NestJS adapter), consume the raw middleware directly and feed it into your own `createInterceptor({ middleware })` call:
+
+```ts
+import { createInterceptor } from '@rnw-community/decorators-core';
+import { createLockMiddleware$ } from '@rnw-community/lock-decorator';
+```
+
+`createLockMiddleware(store, mode, arg)` returns an `InterceptorMiddleware<TArgs>` for Promise methods; `createLockMiddleware$` returns one for Observable methods and additionally bridges an external `AbortSignal` through to the store. Both are used internally by the four factories above.
+
+## Store contract
+
+Bring your own [`LockStoreInterface`](src/interface/lock-store.interface.ts) implementation — Redis, in-process, cluster-aware, whatever fits the deployment target. The contract is a single method:
+
+```ts
+interface LockStoreInterface {
+    acquire: (key: string, mode: LockModeType, options?: AcquireOptionsInterface) => Promise<LockHandleInterface>;
+}
+
+interface LockHandleInterface {
+    readonly key: string;
+    readonly mode: LockModeType;
+    release: () => void | Promise<void>;
+}
+```
+
+The store returns a handle; the handle releases itself. A minimal adapter is typically a few dozen lines.
 
 ## Errors
 
@@ -67,9 +116,12 @@ Bring your own [`LockStoreInterface`](src/interface/lock-store.interface.ts) imp
 
 ## Types & interfaces
 
-- [`SequentialLockArgumentType`](src/type/sequential-lock-argument.type.ts) / [`ExclusiveLockArgumentType`](src/type/exclusive-lock-argument.type.ts) — string key, key-fn, or object form
+- [`SequentialLockArgumentType<TArgs>`](src/type/sequential-lock-argument.type.ts) — `string | ((args: TArgs) => string) | { key, timeoutMs?, signal? }`
+- [`ExclusiveLockArgumentType<TArgs>`](src/type/exclusive-lock-argument.type.ts) — `string | ((args: TArgs) => string) | { key }`
+- [`LockArgumentType<TArgs>`](src/type/lock-argument.type.ts) — union of the two above
 - [`LockModeType`](src/type/lock-mode.type.ts) — `'sequential' | 'exclusive'`
-- [`AcquireOptionsInterface`](src/interface/acquire-options.interface.ts) / [`LockHandleInterface`](src/interface/lock-handle.interface.ts) / [`LockStoreInterface`](src/interface/lock-store.interface.ts)
+- [`AcquireOptionsInterface`](src/interface/acquire-options.interface.ts) — `{ timeoutMs?, signal? }`
+- [`CreateLockOptionsInterface`](src/interface/create-lock-options.interface.ts) — `{ store }`
 
 ## License
 
