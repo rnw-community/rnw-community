@@ -1,13 +1,200 @@
 import { describe, expect, it, jest } from '@jest/globals';
 
+import { type EmptyFn, emptyFn, isDefined } from '@rnw-community/shared';
+
+import { LockAcquireTimeoutError } from '../../error/lock-acquire-timeout-error/lock-acquire-timeout.error';
 import { LockBusyError } from '../../error/lock-busy-error/lock-busy.error';
-import { createInMemoryLockStoreMock } from '../../store/create-in-memory-lock-store/create-in-memory-lock-store.mock';
+import { assertValidTimeoutMs } from '../../util/assert-valid-timeout-ms/assert-valid-timeout-ms';
 
 import { createExclusiveLockDecorator } from './create-exclusive-lock-decorator';
 
+import type { AcquireOptionsInterface } from '../../interface/acquire-options.interface';
+import type { LockHandleInterface } from '../../interface/lock-handle.interface';
 import type { LockStoreInterface } from '../../interface/lock-store.interface';
+import type { LockModeType } from '../../type/lock-mode.type';
 
-const store = createInMemoryLockStoreMock();
+// --- inline in-memory lock store: test fixture only, not a public API ---
+type SettleFn = (action: 'resolve' | 'reject', value?: unknown) => void;
+
+const buildSettle = (
+    resolve: EmptyFn,
+    reject: (reason?: unknown) => void,
+    clearTimer: EmptyFn,
+    removeListener: EmptyFn
+): SettleFn => {
+    let settled = false;
+
+    return (action, value) => {
+        if (settled) {
+            return;
+        }
+        settled = true;
+        clearTimer();
+        removeListener();
+        if (action === 'resolve') {
+            resolve();
+        } else {
+            reject(value as Error);
+        }
+    };
+};
+
+const buildTimer = (key: string, timeoutMs: number, resolveSlot: EmptyFn, settle: SettleFn): ReturnType<typeof setTimeout> =>
+    setTimeout(() => {
+        resolveSlot();
+        settle('reject', new LockAcquireTimeoutError(key, timeoutMs));
+    }, timeoutMs);
+
+interface WaitForTurnContext {
+    readonly resolve: EmptyFn;
+    readonly reject: (reason?: unknown) => void;
+    readonly resolveSlot: EmptyFn;
+    readonly currentTail: Promise<void>;
+    readonly key: string;
+    readonly timeoutMs: number | undefined;
+    readonly signal: AbortSignal | undefined;
+}
+
+// eslint-disable-next-line max-statements
+const buildWaitForTurn = (ctx: WaitForTurnContext): void => {
+    const { resolve, reject, resolveSlot, currentTail, key, timeoutMs, signal } = ctx;
+    let timerId: ReturnType<typeof setTimeout> | undefined;
+    let removeListener: EmptyFn = emptyFn;
+
+    const clearTimer = (): void => {
+        if (isDefined(timerId)) {
+            clearTimeout(timerId);
+        }
+    };
+    const settle = buildSettle(resolve, reject, clearTimer, () => void removeListener());
+
+    if (signal?.aborted === true) {
+        resolveSlot();
+        reject(new DOMException('The operation was aborted.', 'AbortError'));
+
+        return;
+    }
+
+    if (isDefined(signal)) {
+        const onAbort = (): void => {
+            resolveSlot();
+            settle('reject', new DOMException('The operation was aborted.', 'AbortError'));
+        };
+        signal.addEventListener('abort', onAbort);
+        removeListener = () => {
+            signal.removeEventListener('abort', onAbort);
+        };
+    }
+
+    if (isDefined(timeoutMs)) {
+        timerId = buildTimer(key, timeoutMs, resolveSlot, settle);
+    }
+
+    void currentTail.then(
+        () => void settle('resolve'),
+        /* istanbul ignore next */
+        () => void settle('resolve')
+    );
+};
+
+const acquireSequential = (
+    sequentialChains: Map<string, Promise<void>>,
+    key: string,
+    options?: AcquireOptionsInterface
+): Promise<LockHandleInterface> => {
+    const timeoutMs = options?.timeoutMs;
+    const signal = options?.signal;
+    const currentTail = sequentialChains.get(key) ?? Promise.resolve();
+
+    let resolveSlot!: EmptyFn;
+
+    const slotPromise = new Promise<void>((resolve) => {
+        resolveSlot = resolve;
+    });
+
+    const nextTail = currentTail.then(() => slotPromise);
+    sequentialChains.set(key, nextTail);
+
+    const waitForTurn = new Promise<void>((resolve, reject) => {
+        buildWaitForTurn({ resolve, reject, resolveSlot, currentTail, key, timeoutMs, signal });
+    });
+
+    const deleteTailIfStillOurs = (): void => {
+        if (sequentialChains.get(key) === nextTail) {
+            sequentialChains.delete(key);
+        }
+    };
+
+    return waitForTurn.then(
+        () => {
+            let released = false;
+
+            return {
+                key,
+                mode: 'sequential' as const,
+                release: (): void => {
+                    if (released) {
+                        return;
+                    }
+                    released = true;
+                    resolveSlot();
+                    deleteTailIfStillOurs();
+                },
+            };
+        },
+        (err: unknown) => {
+            void nextTail.finally(deleteTailIfStillOurs);
+            throw err;
+        }
+    );
+};
+
+const acquireExclusive = (exclusiveHeld: Set<string>, key: string): Promise<LockHandleInterface> => {
+    if (exclusiveHeld.has(key)) {
+        return Promise.reject(new LockBusyError(key));
+    }
+
+    exclusiveHeld.add(key);
+
+    let released = false;
+    const handle: LockHandleInterface = {
+        key,
+        mode: 'exclusive',
+        release: (): void => {
+            if (released) {
+                return;
+            }
+            released = true;
+            exclusiveHeld.delete(key);
+        },
+    };
+
+    return Promise.resolve(handle);
+};
+
+const createInMemoryLockStore = (): LockStoreInterface => {
+    const sequentialChains = new Map<string, Promise<void>>();
+    const exclusiveHeld = new Set<string>();
+
+    return {
+        acquire: (key: string, mode: LockModeType, options?: AcquireOptionsInterface): Promise<LockHandleInterface> => {
+            try {
+                assertValidTimeoutMs(options?.timeoutMs);
+            } catch (err: unknown) {
+                // eslint-disable-next-line @typescript-eslint/prefer-promise-reject-errors -- assertValidTimeoutMs throws TypeError
+                return Promise.reject(err);
+            }
+            if (mode === 'sequential') {
+                return acquireSequential(sequentialChains, key, options);
+            }
+
+            return acquireExclusive(exclusiveHeld, key);
+        },
+    };
+};
+// --- end inline fixture ---
+
+const store = createInMemoryLockStore();
 const ExclusiveLock = createExclusiveLockDecorator({ store });
 
 class PaymentService {
@@ -46,7 +233,7 @@ describe('createExclusiveLockDecorator', () => {
     it('releases the lock after the method succeeds', async () => {
         expect.hasAssertions();
 
-        const localStore = createInMemoryLockStoreMock();
+        const localStore = createInMemoryLockStore();
         const spy = jest.spyOn(localStore, 'acquire');
         const LocalExLock = createExclusiveLockDecorator({ store: localStore });
 
@@ -66,7 +253,7 @@ describe('createExclusiveLockDecorator', () => {
     it('throws LockBusyError when the lock is already held', async () => {
         expect.hasAssertions();
 
-        const localStore = createInMemoryLockStoreMock();
+        const localStore = createInMemoryLockStore();
         const LocalExLock = createExclusiveLockDecorator({ store: localStore });
 
         let releaseHeld!: () => void;
@@ -95,7 +282,7 @@ describe('createExclusiveLockDecorator', () => {
     it('builds the lock key from a function key form using method arguments', async () => {
         expect.hasAssertions();
 
-        const localStore = createInMemoryLockStoreMock();
+        const localStore = createInMemoryLockStore();
         const spy = jest.spyOn(localStore, 'acquire');
         const LocalExLock = createExclusiveLockDecorator({ store: localStore });
 
@@ -115,7 +302,7 @@ describe('createExclusiveLockDecorator', () => {
     it('uses object key form with a dynamic key function', async () => {
         expect.hasAssertions();
 
-        const localStore = createInMemoryLockStoreMock();
+        const localStore = createInMemoryLockStore();
         const spy = jest.spyOn(localStore, 'acquire');
         const LocalExLock = createExclusiveLockDecorator({ store: localStore });
 
@@ -135,7 +322,7 @@ describe('createExclusiveLockDecorator', () => {
     it('propagates method errors and releases the lock', async () => {
         expect.hasAssertions();
 
-        const localStore = createInMemoryLockStoreMock();
+        const localStore = createInMemoryLockStore();
         const LocalExLock = createExclusiveLockDecorator({ store: localStore });
 
         class DeclineService {
@@ -181,7 +368,7 @@ describe('createExclusiveLockDecorator', () => {
     it('returns the original descriptor unchanged when applied to a non-function property', () => {
         expect.hasAssertions();
 
-        const localStore = createInMemoryLockStoreMock();
+        const localStore = createInMemoryLockStore();
         const LocalExLock = createExclusiveLockDecorator({ store: localStore });
 
         const descriptor: PropertyDescriptor = { get: (): string => 'payment-value', configurable: true };

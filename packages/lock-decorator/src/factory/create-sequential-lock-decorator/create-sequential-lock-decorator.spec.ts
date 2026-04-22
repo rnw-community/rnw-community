@@ -1,15 +1,200 @@
 import { describe, expect, it, jest } from '@jest/globals';
 
-import { wait } from '@rnw-community/shared';
+import { type EmptyFn, emptyFn, isDefined, wait } from '@rnw-community/shared';
 
 import { LockAcquireTimeoutError } from '../../error/lock-acquire-timeout-error/lock-acquire-timeout.error';
-import { createInMemoryLockStoreMock } from '../../store/create-in-memory-lock-store/create-in-memory-lock-store.mock';
+import { LockBusyError } from '../../error/lock-busy-error/lock-busy.error';
+import { assertValidTimeoutMs } from '../../util/assert-valid-timeout-ms/assert-valid-timeout-ms';
 
 import { createSequentialLockDecorator } from './create-sequential-lock-decorator';
 
+import type { AcquireOptionsInterface } from '../../interface/acquire-options.interface';
+import type { LockHandleInterface } from '../../interface/lock-handle.interface';
 import type { LockStoreInterface } from '../../interface/lock-store.interface';
+import type { LockModeType } from '../../type/lock-mode.type';
 
-const store = createInMemoryLockStoreMock();
+// --- inline in-memory lock store: test fixture only, not a public API ---
+type SettleFn = (action: 'resolve' | 'reject', value?: unknown) => void;
+
+const buildSettle = (
+    resolve: EmptyFn,
+    reject: (reason?: unknown) => void,
+    clearTimer: EmptyFn,
+    removeListener: EmptyFn
+): SettleFn => {
+    let settled = false;
+
+    return (action, value) => {
+        if (settled) {
+            return;
+        }
+        settled = true;
+        clearTimer();
+        removeListener();
+        if (action === 'resolve') {
+            resolve();
+        } else {
+            reject(value as Error);
+        }
+    };
+};
+
+const buildTimer = (key: string, timeoutMs: number, resolveSlot: EmptyFn, settle: SettleFn): ReturnType<typeof setTimeout> =>
+    setTimeout(() => {
+        resolveSlot();
+        settle('reject', new LockAcquireTimeoutError(key, timeoutMs));
+    }, timeoutMs);
+
+interface WaitForTurnContext {
+    readonly resolve: EmptyFn;
+    readonly reject: (reason?: unknown) => void;
+    readonly resolveSlot: EmptyFn;
+    readonly currentTail: Promise<void>;
+    readonly key: string;
+    readonly timeoutMs: number | undefined;
+    readonly signal: AbortSignal | undefined;
+}
+
+// eslint-disable-next-line max-statements
+const buildWaitForTurn = (ctx: WaitForTurnContext): void => {
+    const { resolve, reject, resolveSlot, currentTail, key, timeoutMs, signal } = ctx;
+    let timerId: ReturnType<typeof setTimeout> | undefined;
+    let removeListener: EmptyFn = emptyFn;
+
+    const clearTimer = (): void => {
+        if (isDefined(timerId)) {
+            clearTimeout(timerId);
+        }
+    };
+    const settle = buildSettle(resolve, reject, clearTimer, () => void removeListener());
+
+    if (signal?.aborted === true) {
+        resolveSlot();
+        reject(new DOMException('The operation was aborted.', 'AbortError'));
+
+        return;
+    }
+
+    if (isDefined(signal)) {
+        const onAbort = (): void => {
+            resolveSlot();
+            settle('reject', new DOMException('The operation was aborted.', 'AbortError'));
+        };
+        signal.addEventListener('abort', onAbort);
+        removeListener = () => {
+            signal.removeEventListener('abort', onAbort);
+        };
+    }
+
+    if (isDefined(timeoutMs)) {
+        timerId = buildTimer(key, timeoutMs, resolveSlot, settle);
+    }
+
+    void currentTail.then(
+        () => void settle('resolve'),
+        /* istanbul ignore next */
+        () => void settle('resolve')
+    );
+};
+
+const acquireSequential = (
+    sequentialChains: Map<string, Promise<void>>,
+    key: string,
+    options?: AcquireOptionsInterface
+): Promise<LockHandleInterface> => {
+    const timeoutMs = options?.timeoutMs;
+    const signal = options?.signal;
+    const currentTail = sequentialChains.get(key) ?? Promise.resolve();
+
+    let resolveSlot!: EmptyFn;
+
+    const slotPromise = new Promise<void>((resolve) => {
+        resolveSlot = resolve;
+    });
+
+    const nextTail = currentTail.then(() => slotPromise);
+    sequentialChains.set(key, nextTail);
+
+    const waitForTurn = new Promise<void>((resolve, reject) => {
+        buildWaitForTurn({ resolve, reject, resolveSlot, currentTail, key, timeoutMs, signal });
+    });
+
+    const deleteTailIfStillOurs = (): void => {
+        if (sequentialChains.get(key) === nextTail) {
+            sequentialChains.delete(key);
+        }
+    };
+
+    return waitForTurn.then(
+        () => {
+            let released = false;
+
+            return {
+                key,
+                mode: 'sequential' as const,
+                release: (): void => {
+                    if (released) {
+                        return;
+                    }
+                    released = true;
+                    resolveSlot();
+                    deleteTailIfStillOurs();
+                },
+            };
+        },
+        (err: unknown) => {
+            void nextTail.finally(deleteTailIfStillOurs);
+            throw err;
+        }
+    );
+};
+
+const acquireExclusive = (exclusiveHeld: Set<string>, key: string): Promise<LockHandleInterface> => {
+    if (exclusiveHeld.has(key)) {
+        return Promise.reject(new LockBusyError(key));
+    }
+
+    exclusiveHeld.add(key);
+
+    let released = false;
+    const handle: LockHandleInterface = {
+        key,
+        mode: 'exclusive',
+        release: (): void => {
+            if (released) {
+                return;
+            }
+            released = true;
+            exclusiveHeld.delete(key);
+        },
+    };
+
+    return Promise.resolve(handle);
+};
+
+const createInMemoryLockStore = (): LockStoreInterface => {
+    const sequentialChains = new Map<string, Promise<void>>();
+    const exclusiveHeld = new Set<string>();
+
+    return {
+        acquire: (key: string, mode: LockModeType, options?: AcquireOptionsInterface): Promise<LockHandleInterface> => {
+            try {
+                assertValidTimeoutMs(options?.timeoutMs);
+            } catch (err: unknown) {
+                // eslint-disable-next-line @typescript-eslint/prefer-promise-reject-errors -- assertValidTimeoutMs throws TypeError
+                return Promise.reject(err);
+            }
+            if (mode === 'sequential') {
+                return acquireSequential(sequentialChains, key, options);
+            }
+
+            return acquireExclusive(exclusiveHeld, key);
+        },
+    };
+};
+// --- end inline fixture ---
+
+const store = createInMemoryLockStore();
 const SequentialLock = createSequentialLockDecorator({ store });
 
 class OrderService {
@@ -59,7 +244,7 @@ describe('createSequentialLockDecorator', () => {
     it('releases the lock after the method succeeds', async () => {
         expect.hasAssertions();
 
-        const localStore = createInMemoryLockStoreMock();
+        const localStore = createInMemoryLockStore();
         const spy = jest.spyOn(localStore, 'acquire');
         const LocalSeqLock = createSequentialLockDecorator({ store: localStore });
 
@@ -82,7 +267,7 @@ describe('createSequentialLockDecorator', () => {
     it('releases the lock after the method throws', async () => {
         expect.hasAssertions();
 
-        const localStore = createInMemoryLockStoreMock();
+        const localStore = createInMemoryLockStore();
         const LocalSeqLock = createSequentialLockDecorator({ store: localStore });
 
         class FulfillmentService {
@@ -103,7 +288,7 @@ describe('createSequentialLockDecorator', () => {
     it('builds the lock key from a function key form using method arguments', async () => {
         expect.hasAssertions();
 
-        const localStore = createInMemoryLockStoreMock();
+        const localStore = createInMemoryLockStore();
         const spy = jest.spyOn(localStore, 'acquire');
         const LocalSeqLock = createSequentialLockDecorator({ store: localStore });
 
@@ -123,7 +308,7 @@ describe('createSequentialLockDecorator', () => {
     it('passes timeoutMs to the store acquire via object key form', async () => {
         expect.hasAssertions();
 
-        const localStore = createInMemoryLockStoreMock();
+        const localStore = createInMemoryLockStore();
         const spy = jest.spyOn(localStore, 'acquire');
         const LocalSeqLock = createSequentialLockDecorator({ store: localStore });
 
@@ -143,7 +328,7 @@ describe('createSequentialLockDecorator', () => {
     it('queues concurrent calls on the same key in FIFO order', async () => {
         expect.hasAssertions();
 
-        const localStore = createInMemoryLockStoreMock();
+        const localStore = createInMemoryLockStore();
         const LocalSeqLock = createSequentialLockDecorator({ store: localStore });
         const processedOrder: number[] = [];
 
@@ -173,7 +358,7 @@ describe('createSequentialLockDecorator', () => {
     it('rejects with LockAcquireTimeoutError when the timeout elapses before the lock is free', async () => {
         expect.hasAssertions();
 
-        const localStore = createInMemoryLockStoreMock();
+        const localStore = createInMemoryLockStore();
         const held = await localStore.acquire('payment-timeout', 'sequential');
         const LocalSeqLock = createSequentialLockDecorator({ store: localStore });
 
@@ -217,7 +402,7 @@ describe('createSequentialLockDecorator', () => {
     it('returns the original descriptor unchanged when applied to a non-function property', () => {
         expect.hasAssertions();
 
-        const localStore = createInMemoryLockStoreMock();
+        const localStore = createInMemoryLockStore();
         const LocalSeqLock = createSequentialLockDecorator({ store: localStore });
 
         const descriptor: PropertyDescriptor = { get: (): string => 'catalog-value', configurable: true };
@@ -229,7 +414,7 @@ describe('createSequentialLockDecorator', () => {
     it('second call times out while the first is running on the same key', async () => {
         expect.hasAssertions();
 
-        const localStore = createInMemoryLockStoreMock();
+        const localStore = createInMemoryLockStore();
         const LocalSeqLock = createSequentialLockDecorator({ store: localStore });
 
         class WarehouseService {
