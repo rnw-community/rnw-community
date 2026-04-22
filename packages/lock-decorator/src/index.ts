@@ -7,12 +7,9 @@ export type { AcquireOptionsInterface } from './interface/acquire-options.interf
 export type { LockHandleInterface } from './interface/lock-handle.interface';
 export type { LockStoreInterface } from './interface/lock-store.interface';
 export type { CreateLockOptionsInterface } from './interface/create-lock-options.interface';
-export type { InMemoryLockStoreInterface } from './interface/in-memory-lock-store.interface';
 
 export { LockBusyError } from './error/lock-busy-error/lock-busy.error';
 export { LockAcquireTimeoutError } from './error/lock-acquire-timeout-error/lock-acquire-timeout.error';
-
-export { createInMemoryLockStore } from './store/create-in-memory-lock-store/create-in-memory-lock-store';
 
 export { createSequentialLockDecorator } from './factory/create-sequential-lock-decorator/create-sequential-lock-decorator';
 export { createExclusiveLockDecorator } from './factory/create-exclusive-lock-decorator/create-exclusive-lock-decorator';

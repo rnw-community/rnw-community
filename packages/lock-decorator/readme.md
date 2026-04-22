@@ -18,9 +18,13 @@ For `Observable` pipelines under a lock, use `runWithLock$` — also exported fr
 FIFO queue on the key. Supports `timeoutMs` (→ `LockAcquireTimeoutError`) and `AbortSignal` (→ `DOMException('AbortError')`).
 
 ```ts
-import { createSequentialLockDecorator, createInMemoryLockStore } from '@rnw-community/lock-decorator';
+import { createSequentialLockDecorator } from '@rnw-community/lock-decorator';
 
-const SequentialLock = createSequentialLockDecorator({ store: createInMemoryLockStore() });
+import type { LockStoreInterface } from '@rnw-community/lock-decorator';
+
+declare const store: LockStoreInterface;
+
+const SequentialLock = createSequentialLockDecorator({ store });
 
 class DataService {
     @SequentialLock('fetch-data')
@@ -38,9 +42,13 @@ Key-fn `args` is inferred from the method signature — no annotations needed.
 Rejects immediately with `LockBusyError` if the key is held. No waiting, no timeout, no signal — skip-on-busy semantics.
 
 ```ts
-import { createExclusiveLockDecorator, createInMemoryLockStore } from '@rnw-community/lock-decorator';
+import { createExclusiveLockDecorator } from '@rnw-community/lock-decorator';
 
-const ExclusiveLock = createExclusiveLockDecorator({ store: createInMemoryLockStore() });
+import type { LockStoreInterface } from '@rnw-community/lock-decorator';
+
+declare const store: LockStoreInterface;
+
+const ExclusiveLock = createExclusiveLockDecorator({ store });
 
 class Cache {
     @ExclusiveLock('cache-write')
@@ -48,28 +56,9 @@ class Cache {
 }
 ```
 
-## RxJS — [`runWithLock$`](src/util/run-with-lock-rxjs/run-with-lock-rxjs.ts)
-
-Observable helper that acquires, subscribes, and releases on complete / error / unsubscribe. Bridges an external `AbortSignal` and cleans up its listener on teardown.
-
-```ts
-import { runWithLock$, createInMemoryLockStore } from '@rnw-community/lock-decorator';
-
-const store = createInMemoryLockStore();
-const result$ = runWithLock$(store, 'stream-key', 'sequential', { timeoutMs: 1000 }, () => source$);
-```
-
 ## Store
 
-### [createInMemoryLockStore](src/store/create-in-memory-lock-store/create-in-memory-lock-store.ts)
-
-Single-process FIFO chain + exclusive set. Terminal waiters (timeout / abort) clean up the chain map when they still own the tail, so the store does not retain dead entries.
-
-```ts
-const store = createInMemoryLockStore();
-const handle = await store.acquire('my-key', 'sequential', { timeoutMs: 3000 });
-handle.release();
-```
+Bring your own [`LockStoreInterface`](src/interface/lock-store.interface.ts) implementation — Redis, in-process, cluster-aware, whatever fits the deployment target. The interface is a two-method contract (`acquire(key, mode, options)` returning `LockHandleInterface`), so a minimal adapter is usually a few dozen lines.
 
 ## Errors
 

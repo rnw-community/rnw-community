@@ -5,9 +5,14 @@ import { LockBusyError } from '../../error/lock-busy-error/lock-busy.error';
 import { assertValidTimeoutMs } from '../../util/assert-valid-timeout-ms/assert-valid-timeout-ms';
 
 import type { AcquireOptionsInterface } from '../../interface/acquire-options.interface';
-import type { InMemoryLockStoreInterface } from '../../interface/in-memory-lock-store.interface';
 import type { LockHandleInterface } from '../../interface/lock-handle.interface';
+import type { LockStoreInterface } from '../../interface/lock-store.interface';
 import type { LockModeType } from '../../type/lock-mode.type';
+
+interface InMemoryLockStoreMock extends LockStoreInterface {
+    readonly sequentialChainCount: () => number;
+    readonly exclusiveHeldCount: () => number;
+}
 
 type SettleFn = (action: 'resolve' | 'reject', value?: unknown) => void;
 
@@ -167,7 +172,7 @@ const acquireExclusive = (exclusiveHeld: Set<string>, key: string): Promise<Lock
     return Promise.resolve(handle);
 };
 
-export const createInMemoryLockStore = (): InMemoryLockStoreInterface => {
+export const createInMemoryLockStoreMock = (): InMemoryLockStoreMock => {
     const sequentialChains = new Map<string, Promise<void>>();
     const exclusiveHeld = new Set<string>();
 

@@ -5,12 +5,12 @@ import { wait } from '@rnw-community/shared';
 import { LockAcquireTimeoutError } from '../../error/lock-acquire-timeout-error/lock-acquire-timeout.error';
 import { LockBusyError } from '../../error/lock-busy-error/lock-busy.error';
 
-import { createInMemoryLockStore } from './create-in-memory-lock-store';
+import { createInMemoryLockStoreMock } from './create-in-memory-lock-store.mock';
 
-describe('createInMemoryLockStore', () => {
+describe('createInMemoryLockStoreMock', () => {
     describe('monitoring counters', () => {
         it('exposes exclusiveHeldCount alongside sequentialChainCount', async () => {
-            const store = createInMemoryLockStore();
+            const store = createInMemoryLockStoreMock();
             expect(store.exclusiveHeldCount()).toBe(0);
 
             const handle = await store.acquire('ex', 'exclusive');
@@ -23,7 +23,7 @@ describe('createInMemoryLockStore', () => {
 
     describe('stale tail cleanup on terminal paths with no later acquirer', () => {
         it('cleans up the chain map after a timeout, once the holder releases, with no later acquirer', async () => {
-            const store = createInMemoryLockStore();
+            const store = createInMemoryLockStoreMock();
             const holder = await store.acquire('t1', 'sequential');
             expect(store.sequentialChainCount()).toBe(1);
 
@@ -37,7 +37,7 @@ describe('createInMemoryLockStore', () => {
         });
 
         it('cleans up the chain map after an abort, once the holder releases, with no later acquirer', async () => {
-            const store = createInMemoryLockStore();
+            const store = createInMemoryLockStoreMock();
             const holder = await store.acquire('t2', 'sequential');
             expect(store.sequentialChainCount()).toBe(1);
 
@@ -55,7 +55,7 @@ describe('createInMemoryLockStore', () => {
 
     describe('sequential mode', () => {
         it('acquires a lock and releases it', async () => {
-            const store = createInMemoryLockStore();
+            const store = createInMemoryLockStoreMock();
             const handle = await store.acquire('k', 'sequential');
             expect(handle.key).toBe('k');
             expect(handle.mode).toBe('sequential');
@@ -63,7 +63,7 @@ describe('createInMemoryLockStore', () => {
         });
 
         it('runs concurrent sequential calls in FIFO order', async () => {
-            const store = createInMemoryLockStore();
+            const store = createInMemoryLockStoreMock();
             const order: number[] = [];
 
             const h1 = await store.acquire('k', 'sequential');
@@ -87,7 +87,7 @@ describe('createInMemoryLockStore', () => {
         });
 
         it('three concurrent sequential calls run in order', async () => {
-            const store = createInMemoryLockStore();
+            const store = createInMemoryLockStoreMock();
             const order: number[] = [];
 
             const makeTask = (num: number): Promise<void> =>
@@ -102,7 +102,7 @@ describe('createInMemoryLockStore', () => {
         });
 
         it('different keys do not block each other', async () => {
-            const store = createInMemoryLockStore();
+            const store = createInMemoryLockStoreMock();
             const h1 = await store.acquire('a', 'sequential');
             const h2 = await store.acquire('b', 'sequential');
             expect(h1.key).toBe('a');
@@ -112,7 +112,7 @@ describe('createInMemoryLockStore', () => {
         });
 
         it('cleans up chain map when last holder releases', async () => {
-            const store = createInMemoryLockStore();
+            const store = createInMemoryLockStoreMock();
             const handle = await store.acquire('cleanup', 'sequential');
             void handle.release();
             const h2 = await store.acquire('cleanup', 'sequential');
@@ -121,7 +121,7 @@ describe('createInMemoryLockStore', () => {
         });
 
         it('rejects with LockAcquireTimeoutError when timeout expires', async () => {
-            const store = createInMemoryLockStore();
+            const store = createInMemoryLockStoreMock();
             const handle = await store.acquire('t', 'sequential');
 
             const err = await store.acquire('t', 'sequential', { timeoutMs: 10 }).catch((e: unknown) => e);
@@ -133,7 +133,7 @@ describe('createInMemoryLockStore', () => {
         });
 
         it('rejects immediately if signal is already aborted', async () => {
-            const store = createInMemoryLockStore();
+            const store = createInMemoryLockStoreMock();
             const handle = await store.acquire('ab', 'sequential');
 
             const controller = new AbortController();
@@ -147,7 +147,7 @@ describe('createInMemoryLockStore', () => {
         });
 
         it('rejects with AbortError when signal aborts during wait', async () => {
-            const store = createInMemoryLockStore();
+            const store = createInMemoryLockStoreMock();
             const handle = await store.acquire('sig', 'sequential');
 
             const controller = new AbortController();
@@ -163,7 +163,7 @@ describe('createInMemoryLockStore', () => {
         });
 
         it('abort while not the tail: chain remains for subsequent waiters', async () => {
-            const store = createInMemoryLockStore();
+            const store = createInMemoryLockStoreMock();
             const handle = await store.acquire('chain-abort', 'sequential');
 
             const controller = new AbortController();
@@ -182,7 +182,7 @@ describe('createInMemoryLockStore', () => {
         });
 
         it('pre-aborted signal while not the tail: chain remains for subsequent waiters', async () => {
-            const store = createInMemoryLockStore();
+            const store = createInMemoryLockStoreMock();
             const handle = await store.acquire('pre-chain-abort', 'sequential');
 
             const controller = new AbortController();
@@ -202,7 +202,7 @@ describe('createInMemoryLockStore', () => {
         it('REGRESSION: timed-out sole waiter must NOT let the next acquirer bypass the active holder', async () => {
             jest.useFakeTimers({ legacyFakeTimers: false });
             try {
-                const store = createInMemoryLockStore();
+                const store = createInMemoryLockStoreMock();
                 const handle = await store.acquire('race', 'sequential');
 
                 const timedOut = store.acquire('race', 'sequential', { timeoutMs: 10 });
@@ -230,7 +230,7 @@ describe('createInMemoryLockStore', () => {
         });
 
         it('REGRESSION: aborted sole waiter must NOT let the next acquirer bypass the active holder', async () => {
-            const store = createInMemoryLockStore();
+            const store = createInMemoryLockStoreMock();
             const handle = await store.acquire('abort-race', 'sequential');
 
             const controller = new AbortController();
@@ -256,7 +256,7 @@ describe('createInMemoryLockStore', () => {
         });
 
         it('allows next waiter to proceed after timeout of previous waiter', async () => {
-            const store = createInMemoryLockStore();
+            const store = createInMemoryLockStoreMock();
             const handle = await store.acquire('next', 'sequential');
 
             const timedOut = store.acquire('next', 'sequential', { timeoutMs: 10 });
@@ -274,7 +274,7 @@ describe('createInMemoryLockStore', () => {
 
     describe('exclusive mode', () => {
         it('acquires and releases', async () => {
-            const store = createInMemoryLockStore();
+            const store = createInMemoryLockStoreMock();
             const handle = await store.acquire('ek', 'exclusive');
             expect(handle.key).toBe('ek');
             expect(handle.mode).toBe('exclusive');
@@ -282,7 +282,7 @@ describe('createInMemoryLockStore', () => {
         });
 
         it('throws LockBusyError if key already held', async () => {
-            const store = createInMemoryLockStore();
+            const store = createInMemoryLockStoreMock();
             const handle = await store.acquire('busy', 'exclusive');
 
             await expect(store.acquire('busy', 'exclusive')).rejects.toBeInstanceOf(LockBusyError);
@@ -294,7 +294,7 @@ describe('createInMemoryLockStore', () => {
         });
 
         it('can re-acquire after release', async () => {
-            const store = createInMemoryLockStore();
+            const store = createInMemoryLockStoreMock();
             const handle = await store.acquire('reacquire', 'exclusive');
             void handle.release();
             const h2 = await store.acquire('reacquire', 'exclusive');
@@ -303,7 +303,7 @@ describe('createInMemoryLockStore', () => {
         });
 
         it('different keys do not conflict', async () => {
-            const store = createInMemoryLockStore();
+            const store = createInMemoryLockStoreMock();
             const h1 = await store.acquire('x', 'exclusive');
             const h2 = await store.acquire('y', 'exclusive');
             expect(h1.key).toBe('x');
@@ -313,7 +313,7 @@ describe('createInMemoryLockStore', () => {
         });
 
         it('is idempotent: double release on the same handle is a no-op', async () => {
-            const store = createInMemoryLockStore();
+            const store = createInMemoryLockStoreMock();
             const handle = await store.acquire('idem', 'exclusive');
             void handle.release();
             void handle.release();
@@ -323,7 +323,7 @@ describe('createInMemoryLockStore', () => {
         });
 
         it('stale double-release does NOT evict a fresh holder of the same key', async () => {
-            const store = createInMemoryLockStore();
+            const store = createInMemoryLockStoreMock();
             const h1 = await store.acquire('shared', 'exclusive');
             void h1.release();
             const h2 = await store.acquire('shared', 'exclusive');
@@ -337,7 +337,7 @@ describe('createInMemoryLockStore', () => {
 
     describe('sequential mode idempotency', () => {
         it('is idempotent: double release on the same handle is a no-op', async () => {
-            const store = createInMemoryLockStore();
+            const store = createInMemoryLockStoreMock();
             const handle = await store.acquire('seq-idem', 'sequential');
             void handle.release();
             void handle.release();
@@ -347,7 +347,7 @@ describe('createInMemoryLockStore', () => {
         });
 
         it('stale double-release does NOT disturb a fresh holder', async () => {
-            const store = createInMemoryLockStore();
+            const store = createInMemoryLockStoreMock();
             const h1 = await store.acquire('seq-shared', 'sequential');
             void h1.release();
             const h2 = await store.acquire('seq-shared', 'sequential');
@@ -369,25 +369,25 @@ describe('createInMemoryLockStore', () => {
     describe('timeoutMs validation at the store boundary', () => {
         it('rejects timeoutMs: 0 with TypeError (sequential)', async () => {
             expect.hasAssertions();
-            const store = createInMemoryLockStore();
+            const store = createInMemoryLockStoreMock();
             await expect(store.acquire('k', 'sequential', { timeoutMs: 0 })).rejects.toBeInstanceOf(TypeError);
         });
 
         it('rejects timeoutMs: -1 with TypeError (sequential)', async () => {
             expect.hasAssertions();
-            const store = createInMemoryLockStore();
+            const store = createInMemoryLockStoreMock();
             await expect(store.acquire('k', 'sequential', { timeoutMs: -1 })).rejects.toBeInstanceOf(TypeError);
         });
 
         it('rejects timeoutMs: NaN with TypeError (sequential)', async () => {
             expect.hasAssertions();
-            const store = createInMemoryLockStore();
+            const store = createInMemoryLockStoreMock();
             await expect(store.acquire('k', 'sequential', { timeoutMs: Number.NaN })).rejects.toBeInstanceOf(TypeError);
         });
 
         it('rejects timeoutMs: Infinity with TypeError (sequential)', async () => {
             expect.hasAssertions();
-            const store = createInMemoryLockStore();
+            const store = createInMemoryLockStoreMock();
             await expect(
                 store.acquire('k', 'sequential', { timeoutMs: Number.POSITIVE_INFINITY })
             ).rejects.toBeInstanceOf(TypeError);
@@ -395,13 +395,13 @@ describe('createInMemoryLockStore', () => {
 
         it('rejects timeoutMs: 0 with TypeError (exclusive)', async () => {
             expect.hasAssertions();
-            const store = createInMemoryLockStore();
+            const store = createInMemoryLockStoreMock();
             await expect(store.acquire('k', 'exclusive', { timeoutMs: 0 })).rejects.toBeInstanceOf(TypeError);
         });
 
         it('accepts undefined timeoutMs (no timeout)', async () => {
             expect.hasAssertions();
-            const store = createInMemoryLockStore();
+            const store = createInMemoryLockStoreMock();
             const handle = await store.acquire('k', 'sequential');
             expect(handle.key).toBe('k');
             void handle.release();
@@ -409,7 +409,7 @@ describe('createInMemoryLockStore', () => {
 
         it('error message includes the received value', async () => {
             expect.hasAssertions();
-            const store = createInMemoryLockStore();
+            const store = createInMemoryLockStoreMock();
             await expect(store.acquire('k', 'sequential', { timeoutMs: 0 })).rejects.toThrow('received 0');
         });
     });
