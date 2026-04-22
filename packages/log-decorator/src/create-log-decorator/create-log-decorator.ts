@@ -23,7 +23,6 @@ const buildLogMiddleware = <TArgs extends readonly unknown[], TResult>(
 
     // eslint-disable-next-line max-statements -- single cohesive observe path: preLog + invoke + shape-aware postLog/errorLog
     const middleware: InterceptorMiddleware<TArgs, TResult> = (context, next) => {
-        const start = performance.now();
         if (preLog !== void 0) {
             const message = isString(preLog) ? preLog : preLog(...context.args);
             if (isNotEmptyString(message)) {
@@ -35,8 +34,7 @@ const buildLogMiddleware = <TArgs extends readonly unknown[], TResult>(
             if (postLog === void 0) {
                 return;
             }
-            const durationMs = performance.now() - start;
-            const message = isString(postLog) ? postLog : postLog(result, durationMs, ...context.args);
+            const message = isString(postLog) ? postLog : postLog(result, ...context.args);
             if (isNotEmptyString(message)) {
                 transport.debug(message, context.logContext);
             }
@@ -45,8 +43,7 @@ const buildLogMiddleware = <TArgs extends readonly unknown[], TResult>(
             if (errorLog === void 0) {
                 return;
             }
-            const durationMs = performance.now() - start;
-            const message = isString(errorLog) ? errorLog : errorLog(error, durationMs, ...context.args);
+            const message = isString(errorLog) ? errorLog : errorLog(error, ...context.args);
             if (isNotEmptyString(message)) {
                 transport.error(message, toErrorOrVoid(error), context.logContext);
             }
