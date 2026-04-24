@@ -1,6 +1,6 @@
 # Log Decorator
 
-Universal method decorator with pre / post / error logging hooks and a pluggable transport. Built on [`@rnw-community/decorators-core`](../decorators-core). Handles sync, `Promise`, and `Observable` return types automatically. TypeScript `experimentalDecorators`.
+Universal method decorator with pre / post / error logging hooks and a pluggable transport. Built on [`@rnw-community/decorators-core`](https://github.com/rnw-community/rnw-community/tree/master/packages/decorators-core). Handles sync, `Promise`, and `Observable` return types automatically. TypeScript `experimentalDecorators`.
 
 [![npm version](https://badge.fury.io/js/%40rnw-community%2Flog-decorator.svg)](https://badge.fury.io/js/%40rnw-community%2Flog-decorator)
 [![npm downloads](https://img.shields.io/npm/dm/%40rnw-community%2Flog-decorator.svg)](https://www.npmjs.com/package/%40rnw-community%2Flog-decorator)
