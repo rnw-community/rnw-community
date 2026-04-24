@@ -38,7 +38,7 @@ class OrderService {
 | `ExecutionContextInterface<TArgs>` | `{ className, methodName, args, logContext }` — stable identity per invocation |
 | `CreateInterceptorOptionsInterface<TArgs, TResult>` | `{ middleware }` — the sole option |
 
-`MethodDecoratorType<K>` comes from [`@rnw-community/shared`](../shared) — import it directly, not through this package.
+`MethodDecoratorType<K>` comes from [`@rnw-community/shared`](https://github.com/rnw-community/rnw-community/tree/master/packages/shared) — import it directly, not through this package.
 
 ## Build your own decorator
 
@@ -91,4 +91,4 @@ The context identity is stable across a single invocation — middleware can cap
 
 ## License
 
-[MIT](../../LICENSE.md)
+[MIT](https://github.com/rnw-community/rnw-community/blob/master/LICENSE.md)
