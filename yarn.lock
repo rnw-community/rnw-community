@@ -14240,7 +14240,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"lerna@npm:9.0.7":
+"lerna@npm:^9.0.7":
   version: 9.0.7
   resolution: "lerna@npm:9.0.7"
   dependencies:
@@ -18643,7 +18643,7 @@ __metadata:
     jest: "npm:^29.7.0"
     jscpd: "npm:^4.0.8"
     knip: "npm:^5.83.1"
-    lerna: "npm:9.0.7"
+    lerna: "npm:^9.0.7"
     lint-staged: "npm:^16.2.7"
     metro-react-native-babel-preset: "npm:^0.77.0"
     prettier: "npm:^3.8.1"
