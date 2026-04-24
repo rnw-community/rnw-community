@@ -3,6 +3,16 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.0.3](https://github.com/rnw-community/rnw-community/compare/v2.0.2...v2.0.3) (2026-04-24)
+
+### Bug Fixes
+
+- align yarn.lock with package.json caret range for lerna ([730da19](https://github.com/rnw-community/rnw-community/commit/730da1939f137a61e2f10e57e41895c14d60d401))
+- **decorators-core:** correct inaccurate "zero runtime dependencies" claim ([8644155](https://github.com/rnw-community/rnw-community/commit/864415546d959152eb5d6fc762da218384d9f9d7))
+- **histogram-metric-decorator:** use absolute URLs for readme cross-links ([d03e47e](https://github.com/rnw-community/rnw-community/commit/d03e47e8e3f3ee039d6ea0865db98c02d721def9))
+- **lock-decorator:** fix broken MIT license readme link ([bac5226](https://github.com/rnw-community/rnw-community/commit/bac52260c71d34fe92fc28027210fed1b1a9d16b))
+- **log-decorator:** use absolute URL for decorators-core readme cross-link ([f35a328](https://github.com/rnw-community/rnw-community/commit/f35a328773eb8137a1ce2be69aab03fad6897e70))
+
 ## [2.0.2](https://github.com/rnw-community/rnw-community/compare/v2.0.0...v2.0.2) (2026-04-24)
 
 ### Bug Fixes

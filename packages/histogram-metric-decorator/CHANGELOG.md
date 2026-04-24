@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.0.3](https://github.com/rnw-community/rnw-community/compare/v2.0.2...v2.0.3) (2026-04-24)
+
+### Bug Fixes
+
+- **histogram-metric-decorator:** use absolute URLs for readme cross-links ([d03e47e](https://github.com/rnw-community/rnw-community/commit/d03e47e8e3f3ee039d6ea0865db98c02d721def9))
+
 ## [2.0.2](https://github.com/rnw-community/rnw-community/compare/v2.0.0...v2.0.2) (2026-04-24)
 
 **Note:** Version bump only for package @rnw-community/histogram-metric-decorator

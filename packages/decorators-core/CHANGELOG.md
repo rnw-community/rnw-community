@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.0.3](https://github.com/rnw-community/rnw-community/compare/v2.0.2...v2.0.3) (2026-04-24)
+
+### Bug Fixes
+
+- **decorators-core:** correct inaccurate "zero runtime dependencies" claim ([8644155](https://github.com/rnw-community/rnw-community/commit/864415546d959152eb5d6fc762da218384d9f9d7))
+
 ## [2.0.2](https://github.com/rnw-community/rnw-community/compare/v2.0.0...v2.0.2) (2026-04-24)
 
 ### Bug Fixes
