@@ -33,13 +33,11 @@ class TestClass {
     }
 
     @Log(preLogText, postLogText, errorLogText)
-     
     async testPromiseError(): Promise<number> {
         throw new Error(errorLogText);
     }
 
     @Log(preLogText, postLogText, (error, arg) => `${String(error)}-${arg}`)
-     
     async testPromiseErrorFunction(_arg: number): Promise<number> {
         throw new Error(errorLogText);
     }
@@ -111,7 +109,6 @@ jest.mock('@nestjs/common', () => ({
     },
 }));
 
- 
 describe('LogDecorator', () => {
     it('should output pre/post logs as strings with Plain value returned', () => {
         expect.assertions(2);
@@ -139,7 +136,11 @@ describe('LogDecorator', () => {
         const instance = new TestClass();
 
         expect(() => instance.testErrorString(2)).toThrow(errorLogText);
-        expect(Logger.error).toHaveBeenCalledWith(errorLogText, { err: expect.any(Error) }, `${TestClass.name}::testErrorString`);
+        expect(Logger.error).toHaveBeenCalledWith(
+            errorLogText,
+            { err: expect.any(Error) },
+            `${TestClass.name}::testErrorString`
+        );
     });
 
     it('should output error log with functions', () => {
@@ -148,7 +149,11 @@ describe('LogDecorator', () => {
         const instance = new TestClass();
 
         expect(() => instance.testErrorFunction(2)).toThrow(errorLogText);
-        expect(Logger.error).toHaveBeenCalledWith(`Error: ${errorLogText}-${errorLogText}-2`, { err: expect.any(Error) }, `${TestClass.name}::testErrorFunction`);
+        expect(Logger.error).toHaveBeenCalledWith(
+            `Error: ${errorLogText}-${errorLogText}-2`,
+            { err: expect.any(Error) },
+            `${TestClass.name}::testErrorFunction`
+        );
     });
 
     it('should NOT output error log if arg is not passed', () => {
@@ -204,9 +209,12 @@ describe('LogDecorator', () => {
 
             const instance = new TestClass();
 
-
             await expect(instance.testPromiseError).rejects.toThrow(errorLogText);
-            expect(Logger.error).toHaveBeenCalledWith(errorLogText, { err: expect.any(Error) }, `${TestClass.name}::testPromiseError`);
+            expect(Logger.error).toHaveBeenCalledWith(
+                errorLogText,
+                { err: expect.any(Error) },
+                `${TestClass.name}::testPromiseError`
+            );
         });
 
         it('should output error log function with argument', async () => {
@@ -215,7 +223,11 @@ describe('LogDecorator', () => {
             const instance = new TestClass();
 
             await expect(() => instance.testPromiseErrorFunction(1)).rejects.toThrow(errorLogText);
-            expect(Logger.error).toHaveBeenCalledWith(`Error: ${errorLogText}-1`, { err: expect.any(Error) }, `${TestClass.name}::testPromiseErrorFunction`);
+            expect(Logger.error).toHaveBeenCalledWith(
+                `Error: ${errorLogText}-1`,
+                { err: expect.any(Error) },
+                `${TestClass.name}::testPromiseErrorFunction`
+            );
         });
 
         it('should support generic methods', async () => {

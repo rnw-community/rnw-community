@@ -1,0 +1,314 @@
+import { beforeEach, describe, expect, it, jest } from '@jest/globals';
+import { EMPTY, Observable, lastValueFrom, of, throwError } from 'rxjs';
+
+import { createHistogramMetricDecorator } from '../../index';
+
+import type { HistogramTransportInterface } from '../../index';
+
+interface Observation {
+    readonly name: string;
+    readonly durationMs: number;
+    readonly labels?: Readonly<Record<string, string>>;
+}
+
+interface InMemoryTransport extends HistogramTransportInterface {
+    readonly snapshot: () => ReadonlyArray<Observation>;
+}
+
+const createInMemoryTransport = (): InMemoryTransport => {
+    const observations: Observation[] = [];
+
+    return {
+        observe: (name, durationMs, labels) => {
+            const entry = labels ? { labels } : {};
+            observations.push({ name, durationMs, ...entry });
+        },
+        snapshot: () => observations.splice(0),
+    };
+};
+
+const transport = createInMemoryTransport();
+const HistogramMetric = createHistogramMetricDecorator({ transport });
+
+class OrderService {
+    @HistogramMetric()
+    placeOrderSync(productId: string, qty: number): string {
+        return `receipt-${productId}-${qty.toString()}`;
+    }
+
+    @HistogramMetric({ name: 'order_fetch_ms', labels: ([orderId]: readonly [string]) => ({ orderId }) })
+    async fetchOrder(orderId: string): Promise<{ readonly id: string }> {
+        return { id: orderId };
+    }
+
+    @HistogramMetric({ name: 'order_charge_ms' })
+    async chargeOrder(_orderId: string): Promise<never> {
+        throw new Error('payment declined');
+    }
+
+    @HistogramMetric({ name: 'order_refund_ms', labels: ([orderId]: readonly [string]) => ({ orderId }) })
+    async refundOrder(_orderId: string): Promise<never> {
+        throw new Error('refund failed');
+    }
+
+    @HistogramMetric()
+    submitOrder(): never {
+        throw new Error('out of stock');
+    }
+}
+
+describe('createHistogramMetricDecorator', () => {
+    beforeEach(() => {
+        transport.snapshot();
+    });
+
+    it('records one observation when a sync method returns', () => {
+        expect.hasAssertions();
+        new OrderService().placeOrderSync('sku-42', 3);
+        expect(transport.snapshot()).toHaveLength(1);
+    });
+
+    it('uses ClassName_methodName_duration_ms as the default metric name', () => {
+        expect.hasAssertions();
+        new OrderService().placeOrderSync('sku-1', 1);
+        const observations = transport.snapshot();
+        expect(observations[0]).toMatchObject({ name: 'OrderService_placeOrderSync_duration_ms' });
+    });
+
+    it('uses the explicit name option when supplied', async () => {
+        expect.hasAssertions();
+        await new OrderService().fetchOrder('ord-1');
+        const observations = transport.snapshot();
+        expect(observations[0]).toMatchObject({ name: 'order_fetch_ms' });
+    });
+
+    it('records one observation after a Promise resolves', async () => {
+        expect.hasAssertions();
+        await new OrderService().fetchOrder('ord-2');
+        expect(transport.snapshot()).toHaveLength(1);
+    });
+
+    it('records one observation after a Promise rejects', async () => {
+        expect.hasAssertions();
+        await expect(new OrderService().chargeOrder('ord-3')).rejects.toThrow('payment declined');
+        expect(transport.snapshot()).toHaveLength(1);
+    });
+
+    it('includes labels derived from method arguments in the observation', async () => {
+        expect.hasAssertions();
+        await new OrderService().fetchOrder('ord-123');
+        expect(transport.snapshot()[0]).toMatchObject({ labels: { orderId: 'ord-123' } });
+    });
+
+    it('records a non-negative durationMs', () => {
+        expect.hasAssertions();
+        new OrderService().placeOrderSync('sku-42', 3);
+        const observations = transport.snapshot();
+        expect(typeof observations[0].durationMs).toBe('number');
+        expect(observations[0].durationMs >= 0).toBe(true);
+    });
+
+    it('records labels on the error path when a labelled Promise rejects', async () => {
+        expect.hasAssertions();
+        await expect(new OrderService().refundOrder('ord-99')).rejects.toThrow('refund failed');
+        expect(transport.snapshot()[0]).toMatchObject({ name: 'order_refund_ms', labels: { orderId: 'ord-99' } });
+    });
+
+    it('records one observation when a sync method throws', () => {
+        expect.hasAssertions();
+        expect(() => new OrderService().submitOrder()).toThrow('out of stock');
+        expect(transport.snapshot()).toHaveLength(1);
+    });
+
+    describe('Observable return shapes (completion-aware)', () => {
+        it('records exactly one observation on stream completion, regardless of emission count', async () => {
+            expect.hasAssertions();
+
+            class StreamService {
+                @HistogramMetric({ name: 'stream_complete_ms' })
+                stream$(): Observable<number> {
+                    return of(1, 2, 3);
+                }
+            }
+
+            transport.snapshot();
+            await lastValueFrom(new StreamService().stream$());
+            const observations = transport.snapshot();
+            expect(observations).toHaveLength(1);
+            expect(observations[0]).toMatchObject({ name: 'stream_complete_ms' });
+        });
+
+        it('records exactly one observation when the stream completes without emitting', async () => {
+            expect.hasAssertions();
+
+            class EmptyStream {
+                @HistogramMetric({ name: 'stream_empty_ms' })
+                stream$(): Observable<never> {
+                    return EMPTY;
+                }
+            }
+
+            transport.snapshot();
+            await lastValueFrom(new EmptyStream().stream$(), { defaultValue: undefined });
+            expect(transport.snapshot()).toHaveLength(1);
+        });
+
+        it('records exactly one observation when the stream errors, and propagates the error', async () => {
+            expect.hasAssertions();
+
+            class FailingStream {
+                @HistogramMetric({ name: 'stream_error_ms' })
+                stream$(): Observable<number> {
+                    return throwError(() => new Error('stream-boom'));
+                }
+            }
+
+            transport.snapshot();
+            await expect(lastValueFrom(new FailingStream().stream$())).rejects.toThrow('stream-boom');
+            const observations = transport.snapshot();
+            expect(observations).toHaveLength(1);
+            expect(observations[0]).toMatchObject({ name: 'stream_error_ms' });
+        });
+    });
+
+    describe('labels() safe boundary', () => {
+        it('records an observation without labels when labels() throws on success path', () => {
+            expect.hasAssertions();
+            const boom = new Error('labels-boom');
+            const Safe = createHistogramMetricDecorator({ transport });
+
+            class Service {
+                @Safe({
+                    name: 'safe_ok_ms',
+                    labels: () => {
+                        throw boom;
+                    },
+                })
+                run(_id: string): string {
+                    return 'ok';
+                }
+            }
+
+            transport.snapshot();
+            expect(new Service().run('x')).toBe('ok');
+            const observations = transport.snapshot();
+            expect(observations).toHaveLength(1);
+            expect(observations[0]).toMatchObject({ name: 'safe_ok_ms' });
+            expect(observations[0].labels).toBeUndefined();
+        });
+
+        it('records an observation without labels when labels() throws on error path', () => {
+            expect.hasAssertions();
+            const boom = new Error('labels-boom');
+            const Safe = createHistogramMetricDecorator({ transport });
+
+            class Service {
+                @Safe({
+                    name: 'safe_err_ms',
+                    labels: () => {
+                        throw boom;
+                    },
+                })
+                run(_id: string): string {
+                    throw new Error('method failed');
+                }
+            }
+
+            transport.snapshot();
+            expect(() => new Service().run('x')).toThrow('method failed');
+            const observations = transport.snapshot();
+            expect(observations).toHaveLength(1);
+            expect(observations[0]).toMatchObject({ name: 'safe_err_ms' });
+            expect(observations[0].labels).toBeUndefined();
+        });
+
+        it('invokes onLabelsError with the thrown value and the method args', () => {
+            expect.hasAssertions();
+            const boom = new Error('labels-boom');
+            const onLabelsError = jest.fn();
+            const Safe = createHistogramMetricDecorator({ transport, onLabelsError });
+
+            class Service {
+                @Safe({
+                    labels: () => {
+                        throw boom;
+                    },
+                })
+                run(_id: string, _qty: number): string {
+                    return 'ok';
+                }
+            }
+
+            transport.snapshot();
+            new Service().run('sku-1', 5);
+            expect(onLabelsError).toHaveBeenCalledTimes(1);
+            expect(onLabelsError).toHaveBeenCalledWith(boom, ['sku-1', 5]);
+        });
+
+        it('leaves successful labels resolution unchanged', () => {
+            expect.hasAssertions();
+            const onLabelsError = jest.fn();
+            const Safe = createHistogramMetricDecorator({ transport, onLabelsError });
+
+            class Service {
+                @Safe({ labels: ([id]: readonly [string]) => ({ id }) })
+                run(_id: string): string {
+                    return 'ok';
+                }
+            }
+
+            transport.snapshot();
+            new Service().run('abc');
+            expect(transport.snapshot()[0]).toMatchObject({ labels: { id: 'abc' } });
+            expect(onLabelsError).not.toHaveBeenCalled();
+        });
+
+        it('still records the observation when onLabelsError itself throws', () => {
+            expect.hasAssertions();
+            const onLabelsError = jest.fn(() => {
+                throw new Error('handler-blew-up');
+            });
+            const Safe = createHistogramMetricDecorator({ transport, onLabelsError });
+
+            class Service {
+                @Safe({
+                    name: 'handler_throw_ms',
+                    labels: () => {
+                        throw new Error('labels-boom');
+                    },
+                })
+                run(_id: string): string {
+                    return 'ok';
+                }
+            }
+
+            transport.snapshot();
+            expect(() => new Service().run('x')).not.toThrow();
+            const observations = transport.snapshot();
+            expect(observations).toHaveLength(1);
+            expect(observations[0]).toMatchObject({ name: 'handler_throw_ms' });
+            expect(observations[0].labels).toBeUndefined();
+            expect(onLabelsError).toHaveBeenCalledTimes(1);
+        });
+
+        it('does not throw when onLabelsError is omitted and labels() throws', () => {
+            expect.hasAssertions();
+            const Safe = createHistogramMetricDecorator({ transport });
+
+            class Service {
+                @Safe({
+                    labels: () => {
+                        throw new Error('silent-boom');
+                    },
+                })
+                run(_id: string): string {
+                    return 'ok';
+                }
+            }
+
+            transport.snapshot();
+            expect(() => new Service().run('x')).not.toThrow();
+            expect(transport.snapshot()).toHaveLength(1);
+        });
+    });
+});

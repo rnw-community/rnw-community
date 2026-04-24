@@ -34,3 +34,4 @@ export { cs } from './util/cs/cs';
 export { emptyFn } from './util/empty-fn/empty-fn';
 export { getErrorMessage } from './util/get-error-message/get-error-message';
 export { getDefined } from './util/get-defined/get-defined';
+export { wait } from './util/wait/wait';

@@ -1,25 +1,72 @@
-# @HistogramMetric decorator
+# `@HistogramMetric` decorator
 
-Class property decorator that runs [Prometheus](https://prometheus.io) [histogram metric](https://prometheus.io/docs/concepts/metric_types/#histogram) on your method.
+Method decorator that records call duration into a [`prom-client`](https://github.com/siimon/prom-client) `Histogram`. One decorator, correct duration semantics for every return shape.
+
+## When the observation fires
+
+| Return | When |
+|---|---|
+| `T` (sync) | on return |
+| `Promise<T>` | on resolve |
+| `Promise<T>` that rejects | on reject (duration still emitted; error propagates) |
+| `Observable<T>` | on stream `complete` |
+| `Observable<T>` that errors | on stream error (duration still emitted; error propagates) |
+
+Observable support uses `completionObservableStrategy` from [`@rnw-community/decorators-core`](../../../../../decorators-core); wired by default. `rxjs` is required when methods return `Observable`.
 
 ## Installation
 
-For using this decorator you need to install following packages:
-- [`prom-client` package](https://github.com/siimon/prom-client)
-- [`willsoto/nestjs-prometheus` package](https://github.com/willsoto/nestjs-prometheus)
+Only `prom-client` is required. Nothing else:
+
+```bash
+yarn add prom-client
+```
+
+No `nestjs-prometheus` or other wrapper — `@HistogramMetric` uses `prom-client` directly and resolves histograms via the global registry (or a custom `configuration.registers`).
 
 ## Usage
 
-Please follow official documentation for [histogram metrics configuration](https://github.com/siimon/prom-client?tab=readme-ov-file#histogram) options.
-
 ```typescript
-import {HistogramMetric} from '@rnw-community/nestjs-enterprise';
+import { HistogramMetric } from '@rnw-community/nestjs-enterprise';
 
 class CatsService {
-    @HistogramMetric('cats_find_all', {buckets: [0.1, 5, 15, 50, 100, 500]})
-    findAll() {
-        return 'This action returns all cats';
-    }
+    @HistogramMetric('cats_find_all_duration', { buckets: [0.01, 0.1, 0.5, 1, 5] })
+    async findAll(): Promise<Cat[]> { /* ... */ }
 }
 ```
 
+First argument is the metric name; second is an optional `Omit<HistogramConfiguration, 'name'>` — same shape `prom-client` accepts on `new Histogram(...)`. Buckets are seconds (`prom-client`'s convention); the adapter converts the engine's milliseconds internally via `durationMs / 1000`.
+
+## Custom registry
+
+Pass `registers: [myRegistry]` to route observations to a registry other than the global default. The adapter looks up existing histograms in the first supplied registry before creating a new one — multiple decorations of the same metric name share the same `Histogram` instance.
+
+## Labels
+
+Pass `labels: (args) => ({...})` on the `configuration` object to attach per-call label values. The callback receives the decorated method's argument tuple; the return becomes prom-client's `LabelValues` for the observation.
+
+```typescript
+@HistogramMetric<'tenant' | 'operation'>('cats_find_all_duration', {
+    labelNames: ['tenant', 'operation'],
+    labels: ([tenantId, op]: [string, string]) => ({ tenant: tenantId, operation: op }),
+})
+async findAll(tenantId: string, op: string): Promise<Cat[]> { /* ... */ }
+```
+
+Label names must be declared in prom-client's `labelNames` field for the histogram, otherwise the observation is rejected at runtime.
+
+## Config mismatch detection
+
+Two decorators registering the same metric name with DIFFERENT `buckets` or `labelNames` throw at decoration time:
+
+```
+HistogramMetric "my_metric" already registered with different buckets/labelNames.
+Existing: { "buckets": [0.01, 0.1] }. Requested: { "buckets": [0.5, 1] }.
+Use a unique name or align configurations.
+```
+
+Tracking is per-registry via a `WeakMap<Registry, Map<name, config>>`, so fresh custom registries stay isolated.
+
+**Boundary:** if an external caller pre-registers a `Histogram` via `prom-client` directly BEFORE any decorator runs, the decorator adopts it on first sight and silently ignores bucket differences for that adoption. Subsequent decorator applications are still guarded.
+
+**Testing:** if you call `prom-client`'s `register.clear()` in tests, import `histogramMetricTracking` from `@rnw-community/nestjs-enterprise/HistogramMetric` and call `histogramMetricTracking.reset(register)` with the same `Registry` — the WeakMap entry is not automatically cleared by `register.clear()` and would otherwise cause false-positive mismatch throws on re-registration after reset. `reset()` is test-only infrastructure; do not call it in production.

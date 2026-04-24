@@ -1,11 +1,12 @@
 import { beforeEach, describe, expect, it, jest } from '@jest/globals';
 import { EMPTY, Observable, lastValueFrom, of, tap } from 'rxjs';
 
+import { LockBusyError } from '@rnw-community/lock-decorator';
+
 import { createObservableLockDecorators } from './create-observable-lock-decorators';
 
 import type { LockHandle } from '../interface/lock-handle.interface';
 import type { LockServiceInterface } from '../interface/lock-service.interface';
-
 
 const mockRelease = jest.fn<() => Promise<void>>().mockResolvedValue();
 const mockAcquire = jest
@@ -22,6 +23,8 @@ jest.mock('@nestjs/common', () => ({
         injectedSymbol = key;
     },
 }));
+
+const SCALAR_CATCH_RESULT = 777;
 
 const mockErrorFn = jest.fn();
 const mockResultFn = jest.fn();
@@ -46,9 +49,15 @@ class TestClass {
         return of({ field: this.field, id });
     }
 
+    // @ts-expect-error — sync method intentionally violates the Observable-returning contract; runtime guard catches it
     @SequentialLock$(['test'])
     testSync(): number {
         return this.field;
+    }
+
+    @SequentialLock$(['test'])
+    testSyncThrow$(): Observable<number> {
+        throw new Error('sync-throw-before-observable');
     }
 
     @SequentialLock$([])
@@ -80,6 +89,15 @@ class TestClass {
         return of(this.field);
     }
 
+    @SequentialLock$(['test'], (err: unknown): number => {
+        mockErrorFn(err);
+
+        return SCALAR_CATCH_RESULT;
+    })
+    testLockFailedScalarCatch$(): Observable<number> {
+        return of(this.field);
+    }
+
     @ExclusiveLock$(['test'])
     testExclusiveArray$(): Observable<number> {
         return of(this.field);
@@ -90,6 +108,7 @@ class TestClass {
         return of({ field: this.field, id });
     }
 
+    // @ts-expect-error — sync method intentionally violates the Observable-returning contract; runtime guard catches it
     @ExclusiveLock$(['test'])
     testExclusiveSync(): number {
         return this.field;
@@ -141,6 +160,46 @@ describe('createObservableLockDecorators', () => {
     });
 
     describe('SequentialLock$', () => {
+        it('releases the lock when the method throws SYNCHRONOUSLY before returning an observable', async () => {
+            expect.hasAssertions();
+
+            await expect(lastValueFrom(instance.testSyncThrow$())).rejects.toThrow('sync-throw-before-observable');
+            expect(mockAcquire).toHaveBeenCalledWith(['test'], 1000);
+            expect(mockRelease).toHaveBeenCalledWith();
+        });
+
+        it('swallows release rejection silently when the method throws synchronously', async () => {
+            expect.hasAssertions();
+
+            mockRelease.mockRejectedValueOnce(new Error('release-failed-after-sync-throw'));
+
+            await expect(lastValueFrom(instance.testSyncThrow$())).rejects.toThrow('sync-throw-before-observable');
+            expect(mockAcquire).toHaveBeenCalledWith(['test'], 1000);
+            expect(mockRelease).toHaveBeenCalledWith();
+        });
+
+        it('swallows release rejection silently when the method returns a non-Observable', async () => {
+            expect.hasAssertions();
+
+            mockRelease.mockRejectedValueOnce(new Error('release-failed-after-non-observable'));
+
+            await expect(lastValueFrom(instance.testSync() as unknown as Observable<unknown>)).rejects.toThrow(
+                'does not return an observable'
+            );
+            expect(mockAcquire).toHaveBeenCalledWith(['test'], 1000);
+            expect(mockRelease).toHaveBeenCalledWith();
+        });
+
+        it('wraps a scalar return from catchErrorFn$ in an Observable', async () => {
+            expect.hasAssertions();
+
+            mockAcquire.mockRejectedValueOnce(new Error('acquire-failed'));
+
+            await expect(lastValueFrom(instance.testLockFailedScalarCatch$())).resolves.toBe(SCALAR_CATCH_RESULT);
+            expect(mockAcquire).toHaveBeenCalledWith(['test'], 1000);
+            expect(mockRelease).not.toHaveBeenCalled();
+        });
+
         it('should lock resource with key as array and duration', async () => {
             expect.hasAssertions();
 
@@ -273,7 +332,9 @@ describe('createObservableLockDecorators', () => {
 
             mockTryAcquire.mockResolvedValueOnce(undefined);
 
-            await expect(lastValueFrom(instance.testExclusiveArray$(), { defaultValue: undefined })).resolves.toBeUndefined();
+            await expect(
+                lastValueFrom(instance.testExclusiveArray$(), { defaultValue: undefined })
+            ).resolves.toBeUndefined();
             expect(mockTryAcquire).toHaveBeenCalledWith(['test'], 1000);
             expect(mockRelease).not.toHaveBeenCalled();
         });
@@ -286,7 +347,9 @@ describe('createObservableLockDecorators', () => {
             await expect(lastValueFrom(instance.testExclusiveLockFailedErrorFn$())).resolves.toBe(0);
             expect(mockTryAcquire).toHaveBeenCalledWith(['test'], 1000);
             expect(mockRelease).not.toHaveBeenCalled();
-            expect(mockErrorFn).toHaveBeenCalledWith(expect.objectContaining({ message: expect.stringContaining('Lock not acquired') }));
+            expect(mockErrorFn).toHaveBeenCalledWith(
+                expect.objectContaining({ message: expect.stringContaining('Lock not acquired') })
+            );
         });
 
         it('should handle throwing error in catchErrorFn$ when lock is already held', async () => {
@@ -298,9 +361,7 @@ describe('createObservableLockDecorators', () => {
                 throw new Error(catchErrorFnErrorMsg);
             });
 
-            await expect(lastValueFrom(instance.testExclusiveLockFailedErrorFn$())).rejects.toThrow(
-                catchErrorFnErrorMsg
-            );
+            await expect(lastValueFrom(instance.testExclusiveLockFailedErrorFn$())).rejects.toThrow(catchErrorFnErrorMsg);
             expect(mockTryAcquire).toHaveBeenCalledWith(['test'], 1000);
             expect(mockRelease).not.toHaveBeenCalled();
         });
@@ -308,9 +369,7 @@ describe('createObservableLockDecorators', () => {
         it('should throw error if resources argument is not defined or empty array is passed', async () => {
             expect.hasAssertions();
 
-            await expect(lastValueFrom(instance.testExclusiveEmptyResource$())).rejects.toThrow(
-                'Lock key is not defined'
-            );
+            await expect(lastValueFrom(instance.testExclusiveEmptyResource$())).rejects.toThrow('Lock key is not defined');
             expect(mockTryAcquire).not.toHaveBeenCalled();
             expect(mockRelease).not.toHaveBeenCalled();
         });
@@ -371,9 +430,7 @@ describe('createObservableLockDecorators', () => {
                 throw new Error(catchErrorFnErrorMsg);
             });
 
-            await expect(lastValueFrom(instance.testExclusiveLockFailedErrorFn$())).rejects.toThrow(
-                catchErrorFnErrorMsg
-            );
+            await expect(lastValueFrom(instance.testExclusiveLockFailedErrorFn$())).rejects.toThrow(catchErrorFnErrorMsg);
             expect(mockTryAcquire).toHaveBeenCalledWith(['test'], 1000);
             expect(mockRelease).not.toHaveBeenCalled();
         });
@@ -383,6 +440,50 @@ describe('createObservableLockDecorators', () => {
 
             await expect(lastValueFrom(instance.testExclusiveOverrideDuration$())).resolves.toBe(1);
             expect(mockTryAcquire).toHaveBeenCalledWith(['test'], 5000);
+        });
+
+        it('should emit a descriptive error when the lock service is not injected', async () => {
+            expect.hasAssertions();
+
+            const noServiceInstance = new TestClass();
+            await expect(lastValueFrom(noServiceInstance.testExclusiveArray$())).rejects.toThrow(
+                'LockService was not injected. Ensure the lock service provider is registered in the NestJS module.'
+            );
+        });
+
+        it('does NOT funnel "Lock key is not defined" through catchErrorFn$ (setup errors bypass)', async () => {
+            expect.hasAssertions();
+
+            // Preserve the shared injectedSymbol so subsequent tests still find their DI slot.
+            const savedSymbol = injectedSymbol;
+            const catchSpy = jest.fn();
+
+            try {
+                const { SequentialLock$: SeqLockCatch$ } = createObservableLockDecorators(MockLockService, 1000);
+
+                class CatchSetupClass {
+                    @SeqLockCatch$(
+                        () => [],
+                        (err: unknown) => {
+                            catchSpy(err);
+
+                            return of(0);
+                        }
+                    )
+                    test$(): Observable<number> {
+                        return of(1);
+                    }
+                }
+
+                const instanceLocal = new CatchSetupClass();
+                (instanceLocal as unknown as Record<symbol, unknown>)[injectedSymbol] = getMockLockService();
+
+                await expect(lastValueFrom(instanceLocal.test$())).rejects.toThrow('Lock key is not defined');
+                expect(catchSpy).not.toHaveBeenCalled();
+            } finally {
+                // eslint-disable-next-line require-atomic-updates
+                injectedSymbol = savedSymbol;
+            }
         });
 
         it('should release lock after result function', async () => {
@@ -398,6 +499,77 @@ describe('createObservableLockDecorators', () => {
             const [releaseCallOrder] = mockRelease.mock.invocationCallOrder;
 
             expect(resultCallOrder).toBeLessThan(releaseCallOrder);
+        });
+    });
+
+    describe('method-thrown errors are not conflated with acquisition failures', () => {
+        it('propagates a method-thrown LockBusyError as-is (no "Lock not acquired" remap, no exclusive swallow)', async () => {
+            expect.hasAssertions();
+
+            const { ExclusiveLock$: ExclusiveLockLocal$ } = createObservableLockDecorators(MockLockService, 1000);
+            const innerBusy = new LockBusyError('inner-resource');
+
+            class MethodThrowsClass {
+                @ExclusiveLockLocal$(['outer-resource'])
+                test$(): Observable<number> {
+                    return new Observable<number>(subscriber => void subscriber.error(innerBusy));
+                }
+            }
+
+            const instanceLocal = new MethodThrowsClass();
+            (instanceLocal as unknown as Record<symbol, unknown>)[injectedSymbol] = getMockLockService();
+
+            await expect(lastValueFrom(instanceLocal.test$())).rejects.toBe(innerBusy);
+        });
+
+        it('routes a method-thrown error through catchErrorFn$ without the acquisition-error remap', async () => {
+            expect.hasAssertions();
+
+            const { ExclusiveLock$: ExclusiveLockLocal$ } = createObservableLockDecorators(MockLockService, 1000);
+            const seen: unknown[] = [];
+            const methodError = new Error('method-side failure');
+
+            class MethodThrowsWithCatchClass {
+                @ExclusiveLockLocal$(
+                    ['outer-resource'],
+                    (err: unknown) => {
+                        seen.push(err);
+
+                        return of(0);
+                    }
+                )
+                test$(): Observable<number> {
+                    return new Observable<number>(subscriber => void subscriber.error(methodError));
+                }
+            }
+
+            const instanceLocal = new MethodThrowsWithCatchClass();
+            (instanceLocal as unknown as Record<symbol, unknown>)[injectedSymbol] = getMockLockService();
+
+            await expect(lastValueFrom(instanceLocal.test$())).resolves.toBe(0);
+            expect(seen).toStrictEqual([methodError]);
+        });
+
+        it('lifts a scalar catchErrorFn$ result into an Observable for method-thrown errors', async () => {
+            expect.hasAssertions();
+
+            const { ExclusiveLock$: ExclusiveLockLocal$ } = createObservableLockDecorators(MockLockService, 1000);
+            const methodError = new Error('method-side failure');
+
+            class MethodThrowsScalarCatchClass {
+                @ExclusiveLockLocal$(
+                    ['outer-resource'],
+                    (_err: unknown) => SCALAR_CATCH_RESULT
+                )
+                test$(): Observable<number> {
+                    return new Observable<number>(subscriber => void subscriber.error(methodError));
+                }
+            }
+
+            const instanceLocal = new MethodThrowsScalarCatchClass();
+            (instanceLocal as unknown as Record<symbol, unknown>)[injectedSymbol] = getMockLockService();
+
+            await expect(lastValueFrom(instanceLocal.test$())).resolves.toBe(SCALAR_CATCH_RESULT);
         });
     });
 });

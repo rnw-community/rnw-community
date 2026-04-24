@@ -26,7 +26,7 @@ Class property decorator that locks the ***observable*** [rxjs](https://rxjs.dev
   }
 ```
 
-## Legacy usage
+## Usage (deprecated)
 
 ```ts
 import { Injectable } from '@nestjs/common';

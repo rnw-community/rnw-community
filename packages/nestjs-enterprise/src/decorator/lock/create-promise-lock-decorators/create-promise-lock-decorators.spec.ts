@@ -1,10 +1,11 @@
 import { beforeEach, describe, expect, it, jest } from '@jest/globals';
 
+import { LockBusyError } from '@rnw-community/lock-decorator';
+
 import { createPromiseLockDecorators } from './create-promise-lock-decorators';
 
 import type { LockHandle } from '../interface/lock-handle.interface';
 import type { LockServiceInterface } from '../interface/lock-service.interface';
-
 
 const mockRelease = jest.fn<() => Promise<void>>().mockResolvedValue();
 const mockAcquire = jest
@@ -45,11 +46,13 @@ class TestClass {
         return Promise.resolve([this.field, id]);
     }
 
+    // @ts-expect-error runtime guard test
     @SequentialLock(['test'])
     testSync(): number {
         return this.field;
     }
 
+    // @ts-expect-error runtime guard test
     @SequentialLock([])
     testEmptyResource(): number {
         return this.field;
@@ -91,11 +94,13 @@ class TestClass {
         return Promise.resolve([this.field, id]);
     }
 
+    // @ts-expect-error runtime guard test
     @ExclusiveLock(['test'])
     testExclusiveSync(): number {
         return this.field;
     }
 
+    // @ts-expect-error runtime guard test
     @ExclusiveLock([])
     testExclusiveEmptyResource(): number {
         return this.field;
@@ -173,9 +178,7 @@ describe('createPromiseLockDecorators', () => {
         it('should throw error if decorated method does not return promise', async () => {
             expect.hasAssertions();
 
-            await expect(instance.testSync()).rejects.toThrow(
-                'Method TestClass::testSync does not return a promise'
-            );
+            await expect(instance.testSync()).rejects.toThrow('Method TestClass::testSync does not return a promise');
             expect(mockAcquire).toHaveBeenCalledWith(['test'], 1000);
             expect(mockRelease).toHaveBeenCalledWith();
         });
@@ -284,7 +287,9 @@ describe('createPromiseLockDecorators', () => {
             await expect(instance.testExclusiveLockFailedErrorFn()).resolves.toBe(0);
             expect(mockTryAcquire).toHaveBeenCalledWith(['test'], 1000);
             expect(mockRelease).not.toHaveBeenCalled();
-            expect(mockErrorFn).toHaveBeenCalledWith(expect.objectContaining({ message: expect.stringContaining('Lock not acquired') }));
+            expect(mockErrorFn).toHaveBeenCalledWith(
+                expect.objectContaining({ message: expect.stringContaining('Lock not acquired') })
+            );
         });
 
         it('should handle throwing error in catchErrorFn when lock is already held', async () => {
@@ -448,6 +453,109 @@ describe('createPromiseLockDecorators', () => {
             }
 
             await expect(emptyInstance.test()).rejects.toThrow('Lock key is not defined');
+        });
+
+        it('does NOT funnel "Lock key is not defined" through catchErrorFn (setup errors bypass)', async () => {
+            expect.hasAssertions();
+
+            const { SequentialLock: SeqLockCatch } = createPromiseLockDecorators(MockLockService, 1000);
+            const catchSpy = jest.fn();
+
+            class CatchSetupClass {
+                @SeqLockCatch(
+                    () => [],
+                    (err: unknown) => {
+                        catchSpy(err);
+
+                        return Promise.resolve(0);
+                    }
+                )
+                async test(): Promise<number> {
+                    return Promise.resolve(1);
+                }
+            }
+
+            const instanceLocal = new CatchSetupClass();
+            for (const sym of injectedSymbols) {
+                (instanceLocal as unknown as Record<symbol, unknown>)[sym] = getMockLockService();
+            }
+
+            await expect(instanceLocal.test()).rejects.toThrow('Lock key is not defined');
+            expect(catchSpy).not.toHaveBeenCalled();
+        });
+
+        it('does NOT funnel "LockService was not injected" through catchErrorFn (setup errors bypass)', async () => {
+            expect.hasAssertions();
+
+            const { SequentialLock: SeqLockCatch } = createPromiseLockDecorators(MockLockService, 1000);
+            const catchSpy = jest.fn();
+
+            class NoDIClass {
+                @SeqLockCatch(['test'], (err: unknown) => {
+                    catchSpy(err);
+
+                    return Promise.resolve(0);
+                })
+                async test(): Promise<number> {
+                    return Promise.resolve(1);
+                }
+            }
+
+            // Do NOT inject the lock service
+            const instanceLocal = new NoDIClass();
+
+            await expect(instanceLocal.test()).rejects.toThrow('LockService was not injected');
+            expect(catchSpy).not.toHaveBeenCalled();
+        });
+    });
+
+    describe('method-thrown errors are not conflated with acquisition failures', () => {
+        it('propagates a method-thrown LockBusyError as-is (no "Lock not acquired" remap, no exclusive swallow)', async () => {
+            expect.hasAssertions();
+
+            const { ExclusiveLock: ExclusiveLockLocal } = createPromiseLockDecorators(MockLockService, 1000);
+            const innerBusy = new LockBusyError('inner-resource');
+
+            class MethodThrowsClass {
+                @ExclusiveLockLocal(['outer-resource'])
+                async test(): Promise<number> {
+                    throw innerBusy;
+                }
+            }
+
+            const instanceLocal = new MethodThrowsClass();
+            for (const sym of injectedSymbols) {
+                (instanceLocal as unknown as Record<symbol, unknown>)[sym] = getMockLockService();
+            }
+
+            await expect(instanceLocal.test()).rejects.toBe(innerBusy);
+        });
+
+        it('routes a method-thrown error through catchErrorFn without the acquisition-error remap', async () => {
+            expect.hasAssertions();
+
+            const { ExclusiveLock: ExclusiveLockLocal } = createPromiseLockDecorators(MockLockService, 1000);
+            const seen: unknown[] = [];
+            const methodError = new Error('method-side failure');
+
+            class MethodThrowsWithCatchClass {
+                @ExclusiveLockLocal(['outer-resource'], (err: unknown) => {
+                    seen.push(err);
+
+                    return Promise.resolve(0);
+                })
+                async test(): Promise<number> {
+                    throw methodError;
+                }
+            }
+
+            const instanceLocal = new MethodThrowsWithCatchClass();
+            for (const sym of injectedSymbols) {
+                (instanceLocal as unknown as Record<symbol, unknown>)[sym] = getMockLockService();
+            }
+
+            await expect(instanceLocal.test()).resolves.toBe(0);
+            expect(seen).toStrictEqual([methodError]);
         });
     });
 });

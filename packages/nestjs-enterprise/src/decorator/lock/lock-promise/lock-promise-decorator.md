@@ -5,6 +5,8 @@
 
 Class property decorator that locks the ***async*** method execution based on the provided key using [Redlock](https://github.com/mike-marcacci/node-redlock) and [IORedis](https://github.com/redis/ioredis).
 
+> **Exclusive-on-busy contract.** When `LockPromise` behaves as exclusive (e.g., the underlying service returns `undefined` on contention), the decorated method resolves to `undefined` even though the return type still reads as `Promise<T>`. This matches the modern `ExclusiveLock` behavior in [`createPromiseLockDecorators`](../create-promise-lock-decorators/create-promise-lock-decorators.md); supply a `catchErrorFn` or type the method as `Promise<T | undefined>` if callers cannot accept the skipped-execution no-op.
+
 ## Migration
 
 ```diff
@@ -26,7 +28,7 @@ Class property decorator that locks the ***async*** method execution based on th
   }
 ```
 
-## Legacy usage
+## Usage (deprecated)
 
 ```ts
 import { Injectable } from '@nestjs/common';

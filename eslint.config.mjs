@@ -261,7 +261,7 @@ export default defineConfig(
                     'newlines-between': 'always',
                     pathGroups: [
                         {
-                            group: 'object',
+                            group: 'external',
                             pattern: '@rnw-community/*',
                             position: 'after',
                         },
@@ -342,6 +342,12 @@ export default defineConfig(
             'max-statements': 'off',
             'func-names': 'off',
             'promise/no-nesting': 'off',
+            '@typescript-eslint/no-unsafe-argument': 'off',
+            '@typescript-eslint/no-unsafe-return': 'off',
+            '@typescript-eslint/only-throw-error': 'off',
+            '@typescript-eslint/no-invalid-void-type': 'off',
+            'dot-notation': 'off',
+            'require-unicode-regexp': 'off',
         },
     }
 );

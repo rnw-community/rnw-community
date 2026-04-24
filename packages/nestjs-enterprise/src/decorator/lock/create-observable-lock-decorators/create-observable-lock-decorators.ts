@@ -1,38 +1,127 @@
-import { executeLockObservable } from '../util/execute-lock-observable.util';
-import { getLockService } from '../util/get-lock-service.util';
-import { getMethodName } from '../util/get-method-name.util';
-import { injectLockService } from '../util/inject-lock-service.util';
+import { Inject } from '@nestjs/common';
+import { EMPTY, type Observable, catchError, defer, isObservable, of, throwError } from 'rxjs';
+
+import { LockBusyError, createLockMiddleware$ } from '@rnw-community/lock-decorator';
+import { isDefined } from '@rnw-community/shared';
+
+import { createLockServiceStore } from '../create-lock-service-store';
+import { LOCK_SERVICE_NOT_INJECTED_MESSAGE } from '../lock-service-not-injected-message.const';
+import { resolveResources } from '../resolve-resources';
+import { RESOURCE_SEPARATOR } from '../resource-separator.const';
 
 import type { PreDecoratorFunction } from '../../../type/pre-decorator-function.type';
 import type { LockServiceInterface } from '../interface/lock-service.interface';
-import type { AbstractConstructor, AnyFn, MethodDecoratorType } from '@rnw-community/shared';
+import type { LockModeType } from '@rnw-community/lock-decorator';
+import type { AbstractConstructor, MethodDecoratorType } from '@rnw-community/shared';
 
-export const createObservableLockDecorators = (serviceToken: AbstractConstructor<LockServiceInterface>, defaultDuration: number) => {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any -- decorator generic must accept any-parameter method
+type ObservableReturningFn = (...args: readonly any[]) => Observable<unknown>;
+
+type ObservableRecoveryType<TResult> = TResult extends Observable<infer TValue> ? TValue | Observable<TValue> : never;
+type ObservableRecoveryFnType<K extends ObservableReturningFn> = (error: unknown) => ObservableRecoveryType<ReturnType<K>>;
+
+class MethodThrownError extends Error {
+    constructor(readonly cause: unknown) {
+        super('method-thrown');
+        this.name = 'MethodThrownError';
+    }
+}
+
+const recoverFromAcquireError = <TResult>(
+    error: unknown,
+    mode: LockModeType,
+    catchErrorFn$: ((error: unknown) => TResult | Observable<TResult>) | undefined
+): Observable<unknown> => {
+    let normalized: unknown = error;
+    if (error instanceof LockBusyError) {
+        if (mode === 'exclusive' && !isDefined(catchErrorFn$)) {
+            return EMPTY;
+        }
+        const keys = error.key.split(RESOURCE_SEPARATOR).join(', ');
+        normalized = new Error(`Lock not acquired for keys: ${keys}`);
+    }
+    if (isDefined(catchErrorFn$)) {
+        const recovery = catchErrorFn$(normalized);
+
+        return isObservable(recovery) ? (recovery as Observable<unknown>) : of(recovery);
+    }
+    throw normalized;
+};
+
+const recoverFromMethodError = <TResult>(
+    error: unknown,
+    catchErrorFn$: ((error: unknown) => TResult | Observable<TResult>) | undefined
+): Observable<unknown> => {
+    if (isDefined(catchErrorFn$)) {
+        const recovery = catchErrorFn$(error);
+
+        return isObservable(recovery) ? (recovery as Observable<unknown>) : of(recovery);
+    }
+    throw error;
+};
+
+export const createObservableLockDecorators = (
+    serviceToken: AbstractConstructor<LockServiceInterface>,
+    defaultDuration: number
+) => {
     const serviceSymbol = Symbol('LockService');
-    const getService = (instance: unknown): LockServiceInterface =>
-        getLockService(instance as Record<symbol, unknown>, serviceSymbol);
 
-    const createDecorator =
-        (retryCount: number | undefined) =>
-            <K extends AnyFn, TResult extends ReturnType<K>, TArgs extends Parameters<K>>(
-                    preLock: PreDecoratorFunction<TArgs, string[]> | string[],
-                    catchErrorFn$?: (error: unknown) => TResult,
-                    duration?: number
-                ): MethodDecoratorType<K> =>
-                (target, propertyKey, descriptor) => {
-                    injectLockService(target, serviceToken, serviceSymbol);
+    const makeDecorator =
+        (mode: LockModeType) =>
+        <K extends ObservableReturningFn, TArgs extends Parameters<K>>(
+            preLock: PreDecoratorFunction<TArgs, string[]> | string[],
+            catchErrorFn$?: ObservableRecoveryFnType<K>,
+            duration?: number
+        ): MethodDecoratorType<K> =>
+        (target, propertyKey, descriptor) => {
+            Inject(serviceToken)(target, serviceSymbol);
 
-                    descriptor.value = executeLockObservable(
-                        getService, preLock, duration ?? defaultDuration, retryCount,
-                        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-                        descriptor.value!,
-                        getMethodName(target, propertyKey),
-                        catchErrorFn$
-                    ) as K;
+            const methodName = `${target.constructor.name}::${String(propertyKey)}`;
+            const originalMethod = descriptor.value as unknown as (this: unknown, ...args: TArgs) => unknown;
+            const effectiveDuration = duration ?? defaultDuration;
 
-                    return descriptor;
-                };
+            descriptor.value = function observableLockDecorator(this: unknown, ...args: TArgs) {
+                return defer(() => {
+                    const lockService = (this as Record<symbol, unknown>)[serviceSymbol] as LockServiceInterface | undefined;
+                    if (!isDefined(lockService)) {
+                        throw new Error(LOCK_SERVICE_NOT_INJECTED_MESSAGE);
+                    }
+                    const resources = resolveResources(preLock, args);
+                    const joinedKey = resources.join(RESOURCE_SEPARATOR);
+                    const store = createLockServiceStore(lockService, effectiveDuration);
+                    const middleware = createLockMiddleware$<TArgs>(store, mode, joinedKey);
+                    const context = { className: '', methodName, args, logContext: methodName };
 
-    // eslint-disable-next-line no-undefined
-    return { SequentialLock$: createDecorator(undefined), ExclusiveLock$: createDecorator(0) };
+                    return middleware(context, () => {
+                            let innerResult: unknown;
+                            try {
+                                innerResult = originalMethod.apply(this, args);
+                            } catch (err: unknown) {
+                                return throwError(() => new MethodThrownError(err));
+                            }
+                            if (!isObservable(innerResult)) {
+                                return throwError(() => new MethodThrownError(new Error(`Method ${methodName} does not return an observable`)));
+                            }
+
+                            return innerResult.pipe(
+                                catchError((error: unknown) => throwError(() => new MethodThrownError(error)))
+                            );
+                        })
+                        .pipe(
+                            catchError((error: unknown) =>
+                                error instanceof MethodThrownError
+                                    ? recoverFromMethodError(error.cause, catchErrorFn$)
+                                    : recoverFromAcquireError(error, mode, catchErrorFn$)
+                            )
+                        );
+                });
+            } as unknown as K;
+
+            return descriptor;
+        };
+
+    return {
+        SequentialLock$: makeDecorator('sequential'),
+        ExclusiveLock$: makeDecorator('exclusive'),
+    };
 };
