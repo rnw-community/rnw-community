@@ -1,6 +1,6 @@
 {
     "name": "@rnw-community/lock-decorator",
-    "version": "0.1.0",
+    "version": "2.0.0",
     "description": "Framework-agnostic sequential and exclusive method lock decorators. Dual ESM+CJS. Built on TypeScript's experimentalDecorators.",
     "keywords": [
         "decorator",
