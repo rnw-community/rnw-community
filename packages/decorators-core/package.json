@@ -1,6 +1,6 @@
 {
     "name": "@rnw-community/decorators-core",
-    "version": "0.1.0",
+    "version": "2.0.0",
     "description": "Framework-agnostic interceptor primitive for building method decorators (Log, metrics, lock, retry, ...). Pure middleware composition. Dual ESM+CJS. Built on TypeScript's experimentalDecorators.",
     "keywords": [
         "decorator",

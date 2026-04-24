@@ -1,6 +1,6 @@
 {
     "name": "@rnw-community/histogram-metric-decorator",
-    "version": "0.1.0",
+    "version": "2.0.0",
     "description": "Transport-agnostic histogram/duration method decorator built on @rnw-community/decorators-core. Built on TypeScript's experimentalDecorators. Zero runtime dependencies — consumers wire their own transport.",
     "keywords": [
         "decorator",
