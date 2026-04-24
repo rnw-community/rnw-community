@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.0.2](https://github.com/rnw-community/rnw-community/compare/v2.0.0...v2.0.2) (2026-04-24)
+
+### Bug Fixes
+
+- **decorators-core:** use absolute URLs for readme cross-links ([69c17ae](https://github.com/rnw-community/rnw-community/commit/69c17ae495a69fe38c9149e5bff620ccf9a67cf3))
+
 # [2.0.0](https://github.com/rnw-community/rnw-community/compare/v1.14.1...v2.0.0) (2026-04-24)
 
 ### Bug Fixes
