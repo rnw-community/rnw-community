@@ -125,4 +125,4 @@ The store returns a handle; the handle releases itself. A minimal adapter is typ
 
 ## License
 
-[MIT](./LICENSE.md)
+[MIT](https://github.com/rnw-community/rnw-community/blob/master/LICENSE.md)
