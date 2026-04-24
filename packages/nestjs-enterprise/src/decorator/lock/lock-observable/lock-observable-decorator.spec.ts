@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it, jest } from '@jest/globals';
 import Redis from 'ioredis';
 import { EMPTY, Observable, lastValueFrom, of, tap } from 'rxjs';
 
-import { LockableService } from '../service/lockable.service';
+import { LockableService } from '../lockable.service';
 
 import { LockObservable } from './lock-observable.decorator';
 
@@ -44,6 +44,7 @@ class TestObservableClass extends LockableService {
         return of([this.field, id]);
     }
 
+    // @ts-expect-error — sync method intentionally violates the Observable-returning contract; runtime guard catches it
     @LockObservable(['test'], 1000)
     testSync(): number {
         return this.field;
@@ -83,9 +84,19 @@ class TestObservableClass extends LockableService {
         return of({ field: this.field, id });
     }
 
+    // @ts-expect-error — sync method intentionally violates the Observable-returning contract; runtime guard catches it
     @LockObservable(['test'], 1000, undefined, 0)
     testExclusiveSync(): number {
         return this.field;
+    }
+
+    @LockObservable(['test'], 1000, (err: unknown) => {
+        mockErrorFn(err);
+
+        return of(0);
+    }, 0)
+    testExclusiveLockNotAcquiredErrorFn$(): Observable<number> {
+        return of(this.field);
     }
 }
 
@@ -225,6 +236,33 @@ describe('LockObservableDecorator', () => {
         const [releaseCallOrder] = mockRelease.mock.invocationCallOrder;
 
         expect(resultCallOrder).toBeLessThan(releaseCallOrder);
+    });
+
+    it('swallows release errors silently when sync method triggers the non-Observable throw path', async () => {
+        expect.assertions(2);
+
+        const instance = new TestObservableClass();
+        mockRelease.mockRejectedValueOnce(new Error('release-failed-on-sync-path'));
+
+        // testExclusiveSync returns a number (not Observable) — early release + throw path
+        await expect(lastValueFrom(instance.testExclusiveSync() as unknown as Observable<unknown>)).rejects.toThrow(
+            'Method TestObservableClass::testExclusiveSync does not return an observable'
+        );
+        expect(mockRelease).toHaveBeenCalledWith();
+    });
+
+    it('should funnel "Lock not acquired" into catchErrorFn$ when exclusive tryAcquire fails', async () => {
+        expect.assertions(3);
+
+        mockErrorFn.mockReset();
+        const instance = new TestObservableClass();
+        mockAcquire.mockRejectedValueOnce(new Error('redlock acquire failed'));
+
+        await expect(lastValueFrom(instance.testExclusiveLockNotAcquiredErrorFn$())).resolves.toBe(0);
+        expect(mockErrorFn).toHaveBeenCalledWith(
+            expect.objectContaining({ message: expect.stringContaining('Lock not acquired') })
+        );
+        expect(mockRelease).not.toHaveBeenCalled();
     });
 
     describe('retryCount: 0 (exclusive mode)', () => {

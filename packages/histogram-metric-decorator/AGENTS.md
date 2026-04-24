@@ -1,0 +1,49 @@
+# @rnw-community/histogram-metric-decorator
+
+Framework-agnostic method decorator for recording call durations into any histogram transport. Built on `@rnw-community/decorators-core`. Targets TypeScript's `experimentalDecorators` mode.
+
+## Package Commands
+
+```bash
+yarn test               # Run tests
+yarn test:coverage      # Tests with coverage
+yarn build              # Build (dual ESM + CJS)
+yarn ts                 # Type check
+yarn lint:fix           # Fix lint issues
+```
+
+## Architecture
+
+```
+src/
+  interface/
+    create-histogram-metric-options.interface.ts
+    histogram-options.interface.ts
+    histogram-transport.interface.ts
+  factory/
+    create-histogram-metric-decorator/      — decorator factory + spec
+  transport/
+    in-memory-histogram-transport.mock.ts       — test-only transport (not shipped)
+    in-memory-histogram-transport.mock.spec.ts
+  index.ts
+```
+
+The in-memory transport lives as a `*.mock.ts` helper so the dist stays transport-agnostic. Build tsconfigs exclude `**/*.mock.*`, and the monorepo jest config's `coveragePathIgnorePatterns: ['.mock.ts']` keeps it out of coverage reports.
+
+## Key Patterns
+
+- One entity per file; folders only to group `source + spec` (+ optional `.md`)
+- Observation emitted on BOTH success and error paths (via `onSuccess` + `onError` engine hooks)
+- Metric name defaults to `<ClassName>_<methodName>_duration_ms` when omitted; consumer can override via `{ name }`
+- Sync returns emit on return; Promise returns emit on settle (resolve or reject); Observable returns emit one observation on stream `complete` or `error` via `completionObservableStrategy` from `@rnw-community/decorators-core` (wired by default in the factory)
+- `labels` is a function that receives the method's args as a tuple — inferred from the method signature, no annotations required
+
+## Dependencies
+
+- `@rnw-community/decorators-core` — interceptor engine + `completionObservableStrategy`
+- `@rnw-community/shared` — `MethodDecoratorType`, `AnyFn`
+- **Optional peer**: `rxjs` (only needed when methods return `Observable`)
+
+## Coverage
+
+Default monorepo threshold: **99.9%** on all metrics. Currently **100%**.

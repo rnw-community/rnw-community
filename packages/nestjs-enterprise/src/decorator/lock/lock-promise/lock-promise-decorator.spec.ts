@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, jest } from '@jest/globals';
 import Redis from 'ioredis';
 
-import { LockableService } from '../service/lockable.service';
+import { LockableService } from '../lockable.service';
 
 import { LockPromise } from './lock-promise.decorator';
 
@@ -82,6 +82,15 @@ class TestClass extends LockableService {
     @LockPromise(['test'], 1000, undefined, 0)
     testExclusiveSync(): number {
         return this.field;
+    }
+
+    @LockPromise(['test'], 1000, (err: unknown) => {
+        mockErrorFn(err);
+
+        return Promise.resolve(0);
+    }, 0)
+    async testExclusiveLockNotAcquiredErrorFn(): Promise<number> {
+        return Promise.resolve(this.field);
     }
 }
 
@@ -211,6 +220,36 @@ describe('LockPromiseDecorator', () => {
         const [releaseCallOrder] = mockRelease.mock.invocationCallOrder;
 
         expect(resultCallOrder).toBeLessThan(releaseCallOrder);
+    });
+
+    it('swallows release errors silently when sync method triggers the non-Promise throw path', async () => {
+        expect.assertions(2);
+
+        const instance = new TestClass();
+        // Release will reject — the decorator must swallow that rejection via .catch(() => void 0)
+        // on the sync-early-exit path (before throwing "does not return a promise").
+        mockRelease.mockRejectedValueOnce(new Error('release-failed-on-sync-path'));
+
+        // testSync returns a number (not Promise) — triggers the early release + throw path
+        await expect(instance.testSync()).rejects.toThrow(
+            'Method TestClass::testSync does not return a promise'
+        );
+        expect(mockRelease).toHaveBeenCalledWith();
+    });
+
+    it('should funnel "Lock not acquired" into catchErrorFn when exclusive tryAcquire fails', async () => {
+        expect.assertions(3);
+
+        mockErrorFn.mockReset();
+        const instance = new TestClass();
+        // getRedlockService wraps exclusive acquire with .catch(() => undefined) — simulate that
+        mockAcquire.mockRejectedValueOnce(new Error('redlock acquire failed'));
+
+        await expect(instance.testExclusiveLockNotAcquiredErrorFn()).resolves.toBe(0);
+        expect(mockErrorFn).toHaveBeenCalledWith(
+            expect.objectContaining({ message: expect.stringContaining('Lock not acquired') })
+        );
+        expect(mockRelease).not.toHaveBeenCalled();
     });
 
     describe('retryCount: 0 (exclusive mode)', () => {

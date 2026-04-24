@@ -1,0 +1,18 @@
+{
+    "extends": "../../tsconfig.build-cjs.json",
+    "compilerOptions": {
+        "outDir": "./dist/cjs",
+        "paths": {
+            "@rnw-community/decorators-core/rxjs": ["../decorators-core/dist/esm/rxjs/index.d.ts"]
+        }
+    },
+    "include": [
+        "./src"
+    ],
+    "exclude": [
+        "node_modules",
+        "dist",
+        "**/*.spec.*",
+        "**/*.mock.*"
+    ]
+}
