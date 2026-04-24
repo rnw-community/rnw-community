@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.0.3](https://github.com/rnw-community/rnw-community/compare/v2.0.2...v2.0.3) (2026-04-24)
+
+### Bug Fixes
+
+- **log-decorator:** use absolute URL for decorators-core readme cross-link ([f35a328](https://github.com/rnw-community/rnw-community/commit/f35a328773eb8137a1ce2be69aab03fad6897e70))
+
 ## [2.0.2](https://github.com/rnw-community/rnw-community/compare/v2.0.0...v2.0.2) (2026-04-24)
 
 **Note:** Version bump only for package @rnw-community/log-decorator

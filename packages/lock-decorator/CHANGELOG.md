@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.0.3](https://github.com/rnw-community/rnw-community/compare/v2.0.2...v2.0.3) (2026-04-24)
+
+### Bug Fixes
+
+- **lock-decorator:** fix broken MIT license readme link ([bac5226](https://github.com/rnw-community/rnw-community/commit/bac52260c71d34fe92fc28027210fed1b1a9d16b))
+
 ## [2.0.2](https://github.com/rnw-community/rnw-community/compare/v2.0.0...v2.0.2) (2026-04-24)
 
 **Note:** Version bump only for package @rnw-community/lock-decorator
