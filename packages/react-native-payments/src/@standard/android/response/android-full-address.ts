@@ -8,4 +8,7 @@ export interface AndroidFullAddress extends AndroidMinAddress {
     administrativeArea?: string;
     locality?: string;
     sortingCode?: string;
+    givenName?: string;
+    familyName?: string;
+    middleName?: string;
 }
