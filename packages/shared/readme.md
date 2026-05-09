@@ -16,6 +16,7 @@ Convenient [TypeScript type guards](https://www.typescriptlang.org/docs/handbook
     - [isError](src/type-guard/generic/is-error/is-error.md)
     - [isObject](src/type-guard/generic/is-object/is-object.md)
     - [isPromise](src/type-guard/generic/is-promise/is-promise.md)
+    - [isRecord](src/type-guard/generic/is-record/is-record.md) - non-array objects that are safe to index by key
 - Array:
     - [isArray](src/type-guard/array/is-array/is-array.md)
     - [isEmptyArray](src/type-guard/array/is-empty-array/is-empty-array.md)
