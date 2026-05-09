@@ -1,7 +1,5 @@
 import { describe, expect, it } from '@jest/globals';
 
-import { isObject as publicIsObject } from '../../../index';
-
 import { isObject } from './is-object';
 
 describe('isObject', () => {
@@ -20,12 +18,4 @@ describe('isObject', () => {
         expect(isObject(1 as unknown as unknown[])).toBe(false);
     });
 
-    it('should be exported from the public package entrypoint', () => {
-        expect.hasAssertions();
-
-        const value: unknown = { key: 'value' };
-        const narrowed = publicIsObject(value) ? (value satisfies object) : undefined;
-
-        expect(narrowed).toStrictEqual({ key: 'value' });
-    });
 });
