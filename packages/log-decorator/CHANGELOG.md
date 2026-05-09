@@ -3,6 +3,10 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [2.1.0](https://github.com/rnw-community/rnw-community/compare/v2.0.3...v2.1.0) (2026-05-09)
+
+**Note:** Version bump only for package @rnw-community/log-decorator
+
 ## [2.0.3](https://github.com/rnw-community/rnw-community/compare/v2.0.2...v2.0.3) (2026-04-24)
 
 ### Bug Fixes
