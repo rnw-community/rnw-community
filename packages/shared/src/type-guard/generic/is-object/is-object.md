@@ -1,13 +1,15 @@
 # `isObject`
 
-Check if a variable IS an object type.
+Check if variable is a non-array object and narrows its type to `object`.
 
 ## Example
 
 ```ts
-import {isObject} from "@rnw-community/shared";
+import { isObject } from '@rnw-community/shared';
 
-const object: {} | undefined = {};
+const value: unknown = { id: 'product-1' };
 
-isObject(object); // returns true and narrows type to never[]
+if (isObject(value)) {
+    Object.keys(value); // value is object
+}
 ```

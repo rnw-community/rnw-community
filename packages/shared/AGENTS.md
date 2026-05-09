@@ -21,7 +21,7 @@ yarn lint:fix           # Fix lint issues
 src/
   type/           — TypeScript utility types (Maybe, AnyFn, ClassType, EmptyFn, Enum, MethodDecoratorType, etc.)
   type-guard/     — Runtime type narrowing functions
-    generic/      — isDefined, isError, isPromise, isRecord (isObject exists but is internal-only and NOT exported)
+    generic/      — isDefined, isError, isObject, isPromise, isRecord
     array/        — isArray, isEmptyArray, isNotEmptyArray, isNotEmptyArrayOf
     boolean/      — isBoolean
     number/       — isNumber, isPositiveNumber
@@ -37,7 +37,7 @@ Source for `getDefinedAsync` exists on disk but is intentionally NOT re-exported
 - Each entity directory contains: implementation `.ts`, test `.spec.ts`, documentation `.md`
 - Types are always `export type` — never import types as values from this package
 - `isDefined` is the foundation guard — most other guards compose with it
-- `isObject` and `getDefinedAsync` exist but are intentionally **not exported** (internal use only)
+- `getDefinedAsync` exists but is intentionally **not exported** (internal use only)
 - Composition over re-implementation: guards chain (`isString` → `isDefined`, `isNotEmptyArray` → `isArray`)
 
 ### Coverage

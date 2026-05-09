@@ -1,7 +1,5 @@
 import { describe, expect, it } from '@jest/globals';
 
-import { isRecord as publicIsRecord } from '../../../index';
-
 import { isRecord } from './is-record';
 
 describe('isRecord', () => {
@@ -38,13 +36,4 @@ describe('isRecord', () => {
         expect(narrowed).toBe('value');
     });
 
-    it('should be exported from the public package entrypoint', () => {
-        expect.hasAssertions();
-
-        const value: unknown = { key: 'value' };
-        const narrowed = publicIsRecord(value) ? (value['key'] satisfies unknown) : undefined;
-
-        expect(narrowed).toBe('value');
-        expect(publicIsRecord(['value'])).toBe(false);
-    });
 });

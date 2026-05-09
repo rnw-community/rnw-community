@@ -17,4 +17,5 @@ describe('isObject', () => {
         expect(isObject(null)).toBe(false);
         expect(isObject(1 as unknown as unknown[])).toBe(false);
     });
+
 });
