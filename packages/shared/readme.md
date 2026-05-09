@@ -14,6 +14,7 @@ Convenient [TypeScript type guards](https://www.typescriptlang.org/docs/handbook
 - Generic:
     - [isDefined](src/type-guard/generic/is-defined/is-defined.md)
     - [isError](src/type-guard/generic/is-error/is-error.md)
+    - [isObject](src/type-guard/generic/is-object/is-object.md)
     - [isPromise](src/type-guard/generic/is-promise/is-promise.md)
 - Array:
     - [isArray](src/type-guard/array/is-array/is-array.md)
@@ -58,4 +59,3 @@ Commonly used typescript types:
 ## License
 
 This library is licensed under The [MIT License](./LICENSE.md).
-

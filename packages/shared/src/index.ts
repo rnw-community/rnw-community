@@ -13,6 +13,7 @@ export type { ReadonlyIsNotEmptyArray } from './type/readonly-is-not-empty-array
 // Type guards
 export { isDefined } from './type-guard/generic/is-defined/is-defined';
 export { isError } from './type-guard/generic/is-error/is-error';
+export { isObject } from './type-guard/generic/is-object/is-object';
 export { isPromise } from './type-guard/generic/is-promise/is-promise';
 
 export { isString } from './type-guard/string/is-string/is-string';
