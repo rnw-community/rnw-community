@@ -21,7 +21,7 @@ yarn lint:fix           # Fix lint issues
 src/
   type/           — TypeScript utility types (Maybe, AnyFn, ClassType, EmptyFn, Enum, MethodDecoratorType, etc.)
   type-guard/     — Runtime type narrowing functions
-    generic/      — isDefined, isError, isPromise (isObject exists but is internal-only and NOT exported)
+    generic/      — isDefined, isError, isPromise, isRecord (isObject exists but is internal-only and NOT exported)
     array/        — isArray, isEmptyArray, isNotEmptyArray, isNotEmptyArrayOf
     boolean/      — isBoolean
     number/       — isNumber, isPositiveNumber
