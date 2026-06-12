@@ -118,6 +118,14 @@ export default {
 };
 ```
 
+`merchantIdentifier` accepts either a single identifier or an array of identifiers. Pass an array when your app resolves the Apple Pay merchant per country/environment at runtime — every identifier is then declared in the `com.apple.developer.in-app-payments` entitlement:
+
+```js
+{
+    "merchantIdentifier": ["merchant.react-native-payments.fr", "merchant.react-native-payments.mg"]
+}
+```
+
 2. Prebuild your project:
 
 ```bash
