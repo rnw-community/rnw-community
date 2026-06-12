@@ -6,19 +6,23 @@ import type { ReactNativePaymentsPluginProps } from './plugin.props';
 import type { ConfigPlugin } from 'expo/config-plugins';
 
 export const withApplePay: ConfigPlugin<ReactNativePaymentsPluginProps> = (initialConfig, { merchantIdentifier }) => {
-    if (!isDefined(merchantIdentifier)) {
-        throw new Error(`Pleas provide "@rnw-community/react-native-payments" plugin option "merchantIdentifier"`);
+    const merchantIdentifiers = (Array.isArray(merchantIdentifier) ? merchantIdentifier : [merchantIdentifier]).filter(
+        Boolean
+    );
+
+    if (merchantIdentifiers.length === 0) {
+        throw new Error(`Please provide "@rnw-community/react-native-payments" plugin option "merchantIdentifier"`);
     }
 
     return withEntitlementsPlist(initialConfig, configWithEntitlements => {
-        if (merchantIdentifier) {
-            if (!isDefined(configWithEntitlements.modResults['com.apple.developer.in-app-payments'])) {
-                configWithEntitlements.modResults['com.apple.developer.in-app-payments'] = [];
-            }
+        if (!isDefined(configWithEntitlements.modResults['com.apple.developer.in-app-payments'])) {
+            configWithEntitlements.modResults['com.apple.developer.in-app-payments'] = [];
+        }
 
-            const applePayArray = configWithEntitlements.modResults['com.apple.developer.in-app-payments'] as string[];
-            if (!applePayArray.includes(merchantIdentifier)) {
-                applePayArray.push(merchantIdentifier);
+        const applePayArray = configWithEntitlements.modResults['com.apple.developer.in-app-payments'] as string[];
+        for (const identifier of merchantIdentifiers) {
+            if (!applePayArray.includes(identifier)) {
+                applePayArray.push(identifier);
             }
         }
 
