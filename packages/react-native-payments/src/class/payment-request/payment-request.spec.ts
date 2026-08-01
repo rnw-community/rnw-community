@@ -6,7 +6,10 @@ import { emptyFn } from '@rnw-community/shared';
 import { IosPKPaymentMethodType } from '../../@standard/ios/enum/ios-pk-payment-method-type.enum';
 import { changeEventTimeoutMs } from '../../constant/change-event-timeout-ms';
 import { EnvironmentEnum } from '../../enum/environment.enum';
+import { PaymentAddressFieldEnum } from '../../enum/payment-address-field.enum';
+import { PaymentContactFieldEnum } from '../../enum/payment-contact-field.enum';
 import { PaymentMethodNameEnum } from '../../enum/payment-method-name.enum';
+import { PaymentUpdateErrorTypeEnum } from '../../enum/payment-update-error-type.enum';
 import { PaymentsErrorEnum } from '../../enum/payments-error.enum';
 import { SupportedNetworkEnum } from '../../enum/supported-networks.enum';
 import { ConstructorError } from '../../error/constructor.error';
@@ -1832,6 +1835,78 @@ describe('PaymentRequest', () => {
             expect(subscriptions).toHaveLength(0);
 
             Object.assign(optionalNativePayments, { setActiveEvents, updatePaymentDetails });
+        });
+
+        it('should forward a field level shipping address error to native', async () => {
+            expect.hasAssertions();
+
+            const request = createInteractiveRequest();
+            const error = {
+                type: PaymentUpdateErrorTypeEnum.ShippingAddressField,
+                key: PaymentAddressFieldEnum.PostalCode,
+                message: 'We do not ship to this postal code',
+            } as const;
+
+            request.addEventListener('shippingaddresschange', event => {
+                event.updateWith({ error });
+            });
+
+            emitNativeEvent('shippingaddresschange', { requestId: request.id, shippingAddress: address });
+            await nativeUpdate;
+
+            expect(updatePaymentDetailsMock).toHaveBeenCalledWith(
+                { error, eventName: 'shippingaddresschange', requestId: request.id, total: initialTotal },
+                [],
+                []
+            );
+        });
+
+        it('should forward a field level payer contact error to native', async () => {
+            expect.hasAssertions();
+
+            const request = createInteractiveRequest();
+            const error = {
+                type: PaymentUpdateErrorTypeEnum.ContactField,
+                field: PaymentContactFieldEnum.Email,
+                message: 'We cannot deliver a receipt to this address',
+            } as const;
+
+            request.addEventListener('shippingaddresschange', event => {
+                event.updateWith({ error });
+            });
+
+            emitNativeEvent('shippingaddresschange', { requestId: request.id, shippingAddress: address });
+            await nativeUpdate;
+
+            expect(updatePaymentDetailsMock).toHaveBeenCalledWith(
+                { error, eventName: 'shippingaddresschange', requestId: request.id, total: initialTotal },
+                [],
+                []
+            );
+        });
+
+        it('should forward an expired coupon code error to native', async () => {
+            expect.hasAssertions();
+
+            const request = createInteractiveRequest();
+            const error = {
+                type: PaymentUpdateErrorTypeEnum.CouponCode,
+                expired: true,
+                message: 'SALE10 expired last week',
+            } as const;
+
+            request.addEventListener('couponcodechange', event => {
+                event.updateWith({ error });
+            });
+
+            emitNativeEvent('couponcodechange', { requestId: request.id, couponCode: 'SALE10' });
+            await nativeUpdate;
+
+            expect(updatePaymentDetailsMock).toHaveBeenCalledWith(
+                { error, eventName: 'couponcodechange', requestId: request.id, total: initialTotal },
+                [],
+                []
+            );
         });
 
         it('should pass identical shipping options to native from the initial details and from an update', async () => {

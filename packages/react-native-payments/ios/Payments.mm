@@ -1,6 +1,7 @@
 #import "Payments.h"
 
 #import <React/RCTLog.h>
+#import <Contacts/Contacts.h>
 #import <Foundation/Foundation.h>
 #import <objc/runtime.h>
 
@@ -388,7 +389,7 @@ RCT_EXPORT_METHOD(updatePaymentDetails: (NSDictionary *)update
         self.currentShippingMethods = [self getShippingMethodsFromShippingOptions:shippingOptions];
     }
 
-    [self resolveChangeEvent:eventName errors:[self getErrorsForEvent:eventName message:update[@"error"]]];
+    [self resolveChangeEvent:eventName errors:[self getErrorsForEvent:eventName error:update[@"error"]]];
 
     resolve(nil);
 }
@@ -699,7 +700,60 @@ RCT_EXPORT_METHOD(canMakePayments: (NSString *)methodDataString
     completion([[PKPaymentAuthorizationResult alloc] initWithStatus:status errors:nil]);
 }
 
-- (NSArray<NSError *> *_Nonnull)getErrorsForEvent:(NSString *_Nonnull)eventName message:(id _Nullable)message
+- (NSArray<NSError *> *_Nonnull)getErrorsForEvent:(NSString *_Nonnull)eventName error:(id _Nullable)error
+{
+    if ([eventName isEqualToString:PaymentsShippingOptionChangeEvent]) {
+        if (error != nil && ![error isEqual:@""]) {
+            RCTLogWarn(@"Payments: PassKit cannot surface an error for '%@', ignoring '%@'", eventName, error);
+        }
+
+        return @[];
+    }
+
+    if ([error isKindOfClass:[NSDictionary class]]) {
+        return [self getFieldErrorsFromError:(NSDictionary *)error];
+    }
+
+    return [self getUnstructuredErrorsForEvent:eventName message:error];
+}
+
+// https://developer.apple.com/documentation/passkit/pkpaymenterrordomain?language=objc
+- (NSArray<NSError *> *_Nonnull)getFieldErrorsFromError:(NSDictionary *_Nonnull)error
+{
+    id message = error[@"message"];
+
+    if (![message isKindOfClass:[NSString class]] || [(NSString *)message length] == 0) {
+        return @[];
+    }
+
+    id errorType = error[@"type"];
+
+    if ([errorType isEqual:@"shippingAddressField"]) {
+        NSString *addressKey = [self postalAddressKeyFromString:error[@"key"]];
+
+        return addressKey == nil
+            ? @[]
+            : @[[PKPaymentRequest paymentShippingAddressInvalidErrorWithKey:addressKey localizedDescription:message]];
+    }
+
+    if ([errorType isEqual:@"contactField"]) {
+        PKContactField contactField = [self contactFieldFromPayerField:error[@"field"]];
+
+        return contactField == nil
+            ? @[]
+            : @[[PKPaymentRequest paymentContactInvalidErrorWithContactField:contactField localizedDescription:message]];
+    }
+
+    if ([errorType isEqual:@"couponCode"]) {
+        return [self getCouponCodeErrorsWithMessage:message expired:[error[@"expired"] isEqual:@YES]];
+    }
+
+    RCTLogWarn(@"Payments: '%@' is not a known payment error type, ignoring '%@'", errorType, message);
+
+    return @[];
+}
+
+- (NSArray<NSError *> *_Nonnull)getUnstructuredErrorsForEvent:(NSString *_Nonnull)eventName message:(id _Nullable)message
 {
     if (![message isKindOfClass:[NSString class]] || [(NSString *)message length] == 0) {
         return @[];
@@ -710,20 +764,58 @@ RCT_EXPORT_METHOD(canMakePayments: (NSString *)methodDataString
     }
 
     if ([eventName isEqualToString:PaymentsCouponCodeChangeEvent]) {
-        if (@available(iOS 15.0, *)) {
-            return @[[PKPaymentRequest paymentCouponCodeInvalidErrorWithLocalizedDescription:message]];
-        }
-
-        return @[];
+        return [self getCouponCodeErrorsWithMessage:message expired:NO];
     }
 
-    if ([eventName isEqualToString:PaymentsPaymentMethodChangeEvent]) {
-        return @[[NSError errorWithDomain:PKPaymentErrorDomain code:PKPaymentUnknownError userInfo:@{ NSLocalizedDescriptionKey: message }]];
-    }
+    return @[[NSError errorWithDomain:PKPaymentErrorDomain code:PKPaymentUnknownError userInfo:@{ NSLocalizedDescriptionKey: message }]];
+}
 
-    RCTLogWarn(@"Payments: PassKit cannot surface an error for '%@', ignoring '%@'", eventName, message);
+- (NSArray<NSError *> *_Nonnull)getCouponCodeErrorsWithMessage:(NSString *_Nonnull)message expired:(BOOL)expired
+{
+    if (@available(iOS 15.0, *)) {
+        return @[expired
+            ? [PKPaymentRequest paymentCouponCodeExpiredErrorWithLocalizedDescription:message]
+            : [PKPaymentRequest paymentCouponCodeInvalidErrorWithLocalizedDescription:message]];
+    }
 
     return @[];
+}
+
+// https://developer.apple.com/documentation/contacts/cnpostaladdress?language=objc
+- (NSString *_Nullable)postalAddressKeyFromString:(id _Nullable)addressField
+{
+    static NSDictionary<NSString *, NSString *> *postalAddressKeys;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        postalAddressKeys = @{
+            @"addressLine": CNPostalAddressStreetKey,
+            @"city": CNPostalAddressCityKey,
+            @"country": CNPostalAddressISOCountryCodeKey,
+            @"dependentLocality": CNPostalAddressSubLocalityKey,
+            @"postalCode": CNPostalAddressPostalCodeKey,
+            @"region": CNPostalAddressStateKey,
+            @"subAdministrativeArea": CNPostalAddressSubAdministrativeAreaKey
+        };
+    });
+
+    return [addressField isKindOfClass:[NSString class]] ? postalAddressKeys[(NSString *)addressField] : nil;
+}
+
+// https://developer.apple.com/documentation/passkit/pkcontactfield?language=objc
+- (PKContactField _Nullable)contactFieldFromPayerField:(id _Nullable)payerField
+{
+    static NSDictionary<NSString *, PKContactField> *payerContactFields;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        payerContactFields = @{
+            @"email": PKContactFieldEmailAddress,
+            @"name": PKContactFieldName,
+            @"phone": PKContactFieldPhoneNumber,
+            @"postalAddress": PKContactFieldPostalAddress
+        };
+    });
+
+    return [payerField isKindOfClass:[NSString class]] ? payerContactFields[(NSString *)payerField] : nil;
 }
 
 - (NSDictionary *_Nonnull)getAddressFromPostalAddress:(CNPostalAddress *_Nullable)postalAddress
