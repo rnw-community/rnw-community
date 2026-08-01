@@ -1,4 +1,3 @@
- 
 import { beforeEach, describe, expect, it, jest } from '@jest/globals';
 import { Platform } from 'react-native';
 
@@ -15,6 +14,8 @@ import { NativePayments } from '../native-payments/native-payments';
 import { PaymentRequest } from './payment-request';
 
 import type { AndroidPaymentMethodDataInterface } from '../../@standard/android/mapping/android-payment-method-data.interface';
+import type { AndroidPaymentDataRequest } from '../../@standard/android/request/android-payment-data-request';
+import type { AndroidTransactionInfo } from '../../@standard/android/request/android-transaction-info';
 import type { AndroidPaymentData } from '../../@standard/android/response/android-payment-data';
 import type { IosPaymentMethodDataInterface } from '../../@standard/ios/mapping/ios-payment-method-data.interface';
 import type { IosPKPayment } from '../../@standard/ios/response/ios-pk-payment';
@@ -36,7 +37,6 @@ jest.mock('react-native', () => ({
     },
 }));
 
- 
 describe('PaymentRequest', () => {
     const paymentDetails = {
         total: {
@@ -45,12 +45,10 @@ describe('PaymentRequest', () => {
         },
     };
 
-     
     beforeEach(() => {
         jest.clearAllMocks();
     });
 
-     
     describe('validation', () => {
         const methodData: AndroidPaymentMethodDataInterface = {
             supportedMethods: PaymentMethodNameEnum.AndroidPay,
@@ -168,6 +166,20 @@ describe('PaymentRequest', () => {
                 );
             });
 
+            it('should NOT throw when total.amount.value is zero', () => {
+                expect.assertions(2);
+
+                const zeroTotal = { label: 'Total', amount: { currency: 'USD', value: '0.00' } };
+
+                expect(() => new PaymentRequest([methodData], { total: zeroTotal })).not.toThrow();
+                expect(
+                    () =>
+                        new PaymentRequest([methodData], {
+                            total: { ...zeroTotal, amount: { currency: 'USD', value: '0' } },
+                        })
+                ).not.toThrow();
+            });
+
             it('should throw when total.amount.value ends with dot', () => {
                 expect.assertions(1);
 
@@ -251,7 +263,6 @@ describe('PaymentRequest', () => {
         });
     });
 
-     
     describe('PaymentRequest on Android', () => {
         const androidMethodData: AndroidPaymentMethodDataInterface = {
             supportedMethods: PaymentMethodNameEnum.AndroidPay,
@@ -267,7 +278,6 @@ describe('PaymentRequest', () => {
             },
         };
 
-         
         beforeEach(() => {
             Platform.OS = 'android';
         });
@@ -481,9 +491,78 @@ describe('PaymentRequest', () => {
                 new DOMException(PaymentsErrorEnum.NotSupportedError)
             );
         });
+
+        describe('transactionInfo serialization', () => {
+            const getSerializedTransactionInfo = async (
+                requestMethodData: AndroidPaymentMethodDataInterface,
+                details: PaymentDetailsInit = paymentDetails
+            ): Promise<AndroidTransactionInfo> => {
+                jest.mocked(NativePayments.canMakePayments).mockResolvedValue(true);
+
+                await new PaymentRequest([requestMethodData], details).canMakePayment();
+
+                const [[serializedMethodData]] = jest.mocked(NativePayments.canMakePayments).mock.calls;
+
+                return (JSON.parse(serializedMethodData) as AndroidPaymentDataRequest).transactionInfo;
+            };
+
+            it('should serialize FINAL totalPriceStatus and no optional fields by default', async () => {
+                expect.assertions(3);
+
+                const transactionInfo = await getSerializedTransactionInfo(androidMethodData);
+
+                expect(transactionInfo.totalPriceStatus).toBe('FINAL');
+                expect(transactionInfo).not.toHaveProperty('checkoutOption');
+                expect(transactionInfo).not.toHaveProperty('transactionId');
+            });
+
+            it('should serialize provided totalPriceStatus and transactionId with zero total', async () => {
+                expect.assertions(3);
+
+                const transactionInfo = await getSerializedTransactionInfo(
+                    {
+                        ...androidMethodData,
+                        data: { ...androidMethodData.data, totalPriceStatus: 'NOT_CURRENTLY_KNOWN', transactionId: 'txn-1' },
+                    },
+                    { total: { label: 'Total', amount: { currency: 'USD', value: '0.00' } } }
+                );
+
+                expect(transactionInfo.totalPriceStatus).toBe('NOT_CURRENTLY_KNOWN');
+                expect(transactionInfo.transactionId).toBe('txn-1');
+                expect(transactionInfo.totalPrice).toBe('0.00');
+            });
+
+            it('should serialize checkoutOption with default FINAL totalPriceStatus', async () => {
+                expect.assertions(2);
+
+                const transactionInfo = await getSerializedTransactionInfo({
+                    ...androidMethodData,
+                    data: { ...androidMethodData.data, checkoutOption: 'COMPLETE_IMMEDIATE_PURCHASE' },
+                });
+
+                expect(transactionInfo.checkoutOption).toBe('COMPLETE_IMMEDIATE_PURCHASE');
+                expect(transactionInfo.totalPriceStatus).toBe('FINAL');
+            });
+
+            it('should throw when checkoutOption COMPLETE_IMMEDIATE_PURCHASE is combined with non-FINAL totalPriceStatus', () => {
+                expect.assertions(1);
+
+                const invalidMethodData: AndroidPaymentMethodDataInterface = {
+                    ...androidMethodData,
+                    data: {
+                        ...androidMethodData.data,
+                        checkoutOption: 'COMPLETE_IMMEDIATE_PURCHASE',
+                        totalPriceStatus: 'ESTIMATED',
+                    },
+                };
+
+                expect(() => new PaymentRequest([invalidMethodData], paymentDetails)).toThrow(
+                    new ConstructorError(`checkoutOption 'COMPLETE_IMMEDIATE_PURCHASE' requires totalPriceStatus 'FINAL'`)
+                );
+            });
+        });
     });
 
-     
     describe('PaymentRequest on iOS', () => {
         const iosMethodData: IosPaymentMethodDataInterface = {
             supportedMethods: PaymentMethodNameEnum.ApplePay,
@@ -500,7 +579,6 @@ describe('PaymentRequest', () => {
             },
         };
 
-         
         beforeEach(() => {
             Platform.OS = 'ios';
         });
@@ -685,6 +763,30 @@ describe('PaymentRequest', () => {
 
             expect(() => new PaymentRequest(invalidMethodData, paymentDetails)).toThrow(
                 new DOMException(PaymentsErrorEnum.NotSupportedError)
+            );
+        });
+
+        it('should throw when Android methodData combines checkoutOption COMPLETE_IMMEDIATE_PURCHASE with non-FINAL totalPriceStatus', () => {
+            expect.assertions(1);
+
+            const invalidAndroidMethodData: AndroidPaymentMethodDataInterface = {
+                supportedMethods: PaymentMethodNameEnum.AndroidPay,
+                data: {
+                    currencyCode: 'USD',
+                    countryCode: 'US',
+                    supportedNetworks: [SupportedNetworkEnum.Visa],
+                    environment: EnvironmentEnum.TEST,
+                    gatewayConfig: {
+                        gateway: 'exampleGateway',
+                        gatewayMerchantId: 'exampleMerchantId',
+                    },
+                    checkoutOption: 'COMPLETE_IMMEDIATE_PURCHASE',
+                    totalPriceStatus: 'ESTIMATED',
+                },
+            };
+
+            expect(() => new PaymentRequest([iosMethodData, invalidAndroidMethodData], paymentDetails)).toThrow(
+                new ConstructorError(`checkoutOption 'COMPLETE_IMMEDIATE_PURCHASE' requires totalPriceStatus 'FINAL'`)
             );
         });
     });

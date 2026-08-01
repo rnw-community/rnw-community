@@ -17,7 +17,7 @@ export const validateTotal = (total: PaymentItem, ErrorType: ClassType<PaymentsE
     }
 
     // Check that there is a total
-    if (!isDefined(total.amount) || !isDefined(total.amount.value) || Number(total.amount.value) === 0) {
+    if (!isDefined(total.amount) || !isDefined(total.amount.value)) {
         throw new ErrorType(`Missing required member(s): amount, label.`);
     }
 

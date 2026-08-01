@@ -183,6 +183,7 @@ const methodData = [
             requestBillingAddress: true,
             requestPayerEmail: true,
             requestShipping: true,
+            totalPriceStatus: 'ESTIMATED',
             gatewayConfig: {
                 gateway: 'example',
                 gatewayMerchantId: 'exampleGatewayMerchantId',
@@ -209,6 +210,9 @@ const paymentRequest = new PaymentRequest(methodData, paymentDetails);
 Depending on the platform and payment method, you can provide additional data to the `methodData.data` property:
 
 - `environment`: This property represents the Android environment for the payment.
+- `totalPriceStatus`: An optional Google Pay field describing how the total price will change: `'FINAL'` (default), `'ESTIMATED'` or `'NOT_CURRENTLY_KNOWN'`. A zero total amount (`'0.00'`) is valid per the W3C spec and can be combined with a non-final status when the price is not known upfront. See [TransactionInfo](https://developers.google.com/pay/api/android/reference/request-objects#TransactionInfo).
+- `checkoutOption`: An optional Google Pay field selecting the payment sheet submit behavior: `'DEFAULT'` or `'COMPLETE_IMMEDIATE_PURCHASE'`. Google Pay only allows `'COMPLETE_IMMEDIATE_PURCHASE'` together with the `'FINAL'` `totalPriceStatus`, so the constructor throws on any other combination.
+- `transactionId`: An optional Google Pay field with a unique identifier for correlating the payment attempt in Google Pay transaction events.
 - `requestPayerName`: "An optional boolean field that, when present and set to true, indicates that the `PaymentResponse` will include the name of the payer.
 - `requestPayerPhone`: "An optional boolean field that, when present and set to true, indicates that the `PaymentResponse` will include the phone of the payer.
 - `requestBillingAddress`: An optional boolean field that, when present and set to true, indicates that the `PaymentResponse` will

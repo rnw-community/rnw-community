@@ -17,6 +17,7 @@ import { SupportedNetworkEnum } from '../../enum/supported-networks.enum';
 import { ConstructorError } from '../../error/constructor.error';
 import { DOMException } from '../../error/dom.exception';
 import { PaymentsError } from '../../error/payments.error';
+import { validateAndroidTransactionInfo } from '../../util/validate-android-transaction-info.util';
 import { validateDisplayItems } from '../../util/validate-display-items.util';
 import { validatePaymentMethods } from '../../util/validate-payment-methods.util';
 import { validateTotal } from '../../util/validate-total.util';
@@ -48,7 +49,6 @@ export class PaymentRequest {
 
     private acceptPromiseRejecter: (reason: unknown) => void = emptyFn;
 
-     
     constructor(
         readonly methodData: PaymentMethodData[],
         public details: PaymentDetailsInit
@@ -63,6 +63,7 @@ export class PaymentRequest {
 
         // 4. Process payment methods
         validatePaymentMethods(methodData);
+        validateAndroidTransactionInfo(methodData, ConstructorError);
 
         // 5. Process the total
         validateTotal(details.total, ConstructorError);
@@ -113,7 +114,7 @@ export class PaymentRequest {
 
                         return void 0;
                     })
-                     
+
                     .catch(reject);
             } else {
                 reject(new DOMException(PaymentsErrorEnum.InvalidStateError));
@@ -162,7 +163,6 @@ export class PaymentRequest {
         return platformMethod.data;
     }
 
-     
     private getAndroidPaymentMethodData(
         methodData: AndroidPaymentMethodDataDataInterface,
         details: PaymentDetailsInit
@@ -171,6 +171,8 @@ export class PaymentRequest {
             methodData.requestBillingAddress === true ||
             methodData.requestPayerName === true ||
             methodData.requestPayerPhone === true;
+
+        const totalPriceStatus = methodData.totalPriceStatus ?? defaultAndroidTransactionInfo.totalPriceStatus;
 
         return {
             ...defaultAndroidPaymentDataRequest,
@@ -183,6 +185,9 @@ export class PaymentRequest {
                 totalPrice: details.total.amount.value,
                 totalPriceLabel: details.total.label,
                 countryCode: methodData.countryCode,
+                totalPriceStatus,
+                ...(isDefined(methodData.checkoutOption) && { checkoutOption: methodData.checkoutOption }),
+                ...(isDefined(methodData.transactionId) && { transactionId: methodData.transactionId }),
             },
             allowedPaymentMethods: [
                 {
@@ -226,7 +231,6 @@ export class PaymentRequest {
         };
     }
 
-     
     private getIosPaymentMethodData(methodData: IosPaymentMethodDataDataInterface): IosPaymentDataRequest {
         // TODO: Add mappings for other systems if needed
         const supportedNetworkMap: Record<SupportedNetworkEnum, IosPKPaymentNetworksEnum> = {
@@ -277,7 +281,6 @@ export class PaymentRequest {
         };
     }
 
-     
     private getRequestedBillingFields(methodData: IosPaymentMethodDataDataInterface): IOSPKContactField[] {
         const requiredBillingFields: IOSPKContactField[] = [];
         if (methodData.requestBillingAddress ?? false) {
@@ -287,7 +290,6 @@ export class PaymentRequest {
         return requiredBillingFields;
     }
 
-     
     private getRequestedShippingFields(methodData: IosPaymentMethodDataDataInterface): IOSPKContactField[] {
         const requiredShippingFields: IOSPKContactField[] = [];
         if (methodData.requestPayerEmail ?? false) {
