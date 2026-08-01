@@ -1,3 +1,3 @@
 export interface ReactNativePaymentsPluginProps {
-    merchantIdentifier: string;
+    merchantIdentifier: string | string[];
 }
