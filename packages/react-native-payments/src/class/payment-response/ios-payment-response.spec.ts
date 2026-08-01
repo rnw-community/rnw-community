@@ -83,7 +83,7 @@ describe('IosPaymentResponse', () => {
         new IosPaymentResponse('requestId', PaymentMethodNameEnum.ApplePay, JSON.stringify(payment));
 
     it('should parse the billing address of the authorized payment', () => {
-        expect.assertions(1);
+        expect.hasAssertions();
 
         expect(createResponse(authorizedPayment).details.billingAddress).toStrictEqual({
             address1: '1 Infinite Loop',
@@ -98,7 +98,7 @@ describe('IosPaymentResponse', () => {
     });
 
     it('should parse the shipping address of the authorized payment', () => {
-        expect.assertions(1);
+        expect.hasAssertions();
 
         expect(createResponse(authorizedPayment).details.shippingAddress).toStrictEqual({
             address1: 'Invalidenstrasse 1',
@@ -113,7 +113,7 @@ describe('IosPaymentResponse', () => {
     });
 
     it('should parse the payer name, email and phone of the shipping contact', () => {
-        expect.assertions(3);
+        expect.hasAssertions();
 
         const { details } = createResponse(authorizedPayment);
 
@@ -123,7 +123,7 @@ describe('IosPaymentResponse', () => {
     });
 
     it('should parse the apple pay token of the authorized payment', () => {
-        expect.assertions(2);
+        expect.hasAssertions();
 
         const { applePayToken } = createResponse(authorizedPayment).details;
 
@@ -132,7 +132,7 @@ describe('IosPaymentResponse', () => {
     });
 
     it('should fall back to empty values when no contact was requested', () => {
-        expect.assertions(4);
+        expect.hasAssertions();
 
         const { details } = createResponse({ token: authorizedPayment.token });
 
