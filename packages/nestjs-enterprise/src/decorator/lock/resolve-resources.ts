@@ -11,5 +11,5 @@ export const resolveResources = <TArgs extends unknown[]>(
         throw new Error('Lock key is not defined');
     }
 
-    return resources as string[];
+    return resources;
 };

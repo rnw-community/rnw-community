@@ -15,7 +15,7 @@ const createConfig = (entitlements: Record<string, unknown> = {}) => ({
 });
 
 const runPlugin = (merchantIdentifier: string | string[], entitlements?: Record<string, unknown>) => {
-    const result = withApplePay(createConfig(entitlements) as never, { merchantIdentifier }) as unknown as {
+    const result = withApplePay(createConfig(entitlements), { merchantIdentifier }) as unknown as {
         modResults: Record<string, string[]>;
     };
 

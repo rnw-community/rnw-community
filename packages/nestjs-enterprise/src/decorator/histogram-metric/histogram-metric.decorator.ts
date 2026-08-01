@@ -35,7 +35,7 @@ const resolveExistingHistogram = <M extends string>(
         const existing = item.getSingleMetric(metricName);
 
         if (existing instanceof Histogram) {
-            return existing as Histogram<M>;
+            return existing;
         }
     }
 
