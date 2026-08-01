@@ -56,16 +56,16 @@
         "@rnw-community/shared": "^2.2.0"
     },
     "devDependencies": {
-        "@nestjs/common": "^10.4.22",
+        "@nestjs/common": "^11.1.28",
         "@types/webpack-env": "^1.18.8",
         "@types/webpack-node-externals": "^2.5.3",
         "run-script-webpack-plugin": "^0.2.3",
-        "terser-webpack-plugin": "^5.3.16",
-        "webpack": "^5.105.2",
+        "terser-webpack-plugin": "^5.6.1",
+        "webpack": "^5.109.2",
         "webpack-node-externals": "^3.0.0"
     },
     "peerDependencies": {
-        "@nestjs/common": "^10.2.7",
+        "@nestjs/common": "^11.0.0",
         "@swc/cli": "^0.1.57",
         "@swc/core": "^1.2.239",
         "@swc/helpers": "^0.4.7",

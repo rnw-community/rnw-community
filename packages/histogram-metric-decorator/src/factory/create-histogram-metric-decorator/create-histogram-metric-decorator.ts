@@ -1,4 +1,4 @@
-import { type Observable, catchError, isObservable, tap, throwError } from 'rxjs';
+import { catchError, isObservable, tap, throwError } from 'rxjs';
 
 import { createInterceptor } from '@rnw-community/decorators-core';
 import { isPromise } from '@rnw-community/shared';
@@ -54,7 +54,7 @@ const buildHistogramMiddleware = <TArgs extends readonly unknown[]>(
 
         if (isPromise(raw)) {
             return Promise.resolve(raw).then(
-                (value) => {
+                value => {
                     observeOnTerminal();
 
                     return value;
@@ -66,7 +66,7 @@ const buildHistogramMiddleware = <TArgs extends readonly unknown[]>(
             );
         }
         if (isObservable(raw)) {
-            return (raw as unknown as Observable<unknown>).pipe(
+            return raw.pipe(
                 tap({ complete: observeOnTerminal }),
                 catchError((err: unknown) => {
                     observeOnTerminal();
