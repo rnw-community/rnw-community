@@ -50,11 +50,22 @@ sheet itself, which Maestro cannot reliably drive on a simulator or emulator.
 | `dismiss_abort_reject_state.yaml`              | Aborting an active request (the in-app stand-in for dismissing the native sheet, which Maestro cannot drive) logs `abort called` and settles `payments-flow-state` to `rejected`. |
 | `shipping_listener_wiring_enabled.yaml`        | With `requestShipping` on (the default), `show` attaches `paymentmethodchange`, `shippingaddresschange`, and `shippingoptionchange` listeners — the JS-observable half of the shipping-change round trip. |
 | `shipping_listener_wiring_disabled.yaml`       | Toggling `requestShipping` off before `show` attaches only `paymentmethodchange`, proving the round trip from builder toggle to request wiring. |
-| `async_update_toggle_state.yaml`               | Toggling async `updateWith` on does not change request construction or prevent `show` from reaching `showing`. |
+| `async_update_toggle_state.yaml`               | Toggling async `updateWith` on does not change request construction or prevent `show` from reaching `showing` — the JS-observable half of the async round trip (see the documented gap below for the half this suite cannot reach). |
 | `reset_new_request_state_transitions.yaml`     | The full state machine: `idle` → `showing` → `rejected` (abort) → `idle` (reset, logs `request reset`) → `showing` again. |
 
-The `…updateWith started` / `…updateWith settled` log pair and the live shipping-address/option
-round trip described in the package `readme.md` only fire from an actual `paymentmethodchange` /
-`shippingoptionchange` event dispatched by the native sheet. Driving that sheet is out of reach for
-Maestro on a simulator/emulator, so those two log rows are exercised by the library's unit tests,
-not this suite — matching the E2E depth documented on issue #393.
+## Documented gap: native-sheet-driven completion
+
+Two behaviors described in the package `readme.md` only fire from an event the **native** sheet
+dispatches, which Maestro cannot drive on a simulator/emulator:
+
+- the live shipping-address/option round trip (an actual `shippingaddresschange` /
+  `shippingoptionchange` event carrying a user-picked address or option), and
+- the `…updateWith started` / `…updateWith settled` log pair for **any** change event, including
+  the async `updateWith` toggle exercised by `async_update_toggle_state.yaml` — that flow proves the
+  toggle doesn't break request construction or `show()`, but it cannot reach the `started`/`settled`
+  rows themselves, because nothing dispatches a `paymentmethodchange` without the native sheet.
+
+Both gaps share the same boundary: this suite covers the JS-observable half (request construction,
+listener wiring, `show`/`abort`/`reset` state transitions), while the library's unit tests cover
+payment authorization and `updateWith` completion itself. This is the E2E depth documented on issue
+#393, not an oversight.
