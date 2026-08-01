@@ -245,6 +245,17 @@ const methodData = [
 ];
 ```
 
+#### 2.2 Supported networks
+
+`supportedNetworks` accepts the `SupportedNetworkEnum` members. Apple Pay introduced some of them after the oldest
+supported iOS version, so they only resolve on a recent enough device and are rejected as an invalid supported network
+below it: `girocard` (iOS 14), `mir` (iOS 14.5), `dankort` (iOS 15.1) and `bancontact` (iOS 16).
+
+> `SupportedNetworkEnum.Mir` is **deprecated**. Apple delisted the network over the sanctions against the issuing banks,
+> so it resolves on iOS 14.5+ and keeps an existing integration building, but no Mir card can be provisioned into Apple
+> Pay anymore. It is kept functional instead of being removed so upgrading does not break a build; do not add it to a new
+> integration.
+
 ### 3. Checking Payment Capability
 
 Before displaying the payment sheet to the user, you can check if the current device supports the payment methods specified:
