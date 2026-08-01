@@ -1,34 +1,30 @@
 import React from 'react';
-import { Switch, Text, View, type ViewStyle, useColorScheme } from 'react-native';
+import { Switch, Text, View } from 'react-native';
 
+import { demoStyle } from '../constant/demo-style';
+
+import type { OnEventFn } from '@rnw-community/shared';
 import type { ReactNode } from 'react';
 
 interface SwitchRowProps {
-    readonly setValue: (val: boolean) => void;
+    readonly onToggle: OnEventFn<boolean>;
+    readonly testID: string;
     readonly text: string;
     readonly value: boolean;
 }
 
-const viewStyle: ViewStyle = {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-};
+const trackColor = { false: '#767577', true: '#5BC236' };
 
-export const SwitchRow = ({ text, value, setValue }: SwitchRowProps): ReactNode => {
-    const colorScheme = useColorScheme();
+export const SwitchRow = ({ text, value, testID, onToggle }: SwitchRowProps): ReactNode => (
+    <View style={demoStyle.row}>
+        <Text style={demoStyle.text}>{text}</Text>
 
-    const textStyle = { color: colorScheme === 'dark' ? '#FFFFFF' : '#000000' };
-
-    return (
-        <View style={viewStyle}>
-            <Text style={textStyle}>{text}</Text>
-
-            <Switch
-                ios_backgroundColor="#3e3e3e"
-                onValueChange={setValue}
-                trackColor={{ false: '#767577', true: '#5BC236' }}
-                value={value}
-            />
-        </View>
-    );
-};
+        <Switch
+            ios_backgroundColor="#3e3e3e"
+            onValueChange={onToggle}
+            testID={testID}
+            trackColor={trackColor}
+            value={value}
+        />
+    </View>
+);

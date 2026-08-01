@@ -1,76 +1,28 @@
-import React, { useEffect, useState } from 'react';
-import { Button, SafeAreaView, ScrollView, Text } from 'react-native';
+import React from 'react';
+import { SafeAreaView, ScrollView } from 'react-native';
 
-import { getErrorMessage, isDefined } from '@rnw-community/shared';
+import { demoStyle } from '../constant/demo-style';
+import { useEventLog } from '../hook/use-event-log';
+import { usePaymentDemo } from '../hook/use-payment-demo';
+import { useRequestOptions } from '../hook/use-request-options';
 
-import { createPaymentRequest } from '../payment/create-payment-request';
-import { getPaymentName } from '../util/get-payment-name';
+import { DemoActions } from './demo-actions';
+import { DemoStatus } from './demo-status';
+import { EventLogView } from './event-log-view';
+import { RequestBuilderForm } from './request-builder-form';
 
-import { RequestOptionsForm } from './request-options-form';
-
-import type { PaymentResponse } from '@rnw-community/react-native-payments';
-
-const responseTextStyle = { color: 'green' };
-const errorTextStyle = { color: 'red' };
-
-/*
- * TODO: Add UI to add items
- * ts-prune-ignore-next
- */
 export const App = (): JSX.Element => {
-    const [error, setError] = useState('');
-    const [response, setResponse] = useState<PaymentResponse['details']>();
-    const [isWalletAvailable, setIsWalletAvailable] = useState(false);
-
-    const clearErrorAndResponse = (): void => {
-        setError('');
-        // eslint-disable-next-line no-undefined
-        setResponse(undefined);
-    };
-
-    const handlePayWithAbort = (): void => {
-        clearErrorAndResponse();
-        const paymentRequest = createPaymentRequest();
-
-        paymentRequest.show().catch((err: unknown) => {
-            setError(getErrorMessage(err));
-        });
-
-        setTimeout(() => void paymentRequest.abort(), 1000);
-    };
-
-    useEffect(() => {
-        createPaymentRequest()
-            .canMakePayment()
-            .then(result => void setIsWalletAvailable(result))
-            .catch(() => void setIsWalletAvailable(true));
-    }, []);
+    const { entries, log } = useEventLog();
+    const { options, toggleOption, setTotalValue } = useRequestOptions();
+    const { canMakePaymentStatus, flowState, showRequest, abortRequest, resetRequest } = usePaymentDemo(options, log);
 
     return (
-        <SafeAreaView>
+        <SafeAreaView style={demoStyle.screen}>
             <ScrollView>
-                {isWalletAvailable ? (
-                    <>
-                        <Button onPress={handlePayWithAbort} title={`${getPaymentName()} with delayed abort`} />
-                        <RequestOptionsForm setError={setError} setResponse={setResponse} />
-
-                        {Boolean(error) && (
-                            <Text style={errorTextStyle}>
-                                Error:
-                                {error}
-                            </Text>
-                        )}
-
-                        {isDefined(response) && (
-                            <Text style={responseTextStyle}>
-                                Response:
-                                {JSON.stringify(response, null, 2)}
-                            </Text>
-                        )}
-                    </>
-                ) : (
-                    <Text>Unfortunately Apple/Google pay is not available</Text>
-                )}
+                <DemoStatus canMakePaymentStatus={canMakePaymentStatus} flowState={flowState} />
+                <RequestBuilderForm onOptionToggle={toggleOption} onTotalChange={setTotalValue} options={options} />
+                <DemoActions onAbort={abortRequest} onReset={resetRequest} onShow={showRequest} />
+                <EventLogView entries={entries} />
             </ScrollView>
         </SafeAreaView>
     );
