@@ -34,7 +34,7 @@ const buildSettle = (
         if (action === 'resolve') {
             resolve();
         } else {
-            reject(value as Error);
+            reject(value);
         }
     };
 };
@@ -55,7 +55,6 @@ interface WaitForTurnContext {
     readonly signal: AbortSignal | undefined;
 }
 
-// eslint-disable-next-line max-statements
 const buildWaitForTurn = (ctx: WaitForTurnContext): void => {
     const { resolve, reject, resolveSlot, currentTail, key, timeoutMs, signal } = ctx;
     let timerId: ReturnType<typeof setTimeout> | undefined;
@@ -108,7 +107,7 @@ const acquireSequential = (
 
     let resolveSlot!: EmptyFn;
 
-    const slotPromise = new Promise<void>((resolve) => {
+    const slotPromise = new Promise<void>(resolve => {
         resolveSlot = resolve;
     });
 
@@ -372,7 +371,7 @@ describe('createExclusiveLockDecorator', () => {
         const LocalExLock = createExclusiveLockDecorator({ store: localStore });
 
         const descriptor: PropertyDescriptor = { get: (): string => 'payment-value', configurable: true };
-        const result = LocalExLock('payment-prop')({} as object, 'paymentProp', descriptor);
+        const result = LocalExLock('payment-prop')({}, 'paymentProp', descriptor);
 
         expect(result).toBe(descriptor);
     });

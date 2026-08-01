@@ -11,7 +11,7 @@ NestJS enterprise is a collection of tools and utilities to help you build enter
 Add `@rnw-community/nestjs-enterprise` to your project using you package manager of choice.
 
 Peer dependencies that your project should contain:
- - [@nestjs/common](https://www.npmjs.com/package/@nestjs/common) `^10.2.7`,
+ - [@nestjs/common](https://www.npmjs.com/package/@nestjs/common) `^11.0.0`,
  - [RxJS](https://www.npmjs.com/package/rxjs) `^7.8.1`
 
 > Some features have **additional installation requirements**, please refer to the feature documentation for more information.
