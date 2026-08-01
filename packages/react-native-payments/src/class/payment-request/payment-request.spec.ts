@@ -336,7 +336,7 @@ describe('PaymentRequest', () => {
             jest.mocked(NativePayments.show).mockRejectedValue(new DOMException(PaymentsErrorEnum.NotAllowedError));
 
             await expect(request.show()).rejects.toThrow(new DOMException(PaymentsErrorEnum.NotAllowedError));
-            expect(NativePayments.show).toHaveBeenCalledWith(expect.any(String), expect.any(Object));
+            expect(NativePayments.show).toHaveBeenCalledWith(request.id, expect.any(String), expect.any(Object));
         });
 
         it('should return true from `canMakePayment` when valid', async () => {
@@ -382,7 +382,7 @@ describe('PaymentRequest', () => {
             request.state = 'created';
             const result = await request.show();
 
-            expect(NativePayments.show).toHaveBeenCalledWith(expect.any(String), expect.any(Object));
+            expect(NativePayments.show).toHaveBeenCalledWith(request.id, expect.any(String), expect.any(Object));
             expect(result).toBeDefined();
             expect(request.state).toBe('closed');
         });
@@ -467,7 +467,7 @@ describe('PaymentRequest', () => {
 
             const result = await request.show();
 
-            expect(NativePayments.show).toHaveBeenCalledWith(expect.any(String), expect.any(Object));
+            expect(NativePayments.show).toHaveBeenCalledWith(request.id, expect.any(String), expect.any(Object));
             expect(result).toBeDefined();
             expect(request.state).toBe('closed');
         });
@@ -658,7 +658,7 @@ describe('PaymentRequest', () => {
             jest.mocked(NativePayments.show).mockRejectedValue(new DOMException(PaymentsErrorEnum.NotAllowedError));
 
             await expect(request.show()).rejects.toThrow(new DOMException(PaymentsErrorEnum.NotAllowedError));
-            expect(NativePayments.show).toHaveBeenCalledWith(expect.any(String), expect.any(Object));
+            expect(NativePayments.show).toHaveBeenCalledWith(request.id, expect.any(String), expect.any(Object));
         });
 
         it('should throw when `NativePayments.show` returns invalid data', async () => {
@@ -741,7 +741,7 @@ describe('PaymentRequest', () => {
 
             const result = await request.show();
 
-            expect(NativePayments.show).toHaveBeenCalledWith(expect.any(String), expect.any(Object));
+            expect(NativePayments.show).toHaveBeenCalledWith(request.id, expect.any(String), expect.any(Object));
             expect(result).toBeDefined();
             expect(request.state).toBe('closed');
         });
