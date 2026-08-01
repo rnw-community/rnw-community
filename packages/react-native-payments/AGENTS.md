@@ -104,7 +104,7 @@ src/
 
 ### Coverage
 
-Custom: branches **92%** (platform-conditional code), rest **99.9%**.
+**100%** for branches, lines, statements and functions.
 
 ### TypeScript Config
 
