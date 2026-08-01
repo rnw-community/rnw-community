@@ -419,9 +419,50 @@ a `DOMException` with `InvalidStateError`. A listener that throws, rejects, send
 or leaves its promise pending for more than 30 seconds is logged and answered with the unchanged details, so the payment
 sheet never stalls.
 
-`error` reaches the iOS sheet as an unserviceable shipping address for `shippingaddresschange`, as an invalid coupon code
-for `couponcodechange` and as a generic payment error for `paymentmethodchange` (the last two need iOS 15).
-`shippingoptionchange` has no error slot in PassKit, so an error answered there is ignored.
+### Sheet errors
+
+`error` is either a plain string or a field level error that Apple Pay renders inline, next to the offending row of the
+sheet, instead of as a generic banner. A string keeps the previous behaviour: an unserviceable shipping address for
+`shippingaddresschange`, an invalid coupon code for `couponcodechange` (iOS 15+) and a generic payment error everywhere
+else. `shippingoptionchange` has no error slot in PassKit, so an error answered there is ignored.
+
+A field level error carries the discriminator, the field it belongs to and the message shown to the user:
+
+```ts
+import {
+    PaymentAddressFieldEnum,
+    PaymentContactFieldEnum,
+    PaymentUpdateErrorTypeEnum,
+} from '@rnw-community/react-native-payments';
+
+paymentRequest.addEventListener('shippingaddresschange', event => {
+    event.updateWith({
+        error: {
+            type: PaymentUpdateErrorTypeEnum.ShippingAddressField,
+            key: PaymentAddressFieldEnum.PostalCode,
+            message: 'We do not ship to this postal code',
+        },
+    });
+});
+
+paymentRequest.addEventListener('couponcodechange', event => {
+    event.updateWith({
+        error: { type: PaymentUpdateErrorTypeEnum.CouponCode, expired: true, message: 'SALE10 expired last week' },
+    });
+});
+```
+
+| `error.type`           | Additional member                | iOS `PKPaymentErrorDomain` error                                            |
+| ---------------------- | -------------------------------- | --------------------------------------------------------------------------- |
+| `shippingAddressField` | `key: PaymentAddressFieldEnum`   | `paymentShippingAddressInvalidErrorWithKey:`                                |
+| `contactField`         | `field: PaymentContactFieldEnum` | `paymentContactInvalidErrorWithContactField:`                               |
+| `couponCode`           | `expired?: boolean`              | `paymentCouponCodeInvalidError` / `paymentCouponCodeExpiredError` (iOS 15+) |
+
+`PaymentAddressFieldEnum` maps onto the `CNPostalAddress` keys PassKit accepts: `addressLine` (street), `city`,
+`country` (ISO country code), `dependentLocality` (sub locality), `postalCode`, `region` (state) and
+`subAdministrativeArea`. `PaymentContactFieldEnum` maps onto `PKContactField`: `email`, `name`, `phone` and
+`postalAddress`. An unknown field, an empty message or a coupon error below iOS 15 is dropped and the sheet is answered
+with the updated details only. Android ignores every error because Google Pay never asks the app for an in-sheet update.
 
 ### `PaymentRequestUpdateEvent.isAnswered`
 

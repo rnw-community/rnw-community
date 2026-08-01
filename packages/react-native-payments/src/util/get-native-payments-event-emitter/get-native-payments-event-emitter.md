@@ -122,10 +122,14 @@ it fires exactly once and is never dropped without being invoked:
 - `updatePaymentDetails` with no pending handler for the event, or with the `eventId` of a superseded one (late answer,
   dismissed sheet, other request) rejects with `no_completion` and changes nothing
 
-`update.error` reaches PassKit as `paymentShippingAddressUnserviceableError` for `shippingaddresschange`,
+A string `update.error` reaches PassKit as `paymentShippingAddressUnserviceableError` for `shippingaddresschange`,
 `paymentCouponCodeInvalidError` for `couponcodechange` (iOS 15+) and a `PKPaymentUnknownError` for `paymentmethodchange`
-(iOS 15+). `shippingoptionchange` has no error slot in `PKPaymentRequestShippingMethodUpdate`, so an error answered there
-is logged and dropped.
+(iOS 15+). An object `update.error` is a field level error and is mapped by its `type` instead of by the event:
+`shippingAddressField` to `paymentShippingAddressInvalidErrorWithKey:` with the `CNPostalAddress` key of `error.key`,
+`contactField` to `paymentContactInvalidErrorWithContactField:` with the `PKContactField` of `error.field` and
+`couponCode` to `paymentCouponCodeExpiredError` or `paymentCouponCodeInvalidError` (iOS 15+). An unknown type, an unknown
+field or an empty message resolves the event without an error. `shippingoptionchange` has no error slot in
+`PKPaymentRequestShippingMethodUpdate`, so an error answered there is logged and dropped.
 
 ## Android semantics
 
