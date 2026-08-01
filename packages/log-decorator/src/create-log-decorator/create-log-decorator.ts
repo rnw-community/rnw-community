@@ -59,8 +59,8 @@ const buildLogMiddleware = <TArgs extends readonly unknown[], TResult>(
 
         if (isPromise(raw)) {
             return Promise.resolve(raw).then(
-                (resolved) => {
-                    emitSuccess(resolved as TResult);
+                resolved => {
+                    emitSuccess(resolved);
 
                     return resolved;
                 },
