@@ -28,7 +28,8 @@
   },
   "resolutions": {
     "hermes-parser": "0.25.0",
-    "babel-jest": "^29.7.0"
+    "babel-jest": "^29.7.0",
+    "axios": "^1.19.0"
   },
   "devDependencies": {
     "@babel/core": "^7.29.7",
