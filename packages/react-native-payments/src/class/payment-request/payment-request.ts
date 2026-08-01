@@ -22,6 +22,7 @@ import { validateAndroidTransactionInfo } from '../../util/validate-android-tran
 import { validateDetailsUpdate } from '../../util/validate-details-update.util';
 import { validateDisplayItems } from '../../util/validate-display-items.util';
 import { validatePaymentMethods } from '../../util/validate-payment-methods.util';
+import { validateShippingOptions } from '../../util/validate-shipping-options.util';
 import { validateTotal } from '../../util/validate-total.util';
 import { warnChangeEventError } from '../../util/warn-change-event-error.util';
 import { ChangeEventDispatcher } from '../change-event-dispatcher/change-event-dispatcher';
@@ -91,6 +92,9 @@ export class PaymentRequest {
 
         // 6. If the displayItems member of details is present, then for each item in details.displayItems:
         validateDisplayItems(details.displayItems, ConstructorError);
+
+        // 7. If the shippingOptions member of details is present, then for each option in details.shippingOptions:
+        validateShippingOptions(details.shippingOptions, ConstructorError);
 
         // 17. Set request.[[serializedMethodData]] to serializedMethodData.         */
         this.platformMethodData = this.findPlatformPaymentMethodData();

@@ -24,13 +24,15 @@ src/
     payment-method-change-event/    — PaymentMethodChangeEvent (extends PaymentRequestUpdateEvent)
     payment-response/               — PaymentResponse, IosPaymentResponse, AndroidPaymentResponse, web shims
   constant/      — changeEventTimeoutMs
-  enum/          — PaymentMethodNameEnum, EnvironmentEnum, PaymentComplete, SupportedNetworkEnum
+  enum/          — PaymentMethodNameEnum, EnvironmentEnum, PaymentComplete, SupportedNetworkEnum,
+                   PaymentUpdateErrorTypeEnum + PaymentAddressFieldEnum + PaymentContactFieldEnum (field level errors)
   error/         — ConstructorError, DOMException, PaymentsError
   expo-plugins/  — withApplePay, withGooglePay, withPayments (Expo config plugin)
   interface/     — GenericPaymentMethodDataDataInterface, PaymentResponseAddress, change-event payload/registration/native update
-  type/          — AmountValue, PaymentRequestEventType, change-event listener types
-  util/          — Validation utilities (monetary values, display items, payment methods, totals, updated details),
-                   getNativePaymentsEventEmitter + the JS<->native change-event contract (.md), change-event logging
+  type/          — AmountValue, PaymentRequestEventType, PaymentDetailsUpdateError, change-event listener types
+  util/          — Validation utilities (monetary values, display items, shipping options, payment methods, totals,
+                   updated details), getNativePaymentsEventEmitter + the JS<->native change-event contract (.md),
+                   change-event logging
   NativePayments.ts — TurboModule spec (TurboModuleRegistry.get<Spec>('Payments'))
   app.plugin.ts  — Expo plugin entry point
 ```
@@ -45,7 +47,17 @@ src/
 - `@standard/` separates W3C spec types from platform-specific types
 - TurboModule architecture (React Native New Architecture codegen)
 - Expo plugin (`withPayments`) composes `withApplePay` + `withGooglePay`
-- `PaymentRequest` constructor validates per W3C spec, then serializes platform-specific JSON for native bridge
+- `PaymentRequest` constructor validates per W3C spec, then serializes platform-specific JSON for native bridge; the
+  total, the display items and the shipping options run through the same validators on the change-event path, so an
+  update that fails them is answered like a failing listener and never reaches the sheet
+- iOS builds `PKShippingMethod` and `PKPaymentSummaryItem` with one converter each for the initial `show()` details and
+  for `updatePaymentDetails`, so an option or an item renders the same in both flows: label, amount, identifier and the
+  optional detail for a shipping method, `PKPaymentSummaryItemTypePending` for a `pending` item
+- `PaymentDetailsUpdate.error` is either a string or a discriminated field error mapped onto the matching
+  `PKPaymentErrorDomain` constructor (shipping address key, contact field, invalid/expired coupon code)
+- Every iOS 15+ PassKit symbol is reached only from `applyCouponCodeSupportToRequest:methodData:`,
+  `resolveCouponCodeChangeEventWithErrors:…`, `getCouponCodeErrorsWithMessage:expired:` and
+  `getPaymentMethodUpdateWithSummaryItems:errors:`, so the file builds with `-Wunguarded-availability-new` as an error
 - The change-event methods (`setActiveEvents`, `updatePaymentDetails`, `addListener`, `removeListeners`) are members of
   the codegen `Spec`, so they have to exist in `Payments.mm`, `PaymentsModule.java` and both `android/src/*arch`
   `PaymentsSpec.java` variants — the TS spec and the three native surfaces only ever change together, in one commit
