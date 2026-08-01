@@ -14,9 +14,11 @@ subscription?.remove();
 
 ## JS <-> native contract
 
-The methods below are declared as optional members of `NativePaymentsChangeEventsInterface` and are called only when the
-native module actually exposes them. They move into the codegen `Spec` in `NativePayments.ts` once the iOS and Android
-implementations land, because every member of that spec has to exist in `Payments.mm` and `PaymentsModule.java`.
+The methods below are members of the codegen `Spec` in `NativePayments.ts` — `Payments.mm` (`RCTEventEmitter`) and
+`PaymentsModule.java` both implement them. `NativePaymentsChangeEventsInterface` keeps them optional at the type level and
+`NativePayments` subtracts them from the `Spec` type, so a JS bundle running against an older installed binary that lacks
+them degrades to the v2 behaviour instead of crashing: every call site guards with `isDefined` and
+`getNativePaymentsEventEmitter()` returns `null`.
 
 ### Native -> JS events
 
@@ -56,3 +58,39 @@ native has already torn the sheet down.
 
 `addListener`/`removeListeners` are the `NativeEventEmitter` bookkeeping methods and carry no request semantics; their
 presence is what tells JS that the native module can emit change events at all.
+
+## iOS semantics
+
+The module is a singleton, so exactly one request is interactive at a time:
+
+- `setActiveEvents` adopts `requestId` as the active one when no sheet is presented. While a sheet is presented, a call
+  carrying a different `requestId` is logged and ignored — the events of the presented request keep working.
+- An empty `eventNames` for the active request empties the active set and flushes pending completions, but keeps the
+  summary items of the presented sheet, so removing the last listener mid-sheet degrades to the no-listener behaviour
+  instead of breaking the sheet.
+- `PKPaymentRequest.shippingMethods` is filled from `details.shippingOptions` and `supportsCouponCode` is enabled only
+  when `shippingoptionchange` / `couponcodechange` are active for the request, which keeps a request without listeners
+  byte-for-byte identical to the v2 sheet.
+
+Every `didSelectShippingContact` / `didSelectShippingMethod` / `didSelectPaymentMethod` / `didChangeCouponCode` handler is
+stored in a per-event-type registry and taken out of it before being invoked, so it fires exactly once:
+
+- event type not active (no listener, other request, JS not observing) -> invoked immediately with the current summary
+  items and no errors, and no JS event is emitted
+- event type active -> the handler waits while JS dispatches, and `updatePaymentDetails` invokes it with the new summary
+  items, shipping methods and error
+- `paymentAuthorizationViewControllerDidFinish`, `didAuthorizePayment`, `complete`, `abort`, `stopObserving` and
+  `invalidate` flush every still pending handler with the current summary items, so the sheet can never hang
+- `updatePaymentDetails` with no pending handler for the event (late answer, dismissed sheet, other request) rejects with
+  `no_completion` and changes nothing
+
+`update.error` reaches PassKit as `paymentShippingAddressUnserviceableError` for `shippingaddresschange`,
+`paymentCouponCodeInvalidError` for `couponcodechange` (iOS 15+) and a `PKPaymentUnknownError` for `paymentmethodchange`
+(iOS 15+). `shippingoptionchange` has no error slot in `PKPaymentRequestShippingMethodUpdate`, so an error answered there
+is logged and dropped.
+
+## Android semantics
+
+Google Pay renders its sheet in its own activity and never asks the app for an in-sheet update, so `setActiveEvents`,
+`updatePaymentDetails`, `addListener` and `removeListeners` exist to satisfy the shared spec and are documented no-ops:
+`updatePaymentDetails` resolves right away and no change event is ever emitted.

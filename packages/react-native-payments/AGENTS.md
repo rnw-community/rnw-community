@@ -46,10 +46,18 @@ src/
 - TurboModule architecture (React Native New Architecture codegen)
 - Expo plugin (`withPayments`) composes `withApplePay` + `withGooglePay`
 - `PaymentRequest` constructor validates per W3C spec, then serializes platform-specific JSON for native bridge
-- The change-event native methods are NOT part of the codegen `Spec` yet: every `Spec` member has to exist in
-  `Payments.mm` and `PaymentsModule.java`, so they live in `NativePaymentsChangeEventsInterface` as optional members and
-  every call site guards with `isDefined`. `getNativePaymentsEventEmitter()` returns `null` while native cannot emit, so
-  `show()` keeps working unchanged on both architectures. They move into `Spec` with the native implementations
+- The change-event methods (`setActiveEvents`, `updatePaymentDetails`, `addListener`, `removeListeners`) are members of
+  the codegen `Spec`, so they have to exist in `Payments.mm`, `PaymentsModule.java` and both `android/src/*arch`
+  `PaymentsSpec.java` variants — the TS spec and the three native surfaces only ever change together, in one commit
+- `NativePayments` types them through `NativePaymentsChangeEventsInterface & Omit<Spec, …>` so they stay optional and
+  every call site keeps its `isDefined` guard: a new JS bundle on an older installed binary degrades to the v2 flow,
+  `getNativePaymentsEventEmitter()` returns `null` and `show()` keeps working on both architectures
+- iOS delivers the events from `Payments.mm` (an `RCTEventEmitter`): every PassKit `didSelect…`/`didChange…` handler goes
+  into a per-event-type registry, is taken out of it before being invoked (single fire), completes immediately with a
+  no-change update when its event type is not active for the current request, and is flushed on every teardown path
+  (`didFinish`, `didAuthorizePayment`, `complete`, `abort`, `stopObserving`, `invalidate`) so the sheet cannot hang.
+  Android answers the same contract with documented no-ops. The semantics live in
+  `src/util/get-native-payments-event-emitter/get-native-payments-event-emitter.md`
 - Change events are request-scoped: native events carry the request `id`, `setActiveEvents(requestId, eventNames)` scopes
   the handshake per request, one native subscription per event type feeds every listener registered for it, and
   subscriptions are removed on every terminal path (`show()` resolve/reject, `abort()`)
