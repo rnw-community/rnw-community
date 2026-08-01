@@ -40,6 +40,7 @@ again from `show()`. It declares the event types that currently have a JS listen
 `PaymentRequest` never clobbers the registrations of the first one. Native must only invoke its `didSelect…` delegates
 (and therefore wait for a response) for the declared types, and must complete immediately with a no-change update for
 everything else. An empty array means the request is finished — pending completions are flushed with no-change updates.
+It is sent on every add and remove, including while the sheet is open, and never again once the request is closed.
 
 ### JS -> native response
 

@@ -274,6 +274,10 @@ const paymentResponse = paymentRequest.show().then(...).catch(...);
 The `paymentRequest.show()` method returns a promise that resolves with a `PaymentResponse` object representing the user's
 payment response.
 
+> **A `PaymentRequest` is single-use.** As soon as `show()` settles — resolved, rejected or aborted — the request moves to
+> the `closed` state per the W3C specification, its change-event listeners are released and every further `show()` rejects
+> with a `DOMException` carrying `InvalidStateError`. Build a new `PaymentRequest` to retry a payment.
+
 ### 5. Processing the PaymentResponse
 
 To send all the relevant payment information to the backend (BE) for further processing and validation, you need to extract
@@ -349,8 +353,10 @@ Registers the listener for one of `shippingaddresschange`, `shippingoptionchange
 `couponcodechange` (the last one is a PassKit extension, not part of the W3C specification). Several listeners can be
 registered for the same event type — they run in registration order and the same function is never registered twice.
 Dispatch stops at the first listener that answers with `updateWith`, exactly like the stop immediate propagation flag of
-the W3C algorithm. Listeners are removed automatically when `show()` settles and when `abort()` resolves, so a request that
-is shown twice needs its listeners registered again.
+the W3C algorithm. One native subscription is kept per event type no matter how many listeners are added and removed, and
+events are scoped to the request they belong to, so concurrent `PaymentRequest` instances never see each other's events.
+Listeners are released when `show()` settles and when `abort()` resolves; registering on a closed request does nothing
+because a request is single-use — create a new `PaymentRequest` to show the sheet again.
 
 ```ts
 paymentRequest.addEventListener('shippingaddresschange', event => {
@@ -364,7 +370,8 @@ paymentRequest.addEventListener('shippingaddresschange', event => {
 ### `PaymentRequest.removeEventListener(type, listener)`
 
 Removes the passed listener from the event type, matching the `EventTarget` signature. The native subscription is released
-once the last listener of the type is gone.
+once the last listener of the type is gone, and native is told about the remaining event types right away — also while the
+payment sheet is open.
 
 ```ts
 paymentRequest.removeEventListener('shippingaddresschange', onShippingAddressChange);
