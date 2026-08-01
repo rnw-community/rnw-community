@@ -62,6 +62,22 @@ native has already torn the sheet down.
 - `displayItems`: array of `PaymentItem`
 - `shippingOptions`: array of `PaymentShippingOption`
 
+`displayItems`, `total` and `shippingOptions` are the same shapes `show()` receives in `details`, and iOS converts them
+with the same converters in both flows, so an option renders identically whether it came with the initial details or with
+an update:
+
+| `PaymentShippingOption` | `PKShippingMethod`                       |
+| ----------------------- | ---------------------------------------- |
+| `id`                    | `identifier`                             |
+| `label`                 | `label` (`summaryItemWithLabel:amount:`) |
+| `amount.value`          | `amount` (`NSDecimalNumber`)             |
+| `amount.currency`       | not sent — the sheet uses `currencyCode` |
+| `detail`                | `detail`                                 |
+| `selected`              | not sent — PassKit selects the first row |
+
+An option whose `id`, `label` or `amount.value` is not a string is skipped with a warning instead of reaching the sheet
+as a `NaN` amount.
+
 Native resolves the completion only when the answered `eventId` is still the pending one: a second change event of the
 same type supersedes the first, and the answer of the superseded event is rejected with `no_completion` instead of being
 applied to the newer handler. An update without an `eventId` is accepted, which is what keeps an older JS bundle working.

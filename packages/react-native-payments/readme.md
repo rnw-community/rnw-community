@@ -401,6 +401,19 @@ paymentRequest.addEventListener('shippingoptionchange', async event => {
 });
 ```
 
+Every `PaymentShippingOption` needs an `id`, a `label` and an `amount`, because iOS renders the row from the label and the
+amount and reports the selection back by the id. `detail` is optional and is shown by Apple Pay as the secondary line of
+the row (`PKShippingMethod.detail`); `amount.currency` is ignored because the sheet is already bound to the
+`currencyCode` of the method data. The initial `details.shippingOptions` and the ones answered with `updateWith` go
+through the same conversion, so the same option always renders the same row.
+
+```ts
+const shippingOptions = [
+    { id: 'express', label: 'Express', detail: 'Next business day', amount: { currency: 'USD', value: '5.00' } },
+    { id: 'ground', label: 'Ground', detail: '3-5 business days', amount: { currency: 'USD', value: '0.00' } },
+];
+```
+
 Calling `updateWith` twice, or calling it once the event was already answered or the request is no longer showing, throws
 a `DOMException` with `InvalidStateError`. A listener that throws, rejects, sends invalid details, never calls `updateWith`
 or leaves its promise pending for more than 30 seconds is logged and answered with the unchanged details, so the payment

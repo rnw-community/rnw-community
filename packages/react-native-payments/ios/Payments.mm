@@ -758,27 +758,43 @@ RCT_EXPORT_METHOD(canMakePayments: (NSString *)methodDataString
     }
 
     for (id shippingOption in shippingOptions) {
-        if (![shippingOption isKindOfClass:[NSDictionary class]]) {
-            RCTLogWarn(@"Payments: skipping a shipping option that is not an object");
-            continue;
+        PKShippingMethod *shippingMethod = [self convertShippingOptionToShippingMethod:shippingOption];
+
+        if (shippingMethod != nil) {
+            [shippingMethods addObject:shippingMethod];
         }
-
-        NSDecimalNumber *amount = [self getDecimalNumberFromAmount:((NSDictionary *)shippingOption)[@"amount"]];
-        id label = ((NSDictionary *)shippingOption)[@"label"];
-        id identifier = ((NSDictionary *)shippingOption)[@"id"];
-
-        if (amount == nil || ![label isKindOfClass:[NSString class]] || ![identifier isKindOfClass:[NSString class]]) {
-            RCTLogWarn(@"Payments: skipping a shipping option without a string id, a string label and an amount");
-            continue;
-        }
-
-        PKShippingMethod *shippingMethod = [PKShippingMethod summaryItemWithLabel:label amount:amount];
-        shippingMethod.identifier = identifier;
-
-        [shippingMethods addObject:shippingMethod];
     }
 
     return shippingMethods;
+}
+
+// https://developer.apple.com/documentation/passkit/pkshippingmethod?language=objc
+- (PKShippingMethod *_Nullable)convertShippingOptionToShippingMethod:(id _Nullable)shippingOption
+{
+    if (![shippingOption isKindOfClass:[NSDictionary class]]) {
+        RCTLogWarn(@"Payments: skipping a shipping option that is not an object");
+        return nil;
+    }
+
+    NSDictionary *option = (NSDictionary *)shippingOption;
+    NSDecimalNumber *amount = [self getDecimalNumberFromAmount:option[@"amount"]];
+    id label = option[@"label"];
+    id identifier = option[@"id"];
+
+    if (amount == nil || ![label isKindOfClass:[NSString class]] || ![identifier isKindOfClass:[NSString class]]) {
+        RCTLogWarn(@"Payments: skipping a shipping option without a string id, a string label and a string amount value");
+        return nil;
+    }
+
+    PKShippingMethod *shippingMethod = [PKShippingMethod summaryItemWithLabel:(NSString *)label amount:amount];
+    shippingMethod.identifier = (NSString *)identifier;
+
+    id detail = option[@"detail"];
+    if ([detail isKindOfClass:[NSString class]]) {
+        shippingMethod.detail = (NSString *)detail;
+    }
+
+    return shippingMethod;
 }
 
 - (NSDecimalNumber *_Nullable)getDecimalNumberFromAmount:(id _Nullable)amount
@@ -787,13 +803,13 @@ RCT_EXPORT_METHOD(canMakePayments: (NSString *)methodDataString
         return nil;
     }
 
-    NSString *value = ((NSDictionary *)amount)[@"value"];
+    id value = ((NSDictionary *)amount)[@"value"];
 
     if (![value isKindOfClass:[NSString class]]) {
         return nil;
     }
 
-    NSDecimalNumber *decimalNumber = [NSDecimalNumber decimalNumberWithString:value];
+    NSDecimalNumber *decimalNumber = [NSDecimalNumber decimalNumberWithString:(NSString *)value];
 
     return [decimalNumber isEqualToNumber:[NSDecimalNumber notANumber]] ? nil : decimalNumber;
 }

@@ -1834,6 +1834,45 @@ describe('PaymentRequest', () => {
             Object.assign(optionalNativePayments, { setActiveEvents, updatePaymentDetails });
         });
 
+        it('should pass identical shipping options to native from the initial details and from an update', async () => {
+            expect.hasAssertions();
+
+            let finishShow: (details: string) => void = emptyFn;
+            jest.mocked(NativePayments.show).mockImplementation(
+                async () =>
+                    new Promise<string>(resolve => {
+                        finishShow = resolve;
+                    })
+            );
+
+            const detailedOption: PaymentShippingOption = {
+                id: 'express',
+                label: 'Express',
+                detail: 'Next business day',
+                amount: { currency: 'USD', value: '5.00' },
+            };
+
+            const request = new PaymentRequest([eventsMethodData], {
+                total: initialTotal,
+                shippingOptions: [detailedOption],
+            });
+            request.addEventListener('shippingoptionchange', event => {
+                event.updateWith({ shippingOptions: [detailedOption] });
+            });
+
+            const response = request.show();
+            emitNativeEvent('shippingoptionchange', { requestId: request.id, shippingOption: 'express' });
+            await nativeUpdate;
+            finishShow(acceptedPayment);
+            await response;
+
+            const [[, shownDetails]] = jest.mocked(NativePayments.show).mock.calls;
+            const [[, , updatedShippingOptions]] = updatePaymentDetailsMock.mock.calls;
+
+            expect((shownDetails as PaymentDetailsInit).shippingOptions).toStrictEqual([detailedOption]);
+            expect(updatedShippingOptions).toStrictEqual([detailedOption]);
+        });
+
         it('should remove a listener registered while the native module could not deliver change events', () => {
             expect.hasAssertions();
 
