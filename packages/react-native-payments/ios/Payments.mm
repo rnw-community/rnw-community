@@ -94,7 +94,8 @@ static const PKPaymentNetwork PKPaymentNetworkUnknown = 0;
     [super invalidate];
 }
 
-RCT_EXPORT_METHOD(show:(NSString *)methodDataString
+RCT_EXPORT_METHOD(show:(NSString *)requestId
+                        methodData:(NSString *)methodDataString
                         details:(NSDictionary *)details
                         resolve:(RCTPromiseResolveBlock)resolve
                         reject:(RCTPromiseRejectBlock)reject)
@@ -272,6 +273,7 @@ RCT_EXPORT_METHOD(show:(NSString *)methodDataString
     UIViewController *rootViewController = RCTPresentedViewController();
     [rootViewController presentViewController:self.viewController animated:YES completion:nil];
 
+    self.activeRequestId = requestId;
     self.isSheetPresented = YES;
 }
 
@@ -332,7 +334,7 @@ RCT_EXPORT_METHOD(setActiveEvents: (NSString *)requestId
         return;
     }
 
-    if (self.isSheetPresented && self.activeRequestId != nil && ![self isActiveRequestId:requestId]) {
+    if (self.isSheetPresented && ![self isActiveRequestId:requestId]) {
         RCTLogWarn(@"Payments: ignoring change events of '%@', the payment sheet of '%@' is presented", requestId, self.activeRequestId);
         resolve(nil);
         return;
@@ -674,8 +676,6 @@ RCT_EXPORT_METHOD(canMakePayments: (NSString *)methodDataString
 {
     [self flushPendingEventCompletions];
     [self.activeEventNames removeAllObjects];
-
-    self.activeRequestId = nil;
 }
 
 - (void)teardownPaymentSheetState
@@ -683,6 +683,7 @@ RCT_EXPORT_METHOD(canMakePayments: (NSString *)methodDataString
     [self invokeAuthorizationCompletionWithStatus:PKPaymentAuthorizationStatusFailure];
     [self clearActiveEvents];
 
+    self.activeRequestId = nil;
     self.isSheetPresented = NO;
     self.viewController = nil;
 }
