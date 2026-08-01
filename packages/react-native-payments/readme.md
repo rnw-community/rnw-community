@@ -118,7 +118,7 @@ export default {
 };
 ```
 
-`merchantIdentifier` accepts either a single identifier or an array of identifiers. Pass an array when your app resolves the Apple Pay merchant per country/environment at runtime — every identifier is then declared in the `com.apple.developer.in-app-payments` entitlement:
+`merchantIdentifier` accepts either a single identifier or an array of identifiers. Pass an array when your app resolves the Apple Pay merchant per country/environment at runtime — every identifier is then declared in the `com.apple.developer.in-app-payments` entitlement. Empty identifiers are ignored; if no non-empty identifier remains, prebuild fails with an error:
 
 ```js
 {

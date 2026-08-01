@@ -43,10 +43,7 @@ describe('withApplePay', () => {
 
         const existing = { [ENTITLEMENT_KEY]: ['merchant.com.existing'] };
 
-        expect(runPlugin('merchant.com.example', existing)).toStrictEqual([
-            'merchant.com.existing',
-            'merchant.com.example',
-        ]);
+        expect(runPlugin('merchant.com.example', existing)).toStrictEqual(['merchant.com.existing', 'merchant.com.example']);
     });
 
     it('should not duplicate an already declared merchant identifier', () => {
@@ -75,8 +72,11 @@ describe('withApplePay', () => {
     });
 
     it('should throw when every provided identifier is empty', () => {
-        expect.assertions(2);
+        expect.assertions(3);
 
+        expect(() => runPlugin('')).toThrow(
+            'Please provide "@rnw-community/react-native-payments" plugin option "merchantIdentifier"'
+        );
         expect(() => runPlugin([])).toThrow(
             'Please provide "@rnw-community/react-native-payments" plugin option "merchantIdentifier"'
         );
