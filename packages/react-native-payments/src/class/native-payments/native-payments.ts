@@ -21,7 +21,7 @@ const changeEventMethodNames = new Set<PropertyKey>([
 
 // @ts-expect-error Temporary hack
 // eslint-disable-next-line no-underscore-dangle
-const isTurboModuleEnabled = global.__turboModuleProxy !== null;
+const isTurboModuleEnabled = isDefined(global.__turboModuleProxy);
 
 const PaymentsModule = isTurboModuleEnabled
     ? // eslint-disable-next-line @typescript-eslint/no-require-imports,n/no-missing-require,@typescript-eslint/no-unsafe-member-access

@@ -46,19 +46,19 @@ describe('NativePayments', () => {
         delete globalWithTurboModuleProxy.__turboModuleProxy;
     });
 
-    it('should expose the TurboModule when the new architecture is enabled', () => {
+    it('should expose the TurboModule when the turbo module proxy is installed', () => {
         expect.hasAssertions();
 
+        // eslint-disable-next-line no-underscore-dangle
+        globalWithTurboModuleProxy.__turboModuleProxy = () => null;
         mockTurboModule.current = { show: showMock };
 
         expect(loadNativePayments().show).toBe(showMock);
     });
 
-    it('should expose the legacy native module when the new architecture is disabled', () => {
+    it('should expose the legacy native module when the turbo module proxy is not installed', () => {
         expect.hasAssertions();
 
-        // eslint-disable-next-line no-underscore-dangle
-        globalWithTurboModuleProxy.__turboModuleProxy = null;
         nativeModules.Payments = { show: showMock };
 
         expect(loadNativePayments().show).toBe(showMock);
