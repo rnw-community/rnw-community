@@ -478,77 +478,16 @@ RCT_EXPORT_METHOD(canMakePayments: (NSString *)methodDataString
 
     NSMutableDictionary *paymentDict = [NSMutableDictionary dictionary];
 
-    NSMutableDictionary *tokenDict = [NSMutableDictionary dictionary];
-    tokenDict[@"transactionIdentifier"] = payment.token.transactionIdentifier;
-
-    NSString *paymentData64 = [payment.token.paymentData base64EncodedStringWithOptions:0];
-    NSData *decodedPaymentData = [[NSData alloc] initWithBase64EncodedString:paymentData64 options:0];
-    tokenDict[@"paymentData"] = [[NSString alloc] initWithData:decodedPaymentData encoding:NSUTF8StringEncoding];
-
-    NSMutableDictionary *paymentMethodDict = [NSMutableDictionary dictionary];
-    paymentMethodDict[@"displayName"] = payment.token.paymentMethod.displayName;
-    paymentMethodDict[@"network"] = payment.token.paymentMethod.network;
-    paymentMethodDict[@"type"] = [self stringFromPaymentMethodType:payment.token.paymentMethod.type];
-
-    tokenDict[@"paymentMethod"] = paymentMethodDict;
-
-    paymentDict[@"token"] = tokenDict;
+    paymentDict[@"token"] = [self getTokenDictionaryFromToken:payment.token];
 
     PKContact *billingContact = payment.billingContact;
     if (billingContact) {
-        NSMutableDictionary *billingContactDict = [NSMutableDictionary dictionary];
-
-        CNPostalAddress *postalAddress = billingContact.postalAddress;
-        NSMutableDictionary *postalAddressDict = [NSMutableDictionary dictionary];
-        if (postalAddress) {
-            postalAddressDict[@"street"] = postalAddress.street;
-            postalAddressDict[@"city"] = postalAddress.city;
-            postalAddressDict[@"state"] = postalAddress.state;
-            postalAddressDict[@"postalCode"] = postalAddress.postalCode;
-            postalAddressDict[@"country"] = postalAddress.country;
-            postalAddressDict[@"ISOCountryCode"] = postalAddress.ISOCountryCode;
-        }
-
-        billingContactDict[@"postalAddress"] = postalAddressDict;
-
-        paymentDict[@"billingContact"] = billingContactDict;
+        paymentDict[@"billingContact"] = [self getContactDictionaryFromContact:billingContact];
     }
 
     PKContact *shippingContact = payment.shippingContact;
     if (shippingContact) {
-        NSMutableDictionary *shippingContactDict = [NSMutableDictionary dictionary];
-        shippingContactDict[@"emailAddress"] = shippingContact.emailAddress;
-
-        CNPhoneNumber *phoneNumber = shippingContact.phoneNumber;
-        NSMutableDictionary *phoneNumberDict = [NSMutableDictionary dictionary];
-        phoneNumberDict[@"stringValue"] = phoneNumber.stringValue;
-        shippingContactDict[@"phoneNumber"] = phoneNumberDict;
-
-        CNPostalAddress *postalAddress = shippingContact.postalAddress;
-        NSMutableDictionary *postalAddressDict = [NSMutableDictionary dictionary];
-        if (postalAddress) {
-            postalAddressDict[@"street"] = postalAddress.street;
-            postalAddressDict[@"city"] = postalAddress.city;
-            postalAddressDict[@"state"] = postalAddress.state;
-            postalAddressDict[@"postalCode"] = postalAddress.postalCode;
-            postalAddressDict[@"country"] = postalAddress.country;
-            postalAddressDict[@"ISOCountryCode"] = postalAddress.ISOCountryCode;
-        }
-        shippingContactDict[@"postalAddress"] = postalAddressDict;
-
-        NSPersonNameComponents *nameComponents = shippingContact.name;
-        NSMutableDictionary *nameDict = [NSMutableDictionary dictionary];
-        if (nameComponents) {
-            nameDict[@"givenName"] = nameComponents.givenName;
-            nameDict[@"familyName"] = nameComponents.familyName;
-            nameDict[@"middleName"] = nameComponents.middleName;
-            nameDict[@"namePrefix"] = nameComponents.namePrefix;
-            nameDict[@"nameSuffix"] = nameComponents.nameSuffix;
-            nameDict[@"nickname"] = nameComponents.nickname;
-        }
-        shippingContactDict[@"name"] = nameDict;
-
-        paymentDict[@"shippingContact"] = shippingContactDict;
+        paymentDict[@"shippingContact"] = [self getContactDictionaryFromContact:shippingContact];
     }
 
     // TODO: Add shippingMethod
@@ -822,6 +761,63 @@ RCT_EXPORT_METHOD(canMakePayments: (NSString *)methodDataString
     });
 
     return [payerField isKindOfClass:[NSString class]] ? payerContactFields[(NSString *)payerField] : nil;
+}
+
+// https://developer.apple.com/documentation/passkit/pkpaymenttoken?language=objc
+- (NSDictionary *_Nonnull)getTokenDictionaryFromToken:(PKPaymentToken *_Nullable)token
+{
+    NSString *paymentData64 = [token.paymentData base64EncodedStringWithOptions:0];
+    NSData *decodedPaymentData = [[NSData alloc] initWithBase64EncodedString:paymentData64 ?: @"" options:0];
+    NSString *paymentData = [[NSString alloc] initWithData:decodedPaymentData ?: [NSData data] encoding:NSUTF8StringEncoding];
+
+    return @{
+        @"transactionIdentifier": token.transactionIdentifier ?: @"",
+        @"paymentData": paymentData ?: @"",
+        @"paymentMethod": @{
+            @"displayName": token.paymentMethod.displayName ?: @"",
+            @"network": token.paymentMethod.network ?: @"",
+            @"type": [self stringFromPaymentMethodType:token.paymentMethod.type]
+        }
+    };
+}
+
+// https://developer.apple.com/documentation/passkit/pkcontact?language=objc
+- (NSDictionary *_Nonnull)getContactDictionaryFromContact:(PKContact *_Nonnull)contact
+{
+    return @{
+        @"emailAddress": contact.emailAddress ?: @"",
+        @"name": [self getNameDictionaryFromNameComponents:contact.name],
+        @"phoneNumber": @{ @"stringValue": contact.phoneNumber.stringValue ?: @"" },
+        @"postalAddress": [self getPostalAddressDictionaryFromPostalAddress:contact.postalAddress]
+    };
+}
+
+// https://developer.apple.com/documentation/contacts/cnpostaladdress?language=objc
+- (NSDictionary *_Nonnull)getPostalAddressDictionaryFromPostalAddress:(CNPostalAddress *_Nullable)postalAddress
+{
+    return @{
+        @"ISOCountryCode": postalAddress.ISOCountryCode ?: @"",
+        @"city": postalAddress.city ?: @"",
+        @"country": postalAddress.country ?: @"",
+        @"postalCode": postalAddress.postalCode ?: @"",
+        @"state": postalAddress.state ?: @"",
+        @"street": postalAddress.street ?: @"",
+        @"subAdministrativeArea": postalAddress.subAdministrativeArea ?: @"",
+        @"subLocality": postalAddress.subLocality ?: @""
+    };
+}
+
+// https://developer.apple.com/documentation/foundation/nspersonnamecomponents?language=objc
+- (NSDictionary *_Nonnull)getNameDictionaryFromNameComponents:(NSPersonNameComponents *_Nullable)nameComponents
+{
+    return @{
+        @"familyName": nameComponents.familyName ?: @"",
+        @"givenName": nameComponents.givenName ?: @"",
+        @"middleName": nameComponents.middleName ?: @"",
+        @"namePrefix": nameComponents.namePrefix ?: @"",
+        @"nameSuffix": nameComponents.nameSuffix ?: @"",
+        @"nickname": nameComponents.nickname ?: @""
+    };
 }
 
 - (NSDictionary *_Nonnull)getAddressFromPostalAddress:(CNPostalAddress *_Nullable)postalAddress
