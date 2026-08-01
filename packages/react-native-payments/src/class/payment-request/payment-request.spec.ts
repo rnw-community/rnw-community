@@ -3,6 +3,9 @@ import { Platform } from 'react-native';
 
 import { emptyFn } from '@rnw-community/shared';
 
+import { AndroidPaymentMethodTokenizationType } from '../../@standard/android/enum/android-payment-method-tokenization-type.enum';
+import { IOSPKContactField } from '../../@standard/ios/enum/ios-pk-contact-field.enum';
+import { IosPKMerchantCapability } from '../../@standard/ios/enum/ios-pk-merchant-capability.enum';
 import { IosPKPaymentMethodType } from '../../@standard/ios/enum/ios-pk-payment-method-type.enum';
 import { changeEventTimeoutMs } from '../../constant/change-event-timeout-ms';
 import { EnvironmentEnum } from '../../enum/environment.enum';
@@ -230,6 +233,40 @@ describe('PaymentRequest', () => {
                         `Failed to construct 'PaymentRequest':  '10.00.' is not a valid amount format for total`
                     )
                 );
+            });
+
+            it('should throw when total.amount.value is a negative number', () => {
+                expect.assertions(1);
+
+                const invalidPaymentDetails = {
+                    total: {
+                        label: 'Total',
+                        amount: {
+                            currency: 'USD',
+                            value: -10,
+                        },
+                    },
+                } as unknown as PaymentDetailsInit;
+
+                expect(() => new PaymentRequest([methodData], invalidPaymentDetails)).toThrow(
+                    new PaymentsError(`Failed to construct 'PaymentRequest':  Total amount value should be non-negative`)
+                );
+            });
+
+            it('should NOT throw when total.amount.value is a non-negative number', () => {
+                expect.assertions(1);
+
+                const validPaymentDetails = {
+                    total: {
+                        label: 'Total',
+                        amount: {
+                            currency: 'USD',
+                            value: 10,
+                        },
+                    },
+                } as unknown as PaymentDetailsInit;
+
+                expect(() => new PaymentRequest([methodData], validPaymentDetails)).not.toThrow();
             });
         });
 
@@ -649,6 +686,99 @@ describe('PaymentRequest', () => {
                 );
             });
         });
+
+        describe('platform method data serialization', () => {
+            const getSerializedAndroidMethodData = async (
+                requestMethodData: AndroidPaymentMethodDataInterface
+            ): Promise<AndroidPaymentDataRequest> => {
+                jest.mocked(NativePayments.canMakePayments).mockResolvedValue(true);
+
+                await new PaymentRequest([requestMethodData], paymentDetails).canMakePayment();
+
+                const [[serializedMethodData]] = jest.mocked(NativePayments.canMakePayments).mock.calls;
+
+                return JSON.parse(serializedMethodData) as AndroidPaymentDataRequest;
+            };
+
+            it('should require a full billing address when requestBillingAddress is set', async () => {
+                expect.hasAssertions();
+
+                const methodDataRequest = await getSerializedAndroidMethodData({
+                    ...androidMethodData,
+                    data: { ...androidMethodData.data, requestBillingAddress: true, requestPayerPhone: true },
+                });
+
+                expect(methodDataRequest.allowedPaymentMethods[0].parameters).toMatchObject({
+                    billingAddressRequired: true,
+                    billingAddressParameters: { format: 'FULL', phoneNumberRequired: true },
+                });
+            });
+
+            it('should require a minimal billing address when only the payer name is requested', async () => {
+                expect.hasAssertions();
+
+                const methodDataRequest = await getSerializedAndroidMethodData({
+                    ...androidMethodData,
+                    data: { ...androidMethodData.data, requestPayerName: true },
+                });
+
+                expect(methodDataRequest.allowedPaymentMethods[0].parameters).toMatchObject({
+                    billingAddressRequired: true,
+                    billingAddressParameters: { format: 'MIN', phoneNumberRequired: false },
+                });
+            });
+
+            it('should not require a billing address when no payer field is requested', async () => {
+                expect.hasAssertions();
+
+                const methodDataRequest = await getSerializedAndroidMethodData(androidMethodData);
+
+                expect(methodDataRequest.allowedPaymentMethods[0].parameters).not.toHaveProperty('billingAddressRequired');
+            });
+
+            it('should serialize a direct tokenization specification', async () => {
+                expect.hasAssertions();
+
+                const methodDataRequest = await getSerializedAndroidMethodData({
+                    supportedMethods: PaymentMethodNameEnum.AndroidPay,
+                    data: {
+                        currencyCode: 'USD',
+                        countryCode: 'US',
+                        supportedNetworks: [SupportedNetworkEnum.Visa],
+                        environment: EnvironmentEnum.TEST,
+                        directConfig: { protocolVersion: 'ECv2', publicKey: 'testPublicKey' },
+                    },
+                });
+
+                expect(methodDataRequest.allowedPaymentMethods[0].tokenizationSpecification).toStrictEqual({
+                    parameters: { protocolVersion: 'ECv2', publicKey: 'testPublicKey' },
+                    type: AndroidPaymentMethodTokenizationType.DIRECT,
+                });
+            });
+
+            it('should require the payer email when requestPayerEmail is set', async () => {
+                expect.hasAssertions();
+
+                const methodDataRequest = await getSerializedAndroidMethodData({
+                    ...androidMethodData,
+                    data: { ...androidMethodData.data, requestPayerEmail: true },
+                });
+
+                expect(methodDataRequest.emailRequired).toBe(true);
+            });
+
+            it('should require the shipping address when requestShipping is set', async () => {
+                expect.hasAssertions();
+
+                const methodDataRequest = await getSerializedAndroidMethodData({
+                    ...androidMethodData,
+                    data: { ...androidMethodData.data, requestShipping: true, requestPayerPhone: true },
+                });
+
+                expect(methodDataRequest.shippingAddressRequired).toBe(true);
+                expect(methodDataRequest.shippingAddressParameters).toStrictEqual({ phoneNumberRequired: true });
+            });
+        });
     });
 
     describe('PaymentRequest on iOS', () => {
@@ -665,6 +795,18 @@ describe('PaymentRequest', () => {
                 merchantIdentifier: 'merchant.com.example',
                 supportedNetworks: [SupportedNetworkEnum.Visa, SupportedNetworkEnum.Mastercard],
             },
+        };
+
+        const getSerializedIosMethodData = async (
+            requestMethodData: IosPaymentMethodDataInterface
+        ): Promise<IosPaymentDataRequest> => {
+            jest.mocked(NativePayments.canMakePayments).mockResolvedValue(true);
+
+            await new PaymentRequest([requestMethodData], paymentDetails).canMakePayment();
+
+            const [[serializedMethodData]] = jest.mocked(NativePayments.canMakePayments).mock.calls;
+
+            return JSON.parse(serializedMethodData) as IosPaymentDataRequest;
         };
 
         beforeEach(() => {
@@ -878,18 +1020,6 @@ describe('PaymentRequest', () => {
             );
         });
         describe('couponCode serialization', () => {
-            const getSerializedIosMethodData = async (
-                requestMethodData: IosPaymentMethodDataInterface
-            ): Promise<IosPaymentDataRequest> => {
-                jest.mocked(NativePayments.canMakePayments).mockResolvedValue(true);
-
-                await new PaymentRequest([requestMethodData], paymentDetails).canMakePayment();
-
-                const [[serializedMethodData]] = jest.mocked(NativePayments.canMakePayments).mock.calls;
-
-                return JSON.parse(serializedMethodData) as IosPaymentDataRequest;
-            };
-
             it('should serialize the prefilled coupon code', async () => {
                 expect.assertions(1);
 
@@ -912,6 +1042,71 @@ describe('PaymentRequest', () => {
 
                 expect(withoutCouponCode).not.toHaveProperty('couponCode');
                 expect(withEmptyCouponCode).not.toHaveProperty('couponCode');
+            });
+        });
+
+        describe('platform method data serialization', () => {
+            it('should serialize the provided merchant capabilities instead of the defaults', async () => {
+                expect.hasAssertions();
+
+                const methodDataRequest = await getSerializedIosMethodData({
+                    ...iosMethodData,
+                    data: {
+                        ...iosMethodData.data,
+                        merchantCapabilities: [IosPKMerchantCapability.PKMerchantCapabilityEMV],
+                    },
+                });
+
+                expect(methodDataRequest.merchantCapabilities).toStrictEqual([
+                    IosPKMerchantCapability.PKMerchantCapabilityEMV,
+                ]);
+            });
+
+            it('should serialize the default merchant capabilities when none are provided', async () => {
+                expect.hasAssertions();
+
+                const methodDataRequest = await getSerializedIosMethodData(iosMethodData);
+
+                expect(methodDataRequest.merchantCapabilities).toStrictEqual([
+                    IosPKMerchantCapability.PKMerchantCapability3DS,
+                    IosPKMerchantCapability.PKMerchantCapabilityDebit,
+                    IosPKMerchantCapability.PKMerchantCapabilityCredit,
+                ]);
+            });
+
+            it('should serialize the provided application data', async () => {
+                expect.hasAssertions();
+
+                const methodDataRequest = await getSerializedIosMethodData({
+                    ...iosMethodData,
+                    data: { ...iosMethodData.data, applicationData: 'dGVzdA==' },
+                });
+
+                expect(methodDataRequest.applicationData).toBe('dGVzdA==');
+            });
+
+            it('should not serialize a missing application data', async () => {
+                expect.hasAssertions();
+
+                const methodDataRequest = await getSerializedIosMethodData(iosMethodData);
+
+                expect(methodDataRequest).not.toHaveProperty('applicationData');
+            });
+
+            it('should exclude the postal address from the required shipping fields when shipping is not requested', async () => {
+                expect.hasAssertions();
+
+                const { requestShipping, ...dataWithoutShipping } = iosMethodData.data;
+                const methodDataRequest = await getSerializedIosMethodData({
+                    ...iosMethodData,
+                    data: dataWithoutShipping,
+                });
+
+                expect(methodDataRequest.requiredShippingContactFields).toStrictEqual([
+                    IOSPKContactField.PKContactFieldEmailAddress,
+                    IOSPKContactField.PKContactFieldName,
+                    IOSPKContactField.PKContactFieldPhoneNumber,
+                ]);
             });
         });
 

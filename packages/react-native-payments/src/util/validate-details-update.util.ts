@@ -13,6 +13,6 @@ export const validateDetailsUpdate = (detailsUpdate: PaymentDetailsUpdate): void
         validateTotal(detailsUpdate.total, PaymentsError);
     }
 
-    validateDisplayItems(detailsUpdate.displayItems, PaymentsError);
-    validateShippingOptions(detailsUpdate.shippingOptions, PaymentsError);
+    validateDisplayItems(PaymentsError, detailsUpdate.displayItems);
+    validateShippingOptions(PaymentsError, detailsUpdate.shippingOptions);
 };
