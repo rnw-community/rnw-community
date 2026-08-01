@@ -22,9 +22,7 @@ import { PaymentRequest } from './payment-request';
 import type { AndroidPaymentMethodDataInterface } from '../../@standard/android/mapping/android-payment-method-data.interface';
 import type { AndroidPaymentDataRequest } from '../../@standard/android/request/android-payment-data-request';
 import type { AndroidTransactionInfo } from '../../@standard/android/request/android-transaction-info';
-import type { AndroidPaymentData } from '../../@standard/android/response/android-payment-data';
 import type { IosPaymentMethodDataInterface } from '../../@standard/ios/mapping/ios-payment-method-data.interface';
-import type { IosPKPayment } from '../../@standard/ios/response/ios-pk-payment';
 import type { PaymentDetailsInit } from '../../@standard/w3c/payment-details-init';
 import type { PaymentDetailsUpdate } from '../../@standard/w3c/payment-details-update';
 import type { PaymentItem } from '../../@standard/w3c/payment-item';
@@ -464,7 +462,7 @@ describe('PaymentRequest', () => {
                         locality: 'New York',
                         sortingCode: '',
                     },
-                } as AndroidPaymentData)
+                })
             );
 
             const result = await request.show();
@@ -738,7 +736,7 @@ describe('PaymentRequest', () => {
                         },
                         transactionIdentifier: 'txn123456789',
                     },
-                } as IosPKPayment)
+                })
             );
 
             const result = await request.show();
