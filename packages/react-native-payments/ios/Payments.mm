@@ -930,12 +930,18 @@ RCT_EXPORT_METHOD(canMakePayments: (NSString *)methodDataString
     return [decimalNumber isEqualToNumber:[NSDecimalNumber notANumber]] ? nil : decimalNumber;
 }
 
-- (PKPaymentSummaryItem *_Nonnull)convertDisplayItemToPaymentSummaryItem:(NSDictionary *_Nonnull)displayItem;
+// https://developer.apple.com/documentation/passkit/pkpaymentsummaryitemtype?language=objc
+- (PKPaymentSummaryItem *_Nonnull)convertDisplayItemToPaymentSummaryItem:(NSDictionary *_Nonnull)displayItem
 {
-    NSDecimalNumber *decimalNumberAmount = [NSDecimalNumber decimalNumberWithString:displayItem[@"amount"][@"value"]];
-    PKPaymentSummaryItem *paymentSummaryItem = [PKPaymentSummaryItem summaryItemWithLabel:displayItem[@"label"] amount:decimalNumberAmount];
+    NSDecimalNumber *amount = [self getDecimalNumberFromAmount:displayItem[@"amount"]] ?: [NSDecimalNumber zero];
+    id label = displayItem[@"label"];
+    PKPaymentSummaryItemType type = [displayItem[@"pending"] isEqual:@YES]
+        ? PKPaymentSummaryItemTypePending
+        : PKPaymentSummaryItemTypeFinal;
 
-    return paymentSummaryItem;
+    return [PKPaymentSummaryItem summaryItemWithLabel:([label isKindOfClass:[NSString class]] ? (NSString *)label : @"")
+                                               amount:amount
+                                                 type:type];
 }
 
 // https://developer.apple.com/documentation/passkit/pkpaymentrequest/1619231-paymentsummaryitems?language=objc

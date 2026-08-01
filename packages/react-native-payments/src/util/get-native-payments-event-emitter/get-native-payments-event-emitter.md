@@ -76,7 +76,8 @@ an update:
 | `selected`              | not sent — PassKit selects the first row |
 
 An option whose `id`, `label` or `amount.value` is not a string is skipped with a warning instead of reaching the sheet
-as a `NaN` amount.
+as a `NaN` amount. A `PaymentItem` becomes a `PKPaymentSummaryItem` under the same rules, with `pending: true` selecting
+`PKPaymentSummaryItemTypePending` and an unusable amount falling back to zero.
 
 Native resolves the completion only when the answered `eventId` is still the pending one: a second change event of the
 same type supersedes the first, and the answer of the superseded event is rejected with `no_completion` instead of being
