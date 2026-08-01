@@ -32,11 +32,11 @@
     "axios": "^1.19.0"
   },
   "devDependencies": {
-    "@babel/core": "^7.29.7",
+    "@babel/core": "^8.0.0",
     "@babel/plugin-proposal-decorators": "^7.29.7",
     "@babel/preset-env": "^7.29.7",
     "@babel/preset-typescript": "^7.29.7",
-    "@babel/runtime": "^7.29.7",
+    "@babel/runtime": "^8.0.0",
     "@commitlint/cli": "^20.5.3",
     "@commitlint/config-conventional": "^20.5.3",
     "@commitlint/config-lerna-scopes": "^20.4.3",

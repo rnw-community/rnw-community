@@ -51,7 +51,7 @@
         "@nestjs/common": "^11.1.28",
         "@nestjs/config": "^4.0.4",
         "@types/hapi__joi": "^17.1.15",
-        "joi": "^17.13.4"
+        "joi": "^18.2.1"
     },
     "peerDependencies": {
         "@nestjs/common": "^11.0.0",
