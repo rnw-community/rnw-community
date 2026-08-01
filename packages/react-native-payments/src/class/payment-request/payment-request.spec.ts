@@ -27,7 +27,6 @@ import type { AndroidPaymentDataRequest } from '../../@standard/android/request/
 import type { AndroidTransactionInfo } from '../../@standard/android/request/android-transaction-info';
 import type { IosPaymentMethodDataInterface } from '../../@standard/ios/mapping/ios-payment-method-data.interface';
 import type { IosPaymentDataRequest } from '../../@standard/ios/request/ios-payment-data-request';
-import type { IosPKPayment } from '../../@standard/ios/response/ios-pk-payment';
 import type { PaymentDetailsInit } from '../../@standard/w3c/payment-details-init';
 import type { PaymentDetailsUpdate } from '../../@standard/w3c/payment-details-update';
 import type { PaymentItem } from '../../@standard/w3c/payment-item';
@@ -2115,7 +2114,7 @@ describe('PaymentRequest', () => {
             finishShow(acceptedPayment);
             await response;
 
-            const [[, shownDetails]] = jest.mocked(NativePayments.show).mock.calls;
+            const [[, , shownDetails]] = jest.mocked(NativePayments.show).mock.calls;
 
             expect((shownDetails as PaymentDetailsInit).displayItems).toStrictEqual([pendingItem]);
             expect(updatePaymentDetailsMock).toHaveBeenCalledWith(
@@ -2157,7 +2156,7 @@ describe('PaymentRequest', () => {
             finishShow(acceptedPayment);
             await response;
 
-            const [[, shownDetails]] = jest.mocked(NativePayments.show).mock.calls;
+            const [[, , shownDetails]] = jest.mocked(NativePayments.show).mock.calls;
             const [[, , updatedShippingOptions]] = updatePaymentDetailsMock.mock.calls;
 
             expect((shownDetails as PaymentDetailsInit).shippingOptions).toStrictEqual([detailedOption]);
