@@ -1,16 +1,16 @@
 import { withEntitlementsPlist } from 'expo/config-plugins';
 
-import { isDefined } from '@rnw-community/shared';
+import { isDefined, isEmptyArray, isNotEmptyString } from '@rnw-community/shared';
 
 import type { ReactNativePaymentsPluginProps } from './plugin.props';
 import type { ConfigPlugin } from 'expo/config-plugins';
 
 export const withApplePay: ConfigPlugin<ReactNativePaymentsPluginProps> = (initialConfig, { merchantIdentifier }) => {
     const merchantIdentifiers = (Array.isArray(merchantIdentifier) ? merchantIdentifier : [merchantIdentifier]).filter(
-        Boolean
+        isNotEmptyString
     );
 
-    if (merchantIdentifiers.length === 0) {
+    if (isEmptyArray(merchantIdentifiers)) {
         throw new Error(`Please provide "@rnw-community/react-native-payments" plugin option "merchantIdentifier"`);
     }
 
