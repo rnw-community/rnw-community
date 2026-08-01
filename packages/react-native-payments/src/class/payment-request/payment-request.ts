@@ -2,7 +2,7 @@
 import { Platform } from 'react-native';
 import uuid from 'react-native-uuid';
 
-import { emptyFn, isDefined, isNotEmptyArray, isNotEmptyString } from '@rnw-community/shared';
+import { emptyFn, isDefined, isEmptyArray, isError, isNotEmptyArray, isNotEmptyString } from '@rnw-community/shared';
 
 import { AndroidPaymentMethodTokenizationType } from '../../@standard/android/enum/android-payment-method-tokenization-type.enum';
 import { defaultAndroidPaymentDataRequest } from '../../@standard/android/request/android-payment-data-request';
@@ -17,10 +17,14 @@ import { SupportedNetworkEnum } from '../../enum/supported-networks.enum';
 import { ConstructorError } from '../../error/constructor.error';
 import { DOMException } from '../../error/dom.exception';
 import { PaymentsError } from '../../error/payments.error';
+import { getNativePaymentsEventEmitter } from '../../util/get-native-payments-event-emitter/get-native-payments-event-emitter.util';
 import { validateAndroidTransactionInfo } from '../../util/validate-android-transaction-info.util';
+import { validateDetailsUpdate } from '../../util/validate-details-update.util';
 import { validateDisplayItems } from '../../util/validate-display-items.util';
 import { validatePaymentMethods } from '../../util/validate-payment-methods.util';
 import { validateTotal } from '../../util/validate-total.util';
+import { warnChangeEventError } from '../../util/warn-change-event-error.util';
+import { ChangeEventDispatcher } from '../change-event-dispatcher/change-event-dispatcher';
 import { NativePayments } from '../native-payments/native-payments';
 import { AndroidPaymentResponse } from '../payment-response/android-payment-response';
 import { IosPaymentResponse } from '../payment-response/ios-payment-response';
@@ -31,7 +35,17 @@ import type { AndroidPaymentDataRequest } from '../../@standard/android/request/
 import type { IosPaymentMethodDataDataInterface } from '../../@standard/ios/mapping/ios-payment-method-data-data.interface';
 import type { IosPaymentDataRequest } from '../../@standard/ios/request/ios-payment-data-request';
 import type { PaymentDetailsInit } from '../../@standard/w3c/payment-details-init';
+import type { PaymentDetailsUpdate } from '../../@standard/w3c/payment-details-update';
 import type { PaymentMethodData } from '../../@standard/w3c/payment-method-data';
+import type { NativePaymentDetailsUpdateInterface } from '../../interface/native-payment-details-update.interface';
+import type { PaymentRequestEventPayloadInterface } from '../../interface/payment-request-event-payload.interface';
+import type { PaymentRequestEventRegistrationInterface } from '../../interface/payment-request-event-registration.interface';
+import type { PaymentResponseAddressInterface } from '../../interface/payment-response-address.interface';
+import type { PaymentMethodChangeEventListener } from '../../type/payment-method-change-event-listener.type';
+import type { PaymentRequestEventListener } from '../../type/payment-request-event-listener.type';
+import type { PaymentRequestEventType } from '../../type/payment-request-event.type';
+import type { Maybe } from '@rnw-community/shared';
+import type { EmitterSubscription } from 'react-native';
 
 /*
  * HINT: Troubleshooting: https://developers.google.com/pay/api/android/support/troubleshooting
@@ -42,10 +56,17 @@ export class PaymentRequest {
     readonly id: string;
     updating = false;
     state: 'closed' | 'created' | 'interactive' = 'created';
+    couponCode: Maybe<string> = null;
+    shippingAddress: Maybe<PaymentResponseAddressInterface> = null;
+    shippingOption: Maybe<string> = null;
 
     // Internal Slots https://www.w3.org/TR/payment-request/#internal-slots
     private readonly serializedMethodData: string;
     private readonly platformMethodData: AndroidPaymentMethodDataDataInterface | IosPaymentMethodDataDataInterface;
+    private readonly eventRegistrations = new Map<PaymentRequestEventType, PaymentRequestEventRegistrationInterface>();
+    private readonly pendingDispatchers = new Set<ChangeEventDispatcher>();
+    private eventGeneration = 0;
+    private isNativeEventsSynced = false;
 
     private acceptPromiseRejecter: (reason: unknown) => void = emptyFn;
 
@@ -93,32 +114,38 @@ export class PaymentRequest {
 
     // https://www.w3.org/TR/payment-request/#show-method
     show(): Promise<AndroidPaymentResponse | IosPaymentResponse> {
+        if (this.state !== 'created') {
+            return Promise.reject(new DOMException(PaymentsErrorEnum.InvalidStateError));
+        }
+
+        this.state = 'interactive';
+        this.syncActiveEvents();
+
+        // HINT: We need to pass Android environment configuration to native module via details
+        const details =
+            Platform.OS === 'android'
+                ? {
+                      ...this.details,
+                      environment: (this.platformMethodData as AndroidPaymentMethodDataDataInterface).environment,
+                  }
+                : this.details;
+
         return new Promise<AndroidPaymentResponse | IosPaymentResponse>((resolve, reject) => {
             this.acceptPromiseRejecter = reject;
 
-            if (this.state === 'created') {
-                this.state = 'interactive';
+            NativePayments.show(this.serializedMethodData, details)
+                .then(jsonDetails => {
+                    const paymentResponse = this.handleAccept(jsonDetails);
 
-                // HINT: We need to pass Android environment configuration to native module via details
-                const details =
-                    Platform.OS === 'android'
-                        ? {
-                              ...this.details,
-                              environment: (this.platformMethodData as AndroidPaymentMethodDataDataInterface).environment,
-                          }
-                        : this.details;
+                    this.clearEventRegistrations();
+                    resolve(paymentResponse);
 
-                NativePayments.show(this.serializedMethodData, details)
-                    .then(jsonDetails => {
-                        resolve(this.handleAccept(jsonDetails));
-
-                        return void 0;
-                    })
-
-                    .catch(reject);
-            } else {
-                reject(new DOMException(PaymentsErrorEnum.InvalidStateError));
-            }
+                    return void 0;
+                })
+                .catch((error: unknown) => {
+                    this.clearEventRegistrations();
+                    reject(isError(error) ? error : new PaymentsError(`Failed showing PaymentRequest`));
+                });
         });
     }
 
@@ -134,7 +161,52 @@ export class PaymentRequest {
 
         this.state = 'closed';
 
+        this.clearEventRegistrations();
         this.acceptPromiseRejecter(new DOMException(PaymentsErrorEnum.AbortError));
+    }
+
+    addEventListener(type: 'paymentmethodchange', listener: PaymentMethodChangeEventListener): void;
+    addEventListener(type: PaymentRequestEventType, listener: PaymentRequestEventListener): void;
+    addEventListener(
+        type: PaymentRequestEventType,
+        eventListener: PaymentMethodChangeEventListener | PaymentRequestEventListener
+    ): void {
+        const listener = eventListener as PaymentRequestEventListener;
+        const registration = this.eventRegistrations.get(type);
+
+        if (isDefined(registration)) {
+            if (!registration.listeners.includes(listener)) {
+                registration.listeners.push(listener);
+            }
+
+            return;
+        }
+
+        const listeners = [listener];
+
+        this.eventRegistrations.set(type, { listeners, subscription: this.subscribeToNativeEvent(type, listeners) });
+        this.syncActiveEvents();
+    }
+
+    removeEventListener(type: 'paymentmethodchange', listener: PaymentMethodChangeEventListener): void;
+    removeEventListener(type: PaymentRequestEventType, listener: PaymentRequestEventListener): void;
+    removeEventListener(
+        type: PaymentRequestEventType,
+        eventListener: PaymentMethodChangeEventListener | PaymentRequestEventListener
+    ): void {
+        const registration = this.eventRegistrations.get(type);
+
+        if (!isDefined(registration)) {
+            return;
+        }
+
+        this.forgetListener(registration, eventListener as PaymentRequestEventListener);
+
+        if (isNotEmptyArray(registration.listeners)) {
+            return;
+        }
+
+        this.dropRegistration(type, registration);
     }
 
     private handleAccept(details: string): AndroidPaymentResponse | IosPaymentResponse {
@@ -146,6 +218,188 @@ export class PaymentRequest {
             // TODO: Is there an standard exception for this?
             throw new PaymentsError(`Failed parsing PaymentRequest details`);
         }
+    }
+
+    private subscribeToNativeEvent(
+        type: PaymentRequestEventType,
+        listeners: PaymentRequestEventListener[]
+    ): Maybe<EmitterSubscription> {
+        const eventEmitter = getNativePaymentsEventEmitter();
+
+        if (!isDefined(eventEmitter)) {
+            return null;
+        }
+
+        return eventEmitter.addListener(type, (payload: PaymentRequestEventPayloadInterface) => {
+            this.handleChangeEvent(type, listeners, payload).catch(warnChangeEventError);
+        });
+    }
+
+    private dropRegistration(type: PaymentRequestEventType, registration: PaymentRequestEventRegistrationInterface): void {
+        if (isDefined(registration.subscription)) {
+            registration.subscription.remove();
+        }
+
+        this.eventRegistrations.delete(type);
+        this.syncActiveEvents();
+    }
+
+    private syncActiveEvents(): void {
+        const eventNames = [...this.eventRegistrations.keys()];
+        const { setActiveEvents } = NativePayments;
+
+        if (!isDefined(setActiveEvents) || (isEmptyArray(eventNames) && !this.isNativeEventsSynced)) {
+            return;
+        }
+
+        this.isNativeEventsSynced = isNotEmptyArray(eventNames);
+        setActiveEvents(this.id, eventNames).catch(emptyFn);
+    }
+
+    private clearEventRegistrations(): void {
+        this.eventGeneration += 1;
+
+        this.pendingDispatchers.forEach(dispatcher => {
+            dispatcher.abandon();
+        });
+        this.pendingDispatchers.clear();
+
+        this.eventRegistrations.forEach(registration => {
+            if (isDefined(registration.subscription)) {
+                registration.subscription.remove();
+            }
+        });
+        this.eventRegistrations.clear();
+        this.syncActiveEvents();
+    }
+
+    private forgetListener(
+        registration: PaymentRequestEventRegistrationInterface,
+        listener: PaymentRequestEventListener
+    ): void {
+        const listenerIndex = registration.listeners.indexOf(listener);
+
+        if (listenerIndex >= 0) {
+            registration.listeners.splice(listenerIndex, 1);
+        }
+    }
+
+    private async handleChangeEvent(
+        type: PaymentRequestEventType,
+        listeners: PaymentRequestEventListener[],
+        payload: PaymentRequestEventPayloadInterface
+    ): Promise<void> {
+        const generation = this.eventGeneration;
+
+        if (payload.requestId !== this.id || !this.isDispatchActive(generation)) {
+            return;
+        }
+
+        if (this.updating) {
+            await this.sendDetailsUpdate(type, null, generation);
+
+            return;
+        }
+
+        this.updating = true;
+        this.applyEventPayload(payload);
+
+        try {
+            await this.dispatchChangeEvent(type, listeners, payload, generation);
+        } finally {
+            this.updating = false;
+        }
+    }
+
+    private isDispatchActive(generation: number): boolean {
+        return this.state === 'interactive' && this.eventGeneration === generation;
+    }
+
+    private async dispatchChangeEvent(
+        type: PaymentRequestEventType,
+        listeners: PaymentRequestEventListener[],
+        payload: PaymentRequestEventPayloadInterface,
+        generation: number
+    ): Promise<void> {
+        const dispatcher = new ChangeEventDispatcher(type, payload, () => this.isDispatchActive(generation));
+
+        this.pendingDispatchers.add(dispatcher);
+
+        try {
+            await this.sendDetailsUpdate(type, await this.resolveDetailsUpdate(dispatcher, listeners), generation);
+        } finally {
+            this.pendingDispatchers.delete(dispatcher);
+        }
+    }
+
+    private applyEventPayload(payload: PaymentRequestEventPayloadInterface): void {
+        if (isDefined(payload.shippingAddress)) {
+            this.shippingAddress = payload.shippingAddress;
+        }
+
+        if (isDefined(payload.shippingOption)) {
+            this.shippingOption = payload.shippingOption;
+        }
+
+        if (isDefined(payload.couponCode)) {
+            this.couponCode = payload.couponCode;
+        }
+    }
+
+    private async resolveDetailsUpdate(
+        dispatcher: ChangeEventDispatcher,
+        listeners: PaymentRequestEventListener[]
+    ): Promise<Maybe<PaymentDetailsUpdate>> {
+        try {
+            const detailsUpdate = await dispatcher.dispatch(listeners);
+
+            if (isDefined(detailsUpdate)) {
+                validateDetailsUpdate(detailsUpdate);
+            }
+
+            return detailsUpdate;
+        } catch (error) {
+            warnChangeEventError(error);
+
+            return null;
+        }
+    }
+
+    private async sendDetailsUpdate(
+        type: PaymentRequestEventType,
+        detailsUpdate: Maybe<PaymentDetailsUpdate>,
+        generation: number
+    ): Promise<void> {
+        const { updatePaymentDetails } = NativePayments;
+
+        if (!this.isDispatchActive(generation) || !isDefined(updatePaymentDetails)) {
+            return;
+        }
+
+        const updatedDetails = this.getUpdatedDetails(detailsUpdate);
+        const update: NativePaymentDetailsUpdateInterface = {
+            error: detailsUpdate?.error ?? '',
+            eventName: type,
+            requestId: this.id,
+            total: updatedDetails.total,
+        };
+
+        await updatePaymentDetails(update, updatedDetails.displayItems ?? [], updatedDetails.shippingOptions ?? []);
+
+        this.details = updatedDetails;
+    }
+
+    private getUpdatedDetails(detailsUpdate: Maybe<PaymentDetailsUpdate>): PaymentDetailsInit {
+        if (!isDefined(detailsUpdate)) {
+            return this.details;
+        }
+
+        return {
+            ...this.details,
+            ...(isDefined(detailsUpdate.total) && { total: detailsUpdate.total }),
+            ...(isDefined(detailsUpdate.displayItems) && { displayItems: detailsUpdate.displayItems }),
+            ...(isDefined(detailsUpdate.shippingOptions) && { shippingOptions: detailsUpdate.shippingOptions }),
+        };
     }
 
     private findPlatformPaymentMethodData(): AndroidPaymentMethodDataDataInterface | IosPaymentMethodDataDataInterface {
