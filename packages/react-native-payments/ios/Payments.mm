@@ -3,7 +3,6 @@
 #import <React/RCTLog.h>
 #import <Contacts/Contacts.h>
 #import <Foundation/Foundation.h>
-#import <objc/runtime.h>
 
 static NSString *const PaymentsPaymentMethodChangeEvent = @"paymentmethodchange";
 static NSString *const PaymentsShippingAddressChangeEvent = @"shippingaddresschange";
@@ -961,7 +960,7 @@ RCT_EXPORT_METHOD(canMakePayments: (NSString *)methodDataString
     static NSDictionary<NSString *, PKPaymentNetwork> *paymentNetworks;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
-        paymentNetworks = @{
+        NSMutableDictionary<NSString *, PKPaymentNetwork> *networks = [@{
             @"PKPaymentNetworkAmex": PKPaymentNetworkAmex,
             @"PKPaymentNetworkDiscover": PKPaymentNetworkDiscover,
             @"PKPaymentNetworkMasterCard": PKPaymentNetworkMasterCard,
@@ -980,63 +979,27 @@ RCT_EXPORT_METHOD(canMakePayments: (NSString *)methodDataString
             @"PKPaymentNetworkMada": PKPaymentNetworkMada,
             @"PKPaymentNetworkElectron": PKPaymentNetworkElectron,
             @"PKPaymentNetworkElo": PKPaymentNetworkElo
-        };
+        } mutableCopy];
 
-        if (@available(iOS 16.0, *)) {
-            NSMutableDictionary *mutablePaymentNetworks = [paymentNetworks mutableCopy];
-            // Dynamically get PKPaymentNetworkBancontact to avoid linking issues
-            Class pkPaymentNetworkClass = NSClassFromString(@"PKPaymentNetwork");
-            if (pkPaymentNetworkClass) {
-                id bancontactNetwork = [pkPaymentNetworkClass performSelector:@selector(Bancontact)];
-                if (bancontactNetwork) {
-                    mutablePaymentNetworks[@"PKPaymentNetworkBancontact"] = bancontactNetwork;
-                }
-            }
-            paymentNetworks = [mutablePaymentNetworks copy];
+        if (@available(iOS 14.0, *)) {
+            networks[@"PKPaymentNetworkGirocard"] = PKPaymentNetworkGirocard;
+            networks[@"PKPaymentNetworkBarcode"] = PKPaymentNetworkBarcode;
+        }
+
+        // HINT: Apple delisted Mir over the sanctions, it resolves but no Mir card can be provisioned
+        if (@available(iOS 14.5, *)) {
+            networks[@"PKPaymentNetworkMir"] = PKPaymentNetworkMir;
         }
 
         if (@available(iOS 15.1, *)) {
-            NSMutableDictionary *mutablePaymentNetworks = [paymentNetworks mutableCopy];
-            // Dynamically get PKPaymentNetworkDankort to avoid linking issues on iOS 15.1
-            Class pkPaymentNetworkClass = NSClassFromString(@"PKPaymentNetwork");
-            if (pkPaymentNetworkClass) {
-                id dankortNetwork = [pkPaymentNetworkClass performSelector:@selector(Dankort)];
-                if (dankortNetwork) {
-                    mutablePaymentNetworks[@"PKPaymentNetworkDankort"] = dankortNetwork;
-                }
-            }
-            paymentNetworks = [mutablePaymentNetworks copy];
+            networks[@"PKPaymentNetworkDankort"] = PKPaymentNetworkDankort;
         }
 
-        if (@available(iOS 14.5, *)) {
-            NSMutableDictionary *mutablePaymentNetworks = [paymentNetworks mutableCopy];
-            // HINT: You should never work
-            // Dynamically get PKPaymentNetworkMir to avoid linking issues
-            Class pkPaymentNetworkClass = NSClassFromString(@"PKPaymentNetwork");
-            if (pkPaymentNetworkClass) {
-                id mirNetwork = [pkPaymentNetworkClass performSelector:@selector(Mir)];
-                if (mirNetwork) {
-                    mutablePaymentNetworks[@"PKPaymentNetworkMIR"] = mirNetwork;
-                }
-            }
-            paymentNetworks = [mutablePaymentNetworks copy];
+        if (@available(iOS 16.0, *)) {
+            networks[@"PKPaymentNetworkBancontact"] = PKPaymentNetworkBancontact;
         }
 
-        if (@available(iOS 14.0, *)) {
-            NSMutableDictionary *mutablePaymentNetworks = [paymentNetworks mutableCopy];
-            mutablePaymentNetworks[@"PKPaymentNetworkGirocard"] = PKPaymentNetworkGirocard;
-            mutablePaymentNetworks[@"PKPaymentNetworkBarcode"] = PKPaymentNetworkBarcode;
-            paymentNetworks = [mutablePaymentNetworks copy];
-        }
-
-        if (@available(iOS 12.0, *)) {
-            NSMutableDictionary *mutablePaymentNetworks = [paymentNetworks mutableCopy];
-            mutablePaymentNetworks[@"PKPaymentNetworkCartesBancaires"] = PKPaymentNetworkCartesBancaires;
-            mutablePaymentNetworks[@"PKPaymentNetworkVPay"] = PKPaymentNetworkVPay;
-            mutablePaymentNetworks[@"PKPaymentNetworkEftpos"] = PKPaymentNetworkEftpos;
-            mutablePaymentNetworks[@"PKPaymentNetworkMaestro"] = PKPaymentNetworkMaestro;
-            paymentNetworks = [mutablePaymentNetworks copy];
-        }
+        paymentNetworks = [networks copy];
     });
 
     return paymentNetworks[paymentNetworkString] ?: PKPaymentNetworkUnknown;
