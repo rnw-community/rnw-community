@@ -43,7 +43,7 @@ const recoverFromAcquireError = <TResult>(
     if (isDefined(catchErrorFn$)) {
         const recovery = catchErrorFn$(normalized);
 
-        return isObservable(recovery) ? (recovery as Observable<unknown>) : of(recovery);
+        return isObservable(recovery) ? recovery : of(recovery);
     }
     throw normalized;
 };
@@ -55,7 +55,7 @@ const recoverFromMethodError = <TResult>(
     if (isDefined(catchErrorFn$)) {
         const recovery = catchErrorFn$(error);
 
-        return isObservable(recovery) ? (recovery as Observable<unknown>) : of(recovery);
+        return isObservable(recovery) ? recovery : of(recovery);
     }
     throw error;
 };
@@ -93,27 +93,28 @@ export const createObservableLockDecorators = (
                     const context = { className: '', methodName, args, logContext: methodName };
 
                     return middleware(context, () => {
-                            let innerResult: unknown;
-                            try {
-                                innerResult = originalMethod.apply(this, args);
-                            } catch (err: unknown) {
-                                return throwError(() => new MethodThrownError(err));
-                            }
-                            if (!isObservable(innerResult)) {
-                                return throwError(() => new MethodThrownError(new Error(`Method ${methodName} does not return an observable`)));
-                            }
-
-                            return innerResult.pipe(
-                                catchError((error: unknown) => throwError(() => new MethodThrownError(error)))
+                        let innerResult: unknown;
+                        try {
+                            innerResult = originalMethod.apply(this, args);
+                        } catch (err: unknown) {
+                            return throwError(() => new MethodThrownError(err));
+                        }
+                        if (!isObservable(innerResult)) {
+                            return throwError(
+                                () => new MethodThrownError(new Error(`Method ${methodName} does not return an observable`))
                             );
-                        })
-                        .pipe(
-                            catchError((error: unknown) =>
-                                error instanceof MethodThrownError
-                                    ? recoverFromMethodError(error.cause, catchErrorFn$)
-                                    : recoverFromAcquireError(error, mode, catchErrorFn$)
-                            )
+                        }
+
+                        return innerResult.pipe(
+                            catchError((error: unknown) => throwError(() => new MethodThrownError(error)))
                         );
+                    }).pipe(
+                        catchError((error: unknown) =>
+                            error instanceof MethodThrownError
+                                ? recoverFromMethodError(error.cause, catchErrorFn$)
+                                : recoverFromAcquireError(error, mode, catchErrorFn$)
+                        )
+                    );
                 });
             } as unknown as K;
 
