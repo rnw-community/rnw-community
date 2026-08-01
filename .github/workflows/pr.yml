@@ -32,7 +32,7 @@ jobs:
                     fetch-depth: 0
 
             -   name: Close Stale Issues
-                uses: actions/stale@v10
+                uses: actions/stale@v11
 
             -   name: Setup Node
                 uses: actions/setup-node@v5
