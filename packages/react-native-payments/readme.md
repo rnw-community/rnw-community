@@ -444,7 +444,9 @@ const shippingOptions = [
 Calling `updateWith` twice, or calling it once the event was already answered or the request is no longer showing, throws
 a `DOMException` with `InvalidStateError`. A listener that throws, rejects, sends invalid details, never calls `updateWith`
 or leaves its promise pending for more than 30 seconds is logged and answered with the unchanged details, so the payment
-sheet never stalls.
+sheet never stalls. Updated details go through the same validation as the ones passed to the constructor — the total, the
+display items and the shipping options all have to carry a valid decimal monetary value, and a shipping option also has
+to carry an id and a label — so a malformed amount is reported to the console and never reaches the sheet.
 
 ### Sheet errors
 
