@@ -1,0 +1,21 @@
+appId: ${APP_ID}
+---
+- runFlow: ../subflows/launch_and_wait_for_probe.yaml
+- assertVisible:
+    id: "builder-total-input"
+    text: "20.00"
+- assertVisible:
+    id: "builder-shipping-toggle"
+- assertVisible:
+    id: "builder-async-update-toggle"
+- assertVisible:
+    id: "action-abort"
+- assertVisible:
+    id: "action-reset"
+- scrollUntilVisible:
+    element:
+      id: "event-log"
+- assertVisible:
+    id: "event-log-count"
+- assertVisible:
+    id: "event-log-row-0"

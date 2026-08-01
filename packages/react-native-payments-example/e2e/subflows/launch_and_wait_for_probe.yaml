@@ -1,0 +1,16 @@
+appId: ${APP_ID}
+---
+- launchApp:
+    clearState: true
+- assertVisible:
+    id: "payments-flow-state"
+    text: "idle"
+- assertVisible:
+    id: "action-show"
+- assertVisible:
+    id: "event-log"
+- extendedWaitUntil:
+    notVisible:
+      id: "payments-can-make-status"
+      text: "checking"
+    timeout: 15000
