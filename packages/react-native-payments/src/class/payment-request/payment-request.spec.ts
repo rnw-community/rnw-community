@@ -1948,6 +1948,44 @@ describe('PaymentRequest', () => {
             );
         });
 
+        it('should pass the pending flag of a display item and of the total to native', async () => {
+            expect.hasAssertions();
+
+            let finishShow: (details: string) => void = emptyFn;
+            jest.mocked(NativePayments.show).mockImplementation(
+                async () =>
+                    new Promise<string>(resolve => {
+                        finishShow = resolve;
+                    })
+            );
+
+            const pendingTotal: PaymentItem = { ...updatedTotal, pending: true };
+            const pendingItem: PaymentItem = { ...displayItem, pending: true };
+
+            const request = new PaymentRequest([eventsMethodData], {
+                total: initialTotal,
+                displayItems: [pendingItem],
+            });
+            request.addEventListener('shippingoptionchange', event => {
+                event.updateWith({ total: pendingTotal, displayItems: [pendingItem] });
+            });
+
+            const response = request.show();
+            emitNativeEvent('shippingoptionchange', { requestId: request.id, shippingOption: 'express' });
+            await nativeUpdate;
+            finishShow(acceptedPayment);
+            await response;
+
+            const [[, shownDetails]] = jest.mocked(NativePayments.show).mock.calls;
+
+            expect((shownDetails as PaymentDetailsInit).displayItems).toStrictEqual([pendingItem]);
+            expect(updatePaymentDetailsMock).toHaveBeenCalledWith(
+                { error: '', eventName: 'shippingoptionchange', requestId: request.id, total: pendingTotal },
+                [pendingItem],
+                []
+            );
+        });
+
         it('should pass identical shipping options to native from the initial details and from an update', async () => {
             expect.hasAssertions();
 

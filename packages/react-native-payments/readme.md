@@ -256,6 +256,19 @@ below it: `girocard` (iOS 14), `mir` (iOS 14.5), `dankort` (iOS 15.1) and `banco
 > Pay anymore. It is kept functional instead of being removed so upgrading does not break a build; do not add it to a new
 > integration.
 
+#### 2.3 Pending amounts
+
+Every `PaymentItem` — the `total` and each entry of `displayItems` — accepts the W3C `pending` flag for an amount that is
+not final yet, a shipping price that still has to be quoted for instance. Apple Pay renders such a row with `Pending`
+instead of the amount (`PKPaymentSummaryItemTypePending`); Google Pay has no equivalent and ignores the flag.
+
+```ts
+const paymentDetails = {
+    total: { label: 'Total', amount: { currency: 'USD', value: '10.00' } },
+    displayItems: [{ label: 'Shipping', amount: { currency: 'USD', value: '0.00' }, pending: true }],
+};
+```
+
 ### 3. Checking Payment Capability
 
 Before displaying the payment sheet to the user, you can check if the current device supports the payment methods specified:
