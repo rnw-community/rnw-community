@@ -36,6 +36,7 @@
         "packages/wdio/src/rooted-component/mocks/**"
     ],
     "ignoreBinaries": [
+        "maestro",
         "run"
     ],
     "ignoreDependencies": [
