@@ -60,6 +60,12 @@ src/
 - A dispatch is bound to an event generation bumped on every terminal path, so a response that arrives after the sheet
   finished is dropped instead of reaching native, and an event arriving while another one is processed is answered
   immediately with the unchanged details
+- `show()` resolve/reject and `abort()` all funnel through `closeRequest()`: the state becomes `closed` before the
+  registrations are dropped, so an event racing the emitter teardown is ignored even though its handler is still alive
+- A `PaymentRequest` is single-use: once it is `closed`, `show()` rejects with `InvalidStateError` and `addEventListener`
+  is inert, which is what keeps a subscription from being created without a terminal path left to remove it. This is a
+  deliberate v3 behavior change — earlier drafts let a settled request re-register listeners and show again; consumers
+  construct a new `PaymentRequest` to retry
 
 ### Dependencies
 

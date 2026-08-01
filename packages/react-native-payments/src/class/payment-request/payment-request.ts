@@ -137,13 +137,13 @@ export class PaymentRequest {
                 .then(jsonDetails => {
                     const paymentResponse = this.handleAccept(jsonDetails);
 
-                    this.clearEventRegistrations();
+                    this.closeRequest();
                     resolve(paymentResponse);
 
                     return void 0;
                 })
                 .catch((error: unknown) => {
-                    this.clearEventRegistrations();
+                    this.closeRequest();
                     reject(isError(error) ? error : new PaymentsError(`Failed showing PaymentRequest`));
                 });
         });
@@ -159,9 +159,7 @@ export class PaymentRequest {
             throw new PaymentsError(`Failed aborting PaymentRequest`);
         });
 
-        this.state = 'closed';
-
-        this.clearEventRegistrations();
+        this.closeRequest();
         this.acceptPromiseRejecter(new DOMException(PaymentsErrorEnum.AbortError));
     }
 
@@ -171,6 +169,10 @@ export class PaymentRequest {
         type: PaymentRequestEventType,
         eventListener: PaymentMethodChangeEventListener | PaymentRequestEventListener
     ): void {
+        if (this.state === 'closed') {
+            return;
+        }
+
         const listener = eventListener as PaymentRequestEventListener;
         const registration = this.eventRegistrations.get(type);
 
@@ -207,6 +209,11 @@ export class PaymentRequest {
         }
 
         this.dropRegistration(type, registration);
+    }
+
+    private closeRequest(): void {
+        this.state = 'closed';
+        this.clearEventRegistrations();
     }
 
     private handleAccept(details: string): AndroidPaymentResponse | IosPaymentResponse {
