@@ -1,0 +1,94 @@
+name: Pull Request
+
+env:
+    TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
+    TURBO_TEAM: ${{ secrets.TURBO_TEAM }}
+    PR_NUMBER: ${{ github.event.pull_request.number }}
+    PR_TITLE: ${{ github.event.pull_request.title }}
+    YARN_ENABLE_IMMUTABLE_INSTALLS: true
+
+concurrency:
+    group: pr-${{ github.event.pull_request.number }}
+    cancel-in-progress: true
+
+on:
+    pull_request:
+        types: [opened, synchronize, reopened, ready_for_review]
+
+jobs:
+    code-quality:
+        name: Build, lint and test
+        timeout-minutes: 15
+        runs-on: ubuntu-latest
+        permissions:
+            contents: read
+            issues: write
+            pull-requests: write
+
+        steps:
+            -   name: Checkout repository
+                uses: actions/checkout@v5
+                with:
+                    fetch-depth: 0
+
+            -   name: Close Stale Issues
+                uses: actions/stale@v10
+
+            -   name: Setup Node
+                uses: actions/setup-node@v5
+                with:
+                    node-version: 22.x
+                    cache: yarn
+
+            -   name: Enable corepack
+                run: corepack enable
+
+            -   name: Install dependencies
+                run: yarn install --immutable
+
+            -   name: Lint the PR Title
+                run: echo "${{ env.PR_TITLE }}" | node_modules/.bin/commitlint
+
+            -   name: Build packages
+                run: yarn turbo run build --affected
+
+            -   name: Typescript checks
+                run: yarn turbo run ts --affected
+
+            -   name: ESLint checks
+                run: yarn turbo run lint --affected
+
+            -   name: Find dead code
+                run: yarn deadcode
+
+            -   name: Find copy-paste
+                run: yarn cpd
+
+            -   name: Unit tests
+                run: yarn turbo run test:coverage --affected
+
+            -   name: Upload coverage to Codecov
+                uses: codecov/codecov-action@v5
+                with:
+                    token: ${{ secrets.CODECOV_TOKEN }}
+                    fail_ci_if_error: true
+                    verbose: true
+
+    required-checks:
+        name: Required checks
+        if: always()
+        needs: [code-quality]
+        timeout-minutes: 5
+        runs-on: ubuntu-latest
+        permissions: {}
+
+        steps:
+            -   name: Verify required jobs succeeded
+                env:
+                    CODE_QUALITY_RESULT: ${{ needs.code-quality.result }}
+                run: |
+                    echo "code-quality=${CODE_QUALITY_RESULT}"
+                    if [ "${CODE_QUALITY_RESULT}" != 'success' ]; then
+                      echo "Required jobs did not pass"
+                      exit 1
+                    fi
