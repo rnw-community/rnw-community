@@ -340,12 +340,16 @@ While the payment sheet is open the user can change the shipping address, the sh
 coupon code. `PaymentRequest` models these as W3C change events: register listeners **before** calling `show()` and answer
 each event with `PaymentRequestUpdateEvent.updateWith()`.
 
-> **Native delivery is not implemented yet.** This release lands the JavaScript layer and the JS <-> native contract only;
-> the iOS and Android sides are tracked in [#377](https://github.com/rnw-community/rnw-community/issues/377),
-> [#378](https://github.com/rnw-community/rnw-community/issues/378) and
-> [#386](https://github.com/rnw-community/rnw-community/issues/386). Until they ship, listeners can be registered but
-> never fire, and `show()`, `abort()` and `complete()` behave exactly as before. On web the browser's own `PaymentRequest`
-> is used, so change events there follow the browser implementation.
+> **Platform support.** On iOS the events are delivered by PassKit: the payment sheet waits for the answer of a listener
+> and is completed with the unchanged details whenever there is no listener for the event type, the listener fails or the
+> sheet is torn down, so it can never hang. On Android the Google Pay sheet runs in its own activity and never asks the
+> app for an in-sheet update, so listeners can be registered but never fire. On web the browser's own `PaymentRequest` is
+> used, so change events there follow the browser implementation. `show()`, `abort()` and `complete()` behave exactly as
+> before for a request without listeners. The end to end verification on devices is tracked in
+> [#393](https://github.com/rnw-community/rnw-community/issues/393).
+>
+> iOS only shows the shipping method picker and the coupon code field (iOS 15+) when a `shippingoptionchange` /
+> `couponcodechange` listener is registered before `show()` — `details.shippingOptions` are passed to PassKit in that case.
 
 ### `PaymentRequest.addEventListener(type, listener)`
 
@@ -400,6 +404,10 @@ Calling `updateWith` twice, or calling it once the event was already answered or
 a `DOMException` with `InvalidStateError`. A listener that throws, rejects, sends invalid details, never calls `updateWith`
 or leaves its promise pending for more than 30 seconds is logged and answered with the unchanged details, so the payment
 sheet never stalls.
+
+`error` reaches the iOS sheet as an unserviceable shipping address for `shippingaddresschange`, as an invalid coupon code
+for `couponcodechange` and as a generic payment error for `paymentmethodchange` (the last two need iOS 15).
+`shippingoptionchange` has no error slot in PassKit, so an error answered there is ignored.
 
 ### `PaymentRequestUpdateEvent.isAnswered`
 
@@ -482,15 +490,17 @@ You can find working example in the `App` component of the [react-native-payment
 
 ### Native
 
-- [ ] Investigate and implement `shipping options`.
-- [ ] Investigate and implement `coupons` support.
+- [ ] Investigate and implement `shipping options` on Android (iOS passes them to PassKit with a `shippingoptionchange`
+      listener).
+- [ ] Investigate and implement `coupons` support on Android (iOS enables the PassKit coupon field with a
+      `couponcodechange` listener).
 - [ ] Rewrite IOS to swift?
 - [ ] Rewrite Android to Kotlin?
 - [ ] Can we avoid modifying `AppDelegate.h` with importing `PassKit`?
 
 ### W3C spec:
 
-- [ ] Implement events (JavaScript layer landed, native delivery pending):
+- [ ] Implement events (JavaScript layer and iOS delivery landed, Android is a no-op, device verification pending):
     - [ ] [PaymentRequestUpdateEvent](https://www.w3.org/TR/payment-request/#dom-paymentrequestupdateevent)
     - [ ] [PaymentMethodChangeEvent](https://www.w3.org/TR/payment-request/#dom-paymentmethodchangeevent)
 - [ ] Implement [PaymentDetailsModifier](https://www.w3.org/TR/payment-request/#dom-paymentdetailsmodifier)

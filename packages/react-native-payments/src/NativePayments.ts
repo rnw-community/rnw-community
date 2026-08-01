@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-wrapper-object-types */
 import { TurboModuleRegistry } from 'react-native';
 
 import type { TurboModule } from 'react-native';
@@ -9,10 +10,13 @@ import type { TurboModule } from 'react-native';
  */
 export interface Spec extends TurboModule {
     abort: () => Promise<void>;
+    addListener: (eventName: string) => void;
     canMakePayments: (methodData: string) => Promise<boolean>;
     complete: (paymentComplete: string) => Promise<void>;
-    // eslint-disable-next-line @typescript-eslint/no-wrapper-object-types
+    removeListeners: (count: number) => void;
+    setActiveEvents: (requestId: string, eventNames: string[]) => Promise<void>;
     show: (methodData: string, details: Object) => Promise<string>;
+    updatePaymentDetails: (update: Object, displayItems: Object[], shippingOptions: Object[]) => Promise<void>;
 }
 
 // ts-prune-ignore-next
