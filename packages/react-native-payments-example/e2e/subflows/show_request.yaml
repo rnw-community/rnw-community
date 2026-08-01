@@ -1,0 +1,11 @@
+appId: ${APP_ID}
+---
+- tapOn:
+    id: "action-show"
+- runFlow:
+    when:
+      platform: Android
+    commands:
+      - tapOn:
+          text: "OK"
+          optional: true

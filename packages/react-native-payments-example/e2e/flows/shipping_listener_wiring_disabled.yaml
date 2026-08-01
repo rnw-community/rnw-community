@@ -1,0 +1,13 @@
+appId: ${APP_ID}
+---
+- runFlow: ../subflows/launch_and_wait_for_probe.yaml
+- tapOn:
+    id: "builder-shipping-toggle"
+- runFlow: ../subflows/show_request.yaml
+- scrollUntilVisible:
+    element:
+      text: ".*listeners attached: types=paymentmethodchange.*"
+- assertVisible:
+    text: ".*listeners attached: types=paymentmethodchange.*"
+- assertNotVisible:
+    text: ".*shippingaddresschange.*"
