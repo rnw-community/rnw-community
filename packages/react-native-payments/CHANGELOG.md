@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [2.3.0](https://github.com/rnw-community/rnw-community/compare/v2.2.0...v2.3.0) (2026-08-01)
+
+### Features
+
+- **react-native-payments:** support multiple Apple Pay merchant identifiers ([0f557d0](https://github.com/rnw-community/rnw-community/commit/0f557d03fd341f56532b204b65d43b530a406770))
+
 # [2.2.0](https://github.com/rnw-community/rnw-community/compare/v2.1.0...v2.2.0) (2026-05-09)
 
 **Note:** Version bump only for package @rnw-community/react-native-payments
