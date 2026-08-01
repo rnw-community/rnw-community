@@ -109,3 +109,15 @@ src/
 ### TypeScript Config
 
 Uses `"lib": ["es2021", "DOM"]` in all tsconfigs (needs DOM types for W3C Payment API).
+
+### E2E (arriving)
+
+Unit tests cover the JS layer at 100%; on-device verification of the event API (sheet opens, shipping/coupon change
+round-trip, async `updateWith` completion) is out of scope here and tracked across three follow-up issues instead:
+
+- [#397](https://github.com/rnw-community/rnw-community/issues/397) ports the `maestro-e2e` agent skill into this
+  repo's `.claude/skills`.
+- [#393](https://github.com/rnw-community/rnw-community/issues/393) adds the Maestro flow suites (iOS simulator +
+  Android emulator, both app targets) and the local `yarn e2e:*` runner scripts.
+- [#395](https://github.com/rnw-community/rnw-community/issues/395) wires `ios-maestro.yml` / `android-maestro.yml`
+  CI workflows on the self-hosted fleet, with native build caching and failure artifacts.
