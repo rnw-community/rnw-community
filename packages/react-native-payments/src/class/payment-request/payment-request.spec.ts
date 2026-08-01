@@ -25,7 +25,6 @@ import { PaymentRequest } from './payment-request';
 import type { AndroidPaymentMethodDataInterface } from '../../@standard/android/mapping/android-payment-method-data.interface';
 import type { AndroidPaymentDataRequest } from '../../@standard/android/request/android-payment-data-request';
 import type { AndroidTransactionInfo } from '../../@standard/android/request/android-transaction-info';
-import type { AndroidPaymentData } from '../../@standard/android/response/android-payment-data';
 import type { IosPaymentMethodDataInterface } from '../../@standard/ios/mapping/ios-payment-method-data.interface';
 import type { IosPaymentDataRequest } from '../../@standard/ios/request/ios-payment-data-request';
 import type { IosPKPayment } from '../../@standard/ios/response/ios-pk-payment';
@@ -398,7 +397,7 @@ describe('PaymentRequest', () => {
             jest.mocked(NativePayments.show).mockRejectedValue(new DOMException(PaymentsErrorEnum.NotAllowedError));
 
             await expect(request.show()).rejects.toThrow(new DOMException(PaymentsErrorEnum.NotAllowedError));
-            expect(NativePayments.show).toHaveBeenCalledWith(expect.any(String), expect.any(Object));
+            expect(NativePayments.show).toHaveBeenCalledWith(request.id, expect.any(String), expect.any(Object));
         });
 
         it('should return true from `canMakePayment` when valid', async () => {
@@ -444,7 +443,7 @@ describe('PaymentRequest', () => {
             request.state = 'created';
             const result = await request.show();
 
-            expect(NativePayments.show).toHaveBeenCalledWith(expect.any(String), expect.any(Object));
+            expect(NativePayments.show).toHaveBeenCalledWith(request.id, expect.any(String), expect.any(Object));
             expect(result).toBeDefined();
             expect(request.state).toBe('closed');
         });
@@ -524,12 +523,12 @@ describe('PaymentRequest', () => {
                         locality: 'New York',
                         sortingCode: '',
                     },
-                } as AndroidPaymentData)
+                })
             );
 
             const result = await request.show();
 
-            expect(NativePayments.show).toHaveBeenCalledWith(expect.any(String), expect.any(Object));
+            expect(NativePayments.show).toHaveBeenCalledWith(request.id, expect.any(String), expect.any(Object));
             expect(result).toBeDefined();
             expect(request.state).toBe('closed');
         });
@@ -720,7 +719,7 @@ describe('PaymentRequest', () => {
             jest.mocked(NativePayments.show).mockRejectedValue(new DOMException(PaymentsErrorEnum.NotAllowedError));
 
             await expect(request.show()).rejects.toThrow(new DOMException(PaymentsErrorEnum.NotAllowedError));
-            expect(NativePayments.show).toHaveBeenCalledWith(expect.any(String), expect.any(Object));
+            expect(NativePayments.show).toHaveBeenCalledWith(request.id, expect.any(String), expect.any(Object));
         });
 
         it('should throw when `NativePayments.show` returns invalid data', async () => {
@@ -798,12 +797,12 @@ describe('PaymentRequest', () => {
                         },
                         transactionIdentifier: 'txn123456789',
                     },
-                } as IosPKPayment)
+                })
             );
 
             const result = await request.show();
 
-            expect(NativePayments.show).toHaveBeenCalledWith(expect.any(String), expect.any(Object));
+            expect(NativePayments.show).toHaveBeenCalledWith(request.id, expect.any(String), expect.any(Object));
             expect(result).toBeDefined();
             expect(request.state).toBe('closed');
         });
