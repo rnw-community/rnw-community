@@ -1,0 +1,27 @@
+{
+    "name": "@rnw-community/react-native-payments-example-bare",
+    "version": "0.0.0",
+    "private": true,
+    "scripts": {
+        "android": "react-native run-android",
+        "ios": "react-native run-ios",
+        "start": "react-native start"
+    },
+    "dependencies": {
+        "@rnw-community/react-native-payments": "workspace:*",
+        "@rnw-community/react-native-payments-example": "workspace:*",
+        "react": "^18.3.1",
+        "react-native": "^0.76.1"
+    },
+    "devDependencies": {
+        "@react-native-community/cli": "15.1.3",
+        "@react-native-community/cli-platform-android": "15.1.3",
+        "@react-native-community/cli-platform-ios": "15.1.3",
+        "@react-native/babel-preset": "0.77.0",
+        "@react-native/metro-config": "0.77.0",
+        "@react-native/typescript-config": "0.77.0"
+    },
+    "engines": {
+        "node": ">=18"
+    }
+}

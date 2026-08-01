@@ -2,25 +2,37 @@
     "name": "@rnw-community/react-native-payments-example",
     "version": "2.3.1",
     "private": true,
+    "license": "MIT",
+    "sideEffects": false,
+    "main": "src/index.ts",
+    "module": "src/index.ts",
+    "react-native": "src/index.ts",
+    "types": "src/index.ts",
+    "files": [
+        "src/**/*"
+    ],
     "scripts": {
-        "android": "react-native run-android",
-        "ios": "react-native run-ios",
-        "start": "react-native start"
+        "android:bare": "yarn workspace @rnw-community/react-native-payments-example-bare android",
+        "android:expo": "yarn workspace @rnw-community/react-native-payments-example-expo android",
+        "clear": "rm -rf coverage && rm -rf dist && rm -f *.tsbuildinfo",
+        "clear:deps": "rm -rf ./node_modules && rm -rf ./dist",
+        "format": "run -T prettier --write \"./src/**/*.{ts,tsx}\"",
+        "ios:bare": "yarn workspace @rnw-community/react-native-payments-example-bare ios",
+        "ios:expo": "yarn workspace @rnw-community/react-native-payments-example-expo ios",
+        "lint": "run -T eslint src",
+        "lint:fix": "run -T eslint --fix src",
+        "prebuild:expo": "yarn workspace @rnw-community/react-native-payments-example-expo prebuild",
+        "start:bare": "yarn workspace @rnw-community/react-native-payments-example-bare start",
+        "start:expo": "yarn workspace @rnw-community/react-native-payments-example-expo start",
+        "ts": "run -T tsc --pretty -p tsconfig.json"
     },
     "dependencies": {
-        "@rnw-community/react-native-payments-example-lib": "workspace:*",
+        "@rnw-community/react-native-payments": "workspace:*",
+        "@rnw-community/shared": "workspace:*",
         "react": "^18.3.1",
         "react-native": "^0.76.1"
     },
-    "devDependencies": {
-        "@react-native-community/cli": "15.1.3",
-        "@react-native-community/cli-platform-android": "15.1.3",
-        "@react-native-community/cli-platform-ios": "15.1.3",
-        "@react-native/babel-preset": "0.77.0",
-        "@react-native/metro-config": "0.77.0",
-        "@react-native/typescript-config": "0.77.0"
-    },
     "engines": {
-        "node": ">=18"
+        "node": ">=18.0.0"
     }
 }
