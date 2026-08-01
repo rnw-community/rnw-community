@@ -22,6 +22,13 @@ static NSString *const PaymentsCouponCodeChangeEvent = @"couponcodechange";
 @property (nonatomic, assign) BOOL isSheetPresented;
 @property (nonatomic, assign) BOOL hasChangeEventListeners;
 
+// https://developer.apple.com/documentation/passkit/pkpaymentrequest/3822251-supportscouponcode?language=objc
+- (void)applyCouponCodeSupportToRequest:(PKPaymentRequest *_Nonnull)paymentRequest
+                             methodData:(NSDictionary *_Nonnull)methodData API_AVAILABLE(ios(15.0));
+- (void)resolveCouponCodeChangeEventWithErrors:(NSArray<NSError *> *_Nonnull)errors
+                                  summaryItems:(NSArray<PKPaymentSummaryItem *> *_Nonnull)summaryItems
+                               shippingMethods:(NSArray<PKShippingMethod *> *_Nonnull)shippingMethods API_AVAILABLE(ios(15.0));
+
 @end
 
 // TODO: Add logs
@@ -240,16 +247,9 @@ RCT_EXPORT_METHOD(show:(NSString *)methodDataString
         paymentRequest.shippingMethods = self.currentShippingMethods;
     }
 
-    // https://developer.apple.com/documentation/passkit/pkpaymentrequest/3822251-supportscouponcode?language=objc
-    // https://developer.apple.com/documentation/passkit/pkpaymentrequest/3801275-couponcode?language=objc
     if ([self isChangeEventActive:PaymentsCouponCodeChangeEvent]) {
         if (@available(iOS 15.0, *)) {
-            paymentRequest.supportsCouponCode = YES;
-
-            id couponCode = methodData[@"couponCode"];
-            if ([couponCode isKindOfClass:[NSString class]] && [(NSString *)couponCode length] > 0) {
-                paymentRequest.couponCode = (NSString *)couponCode;
-            }
+            [self applyCouponCodeSupportToRequest:paymentRequest methodData:methodData];
         }
     }
 
@@ -569,13 +569,36 @@ RCT_EXPORT_METHOD(canMakePayments: (NSString *)methodDataString
 
     if ([eventName isEqualToString:PaymentsCouponCodeChangeEvent]) {
         if (@available(iOS 15.0, *)) {
-            void (^handler)(PKPaymentRequestCouponCodeUpdate *) = [self takePendingCompletionOfEvent:eventName];
-            handler([[PKPaymentRequestCouponCodeUpdate alloc] initWithErrors:errors paymentSummaryItems:summaryItems shippingMethods:shippingMethods]);
+            [self resolveCouponCodeChangeEventWithErrors:errors summaryItems:summaryItems shippingMethods:shippingMethods];
             return;
         }
     }
 
     RCTLogWarn(@"Payments: '%@' has no PassKit update type here, its completion stays pending", eventName);
+}
+
+// https://developer.apple.com/documentation/passkit/pkpaymentrequest/3801275-couponcode?language=objc
+- (void)applyCouponCodeSupportToRequest:(PKPaymentRequest *_Nonnull)paymentRequest
+                             methodData:(NSDictionary *_Nonnull)methodData
+{
+    paymentRequest.supportsCouponCode = YES;
+
+    id couponCode = methodData[@"couponCode"];
+    if ([couponCode isKindOfClass:[NSString class]] && [(NSString *)couponCode length] > 0) {
+        paymentRequest.couponCode = (NSString *)couponCode;
+    }
+}
+
+// https://developer.apple.com/documentation/passkit/pkpaymentrequestcouponcodeupdate?language=objc
+- (void)resolveCouponCodeChangeEventWithErrors:(NSArray<NSError *> *_Nonnull)errors
+                                  summaryItems:(NSArray<PKPaymentSummaryItem *> *_Nonnull)summaryItems
+                               shippingMethods:(NSArray<PKShippingMethod *> *_Nonnull)shippingMethods
+{
+    void (^handler)(PKPaymentRequestCouponCodeUpdate *) = [self takePendingCompletionOfEvent:PaymentsCouponCodeChangeEvent];
+
+    handler([[PKPaymentRequestCouponCodeUpdate alloc] initWithErrors:errors
+                                                 paymentSummaryItems:summaryItems
+                                                     shippingMethods:shippingMethods]);
 }
 
 - (id _Nonnull)takePendingCompletionOfEvent:(NSString *_Nonnull)eventName
