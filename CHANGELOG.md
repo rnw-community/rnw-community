@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.3.1](https://github.com/rnw-community/rnw-community/compare/v2.3.0...v2.3.1) (2026-08-01)
+
+### Bug Fixes
+
+- **react-native-payments:** support Google Pay totalPriceStatus, checkoutOption and zero totals ([0fa3ec3](https://github.com/rnw-community/rnw-community/commit/0fa3ec39391e4fb9a22998e24b9b9cd1c51c7e52))
+
 # [2.3.0](https://github.com/rnw-community/rnw-community/compare/v2.2.0...v2.3.0) (2026-08-01)
 
 ### Features
