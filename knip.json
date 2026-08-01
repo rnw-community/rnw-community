@@ -12,6 +12,9 @@
         },
         "packages/log-decorator": {
             "entry": ["src/index.ts"]
+        },
+        "packages/react-native-payments": {
+            "entry": ["src/index.ts", "src/**/*.web.ts"]
         }
     },
     "ignore": [

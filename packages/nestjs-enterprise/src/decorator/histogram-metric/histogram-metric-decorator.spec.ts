@@ -57,7 +57,7 @@ describe(`HistogramMetric decorator`, () => {
             help: 'test-metric',
         });
         expect(mockObserve).toHaveBeenCalledTimes(1);
-        expect(typeof (mockObserve as jest.Mock).mock.calls[0]?.[0]).toBe('number');
+        expect(typeof mockObserve.mock.calls[0]?.[0]).toBe('number');
     });
 
     it('should create a histogram honouring the supplied configuration', () => {
@@ -171,7 +171,7 @@ describe(`HistogramMetric decorator`, () => {
         });
         const laterHistogram = new Histogram({ name: 'multi-reg-metric', help: 'multi-reg-metric' });
         const firstRegistryGetSingleMetric = jest.fn().mockReturnValue(undefined);
-        const secondRegistryGetSingleMetric = jest.fn().mockReturnValue(laterHistogram as unknown);
+        const secondRegistryGetSingleMetric = jest.fn().mockReturnValue(laterHistogram);
         const firstRegistry = { getSingleMetric: firstRegistryGetSingleMetric } as unknown as typeof register;
         const secondRegistry = { getSingleMetric: secondRegistryGetSingleMetric } as unknown as typeof register;
         (Histogram as unknown as jest.Mock).mockClear();
@@ -213,7 +213,7 @@ describe(`HistogramMetric decorator`, () => {
         new LabeledClass().run('acme');
 
         expect(mockObserve).toHaveBeenCalledTimes(1);
-        expect((mockObserve as jest.Mock).mock.calls[0]?.[0]).toStrictEqual({ tenant: 'acme' });
+        expect(mockObserve.mock.calls[0]?.[0]).toStrictEqual({ tenant: 'acme' });
     });
 
     it('observes without labels when no labels callback is supplied', () => {
@@ -231,7 +231,7 @@ describe(`HistogramMetric decorator`, () => {
         new UnlabeledClass().run();
 
         expect(mockObserve).toHaveBeenCalledTimes(1);
-        expect(typeof (mockObserve as jest.Mock).mock.calls[0]?.[0]).toBe('number');
+        expect(typeof mockObserve.mock.calls[0]?.[0]).toBe('number');
     });
 
     describe('Observable and Promise duration semantics', () => {
@@ -253,7 +253,7 @@ describe(`HistogramMetric decorator`, () => {
             await new AsyncSuccessClass().work();
 
             expect(mockObserve).toHaveBeenCalledTimes(1);
-            expect(typeof (mockObserve as jest.Mock).mock.calls[0]?.[0]).toBe('number');
+            expect(typeof mockObserve.mock.calls[0]?.[0]).toBe('number');
         });
 
         it('records exactly one observation after a Promise rejects (duration still emitted)', async () => {
@@ -311,7 +311,11 @@ describe(`HistogramMetric decorator`, () => {
     describe('config mismatch detection', () => {
         const applyFirst = (): void => {
             class First {
-                @HistogramMetric('mismatch-metric', { help: 'h', buckets: [BUCKET_SMALL, BUCKET_MEDIUM, BUCKET_LARGE], labelNames: ['tenant'] })
+                @HistogramMetric('mismatch-metric', {
+                    help: 'h',
+                    buckets: [BUCKET_SMALL, BUCKET_MEDIUM, BUCKET_LARGE],
+                    labelNames: ['tenant'],
+                })
                 run(): number {
                     return 0;
                 }
@@ -325,7 +329,11 @@ describe(`HistogramMetric decorator`, () => {
 
             expect(() => {
                 class Second {
-                    @HistogramMetric('mismatch-metric', { help: 'h', buckets: [BUCKET_SMALL, BUCKET_MEDIUM, BUCKET_LARGE], labelNames: ['tenant'] })
+                    @HistogramMetric('mismatch-metric', {
+                        help: 'h',
+                        buckets: [BUCKET_SMALL, BUCKET_MEDIUM, BUCKET_LARGE],
+                        labelNames: ['tenant'],
+                    })
                     run(): number {
                         return 0;
                     }
@@ -379,7 +387,11 @@ describe(`HistogramMetric decorator`, () => {
 
             expect(() => {
                 class Second {
-                    @HistogramMetric('mismatch-metric', { help: 'h', buckets: [BUCKET_SMALL, BUCKET_MEDIUM, BUCKET_LARGE], labelNames: ['tenant', 'region'] })
+                    @HistogramMetric('mismatch-metric', {
+                        help: 'h',
+                        buckets: [BUCKET_SMALL, BUCKET_MEDIUM, BUCKET_LARGE],
+                        labelNames: ['tenant', 'region'],
+                    })
                     run(): number {
                         return 0;
                     }

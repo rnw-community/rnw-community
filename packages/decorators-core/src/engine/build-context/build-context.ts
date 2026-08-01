@@ -17,7 +17,7 @@ const getAttachedName = (self: unknown): string | null => {
     }
 
     if (typeof self === 'function') {
-        return resolveNameFromFunction(self as { readonly name?: string });
+        return resolveNameFromFunction(self);
     }
 
     return resolveNameFromConstructor(self as object);
