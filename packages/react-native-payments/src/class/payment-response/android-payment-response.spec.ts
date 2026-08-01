@@ -84,7 +84,7 @@ describe('AndroidPaymentResponse', () => {
         new AndroidPaymentResponse('requestId', PaymentMethodNameEnum.AndroidPay, JSON.stringify(payment));
 
     it('should parse the billing address of the authorized payment', () => {
-        expect.assertions(1);
+        expect.hasAssertions();
 
         expect(createResponse(authorizedPayment).details.billingAddress).toStrictEqual({
             address1: '1 Infinite Loop',
@@ -99,7 +99,7 @@ describe('AndroidPaymentResponse', () => {
     });
 
     it('should parse the shipping address of the authorized payment', () => {
-        expect.assertions(1);
+        expect.hasAssertions();
 
         expect(createResponse(authorizedPayment).details.shippingAddress).toStrictEqual({
             address1: 'Invalidenstrasse 1',
@@ -114,7 +114,7 @@ describe('AndroidPaymentResponse', () => {
     });
 
     it('should prefer the payer name and phone of the billing address', () => {
-        expect.assertions(3);
+        expect.hasAssertions();
 
         const { details } = createResponse(authorizedPayment);
 
@@ -124,7 +124,7 @@ describe('AndroidPaymentResponse', () => {
     });
 
     it('should take the payer name and phone from the shipping address without a billing address', () => {
-        expect.assertions(3);
+        expect.hasAssertions();
 
         const { info } = authorizedPayment.paymentMethodData;
         const { details } = createResponse({
@@ -141,7 +141,7 @@ describe('AndroidPaymentResponse', () => {
     });
 
     it('should parse the google pay token of the authorized payment', () => {
-        expect.assertions(3);
+        expect.hasAssertions();
 
         const { androidPayToken } = createResponse(authorizedPayment).details;
 
@@ -151,7 +151,7 @@ describe('AndroidPaymentResponse', () => {
     });
 
     it('should default the shipping address payer phone to an empty string when omitted', () => {
-        expect.assertions(1);
+        expect.hasAssertions();
 
         const { info } = authorizedPayment.paymentMethodData;
         const { phoneNumber, ...shippingAddressWithoutPhone } = shippingAddress;
@@ -168,7 +168,7 @@ describe('AndroidPaymentResponse', () => {
     });
 
     it('should default the billing address payer phone to an empty string when omitted', () => {
-        expect.assertions(1);
+        expect.hasAssertions();
 
         const { phoneNumber, ...billingAddressWithoutPhone } = billingAddress;
         const { details } = createResponse({
@@ -183,7 +183,7 @@ describe('AndroidPaymentResponse', () => {
     });
 
     it('should throw when the tokenization data is missing a token', () => {
-        expect.assertions(1);
+        expect.hasAssertions();
 
         const paymentWithoutToken: AndroidPaymentData = {
             ...authorizedPayment,
@@ -197,7 +197,7 @@ describe('AndroidPaymentResponse', () => {
     });
 
     it('should default the intermediate signing key when the token does not carry one', () => {
-        expect.assertions(1);
+        expect.hasAssertions();
 
         const tokenWithoutIntermediateSigningKey = JSON.stringify({
             protocolVersion: 'ECv2',
