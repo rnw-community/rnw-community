@@ -1,23 +1,10 @@
-import {
-    type AndroidPaymentMethodDataInterface,
-    type IosPaymentMethodDataInterface,
-    type PaymentDetailsInit,
-    PaymentRequest,
-} from '@rnw-community/react-native-payments';
+import { PaymentRequest } from '@rnw-community/react-native-payments';
 
+import { getPaymentDetails } from './get-payment-details';
 import { getAndroidPaymentMethodData } from './method-data/android-payment-method-data';
 import { getIosPaymentMethodData } from './method-data/ios-payment-method-data';
-import { paymentDetails as defaultPaymentDetails } from './payment-details';
 
-interface CreatePaymentRequestProps {
-    androidPaymentMethodData?: AndroidPaymentMethodDataInterface;
-    iosPaymentMethodData?: IosPaymentMethodDataInterface;
-    paymentDetails?: PaymentDetailsInit;
-}
+import type { RequestOptionsInterface } from '../interface/request-options.interface';
 
-export const createPaymentRequest = ({
-    androidPaymentMethodData = getAndroidPaymentMethodData(),
-    iosPaymentMethodData = getIosPaymentMethodData(),
-    paymentDetails = defaultPaymentDetails,
-}: CreatePaymentRequestProps = {}): PaymentRequest =>
-    new PaymentRequest([iosPaymentMethodData, androidPaymentMethodData], paymentDetails);
+export const createPaymentRequest = (options: RequestOptionsInterface): PaymentRequest =>
+    new PaymentRequest([getIosPaymentMethodData(options), getAndroidPaymentMethodData(options)], getPaymentDetails(options));
