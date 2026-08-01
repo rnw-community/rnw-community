@@ -241,9 +241,15 @@ RCT_EXPORT_METHOD(show:(NSString *)methodDataString
     }
 
     // https://developer.apple.com/documentation/passkit/pkpaymentrequest/3822251-supportscouponcode?language=objc
+    // https://developer.apple.com/documentation/passkit/pkpaymentrequest/3801275-couponcode?language=objc
     if ([self isChangeEventActive:PaymentsCouponCodeChangeEvent]) {
         if (@available(iOS 15.0, *)) {
             paymentRequest.supportsCouponCode = YES;
+
+            id couponCode = methodData[@"couponCode"];
+            if ([couponCode isKindOfClass:[NSString class]] && [(NSString *)couponCode length] > 0) {
+                paymentRequest.couponCode = (NSString *)couponCode;
+            }
         }
     }
 

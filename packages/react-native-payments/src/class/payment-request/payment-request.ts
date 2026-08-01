@@ -544,6 +544,7 @@ export class PaymentRequest {
             }),
             ...(isShippingRequested && { requiredShippingContactFields: requestedShippingFields }),
             ...(isDefined(methodData.applicationData) && { applicationData: methodData.applicationData }),
+            ...(isNotEmptyString(methodData.couponCode) && { couponCode: methodData.couponCode }),
         };
     }
 

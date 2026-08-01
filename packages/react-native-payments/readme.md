@@ -222,6 +222,9 @@ Depending on the platform and payment method, you can provide additional data to
 - `requestShipping`: An optional boolean field that, when present and set to true, indicates that the `PaymentResponse` will
   include the shipping address of the payer.
 - `applicationData`: An optional string or object field for Apple Pay that allows you to store application-specific data. This data is not transmitted to Apple but is included in the payment token as a SHA-256 hash (applicationDataHash). You can use it to prevent replay attacks by associating a payment with a specific transaction.
+- `couponCode`: An optional Apple Pay field, **beyond the W3C specification**, that prefills the coupon code field of the
+  payment sheet. The field itself is only rendered when a `couponcodechange` listener is registered before `show()`, so
+  the option is a no-op without one, below iOS 15 and on Android.
 
 ```ts
 // Example of using applicationData with Apple Pay

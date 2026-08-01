@@ -98,7 +98,8 @@ The module is a singleton, so exactly one request is interactive at a time:
   completed.
 - `show()` flushes what a previous sheet left pending and forgets that a sheet is presented, so a request that never
   reached a terminal path cannot disable the events of the requests after it.
-- `PKPaymentRequest.shippingMethods` is filled from `details.shippingOptions` and `supportsCouponCode` is enabled only
+- `PKPaymentRequest.shippingMethods` is filled from `details.shippingOptions` and `supportsCouponCode` — together with
+  the `couponCode` prefilled from the iOS method data — is enabled only
   when `shippingoptionchange` / `couponcodechange` are active for the request; the shipping methods of an
   `updatePaymentDetails` are applied under the same condition, so a picker never appears for a request that cannot answer
   its selection. A request without listeners is therefore functionally unchanged against v2 — the same summary items, the
