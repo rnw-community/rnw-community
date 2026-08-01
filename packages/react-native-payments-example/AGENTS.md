@@ -10,17 +10,19 @@ src/
   component/                     — app.tsx, demo-status.tsx, request-builder-form.tsx, demo-actions.tsx,
                                    event-log-view.tsx, switch-row.tsx, text-input-row.tsx
   constant/                      — default-request-options.ts, demo-style.ts, demo-currency.ts,
-                                   shipping-surcharge-value.ts, async-update-latency-ms.ts
+                                   demo-shipping-options.ts, default-shipping-option-id.ts,
+                                   shipping-surcharge-value.ts, zero-amount-value.ts, async-update-latency-ms.ts
   hook/                          — use-event-log.ts, use-request-options.ts, use-payment-demo.ts
   interface/                     — request-options.interface.ts, request-options-state.interface.ts,
                                    event-log.interface.ts, event-log-entry.interface.ts, payment-demo.interface.ts
   type/                          — request-option-toggle.type.ts
   payment/                       — create-payment-request.ts, create-demo-request.ts, get-payment-details.ts,
-                                   get-details-update.ts, get-updated-total-value.ts, attach-change-listeners.ts,
-                                   create-change-event-listener.ts, get-change-event-summary.ts,
-                                   answer-change-event.ts, show-payment-request.ts, abort-payment-request.ts,
-                                   complete-payment-response.ts, check-can-make-payment.ts, method-data/
-  util/                          — get-payment-name.ts, format-log-message.ts
+                                   get-details-update.ts, get-shipping-options.ts, get-updated-total-value.ts,
+                                   attach-change-listeners.ts, create-change-event-listener.ts,
+                                   get-change-event-summary.ts, answer-change-event.ts, show-payment-request.ts,
+                                   abort-payment-request.ts, complete-payment-response.ts, check-can-make-payment.ts,
+                                   method-data/
+  util/                          — get-payment-name.ts, format-log-message.ts, create-flow-state-guard.ts
 apps/
   bare/                          — @rnw-community/react-native-payments-example-bare (React Native CLI)
     index.js, app.json, babel.config.js, metro.config.js, ios/, android/
@@ -49,7 +51,14 @@ excluded from Lerna (`lerna.json` keeps `packages/*`), so they are never version
   full inventory lives in the `Test IDs` section of `readme.md` — keep it in sync with the components.
 - `usePaymentDemo` keeps the `PaymentRequest` in a ref: `action-show` reuses it, which is what surfaces the single-use
   behaviour (the second `show()` rejects with `InvalidStateError` and the rejection lands in the log), and `action-reset`
-  drops it so the next `action-show` builds a fresh request from the current builder options.
+  drops it so the next `action-show` builds a fresh request from the current builder options. `action-reset` also bumps a
+  generation counter that `createFlowStateGuard` captures at show time, so the outcome of a discarded request can no longer
+  overwrite the flow state of the current one — it is logged as `show settled after reset` instead.
+- `getDetailsUpdate` answers change events with the request's own configuration: `shippingOptions` and the shipping share of
+  the total only exist when `requestShipping` is on, `displayItems` only when `showDisplayItems` is on, and the selected
+  option is read from `paymentRequest.shippingOption` (kept current by the event payload) so an answer never overrides the
+  user's shipping choice or charges another option's amount. `demo-shipping-options.ts` is the single source for both the
+  initial details and the updates.
 - Change-event listeners are attached per request in `attach-change-listeners.ts`: `paymentmethodchange` always,
   the shipping pair when `requestShipping` is on, `couponcodechange` only on iOS with the coupon toggle on. On Android the
   log records the documented no-op instead of staying silent.

@@ -1,13 +1,12 @@
-import { shippingSurchargeValue } from '../constant/shipping-surcharge-value';
-
 const monetaryFractionDigits = 2;
 
-export const getUpdatedTotalValue = (totalValue: string): string => {
+export const getUpdatedTotalValue = (totalValue: string, shippingValue: string): string => {
     const parsedTotalValue = Number.parseFloat(totalValue);
+    const parsedShippingValue = Number.parseFloat(shippingValue);
 
-    if (Number.isNaN(parsedTotalValue)) {
+    if (Number.isNaN(parsedTotalValue) || Number.isNaN(parsedShippingValue)) {
         return totalValue;
     }
 
-    return (parsedTotalValue + Number.parseFloat(shippingSurchargeValue)).toFixed(monetaryFractionDigits);
+    return (parsedTotalValue + parsedShippingValue).toFixed(monetaryFractionDigits);
 };
