@@ -47,28 +47,47 @@ registerRootComponent(App);
   async `updateWith`, `showDisplayItems`, `requestBillingAddress`, `requestPayerEmail`, `requestPayerName`,
   `requestPayerPhone`.
 - **Actions** — `show` reuses the current request (so pressing it twice shows the single-use rejection), `abort` aborts the
-  active request and `New request` drops it so the next `show` builds a fresh one from the current toggles.
+  active request and `New request` drops it so the next `show` builds a fresh one from the current toggles. An outcome that
+  arrives after `New request` is logged and does not move the flow state, which belongs to the newer request.
 - **Event log** — an append-only, scrollable list of every lifecycle moment.
+
+## Shipping options and updates
+
+With `requestShipping` on, the request carries two options: `standard` (free) and `express` (+ €5.00), `standard` selected by
+default. Every `updateWith` answer mirrors the request configuration instead of forcing a shape onto it:
+
+- the selected option comes from `paymentRequest.shippingOption`, which the library keeps current from the event payload, so
+  choosing `standard` keeps `standard` selected and keeps the total free of the express surcharge;
+- the total is the builder total plus the amount of the actually selected option;
+- `shippingOptions` are only sent when `requestShipping` is on — a `paymentmethodchange` on a request without shipping never
+  introduces shipping;
+- `displayItems` are only sent when `showDisplayItems` is on, and the shipping line only exists when shipping does.
 
 ## Event log
 
 Rows are built by `formatLogMessage(topic, details)` and render as `topic: key=value key=value`, which keeps them short
 enough to assert on as substrings:
 
-| Moment                | Row                                                              |
-| --------------------- | ---------------------------------------------------------------- |
-| Availability probe    | `canMakePayment: status=available` / `canMakePayment failed: error=…` |
-| Request built         | `request created: id=… total=20.00`, `listeners attached: types=…` |
-| Constructor rejection | `request failed: error=…`                                        |
-| Android reality       | `platform note: changeEvents=no-op platform=android`             |
-| Sheet shown           | `show called: id=…`                                              |
-| Change event          | `shippingaddresschange: city=Berlin country=DE`, `paymentmethodchange: method=…` |
-| Answer sent           | `shippingoptionchange updateWith: mode=sync total=25.00`         |
-| Async answer          | `… updateWith started: latencyMs=1500 mode=async total=25.00` then `… updateWith settled: total=25.00` |
-| Outcome               | `show accepted: method=…` / `show rejected: error=…`             |
-| Completion            | `complete called: result=success`, `complete resolved`           |
-| Abort                 | `abort called: id=…`, `abort resolved` / `abort rejected: error=…`, `abort skipped: reason=no request` |
-| Reset                 | `request reset`                                                  |
+| Moment                  | Row                                                                                                                                        |
+| ----------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
+| Availability probe      | `canMakePayment: status=available` / `canMakePayment failed: error=…`                                                                      |
+| Request built           | `request created: id=… total=20.00`, `listeners attached: types=…`                                                                         |
+| Constructor rejection   | `request failed: error=…`                                                                                                                  |
+| Android reality         | `platform note: changeEvents=no-op platform=android`                                                                                       |
+| Sheet shown             | `show called: id=…`                                                                                                                        |
+| Change event            | `shippingaddresschange: city=Berlin country=DE`, `shippingoptionchange: option=express`, `paymentmethodchange: method=…`                   |
+| Answer sent             | `shippingoptionchange updateWith: mode=sync shipping=express total=25.00`                                                                  |
+| Answer without shipping | `paymentmethodchange updateWith: mode=sync total=20.00` (no `shipping=`)                                                                   |
+| Async answer            | `… updateWith started: latencyMs=1500 mode=async shipping=standard total=20.00` then `… updateWith settled: shipping=standard total=20.00` |
+| Outcome                 | `show accepted: method=…` / `show rejected: error=…`                                                                                       |
+| Completion              | `complete called: result=success`, `complete resolved`                                                                                     |
+| Abort                   | `abort called: id=…`, `abort resolved` / `abort rejected: error=…`, `abort skipped: reason=no request`                                     |
+| Reset                   | `request reset`                                                                                                                            |
+| Outcome after a reset   | `show settled after reset: ignored=accepted`                                                                                               |
+
+The `shipping=` detail names the option the answer keeps selected, so a suite that picks `standard` asserts
+`shipping=standard` and a total without the surcharge, while picking `express` asserts `shipping=express` and the raised
+total. The detail is absent whenever the answer carries no shipping options at all.
 
 The async row pair comes from the `async updateWith` toggle: the listener answers with a promise that resolves after a
 visible latency, which is what proves the sheet stays responsive while an update is in flight.
@@ -77,25 +96,25 @@ visible latency, which is what proves the sheet stays responsive while an update
 
 The end-to-end suites drive the screen through these identifiers:
 
-| Test ID                              | Element                                            |
-| ------------------------------------ | -------------------------------------------------- |
-| `payments-can-make-status`           | `canMakePayment()` result                          |
-| `payments-flow-state`                | current flow state                                 |
-| `builder-total-input`                | total amount input                                 |
-| `builder-shipping-toggle`            | `requestShipping` toggle                           |
-| `builder-coupon-toggle`              | `couponCode` toggle (only wired on iOS)            |
-| `builder-async-update-toggle`        | async `updateWith` toggle                          |
-| `builder-display-items-toggle`       | `showDisplayItems` toggle                          |
-| `builder-billing-address-toggle`     | `requestBillingAddress` toggle                     |
-| `builder-payer-email-toggle`         | `requestPayerEmail` toggle                         |
-| `builder-payer-name-toggle`          | `requestPayerName` toggle                          |
-| `builder-payer-phone-toggle`         | `requestPayerPhone` toggle                         |
-| `action-show`                        | shows the current request                          |
-| `action-abort`                       | aborts the active request                          |
-| `action-reset`                       | drops the request so the next show builds a new one |
-| `event-log`                          | scrollable event log container                     |
-| `event-log-count`                    | number of logged rows                              |
-| `event-log-row-<index>`              | one log row, zero based and append-only            |
+| Test ID                          | Element                                             |
+| -------------------------------- | --------------------------------------------------- |
+| `payments-can-make-status`       | `canMakePayment()` result                           |
+| `payments-flow-state`            | current flow state                                  |
+| `builder-total-input`            | total amount input                                  |
+| `builder-shipping-toggle`        | `requestShipping` toggle                            |
+| `builder-coupon-toggle`          | `couponCode` toggle (only wired on iOS)             |
+| `builder-async-update-toggle`    | async `updateWith` toggle                           |
+| `builder-display-items-toggle`   | `showDisplayItems` toggle                           |
+| `builder-billing-address-toggle` | `requestBillingAddress` toggle                      |
+| `builder-payer-email-toggle`     | `requestPayerEmail` toggle                          |
+| `builder-payer-name-toggle`      | `requestPayerName` toggle                           |
+| `builder-payer-phone-toggle`     | `requestPayerPhone` toggle                          |
+| `action-show`                    | shows the current request                           |
+| `action-abort`                   | aborts the active request                           |
+| `action-reset`                   | drops the request so the next show builds a new one |
+| `event-log`                      | scrollable event log container                      |
+| `event-log-count`                | number of logged rows                               |
+| `event-log-row-<index>`          | one log row, zero based and append-only             |
 
 The Expo target also runs on the web (`yarn workspace @rnw-community/react-native-payments-example-expo web`), where the
 library falls back to the W3C Payment Request API.

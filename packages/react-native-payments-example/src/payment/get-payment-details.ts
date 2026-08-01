@@ -1,5 +1,6 @@
 import { demoCurrency } from '../constant/demo-currency';
-import { shippingSurchargeValue } from '../constant/shipping-surcharge-value';
+
+import { getShippingOptions } from './get-shipping-options';
 
 import type { RequestOptionsInterface } from '../interface/request-options.interface';
 import type { PaymentDetailsInit } from '@rnw-community/react-native-payments';
@@ -12,10 +13,5 @@ export const getPaymentDetails = (options: RequestOptionsInterface): PaymentDeta
     ...(options.showDisplayItems && {
         displayItems: [{ amount: { currency: demoCurrency, value: options.totalValue }, label: 'Order' }],
     }),
-    ...(options.requestShipping && {
-        shippingOptions: [
-            { amount: { currency: demoCurrency, value: '0.00' }, id: 'standard', label: 'Standard', selected: true },
-            { amount: { currency: demoCurrency, value: shippingSurchargeValue }, id: 'express', label: 'Express' },
-        ],
-    }),
+    ...(options.requestShipping && { shippingOptions: getShippingOptions(null) }),
 });

@@ -16,5 +16,5 @@ export const createChangeEventListener =
     (event: PaymentRequestUpdateEvent): void => {
         log(formatLogMessage(event.type, getChangeEventSummary(event, request)));
 
-        answerChangeEvent(event, options, log);
+        answerChangeEvent(event, request, options, log);
     };

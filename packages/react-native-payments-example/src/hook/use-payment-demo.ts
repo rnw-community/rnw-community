@@ -7,6 +7,7 @@ import { abortPaymentRequest } from '../payment/abort-payment-request';
 import { checkCanMakePayment } from '../payment/check-can-make-payment';
 import { createDemoRequest } from '../payment/create-demo-request';
 import { showPaymentRequest } from '../payment/show-payment-request';
+import { createFlowStateGuard } from '../util/create-flow-state-guard';
 import { formatLogMessage } from '../util/format-log-message';
 
 import type { PaymentDemoInterface } from '../interface/payment-demo.interface';
@@ -18,6 +19,7 @@ export const usePaymentDemo = (options: RequestOptionsInterface, log: OnEventFn<
     const [canMakePaymentStatus, setCanMakePaymentStatus] = useState('checking');
     const [flowState, setFlowState] = useState('idle');
     const requestRef = useRef<Maybe<PaymentRequest>>(null);
+    const requestGenerationRef = useRef(0);
 
     useEffect(() => {
         void checkCanMakePayment(defaultRequestOptions, log, setCanMakePaymentStatus);
@@ -34,8 +36,11 @@ export const usePaymentDemo = (options: RequestOptionsInterface, log: OnEventFn<
             return;
         }
 
+        const generation = requestGenerationRef.current;
+        const isCurrentRequest = (): boolean => requestGenerationRef.current === generation;
+
         setFlowState('showing');
-        void showPaymentRequest(request, log, setFlowState);
+        void showPaymentRequest(request, log, createFlowStateGuard(isCurrentRequest, setFlowState, log));
     }, [log, options]);
 
     const abortRequest = useCallback((): void => {
@@ -51,6 +56,7 @@ export const usePaymentDemo = (options: RequestOptionsInterface, log: OnEventFn<
     }, [log]);
 
     const resetRequest = useCallback((): void => {
+        requestGenerationRef.current += 1;
         requestRef.current = null;
         setFlowState('idle');
         log(formatLogMessage('request reset'));
