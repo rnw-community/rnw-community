@@ -14,6 +14,8 @@ static NSString *const PaymentsCouponCodeChangeEvent = @"couponcodechange";
 @property (nonatomic, copy) NSString * _Nullable activeRequestId;
 @property (nonatomic, strong) NSMutableSet<NSString *> * _Nonnull activeEventNames;
 @property (nonatomic, strong) NSMutableDictionary<NSString *, id> * _Nonnull pendingEventCompletions;
+@property (nonatomic, strong) NSMutableDictionary<NSString *, NSNumber *> * _Nonnull pendingEventIds;
+@property (nonatomic, assign) NSUInteger lastEventId;
 @property (nonatomic, copy) NSArray<PKPaymentSummaryItem *> * _Nonnull currentPaymentSummaryItems;
 @property (nonatomic, copy) NSArray<PKShippingMethod *> * _Nonnull currentShippingMethods;
 @property (nonatomic, assign) BOOL isSheetPresented;
@@ -34,6 +36,7 @@ static const PKPaymentNetwork PKPaymentNetworkUnknown = 0;
     if ((self = [super init])) {
         _activeEventNames = [NSMutableSet set];
         _pendingEventCompletions = [NSMutableDictionary dictionary];
+        _pendingEventIds = [NSMutableDictionary dictionary];
         _currentPaymentSummaryItems = @[];
         _currentShippingMethods = @[];
     }
@@ -76,7 +79,17 @@ static const PKPaymentNetwork PKPaymentNetworkUnknown = 0;
 
 - (void)invalidate
 {
+    PKPaymentAuthorizationViewController *presentedViewController = self.viewController;
+
     [self teardownPaymentSheetState];
+
+    if (presentedViewController != nil) {
+        presentedViewController.delegate = nil;
+
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [presentedViewController dismissViewControllerAnimated:NO completion:nil];
+        });
+    }
 
     [super invalidate];
 }
@@ -88,6 +101,9 @@ RCT_EXPORT_METHOD(show:(NSString *)methodDataString
 {
     self.paymentResolve = resolve;
     self.paymentReject = reject;
+
+    [self flushPendingEventCompletions];
+    self.isSheetPresented = NO;
 
     NSData *jsonData = [methodDataString dataUsingEncoding:NSUTF8StringEncoding];
 
@@ -309,7 +325,7 @@ RCT_EXPORT_METHOD(setActiveEvents: (NSString *)requestId
 {
     if (eventNames.count == 0) {
         if ([self isActiveRequestId:requestId]) {
-            [self clearActiveEventNames];
+            [self clearActiveEvents];
         }
 
         resolve(nil);
@@ -353,6 +369,13 @@ RCT_EXPORT_METHOD(updatePaymentDetails: (NSDictionary *)update
         return;
     }
 
+    id eventId = update[@"eventId"];
+    if ([eventId isKindOfClass:[NSNumber class]] && ![eventId isEqual:self.pendingEventIds[eventName]]) {
+        RCTLogWarn(@"Payments: dropping the answer of the superseded '%@' event %@", eventName, eventId);
+        reject(@"no_completion", @"The answered change event was superseded by a newer one", nil);
+        return;
+    }
+
     NSDictionary *total = update[@"total"];
     if ([total isKindOfClass:[NSDictionary class]]) {
         self.currentPaymentSummaryItems = [self getPaymentSummaryItemsFromDetails:@{
@@ -360,7 +383,10 @@ RCT_EXPORT_METHOD(updatePaymentDetails: (NSDictionary *)update
             @"total": total
         }];
     }
-    self.currentShippingMethods = [self getShippingMethodsFromShippingOptions:shippingOptions];
+
+    if ([self isChangeEventActive:PaymentsShippingOptionChangeEvent]) {
+        self.currentShippingMethods = [self getShippingMethodsFromShippingOptions:shippingOptions];
+    }
 
     [self resolveChangeEvent:eventName errors:[self getErrorsForEvent:eventName message:update[@"error"]]];
 
@@ -552,7 +578,9 @@ RCT_EXPORT_METHOD(canMakePayments: (NSString *)methodDataString
 {
     [self resolveChangeEvent:eventName errors:@[]];
 
+    self.lastEventId += 1;
     self.pendingEventCompletions[eventName] = [completion copy];
+    self.pendingEventIds[eventName] = @(self.lastEventId);
 
     if (![self isChangeEventActive:eventName]) {
         [self resolveChangeEvent:eventName errors:@[]];
@@ -561,45 +589,57 @@ RCT_EXPORT_METHOD(canMakePayments: (NSString *)methodDataString
 
     NSMutableDictionary *eventBody = [body mutableCopy];
     eventBody[@"requestId"] = self.activeRequestId ?: @"";
+    eventBody[@"eventId"] = @(self.lastEventId);
 
     [self sendEventWithName:eventName body:eventBody];
 }
 
 - (void)resolveChangeEvent:(NSString *_Nonnull)eventName errors:(NSArray<NSError *> *_Nonnull)errors
 {
-    id completion = self.pendingEventCompletions[eventName];
-
-    if (completion == nil) {
+    if (self.pendingEventCompletions[eventName] == nil) {
         return;
     }
-
-    [self.pendingEventCompletions removeObjectForKey:eventName];
 
     NSArray<PKPaymentSummaryItem *> *summaryItems = self.currentPaymentSummaryItems;
     NSArray<PKShippingMethod *> *shippingMethods = self.currentShippingMethods;
 
     if ([eventName isEqualToString:PaymentsShippingAddressChangeEvent]) {
-        void (^handler)(PKPaymentRequestShippingContactUpdate *) = completion;
+        void (^handler)(PKPaymentRequestShippingContactUpdate *) = [self takePendingCompletionOfEvent:eventName];
         handler([[PKPaymentRequestShippingContactUpdate alloc] initWithErrors:errors paymentSummaryItems:summaryItems shippingMethods:shippingMethods]);
         return;
     }
 
     if ([eventName isEqualToString:PaymentsShippingOptionChangeEvent]) {
-        void (^handler)(PKPaymentRequestShippingMethodUpdate *) = completion;
+        void (^handler)(PKPaymentRequestShippingMethodUpdate *) = [self takePendingCompletionOfEvent:eventName];
         handler([[PKPaymentRequestShippingMethodUpdate alloc] initWithPaymentSummaryItems:summaryItems]);
         return;
     }
 
     if ([eventName isEqualToString:PaymentsPaymentMethodChangeEvent]) {
-        void (^handler)(PKPaymentRequestPaymentMethodUpdate *) = completion;
+        void (^handler)(PKPaymentRequestPaymentMethodUpdate *) = [self takePendingCompletionOfEvent:eventName];
         handler([self getPaymentMethodUpdateWithSummaryItems:summaryItems errors:errors]);
         return;
     }
 
-    if (@available(iOS 15.0, *)) {
-        void (^handler)(PKPaymentRequestCouponCodeUpdate *) = completion;
-        handler([[PKPaymentRequestCouponCodeUpdate alloc] initWithErrors:errors paymentSummaryItems:summaryItems shippingMethods:shippingMethods]);
+    if ([eventName isEqualToString:PaymentsCouponCodeChangeEvent]) {
+        if (@available(iOS 15.0, *)) {
+            void (^handler)(PKPaymentRequestCouponCodeUpdate *) = [self takePendingCompletionOfEvent:eventName];
+            handler([[PKPaymentRequestCouponCodeUpdate alloc] initWithErrors:errors paymentSummaryItems:summaryItems shippingMethods:shippingMethods]);
+            return;
+        }
     }
+
+    RCTLogWarn(@"Payments: '%@' has no PassKit update type here, its completion stays pending", eventName);
+}
+
+- (id _Nonnull)takePendingCompletionOfEvent:(NSString *_Nonnull)eventName
+{
+    id completion = self.pendingEventCompletions[eventName];
+
+    [self.pendingEventCompletions removeObjectForKey:eventName];
+    [self.pendingEventIds removeObjectForKey:eventName];
+
+    return completion;
 }
 
 - (PKPaymentRequestPaymentMethodUpdate *_Nonnull)getPaymentMethodUpdateWithSummaryItems:(NSArray<PKPaymentSummaryItem *> *_Nonnull)summaryItems
@@ -630,18 +670,19 @@ RCT_EXPORT_METHOD(canMakePayments: (NSString *)methodDataString
     }
 }
 
-- (void)clearActiveEventNames
+- (void)clearActiveEvents
 {
     [self flushPendingEventCompletions];
     [self.activeEventNames removeAllObjects];
+
+    self.activeRequestId = nil;
 }
 
 - (void)teardownPaymentSheetState
 {
     [self invokeAuthorizationCompletionWithStatus:PKPaymentAuthorizationStatusFailure];
-    [self clearActiveEventNames];
+    [self clearActiveEvents];
 
-    self.activeRequestId = nil;
     self.isSheetPresented = NO;
     self.viewController = nil;
 }
@@ -716,17 +757,23 @@ RCT_EXPORT_METHOD(canMakePayments: (NSString *)methodDataString
         return shippingMethods;
     }
 
-    for (NSDictionary *shippingOption in shippingOptions) {
-        NSDecimalNumber *amount = [self getDecimalNumberFromAmount:shippingOption[@"amount"]];
-        NSString *label = shippingOption[@"label"];
+    for (id shippingOption in shippingOptions) {
+        if (![shippingOption isKindOfClass:[NSDictionary class]]) {
+            RCTLogWarn(@"Payments: skipping a shipping option that is not an object");
+            continue;
+        }
 
-        if (amount == nil || ![label isKindOfClass:[NSString class]]) {
-            RCTLogWarn(@"Payments: skipping shipping option without a valid label and amount");
+        NSDecimalNumber *amount = [self getDecimalNumberFromAmount:((NSDictionary *)shippingOption)[@"amount"]];
+        id label = ((NSDictionary *)shippingOption)[@"label"];
+        id identifier = ((NSDictionary *)shippingOption)[@"id"];
+
+        if (amount == nil || ![label isKindOfClass:[NSString class]] || ![identifier isKindOfClass:[NSString class]]) {
+            RCTLogWarn(@"Payments: skipping a shipping option without a string id, a string label and an amount");
             continue;
         }
 
         PKShippingMethod *shippingMethod = [PKShippingMethod summaryItemWithLabel:label amount:amount];
-        shippingMethod.identifier = shippingOption[@"id"];
+        shippingMethod.identifier = identifier;
 
         [shippingMethods addObject:shippingMethod];
     }

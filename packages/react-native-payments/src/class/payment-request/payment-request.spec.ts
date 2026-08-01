@@ -955,6 +955,45 @@ describe('PaymentRequest', () => {
             expect(setActiveEventsMock).toHaveBeenCalledWith(request.id, ['shippingaddresschange']);
         });
 
+        it('should echo the event id of the answered event back to native', async () => {
+            expect.hasAssertions();
+
+            const request = createInteractiveRequest();
+
+            request.addEventListener('shippingaddresschange', event => {
+                event.updateWith({ total: updatedTotal });
+            });
+
+            emitNativeEvent('shippingaddresschange', { requestId: request.id, eventId: 7, shippingAddress: address });
+            await nativeUpdate;
+            await flushEventLoop();
+
+            expect(updatePaymentDetailsMock).toHaveBeenCalledWith(
+                { error: '', eventId: 7, eventName: 'shippingaddresschange', requestId: request.id, total: updatedTotal },
+                [],
+                []
+            );
+        });
+
+        it('should echo the event id of an event arriving while another one is processed', async () => {
+            expect.hasAssertions();
+
+            const request = createInteractiveRequest();
+
+            request.addEventListener('shippingaddresschange', emptyFn);
+            request.updating = true;
+
+            emitNativeEvent('shippingaddresschange', { requestId: request.id, eventId: 9, shippingAddress: address });
+            await nativeUpdate;
+            await flushEventLoop();
+
+            expect(updatePaymentDetailsMock).toHaveBeenCalledWith(
+                { error: '', eventId: 9, eventName: 'shippingaddresschange', requestId: request.id, total: initialTotal },
+                [],
+                []
+            );
+        });
+
         it('should apply the details passed to updateWith and send them to native', async () => {
             expect.hasAssertions();
 
@@ -1404,6 +1443,32 @@ describe('PaymentRequest', () => {
             );
         });
 
+        it('should track the selection of an event that was answered without being dispatched', async () => {
+            expect.hasAssertions();
+
+            const request = createInteractiveRequest();
+
+            request.addEventListener('shippingoptionchange', async (event: PaymentRequestUpdateEvent) => {
+                await new Promise<void>(resolve => {
+                    setTimeout(resolve, 10);
+                });
+
+                event.updateWith({ total: updatedTotal });
+            });
+
+            emitNativeEvent('shippingoptionchange', { requestId: request.id, shippingOption: 'express' });
+            emitNativeEvent('shippingoptionchange', { requestId: request.id, shippingOption: 'standard' });
+            await jest.advanceTimersByTimeAsync(10);
+
+            expect(request.shippingOption).toBe('standard');
+            expect(updatePaymentDetailsMock).toHaveBeenNthCalledWith(
+                1,
+                { error: '', eventName: 'shippingoptionchange', requestId: request.id, total: initialTotal },
+                [],
+                []
+            );
+        });
+
         it('should deliver the event to every listener registered for the type', async () => {
             expect.hasAssertions();
 
@@ -1600,6 +1665,23 @@ describe('PaymentRequest', () => {
 
             expect(warnMock).toHaveBeenCalledWith(expect.stringContaining('Payment sheet is gone'));
             expect(request.updating).toBe(false);
+        });
+
+        it('should declare the active event types before the payment sheet is shown', async () => {
+            expect.hasAssertions();
+
+            jest.mocked(NativePayments.show).mockResolvedValue(acceptedPayment);
+
+            const request = createRequest();
+            request.addEventListener('shippingaddresschange', emptyFn);
+
+            await request.show();
+
+            const [showOrder] = jest.mocked(NativePayments.show).mock.invocationCallOrder;
+            const syncsBeforeShow = setActiveEventsMock.mock.invocationCallOrder.filter(order => order < showOrder);
+
+            expect(setActiveEventsMock).toHaveBeenCalledWith(request.id, ['shippingaddresschange']);
+            expect(syncsBeforeShow).toHaveLength(2);
         });
 
         it('should remove all subscriptions when show resolves', async () => {

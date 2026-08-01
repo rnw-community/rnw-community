@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, jest } from '@jest/globals';
 
-import { emptyFn } from '@rnw-community/shared';
+import { emptyFn, wait } from '@rnw-community/shared';
 
 import { changeEventTimeoutMs } from '../../constant/change-event-timeout-ms';
 import { PaymentsErrorEnum } from '../../enum/payments-error.enum';
@@ -120,6 +120,54 @@ describe('ChangeEventDispatcher', () => {
         ]);
 
         await jest.advanceTimersByTimeAsync(changeEventTimeoutMs);
+
+        await expect(dispatched).resolves.toBeNull();
+    });
+
+    it('should answer with no change when the listener itself never settles', async () => {
+        expect.hasAssertions();
+
+        const dispatcher = new ChangeEventDispatcher('shippingoptionchange', { requestId: 'id' }, alwaysActive);
+        const dispatched = dispatcher.dispatch([
+            async () => {
+                await new Promise<void>(emptyFn);
+            },
+        ]);
+
+        await jest.advanceTimersByTimeAsync(changeEventTimeoutMs);
+
+        await expect(dispatched).resolves.toBeNull();
+    });
+
+    it('should share one timeout budget between the listener and its update', async () => {
+        expect.hasAssertions();
+
+        const dispatcher = new ChangeEventDispatcher('shippingaddresschange', { requestId: 'id' }, alwaysActive);
+        const dispatched = dispatcher.dispatch([
+            async event => {
+                await wait(changeEventTimeoutMs / 2);
+
+                event.updateWith(new Promise<PaymentDetailsUpdate>(emptyFn));
+            },
+        ]);
+
+        await jest.advanceTimersByTimeAsync(changeEventTimeoutMs);
+
+        await expect(dispatched).resolves.toBeNull();
+    });
+
+    it('should answer with no change as soon as a never settling listener is abandoned', async () => {
+        expect.hasAssertions();
+
+        const dispatcher = new ChangeEventDispatcher('couponcodechange', { requestId: 'id' }, alwaysActive);
+        const dispatched = dispatcher.dispatch([
+            async () => {
+                await new Promise<void>(emptyFn);
+            },
+        ]);
+
+        await jest.advanceTimersByTimeAsync(0);
+        dispatcher.abandon();
 
         await expect(dispatched).resolves.toBeNull();
     });

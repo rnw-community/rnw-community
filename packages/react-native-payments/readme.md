@@ -344,9 +344,10 @@ each event with `PaymentRequestUpdateEvent.updateWith()`.
 > and is completed with the unchanged details whenever there is no listener for the event type, the listener fails or the
 > sheet is torn down, so it can never hang. On Android the Google Pay sheet runs in its own activity and never asks the
 > app for an in-sheet update, so listeners can be registered but never fire. On web the browser's own `PaymentRequest` is
-> used, so change events there follow the browser implementation. `show()`, `abort()` and `complete()` behave exactly as
-> before for a request without listeners. The end to end verification on devices is tracked in
-> [#393](https://github.com/rnw-community/rnw-community/issues/393).
+> used, so change events there follow the browser implementation. A request without listeners shows the same sheet with
+> the same summary items as before — PassKit now asks the app on every change and is answered immediately with no change,
+> which is a main thread round trip and no longer a purely local update. The end to end verification on devices is tracked
+> in [#393](https://github.com/rnw-community/rnw-community/issues/393).
 >
 > iOS only shows the shipping method picker and the coupon code field (iOS 15+) when a `shippingoptionchange` /
 > `couponcodechange` listener is registered before `show()` — `details.shippingOptions` are passed to PassKit in that case.
@@ -440,8 +441,12 @@ paymentRequest.addEventListener('paymentmethodchange', event => {
 
 Before a listener runs, the changed value is stored on the request: `paymentRequest.shippingAddress`
 (`PaymentResponseAddressInterface`), `paymentRequest.shippingOption` (the selected `PaymentShippingOption` id) and
-`paymentRequest.couponCode`. `paymentRequest.updating` is `true` while an event is being processed; a change event that
-arrives during that window is answered with the unchanged details and is not dispatched to the listeners.
+`paymentRequest.couponCode`. On iOS the shipping address of a change event is **redacted** by PassKit: only `address2`
+(city), `address3` (state), `postalCode` and `countryCode` are filled, while the street and the payer name, email and
+phone stay empty until the payment is authorized — quote shipping from the postal code and the country, never from the
+street. `paymentRequest.updating` is `true` while an event is being processed; a change event that
+arrives during that window is answered with the unchanged details and is not dispatched to the listeners, but its
+selection is still stored on the request, so these values always describe what the sheet shows right now.
 
 ## Unit testing
 

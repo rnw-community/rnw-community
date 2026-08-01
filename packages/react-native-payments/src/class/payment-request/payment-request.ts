@@ -302,14 +302,15 @@ export class PaymentRequest {
             return;
         }
 
+        this.applyEventPayload(payload);
+
         if (this.updating) {
-            await this.sendDetailsUpdate(type, null, generation);
+            await this.sendDetailsUpdate(type, payload.eventId, null, generation);
 
             return;
         }
 
         this.updating = true;
-        this.applyEventPayload(payload);
 
         try {
             await this.dispatchChangeEvent(type, listeners, payload, generation);
@@ -333,7 +334,9 @@ export class PaymentRequest {
         this.pendingDispatchers.add(dispatcher);
 
         try {
-            await this.sendDetailsUpdate(type, await this.resolveDetailsUpdate(dispatcher, listeners), generation);
+            const detailsUpdate = await this.resolveDetailsUpdate(dispatcher, listeners);
+
+            await this.sendDetailsUpdate(type, payload.eventId, detailsUpdate, generation);
         } finally {
             this.pendingDispatchers.delete(dispatcher);
         }
@@ -374,6 +377,7 @@ export class PaymentRequest {
 
     private async sendDetailsUpdate(
         type: PaymentRequestEventType,
+        eventId: number | undefined,
         detailsUpdate: Maybe<PaymentDetailsUpdate>,
         generation: number
     ): Promise<void> {
@@ -389,6 +393,7 @@ export class PaymentRequest {
             eventName: type,
             requestId: this.id,
             total: updatedDetails.total,
+            ...(isDefined(eventId) && { eventId }),
         };
 
         await updatePaymentDetails(update, updatedDetails.displayItems ?? [], updatedDetails.shippingOptions ?? []);

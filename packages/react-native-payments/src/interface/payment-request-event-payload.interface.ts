@@ -2,6 +2,7 @@ import type { PaymentResponseAddressInterface } from './payment-response-address
 
 export interface PaymentRequestEventPayloadInterface {
     couponCode?: string;
+    eventId?: number;
     methodDetails?: Record<string, unknown>;
     methodName?: string;
     requestId: string;
