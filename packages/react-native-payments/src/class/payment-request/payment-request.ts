@@ -137,7 +137,7 @@ export class PaymentRequest {
         return new Promise<AndroidPaymentResponse | IosPaymentResponse>((resolve, reject) => {
             this.acceptPromiseRejecter = reject;
 
-            NativePayments.show(this.serializedMethodData, details)
+            NativePayments.show(this.id, this.serializedMethodData, details)
                 .then(jsonDetails => {
                     const paymentResponse = this.handleAccept(jsonDetails);
 

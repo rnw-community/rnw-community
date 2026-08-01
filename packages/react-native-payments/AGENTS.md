@@ -70,9 +70,14 @@ src/
   (`didFinish`, `didAuthorizePayment`, `complete`, `abort`, `stopObserving`, `invalidate`) so the sheet cannot hang.
   Android answers the same contract with documented no-ops. The semantics live in
   `src/util/get-native-payments-event-emitter/get-native-payments-event-emitter.md`
-- Change events are request-scoped: native events carry the request `id`, `setActiveEvents(requestId, eventNames)` scopes
-  the handshake per request, one native subscription per event type feeds every listener registered for it, and
+- Change events are request-scoped: `show()` passes the request `id` to native so `activeRequestId` is adopted at
+  presentation time regardless of whether any listener was ever registered, `setActiveEvents(requestId, eventNames)`
+  scopes the handshake per request, one native subscription per event type feeds every listener registered for it, and
   subscriptions are removed on every terminal path (`show()` resolve/reject, `abort()`)
+- `setActiveEvents` rejects a `requestId` that does not match the presented sheet's `activeRequestId`, including while
+  `activeRequestId` is `nil` — a request that never called `show()` can never hijack the identity of the sheet another
+  request has on screen; `activeRequestId` is only released on full teardown, not when a still-presented request opts
+  out of every event type
 - Listeners run sequentially and dispatch stops at the first one that answers with `updateWith`, mirroring the stop
   immediate propagation flag of the W3C algorithm; a listener that throws is logged and the next one still runs
 - Every delivered change event answers native exactly once through `updatePaymentDetails`, even when the listener fails,

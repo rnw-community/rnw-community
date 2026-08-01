@@ -1,6 +1,6 @@
 {
     "name": "@rnw-community/nestjs-typed-config",
-    "version": "2.2.0",
+    "version": "2.3.2",
     "description": "NestJS typed config",
     "keywords": [
         "nestjs",
@@ -48,14 +48,14 @@
         "@rnw-community/shared": "^2.2.0"
     },
     "devDependencies": {
-        "@nestjs/common": "^10.4.22",
-        "@nestjs/config": "^3.3.0",
+        "@nestjs/common": "^11.1.28",
+        "@nestjs/config": "^4.0.4",
         "@types/hapi__joi": "^17.1.15",
-        "joi": "^17.13.3"
+        "joi": "^17.13.4"
     },
     "peerDependencies": {
-        "@nestjs/common": "^10.2.7",
-        "@nestjs/config": "^3.3.0",
+        "@nestjs/common": "^11.0.0",
+        "@nestjs/config": "^4.0.4",
         "joi": "^17.1.1"
     }
 }

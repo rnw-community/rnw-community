@@ -127,9 +127,9 @@ public class PaymentsModule extends PaymentsSpec {
     }
 
     @ReactMethod
-    public void show(String paymentMethodData, ReadableMap details, final Promise promise) {
+    public void show(String requestId, String paymentMethodData, ReadableMap details, final Promise promise) {
         Activity currentActivity = getCurrentActivity();
-        Log.d(NAME, "Showing AndroidPay " + currentActivity.toString() + details.toString());
+        Log.d(NAME, "Showing AndroidPay for request " + requestId + " " + currentActivity.toString() + details.toString());
 
         // HINT: We store promise reference to resolve/reject it later
         mPromise = promise;
