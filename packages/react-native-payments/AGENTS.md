@@ -63,11 +63,17 @@ src/
   subscriptions are removed on every terminal path (`show()` resolve/reject, `abort()`)
 - Listeners run sequentially and dispatch stops at the first one that answers with `updateWith`, mirroring the stop
   immediate propagation flag of the W3C algorithm; a listener that throws is logged and the next one still runs
-- Every delivered change event answers native exactly once through `updatePaymentDetails`, even when the listener fails or
-  leaves its update pending past `changeEventTimeoutMs`
+- Every delivered change event answers native exactly once through `updatePaymentDetails`, even when the listener fails,
+  never returns or leaves its update pending: `ChangeEventDispatcher` races **one** `changeEventTimeoutMs` deadline over
+  the listener bodies and their answer together, so a listener awaiting a request that never settles cannot pin a native
+  completion
+- Native events carry a monotonic `eventId` that JS echoes back in the update, and native resolves a completion only for
+  the `eventId` it is still waiting for, so the answer of a superseded event can never be applied to the newer one
 - A dispatch is bound to an event generation bumped on every terminal path, so a response that arrives after the sheet
   finished is dropped instead of reaching native, and an event arriving while another one is processed is answered
-  immediately with the unchanged details
+  immediately with the unchanged details — its selection is still recorded on the request first, so
+  `shippingAddress` / `shippingOption` / `couponCode` always mirror the latest selection of the sheet and never a
+  superseded one
 - `show()` resolve/reject and `abort()` all funnel through `closeRequest()`: the state becomes `closed` before the
   registrations are dropped, so an event racing the emitter teardown is ignored even though its handler is still alive
 - A `PaymentRequest` is single-use: once it is `closed`, `show()` rejects with `InvalidStateError` and `addEventListener`

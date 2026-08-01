@@ -24,16 +24,21 @@ them degrades to the v2 behaviour instead of crashing: every call site guards wi
 
 Event names are the W3C event types, emitted through `RCTEventEmitter` (`supportedEvents`):
 
-| Event name              | Payload                                      |
-| ----------------------- | -------------------------------------------- |
-| `paymentmethodchange`   | `{ requestId, methodName?, methodDetails? }` |
-| `shippingaddresschange` | `{ requestId, shippingAddress? }`            |
-| `shippingoptionchange`  | `{ requestId, shippingOption? }`             |
-| `couponcodechange`      | `{ requestId, couponCode? }`                 |
+| Event name              | Payload                                               |
+| ----------------------- | ----------------------------------------------------- |
+| `paymentmethodchange`   | `{ requestId, eventId, methodName?, methodDetails? }` |
+| `shippingaddresschange` | `{ requestId, eventId, shippingAddress? }`            |
+| `shippingoptionchange`  | `{ requestId, eventId, shippingOption? }`             |
+| `couponcodechange`      | `{ requestId, eventId, couponCode? }`                 |
 
 `requestId` is the `PaymentRequest.id` passed to `show()` — JS drops events whose `requestId` belongs to another or to an
-already finished request. `shippingAddress` follows `PaymentResponseAddressInterface`, `shippingOption` is the selected
-option `id`.
+already finished request. `eventId` is a monotonic counter identifying the native completion handler the event belongs to;
+JS echoes it back untouched. `shippingOption` is the selected option `id`.
+
+`shippingAddress` follows `PaymentResponseAddressInterface`. PassKit **redacts** the contact of an in-sheet address change
+for privacy: only the coarse fields arrive (`address2` from `city`, `address3` from `state`, plus `postalCode` and
+`countryCode`), while `address1` (street) and the name, email and phone are empty until the payment is authorized. A
+listener therefore quotes shipping from the postal code and country, not from the street.
 
 ### JS -> native handshake
 
@@ -52,9 +57,14 @@ that fail validation, or leaves its update pending past the change-event timeout
 unchanged details — native never waits. The call is skipped only when the request finished in the meantime, in which case
 native has already torn the sheet down.
 
-- `update`: `{ requestId, eventName, total, error }` — `total` is a `PaymentItem`, `error` is `''` when there is none
+- `update`: `{ requestId, eventName, eventId?, total, error }` — `total` is a `PaymentItem`, `error` is `''` when there is
+  none, `eventId` is the one carried by the answered event and is omitted when the event did not carry one
 - `displayItems`: array of `PaymentItem`
 - `shippingOptions`: array of `PaymentShippingOption`
+
+Native resolves the completion only when the answered `eventId` is still the pending one: a second change event of the
+same type supersedes the first, and the answer of the superseded event is rejected with `no_completion` instead of being
+applied to the newer handler. An update without an `eventId` is accepted, which is what keeps an older JS bundle working.
 
 `addListener`/`removeListeners` are the `NativeEventEmitter` bookkeeping methods and carry no request semantics; their
 presence is what tells JS that the native module can emit change events at all.
@@ -65,24 +75,36 @@ The module is a singleton, so exactly one request is interactive at a time:
 
 - `setActiveEvents` adopts `requestId` as the active one when no sheet is presented. While a sheet is presented, a call
   carrying a different `requestId` is logged and ignored — the events of the presented request keep working.
-- An empty `eventNames` for the active request empties the active set and flushes pending completions, but keeps the
-  summary items of the presented sheet, so removing the last listener mid-sheet degrades to the no-listener behaviour
-  instead of breaking the sheet.
+- An empty `eventNames` for the active request releases the request: the active set and the active `requestId` are
+  cleared and pending completions are flushed, while the summary items of the presented sheet are kept, so removing the
+  last listener mid-sheet degrades to the no-listener behaviour instead of breaking the sheet. Because the release also
+  drops the active `requestId`, the request that comes next is always adopted, even when the previous sheet was never
+  completed.
+- `show()` flushes what a previous sheet left pending and forgets that a sheet is presented, so a request that never
+  reached a terminal path cannot disable the events of the requests after it.
 - `PKPaymentRequest.shippingMethods` is filled from `details.shippingOptions` and `supportsCouponCode` is enabled only
-  when `shippingoptionchange` / `couponcodechange` are active for the request, which keeps a request without listeners
-  byte-for-byte identical to the v2 sheet.
+  when `shippingoptionchange` / `couponcodechange` are active for the request; the shipping methods of an
+  `updatePaymentDetails` are applied under the same condition, so a picker never appears for a request that cannot answer
+  its selection. A request without listeners is therefore functionally unchanged against v2 — the same summary items, the
+  same sheet — with the difference that PassKit now asks on every change and gets an immediate no-change answer, a
+  main-thread round trip that shows as a brief spinner on the card or address row.
 
 Every `didSelectShippingContact` / `didSelectShippingMethod` / `didSelectPaymentMethod` / `didChangeCouponCode` handler is
-stored in a per-event-type registry and taken out of it before being invoked, so it fires exactly once:
+stored in a per-event-type registry together with its `eventId` and taken out of it in the same step that invokes it, so
+it fires exactly once and is never dropped without being invoked:
 
 - event type not active (no listener, other request, JS not observing) -> invoked immediately with the current summary
   items and no errors, and no JS event is emitted
 - event type active -> the handler waits while JS dispatches, and `updatePaymentDetails` invokes it with the new summary
   items, shipping methods and error
-- `paymentAuthorizationViewControllerDidFinish`, `didAuthorizePayment`, `complete`, `abort`, `stopObserving` and
-  `invalidate` flush every still pending handler with the current summary items, so the sheet can never hang
-- `updatePaymentDetails` with no pending handler for the event (late answer, dismissed sheet, other request) rejects with
-  `no_completion` and changes nothing
+- a second event of the same type supersedes the first: the pending handler is flushed with no change before the new one
+  is stored under a new `eventId`
+- `paymentAuthorizationViewControllerDidFinish`, `didAuthorizePayment`, `complete`, `abort`, `show`, `stopObserving` and
+  `invalidate` flush every still pending handler with the current summary items, so the sheet can never hang;
+  `invalidate` also dismisses the sheet it was still presenting, which is what keeps a reload from leaving a sheet with a
+  dangling delegate on screen
+- `updatePaymentDetails` with no pending handler for the event, or with the `eventId` of a superseded one (late answer,
+  dismissed sheet, other request) rejects with `no_completion` and changes nothing
 
 `update.error` reaches PassKit as `paymentShippingAddressUnserviceableError` for `shippingaddresschange`,
 `paymentCouponCodeInvalidError` for `couponcodechange` (iOS 15+) and a `PKPaymentUnknownError` for `paymentmethodchange`
