@@ -27,6 +27,7 @@ import type { AndroidPaymentDataRequest } from '../../@standard/android/request/
 import type { AndroidTransactionInfo } from '../../@standard/android/request/android-transaction-info';
 import type { AndroidPaymentData } from '../../@standard/android/response/android-payment-data';
 import type { IosPaymentMethodDataInterface } from '../../@standard/ios/mapping/ios-payment-method-data.interface';
+import type { IosPaymentDataRequest } from '../../@standard/ios/request/ios-payment-data-request';
 import type { IosPKPayment } from '../../@standard/ios/response/ios-pk-payment';
 import type { PaymentDetailsInit } from '../../@standard/w3c/payment-details-init';
 import type { PaymentDetailsUpdate } from '../../@standard/w3c/payment-details-update';
@@ -822,6 +823,44 @@ describe('PaymentRequest', () => {
                 new ConstructorError(`checkoutOption 'COMPLETE_IMMEDIATE_PURCHASE' requires totalPriceStatus 'FINAL'`)
             );
         });
+        describe('couponCode serialization', () => {
+            const getSerializedIosMethodData = async (
+                requestMethodData: IosPaymentMethodDataInterface
+            ): Promise<IosPaymentDataRequest> => {
+                jest.mocked(NativePayments.canMakePayments).mockResolvedValue(true);
+
+                await new PaymentRequest([requestMethodData], paymentDetails).canMakePayment();
+
+                const [[serializedMethodData]] = jest.mocked(NativePayments.canMakePayments).mock.calls;
+
+                return JSON.parse(serializedMethodData) as IosPaymentDataRequest;
+            };
+
+            it('should serialize the prefilled coupon code', async () => {
+                expect.assertions(1);
+
+                const methodDataRequest = await getSerializedIosMethodData({
+                    ...iosMethodData,
+                    data: { ...iosMethodData.data, couponCode: 'SALE10' },
+                });
+
+                expect(methodDataRequest.couponCode).toBe('SALE10');
+            });
+
+            it('should not serialize a missing or empty coupon code', async () => {
+                expect.assertions(2);
+
+                const withoutCouponCode = await getSerializedIosMethodData(iosMethodData);
+                const withEmptyCouponCode = await getSerializedIosMethodData({
+                    ...iosMethodData,
+                    data: { ...iosMethodData.data, couponCode: '' },
+                });
+
+                expect(withoutCouponCode).not.toHaveProperty('couponCode');
+                expect(withEmptyCouponCode).not.toHaveProperty('couponCode');
+            });
+        });
+
         it('should reject `show` with a PaymentsError when native rejects with a non-error reason', async () => {
             expect.hasAssertions();
 
