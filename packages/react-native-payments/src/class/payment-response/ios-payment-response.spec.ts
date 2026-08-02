@@ -153,6 +153,15 @@ describe('IosPaymentResponse', () => {
         expect(construct).not.toThrow(SyntaxError);
     });
 
+    it('should throw a domain-specific error when constructed with syntactically valid but incomplete JSON', () => {
+        expect.hasAssertions();
+
+        const construct = (): IosPaymentResponse => new IosPaymentResponse('requestId', PaymentMethodNameEnum.ApplePay, '{}');
+
+        expect(construct).toThrow(PaymentsError);
+        expect(construct).not.toThrow(TypeError);
+    });
+
     it('should throw a domain-specific error when the token payment data is not valid JSON', () => {
         expect.hasAssertions();
 

@@ -374,11 +374,15 @@ Every throw/reject in this package maps to one of three error shapes:
   `AbortError`, `InvalidStateError`, `NotAllowedError`, `NotSupportedError`. `SecurityError` is defined but not currently
   reachable from this implementation (no permission-policy check exists in React Native).
 - **`PaymentsError`** — a plain domain error (`instanceof Error`, `name === 'Error'`) for failures the W3C spec does not
-  name: the native module bridge rejecting `show()`/`abort()` with a non-`Error` reason, and a native payment response
-  payload that fails to parse (malformed or incomplete JSON from the platform SDK, including direct construction of
-  `AndroidPaymentResponse`/`IosPaymentResponse` with malformed tokenization data).
+  name: `show()` rejecting with a non-`Error` reason from the native module bridge (an `Error` reason is propagated
+  as-is instead), every `abort()` rejection from the native module bridge regardless of the rejection reason's type,
+  and a native payment response payload that fails to parse (malformed or syntactically valid but incomplete JSON from
+  the platform SDK, including direct construction of `AndroidPaymentResponse`/`IosPaymentResponse` with malformed
+  tokenization data).
 
 ```ts
+import { DOMException } from '@rnw-community/react-native-payments';
+
 try {
     await paymentRequest.show();
 } catch (error) {
@@ -402,8 +406,9 @@ try {
 | `abort()` resolves a pending `show()`                                | `AbortError`               | `DOMException`                         |
 | `PaymentRequestUpdateEvent.updateWith()` called twice for one event  | `InvalidStateError`        | `DOMException`                         |
 | `PaymentResponse.complete()` / `retry()` called after `complete()`   | `InvalidStateError`        | `DOMException`                         |
-| Native module bridge rejects `show()`/`abort()` with a non-`Error`   | *(not specified)*          | `PaymentsError`                        |
-| Native payment response payload fails to parse (incl. direct `AndroidPaymentResponse`/`IosPaymentResponse` construction) | *(not specified)* | `PaymentsError` |
+| Native module bridge rejects `show()` with a non-`Error` reason     | *(not specified)*          | `PaymentsError`                        |
+| Native module bridge rejects `abort()` (any reason)                 | *(not specified)*          | `PaymentsError`                        |
+| Native payment response payload is malformed or incomplete JSON (incl. direct `AndroidPaymentResponse`/`IosPaymentResponse` construction) | *(not specified)* | `PaymentsError` |
 | An `updateWith()` listener answers with an invalid total/items/options | *(not specified — spec treats this as no update)* | Logged via `console.warn`, change event answered with unchanged details |
 | Native module is not linked (`Payments` bridge missing)              | *(not specified — build/config error)* | `Error` |
 

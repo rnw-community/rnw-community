@@ -211,6 +211,16 @@ describe('AndroidPaymentResponse', () => {
         expect(construct).not.toThrow(SyntaxError);
     });
 
+    it('should throw a domain-specific error when constructed with syntactically valid but incomplete JSON', () => {
+        expect.hasAssertions();
+
+        const construct = (): AndroidPaymentResponse =>
+            new AndroidPaymentResponse('requestId', PaymentMethodNameEnum.AndroidPay, '{}');
+
+        expect(construct).toThrow(PaymentsError);
+        expect(construct).not.toThrow(TypeError);
+    });
+
     it('should default the intermediate signing key when the token does not carry one', () => {
         expect.hasAssertions();
 
