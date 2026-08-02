@@ -11,6 +11,9 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 # [2.5.0](https://github.com/rnw-community/rnw-community/compare/v2.4.0...v2.5.0) (2026-08-02)
 
+The W3C change-event revival in this release builds on the original contribution by
+[@dutompson](https://github.com/dutompson) in [#343](https://github.com/rnw-community/rnw-community/pull/343).
+
 ### Bug Fixes
 
 - **react-native-payments:** align show() test fixtures with its new request id argument ([88df271](https://github.com/rnw-community/rnw-community/commit/88df2718d279cd1b08a8e5807476ce03bafa15ad))
