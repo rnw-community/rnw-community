@@ -76,7 +76,7 @@ jobs:
                 with:
                     path: |
                         ${{ env.APP_DIR }}/ios/Pods
-                        ~/Library/Developer/Xcode/DerivedData/ReactNativePaymentsExample*
+                        ${{ env.APP_DIR }}/ios/build
                     key: pods-project-ios-${{ matrix.target }}-${{ runner.os }}-${{ hashFiles(format('{0}/ios/Podfile.lock', env.APP_DIR), format('{0}/package.json', env.APP_DIR), format('{0}/app.json', env.APP_DIR), 'yarn.lock') }}
                     restore-keys: |
                         pods-project-ios-${{ matrix.target }}-${{ runner.os }}-
@@ -95,6 +95,11 @@ jobs:
                 working-directory: ${{ env.APP_DIR }}/ios
                 run: pod install --repo-update
 
+            -   name: Install CocoaPods dependencies (expo)
+                if: matrix.target == 'expo'
+                working-directory: ${{ env.APP_DIR }}/ios
+                run: pod install --repo-update
+
             -   name: Boot iOS Simulator
                 shell: bash
                 run: |
@@ -108,15 +113,40 @@ jobs:
                     xcrun simctl bootstatus "$device_udid" -b
                     echo "SIMULATOR_UDID=$device_udid" >> "$GITHUB_ENV"
 
-            -   name: Build and launch app (bare)
+            -   name: Build app (bare)
                 if: matrix.target == 'bare'
-                working-directory: ${{ env.EXAMPLE_DIR }}
-                run: yarn ios:bare --mode Release --no-packager --extra-params "CODE_SIGNING_ALLOWED=NO"
+                working-directory: ${{ env.APP_DIR }}/ios
+                run: |
+                    set -euo pipefail
+                    xcodebuild \
+                        -workspace ReactNativePaymentsExample.xcworkspace \
+                        -scheme ReactNativePaymentsExample \
+                        -configuration Release \
+                        -sdk iphonesimulator \
+                        -destination 'generic/platform=iOS Simulator' \
+                        -derivedDataPath build \
+                        CODE_SIGNING_ALLOWED=NO \
+                        build
+                    echo "APP_PATH=${{ env.APP_DIR }}/ios/build/Build/Products/Release-iphonesimulator/ReactNativePaymentsExample.app" >> "$GITHUB_ENV"
 
-            -   name: Build and launch app (expo)
+            -   name: Build app (expo)
                 if: matrix.target == 'expo'
-                working-directory: ${{ env.EXAMPLE_DIR }}
-                run: yarn ios:expo --configuration Release --no-bundler
+                working-directory: ${{ env.APP_DIR }}/ios
+                run: |
+                    set -euo pipefail
+                    xcodebuild \
+                        -workspace reactnativepaymentsexpoexample.xcworkspace \
+                        -scheme reactnativepaymentsexpoexample \
+                        -configuration Release \
+                        -sdk iphonesimulator \
+                        -destination 'generic/platform=iOS Simulator' \
+                        -derivedDataPath build \
+                        CODE_SIGNING_ALLOWED=NO \
+                        build
+                    echo "APP_PATH=${{ env.APP_DIR }}/ios/build/Build/Products/Release-iphonesimulator/reactnativepaymentsexpoexample.app" >> "$GITHUB_ENV"
+
+            -   name: Install app on simulator
+                run: xcrun simctl install "$SIMULATOR_UDID" "$APP_PATH"
 
             -   name: Install Maestro
                 run: |
