@@ -6,6 +6,7 @@ export { SupportedNetworkEnum } from './enum/supported-networks.enum';
 export { PaymentAddressFieldEnum } from './enum/payment-address-field.enum';
 export { PaymentContactFieldEnum } from './enum/payment-contact-field.enum';
 export { PaymentUpdateErrorTypeEnum } from './enum/payment-update-error-type.enum';
+export { PaymentShippingTypeEnum } from './enum/payment-shipping-type.enum';
 export { ConstructorError } from './error/constructor.error';
 export { DOMException } from './error/dom.exception';
 export { PaymentsError } from './error/payments.error';

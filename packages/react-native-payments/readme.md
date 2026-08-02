@@ -288,6 +288,10 @@ Depending on the platform and payment method, you can provide additional data to
   include the email address of the payer.
 - `requestShipping`: An optional boolean field that, when present and set to true, indicates that the `PaymentResponse` will
   include the shipping address of the payer.
+- `shippingType`: An optional field (`PaymentShippingTypeEnum.Shipping` / `Delivery` / `Pickup`) mapping to the W3C
+  [`PaymentOptions.shippingType`](https://www.w3.org/TR/payment-request/#dom-paymentoptions-shippingtype) concept,
+  forwarded to `PKShippingType` on iOS — `Pickup` maps to `PKShippingTypeStorePickup`, see
+  [Known deviations](#known-deviations). No-op on Android, which has no equivalent concept.
 - `applicationData`: An optional string or object field for Apple Pay that allows you to store application-specific data. This data is not transmitted to Apple but is included in the payment token as a SHA-256 hash (applicationDataHash). You can use it to prevent replay attacks by associating a payment with a specific transaction.
 - `couponCode`: An optional Apple Pay field, **beyond the W3C specification**, that prefills the coupon code field of the
   payment sheet. The field itself is only rendered when a `couponcodechange` listener is registered before `show()`, so
@@ -370,6 +374,18 @@ const isPaymentPossible = await paymentRequest.canMakePayment();
 This method returns a boolean value indicating whether the device supports the specified payment methods.
 
 > The `PaymentRequest` class automatically handles platform-specific payment data based on the provided methodData.
+
+To check whether the user has a payment instrument enrolled — not just device/API support — use
+[`hasEnrolledInstrument()`](https://www.w3.org/TR/payment-request/#hasenrolledinstrument-method):
+
+```ts
+const hasCard = await paymentRequest.hasEnrolledInstrument();
+```
+
+Both methods reject with `InvalidStateError` when the request is not in the `created` state. On iOS this maps to
+PassKit's `canMakePaymentsUsingNetworks:`, restricting the capability check to the request's `supportedNetworks`. On
+Android it calls Google Pay's `isReadyToPay` with `existingPaymentMethodRequired: true` — see
+[Known deviations](#known-deviations) for the precision trade-off this implies.
 
 ### 4. Displaying the Payment Sheet
 
@@ -547,6 +563,26 @@ payment sheet is open.
 
 ```ts
 paymentRequest.removeEventListener('shippingaddresschange', onShippingAddressChange);
+```
+
+### Event-handler attributes (`onshippingaddresschange`, `onshippingoptionchange`, `onpaymentmethodchange`, `oncouponcodechange`)
+
+Thin property alternatives to `addEventListener`/`removeEventListener`, one per event type, matching the `EventTarget`
+IDL attribute semantics: assigning a function **replaces** the previously assigned attribute handler (an implicit
+`removeEventListener` of the old one followed by `addEventListener` of the new one); assigning `null` clears it without
+registering a new listener; reading the property returns the currently assigned handler, or `null` when none was set.
+The attribute handler is otherwise an ordinary listener — it coexists with every listener registered through
+`addEventListener` for the same type and runs in the order it was (re-)registered.
+
+```ts
+paymentRequest.onshippingaddresschange = event => {
+    event.updateWith({
+        total: { label: 'Total', amount: { currency: 'USD', value: '25.00' } },
+        displayItems: [{ label: 'Shipping', amount: { currency: 'USD', value: '5.00' } }],
+    });
+};
+
+paymentRequest.onshippingaddresschange = null; // clears it
 ```
 
 ### `PaymentRequestUpdateEvent.updateWith(detailsOrPromise)`
@@ -958,6 +994,18 @@ const data = {
 };
 ```
 
+### `PaymentShippingTypeEnum`
+
+Populates the optional `shippingType` of `methodData.data` documented in
+[2.1 Additional methodData.data options](#21-additional-methoddatadata-options): `Shipping`, `Delivery` or `Pickup`.
+
+```ts
+const data = {
+    merchantIdentifier: 'merchant.com.your-app.namespace',
+    shippingType: PaymentShippingTypeEnum.Delivery,
+};
+```
+
 ### `AndroidPaymentMethodDataInterface` / `AndroidPaymentMethodDataDataInterface`
 
 The typed shape of the Android entry of `methodData` shown in [Creating an Instance](#2-creating-an-instance):
@@ -1215,6 +1263,16 @@ version-skew issue above, not a New Architecture incompatibility.
 - [x] Implement [PaymentDetailsModifier](https://www.w3.org/TR/payment-request/#dom-paymentdetailsmodifier) — see
       [Payment details modifiers](#24-payment-details-modifiers)
 - [x] Improve and unify errors according to the spec — see [Error Handling](#error-handling)
+- [x] Implement [`hasEnrolledInstrument()`](https://www.w3.org/TR/payment-request/#hasenrolledinstrument-method) — see
+      [3. Checking Payment Capability](#3-checking-payment-capability); Android answers via Google Pay's
+      `existingPaymentMethodRequired`, see Known deviations
+- [x] Implement the event-handler attributes (`onshippingaddresschange`, `onshippingoptionchange`,
+      `onpaymentmethodchange`, `oncouponcodechange`) — see
+      [Event-handler attributes](#event-handler-attributes-onshippingaddresschange-onshippingoptionchange-onpaymentmethodchange-oncouponcodechange)
+- [x] Implement [`PaymentOptions.shippingType`](https://www.w3.org/TR/payment-request/#dom-paymentoptions-shippingtype) as
+      `methodData.data.shippingType` — see
+      [2.1 Additional methodData.data options](#21-additional-methoddatadata-options); no-op on Android, see Known
+      deviations
 - [ ] Implement `PaymentResponse` `retry()` method
 - [ ] Implement `PaymentResponse` `toJSON()` method
 
@@ -1233,6 +1291,14 @@ version-skew issue above, not a New Architecture incompatibility.
   `PaymentRequest` constructor as soon as it fails to find a platform-matching payment method, since the native bridge
   needs to know the target platform's method data up front to serialize the request. The error name matches the spec;
   only the algorithm step it fires from differs.
+- **`hasEnrolledInstrument()` on Android is an optimistic signal, not a guarantee.** It calls Google Pay's
+  `isReadyToPay` with `existingPaymentMethodRequired: true`, the closest reachable equivalent of "an instrument is
+  enrolled" that the API exposes; Google documents this as best-effort and it can still resolve `true` without a fully
+  usable card in some configurations.
+- **`methodData.data.shippingType` (`PaymentOptions.shippingType`) is a no-op on Android.** Google Pay has no
+  `PKShippingType`-equivalent concept; the value is validated but not forwarded to native.
+- **iOS `shippingType: 'pickup'` maps to `PKShippingTypeStorePickup`.** PassKit also has `PKShippingTypeServicePickup`,
+  which has no W3C equivalent and is not exposed by this library.
 
 ## License
 

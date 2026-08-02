@@ -267,6 +267,12 @@ RCT_EXPORT_METHOD(show:(NSString *)requestId
         paymentRequest.requiredShippingContactFields = [NSSet setWithArray:requiredShippingContactFields];
     }
 
+    // https://developer.apple.com/documentation/passkit/pkpaymentrequest/3801273-shippingtype?language=objc
+    NSString *shippingTypeString = methodData[@"shippingType"];
+    if (shippingTypeString != nil) {
+        paymentRequest.shippingType = [self shippingTypeFromString:shippingTypeString];
+    }
+
     // https://developer.apple.com/documentation/passkit/pkpaymentauthorizationviewcontroller/1616178-initwithpaymentrequest?language=objc
     self.viewController = [[PKPaymentAuthorizationViewController alloc] initWithPaymentRequest: paymentRequest];
     self.viewController.delegate = self;
@@ -405,11 +411,36 @@ RCT_EXPORT_METHOD(canMakePayments: (NSString *)methodDataString
                                    resolve:(RCTPromiseResolveBlock)resolve
                                    reject:(RCTPromiseRejectBlock)reject)
 {
-    // TODO: We can implement https://developer.apple.com/documentation/passkit/pkpaymentauthorizationviewcontroller/1616181-canmakepaymentsusingnetworks?language=objc
-    // for this we need to extract parsing and validating methods from the show method and reuse in both places.
-
     // https://developer.apple.com/documentation/passkit/pkpaymentauthorizationviewcontroller/1616192-canmakepayments?language=objc
     resolve(@([PKPaymentAuthorizationViewController canMakePayments]));
+}
+
+RCT_EXPORT_METHOD(hasEnrolledInstrument: (NSString *)methodDataString
+                                        resolve:(RCTPromiseResolveBlock)resolve
+                                        reject:(RCTPromiseRejectBlock)reject)
+{
+    NSData *jsonData = [methodDataString dataUsingEncoding:NSUTF8StringEncoding];
+
+    NSError *error;
+    NSDictionary *methodData = [NSJSONSerialization JSONObjectWithData:jsonData options:kNilOptions error:&error];
+    if (error) {
+        reject(@"wrong_payment_data", @"Invalid JSON payment methodData passed", nil);
+        return;
+    }
+
+    NSMutableArray *supportedNetworks = [NSMutableArray array];
+    for (NSString *supportedNetwork in methodData[@"supportedNetworks"]) {
+        PKPaymentNetwork paymentNetwork = [self paymentNetworkFromString:supportedNetwork];
+        if (paymentNetwork != PKPaymentNetworkUnknown) {
+            [supportedNetworks addObject:paymentNetwork];
+        } else {
+            reject(@"invalid_supported_network", [NSString stringWithFormat:@"Invalid supportedNetwork passed '%@'", supportedNetwork], nil);
+            return;
+        }
+    }
+
+    // https://developer.apple.com/documentation/passkit/pkpaymentauthorizationviewcontroller/1616181-canmakepaymentsusingnetworks?language=objc
+    resolve(@([PKPaymentAuthorizationViewController canMakePaymentsUsingNetworks:supportedNetworks]));
 }
 
 // DELEGATES https://developer.apple.com/documentation/passkit/pkpaymentauthorizationviewcontrollerdelegate?language=objc
@@ -1009,6 +1040,20 @@ RCT_EXPORT_METHOD(canMakePayments: (NSString *)methodDataString
     });
 
     return paymentNetworks[paymentNetworkString] ?: PKPaymentNetworkUnknown;
+}
+
+// https://www.w3.org/TR/payment-request/#dom-paymentoptions-shippingtype
+// HINT: 'pickup' maps to PKShippingTypeStorePickup; PKShippingTypeServicePickup has no W3C equivalent and is not exposed.
+- (PKShippingType)shippingTypeFromString:(NSString *)shippingTypeString {
+    NSDictionary<NSString *, NSNumber *> *shippingTypes = @{
+        @"shipping": @(PKShippingTypeShipping),
+        @"delivery": @(PKShippingTypeDelivery),
+        @"pickup": @(PKShippingTypeStorePickup)
+    };
+
+    NSNumber *mappedShippingType = shippingTypes[shippingTypeString];
+
+    return mappedShippingType != nil ? (PKShippingType)mappedShippingType.unsignedIntegerValue : PKShippingTypeShipping;
 }
 
 - (PKMerchantCapability)merchantCapabilityFromString:(NSString *)capabilityString {

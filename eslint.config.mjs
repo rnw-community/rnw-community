@@ -70,6 +70,7 @@ export default defineConfig(
             'require-await': 'off',
             'prefer-named-capture-group': 'off',
             'member-ordering': 'off',
+            'grouped-accessor-pairs': 'off',
         },
     },
     {
