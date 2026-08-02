@@ -58,10 +58,16 @@ jobs:
             -   name: Install dependencies
                 run: yarn install --immutable
 
+            -   name: Build workspace JS dependencies
+                run: yarn build --filter=@rnw-community/react-native-payments
+
             -   name: Generate native project (expo)
                 if: matrix.target == 'expo'
                 working-directory: ${{ env.EXAMPLE_DIR }}
                 run: yarn prebuild:expo
+
+            -   name: Set up Android SDK
+                uses: android-actions/setup-android@v3
 
             -   name: Restore Gradle cache
                 uses: actions/cache@v4
@@ -81,7 +87,7 @@ jobs:
                     fi
                     echo "$HOME/.maestro/bin" >> "$GITHUB_PATH"
 
-            -   name: Run emulator, build, and test
+            -   name: Boot emulator, build, install, and test
                 uses: reactivecircus/android-emulator-runner@v2.34.0
                 with:
                     api-level: 34
@@ -94,8 +100,13 @@ jobs:
                     emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
                     script: |
                         set -euo pipefail
+                        set -x
+                        adb wait-for-device
+                        timeout 180 bash -c 'until [ "$(adb shell getprop sys.boot_completed | tr -d "\r")" = "1" ]; do sleep 2; done'
+                        (cd "${{ env.APP_DIR }}/android" && ./gradlew assembleRelease)
+                        apk=$(find "${{ env.APP_DIR }}/android/app/build/outputs/apk/release" -name '*.apk' | head -1)
+                        adb install -r "$apk"
                         cd "${{ env.EXAMPLE_DIR }}"
-                        yarn android:${{ matrix.target }}
                         yarn e2e:android:${{ matrix.target }}
 
             -   name: Capture final device state
