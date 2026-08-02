@@ -571,7 +571,7 @@ Request API, unmodified.
 > app's `tsconfig.json` if you need the IDE/`tsc` to show the true DOM types for a web build.
 
 Apple Pay through this browser passthrough is **not** the native iOS integration documented under
-[ApplePay setup](#applepay-setup) — calling `show()` in Safari drives Safari's own Apple Pay JS flow, which fires a
+[Apple Pay setup](#applepay-setup) — calling `show()` in Safari drives Safari's own Apple Pay JS flow, which fires a
 `merchantvalidation` event that your own server must answer by completing Apple's merchant validation session
 round-trip (TLS, your merchant certificate, Apple's validation URL) before the sheet can display line items. There is
 no `merchantIdentifier` Expo plugin config, no PassKit entitlement and no `merchantCapabilities` on this path — see
