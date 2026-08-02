@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.8.1](https://github.com/rnw-community/rnw-community/compare/v2.8.0...v2.8.1) (2026-08-02)
+
+### Bug Fixes
+
+- **react-native-payments:** admit undefined in the web passthrough types ([23ee2e4](https://github.com/rnw-community/rnw-community/commit/23ee2e4448c28912faee4ca6ea32faf056db102a))
+
 # [2.8.0](https://github.com/rnw-community/rnw-community/compare/v2.7.3...v2.8.0) (2026-08-02)
 
 ### Features
