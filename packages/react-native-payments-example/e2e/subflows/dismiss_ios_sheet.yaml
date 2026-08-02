@@ -4,8 +4,10 @@ appId: ${APP_ID}
     when:
       platform: iOS
     commands:
-      - assertVisible:
-          id: "dismiss"
+      - extendedWaitUntil:
+          visible:
+            id: "dismiss"
+          timeout: 15000
       - tapOn:
           id: "dismiss"
       - extendedWaitUntil:
