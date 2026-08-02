@@ -81,6 +81,10 @@ jobs:
                     restore-keys: |
                         pods-project-ios-${{ matrix.target }}-${{ runner.os }}-
 
+            -   name: Build react-native-payments (expo)
+                if: matrix.target == 'expo'
+                run: yarn build --filter=@rnw-community/react-native-payments
+
             -   name: Generate native project (expo)
                 if: matrix.target == 'expo'
                 working-directory: ${{ env.EXAMPLE_DIR }}
