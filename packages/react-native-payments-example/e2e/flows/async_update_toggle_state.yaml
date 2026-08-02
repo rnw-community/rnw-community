@@ -1,0 +1,20 @@
+appId: ${APP_ID}
+---
+- runFlow: ../subflows/launch_and_wait_for_probe.yaml
+- tapOn:
+    id: "builder-async-update-toggle"
+- runFlow: ../subflows/show_request.yaml
+- runFlow:
+    when:
+      platform: iOS
+    commands:
+      - assertVisible:
+          id: "payments-flow-state"
+          text: "showing"
+- scrollUntilVisible:
+    element:
+      text: ".*listeners attached.*"
+- assertVisible:
+    text: ".*request created.*"
+- assertVisible:
+    text: ".*listeners attached.*"

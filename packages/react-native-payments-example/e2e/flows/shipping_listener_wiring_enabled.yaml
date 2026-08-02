@@ -1,0 +1,9 @@
+appId: ${APP_ID}
+---
+- runFlow: ../subflows/launch_and_wait_for_probe.yaml
+- runFlow: ../subflows/show_request.yaml
+- scrollUntilVisible:
+    element:
+      text: ".*listeners attached: types=paymentmethodchange,shippingaddresschange,shippingoptionchange.*"
+- assertVisible:
+    text: ".*listeners attached: types=paymentmethodchange,shippingaddresschange,shippingoptionchange.*"

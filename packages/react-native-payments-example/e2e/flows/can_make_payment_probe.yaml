@@ -1,0 +1,26 @@
+appId: ${APP_ID}
+---
+- runFlow: ../subflows/launch_and_wait_for_probe.yaml
+- runFlow:
+    when:
+      platform: iOS
+    commands:
+      - assertVisible:
+          id: "payments-can-make-status"
+          text: "available"
+      - scrollUntilVisible:
+          element:
+            id: "event-log"
+      - assertVisible:
+          text: ".*canMakePayment: status=available.*"
+- runFlow:
+    when:
+      platform: Android
+    commands:
+      - assertNotVisible:
+          id: "payments-can-make-status"
+          text: "checking"
+      - assertVisible:
+          id: "action-show"
+      - assertVisible:
+          id: "event-log-count"
