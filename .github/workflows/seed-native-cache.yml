@@ -1,0 +1,338 @@
+name: Seed native app cache
+
+# Populates the fingerprinted native-app cache ("repack" cache) that
+# ios-maestro.yml / android-maestro.yml restore on the build job. Hashing is
+# done with the bare `@expo/fingerprint` CLI only — no EAS account, token, or
+# `eas-cli` install (zero-EAS, see issue #448). The fingerprint covers native
+# surface only (package.json, native folders, autolinking config); JS-only
+# changes under packages/react-native-payments-example/src do not shift it.
+# Consumers therefore treat a fingerprint hit as "native shell is safe to
+# reuse", not "the app is byte-for-byte current" — see the cache-hit note in
+# ios-maestro.yml / android-maestro.yml for the v1 limitation this implies.
+on:
+    workflow_dispatch:
+    push:
+        branches: [master]
+        paths:
+            - packages/react-native-payments/**
+            - packages/react-native-payments-example/**
+            - .github/workflows/seed-native-cache.yml
+
+concurrency:
+    group: seed-native-cache-${{ github.ref }}
+    cancel-in-progress: false
+
+permissions:
+    contents: read
+
+env:
+    XCODE_VERSION: '26.4.1'
+    XCODE_BUILD: '17E202'
+    YARN_ENABLE_IMMUTABLE_INSTALLS: true
+    EXAMPLE_DIR: packages/react-native-payments-example
+    RCT_USE_PREBUILT_RNCORE: '1'
+    RCT_USE_RN_DEP: '1'
+    EXPO_USE_PRECOMPILED_MODULES: '1'
+    USE_CCACHE: '1'
+    CCACHE_COMPRESS: 'true'
+    CCACHE_MAXSIZE: '2G'
+    CCACHE_NOHASHDIR: 'true'
+
+jobs:
+    seed-ios:
+        name: Seed iOS native app (${{ matrix.target }})
+        runs-on: [self-hosted, macOS, ARM64, macos-maestro]
+        timeout-minutes: 90
+        strategy:
+            fail-fast: false
+            matrix:
+                target: [bare, expo]
+        env:
+            APP_DIR: packages/react-native-payments-example/apps/${{ matrix.target }}
+            IOS_DERIVED_DATA: ${{ github.workspace }}/.ci-cache/DerivedData/${{ matrix.target }}
+            CCACHE_DIR: ${{ github.workspace }}/.ci-cache/ccache/ios-${{ matrix.target }}
+            CCACHE_BASEDIR: ${{ github.workspace }}
+
+        steps:
+            -   name: Checkout repository
+                uses: actions/checkout@v5
+
+            -   name: Setup Node
+                uses: actions/setup-node@v5
+                with:
+                    node-version: 22.x
+
+            -   name: Enable corepack
+                run: corepack enable
+
+            -   name: Install dependencies
+                run: yarn install --immutable
+
+            -   name: Select and assert Xcode toolchain
+                run: |
+                    set -euo pipefail
+                    xcode_app="/Applications/Xcode_${XCODE_VERSION}.app"
+                    if [ ! -d "$xcode_app" ]; then
+                      echo "::error::Xcode ${XCODE_VERSION} is not installed on this runner ($xcode_app missing)."
+                      exit 1
+                    fi
+                    echo "DEVELOPER_DIR=$xcode_app/Contents/Developer" >> "$GITHUB_ENV"
+                    version_output=$("$xcode_app/Contents/Developer/usr/bin/xcodebuild" -version)
+                    printf '%s\n' "$version_output"
+                    grep -qx "Xcode ${XCODE_VERSION}" <<< "$version_output"
+                    grep -qx "Build version ${XCODE_BUILD}" <<< "$version_output"
+
+            -   name: Build workspace JS dependencies
+                run: yarn build --filter=@rnw-community/react-native-payments
+
+            -   name: Generate native project (expo)
+                if: matrix.target == 'expo'
+                working-directory: ${{ env.EXAMPLE_DIR }}
+                run: yarn prebuild:expo
+
+            -   name: Generate native fingerprint
+                id: fingerprint
+                working-directory: ${{ env.APP_DIR }}
+                run: |
+                    set -euo pipefail
+                    npx --yes @expo/fingerprint fingerprint:generate --platform ios > "$RUNNER_TEMP/ios-fingerprint-${{ matrix.target }}.json"
+                    hash=$(node -e "process.stdout.write(require('$RUNNER_TEMP/ios-fingerprint-${{ matrix.target }}.json').hash)")
+                    test -n "$hash"
+                    echo "hash=$hash" >> "$GITHUB_OUTPUT"
+                    echo "Native fingerprint (${{ matrix.target }}): $hash"
+
+            -   name: Restore canonical native app
+                id: native-app-cache
+                uses: actions/cache/restore@v4
+                with:
+                    path: .ci-cache/ios-native-app/${{ matrix.target }}
+                    key: ios-native-v1-${{ matrix.target }}-${{ runner.os }}-arm64-xcode-${{ env.XCODE_VERSION }}-${{ env.XCODE_BUILD }}-${{ steps.fingerprint.outputs.hash }}
+
+            -   name: Report cache hit
+                if: steps.native-app-cache.outputs.cache-hit == 'true'
+                run: echo 'Canonical native app already exists for this fingerprint — nothing to seed.'
+
+            -   name: Restore CocoaPods cache
+                if: steps.native-app-cache.outputs.cache-hit != 'true'
+                uses: actions/cache/restore@v4
+                with:
+                    path: |
+                        ~/Library/Caches/CocoaPods
+                        ~/.cocoapods
+                    key: pods-${{ matrix.target }}-${{ runner.os }}-xcode-${{ env.XCODE_VERSION }}-${{ hashFiles('yarn.lock', format('{0}/ios/Podfile.lock', env.APP_DIR)) }}
+                    restore-keys: |
+                        pods-${{ matrix.target }}-${{ runner.os }}-xcode-${{ env.XCODE_VERSION }}-
+                        pods-${{ matrix.target }}-${{ runner.os }}-
+
+            -   name: Setup ccache
+                if: steps.native-app-cache.outputs.cache-hit != 'true'
+                run: |
+                    set -euo pipefail
+                    mkdir -p "$CCACHE_DIR" "$IOS_DERIVED_DATA"
+                    if ! command -v ccache >/dev/null; then
+                      command -v brew >/dev/null || {
+                        echo '::error::ccache is not installed and Homebrew is unavailable.'
+                        exit 1
+                      }
+                      brew list ccache >/dev/null 2>&1 || brew install ccache
+                    fi
+                    ccache --version
+                    ccache --zero-stats || true
+                    if command -v brew >/dev/null; then
+                      echo "$(brew --prefix ccache)/libexec" >> "$GITHUB_PATH"
+                    fi
+
+            -   name: Restore ccache
+                if: steps.native-app-cache.outputs.cache-hit != 'true'
+                uses: actions/cache/restore@v4
+                with:
+                    path: ${{ env.CCACHE_DIR }}
+                    key: ccache-ios-${{ matrix.target }}-${{ runner.os }}-xcode-${{ env.XCODE_VERSION }}-${{ hashFiles('yarn.lock', format('{0}/ios/Podfile.lock', env.APP_DIR)) }}
+                    restore-keys: |
+                        ccache-ios-${{ matrix.target }}-${{ runner.os }}-xcode-${{ env.XCODE_VERSION }}-
+                        ccache-ios-${{ matrix.target }}-${{ runner.os }}-
+
+            -   name: Install CocoaPods dependencies
+                if: steps.native-app-cache.outputs.cache-hit != 'true'
+                working-directory: ${{ env.APP_DIR }}/ios
+                run: pod install --repo-update
+
+            -   name: Save CocoaPods cache
+                if: steps.native-app-cache.outputs.cache-hit != 'true'
+                uses: actions/cache/save@v4
+                with:
+                    path: |
+                        ~/Library/Caches/CocoaPods
+                        ~/.cocoapods
+                    key: pods-${{ matrix.target }}-${{ runner.os }}-xcode-${{ env.XCODE_VERSION }}-${{ hashFiles('yarn.lock', format('{0}/ios/Podfile.lock', env.APP_DIR)) }}
+
+            -   name: Resolve scheme metadata
+                if: steps.native-app-cache.outputs.cache-hit != 'true'
+                id: scheme
+                run: |
+                    case "${{ matrix.target }}" in
+                      bare) echo "workspace=ReactNativePaymentsExample.xcworkspace" >> "$GITHUB_OUTPUT"
+                            echo "name=ReactNativePaymentsExample" >> "$GITHUB_OUTPUT" ;;
+                      expo) echo "workspace=reactnativepaymentsexpoexample.xcworkspace" >> "$GITHUB_OUTPUT"
+                            echo "name=reactnativepaymentsexpoexample" >> "$GITHUB_OUTPUT" ;;
+                    esac
+
+            -   name: Build native Release app
+                if: steps.native-app-cache.outputs.cache-hit != 'true'
+                working-directory: ${{ env.APP_DIR }}/ios
+                shell: bash
+                run: |
+                    set -euo pipefail
+                    build_start=$(date +%s)
+                    xcodebuild build \
+                      -workspace ${{ steps.scheme.outputs.workspace }} \
+                      -scheme ${{ steps.scheme.outputs.name }} \
+                      -sdk iphonesimulator \
+                      -configuration Release \
+                      -derivedDataPath "$IOS_DERIVED_DATA" \
+                      -destination 'generic/platform=iOS Simulator' \
+                      CODE_SIGNING_ALLOWED=NO \
+                      ONLY_ACTIVE_ARCH=YES \
+                      ARCHS=arm64 \
+                      EXCLUDED_ARCHS=x86_64
+                    build_end=$(date +%s)
+                    {
+                      echo "### iOS native seed build: ${{ matrix.target }} (cold)"
+                      echo "Duration: $((build_end - build_start))s"
+                    } >> "$GITHUB_STEP_SUMMARY"
+
+            -   name: Save ccache
+                if: steps.native-app-cache.outputs.cache-hit != 'true'
+                uses: actions/cache/save@v4
+                with:
+                    path: ${{ env.CCACHE_DIR }}
+                    key: ccache-ios-${{ matrix.target }}-${{ runner.os }}-xcode-${{ env.XCODE_VERSION }}-${{ hashFiles('yarn.lock', format('{0}/ios/Podfile.lock', env.APP_DIR)) }}
+
+            -   name: Package canonical native app
+                if: steps.native-app-cache.outputs.cache-hit != 'true'
+                shell: bash
+                run: |
+                    set -euo pipefail
+                    app_path=$(find "$IOS_DERIVED_DATA" -name '*.app' -path '*Release-iphonesimulator*' -print -quit)
+                    test -n "$app_path"
+                    find "$app_path" -name 'main.jsbundle' -type f -print -quit | grep -q .
+                    mkdir -p .ci-cache/ios-native-app/${{ matrix.target }}
+                    ditto "$app_path" .ci-cache/ios-native-app/${{ matrix.target }}/Base.app
+
+            -   name: Save canonical native app
+                if: steps.native-app-cache.outputs.cache-hit != 'true'
+                uses: actions/cache/save@v4
+                with:
+                    path: .ci-cache/ios-native-app/${{ matrix.target }}
+                    key: ios-native-v1-${{ matrix.target }}-${{ runner.os }}-arm64-xcode-${{ env.XCODE_VERSION }}-${{ env.XCODE_BUILD }}-${{ steps.fingerprint.outputs.hash }}
+
+    seed-android:
+        name: Seed Android native app (${{ matrix.target }})
+        runs-on: [self-hosted, linux-tiered, linux-xl]
+        timeout-minutes: 60
+        strategy:
+            fail-fast: false
+            matrix:
+                target: [bare, expo]
+        env:
+            APP_DIR: packages/react-native-payments-example/apps/${{ matrix.target }}
+
+        steps:
+            -   name: Checkout repository
+                uses: actions/checkout@v5
+
+            -   name: Setup Node
+                uses: actions/setup-node@v5
+                with:
+                    node-version: 22.x
+
+            -   name: Enable corepack
+                run: corepack enable
+
+            -   name: Install dependencies
+                run: yarn install --immutable
+
+            -   name: Build workspace JS dependencies
+                run: yarn build --filter=@rnw-community/react-native-payments
+
+            -   name: Generate native project (expo)
+                if: matrix.target == 'expo'
+                working-directory: ${{ env.EXAMPLE_DIR }}
+                run: yarn prebuild:expo
+
+            -   name: Generate native fingerprint
+                id: fingerprint
+                working-directory: ${{ env.APP_DIR }}
+                run: |
+                    set -euo pipefail
+                    npx --yes @expo/fingerprint fingerprint:generate --platform android > "$RUNNER_TEMP/android-fingerprint-${{ matrix.target }}.json"
+                    hash=$(node -e "process.stdout.write(require('$RUNNER_TEMP/android-fingerprint-${{ matrix.target }}.json').hash)")
+                    test -n "$hash"
+                    echo "hash=$hash" >> "$GITHUB_OUTPUT"
+                    echo "Native fingerprint (${{ matrix.target }}): $hash"
+
+            -   name: Restore canonical native app
+                id: native-app-cache
+                uses: actions/cache/restore@v4
+                with:
+                    path: .ci-cache/android-native-app/${{ matrix.target }}
+                    key: android-native-v1-${{ matrix.target }}-${{ runner.os }}-${{ steps.fingerprint.outputs.hash }}
+
+            -   name: Report cache hit
+                if: steps.native-app-cache.outputs.cache-hit == 'true'
+                run: echo 'Canonical native app already exists for this fingerprint — nothing to seed.'
+
+            -   name: Set up Android SDK
+                if: steps.native-app-cache.outputs.cache-hit != 'true'
+                uses: android-actions/setup-android@v3
+
+            -   name: Restore Gradle cache
+                if: steps.native-app-cache.outputs.cache-hit != 'true'
+                uses: actions/cache/restore@v4
+                with:
+                    path: |
+                        ~/.gradle/caches
+                        ~/.gradle/wrapper
+                    key: gradle-${{ matrix.target }}-${{ runner.os }}-${{ hashFiles(format('{0}/android/gradle/wrapper/gradle-wrapper.properties', env.APP_DIR), format('{0}/android/**/*.gradle*', env.APP_DIR), format('{0}/package.json', env.APP_DIR), 'yarn.lock') }}
+                    restore-keys: |
+                        gradle-${{ matrix.target }}-${{ runner.os }}-
+
+            -   name: Build native Release APK
+                if: steps.native-app-cache.outputs.cache-hit != 'true'
+                working-directory: ${{ env.APP_DIR }}/android
+                shell: bash
+                run: |
+                    set -euo pipefail
+                    build_start=$(date +%s)
+                    ./gradlew assembleRelease
+                    build_end=$(date +%s)
+                    {
+                      echo "### Android native seed build: ${{ matrix.target }} (cold)"
+                      echo "Duration: $((build_end - build_start))s"
+                    } >> "$GITHUB_STEP_SUMMARY"
+
+            -   name: Save Gradle cache
+                if: steps.native-app-cache.outputs.cache-hit != 'true'
+                uses: actions/cache/save@v4
+                with:
+                    path: |
+                        ~/.gradle/caches
+                        ~/.gradle/wrapper
+                    key: gradle-${{ matrix.target }}-${{ runner.os }}-${{ hashFiles(format('{0}/android/gradle/wrapper/gradle-wrapper.properties', env.APP_DIR), format('{0}/android/**/*.gradle*', env.APP_DIR), format('{0}/package.json', env.APP_DIR), 'yarn.lock') }}
+
+            -   name: Package canonical native app
+                if: steps.native-app-cache.outputs.cache-hit != 'true'
+                shell: bash
+                run: |
+                    set -euo pipefail
+                    apk_path=$(find ${{ env.APP_DIR }}/android/app/build/outputs/apk/release -name '*.apk' -print -quit)
+                    test -n "$apk_path"
+                    mkdir -p .ci-cache/android-native-app/${{ matrix.target }}
+                    cp "$apk_path" .ci-cache/android-native-app/${{ matrix.target }}/app-release.apk
+
+            -   name: Save canonical native app
+                if: steps.native-app-cache.outputs.cache-hit != 'true'
+                uses: actions/cache/save@v4
+                with:
+                    path: .ci-cache/android-native-app/${{ matrix.target }}
+                    key: android-native-v1-${{ matrix.target }}-${{ runner.os }}-${{ steps.fingerprint.outputs.hash }}
