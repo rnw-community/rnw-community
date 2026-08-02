@@ -133,17 +133,17 @@ export class PaymentRequest {
         return new Promise<AndroidPaymentResponse | IosPaymentResponse>((resolve, reject) => {
             this.acceptPromiseRejecter = reject;
 
-            NativePayments.show(this.serializedMethodData, details)
+            NativePayments.show(this.id, this.serializedMethodData, details)
                 .then(jsonDetails => {
                     const paymentResponse = this.handleAccept(jsonDetails);
 
-                    this.clearEventRegistrations();
+                    this.closeRequest();
                     resolve(paymentResponse);
 
                     return void 0;
                 })
                 .catch((error: unknown) => {
-                    this.clearEventRegistrations();
+                    this.closeRequest();
                     reject(isError(error) ? error : new PaymentsError(`Failed showing PaymentRequest`));
                 });
         });
@@ -159,9 +159,7 @@ export class PaymentRequest {
             throw new PaymentsError(`Failed aborting PaymentRequest`);
         });
 
-        this.state = 'closed';
-
-        this.clearEventRegistrations();
+        this.closeRequest();
         this.acceptPromiseRejecter(new DOMException(PaymentsErrorEnum.AbortError));
     }
 
@@ -171,6 +169,10 @@ export class PaymentRequest {
         type: PaymentRequestEventType,
         eventListener: PaymentMethodChangeEventListener | PaymentRequestEventListener
     ): void {
+        if (this.state === 'closed') {
+            return;
+        }
+
         const listener = eventListener as PaymentRequestEventListener;
         const registration = this.eventRegistrations.get(type);
 
@@ -207,6 +209,11 @@ export class PaymentRequest {
         }
 
         this.dropRegistration(type, registration);
+    }
+
+    private closeRequest(): void {
+        this.state = 'closed';
+        this.clearEventRegistrations();
     }
 
     private handleAccept(details: string): AndroidPaymentResponse | IosPaymentResponse {
@@ -295,14 +302,15 @@ export class PaymentRequest {
             return;
         }
 
+        this.applyEventPayload(payload);
+
         if (this.updating) {
-            await this.sendDetailsUpdate(type, null, generation);
+            await this.sendDetailsUpdate(type, payload.eventId, null, generation);
 
             return;
         }
 
         this.updating = true;
-        this.applyEventPayload(payload);
 
         try {
             await this.dispatchChangeEvent(type, listeners, payload, generation);
@@ -326,7 +334,9 @@ export class PaymentRequest {
         this.pendingDispatchers.add(dispatcher);
 
         try {
-            await this.sendDetailsUpdate(type, await this.resolveDetailsUpdate(dispatcher, listeners), generation);
+            const detailsUpdate = await this.resolveDetailsUpdate(dispatcher, listeners);
+
+            await this.sendDetailsUpdate(type, payload.eventId, detailsUpdate, generation);
         } finally {
             this.pendingDispatchers.delete(dispatcher);
         }
@@ -367,6 +377,7 @@ export class PaymentRequest {
 
     private async sendDetailsUpdate(
         type: PaymentRequestEventType,
+        eventId: number | undefined,
         detailsUpdate: Maybe<PaymentDetailsUpdate>,
         generation: number
     ): Promise<void> {
@@ -382,6 +393,7 @@ export class PaymentRequest {
             eventName: type,
             requestId: this.id,
             total: updatedDetails.total,
+            ...(isDefined(eventId) && { eventId }),
         };
 
         await updatePaymentDetails(update, updatedDetails.displayItems ?? [], updatedDetails.shippingOptions ?? []);

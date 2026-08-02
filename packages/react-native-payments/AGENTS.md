@@ -46,20 +46,45 @@ src/
 - TurboModule architecture (React Native New Architecture codegen)
 - Expo plugin (`withPayments`) composes `withApplePay` + `withGooglePay`
 - `PaymentRequest` constructor validates per W3C spec, then serializes platform-specific JSON for native bridge
-- The change-event native methods are NOT part of the codegen `Spec` yet: every `Spec` member has to exist in
-  `Payments.mm` and `PaymentsModule.java`, so they live in `NativePaymentsChangeEventsInterface` as optional members and
-  every call site guards with `isDefined`. `getNativePaymentsEventEmitter()` returns `null` while native cannot emit, so
-  `show()` keeps working unchanged on both architectures. They move into `Spec` with the native implementations
-- Change events are request-scoped: native events carry the request `id`, `setActiveEvents(requestId, eventNames)` scopes
-  the handshake per request, one native subscription per event type feeds every listener registered for it, and
+- The change-event methods (`setActiveEvents`, `updatePaymentDetails`, `addListener`, `removeListeners`) are members of
+  the codegen `Spec`, so they have to exist in `Payments.mm`, `PaymentsModule.java` and both `android/src/*arch`
+  `PaymentsSpec.java` variants — the TS spec and the three native surfaces only ever change together, in one commit
+- `NativePayments` types them through `NativePaymentsChangeEventsInterface & Omit<Spec, …>` so they stay optional and
+  every call site keeps its `isDefined` guard: a new JS bundle on an older installed binary degrades to the v2 flow,
+  `getNativePaymentsEventEmitter()` returns `null` and `show()` keeps working on both architectures
+- iOS delivers the events from `Payments.mm` (an `RCTEventEmitter`): every PassKit `didSelect…`/`didChange…` handler goes
+  into a per-event-type registry, is taken out of it before being invoked (single fire), completes immediately with a
+  no-change update when its event type is not active for the current request, and is flushed on every teardown path
+  (`didFinish`, `didAuthorizePayment`, `complete`, `abort`, `stopObserving`, `invalidate`) so the sheet cannot hang.
+  Android answers the same contract with documented no-ops. The semantics live in
+  `src/util/get-native-payments-event-emitter/get-native-payments-event-emitter.md`
+- Change events are request-scoped: `show()` passes the request `id` to native so `activeRequestId` is adopted at
+  presentation time regardless of whether any listener was ever registered, `setActiveEvents(requestId, eventNames)`
+  scopes the handshake per request, one native subscription per event type feeds every listener registered for it, and
   subscriptions are removed on every terminal path (`show()` resolve/reject, `abort()`)
+- `setActiveEvents` rejects a `requestId` that does not match the presented sheet's `activeRequestId`, including while
+  `activeRequestId` is `nil` — a request that never called `show()` can never hijack the identity of the sheet another
+  request has on screen; `activeRequestId` is only released on full teardown, not when a still-presented request opts
+  out of every event type
 - Listeners run sequentially and dispatch stops at the first one that answers with `updateWith`, mirroring the stop
   immediate propagation flag of the W3C algorithm; a listener that throws is logged and the next one still runs
-- Every delivered change event answers native exactly once through `updatePaymentDetails`, even when the listener fails or
-  leaves its update pending past `changeEventTimeoutMs`
+- Every delivered change event answers native exactly once through `updatePaymentDetails`, even when the listener fails,
+  never returns or leaves its update pending: `ChangeEventDispatcher` races **one** `changeEventTimeoutMs` deadline over
+  the listener bodies and their answer together, so a listener awaiting a request that never settles cannot pin a native
+  completion
+- Native events carry a monotonic `eventId` that JS echoes back in the update, and native resolves a completion only for
+  the `eventId` it is still waiting for, so the answer of a superseded event can never be applied to the newer one
 - A dispatch is bound to an event generation bumped on every terminal path, so a response that arrives after the sheet
   finished is dropped instead of reaching native, and an event arriving while another one is processed is answered
-  immediately with the unchanged details
+  immediately with the unchanged details — its selection is still recorded on the request first, so
+  `shippingAddress` / `shippingOption` / `couponCode` always mirror the latest selection of the sheet and never a
+  superseded one
+- `show()` resolve/reject and `abort()` all funnel through `closeRequest()`: the state becomes `closed` before the
+  registrations are dropped, so an event racing the emitter teardown is ignored even though its handler is still alive
+- A `PaymentRequest` is single-use: once it is `closed`, `show()` rejects with `InvalidStateError` and `addEventListener`
+  is inert, which is what keeps a subscription from being created without a terminal path left to remove it. This is a
+  deliberate v3 behavior change — earlier drafts let a settled request re-register listeners and show again; consumers
+  construct a new `PaymentRequest` to retry
 
 ### Dependencies
 
