@@ -1,0 +1,118 @@
+name: Android Maestro E2E
+
+# Draft workflow for issue #395 (react-native-payments revival, epic #372). The
+# self-hosted Linux fleet is not registered yet (blocked on #396), so runs
+# simply queue until that lands. workflow_dispatch + path filters + a nightly
+# schedule keep this safe to land ahead of the fleet.
+on:
+    workflow_dispatch:
+    push:
+        branches: [master]
+        paths:
+            - packages/react-native-payments/**
+            - packages/react-native-payments-example/**
+            - .github/workflows/android-maestro.yml
+    schedule:
+        - cron: '47 3 * * *'
+
+concurrency:
+    group: android-maestro-${{ github.ref }}
+    cancel-in-progress: true
+
+permissions:
+    contents: read
+
+env:
+    MAESTRO_VERSION: '2.8.0'
+    MAESTRO_CLI_NO_ANALYTICS: true
+    MAESTRO_CLI_ANALYSIS_NOTIFICATION_DISABLED: true
+    YARN_ENABLE_IMMUTABLE_INSTALLS: true
+    EXAMPLE_DIR: packages/react-native-payments-example
+
+jobs:
+    maestro:
+        name: Maestro (${{ matrix.target }})
+        runs-on: [self-hosted, linux-tiered, linux-xl]
+        timeout-minutes: 75
+        strategy:
+            fail-fast: false
+            matrix:
+                target: [bare, expo]
+        env:
+            APP_DIR: packages/react-native-payments-example/apps/${{ matrix.target }}
+            MAESTRO_DEBUG_OUTPUT_DIRECTORY: ${{ github.workspace }}/packages/react-native-payments-example/artifacts/maestro-android-${{ matrix.target }}
+
+        steps:
+            -   name: Checkout repository
+                uses: actions/checkout@v5
+
+            -   name: Setup Node
+                uses: actions/setup-node@v5
+                with:
+                    node-version: 22.x
+                    cache: yarn
+
+            -   name: Enable corepack
+                run: corepack enable
+
+            -   name: Install dependencies
+                run: yarn install --immutable
+
+            -   name: Generate native project (expo)
+                if: matrix.target == 'expo'
+                working-directory: ${{ env.EXAMPLE_DIR }}
+                run: yarn prebuild:expo
+
+            -   name: Restore Gradle cache
+                uses: actions/cache@v4
+                with:
+                    path: |
+                        ~/.gradle/caches
+                        ~/.gradle/wrapper
+                    key: gradle-${{ matrix.target }}-${{ runner.os }}-${{ hashFiles(format('{0}/android/gradle/wrapper/gradle-wrapper.properties', env.APP_DIR), format('{0}/android/**/*.gradle*', env.APP_DIR), format('{0}/package.json', env.APP_DIR), format('{0}/app.json', env.APP_DIR), 'yarn.lock') }}
+                    restore-keys: |
+                        gradle-${{ matrix.target }}-${{ runner.os }}-
+
+            -   name: Install Maestro
+                run: |
+                    maestro_bin="$HOME/.maestro/bin/maestro"
+                    if [ ! -x "$maestro_bin" ] || [ "$("$maestro_bin" --version 2>/dev/null | tail -n 1 | tr -d '\r' || true)" != "$MAESTRO_VERSION" ]; then
+                      curl -fsSL https://get.maestro.mobile.dev | env MAESTRO_VERSION="$MAESTRO_VERSION" bash
+                    fi
+                    echo "$HOME/.maestro/bin" >> "$GITHUB_PATH"
+
+            -   name: Run emulator, build, and test
+                uses: reactivecircus/android-emulator-runner@v2.34.0
+                with:
+                    api-level: 34
+                    target: google_apis
+                    arch: x86_64
+                    profile: pixel_6
+                    disable-animations: true
+                    disable-spellchecker: true
+                    force-avd-creation: false
+                    emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
+                    script: |
+                        set -euo pipefail
+                        cd "${{ env.EXAMPLE_DIR }}"
+                        yarn android:${{ matrix.target }}
+                        yarn e2e:android:${{ matrix.target }}
+
+            -   name: Capture final device state
+                if: failure()
+                shell: bash
+                run: |
+                    out="${{ env.MAESTRO_DEBUG_OUTPUT_DIRECTORY }}"
+                    mkdir -p "$out"
+                    adb exec-out screencap -p > "$out/final-screen.png" || true
+                    adb logcat -d > "$out/logcat-full.txt" 2>&1 || true
+                    adb logcat -d -b crash > "$out/logcat-crash.txt" 2>&1 || true
+
+            -   name: Upload Maestro artifacts
+                if: failure()
+                uses: actions/upload-artifact@v4
+                with:
+                    name: maestro-android-${{ matrix.target }}
+                    path: ${{ env.MAESTRO_DEBUG_OUTPUT_DIRECTORY }}/**
+                    if-no-files-found: warn
+                    retention-days: 7

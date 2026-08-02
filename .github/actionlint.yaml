@@ -1,0 +1,7 @@
+self-hosted-runner:
+    labels:
+        - macOS
+        - ARM64
+        - macos-maestro
+        - linux-tiered
+        - linux-xl
