@@ -110,7 +110,7 @@ src/
 
 ### Dependencies
 
-`@expo/config-plugins`, `@rnw-community/shared`, `react-native-uuid`, `validator`. Peers: `react`, `react-native`, `expo`.
+`@expo/config-plugins`, `@rnw-community/shared`, `react-native-uuid`. Peers: `react`, `react-native`, `expo`.
 
 ### Coverage
 

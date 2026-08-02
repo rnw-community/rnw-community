@@ -26,6 +26,7 @@ Convenient [TypeScript type guards](https://www.typescriptlang.org/docs/handbook
     - [isString](src/type-guard/string/is-string/is-string.md)
     - [isEmptyString](src/type-guard/string/is-empty-string/is-empty-string.md)
     - [isNotEmptyString](src/type-guard/string/is-not-empty-string/is-not-empty-string.md)
+    - [isDecimalMonetaryValue](src/type-guard/string/is-decimal-monetary-value/is-decimal-monetary-value.md) - decimal-formatted numeric string, e.g. currency amounts
 - Number:
     - [isNumber](src/type-guard/number/is-number/is-number.md)
     - [isPositiveNumber](src/type-guard/number/is-positive-number/is-positive-number.md)
