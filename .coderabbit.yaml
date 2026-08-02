@@ -17,14 +17,14 @@ reviews:
         - '!**/gradle/wrapper/**'
         - '!**/yarn.lock'
     path_instructions:
-        - path: 'packages/**/src/**/*.ts'
+        - path: 'packages/**/src/**/*.{ts,tsx}'
           instructions: >-
               Enforce this repo's hard rules from AGENTS.md: exactly one exported entity per file; interfaces in
               .interface.ts and type aliases in .type.ts files; no code comments except
               eslint-disable-next-line and istanbul ignore pragmas; always use @rnw-community/shared primitives
               (isDefined, isError, isString, getErrorMessage, emptyFn, wait, Maybe, OnEventFn) instead of inline
               checks; never re-export types owned by another workspace package.
-        - path: 'packages/**/src/**/*.spec.ts'
+        - path: 'packages/**/src/**/*.spec.{ts,tsx}'
           instructions: >-
               Every test must call expect.hasAssertions() and import from @jest/globals. Test-only fixtures must
               be inlined in the spec file, never in separate src files. Flag tests that execute code without
