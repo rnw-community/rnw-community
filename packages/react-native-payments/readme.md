@@ -579,9 +579,9 @@ no `merchantIdentifier` Expo plugin config, no PassKit entitlement and no `merch
 
 Browser support is inconsistent: Chrome, Edge and Safari (with the merchant-validation caveat above) implement the
 Payment Request API; Firefox removed its implementation. Check [caniuse](https://caniuse.com/payment-request) before
-shipping a web checkout on top of it, and always guard for `PaymentRequest`/`PaymentResponse` being `null` — the
-passthrough returns `null` outside a `window` (SSR), and an unsupported browser simply has no `window.PaymentRequest`
-at all.
+shipping a web checkout on top of it, and always guard for `PaymentRequest`/`PaymentResponse` being **nullish** (a
+truthiness or `== null` check, never `=== null`) — the passthrough returns `null` outside a `window` (SSR), while an
+unsupported browser has no `window.PaymentRequest` at all, so the export resolves to `undefined` there.
 
 None of the native-only behavior documented above for the `PaymentRequest` class applies to the browser's own
 implementation:
