@@ -1,9 +1,11 @@
 name: iOS Maestro E2E
 
-# Draft workflow for issue #395 (react-native-payments revival, epic #372). The
-# self-hosted macOS fleet is not registered yet (blocked on #396), so runs
-# simply queue until that lands. workflow_dispatch + path filters + a nightly
-# schedule keep this safe to land ahead of the fleet.
+# Draft workflow for issue #395 (react-native-payments revival, epic #372),
+# canary-optimized per issue #447: fingerprinted native-app cache seeded by
+# seed-native-cache.yml, pinned Xcode, ccache, prebuilt RN core, and a
+# build/test split with Maestro shards. The self-hosted macOS fleet is a
+# single runner, so shard matrix jobs queue rather than run concurrently —
+# that is expected and safe.
 on:
     workflow_dispatch:
     pull_request:
@@ -24,11 +26,21 @@ permissions:
     contents: read
 
 env:
+    XCODE_VERSION: '26.4.1'
+    XCODE_BUILD: '17E202'
     MAESTRO_VERSION: '2.8.0'
     MAESTRO_CLI_NO_ANALYTICS: true
     MAESTRO_CLI_ANALYSIS_NOTIFICATION_DISABLED: true
+    MAESTRO_SHARD_COUNT: '2'
     YARN_ENABLE_IMMUTABLE_INSTALLS: true
     EXAMPLE_DIR: packages/react-native-payments-example
+    RCT_USE_PREBUILT_RNCORE: '1'
+    RCT_USE_RN_DEP: '1'
+    EXPO_USE_PRECOMPILED_MODULES: '1'
+    USE_CCACHE: '1'
+    CCACHE_COMPRESS: 'true'
+    CCACHE_MAXSIZE: '2G'
+    CCACHE_NOHASHDIR: 'true'
 
 jobs:
     detect:
@@ -70,8 +82,9 @@ jobs:
                   ')
                   echo "payments_affected=${affected}" >> "$GITHUB_OUTPUT"
                   echo "payments_affected=${affected}"
-    maestro:
-        name: Maestro (${{ matrix.target }})
+
+    build:
+        name: Build (${{ matrix.target }})
         needs: detect
         if: needs.detect.outputs.payments_affected == 'true'
         runs-on: [self-hosted, macOS, ARM64, macos-maestro]
@@ -82,7 +95,9 @@ jobs:
                 target: [bare, expo]
         env:
             APP_DIR: packages/react-native-payments-example/apps/${{ matrix.target }}
-            MAESTRO_DEBUG_OUTPUT_DIRECTORY: ${{ github.workspace }}/packages/react-native-payments-example/artifacts/maestro-ios-${{ matrix.target }}
+            IOS_DERIVED_DATA: ${{ github.workspace }}/.ci-cache/DerivedData/${{ matrix.target }}
+            CCACHE_DIR: ${{ github.workspace }}/.ci-cache/ccache/ios-${{ matrix.target }}
+            CCACHE_BASEDIR: ${{ github.workspace }}
 
         steps:
             -   name: Checkout repository
@@ -100,28 +115,19 @@ jobs:
             -   name: Install dependencies
                 run: yarn install --immutable
 
-            -   name: Verify Xcode toolchain
-                run: xcodebuild -version
-
-            -   name: Restore CocoaPods global cache
-                uses: actions/cache@v4
-                with:
-                    path: |
-                        ~/Library/Caches/CocoaPods
-                        ~/.cocoapods
-                    key: pods-global-${{ runner.os }}-${{ hashFiles('yarn.lock') }}
-                    restore-keys: |
-                        pods-global-${{ runner.os }}-
-
-            -   name: Restore project Pods and DerivedData cache
-                uses: actions/cache@v4
-                with:
-                    path: |
-                        ${{ env.APP_DIR }}/ios/Pods
-                        ${{ env.APP_DIR }}/ios/build
-                    key: pods-project-ios-${{ matrix.target }}-${{ runner.os }}-${{ hashFiles(format('{0}/ios/Podfile.lock', env.APP_DIR), format('{0}/package.json', env.APP_DIR), format('{0}/app.json', env.APP_DIR), 'yarn.lock') }}
-                    restore-keys: |
-                        pods-project-ios-${{ matrix.target }}-${{ runner.os }}-
+            -   name: Select and assert Xcode toolchain
+                run: |
+                    set -euo pipefail
+                    xcode_app="/Applications/Xcode_${XCODE_VERSION}.app"
+                    if [ ! -d "$xcode_app" ]; then
+                      echo "::error::Xcode ${XCODE_VERSION} is not installed on this runner ($xcode_app missing)."
+                      exit 1
+                    fi
+                    echo "DEVELOPER_DIR=$xcode_app/Contents/Developer" >> "$GITHUB_ENV"
+                    version_output=$("$xcode_app/Contents/Developer/usr/bin/xcodebuild" -version)
+                    printf '%s\n' "$version_output"
+                    grep -qx "Xcode ${XCODE_VERSION}" <<< "$version_output"
+                    grep -qx "Build version ${XCODE_BUILD}" <<< "$version_output"
 
             -   name: Build workspace JS dependencies
                 run: yarn build --filter=@rnw-community/react-native-payments
@@ -131,15 +137,203 @@ jobs:
                 working-directory: ${{ env.EXAMPLE_DIR }}
                 run: yarn prebuild:expo
 
-            -   name: Install CocoaPods dependencies (bare)
-                if: matrix.target == 'bare'
+            -   name: Generate native fingerprint
+                id: fingerprint
+                working-directory: ${{ env.APP_DIR }}
+                run: |
+                    set -euo pipefail
+                    npx --yes @expo/fingerprint fingerprint:generate --platform ios > "$RUNNER_TEMP/ios-fingerprint-${{ matrix.target }}.json"
+                    hash=$(node -e "process.stdout.write(require('$RUNNER_TEMP/ios-fingerprint-${{ matrix.target }}.json').hash)")
+                    test -n "$hash"
+                    echo "hash=$hash" >> "$GITHUB_OUTPUT"
+                    echo "Native fingerprint (${{ matrix.target }}): $hash"
+
+            -   name: Restore canonical native app
+                id: native-app-cache
+                uses: actions/cache/restore@v4
+                with:
+                    path: .ci-cache/ios-native-app/${{ matrix.target }}
+                    key: ios-native-v1-${{ matrix.target }}-${{ runner.os }}-arm64-xcode-${{ env.XCODE_VERSION }}-${{ env.XCODE_BUILD }}-${{ steps.fingerprint.outputs.hash }}
+
+            # Cache hit means the native shell for this fingerprint is safe to
+            # reuse — xcodebuild is skipped entirely. The fingerprint tracks
+            # native surface only (package.json, ios/, autolinking config), so
+            # a hit does not guarantee the embedded JS bundle reflects the
+            # current commit's app-layer JS. v1 accepts this gap; the
+            # rebundle+repack refinement is documented follow-up (see
+            # seed-native-cache.yml header). Native-only PRs are unaffected;
+            # JS-only PRs get correctness back on the next scheduled/master
+            # reseed. This is called out explicitly in issue #447.
+            -   name: Report cache hit
+                if: steps.native-app-cache.outputs.cache-hit == 'true'
+                run: |
+                    {
+                      echo "### iOS build: ${{ matrix.target }} (warm — native build skipped)"
+                      echo "Native fingerprint hit; embedded JS bundle dates from when this shell was cached."
+                    } >> "$GITHUB_STEP_SUMMARY"
+
+            -   name: Restore CocoaPods cache
+                if: steps.native-app-cache.outputs.cache-hit != 'true'
+                uses: actions/cache/restore@v4
+                with:
+                    path: |
+                        ~/Library/Caches/CocoaPods
+                        ~/.cocoapods
+                    key: pods-${{ matrix.target }}-${{ runner.os }}-xcode-${{ env.XCODE_VERSION }}-${{ hashFiles('yarn.lock', format('{0}/ios/Podfile.lock', env.APP_DIR)) }}
+                    restore-keys: |
+                        pods-${{ matrix.target }}-${{ runner.os }}-xcode-${{ env.XCODE_VERSION }}-
+                        pods-${{ matrix.target }}-${{ runner.os }}-
+
+            -   name: Setup ccache
+                if: steps.native-app-cache.outputs.cache-hit != 'true'
+                run: |
+                    set -euo pipefail
+                    mkdir -p "$CCACHE_DIR" "$IOS_DERIVED_DATA"
+                    if ! command -v ccache >/dev/null; then
+                      command -v brew >/dev/null || {
+                        echo '::error::ccache is not installed and Homebrew is unavailable.'
+                        exit 1
+                      }
+                      brew list ccache >/dev/null 2>&1 || brew install ccache
+                    fi
+                    ccache --version
+                    ccache --zero-stats || true
+                    if command -v brew >/dev/null; then
+                      echo "$(brew --prefix ccache)/libexec" >> "$GITHUB_PATH"
+                    fi
+
+            -   name: Restore ccache
+                if: steps.native-app-cache.outputs.cache-hit != 'true'
+                uses: actions/cache/restore@v4
+                with:
+                    path: ${{ env.CCACHE_DIR }}
+                    key: ccache-ios-${{ matrix.target }}-${{ runner.os }}-xcode-${{ env.XCODE_VERSION }}-${{ hashFiles('yarn.lock', format('{0}/ios/Podfile.lock', env.APP_DIR)) }}
+                    restore-keys: |
+                        ccache-ios-${{ matrix.target }}-${{ runner.os }}-xcode-${{ env.XCODE_VERSION }}-
+                        ccache-ios-${{ matrix.target }}-${{ runner.os }}-
+
+            -   name: Install CocoaPods dependencies
+                if: steps.native-app-cache.outputs.cache-hit != 'true'
                 working-directory: ${{ env.APP_DIR }}/ios
                 run: pod install --repo-update
 
-            -   name: Install CocoaPods dependencies (expo)
-                if: matrix.target == 'expo'
+            -   name: Resolve scheme metadata
+                if: steps.native-app-cache.outputs.cache-hit != 'true'
+                id: scheme
+                run: |
+                    case "${{ matrix.target }}" in
+                      bare) echo "workspace=ReactNativePaymentsExample.xcworkspace" >> "$GITHUB_OUTPUT"
+                            echo "name=ReactNativePaymentsExample" >> "$GITHUB_OUTPUT" ;;
+                      expo) echo "workspace=reactnativepaymentsexpoexample.xcworkspace" >> "$GITHUB_OUTPUT"
+                            echo "name=reactnativepaymentsexpoexample" >> "$GITHUB_OUTPUT" ;;
+                    esac
+
+            -   name: Build app (Release)
+                if: steps.native-app-cache.outputs.cache-hit != 'true'
                 working-directory: ${{ env.APP_DIR }}/ios
-                run: pod install --repo-update
+                shell: bash
+                run: |
+                    set -euo pipefail
+                    build_start=$(date +%s)
+                    xcodebuild build \
+                      -workspace ${{ steps.scheme.outputs.workspace }} \
+                      -scheme ${{ steps.scheme.outputs.name }} \
+                      -sdk iphonesimulator \
+                      -configuration Release \
+                      -derivedDataPath "$IOS_DERIVED_DATA" \
+                      -destination 'generic/platform=iOS Simulator' \
+                      CODE_SIGNING_ALLOWED=NO \
+                      ONLY_ACTIVE_ARCH=YES \
+                      ARCHS=arm64 \
+                      EXCLUDED_ARCHS=x86_64
+                    build_end=$(date +%s)
+                    {
+                      echo "### iOS build: ${{ matrix.target }} (cold — native build ran)"
+                      echo "Duration: $((build_end - build_start))s"
+                    } >> "$GITHUB_STEP_SUMMARY"
+
+            -   name: Save ccache
+                if: steps.native-app-cache.outputs.cache-hit != 'true'
+                uses: actions/cache/save@v4
+                with:
+                    path: ${{ env.CCACHE_DIR }}
+                    key: ccache-ios-${{ matrix.target }}-${{ runner.os }}-xcode-${{ env.XCODE_VERSION }}-${{ hashFiles('yarn.lock', format('{0}/ios/Podfile.lock', env.APP_DIR)) }}
+
+            -   name: Package native app
+                if: steps.native-app-cache.outputs.cache-hit != 'true'
+                shell: bash
+                run: |
+                    set -euo pipefail
+                    app_path=$(find "$IOS_DERIVED_DATA" -name '*.app' -path '*Release-iphonesimulator*' -print -quit)
+                    test -n "$app_path"
+                    find "$app_path" -name 'main.jsbundle' -type f -print -quit | grep -q .
+                    mkdir -p .ci-cache/ios-native-app/${{ matrix.target }}
+                    ditto "$app_path" .ci-cache/ios-native-app/${{ matrix.target }}/Base.app
+
+            -   name: Save canonical native app
+                if: steps.native-app-cache.outputs.cache-hit != 'true'
+                uses: actions/cache/save@v4
+                with:
+                    path: .ci-cache/ios-native-app/${{ matrix.target }}
+                    key: ios-native-v1-${{ matrix.target }}-${{ runner.os }}-arm64-xcode-${{ env.XCODE_VERSION }}-${{ env.XCODE_BUILD }}-${{ steps.fingerprint.outputs.hash }}
+
+            -   name: Archive app for test jobs
+                run: |
+                    set -euo pipefail
+                    test -d .ci-cache/ios-native-app/${{ matrix.target }}/Base.app
+                    mkdir -p .ci-artifacts
+                    tar -czf .ci-artifacts/ios-e2e-app-${{ matrix.target }}.tar.gz -C .ci-cache/ios-native-app/${{ matrix.target }} Base.app
+
+            -   uses: actions/upload-artifact@v4
+                with:
+                    name: ios-e2e-app-${{ matrix.target }}
+                    path: .ci-artifacts/ios-e2e-app-${{ matrix.target }}.tar.gz
+                    retention-days: 1
+
+    test:
+        name: Maestro shard ${{ matrix.shard-index }} (${{ matrix.target }})
+        needs: [detect, build]
+        if: needs.detect.outputs.payments_affected == 'true'
+        runs-on: [self-hosted, macOS, ARM64, macos-maestro]
+        timeout-minutes: 45
+        strategy:
+            fail-fast: false
+            matrix:
+                target: [bare, expo]
+                shard-index: [0, 1]
+        env:
+            MAESTRO_DEBUG_OUTPUT_DIRECTORY: ${{ github.workspace }}/packages/react-native-payments-example/artifacts/maestro-ios-${{ matrix.target }}-${{ matrix.shard-index }}
+
+        steps:
+            -   name: Checkout repository
+                uses: actions/checkout@v5
+
+            -   name: Select and assert Xcode toolchain
+                run: |
+                    set -euo pipefail
+                    xcode_app="/Applications/Xcode_${XCODE_VERSION}.app"
+                    if [ ! -d "$xcode_app" ]; then
+                      echo "::error::Xcode ${XCODE_VERSION} is not installed on this runner ($xcode_app missing)."
+                      exit 1
+                    fi
+                    echo "DEVELOPER_DIR=$xcode_app/Contents/Developer" >> "$GITHUB_ENV"
+                    version_output=$("$xcode_app/Contents/Developer/usr/bin/xcodebuild" -version)
+                    printf '%s\n' "$version_output"
+                    grep -qx "Xcode ${XCODE_VERSION}" <<< "$version_output"
+                    grep -qx "Build version ${XCODE_BUILD}" <<< "$version_output"
+
+            -   name: Resolve target metadata
+                id: meta
+                run: |
+                    case "${{ matrix.target }}" in
+                      bare) echo "app_id=org.reactjs.native.example.ReactNativePaymentsExample" >> "$GITHUB_OUTPUT" ;;
+                      expo) echo "app_id=com.reactnativepaymentsexpoexample" >> "$GITHUB_OUTPUT" ;;
+                    esac
+
+            -   uses: actions/download-artifact@v4
+                with:
+                    name: ios-e2e-app-${{ matrix.target }}
+                    path: .ci-artifacts/ios-e2e-app-${{ matrix.target }}
 
             -   name: Boot iOS Simulator
                 shell: bash
@@ -154,40 +348,13 @@ jobs:
                     xcrun simctl bootstatus "$device_udid" -b
                     echo "SIMULATOR_UDID=$device_udid" >> "$GITHUB_ENV"
 
-            -   name: Build app (bare)
-                if: matrix.target == 'bare'
-                working-directory: ${{ env.APP_DIR }}/ios
-                run: |
-                    set -euo pipefail
-                    xcodebuild \
-                        -workspace ReactNativePaymentsExample.xcworkspace \
-                        -scheme ReactNativePaymentsExample \
-                        -configuration Release \
-                        -sdk iphonesimulator \
-                        -destination 'generic/platform=iOS Simulator' \
-                        -derivedDataPath build \
-                        CODE_SIGNING_ALLOWED=NO \
-                        build
-                    echo "APP_PATH=${{ env.APP_DIR }}/ios/build/Build/Products/Release-iphonesimulator/ReactNativePaymentsExample.app" >> "$GITHUB_ENV"
-
-            -   name: Build app (expo)
-                if: matrix.target == 'expo'
-                working-directory: ${{ env.APP_DIR }}/ios
-                run: |
-                    set -euo pipefail
-                    xcodebuild \
-                        -workspace reactnativepaymentsexpoexample.xcworkspace \
-                        -scheme reactnativepaymentsexpoexample \
-                        -configuration Release \
-                        -sdk iphonesimulator \
-                        -destination 'generic/platform=iOS Simulator' \
-                        -derivedDataPath build \
-                        CODE_SIGNING_ALLOWED=NO \
-                        build
-                    echo "APP_PATH=${{ env.APP_DIR }}/ios/build/Build/Products/Release-iphonesimulator/reactnativepaymentsexpoexample.app" >> "$GITHUB_ENV"
-
             -   name: Install app on simulator
-                run: xcrun simctl install "$SIMULATOR_UDID" "$APP_PATH"
+                run: |
+                    set -euo pipefail
+                    tar -xzf .ci-artifacts/ios-e2e-app-${{ matrix.target }}/ios-e2e-app-${{ matrix.target }}.tar.gz -C .ci-artifacts/ios-e2e-app-${{ matrix.target }}
+                    app_path=$(find .ci-artifacts/ios-e2e-app-${{ matrix.target }} -name '*.app' -print -quit)
+                    test -n "$app_path"
+                    xcrun simctl install "$SIMULATOR_UDID" "$app_path"
 
             -   name: Install Maestro
                 run: |
@@ -197,12 +364,30 @@ jobs:
                     fi
                     echo "$HOME/.maestro/bin" >> "$GITHUB_PATH"
 
-            -   name: Run Maestro suite
+            -   name: Run Maestro shard
                 working-directory: ${{ env.EXAMPLE_DIR }}
-                run: yarn e2e:ios:${{ matrix.target }}
+                shell: bash
+                env:
+                    APP_ID: ${{ steps.meta.outputs.app_id }}
+                    SHARD_INDEX: ${{ matrix.shard-index }}
+                run: |
+                    set -euo pipefail
+                    flows=()
+                    while IFS= read -r flow; do
+                      flows+=("$flow")
+                    done < <(find e2e/flows -maxdepth 1 -type f -name '*.yaml' | sort)
+                    selected=()
+                    for index in "${!flows[@]}"; do
+                      if (( index % MAESTRO_SHARD_COUNT == SHARD_INDEX )); then
+                        selected+=("${flows[$index]}")
+                      fi
+                    done
+                    test "${#selected[@]}" -gt 0
+                    printf 'Shard %s flows:\n%s\n' "$SHARD_INDEX" "${selected[*]}"
+                    maestro test -e "APP_ID=$APP_ID" "${selected[@]}"
 
             -   name: Capture final simulator state
-                if: failure()
+                if: always()
                 shell: bash
                 run: |
                     mkdir -p "${{ env.MAESTRO_DEBUG_OUTPUT_DIRECTORY }}"
@@ -213,17 +398,17 @@ jobs:
                 run: xcrun simctl shutdown "$SIMULATOR_UDID" || true
 
             -   name: Upload Maestro artifacts
-                if: failure()
+                if: always()
                 uses: actions/upload-artifact@v4
                 with:
-                    name: maestro-ios-${{ matrix.target }}
+                    name: maestro-ios-${{ matrix.target }}-shard-${{ matrix.shard-index }}
                     path: ${{ env.MAESTRO_DEBUG_OUTPUT_DIRECTORY }}/**
                     if-no-files-found: warn
                     retention-days: 7
 
     status:
         name: iOS Maestro E2E result
-        needs: [detect, maestro]
+        needs: [detect, build, test]
         if: always()
         runs-on: ubuntu-latest
         steps:
@@ -237,7 +422,11 @@ jobs:
                     echo "Skipped: payments dependency tree untouched."
                     exit 0
                   fi
-                  if [ "${{ needs.maestro.result }}" != "success" ]; then
+                  if [ "${{ needs.build.result }}" != "success" ]; then
+                    echo "Build job failed."
+                    exit 1
+                  fi
+                  if [ "${{ needs.test.result }}" != "success" ]; then
                     echo "Maestro suite failed."
                     exit 1
                   fi
