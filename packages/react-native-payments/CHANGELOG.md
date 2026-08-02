@@ -3,6 +3,13 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.7.2](https://github.com/rnw-community/rnw-community/compare/v2.7.1...v2.7.2) (2026-08-02)
+
+### Bug Fixes
+
+- **react-native-payments:** align error taxonomy with the W3C spec ([61f29b9](https://github.com/rnw-community/rnw-community/commit/61f29b964e5ffd641cf19889426d8f212bd96c28))
+- **react-native-payments:** triage error-taxonomy PR review findings ([d7235a8](https://github.com/rnw-community/rnw-community/commit/d7235a8561e5867bdd7f40f06566969fe58a32c4))
+
 # [2.7.0](https://github.com/rnw-community/rnw-community/compare/v2.6.1...v2.7.0) (2026-08-02)
 
 ### Features
