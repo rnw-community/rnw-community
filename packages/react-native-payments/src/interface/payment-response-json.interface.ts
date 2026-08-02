@@ -2,7 +2,6 @@ import type { PaymentResponseAddressInterface } from './payment-response-address
 import type { PaymentResponseDetailsInterface } from './payment-response-details.interface';
 import type { Maybe } from '@rnw-community/shared';
 
-// https://www.w3.org/TR/payment-request/#dom-paymentresponse-tojson
 export interface PaymentResponseJsonInterface {
     details: PaymentResponseDetailsInterface;
     methodName: string;
