@@ -93,7 +93,6 @@ export class PaymentRequest {
         // 6. If the displayItems member of details is present, then for each item in details.displayItems:
         validateDisplayItems(ConstructorError, details.displayItems);
 
-        // 7. If the shippingOptions member of details is present, then for each option in details.shippingOptions:
         validateShippingOptions(ConstructorError, details.shippingOptions);
 
         // 17. Set request.[[serializedMethodData]] to serializedMethodData.         */

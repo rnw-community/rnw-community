@@ -993,7 +993,6 @@ RCT_EXPORT_METHOD(canMakePayments: (NSString *)methodDataString
             networks[@"PKPaymentNetworkBarcode"] = PKPaymentNetworkBarcode;
         }
 
-        // HINT: Apple delisted Mir over the sanctions, it resolves but no Mir card can be provisioned
         if (@available(iOS 14.5, *)) {
             networks[@"PKPaymentNetworkMir"] = PKPaymentNetworkMir;
         }
