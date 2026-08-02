@@ -597,7 +597,7 @@ describe('PaymentRequest', () => {
         });
 
         it('should throw when `hasEnrolledInstrument` is called in invalid state', async () => {
-            expect.assertions(1);
+            expect.hasAssertions();
 
             const request = new PaymentRequest([androidMethodData], paymentDetails);
             request.state = 'closed';
@@ -608,7 +608,7 @@ describe('PaymentRequest', () => {
         });
 
         it('should return true from `hasEnrolledInstrument` when valid', async () => {
-            expect.assertions(2);
+            expect.hasAssertions();
 
             const request = new PaymentRequest([androidMethodData], paymentDetails);
             jest.mocked(NativePayments.hasEnrolledInstrument).mockResolvedValue(true);
@@ -1048,7 +1048,7 @@ describe('PaymentRequest', () => {
         });
 
         it('should throw when `hasEnrolledInstrument` is called in invalid state', async () => {
-            expect.assertions(1);
+            expect.hasAssertions();
 
             const request = new PaymentRequest([iosMethodData], paymentDetails);
             request.state = 'closed';
@@ -1059,7 +1059,7 @@ describe('PaymentRequest', () => {
         });
 
         it('should return true from `hasEnrolledInstrument` when valid', async () => {
-            expect.assertions(2);
+            expect.hasAssertions();
 
             const request = new PaymentRequest([iosMethodData], paymentDetails);
             jest.mocked(NativePayments.hasEnrolledInstrument).mockResolvedValue(true);
@@ -2871,6 +2871,40 @@ describe('PaymentRequest', () => {
                 expect(subscriptions).toHaveLength(1);
                 expect(subscriptions[0]?.type).toBe('paymentmethodchange');
                 expect(request.onpaymentmethodchange).toBe(handler);
+            });
+
+            it('should keep an explicit addEventListener registration alive when the same function is cleared as the attribute handler', async () => {
+                expect.hasAssertions();
+
+                const request = createInteractiveRequest();
+                const sharedListener = jest.fn<(event: PaymentRequestUpdateEvent) => void>();
+
+                request.addEventListener('shippingaddresschange', sharedListener);
+                request.onshippingaddresschange = sharedListener;
+                request.onshippingaddresschange = null;
+
+                emitNativeEvent('shippingaddresschange', { requestId: request.id, shippingAddress: address });
+                await nativeUpdate;
+
+                expect(sharedListener).toHaveBeenCalledTimes(1);
+            });
+
+            it('should keep an explicit addEventListener registration alive when the same function is replaced as the attribute handler', async () => {
+                expect.hasAssertions();
+
+                const request = createInteractiveRequest();
+                const sharedListener = jest.fn<(event: PaymentRequestUpdateEvent) => void>();
+                const replacementHandler = jest.fn<(event: PaymentRequestUpdateEvent) => void>();
+
+                request.addEventListener('shippingaddresschange', sharedListener);
+                request.onshippingaddresschange = sharedListener;
+                request.onshippingaddresschange = replacementHandler;
+
+                emitNativeEvent('shippingaddresschange', { requestId: request.id, shippingAddress: address });
+                await nativeUpdate;
+
+                expect(sharedListener).toHaveBeenCalledTimes(1);
+                expect(replacementHandler).toHaveBeenCalledTimes(1);
             });
         });
     });

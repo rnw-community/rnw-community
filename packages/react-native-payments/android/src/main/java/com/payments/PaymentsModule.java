@@ -133,7 +133,7 @@ public class PaymentsModule extends PaymentsSpec {
                 if (task.isSuccessful()) {
                     promise.resolve(task.getResult());
                 } else {
-                    rejectPromise(E_UNSUPPORTED_ANDROID_PAY, "AndroidPay is not supported");
+                    promise.reject(E_UNSUPPORTED_ANDROID_PAY, "AndroidPay is not supported");
                 }
             }
         });

@@ -424,7 +424,7 @@ RCT_EXPORT_METHOD(hasEnrolledInstrument: (NSString *)methodDataString
     NSError *error;
     NSDictionary *methodData = [NSJSONSerialization JSONObjectWithData:jsonData options:kNilOptions error:&error];
     if (error) {
-        [self rejectPromise:@"wrong_payment_data" message:@"Invalid JSON payment methodData passed" error:nil];
+        reject(@"wrong_payment_data", @"Invalid JSON payment methodData passed", nil);
         return;
     }
 
@@ -434,7 +434,7 @@ RCT_EXPORT_METHOD(hasEnrolledInstrument: (NSString *)methodDataString
         if (paymentNetwork != PKPaymentNetworkUnknown) {
             [supportedNetworks addObject:paymentNetwork];
         } else {
-            [self rejectPromise:@"invalid_supported_network" message:[NSString stringWithFormat:@"Invalid supportedNetwork passed '%@'", supportedNetwork] error:nil];
+            reject(@"invalid_supported_network", [NSString stringWithFormat:@"Invalid supportedNetwork passed '%@'", supportedNetwork], nil);
             return;
         }
     }
