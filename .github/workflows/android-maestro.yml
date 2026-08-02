@@ -1,9 +1,10 @@
 name: Android Maestro E2E
 
-# Draft workflow for issue #395 (react-native-payments revival, epic #372). The
-# self-hosted Linux fleet is not registered yet (blocked on #396), so runs
-# simply queue until that lands. workflow_dispatch + path filters + a nightly
-# schedule keep this safe to land ahead of the fleet.
+# Draft workflow for issue #395 (react-native-payments revival, epic #372),
+# canary-optimized per issue #447: fingerprinted native-app cache seeded by
+# seed-native-cache.yml plus a build/test split with Maestro shards. The
+# self-hosted Linux fleet is a single runner, so shard matrix jobs queue
+# rather than run concurrently — that is expected and safe.
 on:
     workflow_dispatch:
     pull_request:
@@ -27,6 +28,7 @@ env:
     MAESTRO_VERSION: '2.8.0'
     MAESTRO_CLI_NO_ANALYTICS: true
     MAESTRO_CLI_ANALYSIS_NOTIFICATION_DISABLED: true
+    MAESTRO_SHARD_COUNT: '2'
     YARN_ENABLE_IMMUTABLE_INSTALLS: true
     EXAMPLE_DIR: packages/react-native-payments-example
 
@@ -70,19 +72,19 @@ jobs:
                   ')
                   echo "payments_affected=${affected}" >> "$GITHUB_OUTPUT"
                   echo "payments_affected=${affected}"
-    maestro:
-        name: Maestro (${{ matrix.target }})
+
+    build:
+        name: Build (${{ matrix.target }})
         needs: detect
         if: needs.detect.outputs.payments_affected == 'true'
         runs-on: [self-hosted, linux-tiered, linux-xl]
-        timeout-minutes: 75
+        timeout-minutes: 60
         strategy:
             fail-fast: false
             matrix:
                 target: [bare, expo]
         env:
             APP_DIR: packages/react-native-payments-example/apps/${{ matrix.target }}
-            MAESTRO_DEBUG_OUTPUT_DIRECTORY: ${{ github.workspace }}/packages/react-native-payments-example/artifacts/maestro-android-${{ matrix.target }}
 
         steps:
             -   name: Checkout repository
@@ -108,11 +110,46 @@ jobs:
                 working-directory: ${{ env.EXAMPLE_DIR }}
                 run: yarn prebuild:expo
 
+            -   name: Generate native fingerprint
+                id: fingerprint
+                working-directory: ${{ env.APP_DIR }}
+                run: |
+                    set -euo pipefail
+                    npx --yes @expo/fingerprint fingerprint:generate --platform android > "$RUNNER_TEMP/android-fingerprint-${{ matrix.target }}.json"
+                    hash=$(node -e "process.stdout.write(require('$RUNNER_TEMP/android-fingerprint-${{ matrix.target }}.json').hash)")
+                    test -n "$hash"
+                    echo "hash=$hash" >> "$GITHUB_OUTPUT"
+                    echo "Native fingerprint (${{ matrix.target }}): $hash"
+
+            -   name: Restore canonical native app
+                id: native-app-cache
+                uses: actions/cache/restore@v4
+                with:
+                    path: .ci-cache/android-native-app/${{ matrix.target }}
+                    key: android-native-v1-${{ matrix.target }}-${{ runner.os }}-${{ steps.fingerprint.outputs.hash }}
+
+            # Cache hit means the native shell for this fingerprint is safe to
+            # reuse — Gradle assembly is skipped entirely. The fingerprint
+            # tracks native surface only, so a hit does not guarantee the
+            # embedded JS bundle reflects the current commit's app-layer JS.
+            # v1 accepts this gap; the rebundle+repack refinement is
+            # documented follow-up (see seed-native-cache.yml header and the
+            # matching note in ios-maestro.yml).
+            -   name: Report cache hit
+                if: steps.native-app-cache.outputs.cache-hit == 'true'
+                run: |
+                    {
+                      echo "### Android build: ${{ matrix.target }} (warm — native build skipped)"
+                      echo "Native fingerprint hit; embedded JS bundle dates from when this shell was cached."
+                    } >> "$GITHUB_STEP_SUMMARY"
+
             -   name: Set up Android SDK
+                if: steps.native-app-cache.outputs.cache-hit != 'true'
                 uses: android-actions/setup-android@v3
 
             -   name: Restore Gradle cache
-                uses: actions/cache@v4
+                if: steps.native-app-cache.outputs.cache-hit != 'true'
+                uses: actions/cache/restore@v4
                 with:
                     path: |
                         ~/.gradle/caches
@@ -120,6 +157,83 @@ jobs:
                     key: gradle-${{ matrix.target }}-${{ runner.os }}-${{ hashFiles(format('{0}/android/gradle/wrapper/gradle-wrapper.properties', env.APP_DIR), format('{0}/android/**/*.gradle*', env.APP_DIR), format('{0}/package.json', env.APP_DIR), format('{0}/app.json', env.APP_DIR), 'yarn.lock') }}
                     restore-keys: |
                         gradle-${{ matrix.target }}-${{ runner.os }}-
+
+            -   name: Build APK (Release)
+                if: steps.native-app-cache.outputs.cache-hit != 'true'
+                working-directory: ${{ env.APP_DIR }}/android
+                shell: bash
+                run: |
+                    set -euo pipefail
+                    build_start=$(date +%s)
+                    ./gradlew assembleRelease
+                    build_end=$(date +%s)
+                    {
+                      echo "### Android build: ${{ matrix.target }} (cold — native build ran)"
+                      echo "Duration: $((build_end - build_start))s"
+                    } >> "$GITHUB_STEP_SUMMARY"
+
+            -   name: Save Gradle cache
+                if: steps.native-app-cache.outputs.cache-hit != 'true'
+                uses: actions/cache/save@v4
+                with:
+                    path: |
+                        ~/.gradle/caches
+                        ~/.gradle/wrapper
+                    key: gradle-${{ matrix.target }}-${{ runner.os }}-${{ hashFiles(format('{0}/android/gradle/wrapper/gradle-wrapper.properties', env.APP_DIR), format('{0}/android/**/*.gradle*', env.APP_DIR), format('{0}/package.json', env.APP_DIR), format('{0}/app.json', env.APP_DIR), 'yarn.lock') }}
+
+            -   name: Package native app
+                if: steps.native-app-cache.outputs.cache-hit != 'true'
+                shell: bash
+                run: |
+                    set -euo pipefail
+                    apk_path=$(find ${{ env.APP_DIR }}/android/app/build/outputs/apk/release -name '*.apk' -print -quit)
+                    test -n "$apk_path"
+                    mkdir -p .ci-cache/android-native-app/${{ matrix.target }}
+                    cp "$apk_path" .ci-cache/android-native-app/${{ matrix.target }}/app-release.apk
+
+            -   name: Save canonical native app
+                if: steps.native-app-cache.outputs.cache-hit != 'true'
+                uses: actions/cache/save@v4
+                with:
+                    path: .ci-cache/android-native-app/${{ matrix.target }}
+                    key: android-native-v1-${{ matrix.target }}-${{ runner.os }}-${{ steps.fingerprint.outputs.hash }}
+
+            -   uses: actions/upload-artifact@v4
+                with:
+                    name: android-e2e-app-${{ matrix.target }}
+                    path: .ci-cache/android-native-app/${{ matrix.target }}/app-release.apk
+                    retention-days: 1
+
+    test:
+        name: Maestro shard ${{ matrix.shard-index }} (${{ matrix.target }})
+        needs: [detect, build]
+        if: needs.detect.outputs.payments_affected == 'true'
+        runs-on: [self-hosted, linux-tiered, linux-xl]
+        timeout-minutes: 60
+        strategy:
+            fail-fast: false
+            matrix:
+                target: [bare, expo]
+                shard-index: [0, 1]
+        env:
+            MAESTRO_DEBUG_OUTPUT_DIRECTORY: ${{ github.workspace }}/packages/react-native-payments-example/artifacts/maestro-android-${{ matrix.target }}-${{ matrix.shard-index }}
+
+        steps:
+            -   name: Checkout repository
+                uses: actions/checkout@v5
+
+            -   name: Resolve target metadata
+                id: meta
+                run: |
+                    case "${{ matrix.target }}" in
+                      bare) echo "app_id=com.reactnativepaymentsexample" >> "$GITHUB_OUTPUT" ;;
+                      expo) echo "app_id=com.reactnativepaymentsexpoexample" >> "$GITHUB_OUTPUT" ;;
+                    esac
+
+            -   uses: actions/download-artifact@v4
+                with:
+                    name: android-e2e-app-${{ matrix.target }}
+                    path: .ci-artifacts/android-e2e-app-${{ matrix.target }}
 
             -   name: Install Maestro
                 run: |
@@ -129,7 +243,7 @@ jobs:
                     fi
                     echo "$HOME/.maestro/bin" >> "$GITHUB_PATH"
 
-            -   name: Boot emulator, build, install, and test
+            -   name: Boot emulator, install app, and run Maestro shard
                 uses: reactivecircus/android-emulator-runner@v2.34.0
                 with:
                     api-level: 34
@@ -145,14 +259,23 @@ jobs:
                         set -x
                         adb wait-for-device
                         timeout 180 bash -c 'until [ "$(adb shell getprop sys.boot_completed | tr -d "\r")" = "1" ]; do sleep 2; done'
-                        (cd "${{ env.APP_DIR }}/android" && ./gradlew assembleRelease)
-                        apk=$(find "${{ env.APP_DIR }}/android/app/build/outputs/apk/release" -name '*.apk' | head -1)
-                        adb install -r "$apk"
-                        cd "${{ env.EXAMPLE_DIR }}"
-                        yarn e2e:android:${{ matrix.target }}
+                        adb install -r ".ci-artifacts/android-e2e-app-${{ matrix.target }}/app-release.apk"
+                        flows=()
+                        while IFS= read -r flow; do
+                          flows+=("$flow")
+                        done < <(find "${{ env.EXAMPLE_DIR }}/e2e/flows" -maxdepth 1 -type f -name '*.yaml' | sort)
+                        selected=()
+                        for index in "${!flows[@]}"; do
+                          if (( index % MAESTRO_SHARD_COUNT == ${{ matrix.shard-index }} )); then
+                            selected+=("${flows[$index]}")
+                          fi
+                        done
+                        test "${#selected[@]}" -gt 0
+                        printf 'Shard ${{ matrix.shard-index }} flows:\n%s\n' "${selected[*]}"
+                        maestro test -e "APP_ID=${{ steps.meta.outputs.app_id }}" "${selected[@]}"
 
             -   name: Capture final device state
-                if: failure()
+                if: always()
                 shell: bash
                 run: |
                     out="${{ env.MAESTRO_DEBUG_OUTPUT_DIRECTORY }}"
@@ -161,18 +284,22 @@ jobs:
                     adb logcat -d > "$out/logcat-full.txt" 2>&1 || true
                     adb logcat -d -b crash > "$out/logcat-crash.txt" 2>&1 || true
 
+            -   name: Shutdown emulator
+                if: always()
+                run: adb emu kill || true
+
             -   name: Upload Maestro artifacts
-                if: failure()
+                if: always()
                 uses: actions/upload-artifact@v4
                 with:
-                    name: maestro-android-${{ matrix.target }}
+                    name: maestro-android-${{ matrix.target }}-shard-${{ matrix.shard-index }}
                     path: ${{ env.MAESTRO_DEBUG_OUTPUT_DIRECTORY }}/**
                     if-no-files-found: warn
                     retention-days: 7
 
     status:
         name: Android Maestro E2E result
-        needs: [detect, maestro]
+        needs: [detect, build, test]
         if: always()
         runs-on: ubuntu-latest
         steps:
@@ -186,7 +313,11 @@ jobs:
                     echo "Skipped: payments dependency tree untouched."
                     exit 0
                   fi
-                  if [ "${{ needs.maestro.result }}" != "success" ]; then
+                  if [ "${{ needs.build.result }}" != "success" ]; then
+                    echo "Build job failed."
+                    exit 1
+                  fi
+                  if [ "${{ needs.test.result }}" != "success" ]; then
                     echo "Maestro suite failed."
                     exit 1
                   fi
