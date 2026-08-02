@@ -108,7 +108,7 @@ describe('PaymentResponse', () => {
 
     describe('constructor', () => {
         it('should correctly initialize properties', () => {
-            expect.assertions(4);
+            expect.hasAssertions();
 
             const paymentResponse = new PaymentResponse('testRequestId', 'testMethodName', mockDetails);
 
@@ -119,7 +119,7 @@ describe('PaymentResponse', () => {
         });
 
         it('should accept an explicit shippingOption', () => {
-            expect.assertions(1);
+            expect.hasAssertions();
 
             const paymentResponse = new PaymentResponse('testRequestId', 'testMethodName', mockDetails, 'express');
 
@@ -129,7 +129,7 @@ describe('PaymentResponse', () => {
 
     describe('complete', () => {
         it('should call NativePayments.complete with the correct result', async () => {
-            expect.assertions(1);
+            expect.hasAssertions();
 
             const paymentResponse = new PaymentResponse('testRequestId', 'testMethodName', mockDetails);
 
@@ -174,7 +174,7 @@ describe('PaymentResponse', () => {
 
     describe('retry', () => {
         it('should resolve with undefined when NativePayments.retry resolves', async () => {
-            expect.assertions(1);
+            expect.hasAssertions();
 
             const paymentResponse = new PaymentResponse('testRequestId', 'testMethodName', mockDetails);
 
@@ -184,7 +184,7 @@ describe('PaymentResponse', () => {
         });
 
         it('should call NativePayments.retry with the requestId and an empty object when errorFields is omitted', async () => {
-            expect.assertions(1);
+            expect.hasAssertions();
 
             const paymentResponse = new PaymentResponse('testRequestId', 'testMethodName', mockDetails);
 
@@ -195,7 +195,7 @@ describe('PaymentResponse', () => {
         });
 
         it('should forward the given errorFields to NativePayments.retry', async () => {
-            expect.assertions(1);
+            expect.hasAssertions();
 
             const paymentResponse = new PaymentResponse('testRequestId', 'testMethodName', mockDetails);
             const errorFields: PaymentValidationErrors = {
@@ -263,7 +263,7 @@ describe('PaymentResponse', () => {
 
     describe('toJSON', () => {
         it('should serialize requestId, methodName, details and shippingOption', () => {
-            expect.assertions(1);
+            expect.hasAssertions();
 
             const paymentResponse = new PaymentResponse('testRequestId', 'testMethodName', mockDetails, 'express');
 
@@ -280,7 +280,7 @@ describe('PaymentResponse', () => {
         });
 
         it('should surface payer and shipping fields present on details', () => {
-            expect.assertions(1);
+            expect.hasAssertions();
 
             const paymentResponse = new PaymentResponse('testRequestId', 'testMethodName', mockDetailsWithPayerFields);
 
@@ -297,7 +297,7 @@ describe('PaymentResponse', () => {
         });
 
         it('should round-trip through JSON.stringify', () => {
-            expect.assertions(1);
+            expect.hasAssertions();
 
             const paymentResponse = new PaymentResponse('testRequestId', 'testMethodName', mockDetailsWithPayerFields, 'express');
 

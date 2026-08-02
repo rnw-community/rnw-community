@@ -25,7 +25,6 @@ export class PaymentResponse {
         readonly methodName: string,
         // https://www.w3.org/TR/payment-request/#dom-paymentresponse-details
         readonly details: PaymentResponseDetailsInterface,
-        // https://www.w3.org/TR/payment-request/#dom-paymentresponse-shippingoption
         readonly shippingOption: Maybe<string> = null
     ) {}
 
@@ -68,7 +67,6 @@ export class PaymentResponse {
         return undefined;
     }
 
-    // https://www.w3.org/TR/payment-request/#dom-paymentresponse-tojson
     toJSON(): PaymentResponseJsonInterface {
         return {
             requestId: this.requestId,
