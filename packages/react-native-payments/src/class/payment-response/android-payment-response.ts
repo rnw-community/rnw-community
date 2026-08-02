@@ -4,6 +4,7 @@ import { type AndroidCardInfo, emptyAndroidCardInfo } from '../../@standard/andr
 import { emptyAndroidIntermediateSigningKey } from '../../@standard/android/response/android-intermediate-signing-key';
 import { emptyAndroidPaymentMethodToken } from '../../@standard/android/response/android-payment-method-token';
 import { emptyIosPKToken } from '../../@standard/ios/response/ios-pk-token';
+import { parseJsonOrThrow } from '../../util/parse-json-or-throw.util';
 
 import { PaymentResponse } from './payment-response';
 
@@ -18,7 +19,7 @@ import type { PaymentResponseAddressInterface } from '../../interface/payment-re
 
 export class AndroidPaymentResponse extends PaymentResponse {
     constructor(requestId: string, methodName: string, jsonData: string) {
-        const data = JSON.parse(jsonData) as AndroidPaymentData;
+        const data = parseJsonOrThrow<AndroidPaymentData>(jsonData);
 
         super(requestId, methodName, {
             billingAddress: AndroidPaymentResponse.parseFullAddress(data.paymentMethodData.info.billingAddress),
@@ -45,7 +46,7 @@ export class AndroidPaymentResponse extends PaymentResponse {
             return emptyAndroidPaymentMethodToken;
         }
 
-        const parsedToken = JSON.parse(input) as AndroidRawPaymentMethodToken;
+        const parsedToken = parseJsonOrThrow<AndroidRawPaymentMethodToken>(input);
 
         return {
             ...emptyAndroidPaymentMethodToken,
@@ -55,11 +56,11 @@ export class AndroidPaymentResponse extends PaymentResponse {
                 ...(isDefined(parsedToken.intermediateSigningKey)
                     ? {
                           ...parsedToken.intermediateSigningKey,
-                          signedKey: JSON.parse(parsedToken.intermediateSigningKey.signedKey) as AndroidSignedKey,
+                          signedKey: parseJsonOrThrow<AndroidSignedKey>(parsedToken.intermediateSigningKey.signedKey),
                       }
                     : emptyAndroidIntermediateSigningKey),
             },
-            signedMessage: JSON.parse(parsedToken.signedMessage) as AndroidSignedMessage,
+            signedMessage: parseJsonOrThrow<AndroidSignedMessage>(parsedToken.signedMessage),
         };
     }
 

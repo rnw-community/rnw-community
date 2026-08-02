@@ -1,3 +1,5 @@
+import { PaymentsErrorEnum } from '../../enum/payments-error.enum';
+import { DOMException } from '../../error/dom.exception';
 import { NativePayments } from '../native-payments/native-payments';
 
 import type { PaymentValidationErrors } from '../../@standard/w3c/payment-validation-errors';
@@ -22,7 +24,7 @@ export class PaymentResponse {
     // https://www.w3.org/TR/payment-request/#complete-method
     async complete(result: PaymentComplete): Promise<void> {
         if (this.completeCalled) {
-            throw new Error('InvalidStateError');
+            throw new DOMException(PaymentsErrorEnum.InvalidStateError);
         }
 
         this.completeCalled = true;
@@ -36,7 +38,7 @@ export class PaymentResponse {
 
     async retry(_errorFields?: PaymentValidationErrors): Promise<undefined> {
         if (this.completeCalled) {
-            throw new Error('InvalidStateError');
+            throw new DOMException(PaymentsErrorEnum.InvalidStateError);
         }
 
         // TODO: Implement logic https://www.w3.org/TR/payment-request/#retry-method

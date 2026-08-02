@@ -2,6 +2,8 @@ import { beforeEach, describe, expect, it, jest } from '@jest/globals';
 
 import { IosPKPaymentMethodType } from '../../@standard/ios/enum/ios-pk-payment-method-type.enum';
 import { PaymentComplete } from '../../enum/payment-complete.enum';
+import { PaymentsErrorEnum } from '../../enum/payments-error.enum';
+import { DOMException } from '../../error/dom.exception';
 import { NativePayments } from '../native-payments/native-payments';
 
 import { PaymentResponse } from './payment-response';
@@ -105,15 +107,22 @@ describe('PaymentResponse', () => {
             expect(NativePayments.complete).toHaveBeenCalledWith(PaymentComplete.SUCCESS);
         });
 
-        it('should throw an error if complete is called more than once', async () => {
-            expect.assertions(1);
+        it('should reject with an InvalidStateError DOMException if complete is called more than once', async () => {
+            expect.hasAssertions();
 
             const paymentResponse = new PaymentResponse('testRequestId', 'testMethodName', mockDetails);
 
             jest.mocked(NativePayments.complete).mockResolvedValueOnce(undefined);
             await paymentResponse.complete(PaymentComplete.SUCCESS);
 
-            await expect(paymentResponse.complete(PaymentComplete.SUCCESS)).rejects.toThrow(new Error('InvalidStateError'));
+            await expect(paymentResponse.complete(PaymentComplete.SUCCESS)).rejects.toStrictEqual(
+                new DOMException(PaymentsErrorEnum.InvalidStateError)
+            );
+            await expect(paymentResponse.complete(PaymentComplete.SUCCESS)).rejects.toBeInstanceOf(DOMException);
+            await expect(paymentResponse.complete(PaymentComplete.SUCCESS)).rejects.toHaveProperty(
+                'name',
+                'InvalidStateError'
+            );
         });
     });
 
@@ -126,15 +135,15 @@ describe('PaymentResponse', () => {
             await expect(paymentResponse.retry()).resolves.toBeUndefined();
         });
 
-        it('should throw an error if retry is called after complete', async () => {
-            expect.assertions(1);
+        it('should reject with an InvalidStateError DOMException if retry is called after complete', async () => {
+            expect.hasAssertions();
 
             const paymentResponse = new PaymentResponse('testRequestId', 'testMethodName', mockDetails);
 
             jest.mocked(NativePayments.complete).mockResolvedValueOnce(undefined);
             await paymentResponse.complete(PaymentComplete.SUCCESS);
 
-            await expect(paymentResponse.retry()).rejects.toThrow('InvalidStateError');
+            await expect(paymentResponse.retry()).rejects.toStrictEqual(new DOMException(PaymentsErrorEnum.InvalidStateError));
         });
     });
 });
