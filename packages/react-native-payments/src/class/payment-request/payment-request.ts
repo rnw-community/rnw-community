@@ -51,6 +51,7 @@ import type { ResolvedPaymentDetailsInterface } from '../../interface/resolved-p
 import type { PaymentMethodChangeEventListener } from '../../type/payment-method-change-event-listener.type';
 import type { PaymentRequestEventListener } from '../../type/payment-request-event-listener.type';
 import type { PaymentRequestEventType } from '../../type/payment-request-event.type';
+import type { PaymentRequestUpdateEvent } from '../payment-request-update-event/payment-request-update-event';
 import type { Maybe } from '@rnw-community/shared';
 import type { EmitterSubscription } from 'react-native';
 
@@ -76,6 +77,7 @@ export class PaymentRequest {
         PaymentRequestEventType,
         PaymentMethodChangeEventListener | PaymentRequestEventListener
     >();
+    private readonly attributeHandlerWrappers = new Map<PaymentRequestEventType, PaymentRequestEventListener>();
     private eventGeneration = 0;
     private isNativeEventsSynced = false;
 
@@ -303,19 +305,44 @@ export class PaymentRequest {
         type: PaymentRequestEventType,
         listener: Maybe<PaymentMethodChangeEventListener | PaymentRequestEventListener>
     ): void {
-        const previousListener = this.attributeHandlers.get(type);
-
-        if (isDefined(previousListener)) {
-            this.attributeHandlers.delete(type);
-            this.removeEventListener(type, previousListener as PaymentRequestEventListener);
-        }
-
         if (!isDefined(listener)) {
+            this.attributeHandlers.delete(type);
+            this.removeAttributeHandlerWrapper(type);
+
             return;
         }
 
         this.attributeHandlers.set(type, listener);
-        this.addEventListener(type, listener as PaymentRequestEventListener);
+        this.ensureAttributeHandlerWrapper(type);
+    }
+
+    private ensureAttributeHandlerWrapper(type: PaymentRequestEventType): void {
+        if (this.attributeHandlerWrappers.has(type)) {
+            return;
+        }
+
+        const wrapper: PaymentRequestEventListener = event => this.dispatchToAttributeHandler(type, event);
+
+        this.attributeHandlerWrappers.set(type, wrapper);
+        this.addEventListener(type, wrapper);
+    }
+
+    private removeAttributeHandlerWrapper(type: PaymentRequestEventType): void {
+        const wrapper = this.attributeHandlerWrappers.get(type);
+
+        if (!isDefined(wrapper)) {
+            return;
+        }
+
+        this.attributeHandlerWrappers.delete(type);
+        this.removeEventListener(type, wrapper);
+    }
+
+    private dispatchToAttributeHandler(
+        type: PaymentRequestEventType,
+        event: PaymentRequestUpdateEvent
+    ): Promise<void> | void {
+        return (this.attributeHandlers.get(type) as PaymentRequestEventListener)(event);
     }
 
     private handleAccept(details: string): AndroidPaymentResponse | IosPaymentResponse {

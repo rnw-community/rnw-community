@@ -228,10 +228,10 @@ Depending on the platform and payment method, you can provide additional data to
   include the email address of the payer.
 - `requestShipping`: An optional boolean field that, when present and set to true, indicates that the `PaymentResponse` will
   include the shipping address of the payer.
-- `shippingType`: An optional [`PaymentOptions.shippingType`](https://www.w3.org/TR/payment-request/#dom-paymentoptions-shippingtype)
-  field (`PaymentShippingTypeEnum.Shipping` / `Delivery` / `Pickup`) forwarded to `PKShippingType` on iOS — `Pickup` maps
-  to `PKShippingTypeStorePickup`, see [Known deviations](#known-deviations). No-op on Android, which has no equivalent
-  concept.
+- `shippingType`: An optional field (`PaymentShippingTypeEnum.Shipping` / `Delivery` / `Pickup`) mapping to the W3C
+  [`PaymentOptions.shippingType`](https://www.w3.org/TR/payment-request/#dom-paymentoptions-shippingtype) concept,
+  forwarded to `PKShippingType` on iOS — `Pickup` maps to `PKShippingTypeStorePickup`, see
+  [Known deviations](#known-deviations). No-op on Android, which has no equivalent concept.
 - `applicationData`: An optional string or object field for Apple Pay that allows you to store application-specific data. This data is not transmitted to Apple but is included in the payment token as a SHA-256 hash (applicationDataHash). You can use it to prevent replay attacks by associating a payment with a specific transaction.
 - `couponCode`: An optional Apple Pay field, **beyond the W3C specification**, that prefills the coupon code field of the
   payment sheet. The field itself is only rendered when a `couponcodechange` listener is registered before `show()`, so
@@ -976,8 +976,9 @@ You can find working example in the `App` component of the [react-native-payment
 - [x] Implement the event-handler attributes (`onshippingaddresschange`, `onshippingoptionchange`,
       `onpaymentmethodchange`, `oncouponcodechange`) — see
       [Event-handler attributes](#event-handler-attributes-onshippingaddresschange-onshippingoptionchange-onpaymentmethodchange-oncouponcodechange)
-- [x] Implement [`PaymentOptions.shippingType`](https://www.w3.org/TR/payment-request/#dom-paymentoptions-shippingtype) —
-      see [2.1 Additional methodData.data options](#21-additional-methoddatadata-options); no-op on Android, see Known
+- [x] Implement [`PaymentOptions.shippingType`](https://www.w3.org/TR/payment-request/#dom-paymentoptions-shippingtype) as
+      `methodData.data.shippingType` — see
+      [2.1 Additional methodData.data options](#21-additional-methoddatadata-options); no-op on Android, see Known
       deviations
 - [ ] Implement `PaymentResponse` `retry()` method
 - [ ] Implement `PaymentResponse` `toJSON()` method
@@ -1001,8 +1002,8 @@ You can find working example in the `App` component of the [react-native-payment
   `isReadyToPay` with `existingPaymentMethodRequired: true`, the closest reachable equivalent of "an instrument is
   enrolled" that the API exposes; Google documents this as best-effort and it can still resolve `true` without a fully
   usable card in some configurations.
-- **`PaymentOptions.shippingType` is a no-op on Android.** Google Pay has no `PKShippingType`-equivalent concept; the
-  value is validated but not forwarded to native.
+- **`methodData.data.shippingType` (`PaymentOptions.shippingType`) is a no-op on Android.** Google Pay has no
+  `PKShippingType`-equivalent concept; the value is validated but not forwarded to native.
 - **iOS `shippingType: 'pickup'` maps to `PKShippingTypeStorePickup`.** PassKit also has `PKShippingTypeServicePickup`,
   which has no W3C equivalent and is not exposed by this library.
 
