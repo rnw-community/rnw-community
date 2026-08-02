@@ -895,11 +895,6 @@ You can find working example in the `App` component of the [react-native-payment
   needs to know the target platform's method data up front to serialize the request. The error name matches the spec;
   only the algorithm step it fires from differs.
 
-### Other
-
-- [ ] Refactor `utils`
-- [ ] Find alternative/suctom implementation for the `validator` library
-
 ## License
 
 This library is licensed under The [MIT License](./LICENSE.md).
