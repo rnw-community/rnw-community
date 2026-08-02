@@ -3422,6 +3422,17 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@expo/env@npm:~2.4.2":
+  version: 2.4.2
+  resolution: "@expo/env@npm:2.4.2"
+  dependencies:
+    chalk: "npm:^4.0.0"
+    debug: "npm:^4.3.4"
+    getenv: "npm:^2.0.0"
+  checksum: 10/684fb2903525faffc02ed1b93599d1b79ea62f787a610ee1c489642c8d32b9f9b6af272ce6785fbe29c301f13641ec9cdc73e405aebb4db606fd409c04b2eea8
+  languageName: node
+  linkType: hard
+
 "@expo/fingerprint@npm:0.11.11":
   version: 0.11.11
   resolution: "@expo/fingerprint@npm:0.11.11"
@@ -6305,7 +6316,7 @@ __metadata:
     "@rnw-community/react-native-payments": "workspace:*"
     "@rnw-community/react-native-payments-example-lib": "workspace:*"
     expo: "npm:~52.0.49"
-    expo-constants: "npm:~17.0.6"
+    expo-constants: "npm:~57.0.8"
     expo-linking: "npm:~7.0.5"
     expo-router: "npm:~4.0.22"
     expo-splash-screen: "npm:~0.30.10"
@@ -11574,7 +11585,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"expo-constants@npm:~17.0.5, expo-constants@npm:~17.0.6, expo-constants@npm:~17.0.8":
+"expo-constants@npm:~17.0.5, expo-constants@npm:~17.0.8":
   version: 17.0.8
   resolution: "expo-constants@npm:17.0.8"
   dependencies:
@@ -11584,6 +11595,18 @@ __metadata:
     expo: "*"
     react-native: "*"
   checksum: 10/a1b0eec1a9c5cff7680409ac8fca643e185f79f57175bd2398bb8df53beaa80c970318d3c66e2390ff63db133f5a9110b514d81248399f932f48290c8871e774
+  languageName: node
+  linkType: hard
+
+"expo-constants@npm:~57.0.8":
+  version: 57.0.8
+  resolution: "expo-constants@npm:57.0.8"
+  dependencies:
+    "@expo/env": "npm:~2.4.2"
+  peerDependencies:
+    expo: "*"
+    react-native: "*"
+  checksum: 10/d90daf7756c6e739de91e63c51dd46158cef0a59b52ec2834a704dc6a18b03ac9a48b41f74bc2f26ae5d2a55f24d18f207392943d71e7a541bd0fe02f6f1c51c
   languageName: node
   linkType: hard
 
