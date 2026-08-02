@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, jest } from '@jest/globals';
 import { Platform } from 'react-native';
 
-import { emptyFn } from '@rnw-community/shared';
+import { emptyFn, wait } from '@rnw-community/shared';
 
 import { AndroidPaymentMethodTokenizationType } from '../../@standard/android/enum/android-payment-method-tokenization-type.enum';
 import { IOSPKContactField } from '../../@standard/ios/enum/ios-pk-contact-field.enum';
@@ -236,7 +236,7 @@ describe('PaymentRequest', () => {
             });
 
             it('should throw when total.amount.value is a negative number', () => {
-                expect.assertions(1);
+                expect.hasAssertions();
 
                 const invalidPaymentDetails = {
                     total: {
@@ -254,7 +254,7 @@ describe('PaymentRequest', () => {
             });
 
             it('should NOT throw when total.amount.value is a non-negative number', () => {
-                expect.assertions(1);
+                expect.hasAssertions();
 
                 const validPaymentDetails = {
                     total: {
@@ -343,7 +343,7 @@ describe('PaymentRequest', () => {
                 });
 
             it('should NOT throw when shippingOptions is not defined or empty', () => {
-                expect.assertions(3);
+                expect.hasAssertions();
 
                 expect(() => new PaymentRequest([methodData], paymentDetailsWithTotal)).not.toThrow();
                 expect(() => constructWithShippingOptions([])).not.toThrow();
@@ -355,7 +355,7 @@ describe('PaymentRequest', () => {
             });
 
             it('should throw when a shipping option has no id or no label', () => {
-                expect.assertions(3);
+                expect.hasAssertions();
 
                 const expectedError = new ConstructorError(`Missing required member(s): id, label.`);
                 const amount = { currency: 'USD', value: '5.00' };
@@ -366,7 +366,7 @@ describe('PaymentRequest', () => {
             });
 
             it('should throw when a shipping option has no amount value', () => {
-                expect.assertions(2);
+                expect.hasAssertions();
 
                 const expectedError = new ConstructorError(`required member value is undefined.`);
 
@@ -377,7 +377,7 @@ describe('PaymentRequest', () => {
             });
 
             it('should throw when a shipping option amount value is not monetary', () => {
-                expect.assertions(1);
+                expect.hasAssertions();
 
                 expect(() =>
                     constructWithShippingOptions([
@@ -1021,7 +1021,7 @@ describe('PaymentRequest', () => {
         });
         describe('couponCode serialization', () => {
             it('should serialize the prefilled coupon code', async () => {
-                expect.assertions(1);
+                expect.hasAssertions();
 
                 const methodDataRequest = await getSerializedIosMethodData({
                     ...iosMethodData,
@@ -1032,7 +1032,7 @@ describe('PaymentRequest', () => {
             });
 
             it('should not serialize a missing or empty coupon code', async () => {
-                expect.assertions(2);
+                expect.hasAssertions();
 
                 const withoutCouponCode = await getSerializedIosMethodData(iosMethodData);
                 const withEmptyCouponCode = await getSerializedIosMethodData({
@@ -1399,9 +1399,7 @@ describe('PaymentRequest', () => {
             request.addEventListener('shippingoptionchange', async event => {
                 updatingWhileListening = request.updating;
 
-                await new Promise<void>(resolve => {
-                    setTimeout(resolve, 10);
-                });
+                await wait(10);
 
                 event.updateWith({ total: updatedTotal });
             });
@@ -1790,9 +1788,7 @@ describe('PaymentRequest', () => {
 
             const request = createInteractiveRequest();
             const listener = jest.fn(async (event: PaymentRequestUpdateEvent) => {
-                await new Promise<void>(resolve => {
-                    setTimeout(resolve, 10);
-                });
+                await wait(10);
 
                 event.updateWith({ total: updatedTotal });
             });
@@ -1824,9 +1820,7 @@ describe('PaymentRequest', () => {
             const request = createInteractiveRequest();
 
             request.addEventListener('shippingoptionchange', async (event: PaymentRequestUpdateEvent) => {
-                await new Promise<void>(resolve => {
-                    setTimeout(resolve, 10);
-                });
+                await wait(10);
 
                 event.updateWith({ total: updatedTotal });
             });
