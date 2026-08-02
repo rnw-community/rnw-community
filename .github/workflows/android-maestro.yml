@@ -58,8 +58,7 @@ jobs:
             -   name: Install dependencies
                 run: yarn install --immutable
 
-            -   name: Build react-native-payments (expo)
-                if: matrix.target == 'expo'
+            -   name: Build workspace JS dependencies
                 run: yarn build --filter=@rnw-community/react-native-payments
 
             -   name: Generate native project (expo)
