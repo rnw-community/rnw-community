@@ -1,0 +1,38 @@
+language: en-US
+reviews:
+    profile: assertive
+    request_changes_workflow: false
+    high_level_summary: true
+    poem: false
+    review_status: true
+    auto_review:
+        enabled: true
+        drafts: false
+    path_filters:
+        - '!**/dist/**'
+        - '!.yarn/**'
+        - '!**/CHANGELOG.md'
+        - '!**/*.pbxproj'
+        - '!**/Podfile.lock'
+        - '!**/gradle/wrapper/**'
+        - '!**/yarn.lock'
+    path_instructions:
+        - path: 'packages/**/src/**/*.ts'
+          instructions: >-
+              Enforce this repo's hard rules from AGENTS.md: exactly one exported entity per file; interfaces in
+              .interface.ts and type aliases in .type.ts files; no code comments except
+              eslint-disable-next-line and istanbul ignore pragmas; always use @rnw-community/shared primitives
+              (isDefined, isError, isString, getErrorMessage, emptyFn, wait, Maybe, OnEventFn) instead of inline
+              checks; never re-export types owned by another workspace package.
+        - path: 'packages/**/src/**/*.spec.ts'
+          instructions: >-
+              Every test must call expect.hasAssertions() and import from @jest/globals. Test-only fixtures must
+              be inlined in the spec file, never in separate src files. Flag tests that execute code without
+              asserting behavior (values, error identities, call arguments).
+        - path: '.github/workflows/**'
+          instructions: >-
+              Builds must produce self-contained apps (embedded JS bundle, no Metro dependency at runtime);
+              self-hosted runner labels must match the fleet profiles; prefer explicit xcodebuild/gradlew/simctl/adb
+              over dev-CLI launchers; caches must be keyed on toolchain version + lockfiles.
+chat:
+    auto_reply: true
