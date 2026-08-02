@@ -1,6 +1,9 @@
+import type { PaymentAddressFieldEnum } from '../../enum/payment-address-field.enum';
+import type { PaymentContactFieldEnum } from '../../enum/payment-contact-field.enum';
+
 // https://www.w3.org/TR/payment-request/#dom-paymentvalidationerrors
 export interface PaymentValidationErrors {
-    error: string;
-    // TODO: Add type
-    object: Record<string, string>;
+    error?: string;
+    payer?: Partial<Record<PaymentContactFieldEnum, string>>;
+    shippingAddress?: Partial<Record<PaymentAddressFieldEnum, string>>;
 }

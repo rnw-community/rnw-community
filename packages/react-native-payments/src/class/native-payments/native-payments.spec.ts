@@ -12,6 +12,7 @@ jest.mock('react-native', () => ({
 interface LoadedNativePaymentsInterface {
     addListener?: unknown;
     removeListeners?: unknown;
+    retry?: unknown;
     setActiveEvents?: unknown;
     show: unknown;
     updatePaymentDetails?: unknown;
@@ -73,6 +74,14 @@ describe('NativePayments', () => {
         expect(nativePayments.removeListeners).toBeUndefined();
         expect(nativePayments.setActiveEvents).toBeUndefined();
         expect(nativePayments.updatePaymentDetails).toBeUndefined();
+    });
+
+    it('should leave retry undefined when the native module is not linked', () => {
+        expect.hasAssertions();
+
+        const nativePayments = loadNativePayments();
+
+        expect(nativePayments.retry).toBeUndefined();
     });
 
     it('should throw a linking error for the other methods when the native module is not linked', () => {

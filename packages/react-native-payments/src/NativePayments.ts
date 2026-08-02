@@ -13,6 +13,8 @@ export interface Spec extends TurboModule {
     canMakePayments: (methodData: string) => Promise<boolean>;
     complete: (paymentComplete: string) => Promise<void>;
     removeListeners: (count: number) => void;
+    // eslint-disable-next-line @typescript-eslint/no-wrapper-object-types
+    retry: (requestId: string, errorFields: Object) => Promise<void>;
     setActiveEvents: (requestId: string, eventNames: string[]) => Promise<void>;
     // eslint-disable-next-line @typescript-eslint/no-wrapper-object-types
     show: (requestId: string, methodData: string, details: Object) => Promise<string>;

@@ -2,17 +2,21 @@ import { beforeEach, describe, expect, it, jest } from '@jest/globals';
 
 import { IosPKPaymentMethodType } from '../../@standard/ios/enum/ios-pk-payment-method-type.enum';
 import { PaymentComplete } from '../../enum/payment-complete.enum';
+import { PaymentContactFieldEnum } from '../../enum/payment-contact-field.enum';
 import { PaymentsErrorEnum } from '../../enum/payments-error.enum';
 import { DOMException } from '../../error/dom.exception';
+import { PaymentsError } from '../../error/payments.error';
 import { NativePayments } from '../native-payments/native-payments';
 
 import { PaymentResponse } from './payment-response';
 
+import type { PaymentValidationErrors } from '../../@standard/w3c/payment-validation-errors';
 import type { PaymentResponseDetailsInterface } from '../../interface/payment-response-details.interface';
 
 jest.mock('../native-payments/native-payments', () => ({
     NativePayments: {
         complete: jest.fn(),
+        retry: jest.fn(),
     },
 }));
 
@@ -21,6 +25,8 @@ jest.mock('react-native', () => ({
         OS: 'android',
     },
 }));
+
+const retryMock = jest.mocked(NativePayments.retry as NonNullable<typeof NativePayments.retry>);
 
 describe('PaymentResponse', () => {
     const mockDetails: PaymentResponseDetailsInterface = {
@@ -79,19 +85,45 @@ describe('PaymentResponse', () => {
         },
     };
 
+    const mockDetailsWithPayerFields: PaymentResponseDetailsInterface = {
+        ...mockDetails,
+        payerEmail: 'payer@example.com',
+        payerName: 'Payer Name',
+        payerPhone: '+15550000000',
+        shippingAddress: {
+            address1: '123 Test St',
+            address2: '',
+            address3: '',
+            administrativeArea: '',
+            countryCode: 'US',
+            locality: '',
+            postalCode: '12345',
+            sortingCode: '',
+        },
+    };
+
     beforeEach(() => {
         jest.clearAllMocks();
     });
 
     describe('constructor', () => {
         it('should correctly initialize properties', () => {
-            expect.assertions(3);
+            expect.assertions(4);
 
             const paymentResponse = new PaymentResponse('testRequestId', 'testMethodName', mockDetails);
 
             expect(paymentResponse.requestId).toBe('testRequestId');
             expect(paymentResponse.methodName).toBe('testMethodName');
             expect(paymentResponse.details).toBe(mockDetails);
+            expect(paymentResponse.shippingOption).toBeNull();
+        });
+
+        it('should accept an explicit shippingOption', () => {
+            expect.assertions(1);
+
+            const paymentResponse = new PaymentResponse('testRequestId', 'testMethodName', mockDetails, 'express');
+
+            expect(paymentResponse.shippingOption).toBe('express');
         });
     });
 
@@ -127,12 +159,40 @@ describe('PaymentResponse', () => {
     });
 
     describe('retry', () => {
-        it('should resolve with undefined when called', async () => {
+        it('should resolve with undefined when NativePayments.retry resolves', async () => {
             expect.assertions(1);
 
             const paymentResponse = new PaymentResponse('testRequestId', 'testMethodName', mockDetails);
 
+            retryMock.mockResolvedValueOnce(undefined);
+
             await expect(paymentResponse.retry()).resolves.toBeUndefined();
+        });
+
+        it('should call NativePayments.retry with the requestId and an empty object when errorFields is omitted', async () => {
+            expect.assertions(1);
+
+            const paymentResponse = new PaymentResponse('testRequestId', 'testMethodName', mockDetails);
+
+            retryMock.mockResolvedValueOnce(undefined);
+            await paymentResponse.retry();
+
+            expect(retryMock).toHaveBeenCalledWith('testRequestId', {});
+        });
+
+        it('should forward the given errorFields to NativePayments.retry', async () => {
+            expect.assertions(1);
+
+            const paymentResponse = new PaymentResponse('testRequestId', 'testMethodName', mockDetails);
+            const errorFields: PaymentValidationErrors = {
+                error: 'Please fix the highlighted fields',
+                payer: { [PaymentContactFieldEnum.Email]: 'Invalid email' },
+            };
+
+            retryMock.mockResolvedValueOnce(undefined);
+            await paymentResponse.retry(errorFields);
+
+            expect(retryMock).toHaveBeenCalledWith('testRequestId', errorFields);
         });
 
         it('should reject with an InvalidStateError DOMException if retry is called after complete', async () => {
@@ -144,6 +204,90 @@ describe('PaymentResponse', () => {
             await paymentResponse.complete(PaymentComplete.SUCCESS);
 
             await expect(paymentResponse.retry()).rejects.toStrictEqual(new DOMException(PaymentsErrorEnum.InvalidStateError));
+            expect(retryMock).not.toHaveBeenCalled();
+        });
+
+        it('should reject with an InvalidStateError DOMException if retry is called a second time', async () => {
+            expect.hasAssertions();
+
+            const paymentResponse = new PaymentResponse('testRequestId', 'testMethodName', mockDetails);
+
+            retryMock.mockResolvedValueOnce(undefined);
+            await paymentResponse.retry();
+
+            await expect(paymentResponse.retry()).rejects.toStrictEqual(new DOMException(PaymentsErrorEnum.InvalidStateError));
+            expect(retryMock).toHaveBeenCalledTimes(1);
+        });
+
+        it('should reject with a NotSupportedError DOMException when NativePayments.retry is unavailable', async () => {
+            expect.hasAssertions();
+
+            const nativePayments = NativePayments as { retry?: typeof NativePayments.retry };
+            nativePayments.retry = void 0;
+
+            const paymentResponse = new PaymentResponse('testRequestId', 'testMethodName', mockDetails);
+
+            try {
+                await expect(paymentResponse.retry()).rejects.toStrictEqual(
+                    new DOMException(PaymentsErrorEnum.NotSupportedError)
+                );
+            } finally {
+                nativePayments.retry = retryMock;
+            }
+        });
+
+        it('should reject with a PaymentsError when NativePayments.retry rejects', async () => {
+            expect.hasAssertions();
+
+            const paymentResponse = new PaymentResponse('testRequestId', 'testMethodName', mockDetails);
+
+            retryMock.mockRejectedValueOnce(new Error('native failure'));
+
+            await expect(paymentResponse.retry()).rejects.toStrictEqual(new PaymentsError('Failed retrying PaymentRequest'));
+        });
+    });
+
+    describe('toJSON', () => {
+        it('should serialize requestId, methodName, details and shippingOption', () => {
+            expect.assertions(1);
+
+            const paymentResponse = new PaymentResponse('testRequestId', 'testMethodName', mockDetails, 'express');
+
+            expect(paymentResponse.toJSON()).toStrictEqual({
+                requestId: 'testRequestId',
+                methodName: 'testMethodName',
+                details: mockDetails,
+                shippingAddress: null,
+                shippingOption: 'express',
+                payerEmail: null,
+                payerName: null,
+                payerPhone: null,
+            });
+        });
+
+        it('should surface payer and shipping fields present on details', () => {
+            expect.assertions(1);
+
+            const paymentResponse = new PaymentResponse('testRequestId', 'testMethodName', mockDetailsWithPayerFields);
+
+            expect(paymentResponse.toJSON()).toStrictEqual({
+                requestId: 'testRequestId',
+                methodName: 'testMethodName',
+                details: mockDetailsWithPayerFields,
+                shippingAddress: mockDetailsWithPayerFields.shippingAddress,
+                shippingOption: null,
+                payerEmail: 'payer@example.com',
+                payerName: 'Payer Name',
+                payerPhone: '+15550000000',
+            });
+        });
+
+        it('should round-trip through JSON.stringify', () => {
+            expect.assertions(1);
+
+            const paymentResponse = new PaymentResponse('testRequestId', 'testMethodName', mockDetailsWithPayerFields, 'express');
+
+            expect(JSON.parse(JSON.stringify(paymentResponse))).toStrictEqual(paymentResponse.toJSON());
         });
     });
 });

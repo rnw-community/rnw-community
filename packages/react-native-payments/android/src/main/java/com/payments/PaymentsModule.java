@@ -177,6 +177,14 @@ public class PaymentsModule extends PaymentsSpec {
         promise.resolve("AndroidPay complete is not supported");
     }
 
+    // https://www.w3.org/TR/payment-request/#dom-paymentresponse-retry
+    @ReactMethod
+    public void retry(String requestId, ReadableMap errorFields, Promise promise) {
+        Log.d(NAME, "In-sheet retry is not supported by AndroidPay, ignoring " + requestId);
+
+        promise.resolve("AndroidPay retry is not supported");
+    }
+
     @ReactMethod
     public void setActiveEvents(String requestId, ReadableArray eventNames, Promise promise) {
         Log.d(NAME, "Change events are not supported by AndroidPay, ignoring " + eventNames.size() + " event(s) of " + requestId);
