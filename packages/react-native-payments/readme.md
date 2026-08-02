@@ -330,6 +330,104 @@ payment process or when specific conditions require the payment request to be ab
 
 > This will have no affect in the Android platform due to AndroidPay implementation.
 
+## Payment change events
+
+While the payment sheet is open the user can change the shipping address, the shipping option, the payment card or a
+coupon code. `PaymentRequest` models these as W3C change events: register listeners **before** calling `show()` and answer
+each event with `PaymentRequestUpdateEvent.updateWith()`.
+
+> **Native delivery is not implemented yet.** This release lands the JavaScript layer and the JS <-> native contract only;
+> the iOS and Android sides are tracked in [#377](https://github.com/rnw-community/rnw-community/issues/377),
+> [#378](https://github.com/rnw-community/rnw-community/issues/378) and
+> [#386](https://github.com/rnw-community/rnw-community/issues/386). Until they ship, listeners can be registered but
+> never fire, and `show()`, `abort()` and `complete()` behave exactly as before. On web the browser's own `PaymentRequest`
+> is used, so change events there follow the browser implementation.
+
+### `PaymentRequest.addEventListener(type, listener)`
+
+Registers the listener for one of `shippingaddresschange`, `shippingoptionchange`, `paymentmethodchange` or
+`couponcodechange` (the last one is a PassKit extension, not part of the W3C specification). Several listeners can be
+registered for the same event type — they run in registration order and the same function is never registered twice.
+Dispatch stops at the first listener that answers with `updateWith`, exactly like the stop immediate propagation flag of
+the W3C algorithm. Listeners are removed automatically when `show()` settles and when `abort()` resolves, so a request that
+is shown twice needs its listeners registered again.
+
+```ts
+paymentRequest.addEventListener('shippingaddresschange', event => {
+    event.updateWith({
+        total: { label: 'Total', amount: { currency: 'USD', value: '25.00' } },
+        displayItems: [{ label: 'Shipping', amount: { currency: 'USD', value: '5.00' } }],
+    });
+});
+```
+
+### `PaymentRequest.removeEventListener(type, listener)`
+
+Removes the passed listener from the event type, matching the `EventTarget` signature. The native subscription is released
+once the last listener of the type is gone.
+
+```ts
+paymentRequest.removeEventListener('shippingaddresschange', onShippingAddressChange);
+```
+
+### `PaymentRequestUpdateEvent.updateWith(detailsOrPromise)`
+
+Answers the event with updated `PaymentDetailsUpdate` — `total`, `displayItems`, `shippingOptions` and `error` are all
+optional and only the provided members replace the current details. It accepts a promise, so a listener can await a server
+call before answering:
+
+```ts
+paymentRequest.addEventListener('shippingoptionchange', async event => {
+    const quote = await fetch(`https://example.com/quote?option=${paymentRequest.shippingOption}`).then(response =>
+        response.json()
+    );
+
+    event.updateWith({
+        total: { label: 'Total', amount: { currency: 'USD', value: quote.total } },
+        shippingOptions: [{ id: 'express', label: 'Express', amount: { currency: 'USD', value: quote.shipping } }],
+    });
+});
+```
+
+Calling `updateWith` twice, or calling it once the event was already answered or the request is no longer showing, throws
+a `DOMException` with `InvalidStateError`. A listener that throws, rejects, sends invalid details, never calls `updateWith`
+or leaves its promise pending for more than 30 seconds is logged and answered with the unchanged details, so the payment
+sheet never stalls.
+
+### `PaymentRequestUpdateEvent.isAnswered`
+
+`true` once `updateWith` was called for the event. A listener built from several helpers can check it before answering a
+second time:
+
+```ts
+paymentRequest.addEventListener('shippingoptionchange', event => {
+    applyExpressSurcharge(event);
+
+    if (!event.isAnswered) {
+        event.updateWith({ total: { label: 'Total', amount: { currency: 'USD', value: '25.00' } } });
+    }
+});
+```
+
+### `PaymentMethodChangeEvent`
+
+The event delivered for `paymentmethodchange` extends `PaymentRequestUpdateEvent` with the selected method:
+
+```ts
+paymentRequest.addEventListener('paymentmethodchange', event => {
+    if (event.methodDetails?.['network'] === 'Amex') {
+        event.updateWith({ error: 'Amex is not supported for this order' });
+    }
+});
+```
+
+### Changed values on the request
+
+Before a listener runs, the changed value is stored on the request: `paymentRequest.shippingAddress`
+(`PaymentResponseAddressInterface`), `paymentRequest.shippingOption` (the selected `PaymentShippingOption` id) and
+`paymentRequest.couponCode`. `paymentRequest.updating` is `true` while an event is being processed; a change event that
+arrives during that window is answered with the unchanged details and is not dispatched to the listeners.
+
 ## Unit testing
 
 Due to new TurboModules architecture in React Native, you can [encounter issues](https://github.com/rnw-community/rnw-community/issues/227) with Jest tests. To fix this, you can mock
@@ -385,7 +483,7 @@ You can find working example in the `App` component of the [react-native-payment
 
 ### W3C spec:
 
-- [ ] Implement events:
+- [ ] Implement events (JavaScript layer landed, native delivery pending):
     - [ ] [PaymentRequestUpdateEvent](https://www.w3.org/TR/payment-request/#dom-paymentrequestupdateevent)
     - [ ] [PaymentMethodChangeEvent](https://www.w3.org/TR/payment-request/#dom-paymentmethodchangeevent)
 - [ ] Implement [PaymentDetailsModifier](https://www.w3.org/TR/payment-request/#dom-paymentdetailsmodifier)
