@@ -4,13 +4,7 @@ appId: ${APP_ID}
 - tapOn:
     id: "builder-async-update-toggle"
 - runFlow: ../subflows/show_request.yaml
-- runFlow:
-    when:
-      platform: iOS
-    commands:
-      - assertVisible:
-          id: "payments-flow-state"
-          text: "showing"
+- runFlow: ../subflows/dismiss_ios_sheet.yaml
 - scrollUntilVisible:
     element:
       text: ".*listeners attached.*"

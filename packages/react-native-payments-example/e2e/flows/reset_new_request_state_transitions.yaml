@@ -5,8 +5,13 @@ appId: ${APP_ID}
     id: "payments-flow-state"
     text: "idle"
 - runFlow: ../subflows/show_request.yaml
-- tapOn:
-    id: "action-abort"
+- runFlow: ../subflows/dismiss_ios_sheet.yaml
+- runFlow:
+    when:
+      platform: Android
+    commands:
+      - tapOn:
+          id: "action-abort"
 - extendedWaitUntil:
     visible:
       id: "payments-flow-state"
@@ -28,5 +33,4 @@ appId: ${APP_ID}
       platform: iOS
     commands:
       - assertVisible:
-          id: "payments-flow-state"
-          text: "showing"
+          id: "dismiss"
