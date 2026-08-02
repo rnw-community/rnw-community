@@ -11,7 +11,7 @@ import { DemoStatus } from './demo-status';
 import { EventLogView } from './event-log-view';
 import { RequestBuilderForm } from './request-builder-form';
 
-export const App = (): JSX.Element => {
+export const App = (): React.JSX.Element => {
     const { entries, log } = useEventLog();
     const { options, toggleOption, setTotalValue } = useRequestOptions();
     const { canMakePaymentStatus, flowState, showRequest, abortRequest, resetRequest } = usePaymentDemo(options, log);
