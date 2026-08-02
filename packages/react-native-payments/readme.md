@@ -387,7 +387,9 @@ if (!validation.ok) {
 `retry()` throws a `DOMException` with `InvalidStateError` if `complete()` was already called on this response, or if
 `retry()` was already called once — this package supports **at most one** `retry()` call per `PaymentResponse` (see
 [Known deviations](#known-deviations)). `errorFields` is optional; an omitted `payer`/`shippingAddress` still fails the
-attempt but nothing is highlighted in the sheet.
+attempt but nothing is highlighted in the sheet. Calling `complete()` **after** `retry()` also throws `InvalidStateError`
+instead of reaching native — `complete()` unconditionally dismisses the sheet, which would silently cancel the
+correction opportunity `retry()` just opened.
 
 > **iOS**: `retry()` reuses the same `PKPaymentErrorDomain` field-error constructors as [Sheet errors](#sheet-errors) —
 > `payer` keys are `PaymentContactFieldEnum`, `shippingAddress` keys are `PaymentAddressFieldEnum` — to fail the pending
@@ -452,6 +454,7 @@ try {
 | `abort()` resolves a pending `show()`                                                                                                     | `AbortError`                                      | `DOMException`                                                                     |
 | `PaymentRequestUpdateEvent.updateWith()` called twice for one event                                                                       | `InvalidStateError`                               | `DOMException`                                                                     |
 | `PaymentResponse.complete()` / `retry()` called after `complete()`                                                                        | `InvalidStateError`                               | `DOMException`                                                                     |
+| `PaymentResponse.complete()` called after `retry()`                                                                                       | `InvalidStateError`                               | `DOMException` (see [Retrying the Payment](#7-retrying-the-payment))               |
 | `PaymentResponse.retry()` called a second time on the same response                                                                       | `InvalidStateError`                               | `DOMException` (see [Retrying the Payment](#7-retrying-the-payment))               |
 | `PaymentResponse.retry()` on a native binary built before this method existed                                                             | `NotSupportedError`                               | `DOMException`                                                                     |
 | Native module bridge rejects `show()` with a non-`Error` reason                                                                           | _(not specified)_                                 | `PaymentsError`                                                                    |

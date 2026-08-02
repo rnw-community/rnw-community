@@ -31,7 +31,7 @@ export class PaymentResponse {
 
     // https://www.w3.org/TR/payment-request/#complete-method
     async complete(result: PaymentComplete): Promise<void> {
-        if (this.completeCalled) {
+        if (this.completeCalled || this.retryCalled) {
             throw new DOMException(PaymentsErrorEnum.InvalidStateError);
         }
 

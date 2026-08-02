@@ -156,6 +156,20 @@ describe('PaymentResponse', () => {
                 'InvalidStateError'
             );
         });
+
+        it('should reject with an InvalidStateError DOMException if complete is called after retry', async () => {
+            expect.hasAssertions();
+
+            const paymentResponse = new PaymentResponse('testRequestId', 'testMethodName', mockDetails);
+
+            retryMock.mockResolvedValueOnce(undefined);
+            await paymentResponse.retry();
+
+            await expect(paymentResponse.complete(PaymentComplete.SUCCESS)).rejects.toStrictEqual(
+                new DOMException(PaymentsErrorEnum.InvalidStateError)
+            );
+            expect(NativePayments.complete).not.toHaveBeenCalled();
+        });
     });
 
     describe('retry', () => {
