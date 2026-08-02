@@ -1,0 +1,35 @@
+# @rnw-community/react-native-payments
+
+> W3C Payment Request API implementation for React Native — Apple Pay (iOS) and Google Pay (Android), with an Expo config plugin.
+
+TurboModule-based library (React Native New Architecture). An agent given only this package root can locate the full
+API surface, the payment change-event contract, platform deviations from the W3C spec, and the native JS<->native
+handshake without a repo-wide search.
+
+## Docs
+
+- [readme.md](readme.md): Installation (Apple Pay / Google Pay / Expo setup) and the step-by-step `PaymentRequest` usage guide.
+- [readme.md — Type & class reference](readme.md#type--class-reference): Per-export API reference — every exported class, enum, interface, and type with its own subsection.
+- [readme.md — Payment change events](readme.md#payment-change-events): `addEventListener`/`removeEventListener`, `updateWith`, sheet errors, and `PaymentMethodChangeEvent`.
+- [readme.md — Known deviations](readme.md#known-deviations): Platform differences from the W3C spec — Android no-op change events, iOS shipping preselection, single-use `PaymentRequest`, `couponcodechange`.
+- [readme.md — Migrating from v2](readme.md#migrating-from-v2): Breaking changes and upgrade steps from the v2 native interface to v3.
+- [readme.md — Web(react-native-web)](readme.md#webreact-native-web): Browser fallback behavior via the W3C `PaymentRequest` implementation.
+
+## Architecture & conventions
+
+- [AGENTS.md](AGENTS.md): Source layout, TurboModule/Expo-plugin architecture, key implementation patterns, dependencies, and coverage.
+- [Repository AGENTS.md — PR Review & Merge Policy](../../AGENTS.md#pr-review--merge-policy): Repo-wide policy for triaging automated review findings before merge; applies to this package's PRs.
+
+## Native contract
+
+- [change-event-dispatcher.md](src/class/change-event-dispatcher/change-event-dispatcher.md): `ChangeEventDispatcher` lifecycle — dispatch, per-listener answer, and the single shared timeout race.
+- [get-native-payments-event-emitter.md](src/util/get-native-payments-event-emitter/get-native-payments-event-emitter.md): The JS<->native change-event contract — event scoping, generations, and teardown semantics.
+
+## End-to-end verification
+
+- [react-native-payments-example/e2e/readme.md](../react-native-payments-example/e2e/readme.md): Maestro flow inventory and the documented iOS PassKit sheet accessibility-sandbox boundary.
+- [maestro-e2e skill](../../.agents/skills/maestro-e2e/SKILL.md): Agent skill for writing and running Maestro E2E flows against this package's example app.
+
+## Optional
+
+- [CHANGELOG.md](CHANGELOG.md): Version history.
