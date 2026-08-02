@@ -1,0 +1,32 @@
+appId: ${APP_ID}
+---
+- runFlow: ../subflows/launch_and_wait_for_probe.yaml
+- assertVisible:
+    id: "payments-flow-state"
+    text: "idle"
+- runFlow: ../subflows/show_request.yaml
+- tapOn:
+    id: "action-abort"
+- extendedWaitUntil:
+    visible:
+      id: "payments-flow-state"
+      text: "rejected"
+    timeout: 20000
+- tapOn:
+    id: "action-reset"
+- assertVisible:
+    id: "payments-flow-state"
+    text: "idle"
+- scrollUntilVisible:
+    element:
+      text: ".*request reset.*"
+- assertVisible:
+    text: ".*request reset.*"
+- runFlow: ../subflows/show_request.yaml
+- runFlow:
+    when:
+      platform: iOS
+    commands:
+      - assertVisible:
+          id: "payments-flow-state"
+          text: "showing"

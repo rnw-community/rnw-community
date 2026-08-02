@@ -1,35 +1,34 @@
 {
   "name": "rnw-community",
+  "version": "0.59.4",
   "private": true,
   "workspaces": [
-    "packages/*"
+    "packages/*",
+    "packages/react-native-payments-example/apps/*"
   ],
   "scripts": {
-    "ts": "turbo run ts",
-    "ts:force": "turbo run ts --force",
     "build": "turbo run build",
     "build:force": "turbo run build --force",
-    "lint": "turbo run lint",
-    "lint:force": "turbo run lint --force",
-    "lint:fix": "turbo run lint:fix",
-    "test": "turbo run test",
-    "test:coverage": "turbo run test:coverage",
-    "cpd": "jscpd packages",
-    "format": "turbo run format",
-    "deadcode": "yarn knip",
     "clear": "turbo run clear",
+    "cpd": "jscpd packages",
+    "deadcode": "yarn knip",
+    "deps:check": "yarn dlx check-dependency-version-consistency .",
     "deps:clear": "turbo run clear:deps && yarn deps:clear:root",
     "deps:clear:root": "rm -rf ./node_modules",
+    "format": "turbo run format",
+    "lint": "turbo run lint",
+    "lint:fix": "turbo run lint:fix",
+    "lint:force": "turbo run lint --force",
     "release": "lerna publish --yes --conventional-commits --create-release=github -m \"chore: release %s [skip ci]\"",
-    "deps:check": "yarn dlx check-dependency-version-consistency ."
-  },
-  "engines": {
-    "node": ">=18.0.0"
+    "test": "turbo run test",
+    "test:coverage": "turbo run test:coverage",
+    "ts": "turbo run ts",
+    "ts:force": "turbo run ts --force"
   },
   "resolutions": {
-    "hermes-parser": "0.25.0",
+    "axios": "^1.19.0",
     "babel-jest": "^29.7.0",
-    "axios": "^1.19.0"
+    "hermes-parser": "0.25.0"
   },
   "devDependencies": {
     "@babel/core": "^7.29.7",
@@ -69,5 +68,7 @@
     "typescript-eslint": "^8.65.0"
   },
   "packageManager": "yarn@4.12.0",
-  "version": "0.59.4"
+  "engines": {
+    "node": ">=18.0.0"
+  }
 }

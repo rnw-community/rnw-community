@@ -8,7 +8,7 @@ This file provides guidance to AI coding agents when working with code in this r
 
 ## Project Overview
 
-TypeScript monorepo with 23 packages providing NestJS, React, React Native, and React Native Web utilities. Uses Yarn Workspaces (v4), Turbo for task orchestration, and Lerna for publishing.
+TypeScript monorepo with 21 packages providing NestJS, React, React Native, and React Native Web utilities. Uses Yarn Workspaces (v4), Turbo for task orchestration, and Lerna for publishing.
 
 ## Common Commands
 
@@ -43,7 +43,8 @@ yarn lint:fix           # Fix lint issues in this package
 - **log-decorator, histogram-metric-decorator, lock-decorator** — Universal method decorators built on decorators-core
 - **nestjs-\*** — NestJS modules (enterprise decorators, rxjs-logger, rxjs-metrics, rxjs-lock, rxjs-redis, typed-config, webpack-swc)
 - **rxjs-errors** — RxJS error utilities
-- **react-native-payments** — Payment Request API for Apple Pay/Google Pay (with 3 example packages)
+- **react-native-payments** — Payment Request API for Apple Pay/Google Pay
+- **react-native-payments-example** — private example package: shared `src/` screens plus `apps/bare` (React Native CLI) and `apps/expo` (Expo) app targets
 - **platform, fast-style, redux-loadable** — React Native/Web utilities
 - **object-field-tree** — Object field combination trees
 - **wdio** — WebDriverIO page objects and commands
@@ -52,6 +53,7 @@ yarn lint:fix           # Fix lint issues in this package
 ### Build Output
 
 All packages publish dual format via `exports` field:
+
 - `dist/esm/` — ES Modules (ES2021)
 - `dist/cjs/` — CommonJS (ES2021)
 - Type declarations at `dist/esm/index.d.ts`
@@ -84,6 +86,7 @@ src/interface/execution-context-interface/            (BAD — folder with a sin
 Create folders only to group siblings that share an entity (source + spec + md). Never create a folder that wraps a single file with nothing to group it with.
 
 Suffix patterns:
+
 - `.type.ts` for `export type` entities
 - `.interface.ts` for `export interface` entities
 - `.ts` for values (functions, constants, classes)
@@ -92,12 +95,14 @@ Suffix patterns:
 ### Comments policy — prefer zero comments
 
 **Do NOT write code comments.** Replace explanatory commentary with:
+
 - **Descriptive names** — rename the variable / function / type until the name reveals intent
 - **Composition** — extract a small helper with a good name instead of writing a block comment
 - **`readme.md`** at the package root — documents what each public export does, with one minimal usage example per entity
 - **Per-entity `<entity>.md`** (optional) — a 5–20 line file next to the source with a focused example
 
 Allowed pragma comments only (no other exceptions):
+
 - `// eslint-disable-next-line <rule>` — suppressing a specific lint rule with good reason
 - `/* istanbul ignore <next|else|if> -- <why> */` — **last resort** for truly unreachable branches; PREFER restructuring code to eliminate the dead branch entirely
 
@@ -179,12 +184,15 @@ A package MUST NOT re-export (`export type { X } from '@rnw-community/other'`) a
 ### TypeScript — Strict mode with all strict flags enabled, decorators enabled
 
 ### Formatting (Prettier)
+
 - Single quotes, 125 char width, 4-space indent, semicolons required, trailing commas ES5, no parens on single arrow params
 
 ### Import Order (enforced by ESLint)
+
 Groups: builtin → external → `@rnw-community/*` → parent → sibling → index → type, alphabetized, newlines between groups
 
 ### ESLint Key Rules
+
 - Max function lines: 85 (blank lines/comments excluded)
 - Max statements per function: 12
 - Max params: 4 (`@typescript-eslint/max-params`)
@@ -196,11 +204,13 @@ Groups: builtin → external → `@rnw-community/*` → parent → sibling → i
 - `expect.hasAssertions()` in every test case
 
 ### Commit Messages (Conventional Commits, enforced by commitlint + husky)
+
 Format: `type(scope): description` — scope must be a package name (e.g., `shared`, `react-native-payments`). Header ≤100 chars.
 
 ### No AI-tool or bot attribution anywhere
 
 **Never** mention AI tools, review bots, or any assistant by name in:
+
 - source code (no `CODEX-fix`, `// fix per Claude`, describe blocks named after tools, etc.)
 - test names / describe blocks (describe sections by behaviour, not by who requested them)
 - commit messages (no `Co-Authored-By: Claude …`, no `per review bot X …`)
@@ -210,6 +220,7 @@ Format: `type(scope): description` — scope must be a package name (e.g., `shar
 Describe **what changed and why** in code-intrinsic terms. A regression fix is documented by the invariant it restores, not by the reviewer that noticed the bug.
 
 ### Testing
+
 - Jest 29, test files colocated next to the source they cover: `src/**/<entity>/<entity>.spec.ts`
 - Imports from `@jest/globals` (not global Jest)
 - **Coverage threshold: 99.9%** for statements, branches, functions, and lines
@@ -221,6 +232,7 @@ Describe **what changed and why** in code-intrinsic terms. A regression fix is d
 **Do NOT create helpers, fixtures, factories, or any code whose sole consumers are test files** (e.g. `foo.mock.ts` used only by `foo.spec.ts` and `bar.spec.ts`). Inline the fixture directly inside the spec file(s) that use it, even at the cost of duplication across specs.
 
 Rationale:
+
 - A file in `src/` that only specs import still reads as part of the package to reviewers, IDE code-navigation, and anyone browsing the tree. It inflates the perceived public surface even when the build tsconfig excludes it.
 - Readers of a spec then have to jump across files to understand what the test's fixture actually does, breaking the "a test should be readable top-to-bottom in one file" property.
 - Any documentation written around the fixture (readme, per-entity `.md`, AGENTS layout tree) becomes a source of stale or misleading claims about the package API.
@@ -237,6 +249,7 @@ Always write plans to `.plans/` as `.md` files before executing multi-step chang
 ## ESM Modernization Status
 
 The monorepo uses dual ESM + CJS output. Key decisions:
+
 - `sideEffects: false` (boolean) in all package.json files
 - `"types"` condition is **first** in all `exports` entries (required for `moduleResolution: "nodenext"` consumers)
 - `moduleResolution: "bundler"` in root tsconfig, `"node"` override in CJS build tsconfig
@@ -247,12 +260,15 @@ The monorepo uses dual ESM + CJS output. Key decisions:
 ## Pre-commit Checks
 
 **IMPORTANT: Always run all checks before committing and pushing:**
+
 ```bash
 yarn ts && yarn lint && yarn test
 ```
+
 All three must pass before creating a commit. Do not skip any of these checks.
 
 ## Pre-commit Hooks (Husky + lint-staged)
+
 - Auto-runs ESLint fix and Prettier on staged `.ts/.tsx` files
 - Sorts `package.json` files
 - Validates commit message format

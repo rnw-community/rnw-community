@@ -753,7 +753,7 @@ export function setupJestTurboModuleMock(): void {
 
 ### Expo
 
-You can find working example in the `App` component of the [react-native-payments-example-expo](../react-native-payments-example-expo/README.md) package.
+You can find working example in the `App` component of the [react-native-payments-example](../react-native-payments-example/readme.md) package, running through its `apps/expo` target.
 
 #### Web(react-native-web)
 
@@ -761,7 +761,7 @@ On web the library will fallback to [W3C implementation](https://developer.mozil
 
 ### Bare React Native CLI
 
-You can find working example in the `App` component of the [react-native-payments-example](../react-native-payments-example/README.md) package.
+You can find working example in the `App` component of the [react-native-payments-example](../react-native-payments-example/readme.md) package, running through its `apps/bare` target.
 
 ## TODO
 

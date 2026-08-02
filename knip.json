@@ -15,6 +15,9 @@
         },
         "packages/react-native-payments": {
             "entry": ["src/index.ts", "src/**/*.web.ts"]
+        },
+        "packages/react-native-payments-example/apps/bare": {
+            "ignoreDependencies": ["@rnw-community/react-native-payments"]
         }
     },
     "ignore": [
@@ -25,15 +28,15 @@
         "packages/react-native-payments/src/@standard/**",
         "packages/react-native-payments/src/app.plugin.ts",
         "packages/react-native-payments/src/expo-plugins/**",
-        "packages/react-native-payments-example-expo/app.json",
-        "packages/react-native-payments-example-expo/metro.config.js",
-        "packages/react-native-payments-example/metro.config.js",
+        "packages/react-native-payments-example/apps/*/app.json",
+        "packages/react-native-payments-example/apps/*/metro.config.js",
         "packages/wdio/src/util/get-platform/**",
         "packages/fast-style/src/enum/**",
         "packages/wdio/src/component/mocks/**",
         "packages/wdio/src/rooted-component/mocks/**"
     ],
     "ignoreBinaries": [
+        "maestro",
         "run"
     ],
     "ignoreDependencies": [
@@ -50,12 +53,7 @@
         "terser-webpack-plugin",
         "webpack",
         "webpack-node-externals",
-        "@react-native-community/cli",
-        "@react-native-community/cli-platform-android",
-        "@react-native-community/cli-platform-ios",
-        "@react-navigation/native",
         "react-dom",
-        "react-native-gesture-handler",
         "@expo/config-plugins",
         "ioredis",
         "prom-client",
