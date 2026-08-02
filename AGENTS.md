@@ -259,8 +259,8 @@ The monorepo uses dual ESM + CJS output. Key decisions:
 
 ## PR Review & Merge Policy
 
-**Before merging any PR, read every bot review comment on it** (Macroscope, CodeRabbit, Codecov, claude-review, DeepScan)
-and run this loop for each finding — it is mandatory for agents, not optional:
+**Before merging any PR, read every automated review comment on it** (every finding posted by any bot account,
+whatever the current review tooling is) and run this loop for each — it is mandatory for agents, not optional:
 
 1. **Validate** the finding against the actual code — never accept or dismiss it on wording alone.
 2. **Valid** → fix it in the same PR (root cause, not suppression) and reply on the thread naming the fixing commit.
