@@ -24,7 +24,7 @@
         "react-native": "^0.76.1",
         "react-native-gesture-handler": "~2.30.0",
         "react-native-reanimated": "~3.19.5",
-        "react-native-safe-area-context": "4.14.1",
+        "react-native-safe-area-context": "5.8.0",
         "react-native-screens": "~4.23.0",
         "react-native-web": "~0.21.2",
         "react-native-webview": "13.16.0"
