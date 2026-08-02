@@ -197,7 +197,7 @@ export default {
 
 | Option | Type | Default | What it mutates |
 | --- | --- | --- | --- |
-| `merchantIdentifier` | `string \| string[]` | *(required)* | iOS `Info.plist` entitlements: appends every non-empty identifier to `com.apple.developer.in-app-payments`, de-duplicated. Throws at prebuild time if no non-empty identifier is provided. |
+| `merchantIdentifier` | `string \| string[]` | *(required)* | iOS entitlements plist: appends every non-empty identifier to `com.apple.developer.in-app-payments`, de-duplicated. Throws at prebuild time if no non-empty identifier is provided. |
 | `supportedNetworks` | `SupportedNetworkEnum[]` | every `SupportedNetworkEnum` value | Android `AndroidManifest.xml`: writes the comma-joined list as the `com.rnw-community.react-native-payments.supported-networks` meta-data value on the main application. Throws if given an empty array or a value outside `SupportedNetworkEnum`. |
 | `googlePayEnvironment` | `EnvironmentEnum` | `EnvironmentEnum.PRODUCTION` | Android `AndroidManifest.xml`: writes the `com.google.android.gms.wallet.api.environment` meta-data value on the main application. Throws if given a value outside `EnvironmentEnum`. |
 
