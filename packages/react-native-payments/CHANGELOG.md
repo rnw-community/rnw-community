@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [2.8.0](https://github.com/rnw-community/rnw-community/compare/v2.7.3...v2.8.0) (2026-08-02)
+
+### Features
+
+- **react-native-payments:** implement PaymentDetailsModifier support ([1a89d20](https://github.com/rnw-community/rnw-community/commit/1a89d20232eeef556694868607194ec17e9f488d)), closes [#435](https://github.com/rnw-community/rnw-community/issues/435)
+
 ## [2.7.3](https://github.com/rnw-community/rnw-community/compare/v2.7.2...v2.7.3) (2026-08-02)
 
 **Note:** Version bump only for package @rnw-community/react-native-payments
