@@ -18,6 +18,7 @@ import com.facebook.react.bridge.ActivityEventListener;
 import com.facebook.react.bridge.Promise;
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactMethod;
+import com.facebook.react.bridge.ReadableArray;
 import com.facebook.react.bridge.ReadableMap;
 import com.facebook.react.bridge.BaseActivityEventListener;
 
@@ -126,9 +127,9 @@ public class PaymentsModule extends PaymentsSpec {
     }
 
     @ReactMethod
-    public void show(String paymentMethodData, ReadableMap details, final Promise promise) {
+    public void show(String requestId, String paymentMethodData, ReadableMap details, final Promise promise) {
         Activity currentActivity = getCurrentActivity();
-        Log.d(NAME, "Showing AndroidPay " + currentActivity.toString() + details.toString());
+        Log.d(NAME, "Showing AndroidPay for request " + requestId + " " + currentActivity.toString() + details.toString());
 
         // HINT: We store promise reference to resolve/reject it later
         mPromise = promise;
@@ -174,6 +175,30 @@ public class PaymentsModule extends PaymentsSpec {
         Log.d(NAME, "Completing status " + status + " AndroidPay for " + getCurrentActivity().toString());
 
         promise.resolve("AndroidPay complete is not supported");
+    }
+
+    @ReactMethod
+    public void setActiveEvents(String requestId, ReadableArray eventNames, Promise promise) {
+        Log.d(NAME, "Change events are not supported by AndroidPay, ignoring " + eventNames.size() + " event(s) of " + requestId);
+
+        promise.resolve(null);
+    }
+
+    @ReactMethod
+    public void updatePaymentDetails(ReadableMap update, ReadableArray displayItems, ReadableArray shippingOptions, Promise promise) {
+        Log.d(NAME, "Payment details updates are not supported by AndroidPay");
+
+        promise.resolve(null);
+    }
+
+    @ReactMethod
+    public void addListener(String eventName) {
+        Log.d(NAME, "Added a listener for " + eventName + ", AndroidPay never emits change events");
+    }
+
+    @ReactMethod
+    public void removeListeners(double count) {
+        Log.d(NAME, "Removed " + count + " listener(s), AndroidPay never emits change events");
     }
 
     /**

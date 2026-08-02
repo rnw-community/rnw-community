@@ -45,11 +45,13 @@ export class ChangeEventDispatcher {
     }
 
     async dispatch(listeners: readonly PaymentRequestEventListener[]): Promise<Maybe<PaymentDetailsUpdate>> {
-        await this.callListeners(listeners);
+        const deadline = wait(changeEventTimeoutMs).then(() => null);
+
+        await Promise.race([this.callListeners(listeners), this.abandoned, deadline]);
 
         this.isOpen = false;
 
-        return await this.resolveAnswer();
+        return await this.resolveAnswer(deadline);
     }
 
     abandon(): void {
@@ -78,12 +80,12 @@ export class ChangeEventDispatcher {
         }
     }
 
-    private async resolveAnswer(): Promise<Maybe<PaymentDetailsUpdate>> {
+    private async resolveAnswer(deadline: Promise<null>): Promise<Maybe<PaymentDetailsUpdate>> {
         if (!isDefined(this.answer)) {
             return null;
         }
 
-        return await Promise.race([this.answer, this.abandoned, wait(changeEventTimeoutMs).then(() => null)]);
+        return await Promise.race([this.answer, this.abandoned, deadline]);
     }
 
     private readonly handleUpdateWith = (detailsUpdate: Promise<PaymentDetailsUpdate>): void => {

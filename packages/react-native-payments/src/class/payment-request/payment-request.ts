@@ -22,6 +22,7 @@ import { validateAndroidTransactionInfo } from '../../util/validate-android-tran
 import { validateDetailsUpdate } from '../../util/validate-details-update.util';
 import { validateDisplayItems } from '../../util/validate-display-items.util';
 import { validatePaymentMethods } from '../../util/validate-payment-methods.util';
+import { validateShippingOptions } from '../../util/validate-shipping-options.util';
 import { validateTotal } from '../../util/validate-total.util';
 import { warnChangeEventError } from '../../util/warn-change-event-error.util';
 import { ChangeEventDispatcher } from '../change-event-dispatcher/change-event-dispatcher';
@@ -90,7 +91,9 @@ export class PaymentRequest {
         validateTotal(details.total, ConstructorError);
 
         // 6. If the displayItems member of details is present, then for each item in details.displayItems:
-        validateDisplayItems(details.displayItems, ConstructorError);
+        validateDisplayItems(ConstructorError, details.displayItems);
+
+        validateShippingOptions(ConstructorError, details.shippingOptions);
 
         // 17. Set request.[[serializedMethodData]] to serializedMethodData.         */
         this.platformMethodData = this.findPlatformPaymentMethodData();
@@ -133,7 +136,7 @@ export class PaymentRequest {
         return new Promise<AndroidPaymentResponse | IosPaymentResponse>((resolve, reject) => {
             this.acceptPromiseRejecter = reject;
 
-            NativePayments.show(this.serializedMethodData, details)
+            NativePayments.show(this.id, this.serializedMethodData, details)
                 .then(jsonDetails => {
                     const paymentResponse = this.handleAccept(jsonDetails);
 
@@ -302,14 +305,15 @@ export class PaymentRequest {
             return;
         }
 
+        this.applyEventPayload(payload);
+
         if (this.updating) {
-            await this.sendDetailsUpdate(type, null, generation);
+            await this.sendDetailsUpdate(type, payload.eventId, null, generation);
 
             return;
         }
 
         this.updating = true;
-        this.applyEventPayload(payload);
 
         try {
             await this.dispatchChangeEvent(type, listeners, payload, generation);
@@ -333,7 +337,9 @@ export class PaymentRequest {
         this.pendingDispatchers.add(dispatcher);
 
         try {
-            await this.sendDetailsUpdate(type, await this.resolveDetailsUpdate(dispatcher, listeners), generation);
+            const detailsUpdate = await this.resolveDetailsUpdate(dispatcher, listeners);
+
+            await this.sendDetailsUpdate(type, payload.eventId, detailsUpdate, generation);
         } finally {
             this.pendingDispatchers.delete(dispatcher);
         }
@@ -374,6 +380,7 @@ export class PaymentRequest {
 
     private async sendDetailsUpdate(
         type: PaymentRequestEventType,
+        eventId: number | undefined,
         detailsUpdate: Maybe<PaymentDetailsUpdate>,
         generation: number
     ): Promise<void> {
@@ -389,6 +396,7 @@ export class PaymentRequest {
             eventName: type,
             requestId: this.id,
             total: updatedDetails.total,
+            ...(isDefined(eventId) && { eventId }),
         };
 
         await updatePaymentDetails(update, updatedDetails.displayItems ?? [], updatedDetails.shippingOptions ?? []);
@@ -535,20 +543,12 @@ export class PaymentRequest {
                 ? methodData.merchantCapabilities
                 : defaultMerchantCapabilities,
             ...(methodData.requestBillingAddress === true && {
-                requiredBillingContactFields: this.getRequestedBillingFields(methodData),
+                requiredBillingContactFields: [IOSPKContactField.PKContactFieldPostalAddress],
             }),
             ...(isShippingRequested && { requiredShippingContactFields: requestedShippingFields }),
             ...(isDefined(methodData.applicationData) && { applicationData: methodData.applicationData }),
+            ...(isNotEmptyString(methodData.couponCode) && { couponCode: methodData.couponCode }),
         };
-    }
-
-    private getRequestedBillingFields(methodData: IosPaymentMethodDataDataInterface): IOSPKContactField[] {
-        const requiredBillingFields: IOSPKContactField[] = [];
-        if (methodData.requestBillingAddress ?? false) {
-            requiredBillingFields.push(IOSPKContactField.PKContactFieldPostalAddress);
-        }
-
-        return requiredBillingFields;
     }
 
     private getRequestedShippingFields(methodData: IosPaymentMethodDataDataInterface): IOSPKContactField[] {

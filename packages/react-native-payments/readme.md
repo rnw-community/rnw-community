@@ -222,6 +222,9 @@ Depending on the platform and payment method, you can provide additional data to
 - `requestShipping`: An optional boolean field that, when present and set to true, indicates that the `PaymentResponse` will
   include the shipping address of the payer.
 - `applicationData`: An optional string or object field for Apple Pay that allows you to store application-specific data. This data is not transmitted to Apple but is included in the payment token as a SHA-256 hash (applicationDataHash). You can use it to prevent replay attacks by associating a payment with a specific transaction.
+- `couponCode`: An optional Apple Pay field, **beyond the W3C specification**, that prefills the coupon code field of the
+  payment sheet. The field itself is only rendered when a `couponcodechange` listener is registered before `show()`, so
+  the option is a no-op without one, below iOS 15 and on Android.
 
 ```ts
 // Example of using applicationData with Apple Pay
@@ -240,6 +243,30 @@ const methodData = [
         },
     },
 ];
+```
+
+#### 2.2 Supported networks
+
+`supportedNetworks` accepts the `SupportedNetworkEnum` members. Apple Pay introduced some of them after the oldest
+supported iOS version, so they only resolve on a recent enough device and are rejected as an invalid supported network
+below it: `girocard` (iOS 14), `mir` (iOS 14.5), `dankort` (iOS 15.1) and `bancontact` (iOS 16).
+
+> `SupportedNetworkEnum.Mir` is **deprecated**. Apple delisted the network over the sanctions against the issuing banks,
+> so it resolves on iOS 14.5+ and keeps an existing integration building, but no Mir card can be provisioned into Apple
+> Pay anymore. It is kept functional instead of being removed so upgrading does not break a build; do not add it to a new
+> integration.
+
+#### 2.3 Pending amounts
+
+Every `PaymentItem` — the `total` and each entry of `displayItems` — accepts the W3C `pending` flag for an amount that is
+not final yet, a shipping price that still has to be quoted for instance. Apple Pay renders such a row with `Pending`
+instead of the amount (`PKPaymentSummaryItemTypePending`); Google Pay has no equivalent and ignores the flag.
+
+```ts
+const paymentDetails = {
+    total: { label: 'Total', amount: { currency: 'USD', value: '10.00' } },
+    displayItems: [{ label: 'Shipping', amount: { currency: 'USD', value: '0.00' }, pending: true }],
+};
 ```
 
 ### 3. Checking Payment Capability
@@ -340,12 +367,17 @@ While the payment sheet is open the user can change the shipping address, the sh
 coupon code. `PaymentRequest` models these as W3C change events: register listeners **before** calling `show()` and answer
 each event with `PaymentRequestUpdateEvent.updateWith()`.
 
-> **Native delivery is not implemented yet.** This release lands the JavaScript layer and the JS <-> native contract only;
-> the iOS and Android sides are tracked in [#377](https://github.com/rnw-community/rnw-community/issues/377),
-> [#378](https://github.com/rnw-community/rnw-community/issues/378) and
-> [#386](https://github.com/rnw-community/rnw-community/issues/386). Until they ship, listeners can be registered but
-> never fire, and `show()`, `abort()` and `complete()` behave exactly as before. On web the browser's own `PaymentRequest`
-> is used, so change events there follow the browser implementation.
+> **Platform support.** On iOS the events are delivered by PassKit: the payment sheet waits for the answer of a listener
+> and is completed with the unchanged details whenever there is no listener for the event type, the listener fails or the
+> sheet is torn down, so it can never hang. On Android the Google Pay sheet runs in its own activity and never asks the
+> app for an in-sheet update, so listeners can be registered but never fire. On web the browser's own `PaymentRequest` is
+> used, so change events there follow the browser implementation. A request without listeners shows the same sheet with
+> the same summary items as before — PassKit now asks the app on every change and is answered immediately with no change,
+> which is a main thread round trip and no longer a purely local update. The end to end verification on devices is tracked
+> in [#393](https://github.com/rnw-community/rnw-community/issues/393).
+>
+> iOS only shows the shipping method picker and the coupon code field (iOS 15+) when a `shippingoptionchange` /
+> `couponcodechange` listener is registered before `show()` — `details.shippingOptions` are passed to PassKit in that case.
 
 ### `PaymentRequest.addEventListener(type, listener)`
 
@@ -396,10 +428,74 @@ paymentRequest.addEventListener('shippingoptionchange', async event => {
 });
 ```
 
+Every `PaymentShippingOption` needs an `id`, a `label` and an `amount`, because iOS renders the row from the label and the
+amount and reports the selection back by the id. `detail` is optional and is shown by Apple Pay as the secondary line of
+the row (`PKShippingMethod.detail`); `amount.currency` is ignored because the sheet is already bound to the
+`currencyCode` of the method data. The initial `details.shippingOptions` and the ones answered with `updateWith` go
+through the same conversion, so the same option always renders the same row.
+
+> `selected` is part of the W3C dictionary but is **silently ignored on iOS**: PassKit has no preselection support and
+> always shows its shipping-method picker with the first option of the array highlighted. Put the option you want
+> preselected first in `shippingOptions` instead of relying on `selected`.
+
+```ts
+const shippingOptions = [
+    { id: 'express', label: 'Express', detail: 'Next business day', amount: { currency: 'USD', value: '5.00' } },
+    { id: 'ground', label: 'Ground', detail: '3-5 business days', amount: { currency: 'USD', value: '0.00' } },
+];
+```
+
 Calling `updateWith` twice, or calling it once the event was already answered or the request is no longer showing, throws
 a `DOMException` with `InvalidStateError`. A listener that throws, rejects, sends invalid details, never calls `updateWith`
 or leaves its promise pending for more than 30 seconds is logged and answered with the unchanged details, so the payment
-sheet never stalls.
+sheet never stalls. Updated details go through the same validation as the ones passed to the constructor — the total, the
+display items and the shipping options all have to carry a valid decimal monetary value, and a shipping option also has
+to carry an id and a label — so a malformed amount is reported to the console and never reaches the sheet.
+
+### Sheet errors
+
+`error` is either a plain string or a field level error that Apple Pay renders inline, next to the offending row of the
+sheet, instead of as a generic banner. A string keeps the previous behaviour: an unserviceable shipping address for
+`shippingaddresschange`, an invalid coupon code for `couponcodechange` (iOS 15+) and a generic payment error everywhere
+else. `shippingoptionchange` has no error slot in PassKit, so an error answered there is ignored.
+
+A field level error carries the discriminator, the field it belongs to and the message shown to the user:
+
+```ts
+import {
+    PaymentAddressFieldEnum,
+    PaymentContactFieldEnum,
+    PaymentUpdateErrorTypeEnum,
+} from '@rnw-community/react-native-payments';
+
+paymentRequest.addEventListener('shippingaddresschange', event => {
+    event.updateWith({
+        error: {
+            type: PaymentUpdateErrorTypeEnum.ShippingAddressField,
+            key: PaymentAddressFieldEnum.PostalCode,
+            message: 'We do not ship to this postal code',
+        },
+    });
+});
+
+paymentRequest.addEventListener('couponcodechange', event => {
+    event.updateWith({
+        error: { type: PaymentUpdateErrorTypeEnum.CouponCode, expired: true, message: 'SALE10 expired last week' },
+    });
+});
+```
+
+| `error.type`           | Additional member                | iOS `PKPaymentErrorDomain` error                                            |
+| ---------------------- | -------------------------------- | --------------------------------------------------------------------------- |
+| `shippingAddressField` | `key: PaymentAddressFieldEnum`   | `paymentShippingAddressInvalidErrorWithKey:`                                |
+| `contactField`         | `field: PaymentContactFieldEnum` | `paymentContactInvalidErrorWithContactField:`                               |
+| `couponCode`           | `expired?: boolean`              | `paymentCouponCodeInvalidError` / `paymentCouponCodeExpiredError` (iOS 15+) |
+
+`PaymentAddressFieldEnum` maps onto the `CNPostalAddress` keys PassKit accepts: `addressLine` (street), `city`,
+`country` (ISO country code), `dependentLocality` (sub locality), `postalCode`, `region` (state) and
+`subAdministrativeArea`. `PaymentContactFieldEnum` maps onto `PKContactField`: `email`, `name`, `phone` and
+`postalAddress`. An unknown field, an empty message or a coupon error below iOS 15 is dropped and the sheet is answered
+with the updated details only. Android ignores every error because Google Pay never asks the app for an in-sheet update.
 
 ### `PaymentRequestUpdateEvent.isAnswered`
 
@@ -432,8 +528,202 @@ paymentRequest.addEventListener('paymentmethodchange', event => {
 
 Before a listener runs, the changed value is stored on the request: `paymentRequest.shippingAddress`
 (`PaymentResponseAddressInterface`), `paymentRequest.shippingOption` (the selected `PaymentShippingOption` id) and
-`paymentRequest.couponCode`. `paymentRequest.updating` is `true` while an event is being processed; a change event that
-arrives during that window is answered with the unchanged details and is not dispatched to the listeners.
+`paymentRequest.couponCode`. On iOS the shipping address of a change event is **redacted** by PassKit: only `address2`
+(city), `address3` (state), `postalCode` and `countryCode` are filled, while the street and the payer name, email and
+phone stay empty until the payment is authorized — quote shipping from the postal code and the country, never from the
+street. `paymentRequest.updating` is `true` while an event is being processed; a change event that
+arrives during that window is answered with the unchanged details and is not dispatched to the listeners, but its
+selection is still stored on the request, so these values always describe what the sheet shows right now.
+
+## Migrating from v2
+
+The `v2.x` line shipped no change-event API: the sheet only ever showed the `PaymentDetailsInit` given to the
+constructor, and neither `addEventListener` nor `removeEventListener` existed. Adopting the event API above is purely
+additive — `PaymentRequest`, `canMakePayment()`, `show()`, `abort()` and `PaymentComplete` keep their v2 signatures, and a
+consumer who never calls `addEventListener` sees the same sheet as before (aside from the iOS round trip described in
+[Payment change events](#payment-change-events)).
+
+> **Behavior change:** in `v2.x` a settled `PaymentRequest` could call `show()` again to reopen the sheet. From `v3`
+> a `PaymentRequest` is single-use — once `show()` settles or `abort()` resolves the request is `closed`,
+> `addEventListener` becomes a no-op and every further `show()` rejects with `InvalidStateError`. Construct a new
+> `PaymentRequest` per payment attempt instead of reusing one across retries.
+
+## Type & class reference
+
+Most public exports already appear in the usage examples above. The remaining exports are referenced here for
+completeness — one usage example each.
+
+### `PaymentsErrorEnum`
+
+The message carried by every `DOMException` and rejection the library throws: `AbortError`, `InvalidStateError`,
+`NotAllowedError`, `NotSupportedError`, `SecurityError`.
+
+```ts
+paymentRequest.show().catch((error: Error) => {
+    if (error.message === PaymentsErrorEnum.AbortError) {
+        // the user dismissed the sheet
+    }
+});
+```
+
+### `PaymentDetailsUpdateError`
+
+The type of `PaymentDetailsUpdate['error']` answered from `updateWith` — a plain string or one of the field level
+errors documented under [Sheet errors](#sheet-errors).
+
+```ts
+const fieldError: PaymentDetailsUpdateError = {
+    type: PaymentUpdateErrorTypeEnum.CouponCode,
+    message: 'SALE10 expired last week',
+    expired: true,
+};
+```
+
+### `PaymentDetailsInit`
+
+The second constructor argument. `total` is required; `displayItems`, `shippingOptions` and `id` are optional — an
+`id` is generated with `uuid.v4()` when omitted.
+
+```ts
+const paymentDetails: PaymentDetailsInit = {
+    total: { label: 'Total', amount: { currency: 'USD', value: '10.00' } },
+    displayItems: [{ label: 'Item', amount: { currency: 'USD', value: '10.00' } }],
+};
+```
+
+### `IosPKMerchantCapability`
+
+Populates the optional `merchantCapabilities` of the Apple Pay `methodData.data`; defaults to 3-D Secure, debit and
+credit when omitted.
+
+```ts
+const data = {
+    merchantIdentifier: 'merchant.com.your-app.namespace',
+    merchantCapabilities: [IosPKMerchantCapability.PKMerchantCapability3DS, IosPKMerchantCapability.PKMerchantCapabilityDebit],
+};
+```
+
+### `AndroidPaymentMethodDataInterface` / `AndroidPaymentMethodDataDataInterface`
+
+The typed shape of the Android entry of `methodData` shown in [Creating an Instance](#2-creating-an-instance):
+`supportedMethods: PaymentMethodNameEnum.AndroidPay` paired with an `AndroidPaymentMethodDataDataInterface` `data`.
+
+```ts
+const androidMethod: AndroidPaymentMethodDataInterface = {
+    supportedMethods: PaymentMethodNameEnum.AndroidPay,
+    data: {
+        supportedNetworks: [SupportedNetworkEnum.Visa],
+        environment: EnvironmentEnum.Test,
+        countryCode: 'DE',
+        currencyCode: 'EUR',
+        gatewayConfig: { gateway: 'example', gatewayMerchantId: 'exampleGatewayMerchantId' },
+    },
+};
+```
+
+### `AndroidAllowedAuthMethodsEnum`
+
+Restricts `methodData.data.allowedAuthMethods`; defaults to both `PAN_ONLY` and `CRYPTOGRAM_3DS` when omitted.
+
+```ts
+const allowedAuthMethods = [AndroidAllowedAuthMethodsEnum.PAN_ONLY];
+```
+
+### `AndroidPaymentResponse`
+
+The `PaymentResponse` subclass `show()` resolves with on Android, parsed from the Google Pay JSON payload. Consumers
+do not construct it directly — it comes back from `show()`.
+
+```ts
+const response = await paymentRequest.show();
+
+if (response instanceof AndroidPaymentResponse) {
+    response.details.androidPayToken.cardInfo.cardNetwork;
+}
+```
+
+### `IosPaymentMethodDataInterface` / `IosPaymentMethodDataDataInterface`
+
+The typed shape of the Apple Pay entry of `methodData` shown in [Creating an Instance](#2-creating-an-instance):
+`supportedMethods: PaymentMethodNameEnum.ApplePay` paired with an `IosPaymentMethodDataDataInterface` `data`.
+
+```ts
+const iosMethod: IosPaymentMethodDataInterface = {
+    supportedMethods: PaymentMethodNameEnum.ApplePay,
+    data: {
+        merchantIdentifier: 'merchant.com.your-app.namespace',
+        countryCode: 'US',
+        currencyCode: 'USD',
+        supportedNetworks: [SupportedNetworkEnum.Visa],
+    },
+};
+```
+
+### `IosPKToken`
+
+The Apple Pay token exposed as `paymentResponse.details.applePayToken`, carrying the PassKit payment data.
+
+```ts
+const response = await paymentRequest.show();
+
+if (response instanceof IosPaymentResponse) {
+    const token: IosPKToken = response.details.applePayToken;
+
+    token.transactionIdentifier;
+}
+```
+
+### `IosPaymentResponse`
+
+The `PaymentResponse` subclass `show()` resolves with on iOS, parsed from the PassKit payment token. Consumers do not
+construct it directly — it comes back from `show()`.
+
+```ts
+const response = await paymentRequest.show();
+
+if (response instanceof IosPaymentResponse) {
+    response.details.applePayToken.transactionIdentifier;
+}
+```
+
+### `PaymentRequestEventType`
+
+The union of event names accepted by `addEventListener`/`removeEventListener`: `'shippingaddresschange'`,
+`'shippingoptionchange'`, `'paymentmethodchange'` or `'couponcodechange'`.
+
+```ts
+const eventType: PaymentRequestEventType = 'shippingoptionchange';
+
+paymentRequest.addEventListener(eventType, event => event.updateWith({}));
+```
+
+### `PaymentRequestEventListener` / `PaymentMethodChangeEventListener`
+
+The listener signatures `addEventListener` accepts: `PaymentRequestEventListener` for `shippingaddresschange`,
+`shippingoptionchange` and `couponcodechange`; `PaymentMethodChangeEventListener` for `paymentmethodchange`.
+
+```ts
+const onShippingOptionChange: PaymentRequestEventListener = event => {
+    event.updateWith({});
+};
+
+const onPaymentMethodChange: PaymentMethodChangeEventListener = event => {
+    event.updateWith({});
+};
+```
+
+### `PaymentRequestEventPayloadInterface`
+
+The raw native payload carried by a change event, before it is applied to the request and dispatched to listeners.
+`requestId` and `eventId` identify the request and the native completion handler; the rest is event-type specific.
+
+```ts
+const payload: PaymentRequestEventPayloadInterface = {
+    requestId: paymentRequest.id,
+    eventId: 1,
+    shippingOption: 'express',
+};
+```
 
 ## Unit testing
 
@@ -482,21 +772,36 @@ You can find working example in the `App` component of the [react-native-payment
 
 ### Native
 
-- [ ] Investigate and implement `shipping options`.
-- [ ] Investigate and implement `coupons` support.
+- [ ] Investigate and implement `shipping options` on Android (iOS passes them to PassKit with a `shippingoptionchange`
+      listener).
+- [ ] Investigate and implement `coupons` support on Android (iOS enables the PassKit coupon field with a
+      `couponcodechange` listener).
 - [ ] Rewrite IOS to swift?
 - [ ] Rewrite Android to Kotlin?
 - [ ] Can we avoid modifying `AppDelegate.h` with importing `PassKit`?
 
-### W3C spec:
+### W3C compliance checklist
 
-- [ ] Implement events (JavaScript layer landed, native delivery pending):
-    - [ ] [PaymentRequestUpdateEvent](https://www.w3.org/TR/payment-request/#dom-paymentrequestupdateevent)
-    - [ ] [PaymentMethodChangeEvent](https://www.w3.org/TR/payment-request/#dom-paymentmethodchangeevent)
+- [x] [PaymentRequestUpdateEvent](https://www.w3.org/TR/payment-request/#dom-paymentrequestupdateevent) — JavaScript
+      layer and iOS PassKit delivery implemented (see [Payment change events](#payment-change-events)); on-device
+      verification is tracked in [#393](https://github.com/rnw-community/rnw-community/issues/393)
+- [x] [PaymentMethodChangeEvent](https://www.w3.org/TR/payment-request/#dom-paymentmethodchangeevent) — same
+      implementation and verification status as `PaymentRequestUpdateEvent`
 - [ ] Implement [PaymentDetailsModifier](https://www.w3.org/TR/payment-request/#dom-paymentdetailsmodifier)
 - [ ] Improve and unify errors according to the spec
 - [ ] Implement `PaymentResponse` `retry()` method
 - [ ] Implement `PaymentResponse` `toJSON()` method
+
+#### Known deviations
+
+- **Android change events are a no-op.** Google Pay renders its sheet in its own activity and never asks the app for
+  an in-sheet update, so `addEventListener` can be called but a registered listener never fires on Android.
+- **`PaymentShippingOption.selected` is ignored on iOS.** PassKit has no preselection support and always shows its
+  shipping-method picker with the first option of the array highlighted.
+- **`PaymentRequest` is single-use**, deviating from the spec's reusable `closed` state: once `show()` settles or
+  `abort()` resolves the request stays `closed` forever — `show()` always rejects and `addEventListener` is inert. A
+  new `PaymentRequest` is required for every payment attempt. See [Migrating from v2](#migrating-from-v2).
+- **`couponcodechange`** is a PassKit extension, not part of the W3C specification.
 
 ### Other
 

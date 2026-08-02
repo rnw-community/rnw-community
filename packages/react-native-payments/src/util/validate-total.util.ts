@@ -9,7 +9,7 @@ import type { AmountValue } from '../type/amount-value.type';
 const isNegative = (amountValue: AmountValue): boolean =>
     isNumber(amountValue) ? amountValue < 0 : amountValue.startsWith('-');
 
-export const validateTotal = (total: PaymentItem, ErrorType: ClassType<PaymentsError> = Error): void => {
+export const validateTotal = (total: PaymentItem, ErrorType: ClassType<PaymentsError>): void => {
     // Should Validator take an errorType to pre populate "Failed to construct 'PaymentRequest'"
 
     if (!isDefined(total)) {
