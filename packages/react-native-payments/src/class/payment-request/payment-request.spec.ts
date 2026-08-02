@@ -99,6 +99,27 @@ describe('PaymentRequest', () => {
             },
         };
 
+        it('should throw ConstructorError for every constructor validation failure', () => {
+            expect.hasAssertions();
+
+            expect(() => new PaymentRequest([], {} as unknown as PaymentDetailsInit)).toThrow(ConstructorError);
+            expect(() => new PaymentRequest(undefined as unknown as PaymentMethodData[], paymentDetails)).toThrow(
+                ConstructorError
+            );
+            expect(
+                () => new PaymentRequest([{ supportedMethods: undefined } as unknown as PaymentMethodData], paymentDetails)
+            ).toThrow(ConstructorError);
+            expect(() => new PaymentRequest([methodData], { total: undefined } as unknown as PaymentDetailsInit)).toThrow(
+                ConstructorError
+            );
+            expect(
+                () =>
+                    new PaymentRequest([methodData], {
+                        total: { label: 'Total', amount: { currency: 'USD', value: '-1.00' } },
+                    })
+            ).toThrow(ConstructorError);
+        });
+
         it('should throw when payment methods not passed', () => {
             expect.assertions(2);
 
