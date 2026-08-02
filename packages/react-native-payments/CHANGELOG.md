@@ -3,6 +3,13 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.6.1](https://github.com/rnw-community/rnw-community/compare/v2.6.0...v2.6.1) (2026-08-02)
+
+### Bug Fixes
+
+- **react-native-payments:** normalize native user cancellation to an AbortError DOMException ([263f4f4](https://github.com/rnw-community/rnw-community/commit/263f4f4003432738030f88ab0d1c77fcb5aaf135))
+- **react-native-payments:** string-only shipping amounts and W3C names on DOMException ([312e97d](https://github.com/rnw-community/rnw-community/commit/312e97db7b32294867e005df09fa34fcd2ee1ccd))
+
 # [2.6.0](https://github.com/rnw-community/rnw-community/compare/v2.5.0...v2.6.0) (2026-08-02)
 
 ### Features
