@@ -81,22 +81,24 @@ const paymentRequest = new PaymentRequest(methodData, paymentDetails);
 
 if (await paymentRequest.canMakePayment()) {
     const paymentResponse = await paymentRequest.show();
+    const isConfirmed = await sendToYourBackend(paymentResponse.details); // your own gateway call
 
-    // Send paymentResponse.details.applePayToken / androidPayToken to your backend here.
-
-    await paymentResponse.complete(PaymentComplete.Success);
+    await paymentResponse.complete(isConfirmed ? PaymentComplete.Success : PaymentComplete.Fail);
 }
 ```
 
-See [Creating an Instance](#2-creating-an-instance) for the full two-platform `methodData`, [Payment change events](#payment-change-events)
+Only call `complete(PaymentComplete.Success)` once your backend has actually confirmed the charge — completing with
+`Success` before that point tells the sheet (and the user) the payment went through even if it didn't. See
+[Creating an Instance](#2-creating-an-instance) for the full two-platform `methodData`, [Payment change events](#payment-change-events)
 for shipping/coupon updates while the sheet is open, and [How it works](#how-it-works) for why a `PaymentRequest` is
 single-use — build a new one per payment attempt rather than reusing a settled request.
 
 ### Screenshots
 
-Not recorded yet — see the `Docs` [TODO](#todo) for the exact Maestro capture command that will produce them. Once
-captured, an Apple Pay and a Google Pay sheet GIF replace this placeholder, showing the exact flow from the snippet
-above.
+Recording is deferred — not a documentation gap, a scheduling one: capturing needs the on-device Maestro fleet, which
+is at capacity. The `Docs` [TODO](#todo) below carries the exact capture command so this stays actionable instead of
+silently dropped; once captured, an Apple Pay and a Google Pay sheet GIF replace this placeholder, showing the exact
+flow from the snippet above.
 
 ## Features
 
@@ -681,7 +683,7 @@ selection is still stored on the request, so these values always describe what t
 JS — through a `NativeEventEmitter` built over the same module handle, scoped to the request that is currently on
 screen:
 
-```
+```text
  JS                                            Native (PassKit / Google Pay)
  ┌────────────────────────┐  show(requestId, …)  ┌───────────────────────────────┐
  │ PaymentRequest          │ ───────────────────▶ │ Payments TurboModule          │
@@ -695,8 +697,8 @@ screen:
  ChangeEventDispatcher.dispatch(listeners)
               │ listener runs, calls updateWith(details) — or times out (changeEventTimeoutMs)
               ▼
- updatePaymentDetails(requestId, eventId, total, …) ────────────────▶  resolves the *pending*
-                                                                        completion for that eventId
+ updatePaymentDetails(update, displayItems, shippingOptions) ───────▶  resolves the *pending*
+   update = { requestId, eventId, eventName, total, error }           completion for that eventId
               │
               ▼
  show() resolves/rejects ── closeRequest() ──▶  state: closed  (single-use — see below)
@@ -758,7 +760,7 @@ section maps the concrete API surface so an existing integration can be ported.
 | `addEventListener('shippingaddresschange' \| 'shippingoptionchange', e => e.updateWith(...))` | Same two, plus `paymentmethodchange` and the PassKit-only `couponcodechange`                        | Request-scoped native events, `isAnswered`, field-level errors. See [Payment change events](#payment-change-events). |
 | `paymentResponse.details.paymentData` / `transactionIdentifier` (iOS)                        | `paymentResponse.details.applePayToken` (`IosPKToken`)                                              | One typed token object instead of loose fields.                                                  |
 | `paymentResponse.details.getPaymentToken()` (Android, async) / `.paymentToken` (gateway)     | `paymentResponse.details.androidPayToken` (`AndroidPaymentMethodToken`)                             | Synchronous typed field; no async indirection, no built-in gateway token.                        |
-| `paymentResponse.complete('success' \| 'fail' \| 'unknown')` (string)                        | `paymentResponse.complete(PaymentComplete.Success \| PaymentComplete.Fail)` (enum)                  | No `'unknown'` — the W3C algorithm only defines success/fail.                                    |
+| `paymentResponse.complete('success' \| 'fail' \| 'unknown')` (string)                        | `paymentResponse.complete(PaymentComplete.Success \| PaymentComplete.Fail \| PaymentComplete.Unknown)` (enum) | Same three outcomes, typed — see `PaymentComplete` in [Closing the Payment Sheet](#6-closing-the-payment-sheet). |
 | Built-in Stripe / Braintree add-on packages                                                  | Removed — bring your own gateway via `gatewayConfig` (Android) or the raw token (iOS)               | Stripe/Braintree already ship their own maintained RN SDKs.                                      |
 | Untyped JS, legacy bridge module                                                             | Full TypeScript, TurboModule (New Architecture-ready)                                               | See [How it works](#how-it-works).                                                                |
 | Ad-hoc thrown errors, no stable identity                                                     | Spec-mapped `ConstructorError` / `DOMException` / `PaymentsError`                                   | See [Error Handling](#error-handling).                                                            |
@@ -835,12 +837,17 @@ const paymentRequest = new PaymentRequest(methodData, paymentDetails);
 const paymentResponse = await paymentRequest.show();
 const applePayToken = paymentResponse.details.applePayToken; // typed IosPKToken
 
-await fetch('...', { method: 'POST', body: JSON.stringify(applePayToken) })
-    .then(res => res.json())
-    .then(successHandler)
-    .catch(errorHandler);
-
-await paymentResponse.complete(PaymentComplete.Success);
+try {
+    const result = await fetch('...', { method: 'POST', body: JSON.stringify(applePayToken) });
+    if (!result.ok) {
+        throw new Error(`Backend rejected the payment: ${result.status}`);
+    }
+    successHandler(await result.json());
+    await paymentResponse.complete(PaymentComplete.Success);
+} catch (error) {
+    errorHandler(error);
+    await paymentResponse.complete(PaymentComplete.Fail);
+}
 ```
 
 The differences that matter beyond syntax: no `global.PaymentRequest` polyfill, enums instead of string literals, one
@@ -1161,10 +1168,13 @@ failure, not a JS regression.
 
 **New Architecture / bridgeless.** The package ships one TurboModule `Spec` consumed identically on the old
 architecture, the New Architecture and bridgeless — `getNativePaymentsEventEmitter()` resolves through the same module
-handle on all three and returns `null` when the native side does not implement the change-event contract, which is
-what lets a newer JS bundle run against an older native binary without crashing (see [How it works](#how-it-works)).
-A build error mentioning `TSObjectKeyword` or an abstract-method mismatch when New Architecture is enabled is the
-codegen version-skew issue above, not a New Architecture incompatibility.
+handle on all three, so switching `newArchEnabled` does not by itself require touching this package's integration (see
+[How it works](#how-it-works)). This `null`-when-unimplemented guard only covers the *optional* change-event contract
+(`setActiveEvents`/`updatePaymentDetails`/`addListener`/`removeListeners`) degrading to the v2 no-events flow — it does
+**not** cover the required `show(requestId, methodData, details)` call: a `v3` JS bundle still needs a rebuilt `v3`
+native binary, exactly as [Migrating from v2](#migrating-from-v2) describes, regardless of architecture. A build error
+mentioning `TSObjectKeyword` or an abstract-method mismatch when New Architecture is enabled is the codegen
+version-skew issue above, not a New Architecture incompatibility.
 
 **Jest: `TurboModuleRegistry.getEnforcing(...): 'Payments' could not be found`.** Covered in
 [Unit testing](#unit-testing) — mock `TurboModuleRegistry` to return `null` for the `Payments` module
