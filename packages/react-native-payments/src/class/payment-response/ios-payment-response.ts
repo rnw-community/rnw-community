@@ -2,6 +2,7 @@ import { isNotEmptyString } from '@rnw-community/shared';
 
 import { emptyAndroidPaymentMethodToken } from '../../@standard/android/response/android-payment-method-token';
 import { emptyIosPaymentData } from '../../@standard/ios/response/ios-payment-data';
+import { parseJsonOrThrow } from '../../util/parse-json-or-throw.util';
 
 import { PaymentResponse } from './payment-response';
 
@@ -16,7 +17,7 @@ import type { PaymentResponseAddressInterface } from '../../interface/payment-re
 
 export class IosPaymentResponse extends PaymentResponse {
     constructor(requestId: string, methodName: string, jsonData: string) {
-        const data = JSON.parse(jsonData) as IosPKPayment;
+        const data = parseJsonOrThrow<IosPKPayment>(jsonData);
 
         super(requestId, methodName, {
             billingAddress: IosPaymentResponse.parsePKContact(data.billingContact?.postalAddress),
@@ -33,7 +34,7 @@ export class IosPaymentResponse extends PaymentResponse {
         return {
             ...input,
             paymentData: isNotEmptyString(input.paymentData)
-                ? (JSON.parse(input.paymentData) as IosPaymentData)
+                ? parseJsonOrThrow<IosPaymentData>(input.paymentData)
                 : emptyIosPaymentData,
         };
     }

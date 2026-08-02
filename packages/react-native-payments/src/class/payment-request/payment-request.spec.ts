@@ -386,6 +386,37 @@ describe('PaymentRequest', () => {
                 ).toThrow(new ConstructorError(`'5.00.' is not a valid amount format for shipping options`));
             });
         });
+
+        describe('spec-conformant error identity', () => {
+            const expectConstructionTypeError = (construct: () => PaymentRequest): void => {
+                expect(construct).toThrow(TypeError);
+                expect(construct).toThrow(ConstructorError);
+
+                try {
+                    construct();
+                    throw new Error('expected construction to throw');
+                } catch (error) {
+                    expect(error).toBeInstanceOf(TypeError);
+                    expect((error as Error).name).toBe('TypeError');
+                }
+            };
+
+            it('rejects a missing payment method as a spec-mandated TypeError', () => {
+                expect.assertions(4);
+
+                expectConstructionTypeError(() => new PaymentRequest([], {} as unknown as PaymentDetailsInit));
+            });
+
+            it('rejects a negative total as a spec-mandated TypeError', () => {
+                expect.assertions(4);
+
+                const invalidPaymentDetails = {
+                    total: { label: 'Total', amount: { currency: 'USD', value: '-10.00' } },
+                };
+
+                expectConstructionTypeError(() => new PaymentRequest([methodData], invalidPaymentDetails));
+            });
+        });
     });
 
     describe('PaymentRequest on Android', () => {

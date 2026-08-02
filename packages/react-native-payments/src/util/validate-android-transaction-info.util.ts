@@ -2,13 +2,9 @@ import { defaultAndroidTransactionInfo } from '../@standard/android/request/andr
 import { PaymentMethodNameEnum } from '../enum/payment-method-name.enum';
 
 import type { PaymentMethodData } from '../@standard/w3c/payment-method-data';
-import type { PaymentsError } from '../error/payments.error';
 import type { ClassType } from '@rnw-community/shared';
 
-export const validateAndroidTransactionInfo = (
-    methodData: PaymentMethodData[],
-    ErrorType: ClassType<PaymentsError>
-): void => {
+export const validateAndroidTransactionInfo = (methodData: PaymentMethodData[], ErrorType: ClassType<Error>): void => {
     const hasInvalidCheckoutOption = methodData.some(
         paymentMethodData =>
             paymentMethodData.supportedMethods === PaymentMethodNameEnum.AndroidPay &&

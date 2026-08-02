@@ -3,6 +3,7 @@ import { describe, expect, it, jest } from '@jest/globals';
 import { AndroidPaymentMethodTokenizationType } from '../../@standard/android/enum/android-payment-method-tokenization-type.enum';
 import { emptyAndroidIntermediateSigningKey } from '../../@standard/android/response/android-intermediate-signing-key';
 import { PaymentMethodNameEnum } from '../../enum/payment-method-name.enum';
+import { PaymentsError } from '../../error/payments.error';
 
 import { AndroidPaymentResponse } from './android-payment-response';
 
@@ -182,7 +183,7 @@ describe('AndroidPaymentResponse', () => {
         expect(details.payerPhone).toBe('');
     });
 
-    it('should throw when the tokenization data is missing a token', () => {
+    it('should throw a domain-specific error when the tokenization data is missing a token', () => {
         expect.hasAssertions();
 
         const paymentWithoutToken: AndroidPaymentData = {
@@ -193,7 +194,21 @@ describe('AndroidPaymentResponse', () => {
             },
         };
 
-        expect(() => createResponse(paymentWithoutToken)).toThrow(SyntaxError);
+        const construct = (): AndroidPaymentResponse => createResponse(paymentWithoutToken);
+
+        expect(construct).toThrow(PaymentsError);
+        expect(construct).not.toThrow(SyntaxError);
+        expect(construct).toThrow(`Failed parsing PaymentRequest details`);
+    });
+
+    it('should throw a domain-specific error when constructed with malformed JSON', () => {
+        expect.hasAssertions();
+
+        const construct = (): AndroidPaymentResponse =>
+            new AndroidPaymentResponse('requestId', PaymentMethodNameEnum.AndroidPay, '...');
+
+        expect(construct).toThrow(PaymentsError);
+        expect(construct).not.toThrow(SyntaxError);
     });
 
     it('should default the intermediate signing key when the token does not carry one', () => {
