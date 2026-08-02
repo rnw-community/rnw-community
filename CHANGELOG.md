@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [2.11.0](https://github.com/rnw-community/rnw-community/compare/v2.10.0...v2.11.0) (2026-08-02)
+
+### Bug Fixes
+
+- **react-native-payments:** include expo-plugins in the jest coverage gate ([0d12f3a](https://github.com/rnw-community/rnw-community/commit/0d12f3a70292d80a4f144e23f4fd3af3ee20810b))
+- **react-native-payments:** mark expo peer dependency optional ([d51fc6c](https://github.com/rnw-community/rnw-community/commit/d51fc6cbf3b046d91ec8ea674d16339296bcbb1b))
+
+### Features
+
+- **react-native-payments:** add typed supportedNetworks and googlePayEnvironment plugin options ([9eccd8a](https://github.com/rnw-community/rnw-community/commit/9eccd8a2b902ac45c716dfe560cb7a075f35b0c2))
+
 # [2.10.0](https://github.com/rnw-community/rnw-community/compare/v2.9.1...v2.10.0) (2026-08-02)
 
 ### Bug Fixes
