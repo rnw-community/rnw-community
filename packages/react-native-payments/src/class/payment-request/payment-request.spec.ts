@@ -1622,6 +1622,34 @@ describe('PaymentRequest', () => {
             );
         });
 
+        it('should keep numeric shipping option amounts away from native and answer with the unchanged details', async () => {
+            expect.hasAssertions();
+
+            const request = createInteractiveRequest();
+
+            request.addEventListener('shippingoptionchange', event => {
+                event.updateWith({
+                    total: updatedTotal,
+                    shippingOptions: [
+                        { id: 'express', label: 'Express', amount: { currency: 'USD', value: 5 as unknown as string } },
+                    ],
+                });
+            });
+
+            emitNativeEvent('shippingoptionchange', { requestId: request.id, shippingOption: 'express' });
+            await nativeUpdate;
+
+            expect(warnMock).toHaveBeenCalledWith(
+                expect.stringContaining(`'5' is not a valid amount format for shipping options`)
+            );
+            expect(request.details.shippingOptions).toBeUndefined();
+            expect(updatePaymentDetailsMock).toHaveBeenCalledWith(
+                { error: '', eventName: 'shippingoptionchange', requestId: request.id, total: initialTotal },
+                [],
+                []
+            );
+        });
+
         it('should keep invalid shipping options away from native and answer with the unchanged details', async () => {
             expect.hasAssertions();
 
@@ -2071,6 +2099,28 @@ describe('PaymentRequest', () => {
             expect(setActiveEventsMock).toHaveBeenLastCalledWith(request.id, []);
             expect(listener).not.toHaveBeenCalled();
             expect(updatePaymentDetailsMock).not.toHaveBeenCalled();
+        });
+
+        it.each(['E_CANCELLED_BY_USER', 'payment_error'])(
+            'should reject show() with an AbortError DOMException when native cancels with %s',
+            async code => {
+                expect.hasAssertions();
+
+                const cancellation = Object.assign(new Error('canceled'), { code });
+                jest.mocked(NativePayments.show).mockRejectedValue(cancellation);
+
+                const request = createRequest();
+
+                await expect(request.show()).rejects.toMatchObject({ name: 'AbortError' });
+            }
+        );
+
+        it('should name DOMException rejections after their W3C error type', async () => {
+            expect.hasAssertions();
+
+            const request = createRequest();
+
+            await expect(request.abort()).rejects.toMatchObject({ name: 'InvalidStateError' });
         });
 
         it('should remove all subscriptions when show rejects', async () => {

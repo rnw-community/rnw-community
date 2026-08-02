@@ -1,4 +1,4 @@
-import { type ClassType, isDefined, isNotEmptyString } from '@rnw-community/shared';
+import { type ClassType, isDefined, isNotEmptyString, isString } from '@rnw-community/shared';
 
 import { isValidDecimalMonetaryValue } from './is-valid-decimal-monetary-value.util';
 
@@ -18,7 +18,7 @@ export const validateShippingOptions = (
             throw new ErrorType(`required member value is undefined.`);
         }
 
-        if (!isValidDecimalMonetaryValue(shippingOption.amount.value)) {
+        if (!isString(shippingOption.amount.value) || !isValidDecimalMonetaryValue(shippingOption.amount.value)) {
             throw new ErrorType(`'${shippingOption.amount.value}' is not a valid amount format for shipping options`);
         }
     });

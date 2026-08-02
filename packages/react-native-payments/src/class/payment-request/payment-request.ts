@@ -18,6 +18,7 @@ import { ConstructorError } from '../../error/constructor.error';
 import { DOMException } from '../../error/dom.exception';
 import { PaymentsError } from '../../error/payments.error';
 import { getNativePaymentsEventEmitter } from '../../util/get-native-payments-event-emitter/get-native-payments-event-emitter.util';
+import { isNativeUserCancellation } from '../../util/is-native-user-cancellation.util';
 import { validateAndroidTransactionInfo } from '../../util/validate-android-transaction-info.util';
 import { validateDetailsUpdate } from '../../util/validate-details-update.util';
 import { validateDisplayItems } from '../../util/validate-display-items.util';
@@ -147,6 +148,13 @@ export class PaymentRequest {
                 })
                 .catch((error: unknown) => {
                     this.closeRequest();
+
+                    if (isNativeUserCancellation(error)) {
+                        reject(new DOMException(PaymentsErrorEnum.AbortError));
+
+                        return;
+                    }
+
                     reject(isError(error) ? error : new PaymentsError(`Failed showing PaymentRequest`));
                 });
         });

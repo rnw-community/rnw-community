@@ -1,6 +1,7 @@
 # ReactNative Payments
 
-[![npm version](https://badge.fury.io/js/%40rnw-community%2Fnestjs-webpack-swc.svg)](https://badge.fury.io/js/%40rnw-community%2Freact-native-payments)
+[![npm version](https://badge.fury.io/js/%40rnw-community%2Freact-native-payments.svg)](https://badge.fury.io/js/%40rnw-community%2Freact-native-payments)
+[![coverage](https://img.shields.io/codecov/c/github/rnw-community/rnw-community?flag=react-native-payments&label=coverage)](https://app.codecov.io/gh/rnw-community/rnw-community)
 [![npm downloads](https://img.shields.io/npm/dm/%40rnw-community%2Freact-native-payments.svg)](https://www.npmjs.com/package/%40rnw-community%2Freact-native-payments)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com)
 
@@ -537,6 +538,10 @@ selection is still stored on the request, so these values always describe what t
 
 ## Migrating from v2
 
+> **The native module interface changed** (`show()` now carries the request id, and the change-event methods are part of
+> the TurboModule spec). Rebuild the native app when upgrading — a JavaScript-only update (e.g. CodePush/OTA) shipped on
+> top of a v2 binary will fail to open the payment sheet.
+
 The `v2.x` line shipped no change-event API: the sheet only ever showed the `PaymentDetailsInit` given to the
 constructor, and neither `addEventListener` nor `removeEventListener` existed. Adopting the event API above is purely
 additive — `PaymentRequest`, `canMakePayment()`, `show()`, `abort()` and `PaymentComplete` keep their v2 signatures, and a
@@ -556,11 +561,13 @@ completeness — one usage example each.
 ### `PaymentsErrorEnum`
 
 The message carried by every `DOMException` and rejection the library throws: `AbortError`, `InvalidStateError`,
-`NotAllowedError`, `NotSupportedError`, `SecurityError`.
+`NotAllowedError`, `NotSupportedError`, `SecurityError`. Every `DOMException` also carries the W3C error name in
+`error.name`, which is the stable way to branch on the failure. Native user cancellation (the person dismissing the
+payment sheet on either platform) is normalized to an `AbortError` `DOMException`, matching the W3C behaviour:
 
 ```ts
 paymentRequest.show().catch((error: Error) => {
-    if (error.message === PaymentsErrorEnum.AbortError) {
+    if (error.name === 'AbortError') {
         // the user dismissed the sheet
     }
 });
