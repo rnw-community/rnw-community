@@ -2101,6 +2101,20 @@ describe('PaymentRequest', () => {
             expect(updatePaymentDetailsMock).not.toHaveBeenCalled();
         });
 
+        it.each(['E_CANCELLED_BY_USER', 'payment_error'])(
+            'should reject show() with an AbortError DOMException when native cancels with %s',
+            async code => {
+                expect.hasAssertions();
+
+                const cancellation = Object.assign(new Error('canceled'), { code });
+                jest.mocked(NativePayments.show).mockRejectedValue(cancellation);
+
+                const request = createRequest();
+
+                await expect(request.show()).rejects.toMatchObject({ name: 'AbortError' });
+            }
+        );
+
         it('should name DOMException rejections after their W3C error type', async () => {
             expect.hasAssertions();
 
