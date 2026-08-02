@@ -3,6 +3,28 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [2.5.0](https://github.com/rnw-community/rnw-community/compare/v2.4.0...v2.5.0) (2026-08-02)
+
+### Bug Fixes
+
+- **react-native-payments:** align show() test fixtures with its new request id argument ([88df271](https://github.com/rnw-community/rnw-community/commit/88df2718d279cd1b08a8e5807476ce03bafa15ad))
+- **react-native-payments:** close the request on every terminal path of the payment sheet ([15194d2](https://github.com/rnw-community/rnw-community/commit/15194d2c2059761e44cd36e1bbc0e4dcdbe9b375))
+- **react-native-payments:** confine every iOS 15 PassKit symbol to an availability guard ([8be8140](https://github.com/rnw-community/rnw-community/commit/8be814052e61997cb5cdc022b1262c8eb4912421))
+- **react-native-payments:** keep every change event answer bound to the handler it belongs to ([2c28159](https://github.com/rnw-community/rnw-community/commit/2c28159339eb08e918d90fdf12aae935612b2d38))
+- **react-native-payments:** keep the billing country code and the contact names ([a0a778a](https://github.com/rnw-community/rnw-community/commit/a0a778a1033a668829e0deccac7fad19e6e4712d)), closes [#383](https://github.com/rnw-community/rnw-community/issues/383)
+- **react-native-payments:** resolve Bancontact, Dankort and Mir from the PassKit constants ([0ff143b](https://github.com/rnw-community/rnw-community/commit/0ff143b19a62ba4b958d4713196e2cc36dcc7a5a)), closes [#385](https://github.com/rnw-community/rnw-community/issues/385)
+- **react-native-payments:** resolve the TurboModule proxy check with isDefined ([ead43d1](https://github.com/rnw-community/rnw-community/commit/ead43d1b11f54236c1265aa38e30bb7af60af151))
+- **react-native-payments:** stop a listener-less show() from losing sheet ownership ([76ef175](https://github.com/rnw-community/rnw-community/commit/76ef1752065dfca6af34483ee1c5cd789c7ed25d))
+- **react-native-payments:** validate the shipping options of the request and of every update ([c897c04](https://github.com/rnw-community/rnw-community/commit/c897c045ceea5d359e8f0c66cbcea19ee6b465a1)), closes [#387](https://github.com/rnw-community/rnw-community/issues/387)
+
+### Features
+
+- **react-native-payments:** deliver payment change events from PassKit without hanging the sheet ([2561b5f](https://github.com/rnw-community/rnw-community/commit/2561b5f9649cc0c601e6c2fdf514fec612ec78dd))
+- **react-native-payments:** let the Apple Pay sheet open with a prefilled coupon code ([4f4cb52](https://github.com/rnw-community/rnw-community/commit/4f4cb520b24c9541fcad48a00e49a598e9f7d88a)), closes [#382](https://github.com/rnw-community/rnw-community/issues/382)
+- **react-native-payments:** render shipping options with their label and amount on iOS ([cea85a9](https://github.com/rnw-community/rnw-community/commit/cea85a9a0ed635120515d3603d6e0dd7e76055ee)), closes [#380](https://github.com/rnw-community/rnw-community/issues/380)
+- **react-native-payments:** show a pending amount on the Apple Pay sheet ([87918d9](https://github.com/rnw-community/rnw-community/commit/87918d97044cd6f720f3da7c0261a258693238ba)), closes [#370](https://github.com/rnw-community/rnw-community/issues/370)
+- **react-native-payments:** surface field level payment sheet errors through PKPaymentErrorDomain ([e40f8ca](https://github.com/rnw-community/rnw-community/commit/e40f8ca5ed9be88e8da11e2e6b6196e286faade5)), closes [#381](https://github.com/rnw-community/rnw-community/issues/381)
+
 # [2.4.0](https://github.com/rnw-community/rnw-community/compare/v2.3.2...v2.4.0) (2026-08-02)
 
 ### Features
