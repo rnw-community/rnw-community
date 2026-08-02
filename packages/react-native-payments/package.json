@@ -91,9 +91,14 @@
         "react-native": "^0.86.2"
     },
     "peerDependencies": {
-        "expo": ">=48.0.0",
+        "expo": "*",
         "react": ">=17",
         "react-native": ">=0.64"
+    },
+    "peerDependenciesMeta": {
+        "expo": {
+            "optional": true
+        }
     },
     "codegenConfig": {
         "name": "RNPaymentsSpec",

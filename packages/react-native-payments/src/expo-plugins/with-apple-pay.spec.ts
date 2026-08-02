@@ -1,6 +1,11 @@
 import { describe, expect, it, jest } from '@jest/globals';
 
+import { EnvironmentEnum } from '../enum/environment.enum';
+import { SupportedNetworkEnum } from '../enum/supported-networks.enum';
+
 import { withApplePay } from './with-apple-pay';
+
+import type { ReactNativePaymentsPluginProps } from './plugin.props';
 
 jest.mock('expo/config-plugins', () => ({
     withEntitlementsPlist: jest.fn((config: unknown, modifier: (config: unknown) => unknown) => modifier(config)),
@@ -69,6 +74,20 @@ describe('withApplePay', () => {
         expect(() => withApplePay(createConfig() as never, {} as never)).toThrow(
             'Please provide "@rnw-community/react-native-payments" plugin option "merchantIdentifier"'
         );
+    });
+
+    it('should ignore Google Pay-only options and keep entitling the given merchant identifier', () => {
+        expect.assertions(1);
+
+        const props: ReactNativePaymentsPluginProps = {
+            merchantIdentifier: 'merchant.com.example',
+            supportedNetworks: [SupportedNetworkEnum.Visa],
+            googlePayEnvironment: EnvironmentEnum.TEST,
+        };
+
+        const result = withApplePay(createConfig(), props) as unknown as { modResults: Record<string, string[]> };
+
+        expect(result.modResults[ENTITLEMENT_KEY]).toStrictEqual(['merchant.com.example']);
     });
 
     it('should throw when every provided identifier is empty', () => {
