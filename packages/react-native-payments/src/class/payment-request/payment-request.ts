@@ -229,8 +229,8 @@ export class PaymentRequest {
 
     private handleAccept(details: string): AndroidPaymentResponse | IosPaymentResponse {
         return Platform.OS === 'android'
-            ? new AndroidPaymentResponse(this.id, PaymentMethodNameEnum.AndroidPay, details)
-            : new IosPaymentResponse(this.id, PaymentMethodNameEnum.ApplePay, details);
+            ? new AndroidPaymentResponse(this.id, PaymentMethodNameEnum.AndroidPay, details, this.shippingOption)
+            : new IosPaymentResponse(this.id, PaymentMethodNameEnum.ApplePay, details, this.shippingOption);
     }
 
     private subscribeToNativeEvent(

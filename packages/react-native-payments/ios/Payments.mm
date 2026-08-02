@@ -326,6 +326,27 @@ RCT_EXPORT_METHOD(complete: (NSString *)paymentStatus
     });
 }
 
+// https://www.w3.org/TR/payment-request/#dom-paymentresponse-retry
+RCT_EXPORT_METHOD(retry: (NSString *)requestId
+                        errorFields:(NSDictionary *)errorFields
+                        resolve:(RCTPromiseResolveBlock)resolve
+                        reject:(RCTPromiseRejectBlock)reject)
+{
+    void (^completion)(PKPaymentAuthorizationResult *) = self.authorizationCompletion;
+
+    if (completion == nil || ![self isActiveRequestId:requestId]) {
+        reject(@"invalid_state", @"No pending payment authorization to retry", nil);
+        return;
+    }
+
+    self.authorizationCompletion = nil;
+
+    completion([[PKPaymentAuthorizationResult alloc] initWithStatus:PKPaymentAuthorizationStatusFailure
+                                                              errors:[self getRetryErrorsFromErrorFields:errorFields]]);
+
+    resolve(nil);
+}
+
 RCT_EXPORT_METHOD(setActiveEvents: (NSString *)requestId
                        eventNames:(NSArray *)eventNames
                           resolve:(RCTPromiseResolveBlock)resolve
@@ -473,6 +494,24 @@ RCT_EXPORT_METHOD(canMakePayments: (NSString *)methodDataString
                         didAuthorizePayment:(PKPayment *)payment
                                     handler:(void (^)(PKPaymentAuthorizationResult *result))completion
 {
+    if (self.paymentResolve == nil) {
+        // A second authorization after PaymentResponse.retry(): the original show() promise is already
+        // settled and there is no channel left to deliver a new PKPayment to JavaScript.
+        RCTLogWarn(@"Payments: didAuthorizePayment fired again after retry(); failing and dismissing the sheet.");
+
+        self.authorizationCompletion = completion;
+
+        PKPaymentAuthorizationViewController *presentedViewController = self.viewController;
+
+        [self teardownPaymentSheetState];
+
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [presentedViewController dismissViewControllerAnimated:YES completion:nil];
+        });
+
+        return;
+    }
+
     self.authorizationCompletion = completion;
 
     [self flushPendingEventCompletions];
@@ -719,6 +758,43 @@ RCT_EXPORT_METHOD(canMakePayments: (NSString *)methodDataString
     RCTLogWarn(@"Payments: '%@' is not a known payment error type, ignoring '%@'", errorType, message);
 
     return @[];
+}
+
+// https://www.w3.org/TR/payment-request/#dom-paymentvalidationerrors
+- (NSArray<NSError *> *_Nonnull)getRetryErrorsFromErrorFields:(NSDictionary *_Nullable)errorFields
+{
+    NSMutableArray<NSError *> *errors = [NSMutableArray array];
+
+    NSDictionary *payerErrors = errorFields[@"payer"];
+    if ([payerErrors isKindOfClass:[NSDictionary class]]) {
+        for (NSString *field in payerErrors) {
+            [errors addObjectsFromArray:[self getFieldErrorsFromError:@{
+                @"type": @"contactField",
+                @"field": field,
+                @"message": payerErrors[field]
+            }]];
+        }
+    }
+
+    NSDictionary *shippingAddressErrors = errorFields[@"shippingAddress"];
+    if ([shippingAddressErrors isKindOfClass:[NSDictionary class]]) {
+        for (NSString *key in shippingAddressErrors) {
+            [errors addObjectsFromArray:[self getFieldErrorsFromError:@{
+                @"type": @"shippingAddressField",
+                @"key": key,
+                @"message": shippingAddressErrors[key]
+            }]];
+        }
+    }
+
+    id genericMessage = errorFields[@"error"];
+    if ([genericMessage isKindOfClass:[NSString class]] && [(NSString *)genericMessage length] > 0) {
+        [errors addObject:[NSError errorWithDomain:PKPaymentErrorDomain
+                                               code:PKPaymentUnknownError
+                                           userInfo:@{ NSLocalizedDescriptionKey: genericMessage }]];
+    }
+
+    return errors;
 }
 
 - (NSArray<NSError *> *_Nonnull)getUnstructuredErrorsForEvent:(NSString *_Nonnull)eventName message:(id _Nullable)message
