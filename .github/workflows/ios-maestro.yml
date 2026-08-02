@@ -6,6 +6,7 @@ name: iOS Maestro E2E
 # schedule keep this safe to land ahead of the fleet.
 on:
     workflow_dispatch:
+    pull_request:
     push:
         branches: [master]
         paths:
@@ -30,8 +31,49 @@ env:
     EXAMPLE_DIR: packages/react-native-payments-example
 
 jobs:
+    detect:
+        name: Detect affected packages
+        runs-on: ubuntu-latest
+        outputs:
+            payments_affected: ${{ steps.affected.outputs.payments_affected }}
+        steps:
+            - uses: actions/checkout@v5
+              with:
+                  fetch-depth: 0
+                  persist-credentials: false
+            - uses: actions/setup-node@v5
+              with:
+                  node-version: 22.x
+            - name: Compute affected packages
+              id: affected
+              env:
+                  TURBO_SCM_BASE: ${{ github.event.pull_request.base.sha }}
+              run: |
+                  if [ "${{ github.event_name }}" != "pull_request" ]; then
+                    echo "payments_affected=true" >> "$GITHUB_OUTPUT"
+                    echo "Non-PR event: payments pipeline always runs."
+                    exit 0
+                  fi
+                  affected=$(npx -y turbo@2.10.8 ls --affected --output=json | node -e '
+                    let raw = "";
+                    process.stdin.on("data", chunk => (raw += chunk));
+                    process.stdin.on("end", () => {
+                      const names = (JSON.parse(raw).packages?.items ?? []).map(item => item.name);
+                      const targets = [
+                        "@rnw-community/react-native-payments",
+                        "@rnw-community/react-native-payments-example",
+                        "@rnw-community/react-native-payments-example-bare",
+                        "@rnw-community/react-native-payments-example-expo",
+                      ];
+                      process.stdout.write(String(names.some(name => targets.includes(name))));
+                    });
+                  ')
+                  echo "payments_affected=${affected}" >> "$GITHUB_OUTPUT"
+                  echo "payments_affected=${affected}"
     maestro:
         name: Maestro (${{ matrix.target }})
+        needs: detect
+        if: needs.detect.outputs.payments_affected == 'true'
         runs-on: [self-hosted, macOS, ARM64, macos-maestro]
         timeout-minutes: 60
         strategy:
@@ -178,3 +220,25 @@ jobs:
                     path: ${{ env.MAESTRO_DEBUG_OUTPUT_DIRECTORY }}/**
                     if-no-files-found: warn
                     retention-days: 7
+
+    status:
+        name: iOS Maestro E2E result
+        needs: [detect, maestro]
+        if: always()
+        runs-on: ubuntu-latest
+        steps:
+            - name: Report
+              run: |
+                  if [ "${{ needs.detect.result }}" != "success" ]; then
+                    echo "Detection job did not succeed."
+                    exit 1
+                  fi
+                  if [ "${{ needs.detect.outputs.payments_affected }}" != "true" ]; then
+                    echo "Skipped: payments dependency tree untouched."
+                    exit 0
+                  fi
+                  if [ "${{ needs.maestro.result }}" != "success" ]; then
+                    echo "Maestro suite failed."
+                    exit 1
+                  fi
+                  echo "Maestro suite passed."
