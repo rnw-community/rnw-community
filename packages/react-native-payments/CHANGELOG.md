@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [2.4.0](https://github.com/rnw-community/rnw-community/compare/v2.3.2...v2.4.0) (2026-08-02)
+
+### Features
+
+- **react-native-payments:** add w3c change events with addEventListener and updateWith ([98dbffa](https://github.com/rnw-community/rnw-community/commit/98dbffa83005c38056d54eb178898044419a3f31))
+
 ## [2.3.2](https://github.com/rnw-community/rnw-community/compare/v2.3.1...v2.3.2) (2026-08-01)
 
 **Note:** Version bump only for package @rnw-community/react-native-payments
