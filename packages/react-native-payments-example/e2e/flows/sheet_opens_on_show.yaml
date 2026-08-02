@@ -2,13 +2,7 @@ appId: ${APP_ID}
 ---
 - runFlow: ../subflows/launch_and_wait_for_probe.yaml
 - runFlow: ../subflows/show_request.yaml
-- runFlow:
-    when:
-      platform: iOS
-    commands:
-      - assertVisible:
-          id: "payments-flow-state"
-          text: "showing"
+- runFlow: ../subflows/dismiss_ios_sheet.yaml
 - scrollUntilVisible:
     element:
       text: ".*show called.*"
@@ -23,6 +17,17 @@ appId: ${APP_ID}
             id: "payments-flow-state"
             text: "rejected"
           timeout: 20000
+      - scrollUntilVisible:
+          element:
+            text: ".*show rejected.*"
+      - assertVisible:
+          text: ".*show rejected.*"
+      - assertVisible:
+          id: "action-reset"
+- runFlow:
+    when:
+      platform: iOS
+    commands:
       - scrollUntilVisible:
           element:
             text: ".*show rejected.*"
