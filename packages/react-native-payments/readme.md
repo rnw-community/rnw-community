@@ -562,7 +562,8 @@ completeness — one usage example each.
 
 The message carried by every `DOMException` and rejection the library throws: `AbortError`, `InvalidStateError`,
 `NotAllowedError`, `NotSupportedError`, `SecurityError`. Every `DOMException` also carries the W3C error name in
-`error.name`, which is the stable way to branch on the failure:
+`error.name`, which is the stable way to branch on the failure. Native user cancellation (the person dismissing the
+payment sheet on either platform) is normalized to an `AbortError` `DOMException`, matching the W3C behaviour:
 
 ```ts
 paymentRequest.show().catch((error: Error) => {
