@@ -3,6 +3,16 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [2.10.0](https://github.com/rnw-community/rnw-community/compare/v2.9.1...v2.10.0) (2026-08-02)
+
+### Bug Fixes
+
+- **react-native-payments:** resolve attribute-handler listener collision and native reject bugs ([9beac8e](https://github.com/rnw-community/rnw-community/commit/9beac8e11ee7a6944be020aecfc9dabb5dcc9bfc))
+
+### Features
+
+- **react-native-payments:** add hasEnrolledInstrument, event-handler attributes, shippingType ([528e65b](https://github.com/rnw-community/rnw-community/commit/528e65bd67b5702e6063e83bc64dff503009c888))
+
 ## [2.9.1](https://github.com/rnw-community/rnw-community/compare/v2.9.0...v2.9.1) (2026-08-02)
 
 **Note:** Version bump only for package rnw-community
