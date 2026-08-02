@@ -54,6 +54,12 @@ src/
 - `PaymentRequest` constructor validates per W3C spec, then serializes platform-specific JSON for native bridge; the
   total, the display items and the shipping options run through the same validators on the change-event path, so an
   update that fails them is answered like a failing listener and never reaches the sheet
+- `details.modifiers` is resolved against the platform's active payment method (`PaymentMethodNameEnum.ApplePay` on
+  iOS, `AndroidPay` on Android) in `resolvePaymentDetailsModifier`: a matching modifier's `total` overrides the
+  effective total and its `additionalDisplayItems` are appended to `displayItems` before either reaches native (Android
+  `transactionInfo` at construction, iOS PassKit summary items at `show()`); a modifier for the other platform's method
+  is left untouched. The same resolution re-runs on every `updateWith()` so a listener can ship new modifiers with the
+  rest of the update; `this.details` always keeps the raw, unresolved values it was given
 - iOS builds `PKShippingMethod` and `PKPaymentSummaryItem` with one converter each for the initial `show()` details and
   for `updatePaymentDetails`, so an option or an item renders the same in both flows: label, amount, identifier and the
   optional detail for a shipping method, `PKPaymentSummaryItemTypePending` for a `pending` item

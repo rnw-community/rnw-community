@@ -19,9 +19,11 @@ import { DOMException } from '../../error/dom.exception';
 import { PaymentsError } from '../../error/payments.error';
 import { getNativePaymentsEventEmitter } from '../../util/get-native-payments-event-emitter/get-native-payments-event-emitter.util';
 import { isNativeUserCancellation } from '../../util/is-native-user-cancellation.util';
+import { resolvePaymentDetailsModifier } from '../../util/resolve-payment-details-modifier.util';
 import { validateAndroidTransactionInfo } from '../../util/validate-android-transaction-info.util';
 import { validateDetailsUpdate } from '../../util/validate-details-update.util';
 import { validateDisplayItems } from '../../util/validate-display-items.util';
+import { validateModifiers } from '../../util/validate-modifiers.util';
 import { validatePaymentMethods } from '../../util/validate-payment-methods.util';
 import { validateShippingOptions } from '../../util/validate-shipping-options.util';
 import { validateTotal } from '../../util/validate-total.util';
@@ -38,11 +40,13 @@ import type { IosPaymentMethodDataDataInterface } from '../../@standard/ios/mapp
 import type { IosPaymentDataRequest } from '../../@standard/ios/request/ios-payment-data-request';
 import type { PaymentDetailsInit } from '../../@standard/w3c/payment-details-init';
 import type { PaymentDetailsUpdate } from '../../@standard/w3c/payment-details-update';
+import type { PaymentItem } from '../../@standard/w3c/payment-item';
 import type { PaymentMethodData } from '../../@standard/w3c/payment-method-data';
 import type { NativePaymentDetailsUpdateInterface } from '../../interface/native-payment-details-update.interface';
 import type { PaymentRequestEventPayloadInterface } from '../../interface/payment-request-event-payload.interface';
 import type { PaymentRequestEventRegistrationInterface } from '../../interface/payment-request-event-registration.interface';
 import type { PaymentResponseAddressInterface } from '../../interface/payment-response-address.interface';
+import type { ResolvedPaymentDetailsInterface } from '../../interface/resolved-payment-details.interface';
 import type { PaymentMethodChangeEventListener } from '../../type/payment-method-change-event-listener.type';
 import type { PaymentRequestEventListener } from '../../type/payment-request-event-listener.type';
 import type { PaymentRequestEventType } from '../../type/payment-request-event.type';
@@ -95,13 +99,17 @@ export class PaymentRequest {
         validateDisplayItems(ConstructorError, details.displayItems);
 
         validateShippingOptions(ConstructorError, details.shippingOptions);
+        validateModifiers(ConstructorError, details.modifiers);
 
         // 17. Set request.[[serializedMethodData]] to serializedMethodData.         */
         this.platformMethodData = this.findPlatformPaymentMethodData();
 
         const nativePlatformMethodData =
             Platform.OS === 'android'
-                ? this.getAndroidPaymentMethodData(this.platformMethodData as AndroidPaymentMethodDataDataInterface, details)
+                ? this.getAndroidPaymentMethodData(
+                      this.platformMethodData as AndroidPaymentMethodDataDataInterface,
+                      this.resolveEffectiveDetails(details).total
+                  )
                 : this.getIosPaymentMethodData(this.platformMethodData as IosPaymentMethodDataDataInterface);
 
         this.serializedMethodData = JSON.stringify(nativePlatformMethodData);
@@ -125,14 +133,17 @@ export class PaymentRequest {
         this.state = 'interactive';
         this.syncActiveEvents();
 
+        const resolvedDetails = this.resolveEffectiveDetails(this.details);
+
         // HINT: We need to pass Android environment configuration to native module via details
         const details =
             Platform.OS === 'android'
                 ? {
                       ...this.details,
                       environment: (this.platformMethodData as AndroidPaymentMethodDataDataInterface).environment,
+                      ...resolvedDetails,
                   }
-                : this.details;
+                : { ...this.details, ...resolvedDetails };
 
         return new Promise<AndroidPaymentResponse | IosPaymentResponse>((resolve, reject) => {
             this.acceptPromiseRejecter = reject;
@@ -394,15 +405,16 @@ export class PaymentRequest {
         }
 
         const updatedDetails = this.getUpdatedDetails(detailsUpdate);
+        const resolvedDetails = this.resolveEffectiveDetails(updatedDetails);
         const update: NativePaymentDetailsUpdateInterface = {
             error: detailsUpdate?.error ?? '',
             eventName: type,
             requestId: this.id,
-            total: updatedDetails.total,
+            total: resolvedDetails.total,
             ...(isDefined(eventId) && { eventId }),
         };
 
-        await updatePaymentDetails(update, updatedDetails.displayItems ?? [], updatedDetails.shippingOptions ?? []);
+        await updatePaymentDetails(update, resolvedDetails.displayItems, updatedDetails.shippingOptions ?? []);
 
         this.details = updatedDetails;
     }
@@ -417,12 +429,25 @@ export class PaymentRequest {
             ...(isDefined(detailsUpdate.total) && { total: detailsUpdate.total }),
             ...(isDefined(detailsUpdate.displayItems) && { displayItems: detailsUpdate.displayItems }),
             ...(isDefined(detailsUpdate.shippingOptions) && { shippingOptions: detailsUpdate.shippingOptions }),
+            ...(isDefined(detailsUpdate.modifiers) && { modifiers: detailsUpdate.modifiers }),
         };
     }
 
+    private resolveEffectiveDetails(details: PaymentDetailsInit): ResolvedPaymentDetailsInterface {
+        return resolvePaymentDetailsModifier(
+            this.getPlatformSupportedMethod(),
+            details.total,
+            details.displayItems,
+            details.modifiers
+        );
+    }
+
+    private getPlatformSupportedMethod(): PaymentMethodNameEnum {
+        return Platform.OS === 'ios' ? PaymentMethodNameEnum.ApplePay : PaymentMethodNameEnum.AndroidPay;
+    }
+
     private findPlatformPaymentMethodData(): AndroidPaymentMethodDataDataInterface | IosPaymentMethodDataDataInterface {
-        const platformSupportedMethod =
-            Platform.OS === 'ios' ? PaymentMethodNameEnum.ApplePay : PaymentMethodNameEnum.AndroidPay;
+        const platformSupportedMethod = this.getPlatformSupportedMethod();
 
         const platformMethod = this.methodData.find(
             paymentMethodData => paymentMethodData.supportedMethods === platformSupportedMethod
@@ -437,7 +462,7 @@ export class PaymentRequest {
 
     private getAndroidPaymentMethodData(
         methodData: AndroidPaymentMethodDataDataInterface,
-        details: PaymentDetailsInit
+        total: PaymentItem
     ): AndroidPaymentDataRequest {
         const isBillingRequired =
             methodData.requestBillingAddress === true ||
@@ -449,13 +474,13 @@ export class PaymentRequest {
         return {
             ...defaultAndroidPaymentDataRequest,
             merchantInfo: {
-                merchantName: details.total.label,
+                merchantName: total.label,
             },
             transactionInfo: {
                 ...defaultAndroidTransactionInfo,
                 currencyCode: methodData.currencyCode,
-                totalPrice: details.total.amount.value,
-                totalPriceLabel: details.total.label,
+                totalPrice: total.amount.value,
+                totalPriceLabel: total.label,
                 countryCode: methodData.countryCode,
                 totalPriceStatus,
                 ...(isDefined(methodData.checkoutOption) && { checkoutOption: methodData.checkoutOption }),
