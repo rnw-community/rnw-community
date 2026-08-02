@@ -20,7 +20,6 @@ jest.mock('react-native', () => ({
     },
 }));
 
- 
 describe('PaymentResponse', () => {
     const mockDetails: PaymentResponseDetailsInterface = {
         androidPayToken: {
@@ -78,7 +77,6 @@ describe('PaymentResponse', () => {
         },
     };
 
-     
     beforeEach(() => {
         jest.clearAllMocks();
     });
