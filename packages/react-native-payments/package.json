@@ -46,6 +46,7 @@
     "files": [
         "dist",
         "src",
+        "llms.txt",
         "android",
         "ios",
         "cpp",

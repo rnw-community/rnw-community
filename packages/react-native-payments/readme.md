@@ -34,6 +34,12 @@ fantastic [react-native-payments](https://github.com/naoufal/react-native-paymen
 These enhancements ensure that the library is more efficient, maintainable, and future-proof, offering a seamless payment
 integration experience for your applications.
 
+## For AI agents
+
+Start with [llms.txt](llms.txt) for a curated, agent-oriented index of this package's docs (API surface, payment
+change events, platform deviations, migration notes, native contract, and E2E coverage) and [AGENTS.md](AGENTS.md)
+for architecture and contributor conventions.
+
 ## Features
 
 - Streamlined. Say goodbye to complicated checkout forms.
