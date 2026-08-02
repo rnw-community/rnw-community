@@ -259,7 +259,7 @@ The monorepo uses dual ESM + CJS output. Key decisions:
 
 ## PR Review & Merge Policy
 
-**Before merging any PR, read every bot review comment on it** (Macroscope, Codecov, claude-review, DeepScan). Treat
+**Before merging any PR, read every bot review comment on it** (Macroscope, CodeRabbit, Codecov, claude-review, DeepScan). Treat
 unresolved bot findings as merge blockers: **never merge a PR carrying an open bot finding without explicit maintainer
 approval** — resolve the finding, refute it in a reply on the thread, or get the maintainer's sign-off first. Findings
 marked resolved/outdated by the bot itself are cleared. This applies to agents and humans alike, and to admin merges
