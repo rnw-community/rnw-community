@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [2.7.0](https://github.com/rnw-community/rnw-community/compare/v2.6.1...v2.7.0) (2026-08-02)
+
+### Features
+
+- **react-native-payments-example:** bump to RN 0.86.2 / Expo SDK 57 / React 19.2.3 ([4d39143](https://github.com/rnw-community/rnw-community/commit/4d391431fb4727529bd450975a0a2e08236facab))
+
 ## [2.6.1](https://github.com/rnw-community/rnw-community/compare/v2.6.0...v2.6.1) (2026-08-02)
 
 ### Bug Fixes

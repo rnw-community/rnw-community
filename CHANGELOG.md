@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [2.7.0](https://github.com/rnw-community/rnw-community/compare/v2.6.1...v2.7.0) (2026-08-02)
+
+### Bug Fixes
+
+- **react-native-payments-example:** build payments plugin before expo prebuild ([acc74a3](https://github.com/rnw-community/rnw-community/commit/acc74a3ecf3e5cc323e0e65bd313a1f738a8f1b6))
+- **react-native-payments-example:** embed JS bundle for canary builds ([f5abd0a](https://github.com/rnw-community/rnw-community/commit/f5abd0a9cd3a859c99d1cb0df2c38b56766e82aa))
+
+### Features
+
+- **react-native-payments-example:** bump to RN 0.86.2 / Expo SDK 57 / React 19.2.3 ([4d39143](https://github.com/rnw-community/rnw-community/commit/4d391431fb4727529bd450975a0a2e08236facab))
+
 ## [2.6.1](https://github.com/rnw-community/rnw-community/compare/v2.6.0...v2.6.1) (2026-08-02)
 
 ### Bug Fixes
