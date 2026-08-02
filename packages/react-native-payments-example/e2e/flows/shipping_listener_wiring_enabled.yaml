@@ -2,6 +2,7 @@ appId: ${APP_ID}
 ---
 - runFlow: ../subflows/launch_and_wait_for_probe.yaml
 - runFlow: ../subflows/show_request.yaml
+- runFlow: ../subflows/dismiss_ios_sheet.yaml
 - scrollUntilVisible:
     element:
       text: ".*listeners attached: types=paymentmethodchange,shippingaddresschange,shippingoptionchange.*"
