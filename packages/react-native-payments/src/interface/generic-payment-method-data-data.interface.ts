@@ -1,3 +1,4 @@
+import type { PaymentShippingTypeEnum } from '../enum/payment-shipping-type.enum';
 import type { SupportedNetworkEnum } from '../enum/supported-networks.enum';
 
 /**
@@ -16,5 +17,7 @@ export interface GenericPaymentMethodDataDataInterface {
     requestPayerPhone?: boolean;
     // If present PaymentResponse will have shippingAddress
     requestShipping?: boolean;
+    // https://www.w3.org/TR/payment-request/#dom-paymentoptions-shippingtype; forwarded to PKShippingType on iOS, no-op on Android
+    shippingType?: PaymentShippingTypeEnum;
     supportedNetworks: SupportedNetworkEnum[];
 }
