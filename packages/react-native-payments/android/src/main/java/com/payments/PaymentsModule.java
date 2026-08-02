@@ -91,6 +91,17 @@ public class PaymentsModule extends PaymentsSpec {
     // https://developers.google.com/pay/api/android/guides/tutorial#java
     @ReactMethod
     public void canMakePayments(String paymentMethodData, final Promise promise) {
+        checkIsReadyToPay(paymentMethodData, false, promise);
+    }
+
+    // HINT: existingPaymentMethodRequired is an optimistic signal, not a guarantee a card is enrolled.
+    // https://developers.google.com/android/reference/com/google/android/gms/wallet/IsReadyToPayRequest.Builder#setExistingPaymentMethodRequired(boolean)
+    @ReactMethod
+    public void hasEnrolledInstrument(String paymentMethodData, final Promise promise) {
+        checkIsReadyToPay(paymentMethodData, true, promise);
+    }
+
+    private void checkIsReadyToPay(String paymentMethodData, boolean existingPaymentMethodRequired, final Promise promise) {
         Activity currentActivity = getCurrentActivity();
         Log.d(NAME, "Checking if AndroidPay is available " + currentActivity.toString());
 
@@ -100,7 +111,9 @@ public class PaymentsModule extends PaymentsSpec {
         validatePaymentRequestJSON(paymentMethodData);
 
         // https://developers.google.com/android/reference/com/google/android/gms/wallet/PaymentDataRequest#fromJson(java.lang.String)
-        IsReadyToPayRequest request = IsReadyToPayRequest.fromJson(paymentMethodData);
+        IsReadyToPayRequest request = existingPaymentMethodRequired
+            ? buildExistingPaymentMethodRequiredRequest(paymentMethodData)
+            : IsReadyToPayRequest.fromJson(paymentMethodData);
 
         if(request == null) {
             rejectPromise(E_UNSUPPORTED_ANDROID_PAY, "AndroidPay is not supported");
@@ -120,10 +133,21 @@ public class PaymentsModule extends PaymentsSpec {
                 if (task.isSuccessful()) {
                     promise.resolve(task.getResult());
                 } else {
-                    rejectPromise(E_UNSUPPORTED_ANDROID_PAY, "AndroidPay is not supported");
+                    promise.reject(E_UNSUPPORTED_ANDROID_PAY, "AndroidPay is not supported");
                 }
             }
         });
+    }
+
+    private IsReadyToPayRequest buildExistingPaymentMethodRequiredRequest(String paymentMethodData) {
+        try {
+            JSONObject requestJson = new JSONObject(paymentMethodData);
+            requestJson.put("existingPaymentMethodRequired", true);
+
+            return IsReadyToPayRequest.fromJson(requestJson.toString());
+        } catch (JSONException e) {
+            return null;
+        }
     }
 
     @ReactMethod

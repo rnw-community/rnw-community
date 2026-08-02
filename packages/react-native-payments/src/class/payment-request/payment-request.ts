@@ -26,6 +26,7 @@ import { validateDisplayItems } from '../../util/validate-display-items.util';
 import { validateModifiers } from '../../util/validate-modifiers.util';
 import { validatePaymentMethods } from '../../util/validate-payment-methods.util';
 import { validateShippingOptions } from '../../util/validate-shipping-options.util';
+import { validateShippingType } from '../../util/validate-shipping-type.util';
 import { validateTotal } from '../../util/validate-total.util';
 import { warnChangeEventError } from '../../util/warn-change-event-error.util';
 import { ChangeEventDispatcher } from '../change-event-dispatcher/change-event-dispatcher';
@@ -50,6 +51,7 @@ import type { ResolvedPaymentDetailsInterface } from '../../interface/resolved-p
 import type { PaymentMethodChangeEventListener } from '../../type/payment-method-change-event-listener.type';
 import type { PaymentRequestEventListener } from '../../type/payment-request-event-listener.type';
 import type { PaymentRequestEventType } from '../../type/payment-request-event.type';
+import type { PaymentRequestUpdateEvent } from '../payment-request-update-event/payment-request-update-event';
 import type { Maybe } from '@rnw-community/shared';
 import type { EmitterSubscription } from 'react-native';
 
@@ -71,6 +73,11 @@ export class PaymentRequest {
     private readonly platformMethodData: AndroidPaymentMethodDataDataInterface | IosPaymentMethodDataDataInterface;
     private readonly eventRegistrations = new Map<PaymentRequestEventType, PaymentRequestEventRegistrationInterface>();
     private readonly pendingDispatchers = new Set<ChangeEventDispatcher>();
+    private readonly attributeHandlers = new Map<
+        PaymentRequestEventType,
+        PaymentMethodChangeEventListener | PaymentRequestEventListener
+    >();
+    private readonly attributeHandlerWrappers = new Map<PaymentRequestEventType, PaymentRequestEventListener>();
     private eventGeneration = 0;
     private isNativeEventsSynced = false;
 
@@ -88,18 +95,7 @@ export class PaymentRequest {
         }
         this.id = details.id;
 
-        // 4. Process payment methods
-        validatePaymentMethods(methodData);
-        validateAndroidTransactionInfo(methodData, ConstructorError);
-
-        // 5. Process the total
-        validateTotal(details.total, ConstructorError);
-
-        // 6. If the displayItems member of details is present, then for each item in details.displayItems:
-        validateDisplayItems(ConstructorError, details.displayItems);
-
-        validateShippingOptions(ConstructorError, details.shippingOptions);
-        validateModifiers(ConstructorError, details.modifiers);
+        this.validateConstructorInputs(methodData, details);
 
         // 17. Set request.[[serializedMethodData]] to serializedMethodData.         */
         this.platformMethodData = this.findPlatformPaymentMethodData();
@@ -115,6 +111,42 @@ export class PaymentRequest {
         this.serializedMethodData = JSON.stringify(nativePlatformMethodData);
     }
 
+    // https://www.w3.org/TR/payment-request/#dom-paymentrequest-onshippingaddresschange
+    get onshippingaddresschange(): Maybe<PaymentRequestEventListener> {
+        return this.getAttributeHandler('shippingaddresschange') as Maybe<PaymentRequestEventListener>;
+    }
+
+    // https://www.w3.org/TR/payment-request/#dom-paymentrequest-onshippingoptionchange
+    get onshippingoptionchange(): Maybe<PaymentRequestEventListener> {
+        return this.getAttributeHandler('shippingoptionchange') as Maybe<PaymentRequestEventListener>;
+    }
+
+    // https://www.w3.org/TR/payment-request/#dom-paymentrequest-onpaymentmethodchange
+    get onpaymentmethodchange(): Maybe<PaymentMethodChangeEventListener> {
+        return this.getAttributeHandler('paymentmethodchange');
+    }
+
+    // couponcodechange is a PassKit extension: https://developer.apple.com/documentation/passkit/pkpaymentrequest/3801275-couponcode?language=objc
+    get oncouponcodechange(): Maybe<PaymentRequestEventListener> {
+        return this.getAttributeHandler('couponcodechange') as Maybe<PaymentRequestEventListener>;
+    }
+
+    set onshippingaddresschange(listener: Maybe<PaymentRequestEventListener>) {
+        this.setAttributeHandler('shippingaddresschange', listener);
+    }
+
+    set onshippingoptionchange(listener: Maybe<PaymentRequestEventListener>) {
+        this.setAttributeHandler('shippingoptionchange', listener);
+    }
+
+    set onpaymentmethodchange(listener: Maybe<PaymentMethodChangeEventListener>) {
+        this.setAttributeHandler('paymentmethodchange', listener);
+    }
+
+    set oncouponcodechange(listener: Maybe<PaymentRequestEventListener>) {
+        this.setAttributeHandler('couponcodechange', listener);
+    }
+
     // https://www.w3.org/TR/payment-request/#canmakepayment-method
     async canMakePayment(): Promise<boolean> {
         if (this.state !== 'created') {
@@ -122,6 +154,15 @@ export class PaymentRequest {
         }
 
         return NativePayments.canMakePayments(this.serializedMethodData);
+    }
+
+    // https://www.w3.org/TR/payment-request/#hasenrolledinstrument-method
+    async hasEnrolledInstrument(): Promise<boolean> {
+        if (this.state !== 'created') {
+            throw new DOMException(PaymentsErrorEnum.InvalidStateError);
+        }
+
+        return NativePayments.hasEnrolledInstrument(this.serializedMethodData);
     }
 
     // https://www.w3.org/TR/payment-request/#show-method
@@ -236,6 +277,72 @@ export class PaymentRequest {
     private closeRequest(): void {
         this.state = 'closed';
         this.clearEventRegistrations();
+    }
+
+    private validateConstructorInputs(methodData: PaymentMethodData[], details: PaymentDetailsInit): void {
+        // 4. Process payment methods
+        validatePaymentMethods(methodData);
+        validateAndroidTransactionInfo(methodData, ConstructorError);
+        validateShippingType(methodData, ConstructorError);
+
+        // 5. Process the total
+        validateTotal(details.total, ConstructorError);
+
+        // 6. If the displayItems member of details is present, then for each item in details.displayItems:
+        validateDisplayItems(ConstructorError, details.displayItems);
+
+        validateShippingOptions(ConstructorError, details.shippingOptions);
+        validateModifiers(ConstructorError, details.modifiers);
+    }
+
+    private getAttributeHandler(
+        type: PaymentRequestEventType
+    ): Maybe<PaymentMethodChangeEventListener | PaymentRequestEventListener> {
+        return this.attributeHandlers.get(type) ?? null;
+    }
+
+    private setAttributeHandler(
+        type: PaymentRequestEventType,
+        listener: Maybe<PaymentMethodChangeEventListener | PaymentRequestEventListener>
+    ): void {
+        if (!isDefined(listener)) {
+            this.attributeHandlers.delete(type);
+            this.removeAttributeHandlerWrapper(type);
+
+            return;
+        }
+
+        this.attributeHandlers.set(type, listener);
+        this.ensureAttributeHandlerWrapper(type);
+    }
+
+    private ensureAttributeHandlerWrapper(type: PaymentRequestEventType): void {
+        if (this.attributeHandlerWrappers.has(type)) {
+            return;
+        }
+
+        const wrapper: PaymentRequestEventListener = event => this.dispatchToAttributeHandler(type, event);
+
+        this.attributeHandlerWrappers.set(type, wrapper);
+        this.addEventListener(type, wrapper);
+    }
+
+    private removeAttributeHandlerWrapper(type: PaymentRequestEventType): void {
+        const wrapper = this.attributeHandlerWrappers.get(type);
+
+        if (!isDefined(wrapper)) {
+            return;
+        }
+
+        this.attributeHandlerWrappers.delete(type);
+        this.removeEventListener(type, wrapper);
+    }
+
+    private dispatchToAttributeHandler(
+        type: PaymentRequestEventType,
+        event: PaymentRequestUpdateEvent
+    ): Promise<void> | void {
+        return (this.attributeHandlers.get(type) as PaymentRequestEventListener)(event);
     }
 
     private handleAccept(details: string): AndroidPaymentResponse | IosPaymentResponse {
@@ -576,6 +683,7 @@ export class PaymentRequest {
             ...(isShippingRequested && { requiredShippingContactFields: requestedShippingFields }),
             ...(isDefined(methodData.applicationData) && { applicationData: methodData.applicationData }),
             ...(isNotEmptyString(methodData.couponCode) && { couponCode: methodData.couponCode }),
+            ...(isDefined(methodData.shippingType) && { shippingType: methodData.shippingType }),
         };
     }
 
