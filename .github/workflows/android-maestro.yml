@@ -95,7 +95,11 @@ jobs:
                     script: |
                         set -euo pipefail
                         cd "${{ env.EXAMPLE_DIR }}"
-                        yarn android:${{ matrix.target }}
+                        if [ "${{ matrix.target }}" = "bare" ]; then
+                          yarn android:bare --mode Release --no-packager
+                        else
+                          yarn android:expo --variant release --no-bundler
+                        fi
                         yarn e2e:android:${{ matrix.target }}
 
             -   name: Capture final device state

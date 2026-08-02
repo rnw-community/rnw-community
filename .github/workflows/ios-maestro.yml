@@ -104,9 +104,15 @@ jobs:
                     xcrun simctl bootstatus "$device_udid" -b
                     echo "SIMULATOR_UDID=$device_udid" >> "$GITHUB_ENV"
 
-            -   name: Build and launch app
+            -   name: Build and launch app (bare)
+                if: matrix.target == 'bare'
                 working-directory: ${{ env.EXAMPLE_DIR }}
-                run: yarn ios:${{ matrix.target }}
+                run: yarn ios:bare --mode Release --no-packager --extra-params "CODE_SIGNING_ALLOWED=NO"
+
+            -   name: Build and launch app (expo)
+                if: matrix.target == 'expo'
+                working-directory: ${{ env.EXAMPLE_DIR }}
+                run: yarn ios:expo --configuration Release --no-bundler
 
             -   name: Install Maestro
                 run: |
