@@ -336,7 +336,7 @@ describe('PaymentRequest', () => {
             jest.mocked(NativePayments.show).mockRejectedValue(new DOMException(PaymentsErrorEnum.NotAllowedError));
 
             await expect(request.show()).rejects.toThrow(new DOMException(PaymentsErrorEnum.NotAllowedError));
-            expect(NativePayments.show).toHaveBeenCalledWith(expect.any(String), expect.any(Object));
+            expect(NativePayments.show).toHaveBeenCalledWith(request.id, expect.any(String), expect.any(Object));
         });
 
         it('should return true from `canMakePayment` when valid', async () => {
@@ -382,9 +382,9 @@ describe('PaymentRequest', () => {
             request.state = 'created';
             const result = await request.show();
 
-            expect(NativePayments.show).toHaveBeenCalledWith(expect.any(String), expect.any(Object));
+            expect(NativePayments.show).toHaveBeenCalledWith(request.id, expect.any(String), expect.any(Object));
             expect(result).toBeDefined();
-            expect(request.state).toBe('interactive');
+            expect(request.state).toBe('closed');
         });
 
         it('should throw when `NativePayments.show` returns invalid data', async () => {
@@ -467,9 +467,9 @@ describe('PaymentRequest', () => {
 
             const result = await request.show();
 
-            expect(NativePayments.show).toHaveBeenCalledWith(expect.any(String), expect.any(Object));
+            expect(NativePayments.show).toHaveBeenCalledWith(request.id, expect.any(String), expect.any(Object));
             expect(result).toBeDefined();
-            expect(request.state).toBe('interactive');
+            expect(request.state).toBe('closed');
         });
 
         it('should throw when `abort` is called in invalid state', async () => {
@@ -658,7 +658,7 @@ describe('PaymentRequest', () => {
             jest.mocked(NativePayments.show).mockRejectedValue(new DOMException(PaymentsErrorEnum.NotAllowedError));
 
             await expect(request.show()).rejects.toThrow(new DOMException(PaymentsErrorEnum.NotAllowedError));
-            expect(NativePayments.show).toHaveBeenCalledWith(expect.any(String), expect.any(Object));
+            expect(NativePayments.show).toHaveBeenCalledWith(request.id, expect.any(String), expect.any(Object));
         });
 
         it('should throw when `NativePayments.show` returns invalid data', async () => {
@@ -741,9 +741,9 @@ describe('PaymentRequest', () => {
 
             const result = await request.show();
 
-            expect(NativePayments.show).toHaveBeenCalledWith(expect.any(String), expect.any(Object));
+            expect(NativePayments.show).toHaveBeenCalledWith(request.id, expect.any(String), expect.any(Object));
             expect(result).toBeDefined();
-            expect(request.state).toBe('interactive');
+            expect(request.state).toBe('closed');
         });
 
         it('should throw when `abort` is called in invalid state', async () => {
@@ -899,6 +899,17 @@ describe('PaymentRequest', () => {
                 });
         };
 
+        const emitNativeEventRacingRemoval = (
+            type: PaymentRequestEventType,
+            payload: PaymentRequestEventPayloadInterface
+        ): void => {
+            subscriptions
+                .filter(subscription => subscription.type === type)
+                .forEach(subscription => {
+                    subscription.handler(payload);
+                });
+        };
+
         const flushEventLoop = async (): Promise<void> => {
             await jest.advanceTimersByTimeAsync(0);
         };
@@ -940,6 +951,45 @@ describe('PaymentRequest', () => {
 
             expect(subscriptions).toHaveLength(1);
             expect(setActiveEventsMock).toHaveBeenCalledWith(request.id, ['shippingaddresschange']);
+        });
+
+        it('should echo the event id of the answered event back to native', async () => {
+            expect.hasAssertions();
+
+            const request = createInteractiveRequest();
+
+            request.addEventListener('shippingaddresschange', event => {
+                event.updateWith({ total: updatedTotal });
+            });
+
+            emitNativeEvent('shippingaddresschange', { requestId: request.id, eventId: 7, shippingAddress: address });
+            await nativeUpdate;
+            await flushEventLoop();
+
+            expect(updatePaymentDetailsMock).toHaveBeenCalledWith(
+                { error: '', eventId: 7, eventName: 'shippingaddresschange', requestId: request.id, total: updatedTotal },
+                [],
+                []
+            );
+        });
+
+        it('should echo the event id of an event arriving while another one is processed', async () => {
+            expect.hasAssertions();
+
+            const request = createInteractiveRequest();
+
+            request.addEventListener('shippingaddresschange', emptyFn);
+            request.updating = true;
+
+            emitNativeEvent('shippingaddresschange', { requestId: request.id, eventId: 9, shippingAddress: address });
+            await nativeUpdate;
+            await flushEventLoop();
+
+            expect(updatePaymentDetailsMock).toHaveBeenCalledWith(
+                { error: '', eventId: 9, eventName: 'shippingaddresschange', requestId: request.id, total: initialTotal },
+                [],
+                []
+            );
         });
 
         it('should apply the details passed to updateWith and send them to native', async () => {
@@ -1311,6 +1361,39 @@ describe('PaymentRequest', () => {
             expect(updatePaymentDetailsMock).toHaveBeenCalledTimes(1);
         });
 
+        it('should route interleaved events of two concurrent requests to their own listeners only', async () => {
+            expect.hasAssertions();
+
+            const request = createInteractiveRequest();
+            const otherRequest = createInteractiveRequest();
+            const listener = jest.fn<(event: PaymentRequestUpdateEvent) => void>();
+            const otherListener = jest.fn<(event: PaymentRequestUpdateEvent) => void>();
+
+            request.addEventListener('shippingoptionchange', listener);
+            otherRequest.addEventListener('shippingoptionchange', otherListener);
+
+            emitNativeEvent('shippingoptionchange', { requestId: request.id, shippingOption: 'express' });
+            await nativeUpdate;
+
+            armNativeUpdate();
+            emitNativeEvent('shippingoptionchange', { requestId: otherRequest.id, shippingOption: 'standard' });
+            await nativeUpdate;
+
+            armNativeUpdate();
+            emitNativeEvent('shippingoptionchange', { requestId: request.id, shippingOption: 'ground' });
+            await nativeUpdate;
+
+            expect(listener).toHaveBeenCalledTimes(2);
+            expect(otherListener).toHaveBeenCalledTimes(1);
+            expect(request.shippingOption).toBe('ground');
+            expect(otherRequest.shippingOption).toBe('standard');
+            expect(updatePaymentDetailsMock.mock.calls.map(([update]) => update.requestId)).toStrictEqual([
+                request.id,
+                otherRequest.id,
+                request.id,
+            ]);
+        });
+
         it('should ignore events when the request is no longer interactive', async () => {
             expect.hasAssertions();
 
@@ -1358,6 +1441,32 @@ describe('PaymentRequest', () => {
             );
         });
 
+        it('should track the selection of an event that was answered without being dispatched', async () => {
+            expect.hasAssertions();
+
+            const request = createInteractiveRequest();
+
+            request.addEventListener('shippingoptionchange', async (event: PaymentRequestUpdateEvent) => {
+                await new Promise<void>(resolve => {
+                    setTimeout(resolve, 10);
+                });
+
+                event.updateWith({ total: updatedTotal });
+            });
+
+            emitNativeEvent('shippingoptionchange', { requestId: request.id, shippingOption: 'express' });
+            emitNativeEvent('shippingoptionchange', { requestId: request.id, shippingOption: 'standard' });
+            await jest.advanceTimersByTimeAsync(10);
+
+            expect(request.shippingOption).toBe('standard');
+            expect(updatePaymentDetailsMock).toHaveBeenNthCalledWith(
+                1,
+                { error: '', eventName: 'shippingoptionchange', requestId: request.id, total: initialTotal },
+                [],
+                []
+            );
+        });
+
         it('should deliver the event to every listener registered for the type', async () => {
             expect.hasAssertions();
 
@@ -1391,6 +1500,45 @@ describe('PaymentRequest', () => {
 
             expect(listener).toHaveBeenCalledTimes(1);
             expect(setActiveEventsMock).toHaveBeenCalledTimes(1);
+        });
+
+        it('should keep exactly one native subscription per event type across registration churn', () => {
+            expect.hasAssertions();
+
+            const request = createInteractiveRequest();
+            const firstListener = jest.fn<(event: PaymentRequestUpdateEvent) => void>();
+            const secondListener = jest.fn<(event: PaymentRequestUpdateEvent) => void>();
+
+            request.addEventListener('shippingaddresschange', firstListener);
+            request.addEventListener('shippingaddresschange', firstListener);
+            request.addEventListener('shippingaddresschange', secondListener);
+            request.removeEventListener('shippingaddresschange', firstListener);
+            request.removeEventListener('shippingaddresschange', secondListener);
+            request.addEventListener('shippingaddresschange', firstListener);
+
+            expect(subscriptions.filter(subscription => !subscription.removed)).toHaveLength(1);
+            expect(setActiveEventsMock.mock.calls).toStrictEqual([
+                [request.id, ['shippingaddresschange']],
+                [request.id, []],
+                [request.id, ['shippingaddresschange']],
+            ]);
+        });
+
+        it('should drop only the removed event type from the native handshake while interactive', () => {
+            expect.hasAssertions();
+
+            const request = createInteractiveRequest();
+            const addressListener = jest.fn<(event: PaymentRequestUpdateEvent) => void>();
+            const optionListener = jest.fn<(event: PaymentRequestUpdateEvent) => void>();
+
+            request.addEventListener('shippingaddresschange', addressListener);
+            request.addEventListener('shippingoptionchange', optionListener);
+            request.removeEventListener('shippingoptionchange', optionListener);
+
+            expect(setActiveEventsMock).toHaveBeenLastCalledWith(request.id, ['shippingaddresschange']);
+            expect(
+                subscriptions.filter(subscription => !subscription.removed).map(subscription => subscription.type)
+            ).toStrictEqual(['shippingaddresschange']);
         });
 
         it('should stop delivering the event to the remaining listeners once one of them answered', async () => {
@@ -1517,7 +1665,7 @@ describe('PaymentRequest', () => {
             expect(request.updating).toBe(false);
         });
 
-        it('should remove all subscriptions when show resolves', async () => {
+        it('should declare the active event types before the payment sheet is shown', async () => {
             expect.hasAssertions();
 
             jest.mocked(NativePayments.show).mockResolvedValue(acceptedPayment);
@@ -1527,8 +1675,31 @@ describe('PaymentRequest', () => {
 
             await request.show();
 
+            const [showOrder] = jest.mocked(NativePayments.show).mock.invocationCallOrder;
+            const syncsBeforeShow = setActiveEventsMock.mock.invocationCallOrder.filter(order => order < showOrder);
+
+            expect(setActiveEventsMock).toHaveBeenCalledWith(request.id, ['shippingaddresschange']);
+            expect(syncsBeforeShow).toHaveLength(2);
+        });
+
+        it('should remove all subscriptions when show resolves', async () => {
+            expect.hasAssertions();
+
+            jest.mocked(NativePayments.show).mockResolvedValue(acceptedPayment);
+
+            const request = createRequest();
+            const listener = jest.fn<(event: PaymentRequestUpdateEvent) => void>();
+            request.addEventListener('shippingaddresschange', listener);
+
+            await request.show();
+
+            emitNativeEventRacingRemoval('shippingaddresschange', { requestId: request.id, shippingAddress: address });
+            await flushEventLoop();
+
             expect(subscriptions.every(subscription => subscription.removed)).toBe(true);
             expect(setActiveEventsMock).toHaveBeenLastCalledWith(request.id, []);
+            expect(listener).not.toHaveBeenCalled();
+            expect(updatePaymentDetailsMock).not.toHaveBeenCalled();
         });
 
         it('should remove all subscriptions when show rejects', async () => {
@@ -1537,25 +1708,38 @@ describe('PaymentRequest', () => {
             jest.mocked(NativePayments.show).mockRejectedValue(new DOMException(PaymentsErrorEnum.AbortError));
 
             const request = createRequest();
-            request.addEventListener('shippingaddresschange', emptyFn);
+            const listener = jest.fn<(event: PaymentRequestUpdateEvent) => void>();
+            request.addEventListener('shippingaddresschange', listener);
 
             await expect(request.show()).rejects.toThrow(new DOMException(PaymentsErrorEnum.AbortError));
+
+            emitNativeEventRacingRemoval('shippingaddresschange', { requestId: request.id, shippingAddress: address });
+            await flushEventLoop();
+
             expect(subscriptions.every(subscription => subscription.removed)).toBe(true);
             expect(setActiveEventsMock).toHaveBeenLastCalledWith(request.id, []);
+            expect(listener).not.toHaveBeenCalled();
+            expect(updatePaymentDetailsMock).not.toHaveBeenCalled();
         });
 
-        it('should remove all subscriptions when the request is aborted', async () => {
+        it('should remove all subscriptions and stop dispatching when the request is aborted', async () => {
             expect.hasAssertions();
 
             jest.mocked(NativePayments.abort).mockResolvedValue(undefined);
 
             const request = createInteractiveRequest();
-            request.addEventListener('shippingaddresschange', emptyFn);
+            const listener = jest.fn<(event: PaymentRequestUpdateEvent) => void>();
+            request.addEventListener('shippingaddresschange', listener);
 
             await request.abort();
 
+            emitNativeEventRacingRemoval('shippingaddresschange', { requestId: request.id, shippingAddress: address });
+            await flushEventLoop();
+
             expect(subscriptions.every(subscription => subscription.removed)).toBe(true);
             expect(setActiveEventsMock).toHaveBeenLastCalledWith(request.id, []);
+            expect(listener).not.toHaveBeenCalled();
+            expect(updatePaymentDetailsMock).not.toHaveBeenCalled();
         });
 
         it('should drop an in-flight event response once the payment sheet is finished', async () => {
@@ -1586,7 +1770,7 @@ describe('PaymentRequest', () => {
             expect(request.updating).toBe(false);
         });
 
-        it('should support registering listeners again for a second show', async () => {
+        it('should close the request and reject a second show once the payment sheet settled', async () => {
             expect.hasAssertions();
 
             jest.mocked(NativePayments.show).mockResolvedValue(acceptedPayment);
@@ -1595,16 +1779,25 @@ describe('PaymentRequest', () => {
             request.addEventListener('shippingaddresschange', emptyFn);
             await request.show();
 
-            request.state = 'created';
+            expect(request.state).toBe('closed');
+            await expect(request.show()).rejects.toThrow(new DOMException(PaymentsErrorEnum.InvalidStateError));
+        });
+
+        it('should ignore listener registration once the request is closed', async () => {
+            expect.hasAssertions();
+
+            jest.mocked(NativePayments.show).mockResolvedValue(acceptedPayment);
+
+            const request = createRequest();
+            await request.show();
+            setActiveEventsMock.mockClear();
+
             const listener = jest.fn<(event: PaymentRequestUpdateEvent) => void>();
             request.addEventListener('shippingaddresschange', listener);
-            const secondResponse = request.show();
+            request.removeEventListener('shippingaddresschange', listener);
 
-            emitNativeEvent('shippingaddresschange', { requestId: request.id, shippingAddress: address });
-            await secondResponse;
-
-            expect(listener).toHaveBeenCalledTimes(1);
-            expect(setActiveEventsMock).toHaveBeenCalledWith(request.id, ['shippingaddresschange']);
+            expect(subscriptions).toHaveLength(0);
+            expect(setActiveEventsMock).not.toHaveBeenCalled();
         });
 
         it('should reject a second show without replacing the rejecter of the running one', async () => {

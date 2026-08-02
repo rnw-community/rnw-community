@@ -10,7 +10,7 @@ const LINKING_ERROR = `The package 'react-native-payments' doesn't seem to be li
     default: '',
 })}- You rebuilt the app after installing the package\n- You are not using Expo Go\n`;
 
-type NativePaymentsType = NativePaymentsChangeEventsInterface & Spec;
+type NativePaymentsType = NativePaymentsChangeEventsInterface & Omit<Spec, keyof NativePaymentsChangeEventsInterface>;
 
 const changeEventMethodNames = new Set<PropertyKey>([
     'addListener',

@@ -9,10 +9,15 @@ import type { TurboModule } from 'react-native';
  */
 export interface Spec extends TurboModule {
     abort: () => Promise<void>;
+    addListener: (eventName: string) => void;
     canMakePayments: (methodData: string) => Promise<boolean>;
     complete: (paymentComplete: string) => Promise<void>;
+    removeListeners: (count: number) => void;
+    setActiveEvents: (requestId: string, eventNames: string[]) => Promise<void>;
     // eslint-disable-next-line @typescript-eslint/no-wrapper-object-types
-    show: (methodData: string, details: Object) => Promise<string>;
+    show: (requestId: string, methodData: string, details: Object) => Promise<string>;
+    // eslint-disable-next-line @typescript-eslint/no-wrapper-object-types
+    updatePaymentDetails: (update: Object, displayItems: Object[], shippingOptions: Object[]) => Promise<void>;
 }
 
 // ts-prune-ignore-next

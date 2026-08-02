@@ -274,6 +274,10 @@ const paymentResponse = paymentRequest.show().then(...).catch(...);
 The `paymentRequest.show()` method returns a promise that resolves with a `PaymentResponse` object representing the user's
 payment response.
 
+> **A `PaymentRequest` is single-use.** As soon as `show()` settles — resolved, rejected or aborted — the request moves to
+> the `closed` state per the W3C specification, its change-event listeners are released and every further `show()` rejects
+> with a `DOMException` carrying `InvalidStateError`. Build a new `PaymentRequest` to retry a payment.
+
 ### 5. Processing the PaymentResponse
 
 To send all the relevant payment information to the backend (BE) for further processing and validation, you need to extract
@@ -336,12 +340,17 @@ While the payment sheet is open the user can change the shipping address, the sh
 coupon code. `PaymentRequest` models these as W3C change events: register listeners **before** calling `show()` and answer
 each event with `PaymentRequestUpdateEvent.updateWith()`.
 
-> **Native delivery is not implemented yet.** This release lands the JavaScript layer and the JS <-> native contract only;
-> the iOS and Android sides are tracked in [#377](https://github.com/rnw-community/rnw-community/issues/377),
-> [#378](https://github.com/rnw-community/rnw-community/issues/378) and
-> [#386](https://github.com/rnw-community/rnw-community/issues/386). Until they ship, listeners can be registered but
-> never fire, and `show()`, `abort()` and `complete()` behave exactly as before. On web the browser's own `PaymentRequest`
-> is used, so change events there follow the browser implementation.
+> **Platform support.** On iOS the events are delivered by PassKit: the payment sheet waits for the answer of a listener
+> and is completed with the unchanged details whenever there is no listener for the event type, the listener fails or the
+> sheet is torn down, so it can never hang. On Android the Google Pay sheet runs in its own activity and never asks the
+> app for an in-sheet update, so listeners can be registered but never fire. On web the browser's own `PaymentRequest` is
+> used, so change events there follow the browser implementation. A request without listeners shows the same sheet with
+> the same summary items as before — PassKit now asks the app on every change and is answered immediately with no change,
+> which is a main thread round trip and no longer a purely local update. The end to end verification on devices is tracked
+> in [#393](https://github.com/rnw-community/rnw-community/issues/393).
+>
+> iOS only shows the shipping method picker and the coupon code field (iOS 15+) when a `shippingoptionchange` /
+> `couponcodechange` listener is registered before `show()` — `details.shippingOptions` are passed to PassKit in that case.
 
 ### `PaymentRequest.addEventListener(type, listener)`
 
@@ -349,8 +358,10 @@ Registers the listener for one of `shippingaddresschange`, `shippingoptionchange
 `couponcodechange` (the last one is a PassKit extension, not part of the W3C specification). Several listeners can be
 registered for the same event type — they run in registration order and the same function is never registered twice.
 Dispatch stops at the first listener that answers with `updateWith`, exactly like the stop immediate propagation flag of
-the W3C algorithm. Listeners are removed automatically when `show()` settles and when `abort()` resolves, so a request that
-is shown twice needs its listeners registered again.
+the W3C algorithm. One native subscription is kept per event type no matter how many listeners are added and removed, and
+events are scoped to the request they belong to, so concurrent `PaymentRequest` instances never see each other's events.
+Listeners are released when `show()` settles and when `abort()` resolves; registering on a closed request does nothing
+because a request is single-use — create a new `PaymentRequest` to show the sheet again.
 
 ```ts
 paymentRequest.addEventListener('shippingaddresschange', event => {
@@ -364,7 +375,8 @@ paymentRequest.addEventListener('shippingaddresschange', event => {
 ### `PaymentRequest.removeEventListener(type, listener)`
 
 Removes the passed listener from the event type, matching the `EventTarget` signature. The native subscription is released
-once the last listener of the type is gone.
+once the last listener of the type is gone, and native is told about the remaining event types right away — also while the
+payment sheet is open.
 
 ```ts
 paymentRequest.removeEventListener('shippingaddresschange', onShippingAddressChange);
@@ -393,6 +405,10 @@ Calling `updateWith` twice, or calling it once the event was already answered or
 a `DOMException` with `InvalidStateError`. A listener that throws, rejects, sends invalid details, never calls `updateWith`
 or leaves its promise pending for more than 30 seconds is logged and answered with the unchanged details, so the payment
 sheet never stalls.
+
+`error` reaches the iOS sheet as an unserviceable shipping address for `shippingaddresschange`, as an invalid coupon code
+for `couponcodechange` and as a generic payment error for `paymentmethodchange` (the last two need iOS 15).
+`shippingoptionchange` has no error slot in PassKit, so an error answered there is ignored.
 
 ### `PaymentRequestUpdateEvent.isAnswered`
 
@@ -425,8 +441,12 @@ paymentRequest.addEventListener('paymentmethodchange', event => {
 
 Before a listener runs, the changed value is stored on the request: `paymentRequest.shippingAddress`
 (`PaymentResponseAddressInterface`), `paymentRequest.shippingOption` (the selected `PaymentShippingOption` id) and
-`paymentRequest.couponCode`. `paymentRequest.updating` is `true` while an event is being processed; a change event that
-arrives during that window is answered with the unchanged details and is not dispatched to the listeners.
+`paymentRequest.couponCode`. On iOS the shipping address of a change event is **redacted** by PassKit: only `address2`
+(city), `address3` (state), `postalCode` and `countryCode` are filled, while the street and the payer name, email and
+phone stay empty until the payment is authorized — quote shipping from the postal code and the country, never from the
+street. `paymentRequest.updating` is `true` while an event is being processed; a change event that
+arrives during that window is answered with the unchanged details and is not dispatched to the listeners, but its
+selection is still stored on the request, so these values always describe what the sheet shows right now.
 
 ## Unit testing
 
@@ -475,15 +495,17 @@ You can find working example in the `App` component of the [react-native-payment
 
 ### Native
 
-- [ ] Investigate and implement `shipping options`.
-- [ ] Investigate and implement `coupons` support.
+- [ ] Investigate and implement `shipping options` on Android (iOS passes them to PassKit with a `shippingoptionchange`
+      listener).
+- [ ] Investigate and implement `coupons` support on Android (iOS enables the PassKit coupon field with a
+      `couponcodechange` listener).
 - [ ] Rewrite IOS to swift?
 - [ ] Rewrite Android to Kotlin?
 - [ ] Can we avoid modifying `AppDelegate.h` with importing `PassKit`?
 
 ### W3C spec:
 
-- [ ] Implement events (JavaScript layer landed, native delivery pending):
+- [ ] Implement events (JavaScript layer and iOS delivery landed, Android is a no-op, device verification pending):
     - [ ] [PaymentRequestUpdateEvent](https://www.w3.org/TR/payment-request/#dom-paymentrequestupdateevent)
     - [ ] [PaymentMethodChangeEvent](https://www.w3.org/TR/payment-request/#dom-paymentmethodchangeevent)
 - [ ] Implement [PaymentDetailsModifier](https://www.w3.org/TR/payment-request/#dom-paymentdetailsmodifier)
