@@ -3,9 +3,8 @@ import { type ClassType, isDefined } from '@rnw-community/shared';
 import { isValidDecimalMonetaryValue } from './is-valid-decimal-monetary-value.util';
 
 import type { PaymentItem } from '../@standard/w3c/payment-item';
-import type { PaymentsError } from '../error/payments.error';
 
-export const validateDisplayItems = (ErrorType: ClassType<PaymentsError>, displayItems: PaymentItem[] = []): void => {
+export const validateDisplayItems = (ErrorType: ClassType<Error>, displayItems: PaymentItem[] = []): void => {
     // Check that the value of each display item is a valid decimal monetary value
     displayItems.forEach(item => {
         // TODO: Can we improve this checks?
