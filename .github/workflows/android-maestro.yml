@@ -54,7 +54,7 @@ jobs:
                     echo "Non-PR event: payments pipeline always runs."
                     exit 0
                   fi
-                  affected=$(npx -y turbo@2 ls --affected --output=json | node -e '
+                  affected=$(npx -y turbo@2.10.8 ls --affected --output=json | node -e '
                     let raw = "";
                     process.stdin.on("data", chunk => (raw += chunk));
                     process.stdin.on("end", () => {
@@ -178,6 +178,10 @@ jobs:
         steps:
             - name: Report
               run: |
+                  if [ "${{ needs.detect.result }}" != "success" ]; then
+                    echo "Detection job did not succeed."
+                    exit 1
+                  fi
                   if [ "${{ needs.detect.outputs.payments_affected }}" != "true" ]; then
                     echo "Skipped: payments dependency tree untouched."
                     exit 0
