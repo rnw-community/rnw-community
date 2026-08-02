@@ -6016,9 +6016,12 @@ __metadata:
     react-native: "npm:^0.86.2"
     react-native-uuid: "npm:^2.0.4"
   peerDependencies:
-    expo: ">=48.0.0"
+    expo: "*"
     react: ">=17"
     react-native: ">=0.64"
+  peerDependenciesMeta:
+    expo:
+      optional: true
   languageName: unknown
   linkType: soft
 
