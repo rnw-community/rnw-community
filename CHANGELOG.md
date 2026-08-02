@@ -3,6 +3,21 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [2.6.0](https://github.com/rnw-community/rnw-community/compare/v2.5.0...v2.6.0) (2026-08-02)
+
+### Bug Fixes
+
+- **react-native-payments-example:** align bare iOS AppDelegate with pinned RN 0.76 ([47621c2](https://github.com/rnw-community/rnw-community/commit/47621c2b0d3b7d861866e63b6dbf059dff8bbab2))
+- **react-native-payments-example:** answer change events with the request's own configuration ([6c6771d](https://github.com/rnw-community/rnw-community/commit/6c6771d44ed92416599fb6b61b5387fddea6dcbd))
+- **react-native-payments-example:** register maestro as a known e2e binary ([aad368f](https://github.com/rnw-community/rnw-community/commit/aad368f89b8c51c4a7ccebdb7e5364c26db6ad4f))
+- **react-native-payments-example:** resolve bare native paths to root node_modules ([5c8bff7](https://github.com/rnw-community/rnw-community/commit/5c8bff726014caa303701554582dd722550c6a99))
+
+### Features
+
+- **react-native-payments-example:** add e2e-ready demo screens with observable event log ([d49d306](https://github.com/rnw-community/rnw-community/commit/d49d30649e8eb0f114bd3b21ad7212507fbd8a09))
+- **react-native-payments-example:** add Maestro e2e suite for both app targets ([e5457b2](https://github.com/rnw-community/rnw-community/commit/e5457b2439b511a905d3de47244b13eab24a11b9))
+- **react-native-payments-example:** unify example packages into bare and expo app targets ([278b258](https://github.com/rnw-community/rnw-community/commit/278b258889b48a6595ba33e1253d8dddcfce7d1a))
+
 # [2.5.0](https://github.com/rnw-community/rnw-community/compare/v2.4.0...v2.5.0) (2026-08-02)
 
 ### Bug Fixes

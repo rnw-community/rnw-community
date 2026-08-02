@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [2.6.0](https://github.com/rnw-community/rnw-community/compare/v2.5.0...v2.6.0) (2026-08-02)
+
+### Features
+
+- **react-native-payments-example:** unify example packages into bare and expo app targets ([278b258](https://github.com/rnw-community/rnw-community/commit/278b258889b48a6595ba33e1253d8dddcfce7d1a))
+
 # [2.5.0](https://github.com/rnw-community/rnw-community/compare/v2.4.0...v2.5.0) (2026-08-02)
 
 ### Bug Fixes
