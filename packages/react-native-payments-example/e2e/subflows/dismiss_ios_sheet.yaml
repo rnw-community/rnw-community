@@ -1,0 +1,15 @@
+appId: ${APP_ID}
+---
+- runFlow:
+    when:
+      platform: iOS
+    commands:
+      - assertVisible:
+          id: "dismiss"
+      - tapOn:
+          id: "dismiss"
+      - extendedWaitUntil:
+          visible:
+            id: "payments-flow-state"
+            text: "rejected"
+          timeout: 20000
