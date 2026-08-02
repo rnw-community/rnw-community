@@ -2,6 +2,9 @@
 
 W3C Payment Request API implementation for React Native — Apple Pay (iOS) and Google Pay (Android). Includes Expo config plugin.
 
+See [readme.md](readme.md) for the human-facing installation and usage guide. For a curated, agent-oriented index of
+every doc in this package (API surface, change-event contract, E2E boundary), see [llms.txt](llms.txt).
+
 ## Package Commands
 
 ```bash
@@ -70,7 +73,7 @@ src/
   no-change update when its event type is not active for the current request, and is flushed on every teardown path
   (`didFinish`, `didAuthorizePayment`, `complete`, `abort`, `stopObserving`, `invalidate`) so the sheet cannot hang.
   Android answers the same contract with documented no-ops. The semantics live in
-  `src/util/get-native-payments-event-emitter/get-native-payments-event-emitter.md`
+  [get-native-payments-event-emitter.md](src/util/get-native-payments-event-emitter/get-native-payments-event-emitter.md)
 - Change events are request-scoped: `show()` passes the request `id` to native so `activeRequestId` is adopted at
   presentation time regardless of whether any listener was ever registered, `setActiveEvents(requestId, eventNames)`
   scopes the handshake per request, one native subscription per event type feeds every listener registered for it, and
@@ -82,9 +85,9 @@ src/
 - Listeners run sequentially and dispatch stops at the first one that answers with `updateWith`, mirroring the stop
   immediate propagation flag of the W3C algorithm; a listener that throws is logged and the next one still runs
 - Every delivered change event answers native exactly once through `updatePaymentDetails`, even when the listener fails,
-  never returns or leaves its update pending: `ChangeEventDispatcher` races **one** `changeEventTimeoutMs` deadline over
-  the listener bodies and their answer together, so a listener awaiting a request that never settles cannot pin a native
-  completion
+  never returns or leaves its update pending: [`ChangeEventDispatcher`](src/class/change-event-dispatcher/change-event-dispatcher.md)
+  races **one** `changeEventTimeoutMs` deadline over the listener bodies and their answer together, so a listener
+  awaiting a request that never settles cannot pin a native completion
 - Native events carry a monotonic `eventId` that JS echoes back in the update, and native resolves a completion only for
   the `eventId` it is still waiting for, so the answer of a superseded event can never be applied to the newer one
 - A dispatch is bound to an event generation bumped on every terminal path, so a response that arrives after the sheet
