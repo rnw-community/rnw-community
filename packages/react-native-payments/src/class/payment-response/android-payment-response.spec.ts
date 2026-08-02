@@ -1,10 +1,12 @@
 import { describe, expect, it, jest } from '@jest/globals';
 
 import { AndroidPaymentMethodTokenizationType } from '../../@standard/android/enum/android-payment-method-tokenization-type.enum';
+import { emptyAndroidIntermediateSigningKey } from '../../@standard/android/response/android-intermediate-signing-key';
 import { PaymentMethodNameEnum } from '../../enum/payment-method-name.enum';
 
 import { AndroidPaymentResponse } from './android-payment-response';
 
+import type { AndroidFullAddress } from '../../@standard/android/response/android-full-address';
 import type { AndroidPaymentData } from '../../@standard/android/response/android-payment-data';
 
 jest.mock('../native-payments/native-payments', () => ({
@@ -34,6 +36,32 @@ describe('AndroidPaymentResponse', () => {
         },
     });
 
+    const billingAddress: AndroidFullAddress = {
+        address1: '1 Infinite Loop',
+        address2: 'Suite 1',
+        address3: 'Building B',
+        administrativeArea: 'CA',
+        countryCode: 'US',
+        locality: 'Cupertino',
+        name: 'John Appleseed',
+        phoneNumber: '+1-555-555-5555',
+        postalCode: '95014',
+        sortingCode: '123',
+    };
+
+    const shippingAddress: AndroidFullAddress = {
+        address1: 'Invalidenstrasse 1',
+        address2: 'Apt 2',
+        address3: '',
+        administrativeArea: 'BE',
+        countryCode: 'DE',
+        locality: 'Berlin',
+        name: 'Jane Appleseed',
+        phoneNumber: '+49-30-000000',
+        postalCode: '10115',
+        sortingCode: '',
+    };
+
     const authorizedPayment: AndroidPaymentData = {
         apiVersion: 2,
         apiVersionMinor: 0,
@@ -45,33 +73,11 @@ describe('AndroidPaymentResponse', () => {
                 assuranceDetails: { accountVerified: true, cardHolderAuthenticated: true },
                 cardDetails: '1234',
                 cardNetwork: 'VISA',
-                billingAddress: {
-                    address1: '1 Infinite Loop',
-                    address2: 'Suite 1',
-                    address3: 'Building B',
-                    administrativeArea: 'CA',
-                    countryCode: 'US',
-                    locality: 'Cupertino',
-                    name: 'John Appleseed',
-                    phoneNumber: '+1-555-555-5555',
-                    postalCode: '95014',
-                    sortingCode: '123',
-                },
+                billingAddress,
             },
             tokenizationData: { type: AndroidPaymentMethodTokenizationType.PAYMENT_GATEWAY, token: paymentToken },
         },
-        shippingAddress: {
-            address1: 'Invalidenstrasse 1',
-            address2: 'Apt 2',
-            address3: '',
-            administrativeArea: 'BE',
-            countryCode: 'DE',
-            locality: 'Berlin',
-            name: 'Jane Appleseed',
-            phoneNumber: '+49-30-000000',
-            postalCode: '10115',
-            sortingCode: '',
-        },
+        shippingAddress,
     };
 
     const createResponse = (payment: AndroidPaymentData): AndroidPaymentResponse =>
@@ -142,5 +148,78 @@ describe('AndroidPaymentResponse', () => {
         expect(androidPayToken.protocolVersion).toBe('ECv2');
         expect(androidPayToken.signedMessage.tag).toBe('testTag');
         expect(androidPayToken.cardInfo.cardNetwork).toBe('VISA');
+    });
+
+    it('should default the shipping address payer phone to an empty string when omitted', () => {
+        expect.assertions(1);
+
+        const { info } = authorizedPayment.paymentMethodData;
+        const { phoneNumber, ...shippingAddressWithoutPhone } = shippingAddress;
+        const { details } = createResponse({
+            ...authorizedPayment,
+            paymentMethodData: {
+                ...authorizedPayment.paymentMethodData,
+                info: { assuranceDetails: info.assuranceDetails, cardDetails: info.cardDetails, cardNetwork: 'VISA' },
+            },
+            shippingAddress: shippingAddressWithoutPhone,
+        });
+
+        expect(details.payerPhone).toBe('');
+    });
+
+    it('should default the billing address payer phone to an empty string when omitted', () => {
+        expect.assertions(1);
+
+        const { phoneNumber, ...billingAddressWithoutPhone } = billingAddress;
+        const { details } = createResponse({
+            ...authorizedPayment,
+            paymentMethodData: {
+                ...authorizedPayment.paymentMethodData,
+                info: { ...authorizedPayment.paymentMethodData.info, billingAddress: billingAddressWithoutPhone },
+            },
+        });
+
+        expect(details.payerPhone).toBe('');
+    });
+
+    it('should throw when the tokenization data is missing a token', () => {
+        expect.assertions(1);
+
+        const paymentWithoutToken: AndroidPaymentData = {
+            ...authorizedPayment,
+            paymentMethodData: {
+                ...authorizedPayment.paymentMethodData,
+                tokenizationData: { type: AndroidPaymentMethodTokenizationType.PAYMENT_GATEWAY },
+            },
+        };
+
+        expect(() => createResponse(paymentWithoutToken)).toThrow(SyntaxError);
+    });
+
+    it('should default the intermediate signing key when the token does not carry one', () => {
+        expect.assertions(1);
+
+        const tokenWithoutIntermediateSigningKey = JSON.stringify({
+            protocolVersion: 'ECv2',
+            signature: 'testSignature',
+            signedMessage: JSON.stringify({
+                encryptedMessage: 'testEncryptedMessage',
+                ephemeralPublicKey: 'testEphemeralPublicKey',
+                tag: 'testTag',
+            }),
+        });
+
+        const { details } = createResponse({
+            ...authorizedPayment,
+            paymentMethodData: {
+                ...authorizedPayment.paymentMethodData,
+                tokenizationData: {
+                    type: AndroidPaymentMethodTokenizationType.PAYMENT_GATEWAY,
+                    token: tokenWithoutIntermediateSigningKey,
+                },
+            },
+        });
+
+        expect(details.androidPayToken.intermediateSigningKey).toStrictEqual(emptyAndroidIntermediateSigningKey);
     });
 });

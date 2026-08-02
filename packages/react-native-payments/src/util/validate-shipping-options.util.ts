@@ -6,8 +6,8 @@ import type { PaymentShippingOption } from '../@standard/w3c/payment-shipping-op
 import type { PaymentsError } from '../error/payments.error';
 
 export const validateShippingOptions = (
-    shippingOptions: PaymentShippingOption[] = [],
-    ErrorType: ClassType<PaymentsError> = Error
+    ErrorType: ClassType<PaymentsError>,
+    shippingOptions: PaymentShippingOption[] = []
 ): void => {
     shippingOptions.forEach(shippingOption => {
         if (!isDefined(shippingOption) || !isNotEmptyString(shippingOption.id) || !isNotEmptyString(shippingOption.label)) {
