@@ -62,6 +62,23 @@ native has already torn the sheet down.
 - `displayItems`: array of `PaymentItem`
 - `shippingOptions`: array of `PaymentShippingOption`
 
+`displayItems`, `total` and `shippingOptions` are the same shapes `show()` receives in `details`, and iOS converts them
+with the same converters in both flows, so an option renders identically whether it came with the initial details or with
+an update:
+
+| `PaymentShippingOption` | `PKShippingMethod`                       |
+| ----------------------- | ---------------------------------------- |
+| `id`                    | `identifier`                             |
+| `label`                 | `label` (`summaryItemWithLabel:amount:`) |
+| `amount.value`          | `amount` (`NSDecimalNumber`)             |
+| `amount.currency`       | not sent — the sheet uses `currencyCode` |
+| `detail`                | `detail`                                 |
+| `selected`              | not sent — PassKit selects the first row |
+
+An option whose `id`, `label` or `amount.value` is not a string is skipped with a warning instead of reaching the sheet
+as a `NaN` amount. A `PaymentItem` becomes a `PKPaymentSummaryItem` under the same rules, with `pending: true` selecting
+`PKPaymentSummaryItemTypePending` and an unusable amount falling back to zero.
+
 Native resolves the completion only when the answered `eventId` is still the pending one: a second change event of the
 same type supersedes the first, and the answer of the superseded event is rejected with `no_completion` instead of being
 applied to the newer handler. An update without an `eventId` is accepted, which is what keeps an older JS bundle working.
@@ -82,7 +99,8 @@ The module is a singleton, so exactly one request is interactive at a time:
   completed.
 - `show()` flushes what a previous sheet left pending and forgets that a sheet is presented, so a request that never
   reached a terminal path cannot disable the events of the requests after it.
-- `PKPaymentRequest.shippingMethods` is filled from `details.shippingOptions` and `supportsCouponCode` is enabled only
+- `PKPaymentRequest.shippingMethods` is filled from `details.shippingOptions` and `supportsCouponCode` — together with
+  the `couponCode` prefilled from the iOS method data — is enabled only
   when `shippingoptionchange` / `couponcodechange` are active for the request; the shipping methods of an
   `updatePaymentDetails` are applied under the same condition, so a picker never appears for a request that cannot answer
   its selection. A request without listeners is therefore functionally unchanged against v2 — the same summary items, the
@@ -106,10 +124,14 @@ it fires exactly once and is never dropped without being invoked:
 - `updatePaymentDetails` with no pending handler for the event, or with the `eventId` of a superseded one (late answer,
   dismissed sheet, other request) rejects with `no_completion` and changes nothing
 
-`update.error` reaches PassKit as `paymentShippingAddressUnserviceableError` for `shippingaddresschange`,
+A string `update.error` reaches PassKit as `paymentShippingAddressUnserviceableError` for `shippingaddresschange`,
 `paymentCouponCodeInvalidError` for `couponcodechange` (iOS 15+) and a `PKPaymentUnknownError` for `paymentmethodchange`
-(iOS 15+). `shippingoptionchange` has no error slot in `PKPaymentRequestShippingMethodUpdate`, so an error answered there
-is logged and dropped.
+(iOS 15+). An object `update.error` is a field level error and is mapped by its `type` instead of by the event:
+`shippingAddressField` to `paymentShippingAddressInvalidErrorWithKey:` with the `CNPostalAddress` key of `error.key`,
+`contactField` to `paymentContactInvalidErrorWithContactField:` with the `PKContactField` of `error.field` and
+`couponCode` to `paymentCouponCodeExpiredError` or `paymentCouponCodeInvalidError` (iOS 15+). An unknown type, an unknown
+field or an empty message resolves the event without an error. `shippingoptionchange` has no error slot in
+`PKPaymentRequestShippingMethodUpdate`, so an error answered there is logged and dropped.
 
 ## Android semantics
 

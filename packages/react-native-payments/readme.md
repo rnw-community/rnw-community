@@ -222,6 +222,9 @@ Depending on the platform and payment method, you can provide additional data to
 - `requestShipping`: An optional boolean field that, when present and set to true, indicates that the `PaymentResponse` will
   include the shipping address of the payer.
 - `applicationData`: An optional string or object field for Apple Pay that allows you to store application-specific data. This data is not transmitted to Apple but is included in the payment token as a SHA-256 hash (applicationDataHash). You can use it to prevent replay attacks by associating a payment with a specific transaction.
+- `couponCode`: An optional Apple Pay field, **beyond the W3C specification**, that prefills the coupon code field of the
+  payment sheet. The field itself is only rendered when a `couponcodechange` listener is registered before `show()`, so
+  the option is a no-op without one, below iOS 15 and on Android.
 
 ```ts
 // Example of using applicationData with Apple Pay
@@ -240,6 +243,30 @@ const methodData = [
         },
     },
 ];
+```
+
+#### 2.2 Supported networks
+
+`supportedNetworks` accepts the `SupportedNetworkEnum` members. Apple Pay introduced some of them after the oldest
+supported iOS version, so they only resolve on a recent enough device and are rejected as an invalid supported network
+below it: `girocard` (iOS 14), `mir` (iOS 14.5), `dankort` (iOS 15.1) and `bancontact` (iOS 16).
+
+> `SupportedNetworkEnum.Mir` is **deprecated**. Apple delisted the network over the sanctions against the issuing banks,
+> so it resolves on iOS 14.5+ and keeps an existing integration building, but no Mir card can be provisioned into Apple
+> Pay anymore. It is kept functional instead of being removed so upgrading does not break a build; do not add it to a new
+> integration.
+
+#### 2.3 Pending amounts
+
+Every `PaymentItem` — the `total` and each entry of `displayItems` — accepts the W3C `pending` flag for an amount that is
+not final yet, a shipping price that still has to be quoted for instance. Apple Pay renders such a row with `Pending`
+instead of the amount (`PKPaymentSummaryItemTypePending`); Google Pay has no equivalent and ignores the flag.
+
+```ts
+const paymentDetails = {
+    total: { label: 'Total', amount: { currency: 'USD', value: '10.00' } },
+    displayItems: [{ label: 'Shipping', amount: { currency: 'USD', value: '0.00' }, pending: true }],
+};
 ```
 
 ### 3. Checking Payment Capability
@@ -401,14 +428,70 @@ paymentRequest.addEventListener('shippingoptionchange', async event => {
 });
 ```
 
+Every `PaymentShippingOption` needs an `id`, a `label` and an `amount`, because iOS renders the row from the label and the
+amount and reports the selection back by the id. `detail` is optional and is shown by Apple Pay as the secondary line of
+the row (`PKShippingMethod.detail`); `amount.currency` is ignored because the sheet is already bound to the
+`currencyCode` of the method data. The initial `details.shippingOptions` and the ones answered with `updateWith` go
+through the same conversion, so the same option always renders the same row.
+
+```ts
+const shippingOptions = [
+    { id: 'express', label: 'Express', detail: 'Next business day', amount: { currency: 'USD', value: '5.00' } },
+    { id: 'ground', label: 'Ground', detail: '3-5 business days', amount: { currency: 'USD', value: '0.00' } },
+];
+```
+
 Calling `updateWith` twice, or calling it once the event was already answered or the request is no longer showing, throws
 a `DOMException` with `InvalidStateError`. A listener that throws, rejects, sends invalid details, never calls `updateWith`
 or leaves its promise pending for more than 30 seconds is logged and answered with the unchanged details, so the payment
-sheet never stalls.
+sheet never stalls. Updated details go through the same validation as the ones passed to the constructor — the total, the
+display items and the shipping options all have to carry a valid decimal monetary value, and a shipping option also has
+to carry an id and a label — so a malformed amount is reported to the console and never reaches the sheet.
 
-`error` reaches the iOS sheet as an unserviceable shipping address for `shippingaddresschange`, as an invalid coupon code
-for `couponcodechange` and as a generic payment error for `paymentmethodchange` (the last two need iOS 15).
-`shippingoptionchange` has no error slot in PassKit, so an error answered there is ignored.
+### Sheet errors
+
+`error` is either a plain string or a field level error that Apple Pay renders inline, next to the offending row of the
+sheet, instead of as a generic banner. A string keeps the previous behaviour: an unserviceable shipping address for
+`shippingaddresschange`, an invalid coupon code for `couponcodechange` (iOS 15+) and a generic payment error everywhere
+else. `shippingoptionchange` has no error slot in PassKit, so an error answered there is ignored.
+
+A field level error carries the discriminator, the field it belongs to and the message shown to the user:
+
+```ts
+import {
+    PaymentAddressFieldEnum,
+    PaymentContactFieldEnum,
+    PaymentUpdateErrorTypeEnum,
+} from '@rnw-community/react-native-payments';
+
+paymentRequest.addEventListener('shippingaddresschange', event => {
+    event.updateWith({
+        error: {
+            type: PaymentUpdateErrorTypeEnum.ShippingAddressField,
+            key: PaymentAddressFieldEnum.PostalCode,
+            message: 'We do not ship to this postal code',
+        },
+    });
+});
+
+paymentRequest.addEventListener('couponcodechange', event => {
+    event.updateWith({
+        error: { type: PaymentUpdateErrorTypeEnum.CouponCode, expired: true, message: 'SALE10 expired last week' },
+    });
+});
+```
+
+| `error.type`           | Additional member                | iOS `PKPaymentErrorDomain` error                                            |
+| ---------------------- | -------------------------------- | --------------------------------------------------------------------------- |
+| `shippingAddressField` | `key: PaymentAddressFieldEnum`   | `paymentShippingAddressInvalidErrorWithKey:`                                |
+| `contactField`         | `field: PaymentContactFieldEnum` | `paymentContactInvalidErrorWithContactField:`                               |
+| `couponCode`           | `expired?: boolean`              | `paymentCouponCodeInvalidError` / `paymentCouponCodeExpiredError` (iOS 15+) |
+
+`PaymentAddressFieldEnum` maps onto the `CNPostalAddress` keys PassKit accepts: `addressLine` (street), `city`,
+`country` (ISO country code), `dependentLocality` (sub locality), `postalCode`, `region` (state) and
+`subAdministrativeArea`. `PaymentContactFieldEnum` maps onto `PKContactField`: `email`, `name`, `phone` and
+`postalAddress`. An unknown field, an empty message or a coupon error below iOS 15 is dropped and the sheet is answered
+with the updated details only. Android ignores every error because Google Pay never asks the app for an in-sheet update.
 
 ### `PaymentRequestUpdateEvent.isAnswered`
 

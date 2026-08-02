@@ -8,6 +8,8 @@ export interface IosPaymentDataRequest {
     applicationData?: string;
     // https://developer.apple.com/documentation/passkit/pkpaymentrequest/1619246-countrycode?language=objc
     countryCode: string;
+    // https://developer.apple.com/documentation/passkit/pkpaymentrequest/3801275-couponcode?language=objc
+    couponCode?: string;
     // https://developer.apple.com/documentation/passkit/pkpaymentrequest/1619248-currencycode?language=objc
     currencyCode: string;
     // https://developer.apple.com/documentation/passkit/pkpaymentrequest/1619257-merchantcapabilities?language=objc
