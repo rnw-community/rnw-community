@@ -362,6 +362,56 @@ payment process or when specific conditions require the payment request to be ab
 
 > This will have no affect in the Android platform due to AndroidPay implementation.
 
+## Error Handling
+
+Every throw/reject in this package maps to one of three error shapes:
+
+- **`ConstructorError`** — a native `TypeError` (`instanceof TypeError`, `name === 'TypeError'`) for `new PaymentRequest(...)`
+  validation failures: missing/invalid payment methods, total, display items or shipping options. This matches the W3C
+  algorithm, which validates the constructor's dictionaries via WebIDL and `check and canonicalize (total) amount`, both of
+  which throw `TypeError`.
+- **`DOMException`** (`instanceof DOMException`, `error.name` is the W3C name) — for the spec-mandated runtime states:
+  `AbortError`, `InvalidStateError`, `NotAllowedError`, `NotSupportedError`. `SecurityError` is defined but not currently
+  reachable from this implementation (no permission-policy check exists in React Native).
+- **`PaymentsError`** — a plain domain error (`instanceof Error`, `name === 'Error'`) for failures the W3C spec does not
+  name: `show()` rejecting with a non-`Error` reason from the native module bridge (an `Error` reason is propagated
+  as-is instead), every `abort()` rejection from the native module bridge regardless of the rejection reason's type,
+  and a native payment response payload that fails to parse (malformed or syntactically valid but incomplete JSON from
+  the platform SDK, including direct construction of `AndroidPaymentResponse`/`IosPaymentResponse` with malformed
+  tokenization data).
+
+```ts
+import { DOMException } from '@rnw-community/react-native-payments';
+
+try {
+    await paymentRequest.show();
+} catch (error) {
+    if (error instanceof DOMException && error.name === 'AbortError') {
+        // user cancelled
+    }
+}
+```
+
+| Public API failure                                              | Spec-mandated error       | Implemented as                        |
+| ----------------------------------------------------------------- | -------------------------- | -------------------------------------- |
+| `new PaymentRequest()` with no/invalid payment methods             | `TypeError`                | `ConstructorError` (`instanceof TypeError`) |
+| `new PaymentRequest()` with missing/invalid/negative total         | `TypeError`                | `ConstructorError`                     |
+| `new PaymentRequest()` with invalid display items                  | `TypeError`                | `ConstructorError`                     |
+| `new PaymentRequest()` with invalid shipping options                | `TypeError`                | `ConstructorError`                     |
+| `new PaymentRequest()` with no platform-matching payment method     | `NotSupportedError`        | `DOMException` (thrown at construction, see [Known deviations](#known-deviations)) |
+| `canMakePayment()` when not `created`                               | `InvalidStateError`        | `DOMException`                         |
+| `show()` when not `created`                                        | `InvalidStateError`        | `DOMException`                         |
+| `show()` after the user cancels the native sheet                    | `AbortError`               | `DOMException`                         |
+| `abort()` when not `interactive`                                    | `InvalidStateError`        | `DOMException`                         |
+| `abort()` resolves a pending `show()`                                | `AbortError`               | `DOMException`                         |
+| `PaymentRequestUpdateEvent.updateWith()` called twice for one event  | `InvalidStateError`        | `DOMException`                         |
+| `PaymentResponse.complete()` / `retry()` called after `complete()`   | `InvalidStateError`        | `DOMException`                         |
+| Native module bridge rejects `show()` with a non-`Error` reason     | *(not specified)*          | `PaymentsError`                        |
+| Native module bridge rejects `abort()` (any reason)                 | *(not specified)*          | `PaymentsError`                        |
+| Native payment response payload is malformed or incomplete JSON (incl. direct `AndroidPaymentResponse`/`IosPaymentResponse` construction) | *(not specified)* | `PaymentsError` |
+| An `updateWith()` listener answers with an invalid total/items/options | *(not specified — spec treats this as no update)* | Logged via `console.warn`, change event answered with unchanged details |
+| Native module is not linked (`Payments` bridge missing)              | *(not specified — build/config error)* | `Error` |
+
 ## Payment change events
 
 While the payment sheet is open the user can change the shipping address, the shipping option, the payment card or a
@@ -795,7 +845,7 @@ You can find working example in the `App` component of the [react-native-payment
 - [x] [PaymentMethodChangeEvent](https://www.w3.org/TR/payment-request/#dom-paymentmethodchangeevent) — same
       implementation and verification status as `PaymentRequestUpdateEvent`
 - [ ] Implement [PaymentDetailsModifier](https://www.w3.org/TR/payment-request/#dom-paymentdetailsmodifier)
-- [ ] Improve and unify errors according to the spec
+- [x] Improve and unify errors according to the spec — see [Error Handling](#error-handling)
 - [ ] Implement `PaymentResponse` `retry()` method
 - [ ] Implement `PaymentResponse` `toJSON()` method
 
@@ -809,6 +859,11 @@ You can find working example in the `App` component of the [react-native-payment
   `abort()` resolves the request stays `closed` forever — `show()` always rejects and `addEventListener` is inert. A
   new `PaymentRequest` is required for every payment attempt. See [Migrating from v2](#migrating-from-v2).
 - **`couponcodechange`** is a PassKit extension, not part of the W3C specification.
+- **`NotSupportedError` is thrown at construction, not at `show()`.** The spec rejects `show()`'s promise with
+  `NotSupportedError` when no payment handler is available; this implementation instead throws synchronously from the
+  `PaymentRequest` constructor as soon as it fails to find a platform-matching payment method, since the native bridge
+  needs to know the target platform's method data up front to serialize the request. The error name matches the spec;
+  only the algorithm step it fires from differs.
 
 ### Other
 

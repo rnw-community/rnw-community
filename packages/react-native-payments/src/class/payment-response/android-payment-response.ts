@@ -4,6 +4,7 @@ import { type AndroidCardInfo, emptyAndroidCardInfo } from '../../@standard/andr
 import { emptyAndroidIntermediateSigningKey } from '../../@standard/android/response/android-intermediate-signing-key';
 import { emptyAndroidPaymentMethodToken } from '../../@standard/android/response/android-payment-method-token';
 import { emptyIosPKToken } from '../../@standard/ios/response/ios-pk-token';
+import { PaymentsError } from '../../error/payments.error';
 
 import { PaymentResponse } from './payment-response';
 
@@ -15,29 +16,38 @@ import type { AndroidRawPaymentMethodToken } from '../../@standard/android/respo
 import type { AndroidSignedKey } from '../../@standard/android/response/android-signed-key';
 import type { AndroidSignedMessage } from '../../@standard/android/response/android-signed-message';
 import type { PaymentResponseAddressInterface } from '../../interface/payment-response-address.interface';
+import type { PaymentResponseDetailsInterface } from '../../interface/payment-response-details.interface';
 
 export class AndroidPaymentResponse extends PaymentResponse {
     constructor(requestId: string, methodName: string, jsonData: string) {
-        const data = JSON.parse(jsonData) as AndroidPaymentData;
+        super(requestId, methodName, AndroidPaymentResponse.parseDetails(jsonData));
+    }
 
-        super(requestId, methodName, {
-            billingAddress: AndroidPaymentResponse.parseFullAddress(data.paymentMethodData.info.billingAddress),
-            androidPayToken: {
-                ...AndroidPaymentResponse.parseToken(data.paymentMethodData.tokenizationData.token),
-                cardInfo: AndroidPaymentResponse.parseCardInfo(data.paymentMethodData.info),
-            },
-            applePayToken: emptyIosPKToken,
-            payerEmail: data.email,
-            ...(isDefined(data.shippingAddress) && {
-                payerName: (data.shippingAddress as AndroidMinAddress).name,
-                payerPhone: (data.shippingAddress as AndroidMinAddress).phoneNumber ?? '',
-            }),
-            ...(isDefined(data.paymentMethodData.info.billingAddress) && {
-                payerName: (data.paymentMethodData.info.billingAddress as AndroidMinAddress).name,
-                payerPhone: (data.paymentMethodData.info.billingAddress as AndroidMinAddress).phoneNumber ?? '',
-            }),
-            shippingAddress: AndroidPaymentResponse.parseFullAddress(data.shippingAddress),
-        });
+    private static parseDetails(jsonData: string): PaymentResponseDetailsInterface {
+        try {
+            const data = JSON.parse(jsonData) as AndroidPaymentData;
+
+            return {
+                billingAddress: AndroidPaymentResponse.parseFullAddress(data.paymentMethodData.info.billingAddress),
+                androidPayToken: {
+                    ...AndroidPaymentResponse.parseToken(data.paymentMethodData.tokenizationData.token),
+                    cardInfo: AndroidPaymentResponse.parseCardInfo(data.paymentMethodData.info),
+                },
+                applePayToken: emptyIosPKToken,
+                payerEmail: data.email,
+                ...(isDefined(data.shippingAddress) && {
+                    payerName: (data.shippingAddress as AndroidMinAddress).name,
+                    payerPhone: (data.shippingAddress as AndroidMinAddress).phoneNumber ?? '',
+                }),
+                ...(isDefined(data.paymentMethodData.info.billingAddress) && {
+                    payerName: (data.paymentMethodData.info.billingAddress as AndroidMinAddress).name,
+                    payerPhone: (data.paymentMethodData.info.billingAddress as AndroidMinAddress).phoneNumber ?? '',
+                }),
+                shippingAddress: AndroidPaymentResponse.parseFullAddress(data.shippingAddress),
+            };
+        } catch {
+            throw new PaymentsError(`Failed parsing PaymentRequest details`);
+        }
     }
 
     private static parseToken(input = '{}'): AndroidPaymentMethodToken {

@@ -3,10 +3,9 @@ import { type ClassType, isDefined, isNotEmptyString, isString } from '@rnw-comm
 import { isValidDecimalMonetaryValue } from './is-valid-decimal-monetary-value.util';
 
 import type { PaymentShippingOption } from '../@standard/w3c/payment-shipping-option';
-import type { PaymentsError } from '../error/payments.error';
 
 export const validateShippingOptions = (
-    ErrorType: ClassType<PaymentsError>,
+    ErrorType: ClassType<Error>,
     shippingOptions: PaymentShippingOption[] = []
 ): void => {
     shippingOptions.forEach(shippingOption => {

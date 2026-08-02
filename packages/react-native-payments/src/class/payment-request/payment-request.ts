@@ -228,14 +228,9 @@ export class PaymentRequest {
     }
 
     private handleAccept(details: string): AndroidPaymentResponse | IosPaymentResponse {
-        try {
-            return Platform.OS === 'android'
-                ? new AndroidPaymentResponse(this.id, PaymentMethodNameEnum.AndroidPay, details)
-                : new IosPaymentResponse(this.id, PaymentMethodNameEnum.ApplePay, details);
-        } catch (_e) {
-            // TODO: Is there an standard exception for this?
-            throw new PaymentsError(`Failed parsing PaymentRequest details`);
-        }
+        return Platform.OS === 'android'
+            ? new AndroidPaymentResponse(this.id, PaymentMethodNameEnum.AndroidPay, details)
+            : new IosPaymentResponse(this.id, PaymentMethodNameEnum.ApplePay, details);
     }
 
     private subscribeToNativeEvent(

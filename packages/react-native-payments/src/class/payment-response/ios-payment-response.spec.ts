@@ -2,6 +2,7 @@ import { describe, expect, it, jest } from '@jest/globals';
 
 import { IosPKPaymentMethodType } from '../../@standard/ios/enum/ios-pk-payment-method-type.enum';
 import { PaymentMethodNameEnum } from '../../enum/payment-method-name.enum';
+import { PaymentsError } from '../../error/payments.error';
 
 import { IosPaymentResponse } from './ios-payment-response';
 
@@ -140,5 +141,36 @@ describe('IosPaymentResponse', () => {
         expect(details.shippingAddress?.countryCode).toBe('');
         expect(details.payerName).toBe('');
         expect(details.payerPhone).toBe('');
+    });
+
+    it('should throw a domain-specific error when constructed with malformed JSON', () => {
+        expect.hasAssertions();
+
+        const construct = (): IosPaymentResponse =>
+            new IosPaymentResponse('requestId', PaymentMethodNameEnum.ApplePay, '...');
+
+        expect(construct).toThrow(PaymentsError);
+        expect(construct).not.toThrow(SyntaxError);
+    });
+
+    it('should throw a domain-specific error when constructed with syntactically valid but incomplete JSON', () => {
+        expect.hasAssertions();
+
+        const construct = (): IosPaymentResponse => new IosPaymentResponse('requestId', PaymentMethodNameEnum.ApplePay, '{}');
+
+        expect(construct).toThrow(PaymentsError);
+        expect(construct).not.toThrow(TypeError);
+    });
+
+    it('should throw a domain-specific error when the token payment data is not valid JSON', () => {
+        expect.hasAssertions();
+
+        const construct = (): IosPaymentResponse =>
+            createResponse({
+                token: { ...authorizedPayment.token, paymentData: '...' },
+            });
+
+        expect(construct).toThrow(PaymentsError);
+        expect(construct).not.toThrow(SyntaxError);
     });
 });
