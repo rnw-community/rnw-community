@@ -29,6 +29,8 @@ env:
     MAESTRO_CLI_NO_ANALYTICS: true
     MAESTRO_CLI_ANALYSIS_NOTIFICATION_DISABLED: true
     MAESTRO_SHARD_COUNT: '2'
+    EXPO_FINGERPRINT_VERSION: '0.20.6'
+    ANDROID_CMDLINE_TOOLS_VERSION: '14742923'
     YARN_ENABLE_IMMUTABLE_INSTALLS: true
     EXAMPLE_DIR: packages/react-native-payments-example
 
@@ -89,6 +91,8 @@ jobs:
         steps:
             -   name: Checkout repository
                 uses: actions/checkout@v5
+                with:
+                    persist-credentials: false
 
             -   name: Setup Node
                 uses: actions/setup-node@v5
@@ -115,7 +119,7 @@ jobs:
                 working-directory: ${{ env.APP_DIR }}
                 run: |
                     set -euo pipefail
-                    npx --yes @expo/fingerprint fingerprint:generate --platform android > "$RUNNER_TEMP/android-fingerprint-${{ matrix.target }}.json"
+                    npx --yes "@expo/fingerprint@${EXPO_FINGERPRINT_VERSION}" fingerprint:generate --platform android > "$RUNNER_TEMP/android-fingerprint-${{ matrix.target }}.json"
                     hash=$(node -e "process.stdout.write(require('$RUNNER_TEMP/android-fingerprint-${{ matrix.target }}.json').hash)")
                     test -n "$hash"
                     echo "hash=$hash" >> "$GITHUB_OUTPUT"
@@ -126,7 +130,7 @@ jobs:
                 uses: actions/cache/restore@v4
                 with:
                     path: .ci-cache/android-native-app/${{ matrix.target }}
-                    key: android-native-v1-${{ matrix.target }}-${{ runner.os }}-${{ steps.fingerprint.outputs.hash }}
+                    key: android-native-v1-${{ matrix.target }}-${{ runner.os }}-cmdline-${{ env.ANDROID_CMDLINE_TOOLS_VERSION }}-${{ steps.fingerprint.outputs.hash }}
 
             # Cache hit means the native shell for this fingerprint is safe to
             # reuse — Gradle assembly is skipped entirely. The fingerprint
@@ -146,6 +150,8 @@ jobs:
             -   name: Set up Android SDK
                 if: steps.native-app-cache.outputs.cache-hit != 'true'
                 uses: android-actions/setup-android@v3
+                with:
+                    cmdline-tools-version: ${{ env.ANDROID_CMDLINE_TOOLS_VERSION }}
 
             -   name: Restore Gradle cache
                 if: steps.native-app-cache.outputs.cache-hit != 'true'
@@ -184,19 +190,30 @@ jobs:
             -   name: Package native app
                 if: steps.native-app-cache.outputs.cache-hit != 'true'
                 shell: bash
+                env:
+                    TARGET: ${{ matrix.target }}
                 run: |
                     set -euo pipefail
-                    apk_path=$(find ${{ env.APP_DIR }}/android/app/build/outputs/apk/release -name '*.apk' -print -quit)
-                    test -n "$apk_path"
-                    mkdir -p .ci-cache/android-native-app/${{ matrix.target }}
-                    cp "$apk_path" .ci-cache/android-native-app/${{ matrix.target }}/app-release.apk
+                    apks=()
+                    while IFS= read -r apk; do
+                      apks+=("$apk")
+                    done < <(find "$APP_DIR/android/app/build/outputs/apk/release" \
+                               -maxdepth 1 -type f -name '*.apk' ! -name '*unsigned*' | sort)
+                    if [ "${#apks[@]}" -ne 1 ]; then
+                      echo "::error::Expected exactly 1 signed release APK, found ${#apks[@]}: ${apks[*]}"
+                      exit 1
+                    fi
+                    apk_path="${apks[0]}"
+                    unzip -l "$apk_path" | grep -q 'assets/index.android.bundle'
+                    mkdir -p ".ci-cache/android-native-app/$TARGET"
+                    cp "$apk_path" ".ci-cache/android-native-app/$TARGET/app-release.apk"
 
             -   name: Save canonical native app
                 if: steps.native-app-cache.outputs.cache-hit != 'true'
                 uses: actions/cache/save@v4
                 with:
                     path: .ci-cache/android-native-app/${{ matrix.target }}
-                    key: android-native-v1-${{ matrix.target }}-${{ runner.os }}-${{ steps.fingerprint.outputs.hash }}
+                    key: android-native-v1-${{ matrix.target }}-${{ runner.os }}-cmdline-${{ env.ANDROID_CMDLINE_TOOLS_VERSION }}-${{ steps.fingerprint.outputs.hash }}
 
             -   uses: actions/upload-artifact@v4
                 with:
@@ -221,6 +238,8 @@ jobs:
         steps:
             -   name: Checkout repository
                 uses: actions/checkout@v5
+                with:
+                    persist-credentials: false
 
             -   name: Resolve target metadata
                 id: meta
@@ -263,14 +282,18 @@ jobs:
                         flows=()
                         while IFS= read -r flow; do
                           flows+=("$flow")
-                        done < <(find "${{ env.EXAMPLE_DIR }}/e2e/flows" -maxdepth 1 -type f -name '*.yaml' | sort)
+                        done < <(find "${{ env.EXAMPLE_DIR }}/e2e/flows" -type f \( -name '*.yaml' -o -name '*.yml' \) | sort)
+                        test "${#flows[@]}" -gt 0
                         selected=()
                         for index in "${!flows[@]}"; do
                           if (( index % MAESTRO_SHARD_COUNT == ${{ matrix.shard-index }} )); then
                             selected+=("${flows[$index]}")
                           fi
                         done
-                        test "${#selected[@]}" -gt 0
+                        if [ "${#selected[@]}" -eq 0 ]; then
+                          echo "Shard ${{ matrix.shard-index }} has no flows; nothing to run."
+                          exit 0
+                        fi
                         printf 'Shard ${{ matrix.shard-index }} flows:\n%s\n' "${selected[*]}"
                         maestro test -e "APP_ID=${{ steps.meta.outputs.app_id }}" "${selected[@]}"
 

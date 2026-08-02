@@ -28,6 +28,7 @@ permissions:
 env:
     XCODE_VERSION: '26.4.1'
     XCODE_BUILD: '17E202'
+    EXPO_FINGERPRINT_VERSION: '0.20.6'
     MAESTRO_VERSION: '2.8.0'
     MAESTRO_CLI_NO_ANALYTICS: true
     MAESTRO_CLI_ANALYSIS_NOTIFICATION_DISABLED: true
@@ -102,6 +103,8 @@ jobs:
         steps:
             -   name: Checkout repository
                 uses: actions/checkout@v5
+                with:
+                    persist-credentials: false
 
             -   name: Setup Node
                 uses: actions/setup-node@v5
@@ -142,7 +145,7 @@ jobs:
                 working-directory: ${{ env.APP_DIR }}
                 run: |
                     set -euo pipefail
-                    npx --yes @expo/fingerprint fingerprint:generate --platform ios > "$RUNNER_TEMP/ios-fingerprint-${{ matrix.target }}.json"
+                    npx --yes "@expo/fingerprint@${EXPO_FINGERPRINT_VERSION}" fingerprint:generate --platform ios > "$RUNNER_TEMP/ios-fingerprint-${{ matrix.target }}.json"
                     hash=$(node -e "process.stdout.write(require('$RUNNER_TEMP/ios-fingerprint-${{ matrix.target }}.json').hash)")
                     test -n "$hash"
                     echo "hash=$hash" >> "$GITHUB_OUTPUT"
@@ -197,7 +200,6 @@ jobs:
                       brew list ccache >/dev/null 2>&1 || brew install ccache
                     fi
                     ccache --version
-                    ccache --zero-stats || true
                     if command -v brew >/dev/null; then
                       echo "$(brew --prefix ccache)/libexec" >> "$GITHUB_PATH"
                     fi
@@ -211,6 +213,10 @@ jobs:
                     restore-keys: |
                         ccache-ios-${{ matrix.target }}-${{ runner.os }}-xcode-${{ env.XCODE_VERSION }}-
                         ccache-ios-${{ matrix.target }}-${{ runner.os }}-
+
+            -   name: Reset ccache statistics
+                if: steps.native-app-cache.outputs.cache-hit != 'true'
+                run: ccache --zero-stats || true
 
             -   name: Install CocoaPods dependencies
                 if: steps.native-app-cache.outputs.cache-hit != 'true'
@@ -252,6 +258,16 @@ jobs:
                       echo "Duration: $((build_end - build_start))s"
                     } >> "$GITHUB_STEP_SUMMARY"
 
+            -   name: Report ccache statistics
+                if: always() && steps.native-app-cache.outputs.cache-hit != 'true'
+                run: |
+                    {
+                      echo "### ccache stats: ${{ matrix.target }}"
+                      echo '```'
+                      ccache --show-stats --verbose
+                      echo '```'
+                    } >> "$GITHUB_STEP_SUMMARY" || true
+
             -   name: Save ccache
                 if: steps.native-app-cache.outputs.cache-hit != 'true'
                 uses: actions/cache/save@v4
@@ -264,9 +280,9 @@ jobs:
                 shell: bash
                 run: |
                     set -euo pipefail
-                    app_path=$(find "$IOS_DERIVED_DATA" -name '*.app' -path '*Release-iphonesimulator*' -print -quit)
-                    test -n "$app_path"
-                    find "$app_path" -name 'main.jsbundle' -type f -print -quit | grep -q .
+                    app_path="$IOS_DERIVED_DATA/Build/Products/Release-iphonesimulator/${{ steps.scheme.outputs.name }}.app"
+                    test -d "$app_path"
+                    test -f "$app_path/main.jsbundle"
                     mkdir -p .ci-cache/ios-native-app/${{ matrix.target }}
                     ditto "$app_path" .ci-cache/ios-native-app/${{ matrix.target }}/Base.app
 
@@ -307,6 +323,8 @@ jobs:
         steps:
             -   name: Checkout repository
                 uses: actions/checkout@v5
+                with:
+                    persist-credentials: false
 
             -   name: Select and assert Xcode toolchain
                 run: |
@@ -375,14 +393,18 @@ jobs:
                     flows=()
                     while IFS= read -r flow; do
                       flows+=("$flow")
-                    done < <(find e2e/flows -maxdepth 1 -type f -name '*.yaml' | sort)
+                    done < <(find e2e/flows -type f \( -name '*.yaml' -o -name '*.yml' \) | sort)
+                    test "${#flows[@]}" -gt 0
                     selected=()
                     for index in "${!flows[@]}"; do
                       if (( index % MAESTRO_SHARD_COUNT == SHARD_INDEX )); then
                         selected+=("${flows[$index]}")
                       fi
                     done
-                    test "${#selected[@]}" -gt 0
+                    if [ "${#selected[@]}" -eq 0 ]; then
+                      echo "Shard $SHARD_INDEX has no flows; nothing to run."
+                      exit 0
+                    fi
                     printf 'Shard %s flows:\n%s\n' "$SHARD_INDEX" "${selected[*]}"
                     maestro test -e "APP_ID=$APP_ID" "${selected[@]}"
 
