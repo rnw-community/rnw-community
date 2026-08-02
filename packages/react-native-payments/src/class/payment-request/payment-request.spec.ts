@@ -6,7 +6,10 @@ import { emptyFn } from '@rnw-community/shared';
 import { IosPKPaymentMethodType } from '../../@standard/ios/enum/ios-pk-payment-method-type.enum';
 import { changeEventTimeoutMs } from '../../constant/change-event-timeout-ms';
 import { EnvironmentEnum } from '../../enum/environment.enum';
+import { PaymentAddressFieldEnum } from '../../enum/payment-address-field.enum';
+import { PaymentContactFieldEnum } from '../../enum/payment-contact-field.enum';
 import { PaymentMethodNameEnum } from '../../enum/payment-method-name.enum';
+import { PaymentUpdateErrorTypeEnum } from '../../enum/payment-update-error-type.enum';
 import { PaymentsErrorEnum } from '../../enum/payments-error.enum';
 import { SupportedNetworkEnum } from '../../enum/supported-networks.enum';
 import { ConstructorError } from '../../error/constructor.error';
@@ -23,6 +26,7 @@ import type { AndroidPaymentMethodDataInterface } from '../../@standard/android/
 import type { AndroidPaymentDataRequest } from '../../@standard/android/request/android-payment-data-request';
 import type { AndroidTransactionInfo } from '../../@standard/android/request/android-transaction-info';
 import type { IosPaymentMethodDataInterface } from '../../@standard/ios/mapping/ios-payment-method-data.interface';
+import type { IosPaymentDataRequest } from '../../@standard/ios/request/ios-payment-data-request';
 import type { PaymentDetailsInit } from '../../@standard/w3c/payment-details-init';
 import type { PaymentDetailsUpdate } from '../../@standard/w3c/payment-details-update';
 import type { PaymentItem } from '../../@standard/w3c/payment-item';
@@ -287,6 +291,62 @@ describe('PaymentRequest', () => {
                             displayItems: [{ amount: { currency: 'USD', value: true } } as unknown as PaymentItem],
                         })
                 ).toThrow(new ConstructorError(`'true' is not a valid amount format for display items`));
+            });
+        });
+
+        describe(`payment details shippingOptions`, () => {
+            const paymentDetailsWithTotal: PaymentDetailsInit = {
+                total: { label: 'Total', amount: { currency: 'USD', value: '10.00' } },
+            };
+
+            const constructWithShippingOptions = (shippingOptions: unknown[]): PaymentRequest =>
+                new PaymentRequest([methodData], {
+                    ...paymentDetailsWithTotal,
+                    shippingOptions: shippingOptions as PaymentShippingOption[],
+                });
+
+            it('should NOT throw when shippingOptions is not defined or empty', () => {
+                expect.assertions(3);
+
+                expect(() => new PaymentRequest([methodData], paymentDetailsWithTotal)).not.toThrow();
+                expect(() => constructWithShippingOptions([])).not.toThrow();
+                expect(() =>
+                    constructWithShippingOptions([
+                        { id: 'express', label: 'Express', amount: { currency: 'USD', value: '5.00' } },
+                    ])
+                ).not.toThrow();
+            });
+
+            it('should throw when a shipping option has no id or no label', () => {
+                expect.assertions(3);
+
+                const expectedError = new ConstructorError(`Missing required member(s): id, label.`);
+                const amount = { currency: 'USD', value: '5.00' };
+
+                expect(() => constructWithShippingOptions([undefined])).toThrow(expectedError);
+                expect(() => constructWithShippingOptions([{ label: 'Express', amount }])).toThrow(expectedError);
+                expect(() => constructWithShippingOptions([{ id: 'express', label: '', amount }])).toThrow(expectedError);
+            });
+
+            it('should throw when a shipping option has no amount value', () => {
+                expect.assertions(2);
+
+                const expectedError = new ConstructorError(`required member value is undefined.`);
+
+                expect(() => constructWithShippingOptions([{ id: 'express', label: 'Express' }])).toThrow(expectedError);
+                expect(() => constructWithShippingOptions([{ id: 'express', label: 'Express', amount: {} }])).toThrow(
+                    expectedError
+                );
+            });
+
+            it('should throw when a shipping option amount value is not monetary', () => {
+                expect.assertions(1);
+
+                expect(() =>
+                    constructWithShippingOptions([
+                        { id: 'express', label: 'Express', amount: { currency: 'USD', value: '5.00.' } },
+                    ])
+                ).toThrow(new ConstructorError(`'5.00.' is not a valid amount format for shipping options`));
             });
         });
     });
@@ -817,6 +877,44 @@ describe('PaymentRequest', () => {
                 new ConstructorError(`checkoutOption 'COMPLETE_IMMEDIATE_PURCHASE' requires totalPriceStatus 'FINAL'`)
             );
         });
+        describe('couponCode serialization', () => {
+            const getSerializedIosMethodData = async (
+                requestMethodData: IosPaymentMethodDataInterface
+            ): Promise<IosPaymentDataRequest> => {
+                jest.mocked(NativePayments.canMakePayments).mockResolvedValue(true);
+
+                await new PaymentRequest([requestMethodData], paymentDetails).canMakePayment();
+
+                const [[serializedMethodData]] = jest.mocked(NativePayments.canMakePayments).mock.calls;
+
+                return JSON.parse(serializedMethodData) as IosPaymentDataRequest;
+            };
+
+            it('should serialize the prefilled coupon code', async () => {
+                expect.assertions(1);
+
+                const methodDataRequest = await getSerializedIosMethodData({
+                    ...iosMethodData,
+                    data: { ...iosMethodData.data, couponCode: 'SALE10' },
+                });
+
+                expect(methodDataRequest.couponCode).toBe('SALE10');
+            });
+
+            it('should not serialize a missing or empty coupon code', async () => {
+                expect.assertions(2);
+
+                const withoutCouponCode = await getSerializedIosMethodData(iosMethodData);
+                const withEmptyCouponCode = await getSerializedIosMethodData({
+                    ...iosMethodData,
+                    data: { ...iosMethodData.data, couponCode: '' },
+                });
+
+                expect(withoutCouponCode).not.toHaveProperty('couponCode');
+                expect(withEmptyCouponCode).not.toHaveProperty('couponCode');
+            });
+        });
+
         it('should reject `show` with a PaymentsError when native rejects with a non-error reason', async () => {
             expect.hasAssertions();
 
@@ -1300,6 +1398,90 @@ describe('PaymentRequest', () => {
             expect(warnMock).toHaveBeenCalledWith(expect.stringContaining('Total amount value should be non-negative'));
             expect(updatePaymentDetailsMock).toHaveBeenCalledWith(
                 { error: '', eventName: 'shippingaddresschange', requestId: request.id, total: initialTotal },
+                [],
+                []
+            );
+        });
+
+        it('should keep invalid display items away from native and answer with the unchanged details', async () => {
+            expect.hasAssertions();
+
+            const request = createInteractiveRequest();
+
+            request.addEventListener('shippingaddresschange', event => {
+                event.updateWith({
+                    total: updatedTotal,
+                    displayItems: [{ label: 'Shipping', amount: { currency: 'USD', value: '5.00.' } }],
+                });
+            });
+
+            emitNativeEvent('shippingaddresschange', { requestId: request.id, shippingAddress: address });
+            await nativeUpdate;
+
+            expect(warnMock).toHaveBeenCalledWith(
+                expect.stringContaining(`'5.00.' is not a valid amount format for display items`)
+            );
+            expect(request.details.displayItems).toBeUndefined();
+            expect(updatePaymentDetailsMock).toHaveBeenCalledWith(
+                { error: '', eventName: 'shippingaddresschange', requestId: request.id, total: initialTotal },
+                [],
+                []
+            );
+        });
+
+        it('should keep invalid shipping options away from native and answer with the unchanged details', async () => {
+            expect.hasAssertions();
+
+            const request = createInteractiveRequest();
+
+            request.addEventListener('shippingoptionchange', event => {
+                event.updateWith({
+                    total: updatedTotal,
+                    shippingOptions: [{ id: 'express', label: 'Express', amount: { currency: 'USD', value: 'free' } }],
+                });
+            });
+
+            emitNativeEvent('shippingoptionchange', { requestId: request.id, shippingOption: 'express' });
+            await nativeUpdate;
+
+            expect(warnMock).toHaveBeenCalledWith(
+                expect.stringContaining(`'free' is not a valid amount format for shipping options`)
+            );
+            expect(request.details.shippingOptions).toBeUndefined();
+            expect(updatePaymentDetailsMock).toHaveBeenCalledWith(
+                { error: '', eventName: 'shippingoptionchange', requestId: request.id, total: initialTotal },
+                [],
+                []
+            );
+        });
+
+        it('should resolve show() normally when a listener answered with invalid details', async () => {
+            expect.hasAssertions();
+
+            let finishShow: (details: string) => void = emptyFn;
+            jest.mocked(NativePayments.show).mockImplementation(
+                async () =>
+                    new Promise<string>(resolve => {
+                        finishShow = resolve;
+                    })
+            );
+
+            const request = createRequest();
+            request.addEventListener('shippingoptionchange', event => {
+                event.updateWith({
+                    shippingOptions: [{ id: '', label: '', amount: { currency: 'USD', value: '5.00' } }],
+                });
+            });
+
+            const response = request.show();
+            emitNativeEvent('shippingoptionchange', { requestId: request.id, shippingOption: 'express' });
+            await nativeUpdate;
+            finishShow(acceptedPayment);
+
+            await expect(response).resolves.toBeInstanceOf(IosPaymentResponse);
+            expect(request.state).toBe('closed');
+            expect(updatePaymentDetailsMock).toHaveBeenCalledWith(
+                { error: '', eventName: 'shippingoptionchange', requestId: request.id, total: initialTotal },
                 [],
                 []
             );
@@ -1830,6 +2012,155 @@ describe('PaymentRequest', () => {
             expect(subscriptions).toHaveLength(0);
 
             Object.assign(optionalNativePayments, { setActiveEvents, updatePaymentDetails });
+        });
+
+        it('should forward a field level shipping address error to native', async () => {
+            expect.hasAssertions();
+
+            const request = createInteractiveRequest();
+            const error = {
+                type: PaymentUpdateErrorTypeEnum.ShippingAddressField,
+                key: PaymentAddressFieldEnum.PostalCode,
+                message: 'We do not ship to this postal code',
+            } as const;
+
+            request.addEventListener('shippingaddresschange', event => {
+                event.updateWith({ error });
+            });
+
+            emitNativeEvent('shippingaddresschange', { requestId: request.id, shippingAddress: address });
+            await nativeUpdate;
+
+            expect(updatePaymentDetailsMock).toHaveBeenCalledWith(
+                { error, eventName: 'shippingaddresschange', requestId: request.id, total: initialTotal },
+                [],
+                []
+            );
+        });
+
+        it('should forward a field level payer contact error to native', async () => {
+            expect.hasAssertions();
+
+            const request = createInteractiveRequest();
+            const error = {
+                type: PaymentUpdateErrorTypeEnum.ContactField,
+                field: PaymentContactFieldEnum.Email,
+                message: 'We cannot deliver a receipt to this address',
+            } as const;
+
+            request.addEventListener('shippingaddresschange', event => {
+                event.updateWith({ error });
+            });
+
+            emitNativeEvent('shippingaddresschange', { requestId: request.id, shippingAddress: address });
+            await nativeUpdate;
+
+            expect(updatePaymentDetailsMock).toHaveBeenCalledWith(
+                { error, eventName: 'shippingaddresschange', requestId: request.id, total: initialTotal },
+                [],
+                []
+            );
+        });
+
+        it('should forward an expired coupon code error to native', async () => {
+            expect.hasAssertions();
+
+            const request = createInteractiveRequest();
+            const error = {
+                type: PaymentUpdateErrorTypeEnum.CouponCode,
+                expired: true,
+                message: 'SALE10 expired last week',
+            } as const;
+
+            request.addEventListener('couponcodechange', event => {
+                event.updateWith({ error });
+            });
+
+            emitNativeEvent('couponcodechange', { requestId: request.id, couponCode: 'SALE10' });
+            await nativeUpdate;
+
+            expect(updatePaymentDetailsMock).toHaveBeenCalledWith(
+                { error, eventName: 'couponcodechange', requestId: request.id, total: initialTotal },
+                [],
+                []
+            );
+        });
+
+        it('should pass the pending flag of a display item and of the total to native', async () => {
+            expect.hasAssertions();
+
+            let finishShow: (details: string) => void = emptyFn;
+            jest.mocked(NativePayments.show).mockImplementation(
+                async () =>
+                    new Promise<string>(resolve => {
+                        finishShow = resolve;
+                    })
+            );
+
+            const pendingTotal: PaymentItem = { ...updatedTotal, pending: true };
+            const pendingItem: PaymentItem = { ...displayItem, pending: true };
+
+            const request = new PaymentRequest([eventsMethodData], {
+                total: initialTotal,
+                displayItems: [pendingItem],
+            });
+            request.addEventListener('shippingoptionchange', event => {
+                event.updateWith({ total: pendingTotal, displayItems: [pendingItem] });
+            });
+
+            const response = request.show();
+            emitNativeEvent('shippingoptionchange', { requestId: request.id, shippingOption: 'express' });
+            await nativeUpdate;
+            finishShow(acceptedPayment);
+            await response;
+
+            const [[, , shownDetails]] = jest.mocked(NativePayments.show).mock.calls;
+
+            expect((shownDetails as PaymentDetailsInit).displayItems).toStrictEqual([pendingItem]);
+            expect(updatePaymentDetailsMock).toHaveBeenCalledWith(
+                { error: '', eventName: 'shippingoptionchange', requestId: request.id, total: pendingTotal },
+                [pendingItem],
+                []
+            );
+        });
+
+        it('should pass identical shipping options to native from the initial details and from an update', async () => {
+            expect.hasAssertions();
+
+            let finishShow: (details: string) => void = emptyFn;
+            jest.mocked(NativePayments.show).mockImplementation(
+                async () =>
+                    new Promise<string>(resolve => {
+                        finishShow = resolve;
+                    })
+            );
+
+            const detailedOption: PaymentShippingOption = {
+                id: 'express',
+                label: 'Express',
+                detail: 'Next business day',
+                amount: { currency: 'USD', value: '5.00' },
+            };
+
+            const request = new PaymentRequest([eventsMethodData], {
+                total: initialTotal,
+                shippingOptions: [detailedOption],
+            });
+            request.addEventListener('shippingoptionchange', event => {
+                event.updateWith({ shippingOptions: [detailedOption] });
+            });
+
+            const response = request.show();
+            emitNativeEvent('shippingoptionchange', { requestId: request.id, shippingOption: 'express' });
+            await nativeUpdate;
+            finishShow(acceptedPayment);
+            await response;
+
+            const [[, , shownDetails]] = jest.mocked(NativePayments.show).mock.calls;
+            const [[, , updatedShippingOptions]] = updatePaymentDetailsMock.mock.calls;
+
+            expect((shownDetails as PaymentDetailsInit).shippingOptions).toStrictEqual([detailedOption]);
+            expect(updatedShippingOptions).toStrictEqual([detailedOption]);
         });
 
         it('should remove a listener registered while the native module could not deliver change events', () => {

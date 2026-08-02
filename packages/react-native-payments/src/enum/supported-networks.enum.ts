@@ -14,6 +14,10 @@ export enum SupportedNetworkEnum {
     Mada = 'mada',
     Maestro = 'maestro',
     Mastercard = 'masterCard',
+    /**
+     * @deprecated Apple delisted Mir over the sanctions against the issuing banks. The network still resolves on
+     * iOS 14.5+ so an existing integration keeps building, but no Mir card can be provisioned into Apple Pay.
+     */
     Mir = 'mir',
     PrivateLabel = 'privateLabel',
     Visa = 'visa',

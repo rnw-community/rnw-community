@@ -4,6 +4,7 @@ import type { IosPKMerchantCapability } from '../enum/ios-pk-merchant-capability
 export interface IosPaymentMethodDataDataInterface extends GenericPaymentMethodDataDataInterface {
     applicationData?: string;
     countryCode: string;
+    couponCode?: string;
     merchantCapabilities?: IosPKMerchantCapability[];
     merchantIdentifier: string;
 }

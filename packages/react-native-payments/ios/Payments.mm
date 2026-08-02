@@ -1,8 +1,8 @@
 #import "Payments.h"
 
 #import <React/RCTLog.h>
+#import <Contacts/Contacts.h>
 #import <Foundation/Foundation.h>
-#import <objc/runtime.h>
 
 static NSString *const PaymentsPaymentMethodChangeEvent = @"paymentmethodchange";
 static NSString *const PaymentsShippingAddressChangeEvent = @"shippingaddresschange";
@@ -20,6 +20,13 @@ static NSString *const PaymentsCouponCodeChangeEvent = @"couponcodechange";
 @property (nonatomic, copy) NSArray<PKShippingMethod *> * _Nonnull currentShippingMethods;
 @property (nonatomic, assign) BOOL isSheetPresented;
 @property (nonatomic, assign) BOOL hasChangeEventListeners;
+
+// https://developer.apple.com/documentation/passkit/pkpaymentrequest/3822251-supportscouponcode?language=objc
+- (void)applyCouponCodeSupportToRequest:(PKPaymentRequest *_Nonnull)paymentRequest
+                             methodData:(NSDictionary *_Nonnull)methodData API_AVAILABLE(ios(15.0));
+- (void)resolveCouponCodeChangeEventWithErrors:(NSArray<NSError *> *_Nonnull)errors
+                                  summaryItems:(NSArray<PKPaymentSummaryItem *> *_Nonnull)summaryItems
+                               shippingMethods:(NSArray<PKShippingMethod *> *_Nonnull)shippingMethods API_AVAILABLE(ios(15.0));
 
 @end
 
@@ -240,10 +247,9 @@ RCT_EXPORT_METHOD(show:(NSString *)requestId
         paymentRequest.shippingMethods = self.currentShippingMethods;
     }
 
-    // https://developer.apple.com/documentation/passkit/pkpaymentrequest/3822251-supportscouponcode?language=objc
     if ([self isChangeEventActive:PaymentsCouponCodeChangeEvent]) {
         if (@available(iOS 15.0, *)) {
-            paymentRequest.supportsCouponCode = YES;
+            [self applyCouponCodeSupportToRequest:paymentRequest methodData:methodData];
         }
     }
 
@@ -390,7 +396,7 @@ RCT_EXPORT_METHOD(updatePaymentDetails: (NSDictionary *)update
         self.currentShippingMethods = [self getShippingMethodsFromShippingOptions:shippingOptions];
     }
 
-    [self resolveChangeEvent:eventName errors:[self getErrorsForEvent:eventName message:update[@"error"]]];
+    [self resolveChangeEvent:eventName errors:[self getErrorsForEvent:eventName error:update[@"error"]]];
 
     resolve(nil);
 }
@@ -473,77 +479,16 @@ RCT_EXPORT_METHOD(canMakePayments: (NSString *)methodDataString
 
     NSMutableDictionary *paymentDict = [NSMutableDictionary dictionary];
 
-    NSMutableDictionary *tokenDict = [NSMutableDictionary dictionary];
-    tokenDict[@"transactionIdentifier"] = payment.token.transactionIdentifier;
-
-    NSString *paymentData64 = [payment.token.paymentData base64EncodedStringWithOptions:0];
-    NSData *decodedPaymentData = [[NSData alloc] initWithBase64EncodedString:paymentData64 options:0];
-    tokenDict[@"paymentData"] = [[NSString alloc] initWithData:decodedPaymentData encoding:NSUTF8StringEncoding];
-
-    NSMutableDictionary *paymentMethodDict = [NSMutableDictionary dictionary];
-    paymentMethodDict[@"displayName"] = payment.token.paymentMethod.displayName;
-    paymentMethodDict[@"network"] = payment.token.paymentMethod.network;
-    paymentMethodDict[@"type"] = [self stringFromPaymentMethodType:payment.token.paymentMethod.type];
-
-    tokenDict[@"paymentMethod"] = paymentMethodDict;
-
-    paymentDict[@"token"] = tokenDict;
+    paymentDict[@"token"] = [self getTokenDictionaryFromToken:payment.token];
 
     PKContact *billingContact = payment.billingContact;
     if (billingContact) {
-        NSMutableDictionary *billingContactDict = [NSMutableDictionary dictionary];
-
-        CNPostalAddress *postalAddress = billingContact.postalAddress;
-        NSMutableDictionary *postalAddressDict = [NSMutableDictionary dictionary];
-        if (postalAddress) {
-            postalAddressDict[@"street"] = postalAddress.street;
-            postalAddressDict[@"city"] = postalAddress.city;
-            postalAddressDict[@"state"] = postalAddress.state;
-            postalAddressDict[@"postalCode"] = postalAddress.postalCode;
-            postalAddressDict[@"country"] = postalAddress.country;
-            postalAddressDict[@"ISOCountryCode"] = postalAddress.ISOCountryCode;
-        }
-
-        billingContactDict[@"postalAddress"] = postalAddressDict;
-
-        paymentDict[@"billingContact"] = billingContactDict;
+        paymentDict[@"billingContact"] = [self getContactDictionaryFromContact:billingContact];
     }
 
     PKContact *shippingContact = payment.shippingContact;
     if (shippingContact) {
-        NSMutableDictionary *shippingContactDict = [NSMutableDictionary dictionary];
-        shippingContactDict[@"emailAddress"] = shippingContact.emailAddress;
-
-        CNPhoneNumber *phoneNumber = shippingContact.phoneNumber;
-        NSMutableDictionary *phoneNumberDict = [NSMutableDictionary dictionary];
-        phoneNumberDict[@"stringValue"] = phoneNumber.stringValue;
-        shippingContactDict[@"phoneNumber"] = phoneNumberDict;
-
-        CNPostalAddress *postalAddress = shippingContact.postalAddress;
-        NSMutableDictionary *postalAddressDict = [NSMutableDictionary dictionary];
-        if (postalAddress) {
-            postalAddressDict[@"street"] = postalAddress.street;
-            postalAddressDict[@"city"] = postalAddress.city;
-            postalAddressDict[@"state"] = postalAddress.state;
-            postalAddressDict[@"postalCode"] = postalAddress.postalCode;
-            postalAddressDict[@"country"] = postalAddress.country;
-            postalAddressDict[@"ISOCountryCode"] = postalAddress.ISOCountryCode;
-        }
-        shippingContactDict[@"postalAddress"] = postalAddressDict;
-
-        NSPersonNameComponents *nameComponents = shippingContact.name;
-        NSMutableDictionary *nameDict = [NSMutableDictionary dictionary];
-        if (nameComponents) {
-            nameDict[@"givenName"] = nameComponents.givenName;
-            nameDict[@"familyName"] = nameComponents.familyName;
-            nameDict[@"middleName"] = nameComponents.middleName;
-            nameDict[@"namePrefix"] = nameComponents.namePrefix;
-            nameDict[@"nameSuffix"] = nameComponents.nameSuffix;
-            nameDict[@"nickname"] = nameComponents.nickname;
-        }
-        shippingContactDict[@"name"] = nameDict;
-
-        paymentDict[@"shippingContact"] = shippingContactDict;
+        paymentDict[@"shippingContact"] = [self getContactDictionaryFromContact:shippingContact];
     }
 
     // TODO: Add shippingMethod
@@ -625,13 +570,36 @@ RCT_EXPORT_METHOD(canMakePayments: (NSString *)methodDataString
 
     if ([eventName isEqualToString:PaymentsCouponCodeChangeEvent]) {
         if (@available(iOS 15.0, *)) {
-            void (^handler)(PKPaymentRequestCouponCodeUpdate *) = [self takePendingCompletionOfEvent:eventName];
-            handler([[PKPaymentRequestCouponCodeUpdate alloc] initWithErrors:errors paymentSummaryItems:summaryItems shippingMethods:shippingMethods]);
+            [self resolveCouponCodeChangeEventWithErrors:errors summaryItems:summaryItems shippingMethods:shippingMethods];
             return;
         }
     }
 
     RCTLogWarn(@"Payments: '%@' has no PassKit update type here, its completion stays pending", eventName);
+}
+
+// https://developer.apple.com/documentation/passkit/pkpaymentrequest/3801275-couponcode?language=objc
+- (void)applyCouponCodeSupportToRequest:(PKPaymentRequest *_Nonnull)paymentRequest
+                             methodData:(NSDictionary *_Nonnull)methodData
+{
+    paymentRequest.supportsCouponCode = YES;
+
+    id couponCode = methodData[@"couponCode"];
+    if ([couponCode isKindOfClass:[NSString class]] && [(NSString *)couponCode length] > 0) {
+        paymentRequest.couponCode = (NSString *)couponCode;
+    }
+}
+
+// https://developer.apple.com/documentation/passkit/pkpaymentrequestcouponcodeupdate?language=objc
+- (void)resolveCouponCodeChangeEventWithErrors:(NSArray<NSError *> *_Nonnull)errors
+                                  summaryItems:(NSArray<PKPaymentSummaryItem *> *_Nonnull)summaryItems
+                               shippingMethods:(NSArray<PKShippingMethod *> *_Nonnull)shippingMethods
+{
+    void (^handler)(PKPaymentRequestCouponCodeUpdate *) = [self takePendingCompletionOfEvent:PaymentsCouponCodeChangeEvent];
+
+    handler([[PKPaymentRequestCouponCodeUpdate alloc] initWithErrors:errors
+                                                 paymentSummaryItems:summaryItems
+                                                     shippingMethods:shippingMethods]);
 }
 
 - (id _Nonnull)takePendingCompletionOfEvent:(NSString *_Nonnull)eventName
@@ -700,7 +668,60 @@ RCT_EXPORT_METHOD(canMakePayments: (NSString *)methodDataString
     completion([[PKPaymentAuthorizationResult alloc] initWithStatus:status errors:nil]);
 }
 
-- (NSArray<NSError *> *_Nonnull)getErrorsForEvent:(NSString *_Nonnull)eventName message:(id _Nullable)message
+- (NSArray<NSError *> *_Nonnull)getErrorsForEvent:(NSString *_Nonnull)eventName error:(id _Nullable)error
+{
+    if ([eventName isEqualToString:PaymentsShippingOptionChangeEvent]) {
+        if (error != nil && ![error isEqual:@""]) {
+            RCTLogWarn(@"Payments: PassKit cannot surface an error for '%@', ignoring '%@'", eventName, error);
+        }
+
+        return @[];
+    }
+
+    if ([error isKindOfClass:[NSDictionary class]]) {
+        return [self getFieldErrorsFromError:(NSDictionary *)error];
+    }
+
+    return [self getUnstructuredErrorsForEvent:eventName message:error];
+}
+
+// https://developer.apple.com/documentation/passkit/pkpaymenterrordomain?language=objc
+- (NSArray<NSError *> *_Nonnull)getFieldErrorsFromError:(NSDictionary *_Nonnull)error
+{
+    id message = error[@"message"];
+
+    if (![message isKindOfClass:[NSString class]] || [(NSString *)message length] == 0) {
+        return @[];
+    }
+
+    id errorType = error[@"type"];
+
+    if ([errorType isEqual:@"shippingAddressField"]) {
+        NSString *addressKey = [self postalAddressKeyFromString:error[@"key"]];
+
+        return addressKey == nil
+            ? @[]
+            : @[[PKPaymentRequest paymentShippingAddressInvalidErrorWithKey:addressKey localizedDescription:message]];
+    }
+
+    if ([errorType isEqual:@"contactField"]) {
+        PKContactField contactField = [self contactFieldFromPayerField:error[@"field"]];
+
+        return contactField == nil
+            ? @[]
+            : @[[PKPaymentRequest paymentContactInvalidErrorWithContactField:contactField localizedDescription:message]];
+    }
+
+    if ([errorType isEqual:@"couponCode"]) {
+        return [self getCouponCodeErrorsWithMessage:message expired:[error[@"expired"] isEqual:@YES]];
+    }
+
+    RCTLogWarn(@"Payments: '%@' is not a known payment error type, ignoring '%@'", errorType, message);
+
+    return @[];
+}
+
+- (NSArray<NSError *> *_Nonnull)getUnstructuredErrorsForEvent:(NSString *_Nonnull)eventName message:(id _Nullable)message
 {
     if (![message isKindOfClass:[NSString class]] || [(NSString *)message length] == 0) {
         return @[];
@@ -711,20 +732,115 @@ RCT_EXPORT_METHOD(canMakePayments: (NSString *)methodDataString
     }
 
     if ([eventName isEqualToString:PaymentsCouponCodeChangeEvent]) {
-        if (@available(iOS 15.0, *)) {
-            return @[[PKPaymentRequest paymentCouponCodeInvalidErrorWithLocalizedDescription:message]];
-        }
-
-        return @[];
+        return [self getCouponCodeErrorsWithMessage:message expired:NO];
     }
 
-    if ([eventName isEqualToString:PaymentsPaymentMethodChangeEvent]) {
-        return @[[NSError errorWithDomain:PKPaymentErrorDomain code:PKPaymentUnknownError userInfo:@{ NSLocalizedDescriptionKey: message }]];
-    }
+    return @[[NSError errorWithDomain:PKPaymentErrorDomain code:PKPaymentUnknownError userInfo:@{ NSLocalizedDescriptionKey: message }]];
+}
 
-    RCTLogWarn(@"Payments: PassKit cannot surface an error for '%@', ignoring '%@'", eventName, message);
+- (NSArray<NSError *> *_Nonnull)getCouponCodeErrorsWithMessage:(NSString *_Nonnull)message expired:(BOOL)expired
+{
+    if (@available(iOS 15.0, *)) {
+        return @[expired
+            ? [PKPaymentRequest paymentCouponCodeExpiredErrorWithLocalizedDescription:message]
+            : [PKPaymentRequest paymentCouponCodeInvalidErrorWithLocalizedDescription:message]];
+    }
 
     return @[];
+}
+
+// https://developer.apple.com/documentation/contacts/cnpostaladdress?language=objc
+- (NSString *_Nullable)postalAddressKeyFromString:(id _Nullable)addressField
+{
+    static NSDictionary<NSString *, NSString *> *postalAddressKeys;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        postalAddressKeys = @{
+            @"addressLine": CNPostalAddressStreetKey,
+            @"city": CNPostalAddressCityKey,
+            @"country": CNPostalAddressISOCountryCodeKey,
+            @"dependentLocality": CNPostalAddressSubLocalityKey,
+            @"postalCode": CNPostalAddressPostalCodeKey,
+            @"region": CNPostalAddressStateKey,
+            @"subAdministrativeArea": CNPostalAddressSubAdministrativeAreaKey
+        };
+    });
+
+    return [addressField isKindOfClass:[NSString class]] ? postalAddressKeys[(NSString *)addressField] : nil;
+}
+
+// https://developer.apple.com/documentation/passkit/pkcontactfield?language=objc
+- (PKContactField _Nullable)contactFieldFromPayerField:(id _Nullable)payerField
+{
+    static NSDictionary<NSString *, PKContactField> *payerContactFields;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        payerContactFields = @{
+            @"email": PKContactFieldEmailAddress,
+            @"name": PKContactFieldName,
+            @"phone": PKContactFieldPhoneNumber,
+            @"postalAddress": PKContactFieldPostalAddress
+        };
+    });
+
+    return [payerField isKindOfClass:[NSString class]] ? payerContactFields[(NSString *)payerField] : nil;
+}
+
+// https://developer.apple.com/documentation/passkit/pkpaymenttoken?language=objc
+- (NSDictionary *_Nonnull)getTokenDictionaryFromToken:(PKPaymentToken *_Nullable)token
+{
+    NSString *paymentData64 = [token.paymentData base64EncodedStringWithOptions:0];
+    NSData *decodedPaymentData = [[NSData alloc] initWithBase64EncodedString:paymentData64 ?: @"" options:0];
+    NSString *paymentData = [[NSString alloc] initWithData:decodedPaymentData ?: [NSData data] encoding:NSUTF8StringEncoding];
+
+    return @{
+        @"transactionIdentifier": token.transactionIdentifier ?: @"",
+        @"paymentData": paymentData ?: @"",
+        @"paymentMethod": @{
+            @"displayName": token.paymentMethod.displayName ?: @"",
+            @"network": token.paymentMethod.network ?: @"",
+            @"type": [self stringFromPaymentMethodType:token.paymentMethod.type]
+        }
+    };
+}
+
+// https://developer.apple.com/documentation/passkit/pkcontact?language=objc
+- (NSDictionary *_Nonnull)getContactDictionaryFromContact:(PKContact *_Nonnull)contact
+{
+    return @{
+        @"emailAddress": contact.emailAddress ?: @"",
+        @"name": [self getNameDictionaryFromNameComponents:contact.name],
+        @"phoneNumber": @{ @"stringValue": contact.phoneNumber.stringValue ?: @"" },
+        @"postalAddress": [self getPostalAddressDictionaryFromPostalAddress:contact.postalAddress]
+    };
+}
+
+// https://developer.apple.com/documentation/contacts/cnpostaladdress?language=objc
+- (NSDictionary *_Nonnull)getPostalAddressDictionaryFromPostalAddress:(CNPostalAddress *_Nullable)postalAddress
+{
+    return @{
+        @"ISOCountryCode": postalAddress.ISOCountryCode ?: @"",
+        @"city": postalAddress.city ?: @"",
+        @"country": postalAddress.country ?: @"",
+        @"postalCode": postalAddress.postalCode ?: @"",
+        @"state": postalAddress.state ?: @"",
+        @"street": postalAddress.street ?: @"",
+        @"subAdministrativeArea": postalAddress.subAdministrativeArea ?: @"",
+        @"subLocality": postalAddress.subLocality ?: @""
+    };
+}
+
+// https://developer.apple.com/documentation/foundation/nspersonnamecomponents?language=objc
+- (NSDictionary *_Nonnull)getNameDictionaryFromNameComponents:(NSPersonNameComponents *_Nullable)nameComponents
+{
+    return @{
+        @"familyName": nameComponents.familyName ?: @"",
+        @"givenName": nameComponents.givenName ?: @"",
+        @"middleName": nameComponents.middleName ?: @"",
+        @"namePrefix": nameComponents.namePrefix ?: @"",
+        @"nameSuffix": nameComponents.nameSuffix ?: @"",
+        @"nickname": nameComponents.nickname ?: @""
+    };
 }
 
 - (NSDictionary *_Nonnull)getAddressFromPostalAddress:(CNPostalAddress *_Nullable)postalAddress
@@ -759,27 +875,43 @@ RCT_EXPORT_METHOD(canMakePayments: (NSString *)methodDataString
     }
 
     for (id shippingOption in shippingOptions) {
-        if (![shippingOption isKindOfClass:[NSDictionary class]]) {
-            RCTLogWarn(@"Payments: skipping a shipping option that is not an object");
-            continue;
+        PKShippingMethod *shippingMethod = [self convertShippingOptionToShippingMethod:shippingOption];
+
+        if (shippingMethod != nil) {
+            [shippingMethods addObject:shippingMethod];
         }
-
-        NSDecimalNumber *amount = [self getDecimalNumberFromAmount:((NSDictionary *)shippingOption)[@"amount"]];
-        id label = ((NSDictionary *)shippingOption)[@"label"];
-        id identifier = ((NSDictionary *)shippingOption)[@"id"];
-
-        if (amount == nil || ![label isKindOfClass:[NSString class]] || ![identifier isKindOfClass:[NSString class]]) {
-            RCTLogWarn(@"Payments: skipping a shipping option without a string id, a string label and an amount");
-            continue;
-        }
-
-        PKShippingMethod *shippingMethod = [PKShippingMethod summaryItemWithLabel:label amount:amount];
-        shippingMethod.identifier = identifier;
-
-        [shippingMethods addObject:shippingMethod];
     }
 
     return shippingMethods;
+}
+
+// https://developer.apple.com/documentation/passkit/pkshippingmethod?language=objc
+- (PKShippingMethod *_Nullable)convertShippingOptionToShippingMethod:(id _Nullable)shippingOption
+{
+    if (![shippingOption isKindOfClass:[NSDictionary class]]) {
+        RCTLogWarn(@"Payments: skipping a shipping option that is not an object");
+        return nil;
+    }
+
+    NSDictionary *option = (NSDictionary *)shippingOption;
+    NSDecimalNumber *amount = [self getDecimalNumberFromAmount:option[@"amount"]];
+    id label = option[@"label"];
+    id identifier = option[@"id"];
+
+    if (amount == nil || ![label isKindOfClass:[NSString class]] || ![identifier isKindOfClass:[NSString class]]) {
+        RCTLogWarn(@"Payments: skipping a shipping option without a string id, a string label and a string amount value");
+        return nil;
+    }
+
+    PKShippingMethod *shippingMethod = [PKShippingMethod summaryItemWithLabel:(NSString *)label amount:amount];
+    shippingMethod.identifier = (NSString *)identifier;
+
+    id detail = option[@"detail"];
+    if ([detail isKindOfClass:[NSString class]]) {
+        shippingMethod.detail = (NSString *)detail;
+    }
+
+    return shippingMethod;
 }
 
 - (NSDecimalNumber *_Nullable)getDecimalNumberFromAmount:(id _Nullable)amount
@@ -788,23 +920,29 @@ RCT_EXPORT_METHOD(canMakePayments: (NSString *)methodDataString
         return nil;
     }
 
-    NSString *value = ((NSDictionary *)amount)[@"value"];
+    id value = ((NSDictionary *)amount)[@"value"];
 
     if (![value isKindOfClass:[NSString class]]) {
         return nil;
     }
 
-    NSDecimalNumber *decimalNumber = [NSDecimalNumber decimalNumberWithString:value];
+    NSDecimalNumber *decimalNumber = [NSDecimalNumber decimalNumberWithString:(NSString *)value];
 
     return [decimalNumber isEqualToNumber:[NSDecimalNumber notANumber]] ? nil : decimalNumber;
 }
 
-- (PKPaymentSummaryItem *_Nonnull)convertDisplayItemToPaymentSummaryItem:(NSDictionary *_Nonnull)displayItem;
+// https://developer.apple.com/documentation/passkit/pkpaymentsummaryitemtype?language=objc
+- (PKPaymentSummaryItem *_Nonnull)convertDisplayItemToPaymentSummaryItem:(NSDictionary *_Nonnull)displayItem
 {
-    NSDecimalNumber *decimalNumberAmount = [NSDecimalNumber decimalNumberWithString:displayItem[@"amount"][@"value"]];
-    PKPaymentSummaryItem *paymentSummaryItem = [PKPaymentSummaryItem summaryItemWithLabel:displayItem[@"label"] amount:decimalNumberAmount];
+    NSDecimalNumber *amount = [self getDecimalNumberFromAmount:displayItem[@"amount"]] ?: [NSDecimalNumber zero];
+    id label = displayItem[@"label"];
+    PKPaymentSummaryItemType type = [displayItem[@"pending"] isEqual:@YES]
+        ? PKPaymentSummaryItemTypePending
+        : PKPaymentSummaryItemTypeFinal;
 
-    return paymentSummaryItem;
+    return [PKPaymentSummaryItem summaryItemWithLabel:([label isKindOfClass:[NSString class]] ? (NSString *)label : @"")
+                                               amount:amount
+                                                 type:type];
 }
 
 // https://developer.apple.com/documentation/passkit/pkpaymentrequest/1619231-paymentsummaryitems?language=objc
@@ -829,7 +967,7 @@ RCT_EXPORT_METHOD(canMakePayments: (NSString *)methodDataString
     static NSDictionary<NSString *, PKPaymentNetwork> *paymentNetworks;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
-        paymentNetworks = @{
+        NSMutableDictionary<NSString *, PKPaymentNetwork> *networks = [@{
             @"PKPaymentNetworkAmex": PKPaymentNetworkAmex,
             @"PKPaymentNetworkDiscover": PKPaymentNetworkDiscover,
             @"PKPaymentNetworkMasterCard": PKPaymentNetworkMasterCard,
@@ -848,63 +986,27 @@ RCT_EXPORT_METHOD(canMakePayments: (NSString *)methodDataString
             @"PKPaymentNetworkMada": PKPaymentNetworkMada,
             @"PKPaymentNetworkElectron": PKPaymentNetworkElectron,
             @"PKPaymentNetworkElo": PKPaymentNetworkElo
-        };
+        } mutableCopy];
 
-        if (@available(iOS 16.0, *)) {
-            NSMutableDictionary *mutablePaymentNetworks = [paymentNetworks mutableCopy];
-            // Dynamically get PKPaymentNetworkBancontact to avoid linking issues
-            Class pkPaymentNetworkClass = NSClassFromString(@"PKPaymentNetwork");
-            if (pkPaymentNetworkClass) {
-                id bancontactNetwork = [pkPaymentNetworkClass performSelector:@selector(Bancontact)];
-                if (bancontactNetwork) {
-                    mutablePaymentNetworks[@"PKPaymentNetworkBancontact"] = bancontactNetwork;
-                }
-            }
-            paymentNetworks = [mutablePaymentNetworks copy];
+        if (@available(iOS 14.0, *)) {
+            networks[@"PKPaymentNetworkGirocard"] = PKPaymentNetworkGirocard;
+            networks[@"PKPaymentNetworkBarcode"] = PKPaymentNetworkBarcode;
+        }
+
+        // HINT: Apple delisted Mir over the sanctions, it resolves but no Mir card can be provisioned
+        if (@available(iOS 14.5, *)) {
+            networks[@"PKPaymentNetworkMir"] = PKPaymentNetworkMir;
         }
 
         if (@available(iOS 15.1, *)) {
-            NSMutableDictionary *mutablePaymentNetworks = [paymentNetworks mutableCopy];
-            // Dynamically get PKPaymentNetworkDankort to avoid linking issues on iOS 15.1
-            Class pkPaymentNetworkClass = NSClassFromString(@"PKPaymentNetwork");
-            if (pkPaymentNetworkClass) {
-                id dankortNetwork = [pkPaymentNetworkClass performSelector:@selector(Dankort)];
-                if (dankortNetwork) {
-                    mutablePaymentNetworks[@"PKPaymentNetworkDankort"] = dankortNetwork;
-                }
-            }
-            paymentNetworks = [mutablePaymentNetworks copy];
+            networks[@"PKPaymentNetworkDankort"] = PKPaymentNetworkDankort;
         }
 
-        if (@available(iOS 14.5, *)) {
-            NSMutableDictionary *mutablePaymentNetworks = [paymentNetworks mutableCopy];
-            // HINT: You should never work
-            // Dynamically get PKPaymentNetworkMir to avoid linking issues
-            Class pkPaymentNetworkClass = NSClassFromString(@"PKPaymentNetwork");
-            if (pkPaymentNetworkClass) {
-                id mirNetwork = [pkPaymentNetworkClass performSelector:@selector(Mir)];
-                if (mirNetwork) {
-                    mutablePaymentNetworks[@"PKPaymentNetworkMIR"] = mirNetwork;
-                }
-            }
-            paymentNetworks = [mutablePaymentNetworks copy];
+        if (@available(iOS 16.0, *)) {
+            networks[@"PKPaymentNetworkBancontact"] = PKPaymentNetworkBancontact;
         }
 
-        if (@available(iOS 14.0, *)) {
-            NSMutableDictionary *mutablePaymentNetworks = [paymentNetworks mutableCopy];
-            mutablePaymentNetworks[@"PKPaymentNetworkGirocard"] = PKPaymentNetworkGirocard;
-            mutablePaymentNetworks[@"PKPaymentNetworkBarcode"] = PKPaymentNetworkBarcode;
-            paymentNetworks = [mutablePaymentNetworks copy];
-        }
-
-        if (@available(iOS 12.0, *)) {
-            NSMutableDictionary *mutablePaymentNetworks = [paymentNetworks mutableCopy];
-            mutablePaymentNetworks[@"PKPaymentNetworkCartesBancaires"] = PKPaymentNetworkCartesBancaires;
-            mutablePaymentNetworks[@"PKPaymentNetworkVPay"] = PKPaymentNetworkVPay;
-            mutablePaymentNetworks[@"PKPaymentNetworkEftpos"] = PKPaymentNetworkEftpos;
-            mutablePaymentNetworks[@"PKPaymentNetworkMaestro"] = PKPaymentNetworkMaestro;
-            paymentNetworks = [mutablePaymentNetworks copy];
-        }
+        paymentNetworks = [networks copy];
     });
 
     return paymentNetworks[paymentNetworkString] ?: PKPaymentNetworkUnknown;
