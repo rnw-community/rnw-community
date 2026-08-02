@@ -2,6 +2,6 @@ import { formatPaymentsErrorMessage } from '../util/format-payments-error-messag
 
 export class ConstructorError extends TypeError {
     constructor(message: string) {
-        super(formatPaymentsErrorMessage(`Failed to construct 'PaymentRequest':  ${message}`));
+        super(formatPaymentsErrorMessage(`Failed to construct 'PaymentRequest': ${message}`));
     }
 }

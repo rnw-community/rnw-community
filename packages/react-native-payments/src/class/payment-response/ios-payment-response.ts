@@ -2,7 +2,7 @@ import { isNotEmptyString } from '@rnw-community/shared';
 
 import { emptyAndroidPaymentMethodToken } from '../../@standard/android/response/android-payment-method-token';
 import { emptyIosPaymentData } from '../../@standard/ios/response/ios-payment-data';
-import { parseJsonOrThrow } from '../../util/parse-json-or-throw.util';
+import { PaymentsError } from '../../error/payments.error';
 
 import { PaymentResponse } from './payment-response';
 
@@ -14,27 +14,36 @@ import type { IosPKPayment } from '../../@standard/ios/response/ios-pk-payment';
 import type { IosPKToken } from '../../@standard/ios/response/ios-pk-token';
 import type { IosRawPKToken } from '../../@standard/ios/response/ios-raw-pk-token';
 import type { PaymentResponseAddressInterface } from '../../interface/payment-response-address.interface';
+import type { PaymentResponseDetailsInterface } from '../../interface/payment-response-details.interface';
 
 export class IosPaymentResponse extends PaymentResponse {
     constructor(requestId: string, methodName: string, jsonData: string) {
-        const data = parseJsonOrThrow<IosPKPayment>(jsonData);
+        super(requestId, methodName, IosPaymentResponse.parseDetails(jsonData));
+    }
 
-        super(requestId, methodName, {
-            billingAddress: IosPaymentResponse.parsePKContact(data.billingContact?.postalAddress),
-            applePayToken: IosPaymentResponse.parsePkToken(data.token),
-            androidPayToken: emptyAndroidPaymentMethodToken,
-            payerEmail: data.shippingContact?.emailAddress ?? '',
-            payerName: IosPaymentResponse.parseNSPersonNameComponents(data.shippingContact?.name),
-            payerPhone: IosPaymentResponse.parseCNPhoneNumber(data.shippingContact?.phoneNumber),
-            shippingAddress: IosPaymentResponse.parsePKContact(data.shippingContact?.postalAddress),
-        });
+    private static parseDetails(jsonData: string): PaymentResponseDetailsInterface {
+        try {
+            const data = JSON.parse(jsonData) as IosPKPayment;
+
+            return {
+                billingAddress: IosPaymentResponse.parsePKContact(data.billingContact?.postalAddress),
+                applePayToken: IosPaymentResponse.parsePkToken(data.token),
+                androidPayToken: emptyAndroidPaymentMethodToken,
+                payerEmail: data.shippingContact?.emailAddress ?? '',
+                payerName: IosPaymentResponse.parseNSPersonNameComponents(data.shippingContact?.name),
+                payerPhone: IosPaymentResponse.parseCNPhoneNumber(data.shippingContact?.phoneNumber),
+                shippingAddress: IosPaymentResponse.parsePKContact(data.shippingContact?.postalAddress),
+            };
+        } catch {
+            throw new PaymentsError(`Failed parsing PaymentRequest details`);
+        }
     }
 
     private static parsePkToken(input: IosRawPKToken): IosPKToken {
         return {
             ...input,
             paymentData: isNotEmptyString(input.paymentData)
-                ? parseJsonOrThrow<IosPaymentData>(input.paymentData)
+                ? (JSON.parse(input.paymentData) as IosPaymentData)
                 : emptyIosPaymentData,
         };
     }

@@ -103,11 +103,11 @@ describe('PaymentRequest', () => {
             expect.assertions(2);
 
             expect(() => new PaymentRequest([], {} as unknown as PaymentDetailsInit)).toThrow(
-                new PaymentsError(`Failed to construct 'PaymentRequest':  At least one payment method is required`)
+                new PaymentsError(`Failed to construct 'PaymentRequest': At least one payment method is required`)
             );
 
             expect(() => new PaymentRequest(undefined as unknown as PaymentMethodData[], paymentDetails)).toThrow(
-                new PaymentsError(`Failed to construct 'PaymentRequest':  At least one payment method is required`)
+                new PaymentsError(`Failed to construct 'PaymentRequest': At least one payment method is required`)
             );
         });
 
@@ -117,11 +117,11 @@ describe('PaymentRequest', () => {
             expect(
                 () => new PaymentRequest([{ supportedMethods: undefined } as unknown as PaymentMethodData], paymentDetails)
             ).toThrow(
-                new PaymentsError(`Failed to construct 'PaymentRequest':  required member supportedMethods is undefined.`)
+                new PaymentsError(`Failed to construct 'PaymentRequest': required member supportedMethods is undefined.`)
             );
 
             expect(() => new PaymentRequest([{} as unknown as PaymentMethodData], paymentDetails)).toThrow(
-                new PaymentsError(`Failed to construct 'PaymentRequest':  required member supportedMethods is undefined.`)
+                new PaymentsError(`Failed to construct 'PaymentRequest': required member supportedMethods is undefined.`)
             );
         });
 
@@ -132,7 +132,7 @@ describe('PaymentRequest', () => {
                 const invalidPaymentDetails = {} as unknown as PaymentDetailsInit;
 
                 expect(() => new PaymentRequest([methodData], invalidPaymentDetails)).toThrow(
-                    new PaymentsError(`Failed to construct 'PaymentRequest':  required member total is undefined.`)
+                    new PaymentsError(`Failed to construct 'PaymentRequest': required member total is undefined.`)
                 );
             });
 
@@ -146,7 +146,7 @@ describe('PaymentRequest', () => {
                 } as unknown as PaymentDetailsInit;
 
                 expect(() => new PaymentRequest([methodData], invalidPaymentDetails)).toThrow(
-                    new PaymentsError(`Failed to construct 'PaymentRequest':  Missing required member(s): amount, label.`)
+                    new PaymentsError(`Failed to construct 'PaymentRequest': Missing required member(s): amount, label.`)
                 );
             });
 
@@ -161,7 +161,7 @@ describe('PaymentRequest', () => {
                 } as unknown as PaymentDetailsInit;
 
                 expect(() => new PaymentRequest([methodData], invalidPaymentDetails)).toThrow(
-                    new PaymentsError(`Failed to construct 'PaymentRequest':  Missing required member(s): amount, label.`)
+                    new PaymentsError(`Failed to construct 'PaymentRequest': Missing required member(s): amount, label.`)
                 );
             });
 
@@ -179,7 +179,7 @@ describe('PaymentRequest', () => {
                 } as unknown as PaymentDetailsInit;
 
                 expect(() => new PaymentRequest([methodData], invalidPaymentDetails)).toThrow(
-                    new PaymentsError(`Failed to construct 'PaymentRequest':  'true' is not a valid amount format for total`)
+                    new PaymentsError(`Failed to construct 'PaymentRequest': 'true' is not a valid amount format for total`)
                 );
             });
 
@@ -197,7 +197,7 @@ describe('PaymentRequest', () => {
                 };
 
                 expect(() => new PaymentRequest([methodData], invalidPaymentDetails)).toThrow(
-                    new PaymentsError(`Failed to construct 'PaymentRequest':  Total amount value should be non-negative`)
+                    new PaymentsError(`Failed to construct 'PaymentRequest': Total amount value should be non-negative`)
                 );
             });
 
@@ -230,7 +230,7 @@ describe('PaymentRequest', () => {
 
                 expect(() => new PaymentRequest([methodData], invalidPaymentDetails)).toThrow(
                     new PaymentsError(
-                        `Failed to construct 'PaymentRequest':  '10.00.' is not a valid amount format for total`
+                        `Failed to construct 'PaymentRequest': '10.00.' is not a valid amount format for total`
                     )
                 );
             });
@@ -249,7 +249,7 @@ describe('PaymentRequest', () => {
                 } as unknown as PaymentDetailsInit;
 
                 expect(() => new PaymentRequest([methodData], invalidPaymentDetails)).toThrow(
-                    new PaymentsError(`Failed to construct 'PaymentRequest':  Total amount value should be non-negative`)
+                    new PaymentsError(`Failed to construct 'PaymentRequest': Total amount value should be non-negative`)
                 );
             });
 
@@ -402,6 +402,7 @@ describe('PaymentRequest', () => {
             };
 
             it('rejects a missing payment method as a spec-mandated TypeError', () => {
+                expect.hasAssertions();
                 expect.assertions(4);
 
                 expectConstructionTypeError(() => new PaymentRequest([], {} as unknown as PaymentDetailsInit));
