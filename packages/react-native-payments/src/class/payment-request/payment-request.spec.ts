@@ -31,6 +31,7 @@ import type { AndroidTransactionInfo } from '../../@standard/android/request/and
 import type { IosPaymentMethodDataInterface } from '../../@standard/ios/mapping/ios-payment-method-data.interface';
 import type { IosPaymentDataRequest } from '../../@standard/ios/request/ios-payment-data-request';
 import type { PaymentDetailsInit } from '../../@standard/w3c/payment-details-init';
+import type { PaymentDetailsModifier } from '../../@standard/w3c/payment-details-modifier';
 import type { PaymentDetailsUpdate } from '../../@standard/w3c/payment-details-update';
 import type { PaymentItem } from '../../@standard/w3c/payment-item';
 import type { PaymentMethodData } from '../../@standard/w3c/payment-method-data';
@@ -408,6 +409,63 @@ describe('PaymentRequest', () => {
             });
         });
 
+        describe(`payment details modifiers`, () => {
+            const paymentDetailsWithTotal: PaymentDetailsInit = {
+                total: { label: 'Total', amount: { currency: 'USD', value: '10.00' } },
+            };
+
+            const constructWithModifiers = (modifiers: unknown[]): PaymentRequest =>
+                new PaymentRequest([methodData], {
+                    ...paymentDetailsWithTotal,
+                    modifiers: modifiers as PaymentDetailsModifier[],
+                });
+
+            it('should NOT throw when modifiers is not defined or empty', () => {
+                expect.hasAssertions();
+
+                expect(() => new PaymentRequest([methodData], paymentDetailsWithTotal)).not.toThrow();
+                expect(() => constructWithModifiers([])).not.toThrow();
+                expect(() =>
+                    constructWithModifiers([{ supportedMethods: PaymentMethodNameEnum.AndroidPay }])
+                ).not.toThrow();
+            });
+
+            it('should throw when a modifier has no supportedMethods', () => {
+                expect.hasAssertions();
+
+                const expectedError = new ConstructorError(`required member supportedMethods is undefined.`);
+
+                expect(() => constructWithModifiers([undefined])).toThrow(expectedError);
+                expect(() => constructWithModifiers([{}])).toThrow(expectedError);
+            });
+
+            it('should throw when a modifier total is negative', () => {
+                expect.hasAssertions();
+
+                expect(() =>
+                    constructWithModifiers([
+                        {
+                            supportedMethods: PaymentMethodNameEnum.AndroidPay,
+                            total: { label: 'Discounted', amount: { currency: 'USD', value: '-1.00' } },
+                        },
+                    ])
+                ).toThrow(new ConstructorError(`Total amount value should be non-negative`));
+            });
+
+            it('should throw when a modifier additionalDisplayItems entry is invalid', () => {
+                expect.hasAssertions();
+
+                expect(() =>
+                    constructWithModifiers([
+                        {
+                            supportedMethods: PaymentMethodNameEnum.AndroidPay,
+                            additionalDisplayItems: [{ amount: { currency: 'USD', value: true } }],
+                        },
+                    ])
+                ).toThrow(new ConstructorError(`'true' is not a valid amount format for display items`));
+            });
+        });
+
         describe('spec-conformant error identity', () => {
             const expectConstructionTypeError = (construct: () => PaymentRequest): void => {
                 expect(construct).toThrow(TypeError);
@@ -708,6 +766,39 @@ describe('PaymentRequest', () => {
                 expect(transactionInfo.totalPriceStatus).toBe('NOT_CURRENTLY_KNOWN');
                 expect(transactionInfo.transactionId).toBe('txn-1');
                 expect(transactionInfo.totalPrice).toBe('0.00');
+            });
+
+            it('should replace the total with a matching modifier before serializing transactionInfo', async () => {
+                expect.assertions(2);
+
+                const transactionInfo = await getSerializedTransactionInfo(androidMethodData, {
+                    total: { label: 'Total', amount: { currency: 'USD', value: '10.00' } },
+                    modifiers: [
+                        {
+                            supportedMethods: PaymentMethodNameEnum.AndroidPay,
+                            total: { label: 'Discounted total', amount: { currency: 'USD', value: '8.00' } },
+                        },
+                    ],
+                });
+
+                expect(transactionInfo.totalPrice).toBe('8.00');
+                expect(transactionInfo.totalPriceLabel).toBe('Discounted total');
+            });
+
+            it('should ignore a modifier for a non-matching platform payment method', async () => {
+                expect.assertions(1);
+
+                const transactionInfo = await getSerializedTransactionInfo(androidMethodData, {
+                    total: { label: 'Total', amount: { currency: 'USD', value: '10.00' } },
+                    modifiers: [
+                        {
+                            supportedMethods: PaymentMethodNameEnum.ApplePay,
+                            total: { label: 'Discounted total', amount: { currency: 'USD', value: '8.00' } },
+                        },
+                    ],
+                });
+
+                expect(transactionInfo.totalPrice).toBe('10.00');
             });
 
             it('should serialize checkoutOption with default FINAL totalPriceStatus', async () => {
@@ -2453,6 +2544,121 @@ describe('PaymentRequest', () => {
 
             expect((shownDetails as PaymentDetailsInit).shippingOptions).toStrictEqual([detailedOption]);
             expect(updatedShippingOptions).toStrictEqual([detailedOption]);
+        });
+
+        describe('payment details modifiers', () => {
+            const modifierTotal: PaymentItem = { label: 'Discounted total', amount: { currency: 'USD', value: '7.50' } };
+            const modifierItem: PaymentItem = { label: 'Loyalty discount', amount: { currency: 'USD', value: '-2.50' } };
+
+            it('should replace the total and append additionalDisplayItems from a matching modifier before show()', async () => {
+                expect.hasAssertions();
+
+                let finishShow: (details: string) => void = emptyFn;
+                jest.mocked(NativePayments.show).mockImplementation(
+                    async () =>
+                        new Promise<string>(resolve => {
+                            finishShow = resolve;
+                        })
+                );
+
+                const request = new PaymentRequest([eventsMethodData], {
+                    total: initialTotal,
+                    displayItems: [displayItem],
+                    modifiers: [
+                        {
+                            supportedMethods: PaymentMethodNameEnum.ApplePay,
+                            total: modifierTotal,
+                            additionalDisplayItems: [modifierItem],
+                        },
+                    ],
+                });
+
+                const response = request.show();
+                finishShow(acceptedPayment);
+                await response;
+
+                const [[, , shownDetails]] = jest.mocked(NativePayments.show).mock.calls;
+
+                expect((shownDetails as PaymentDetailsInit).total).toStrictEqual(modifierTotal);
+                expect((shownDetails as PaymentDetailsInit).displayItems).toStrictEqual([displayItem, modifierItem]);
+            });
+
+            it('should ignore a modifier for a non-matching payment method on show()', async () => {
+                expect.hasAssertions();
+
+                let finishShow: (details: string) => void = emptyFn;
+                jest.mocked(NativePayments.show).mockImplementation(
+                    async () =>
+                        new Promise<string>(resolve => {
+                            finishShow = resolve;
+                        })
+                );
+
+                const request = new PaymentRequest([eventsMethodData], {
+                    total: initialTotal,
+                    modifiers: [{ supportedMethods: PaymentMethodNameEnum.AndroidPay, total: modifierTotal }],
+                });
+
+                const response = request.show();
+                finishShow(acceptedPayment);
+                await response;
+
+                const [[, , shownDetails]] = jest.mocked(NativePayments.show).mock.calls;
+
+                expect((shownDetails as PaymentDetailsInit).total).toStrictEqual(initialTotal);
+            });
+
+            it('should apply a matching modifier carried by updateWith before answering native', async () => {
+                expect.hasAssertions();
+
+                const request = createInteractiveRequest();
+
+                request.addEventListener('shippingaddresschange', event => {
+                    event.updateWith({
+                        total: updatedTotal,
+                        modifiers: [
+                            {
+                                supportedMethods: PaymentMethodNameEnum.ApplePay,
+                                total: modifierTotal,
+                                additionalDisplayItems: [modifierItem],
+                            },
+                        ],
+                    });
+                });
+
+                emitNativeEvent('shippingaddresschange', { requestId: request.id, shippingAddress: address });
+                await nativeUpdate;
+                await flushEventLoop();
+
+                expect(request.details.total).toStrictEqual(updatedTotal);
+                expect(updatePaymentDetailsMock).toHaveBeenCalledWith(
+                    { error: '', eventName: 'shippingaddresschange', requestId: request.id, total: modifierTotal },
+                    [modifierItem],
+                    []
+                );
+            });
+
+            it('should ignore a modifier for a non-matching payment method carried by updateWith', async () => {
+                expect.hasAssertions();
+
+                const request = createInteractiveRequest();
+
+                request.addEventListener('shippingaddresschange', event => {
+                    event.updateWith({
+                        total: updatedTotal,
+                        modifiers: [{ supportedMethods: PaymentMethodNameEnum.AndroidPay, total: modifierTotal }],
+                    });
+                });
+
+                emitNativeEvent('shippingaddresschange', { requestId: request.id, shippingAddress: address });
+                await nativeUpdate;
+
+                expect(updatePaymentDetailsMock).toHaveBeenCalledWith(
+                    { error: '', eventName: 'shippingaddresschange', requestId: request.id, total: updatedTotal },
+                    [],
+                    []
+                );
+            });
         });
 
         it('should remove a listener registered while the native module could not deliver change events', () => {

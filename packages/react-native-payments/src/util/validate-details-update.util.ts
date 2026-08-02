@@ -3,6 +3,7 @@ import { isDefined } from '@rnw-community/shared';
 import { PaymentsError } from '../error/payments.error';
 
 import { validateDisplayItems } from './validate-display-items.util';
+import { validateModifiers } from './validate-modifiers.util';
 import { validateShippingOptions } from './validate-shipping-options.util';
 import { validateTotal } from './validate-total.util';
 
@@ -15,4 +16,5 @@ export const validateDetailsUpdate = (detailsUpdate: PaymentDetailsUpdate): void
 
     validateDisplayItems(PaymentsError, detailsUpdate.displayItems);
     validateShippingOptions(PaymentsError, detailsUpdate.shippingOptions);
+    validateModifiers(PaymentsError, detailsUpdate.modifiers);
 };

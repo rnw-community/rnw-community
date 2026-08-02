@@ -11,6 +11,7 @@ export { DOMException } from './error/dom.exception';
 export { PaymentsError } from './error/payments.error';
 export type { PaymentDetailsUpdateError } from './type/payment-details-update-error.type';
 export type { PaymentDetailsInit } from './@standard/w3c/payment-details-init';
+export type { PaymentDetailsModifier } from './@standard/w3c/payment-details-modifier';
 export type { PaymentDetailsUpdate } from './@standard/w3c/payment-details-update';
 export type { PaymentItem } from './@standard/w3c/payment-item';
 export type { PaymentShippingOption } from './@standard/w3c/payment-shipping-option';

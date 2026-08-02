@@ -276,6 +276,29 @@ const paymentDetails = {
 };
 ```
 
+#### 2.4 Payment details modifiers
+
+`details.modifiers` accepts an array of [`PaymentDetailsModifier`](https://www.w3.org/TR/payment-request/#dom-paymentdetailsmodifier),
+one entry per `supportedMethods`. The library picks the entry whose `supportedMethods` matches the platform's active
+payment method (`PaymentMethodNameEnum.ApplePay` on iOS, `PaymentMethodNameEnum.AndroidPay` on Android) and applies it
+before serializing details to native: `modifier.total` overrides the top-level `total` and `modifier.additionalDisplayItems`
+is appended to `displayItems`. A modifier for the other platform's method is ignored. The same resolution runs again on
+every `updateWith()` call, so a listener can ship an updated `modifiers` array together with the rest of the update.
+`modifier.data` is validated for shape but not forwarded to native — the bridge has no per-method extension point for it.
+
+```ts
+const paymentDetails = {
+    total: { label: 'Total', amount: { currency: 'USD', value: '10.00' } },
+    modifiers: [
+        {
+            supportedMethods: PaymentMethodNameEnum.ApplePay,
+            total: { label: 'Total with Apple Pay discount', amount: { currency: 'USD', value: '9.00' } },
+            additionalDisplayItems: [{ label: 'Apple Pay discount', amount: { currency: 'USD', value: '-1.00' } }],
+        },
+    ],
+};
+```
+
 ### 3. Checking Payment Capability
 
 Before displaying the payment sheet to the user, you can check if the current device supports the payment methods specified:
@@ -850,7 +873,8 @@ You can find working example in the `App` component of the [react-native-payment
       verification is tracked in [#393](https://github.com/rnw-community/rnw-community/issues/393)
 - [x] [PaymentMethodChangeEvent](https://www.w3.org/TR/payment-request/#dom-paymentmethodchangeevent) — same
       implementation and verification status as `PaymentRequestUpdateEvent`
-- [ ] Implement [PaymentDetailsModifier](https://www.w3.org/TR/payment-request/#dom-paymentdetailsmodifier)
+- [x] Implement [PaymentDetailsModifier](https://www.w3.org/TR/payment-request/#dom-paymentdetailsmodifier) — see
+      [Payment details modifiers](#24-payment-details-modifiers)
 - [x] Improve and unify errors according to the spec — see [Error Handling](#error-handling)
 - [ ] Implement `PaymentResponse` `retry()` method
 - [ ] Implement `PaymentResponse` `toJSON()` method
