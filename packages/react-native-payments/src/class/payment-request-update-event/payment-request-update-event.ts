@@ -5,6 +5,7 @@ import type { PaymentDetailsUpdate } from '../../@standard/w3c/payment-details-u
 import type { PaymentRequestEventType } from '../../type/payment-request-event.type';
 import type { PaymentRequestUpdateHandler } from '../../type/payment-request-update-handler.type';
 
+// https://www.w3.org/TR/payment-request/#dom-paymentrequestupdateevent
 export class PaymentRequestUpdateEvent {
     readonly type: PaymentRequestEventType;
 

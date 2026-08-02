@@ -17,7 +17,8 @@ src/
     ios/         — iOS-specific enums (PKContact, PKMerchantCapability, PKPaymentNetworks), request/response types
     w3c/         — W3C standard types (PaymentItem, PaymentDetailsInit, PaymentMethodData)
   class/
-    change-event-dispatcher/        — ChangeEventDispatcher (one change-event lifecycle: dispatch, answer, timeout)
+    change-event-dispatcher/        — ChangeEventDispatcher (one change-event lifecycle: dispatch, answer, timeout;
+                                      internals documented in change-event-dispatcher.md)
     native-payments/                — NativePayments (thin TurboModule wrapper)
     payment-request/                — PaymentRequest (main class), payment-request.web.ts (browser shim)
     payment-request-update-event/   — PaymentRequestUpdateEvent (updateWith)
