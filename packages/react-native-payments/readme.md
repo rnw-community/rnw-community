@@ -339,6 +339,17 @@ The `PaymentResponseDetailsInterface` includes the following additional properti
 - `androidPayToken`: This property represents `PaymentToken` information returned by `AndroidPay`, this should be sent to your payment provider.
 - `applePayToken`: This property represents `PaymentToken` information returned by `ApplePay`, this should be sent to your payment provider.
 
+`PaymentResponse.toJSON()` returns the spec-shaped serialization of the response — `requestId`, `methodName`, `details`,
+`shippingAddress`, `shippingOption`, `payerName`, `payerEmail` and `payerPhone` — which is also what
+`JSON.stringify(paymentResponse)` produces. `shippingAddress`, `payerName`, `payerEmail` and `payerPhone` are read from
+`details` and default to `null` when not requested; `shippingOption` mirrors `PaymentRequest.shippingOption` at the moment
+`show()` resolved and is `null` when shipping options were never offered.
+
+```ts
+const json = paymentResponse.toJSON();
+// { requestId, methodName, details, shippingAddress, shippingOption, payerName, payerEmail, payerPhone }
+```
+
 ### 6. Closing the Payment Sheet
 
 Once the payment process is successfully completed, it's essential to close the payment sheet by calling the
@@ -352,7 +363,42 @@ paymentResponse.complete(PaymentComplete.Success); // OR PaymentComplete.Fail
 
 > This will have no affect in the Android platform due to AndroidPay implementation.
 
-### 7. Aborting the Payment
+### 7. Retrying the Payment
+
+`PaymentResponse.retry(errorFields?)` asks the user to correct one or more invalid fields instead of completing the
+payment. Call it **instead of** `complete()`, before the sheet has been dismissed:
+
+```ts
+import { PaymentAddressFieldEnum, PaymentContactFieldEnum } from '@rnw-community/react-native-payments';
+
+const validation = await validatePaymentOnBackend(paymentResponse);
+
+if (!validation.ok) {
+    await paymentResponse.retry({
+        error: 'We could not process your payment',
+        payer: { [PaymentContactFieldEnum.Email]: 'Please provide a valid email' },
+        shippingAddress: { [PaymentAddressFieldEnum.PostalCode]: 'We do not ship to this postal code' },
+    });
+} else {
+    await paymentResponse.complete(PaymentComplete.Success);
+}
+```
+
+`retry()` throws a `DOMException` with `InvalidStateError` if `complete()` was already called on this response, or if
+`retry()` was already called once — this package supports **at most one** `retry()` call per `PaymentResponse` (see
+[Known deviations](#known-deviations)). `errorFields` is optional; an omitted `payer`/`shippingAddress` still fails the
+attempt but nothing is highlighted in the sheet.
+
+> **iOS**: `retry()` reuses the same `PKPaymentErrorDomain` field-error constructors as [Sheet errors](#sheet-errors) —
+> `payer` keys are `PaymentContactFieldEnum`, `shippingAddress` keys are `PaymentAddressFieldEnum` — to fail the pending
+> authorization with those errors instead of dismissing the sheet, so PassKit highlights the offending rows and lets the
+> user correct and resubmit. This package cannot route a second submission back to `show()`'s already-settled promise
+> (see [`PaymentRequest` is single-use](#known-deviations)), so if the user resubmits, the sheet is failed and dismissed
+> automatically; `retry()` itself only resolves once the errors have been handed to the sheet, not once the user has
+> finished correcting them. **Android**: `retry()` is a documented no-op — it resolves like the spec's return type without
+> re-displaying the Google Pay sheet, matching the existing `complete()`/`abort()` no-op boundary on Android.
+
+### 8. Aborting the Payment
 
 The `PaymentRequset.abort()` method in the Payment Request API allows developers to programmatically cancel an ongoing
 payment request or dismiss
@@ -392,25 +438,28 @@ try {
 }
 ```
 
-| Public API failure                                              | Spec-mandated error       | Implemented as                        |
-| ----------------------------------------------------------------- | -------------------------- | -------------------------------------- |
-| `new PaymentRequest()` with no/invalid payment methods             | `TypeError`                | `ConstructorError` (`instanceof TypeError`) |
-| `new PaymentRequest()` with missing/invalid/negative total         | `TypeError`                | `ConstructorError`                     |
-| `new PaymentRequest()` with invalid display items                  | `TypeError`                | `ConstructorError`                     |
-| `new PaymentRequest()` with invalid shipping options                | `TypeError`                | `ConstructorError`                     |
-| `new PaymentRequest()` with no platform-matching payment method     | `NotSupportedError`        | `DOMException` (thrown at construction, see [Known deviations](#known-deviations)) |
-| `canMakePayment()` when not `created`                               | `InvalidStateError`        | `DOMException`                         |
-| `show()` when not `created`                                        | `InvalidStateError`        | `DOMException`                         |
-| `show()` after the user cancels the native sheet                    | `AbortError`               | `DOMException`                         |
-| `abort()` when not `interactive`                                    | `InvalidStateError`        | `DOMException`                         |
-| `abort()` resolves a pending `show()`                                | `AbortError`               | `DOMException`                         |
-| `PaymentRequestUpdateEvent.updateWith()` called twice for one event  | `InvalidStateError`        | `DOMException`                         |
-| `PaymentResponse.complete()` / `retry()` called after `complete()`   | `InvalidStateError`        | `DOMException`                         |
-| Native module bridge rejects `show()` with a non-`Error` reason     | *(not specified)*          | `PaymentsError`                        |
-| Native module bridge rejects `abort()` (any reason)                 | *(not specified)*          | `PaymentsError`                        |
-| Native payment response payload is malformed or incomplete JSON (incl. direct `AndroidPaymentResponse`/`IosPaymentResponse` construction) | *(not specified)* | `PaymentsError` |
-| An `updateWith()` listener answers with an invalid total/items/options | *(not specified — spec treats this as no update)* | Logged via `console.warn`, change event answered with unchanged details |
-| Native module is not linked (`Payments` bridge missing)              | *(not specified — build/config error)* | `Error` |
+| Public API failure                                                                                                                        | Spec-mandated error                               | Implemented as                                                                     |
+| ----------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------- | ---------------------------------------------------------------------------------- |
+| `new PaymentRequest()` with no/invalid payment methods                                                                                    | `TypeError`                                       | `ConstructorError` (`instanceof TypeError`)                                        |
+| `new PaymentRequest()` with missing/invalid/negative total                                                                                | `TypeError`                                       | `ConstructorError`                                                                 |
+| `new PaymentRequest()` with invalid display items                                                                                         | `TypeError`                                       | `ConstructorError`                                                                 |
+| `new PaymentRequest()` with invalid shipping options                                                                                      | `TypeError`                                       | `ConstructorError`                                                                 |
+| `new PaymentRequest()` with no platform-matching payment method                                                                           | `NotSupportedError`                               | `DOMException` (thrown at construction, see [Known deviations](#known-deviations)) |
+| `canMakePayment()` when not `created`                                                                                                     | `InvalidStateError`                               | `DOMException`                                                                     |
+| `show()` when not `created`                                                                                                               | `InvalidStateError`                               | `DOMException`                                                                     |
+| `show()` after the user cancels the native sheet                                                                                          | `AbortError`                                      | `DOMException`                                                                     |
+| `abort()` when not `interactive`                                                                                                          | `InvalidStateError`                               | `DOMException`                                                                     |
+| `abort()` resolves a pending `show()`                                                                                                     | `AbortError`                                      | `DOMException`                                                                     |
+| `PaymentRequestUpdateEvent.updateWith()` called twice for one event                                                                       | `InvalidStateError`                               | `DOMException`                                                                     |
+| `PaymentResponse.complete()` / `retry()` called after `complete()`                                                                        | `InvalidStateError`                               | `DOMException`                                                                     |
+| `PaymentResponse.retry()` called a second time on the same response                                                                       | `InvalidStateError`                               | `DOMException` (see [Retrying the Payment](#7-retrying-the-payment))               |
+| `PaymentResponse.retry()` on a native binary built before this method existed                                                             | `NotSupportedError`                               | `DOMException`                                                                     |
+| Native module bridge rejects `show()` with a non-`Error` reason                                                                           | _(not specified)_                                 | `PaymentsError`                                                                    |
+| Native module bridge rejects `abort()` (any reason)                                                                                       | _(not specified)_                                 | `PaymentsError`                                                                    |
+| Native module bridge rejects `retry()` (any reason)                                                                                       | _(not specified)_                                 | `PaymentsError`                                                                    |
+| Native payment response payload is malformed or incomplete JSON (incl. direct `AndroidPaymentResponse`/`IosPaymentResponse` construction) | _(not specified)_                                 | `PaymentsError`                                                                    |
+| An `updateWith()` listener answers with an invalid total/items/options                                                                    | _(not specified — spec treats this as no update)_ | Logged via `console.warn`, change event answered with unchanged details            |
+| Native module is not linked (`Payments` bridge missing)                                                                                   | _(not specified — build/config error)_            | `Error`                                                                            |
 
 ## Payment change events
 
@@ -636,6 +685,26 @@ const fieldError: PaymentDetailsUpdateError = {
 };
 ```
 
+### `PaymentValidationErrors`
+
+The type of `PaymentResponse.retry()`'s `errorFields` argument — an optional generic `error` message plus optional
+`payer` (keyed by `PaymentContactFieldEnum`) and `shippingAddress` (keyed by `PaymentAddressFieldEnum`) field errors, the
+same keys used by the [Sheet errors](#sheet-errors) field-level `PaymentDetailsUpdateError`.
+
+```ts
+const errorFields: PaymentValidationErrors = {
+    payer: { [PaymentContactFieldEnum.Email]: 'Please provide a valid email' },
+};
+```
+
+### `PaymentResponseJsonInterface`
+
+The return type of `PaymentResponse.toJSON()`, documented under [Processing the PaymentResponse](#5-processing-the-paymentresponse).
+
+```ts
+const json: PaymentResponseJsonInterface = paymentResponse.toJSON();
+```
+
 ### `PaymentDetailsInit`
 
 The second constructor argument. `total` is required; `displayItems`, `shippingOptions` and `id` are optional — an
@@ -656,7 +725,10 @@ credit when omitted.
 ```ts
 const data = {
     merchantIdentifier: 'merchant.com.your-app.namespace',
-    merchantCapabilities: [IosPKMerchantCapability.PKMerchantCapability3DS, IosPKMerchantCapability.PKMerchantCapabilityDebit],
+    merchantCapabilities: [
+        IosPKMerchantCapability.PKMerchantCapability3DS,
+        IosPKMerchantCapability.PKMerchantCapabilityDebit,
+    ],
 };
 ```
 
@@ -846,8 +918,9 @@ You can find working example in the `App` component of the [react-native-payment
       implementation and verification status as `PaymentRequestUpdateEvent`
 - [ ] Implement [PaymentDetailsModifier](https://www.w3.org/TR/payment-request/#dom-paymentdetailsmodifier)
 - [x] Improve and unify errors according to the spec — see [Error Handling](#error-handling)
-- [ ] Implement `PaymentResponse` `retry()` method
-- [ ] Implement `PaymentResponse` `toJSON()` method
+- [x] Implement `PaymentResponse` `retry()` method — best-effort subset on iOS, documented no-op on Android; see
+      [Retrying the Payment](#7-retrying-the-payment) and [Known deviations](#known-deviations)
+- [x] Implement `PaymentResponse` `toJSON()` method — see [Processing the PaymentResponse](#5-processing-the-paymentresponse)
 
 #### Known deviations
 
@@ -864,6 +937,18 @@ You can find working example in the `App` component of the [react-native-payment
   `PaymentRequest` constructor as soon as it fails to find a platform-matching payment method, since the native bridge
   needs to know the target platform's method data up front to serialize the request. The error name matches the spec;
   only the algorithm step it fires from differs.
+- **`PaymentResponse.retry()` supports at most one in-sheet correction pass, and only on iOS.** The spec algorithm
+  re-presents the sheet and lets the user submit a corrected response an arbitrary number of times, handing back the
+  same `PaymentResponse` updated in place. This package's `PaymentRequest` is single-use (above) and its native bridge
+  resolves the `show()` promise exactly once per authorization, so there is no channel left to deliver a second
+  submission to JavaScript. `retry()` therefore only feeds `errorFields` into the still-open native sheet through the
+  existing `PKPaymentErrorDomain` field-error path (see [Sheet errors](#sheet-errors)) for the _current_ pending
+  authorization, then resolves — it does not wait for, or expose, whatever the user does next. If PassKit fires a second
+  authorization after that (the user corrected the fields and resubmitted), this package fails and dismisses it
+  automatically instead of silently hanging, and that resubmission is lost — a real re-presentation would need a new
+  native show-path (a second, JS-observable authorization channel) that is out of scope here. On Android, `retry()` is a
+  documented no-op: it resolves without any visual effect, consistent with `complete()` and `abort()`'s existing no-op
+  boundary on Android (Google Pay's sheet is a separate activity with no in-sheet update mechanism at all).
 
 ### Other
 
