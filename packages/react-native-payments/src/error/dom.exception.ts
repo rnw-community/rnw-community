@@ -13,7 +13,16 @@ export class DOMException extends PaymentsError {
         [PaymentsErrorEnum.SecurityError]: 'The operation is insecure.',
     };
 
+    private static readonly names: Record<PaymentsErrorEnum, string> = {
+        [PaymentsErrorEnum.AbortError]: 'AbortError',
+        [PaymentsErrorEnum.InvalidStateError]: 'InvalidStateError',
+        [PaymentsErrorEnum.NotAllowedError]: 'NotAllowedError',
+        [PaymentsErrorEnum.NotSupportedError]: 'NotSupportedError',
+        [PaymentsErrorEnum.SecurityError]: 'SecurityError',
+    };
+
     constructor(errorType: PaymentsErrorEnum) {
         super(`[DOMException]: ${DOMException.messages[errorType]}`);
+        this.name = DOMException.names[errorType];
     }
 }
