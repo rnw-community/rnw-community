@@ -3,6 +3,16 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [2.12.0](https://github.com/rnw-community/rnw-community/compare/v2.11.0...v2.12.0) (2026-08-03)
+
+### Bug Fixes
+
+- **react-native-payments:** reject complete() after PaymentResponse.retry() ([b21dfa4](https://github.com/rnw-community/rnw-community/commit/b21dfa470fa21a07c9810c5e0683b3e29bb0485d))
+
+### Features
+
+- **react-native-payments:** add PaymentResponse retry() and toJSON() ([a951e75](https://github.com/rnw-community/rnw-community/commit/a951e75ed97b924fb4eaa709032450e3b4405d4a))
+
 # [2.11.0](https://github.com/rnw-community/rnw-community/compare/v2.10.0...v2.11.0) (2026-08-02)
 
 ### Bug Fixes
