@@ -25,6 +25,6 @@
         "babel-preset-expo": "~57.0.5"
     },
     "engines": {
-        "node": ">=18"
+        "node": ">=22.0.0"
     }
 }

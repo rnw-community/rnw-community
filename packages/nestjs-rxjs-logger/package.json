@@ -44,7 +44,7 @@
         "@rnw-community/shared": "^2.9.0"
     },
     "engines": {
-        "node": ">=18.0.0"
+        "node": ">=22.0.0"
     },
     "devDependencies": {
         "@nestjs/common": "^11.1.28",
