@@ -74,6 +74,7 @@ jobs:
                 with:
                     use_oidc: ${{ !(github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork) }}
                     fail_ci_if_error: ${{ !(github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork) }}
+                    disable_search: true
                     files: packages/decorators-core/coverage/lcov.info
                     flags: decorators-core
 
@@ -83,6 +84,7 @@ jobs:
                 with:
                     use_oidc: ${{ !(github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork) }}
                     fail_ci_if_error: ${{ !(github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork) }}
+                    disable_search: true
                     files: packages/eslint-plugin/coverage/lcov.info
                     flags: eslint-plugin
 
@@ -92,6 +94,7 @@ jobs:
                 with:
                     use_oidc: ${{ !(github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork) }}
                     fail_ci_if_error: ${{ !(github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork) }}
+                    disable_search: true
                     files: packages/fast-style/coverage/lcov.info
                     flags: fast-style
 
@@ -101,6 +104,7 @@ jobs:
                 with:
                     use_oidc: ${{ !(github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork) }}
                     fail_ci_if_error: ${{ !(github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork) }}
+                    disable_search: true
                     files: packages/histogram-metric-decorator/coverage/lcov.info
                     flags: histogram-metric-decorator
 
@@ -110,6 +114,7 @@ jobs:
                 with:
                     use_oidc: ${{ !(github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork) }}
                     fail_ci_if_error: ${{ !(github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork) }}
+                    disable_search: true
                     files: packages/lock-decorator/coverage/lcov.info
                     flags: lock-decorator
 
@@ -119,6 +124,7 @@ jobs:
                 with:
                     use_oidc: ${{ !(github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork) }}
                     fail_ci_if_error: ${{ !(github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork) }}
+                    disable_search: true
                     files: packages/log-decorator/coverage/lcov.info
                     flags: log-decorator
 
@@ -128,6 +134,7 @@ jobs:
                 with:
                     use_oidc: ${{ !(github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork) }}
                     fail_ci_if_error: ${{ !(github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork) }}
+                    disable_search: true
                     files: packages/nestjs-enterprise/coverage/lcov.info
                     flags: nestjs-enterprise
 
@@ -137,6 +144,7 @@ jobs:
                 with:
                     use_oidc: ${{ !(github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork) }}
                     fail_ci_if_error: ${{ !(github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork) }}
+                    disable_search: true
                     files: packages/nestjs-rxjs-lock/coverage/lcov.info
                     flags: nestjs-rxjs-lock
 
@@ -146,6 +154,7 @@ jobs:
                 with:
                     use_oidc: ${{ !(github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork) }}
                     fail_ci_if_error: ${{ !(github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork) }}
+                    disable_search: true
                     files: packages/nestjs-rxjs-logger/coverage/lcov.info
                     flags: nestjs-rxjs-logger
 
@@ -155,6 +164,7 @@ jobs:
                 with:
                     use_oidc: ${{ !(github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork) }}
                     fail_ci_if_error: ${{ !(github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork) }}
+                    disable_search: true
                     files: packages/nestjs-rxjs-metrics/coverage/lcov.info
                     flags: nestjs-rxjs-metrics
 
@@ -164,6 +174,7 @@ jobs:
                 with:
                     use_oidc: ${{ !(github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork) }}
                     fail_ci_if_error: ${{ !(github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork) }}
+                    disable_search: true
                     files: packages/nestjs-rxjs-redis/coverage/lcov.info
                     flags: nestjs-rxjs-redis
 
@@ -173,6 +184,7 @@ jobs:
                 with:
                     use_oidc: ${{ !(github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork) }}
                     fail_ci_if_error: ${{ !(github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork) }}
+                    disable_search: true
                     files: packages/nestjs-typed-config/coverage/lcov.info
                     flags: nestjs-typed-config
 
@@ -182,6 +194,7 @@ jobs:
                 with:
                     use_oidc: ${{ !(github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork) }}
                     fail_ci_if_error: ${{ !(github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork) }}
+                    disable_search: true
                     files: packages/object-field-tree/coverage/lcov.info
                     flags: object-field-tree
 
@@ -191,6 +204,7 @@ jobs:
                 with:
                     use_oidc: ${{ !(github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork) }}
                     fail_ci_if_error: ${{ !(github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork) }}
+                    disable_search: true
                     files: packages/platform/coverage/lcov.info
                     flags: platform
 
@@ -200,6 +214,7 @@ jobs:
                 with:
                     use_oidc: ${{ !(github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork) }}
                     fail_ci_if_error: ${{ !(github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork) }}
+                    disable_search: true
                     files: packages/react-native-payments/coverage/lcov.info
                     flags: react-native-payments
 
@@ -209,6 +224,7 @@ jobs:
                 with:
                     use_oidc: ${{ !(github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork) }}
                     fail_ci_if_error: ${{ !(github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork) }}
+                    disable_search: true
                     files: packages/redux-loadable/coverage/lcov.info
                     flags: redux-loadable
 
@@ -218,6 +234,7 @@ jobs:
                 with:
                     use_oidc: ${{ !(github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork) }}
                     fail_ci_if_error: ${{ !(github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork) }}
+                    disable_search: true
                     files: packages/rxjs-errors/coverage/lcov.info
                     flags: rxjs-errors
 
@@ -227,6 +244,7 @@ jobs:
                 with:
                     use_oidc: ${{ !(github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork) }}
                     fail_ci_if_error: ${{ !(github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork) }}
+                    disable_search: true
                     files: packages/shared/coverage/lcov.info
                     flags: shared
 
@@ -236,6 +254,7 @@ jobs:
                 with:
                     use_oidc: ${{ !(github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork) }}
                     fail_ci_if_error: ${{ !(github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork) }}
+                    disable_search: true
                     files: packages/wdio/coverage/lcov.info
                     flags: wdio
 
