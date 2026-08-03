@@ -3,6 +3,7 @@
 Framework-agnostic sequential and exclusive method lock decorators. Promise and Observable return shapes both supported. TypeScript `experimentalDecorators`. Dual ESM + CJS. `rxjs` is an optional peer — required only when using the `$`-suffixed Observable factories or `createLockMiddleware$`.
 
 [![npm version](https://badge.fury.io/js/%40rnw-community%2Flock-decorator.svg)](https://badge.fury.io/js/%40rnw-community%2Flock-decorator)
+[![coverage](https://img.shields.io/codecov/c/github/rnw-community/rnw-community?flag=lock-decorator&label=coverage)](https://app.codecov.io/gh/rnw-community/rnw-community)
 [![npm downloads](https://img.shields.io/npm/dm/%40rnw-community%2Flock-decorator.svg)](https://www.npmjs.com/package/%40rnw-community/lock-decorator)
 
 ## The four decorator factories

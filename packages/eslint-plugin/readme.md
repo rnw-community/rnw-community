@@ -3,6 +3,7 @@
 Elevate your React/ReactNative projects with our [ESLint](https://eslint.org) plugin, meticulously crafted to ensure adherence to the best practices in the industry.
 
 [![npm version](https://badge.fury.io/js/%40rnw-community%2Feslint-plugin.svg)](https://badge.fury.io/js/%40rnw-community%2Feslint-plugin)
+[![coverage](https://img.shields.io/codecov/c/github/rnw-community/rnw-community?flag=eslint-plugin&label=coverage)](https://app.codecov.io/gh/rnw-community/rnw-community)
 [![npm downloads](https://img.shields.io/npm/dm/%40rnw-community%2Feslint-plugin.svg)](https://www.npmjs.com/package/%40rnw-community%2Feslint-plugin)
 
 ## Notable Rule: no-complex-jsx-logic
