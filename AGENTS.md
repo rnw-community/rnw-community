@@ -267,11 +267,32 @@ Always write plans to `.plans/` as `.md` files before executing multi-step chang
 The monorepo uses dual ESM + CJS output. Key decisions:
 
 - `sideEffects: false` (boolean) in all package.json files
-- `"types"` condition is **first** in all `exports` entries (required for `moduleResolution: "nodenext"` consumers)
+- `"types"` condition is **first** within each conditional `exports` block (required for `moduleResolution: "nodenext"`
+  consumers). `shared` and `react-native-payments` nest `types` under `import`/`require` rather than sharing one
+  top-level `types` key — a single shared `types` key resolves the wrong module kind for one of the two conditions
+  (confirmed by `@arethetypeswrong/cli`); splitting it keeps `types` first inside each condition while giving each
+  format its own accurate declaration file (`dist/esm/index.d.ts` for `import`, `dist/cjs/index.d.ts` for `require`)
+- `dist/esm/package.json` (`{"type":"module"}`) and `dist/cjs/package.json` (`{"type":"commonjs"}`) are written by the
+  `build` script (`shared`, `react-native-payments`) so Node's own module-kind detection matches each directory's real
+  output instead of falling through to the CJS default for the ESM build
 - `moduleResolution: "bundler"` in root tsconfig, `"node"` override in CJS build tsconfig
 - `verbatimModuleSyntax: true` enforces explicit `import type` for type-only imports
 - `lib: ["es2021"]` matches the build target
 - Build scripts correctly reference their tsconfig files (`build:esm` → `tsconfig.build-esm.json`)
+- **Known, accepted publish-time limitations**, both surfaced by `@arethetypeswrong/cli` and both ignored explicitly
+  (`--ignore-rules no-resolution internal-resolution-error`) in `yarn publint`, with this paragraph as the recorded
+  justification for `shared` and `react-native-payments`:
+  - `internal-resolution-error`: `tsc` emits relative import specifiers without file extensions (`./enum/foo.enum`,
+    not `./enum/foo.enum.js`). Node's own `node16`/`nodenext` ESM resolution requires the extension, so a consumer
+    forcing that exact resolution mode against the `import` condition sees unresolved relative imports in the shipped
+    `.d.ts` files. Every real consumption path — bundlers (Metro included), `node16`/`nodenext` `require`, and legacy
+    `node10` — resolves cleanly; only the `node16`/`nodenext` **ESM** path is affected. Rewriting every relative
+    import across every package's `src` tree to carry an explicit extension is a repo-wide source-emit change, not a
+    publish-config fix, so it is deferred rather than bundled into publication hardening
+  - `no-resolution`: legacy `node10`-style resolution (pre-`exports` TypeScript module resolution) cannot see subpath
+    exports at all beyond the package root, so `react-native-payments`'s `./app.plugin` entrypoint reports as
+    unresolved under that profile — an inherent property of `node10` resolution for any package with subpath exports,
+    not a defect in this package's `exports` field
 
 ## PR Review & Merge Policy
 
