@@ -1,29 +1,37 @@
-import { withAndroidManifest } from '@expo/config-plugins';
+import { AndroidConfig, withAndroidManifest } from '@expo/config-plugins';
+
+import { validateGooglePayEnvironment } from './validate-google-pay-environment.util';
+import { validateSupportedNetworks } from './validate-supported-networks.util';
 
 import type { ReactNativePaymentsPluginProps } from './plugin.props';
 import type { ConfigPlugin } from '@expo/config-plugins';
 
-export const withGooglePay: ConfigPlugin<ReactNativePaymentsPluginProps> = initialConfig =>
-    withAndroidManifest(initialConfig, config => {
-        const androidManifest = config.modResults;
-        const mainApplication = androidManifest.manifest.application?.[0];
+export const withGooglePay: ConfigPlugin<ReactNativePaymentsPluginProps> = (
+    initialConfig,
+    { supportedNetworks, googlePayEnvironment }
+) => {
+    const validatedSupportedNetworks = validateSupportedNetworks(supportedNetworks);
+    const validatedGooglePayEnvironment = validateGooglePayEnvironment(googlePayEnvironment);
 
-        if (mainApplication) {
-            const existingMetaData = mainApplication['meta-data']?.find(
-                metadata => metadata.$['android:name'] === 'com.google.android.gms.wallet.api.enabled'
-            );
+    return withAndroidManifest(initialConfig, config => {
+        const mainApplication = AndroidConfig.Manifest.getMainApplicationOrThrow(config.modResults);
 
-            if (!existingMetaData) {
-                mainApplication['meta-data'] ??= [];
-                mainApplication['meta-data'].push({
-                    // eslint-disable-next-line id-length
-                    $: {
-                        'android:name': 'com.google.android.gms.wallet.api.enabled',
-                        'android:value': 'true',
-                    },
-                });
-            }
-        }
+        AndroidConfig.Manifest.addMetaDataItemToMainApplication(
+            mainApplication,
+            'com.google.android.gms.wallet.api.enabled',
+            'true'
+        );
+        AndroidConfig.Manifest.addMetaDataItemToMainApplication(
+            mainApplication,
+            'com.google.android.gms.wallet.api.environment',
+            validatedGooglePayEnvironment
+        );
+        AndroidConfig.Manifest.addMetaDataItemToMainApplication(
+            mainApplication,
+            'com.rnw-community.react-native-payments.supported-networks',
+            validatedSupportedNetworks.join(',')
+        );
 
         return config;
     });
+};

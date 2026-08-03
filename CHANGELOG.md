@@ -3,6 +3,60 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [2.11.0](https://github.com/rnw-community/rnw-community/compare/v2.10.0...v2.11.0) (2026-08-02)
+
+### Bug Fixes
+
+- **react-native-payments:** include expo-plugins in the jest coverage gate ([0d12f3a](https://github.com/rnw-community/rnw-community/commit/0d12f3a70292d80a4f144e23f4fd3af3ee20810b))
+- **react-native-payments:** mark expo peer dependency optional ([d51fc6c](https://github.com/rnw-community/rnw-community/commit/d51fc6cbf3b046d91ec8ea674d16339296bcbb1b))
+
+### Features
+
+- **react-native-payments:** add typed supportedNetworks and googlePayEnvironment plugin options ([9eccd8a](https://github.com/rnw-community/rnw-community/commit/9eccd8a2b902ac45c716dfe560cb7a075f35b0c2))
+
+# [2.10.0](https://github.com/rnw-community/rnw-community/compare/v2.9.1...v2.10.0) (2026-08-02)
+
+### Bug Fixes
+
+- **react-native-payments:** resolve attribute-handler listener collision and native reject bugs ([9beac8e](https://github.com/rnw-community/rnw-community/commit/9beac8e11ee7a6944be020aecfc9dabb5dcc9bfc))
+
+### Features
+
+- **react-native-payments:** add hasEnrolledInstrument, event-handler attributes, shippingType ([528e65b](https://github.com/rnw-community/rnw-community/commit/528e65bd67b5702e6063e83bc64dff503009c888))
+
+## [2.9.1](https://github.com/rnw-community/rnw-community/compare/v2.9.0...v2.9.1) (2026-08-02)
+
+**Note:** Version bump only for package rnw-community
+
+# [2.9.0](https://github.com/rnw-community/rnw-community/compare/v2.8.1...v2.9.0) (2026-08-02)
+
+### Features
+
+- **shared:** add isDecimalMonetaryValue guard for decimal currency strings ([713ed54](https://github.com/rnw-community/rnw-community/commit/713ed54e785c2b40ff6a75bf64fc18b5b7e19fe0))
+
+## [2.8.1](https://github.com/rnw-community/rnw-community/compare/v2.8.0...v2.8.1) (2026-08-02)
+
+### Bug Fixes
+
+- **react-native-payments:** admit undefined in the web passthrough types ([23ee2e4](https://github.com/rnw-community/rnw-community/commit/23ee2e4448c28912faee4ca6ea32faf056db102a))
+
+# [2.8.0](https://github.com/rnw-community/rnw-community/compare/v2.7.3...v2.8.0) (2026-08-02)
+
+### Features
+
+- **react-native-payments:** implement PaymentDetailsModifier support ([1a89d20](https://github.com/rnw-community/rnw-community/commit/1a89d20232eeef556694868607194ec17e9f488d)), closes [#435](https://github.com/rnw-community/rnw-community/issues/435)
+
+## [2.7.3](https://github.com/rnw-community/rnw-community/compare/v2.7.2...v2.7.3) (2026-08-02)
+
+**Note:** Version bump only for package rnw-community
+
+## [2.7.2](https://github.com/rnw-community/rnw-community/compare/v2.7.1...v2.7.2) (2026-08-02)
+
+### Bug Fixes
+
+- **react-native-payments:** align error taxonomy with the W3C spec ([61f29b9](https://github.com/rnw-community/rnw-community/commit/61f29b964e5ffd641cf19889426d8f212bd96c28))
+- **react-native-payments:** triage error-taxonomy PR review findings ([d7235a8](https://github.com/rnw-community/rnw-community/commit/d7235a8561e5867bdd7f40f06566969fe58a32c4))
+
 ## [2.7.1](https://github.com/rnw-community/rnw-community/compare/v2.7.0...v2.7.1) (2026-08-02)
 
 **Note:** Version bump only for package rnw-community

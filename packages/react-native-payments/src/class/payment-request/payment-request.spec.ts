@@ -12,6 +12,7 @@ import { EnvironmentEnum } from '../../enum/environment.enum';
 import { PaymentAddressFieldEnum } from '../../enum/payment-address-field.enum';
 import { PaymentContactFieldEnum } from '../../enum/payment-contact-field.enum';
 import { PaymentMethodNameEnum } from '../../enum/payment-method-name.enum';
+import { PaymentShippingTypeEnum } from '../../enum/payment-shipping-type.enum';
 import { PaymentUpdateErrorTypeEnum } from '../../enum/payment-update-error-type.enum';
 import { PaymentsErrorEnum } from '../../enum/payments-error.enum';
 import { SupportedNetworkEnum } from '../../enum/supported-networks.enum';
@@ -31,6 +32,7 @@ import type { AndroidTransactionInfo } from '../../@standard/android/request/and
 import type { IosPaymentMethodDataInterface } from '../../@standard/ios/mapping/ios-payment-method-data.interface';
 import type { IosPaymentDataRequest } from '../../@standard/ios/request/ios-payment-data-request';
 import type { PaymentDetailsInit } from '../../@standard/w3c/payment-details-init';
+import type { PaymentDetailsModifier } from '../../@standard/w3c/payment-details-modifier';
 import type { PaymentDetailsUpdate } from '../../@standard/w3c/payment-details-update';
 import type { PaymentItem } from '../../@standard/w3c/payment-item';
 import type { PaymentMethodData } from '../../@standard/w3c/payment-method-data';
@@ -45,6 +47,7 @@ import type { NativeEventEmitter } from 'react-native';
 jest.mock('../native-payments/native-payments', () => ({
     NativePayments: {
         canMakePayments: jest.fn(),
+        hasEnrolledInstrument: jest.fn(),
         show: jest.fn(),
         abort: jest.fn(),
         setActiveEvents: jest.fn(),
@@ -408,6 +411,98 @@ describe('PaymentRequest', () => {
             });
         });
 
+        describe(`payment details modifiers`, () => {
+            const paymentDetailsWithTotal: PaymentDetailsInit = {
+                total: { label: 'Total', amount: { currency: 'USD', value: '10.00' } },
+            };
+
+            const constructWithModifiers = (modifiers: unknown[]): PaymentRequest =>
+                new PaymentRequest([methodData], {
+                    ...paymentDetailsWithTotal,
+                    modifiers: modifiers as PaymentDetailsModifier[],
+                });
+
+            it('should NOT throw when modifiers is not defined or empty', () => {
+                expect.hasAssertions();
+
+                expect(() => new PaymentRequest([methodData], paymentDetailsWithTotal)).not.toThrow();
+                expect(() => constructWithModifiers([])).not.toThrow();
+                expect(() =>
+                    constructWithModifiers([{ supportedMethods: PaymentMethodNameEnum.AndroidPay }])
+                ).not.toThrow();
+            });
+
+            it('should throw when a modifier has no supportedMethods', () => {
+                expect.hasAssertions();
+
+                const expectedError = new ConstructorError(`required member supportedMethods is undefined.`);
+
+                expect(() => constructWithModifiers([undefined])).toThrow(expectedError);
+                expect(() => constructWithModifiers([{}])).toThrow(expectedError);
+            });
+
+            it('should throw when a modifier total is negative', () => {
+                expect.hasAssertions();
+
+                expect(() =>
+                    constructWithModifiers([
+                        {
+                            supportedMethods: PaymentMethodNameEnum.AndroidPay,
+                            total: { label: 'Discounted', amount: { currency: 'USD', value: '-1.00' } },
+                        },
+                    ])
+                ).toThrow(new ConstructorError(`Total amount value should be non-negative`));
+            });
+
+            it('should throw when a modifier additionalDisplayItems entry is invalid', () => {
+                expect.hasAssertions();
+
+                expect(() =>
+                    constructWithModifiers([
+                        {
+                            supportedMethods: PaymentMethodNameEnum.AndroidPay,
+                            additionalDisplayItems: [{ amount: { currency: 'USD', value: true } }],
+                        },
+                    ])
+                ).toThrow(new ConstructorError(`'true' is not a valid amount format for display items`));
+            });
+        });
+
+        describe(`methodData.data.shippingType`, () => {
+            it('should NOT throw when shippingType is not defined', () => {
+                expect.hasAssertions();
+
+                expect(() => new PaymentRequest([methodData], paymentDetails)).not.toThrow();
+            });
+
+            it('should NOT throw for every valid shippingType', () => {
+                expect.hasAssertions();
+
+                Object.values(PaymentShippingTypeEnum).forEach(shippingType => {
+                    expect(
+                        () =>
+                            new PaymentRequest(
+                                [{ ...methodData, data: { ...methodData.data, shippingType } }],
+                                paymentDetails
+                            )
+                    ).not.toThrow();
+                });
+            });
+
+            it('should throw when shippingType is invalid', () => {
+                expect.hasAssertions();
+
+                const invalidMethodData = {
+                    ...methodData,
+                    data: { ...methodData.data, shippingType: 'invalid' },
+                } as unknown as AndroidPaymentMethodDataInterface;
+
+                expect(() => new PaymentRequest([invalidMethodData], paymentDetails)).toThrow(
+                    new ConstructorError(`'invalid' is not a valid shippingType`)
+                );
+            });
+        });
+
         describe('spec-conformant error identity', () => {
             const expectConstructionTypeError = (construct: () => PaymentRequest): void => {
                 expect(construct).toThrow(TypeError);
@@ -498,6 +593,29 @@ describe('PaymentRequest', () => {
             const result = await request.canMakePayment();
 
             expect(NativePayments.canMakePayments).toHaveBeenCalledWith(expect.any(String));
+            expect(result).toBe(true);
+        });
+
+        it('should throw when `hasEnrolledInstrument` is called in invalid state', async () => {
+            expect.hasAssertions();
+
+            const request = new PaymentRequest([androidMethodData], paymentDetails);
+            request.state = 'closed';
+
+            await expect(request.hasEnrolledInstrument()).rejects.toThrow(
+                new DOMException(PaymentsErrorEnum.InvalidStateError)
+            );
+        });
+
+        it('should return true from `hasEnrolledInstrument` when valid', async () => {
+            expect.hasAssertions();
+
+            const request = new PaymentRequest([androidMethodData], paymentDetails);
+            jest.mocked(NativePayments.hasEnrolledInstrument).mockResolvedValue(true);
+
+            const result = await request.hasEnrolledInstrument();
+
+            expect(NativePayments.hasEnrolledInstrument).toHaveBeenCalledWith(expect.any(String));
             expect(result).toBe(true);
         });
 
@@ -710,6 +828,39 @@ describe('PaymentRequest', () => {
                 expect(transactionInfo.totalPrice).toBe('0.00');
             });
 
+            it('should replace the total with a matching modifier before serializing transactionInfo', async () => {
+                expect.assertions(2);
+
+                const transactionInfo = await getSerializedTransactionInfo(androidMethodData, {
+                    total: { label: 'Total', amount: { currency: 'USD', value: '10.00' } },
+                    modifiers: [
+                        {
+                            supportedMethods: PaymentMethodNameEnum.AndroidPay,
+                            total: { label: 'Discounted total', amount: { currency: 'USD', value: '8.00' } },
+                        },
+                    ],
+                });
+
+                expect(transactionInfo.totalPrice).toBe('8.00');
+                expect(transactionInfo.totalPriceLabel).toBe('Discounted total');
+            });
+
+            it('should ignore a modifier for a non-matching platform payment method', async () => {
+                expect.assertions(1);
+
+                const transactionInfo = await getSerializedTransactionInfo(androidMethodData, {
+                    total: { label: 'Total', amount: { currency: 'USD', value: '10.00' } },
+                    modifiers: [
+                        {
+                            supportedMethods: PaymentMethodNameEnum.ApplePay,
+                            total: { label: 'Discounted total', amount: { currency: 'USD', value: '8.00' } },
+                        },
+                    ],
+                });
+
+                expect(transactionInfo.totalPrice).toBe('10.00');
+            });
+
             it('should serialize checkoutOption with default FINAL totalPriceStatus', async () => {
                 expect.assertions(2);
 
@@ -893,6 +1044,29 @@ describe('PaymentRequest', () => {
             const result = await request.canMakePayment();
 
             expect(NativePayments.canMakePayments).toHaveBeenCalledWith(expect.any(String));
+            expect(result).toBe(true);
+        });
+
+        it('should throw when `hasEnrolledInstrument` is called in invalid state', async () => {
+            expect.hasAssertions();
+
+            const request = new PaymentRequest([iosMethodData], paymentDetails);
+            request.state = 'closed';
+
+            await expect(request.hasEnrolledInstrument()).rejects.toThrow(
+                new DOMException(PaymentsErrorEnum.InvalidStateError)
+            );
+        });
+
+        it('should return true from `hasEnrolledInstrument` when valid', async () => {
+            expect.hasAssertions();
+
+            const request = new PaymentRequest([iosMethodData], paymentDetails);
+            jest.mocked(NativePayments.hasEnrolledInstrument).mockResolvedValue(true);
+
+            const result = await request.hasEnrolledInstrument();
+
+            expect(NativePayments.hasEnrolledInstrument).toHaveBeenCalledWith(expect.any(String));
             expect(result).toBe(true);
         });
 
@@ -1160,6 +1334,25 @@ describe('PaymentRequest', () => {
                     IOSPKContactField.PKContactFieldName,
                     IOSPKContactField.PKContactFieldPhoneNumber,
                 ]);
+            });
+
+            it('should serialize the provided shippingType', async () => {
+                expect.hasAssertions();
+
+                const methodDataRequest = await getSerializedIosMethodData({
+                    ...iosMethodData,
+                    data: { ...iosMethodData.data, shippingType: PaymentShippingTypeEnum.Pickup },
+                });
+
+                expect(methodDataRequest.shippingType).toBe(PaymentShippingTypeEnum.Pickup);
+            });
+
+            it('should not serialize a missing shippingType', async () => {
+                expect.hasAssertions();
+
+                const methodDataRequest = await getSerializedIosMethodData(iosMethodData);
+
+                expect(methodDataRequest).not.toHaveProperty('shippingType');
             });
         });
 
@@ -2455,6 +2648,121 @@ describe('PaymentRequest', () => {
             expect(updatedShippingOptions).toStrictEqual([detailedOption]);
         });
 
+        describe('payment details modifiers', () => {
+            const modifierTotal: PaymentItem = { label: 'Discounted total', amount: { currency: 'USD', value: '7.50' } };
+            const modifierItem: PaymentItem = { label: 'Loyalty discount', amount: { currency: 'USD', value: '-2.50' } };
+
+            it('should replace the total and append additionalDisplayItems from a matching modifier before show()', async () => {
+                expect.hasAssertions();
+
+                let finishShow: (details: string) => void = emptyFn;
+                jest.mocked(NativePayments.show).mockImplementation(
+                    async () =>
+                        new Promise<string>(resolve => {
+                            finishShow = resolve;
+                        })
+                );
+
+                const request = new PaymentRequest([eventsMethodData], {
+                    total: initialTotal,
+                    displayItems: [displayItem],
+                    modifiers: [
+                        {
+                            supportedMethods: PaymentMethodNameEnum.ApplePay,
+                            total: modifierTotal,
+                            additionalDisplayItems: [modifierItem],
+                        },
+                    ],
+                });
+
+                const response = request.show();
+                finishShow(acceptedPayment);
+                await response;
+
+                const [[, , shownDetails]] = jest.mocked(NativePayments.show).mock.calls;
+
+                expect((shownDetails as PaymentDetailsInit).total).toStrictEqual(modifierTotal);
+                expect((shownDetails as PaymentDetailsInit).displayItems).toStrictEqual([displayItem, modifierItem]);
+            });
+
+            it('should ignore a modifier for a non-matching payment method on show()', async () => {
+                expect.hasAssertions();
+
+                let finishShow: (details: string) => void = emptyFn;
+                jest.mocked(NativePayments.show).mockImplementation(
+                    async () =>
+                        new Promise<string>(resolve => {
+                            finishShow = resolve;
+                        })
+                );
+
+                const request = new PaymentRequest([eventsMethodData], {
+                    total: initialTotal,
+                    modifiers: [{ supportedMethods: PaymentMethodNameEnum.AndroidPay, total: modifierTotal }],
+                });
+
+                const response = request.show();
+                finishShow(acceptedPayment);
+                await response;
+
+                const [[, , shownDetails]] = jest.mocked(NativePayments.show).mock.calls;
+
+                expect((shownDetails as PaymentDetailsInit).total).toStrictEqual(initialTotal);
+            });
+
+            it('should apply a matching modifier carried by updateWith before answering native', async () => {
+                expect.hasAssertions();
+
+                const request = createInteractiveRequest();
+
+                request.addEventListener('shippingaddresschange', event => {
+                    event.updateWith({
+                        total: updatedTotal,
+                        modifiers: [
+                            {
+                                supportedMethods: PaymentMethodNameEnum.ApplePay,
+                                total: modifierTotal,
+                                additionalDisplayItems: [modifierItem],
+                            },
+                        ],
+                    });
+                });
+
+                emitNativeEvent('shippingaddresschange', { requestId: request.id, shippingAddress: address });
+                await nativeUpdate;
+                await flushEventLoop();
+
+                expect(request.details.total).toStrictEqual(updatedTotal);
+                expect(updatePaymentDetailsMock).toHaveBeenCalledWith(
+                    { error: '', eventName: 'shippingaddresschange', requestId: request.id, total: modifierTotal },
+                    [modifierItem],
+                    []
+                );
+            });
+
+            it('should ignore a modifier for a non-matching payment method carried by updateWith', async () => {
+                expect.hasAssertions();
+
+                const request = createInteractiveRequest();
+
+                request.addEventListener('shippingaddresschange', event => {
+                    event.updateWith({
+                        total: updatedTotal,
+                        modifiers: [{ supportedMethods: PaymentMethodNameEnum.AndroidPay, total: modifierTotal }],
+                    });
+                });
+
+                emitNativeEvent('shippingaddresschange', { requestId: request.id, shippingAddress: address });
+                await nativeUpdate;
+
+                expect(updatePaymentDetailsMock).toHaveBeenCalledWith(
+                    { error: '', eventName: 'shippingaddresschange', requestId: request.id, total: updatedTotal },
+                    [],
+                    []
+                );
+            });
+        });
+
         it('should remove a listener registered while the native module could not deliver change events', () => {
             expect.hasAssertions();
 
@@ -2465,6 +2773,139 @@ describe('PaymentRequest', () => {
             request.removeEventListener('shippingaddresschange', emptyFn);
 
             expect(setActiveEventsMock).toHaveBeenLastCalledWith(request.id, []);
+        });
+
+        describe('attribute-handler event listeners', () => {
+            it('should default every attribute handler to null', () => {
+                expect.hasAssertions();
+
+                const request = createRequest();
+
+                expect(request.onshippingaddresschange).toBeNull();
+                expect(request.onshippingoptionchange).toBeNull();
+                expect(request.onpaymentmethodchange).toBeNull();
+                expect(request.oncouponcodechange).toBeNull();
+            });
+
+            it('should register the assigned handler like an addEventListener listener', () => {
+                expect.hasAssertions();
+
+                const request = createInteractiveRequest();
+                const handler = jest.fn<(event: PaymentRequestUpdateEvent) => void>();
+
+                request.onshippingaddresschange = handler;
+
+                expect(subscriptions).toHaveLength(1);
+                expect(setActiveEventsMock).toHaveBeenCalledWith(request.id, ['shippingaddresschange']);
+                expect(request.onshippingaddresschange).toBe(handler);
+            });
+
+            it('should replace the previous attribute handler when assigned again', async () => {
+                expect.hasAssertions();
+
+                const request = createInteractiveRequest();
+                const firstHandler = jest.fn<(event: PaymentRequestUpdateEvent) => void>();
+                const secondHandler = jest.fn<(event: PaymentRequestUpdateEvent) => void>();
+
+                request.onshippingoptionchange = firstHandler;
+                request.onshippingoptionchange = secondHandler;
+
+                emitNativeEvent('shippingoptionchange', { requestId: request.id, shippingOption: 'express' });
+                await nativeUpdate;
+
+                expect(firstHandler).not.toHaveBeenCalled();
+                expect(secondHandler).toHaveBeenCalledTimes(1);
+                expect(request.onshippingoptionchange).toBe(secondHandler);
+                expect(subscriptions.filter(subscription => !subscription.removed)).toHaveLength(1);
+            });
+
+            it('should clear the attribute handler and drop the native subscription when assigned null', () => {
+                expect.hasAssertions();
+
+                const request = createInteractiveRequest();
+                const handler = jest.fn<(event: PaymentRequestUpdateEvent) => void>();
+
+                request.oncouponcodechange = handler;
+                request.oncouponcodechange = null;
+
+                expect(request.oncouponcodechange).toBeNull();
+                expect(setActiveEventsMock).toHaveBeenLastCalledWith(request.id, []);
+            });
+
+            it('should do nothing when assigned null without a previously registered handler', () => {
+                expect.hasAssertions();
+
+                const request = createInteractiveRequest();
+
+                request.onshippingaddresschange = null;
+
+                expect(request.onshippingaddresschange).toBeNull();
+                expect(subscriptions).toHaveLength(0);
+            });
+
+            it('should coexist with listeners registered through addEventListener', async () => {
+                expect.hasAssertions();
+
+                const request = createInteractiveRequest();
+                const attributeHandler = jest.fn<(event: PaymentRequestUpdateEvent) => void>();
+                const addedListener = jest.fn<(event: PaymentRequestUpdateEvent) => void>();
+
+                request.addEventListener('shippingaddresschange', addedListener);
+                request.onshippingaddresschange = attributeHandler;
+
+                emitNativeEvent('shippingaddresschange', { requestId: request.id, shippingAddress: address });
+                await nativeUpdate;
+
+                expect(addedListener).toHaveBeenCalledTimes(1);
+                expect(attributeHandler).toHaveBeenCalledTimes(1);
+            });
+
+            it('should register onpaymentmethodchange as a paymentmethodchange listener', () => {
+                expect.hasAssertions();
+
+                const request = createInteractiveRequest();
+                const handler = jest.fn<(event: PaymentMethodChangeEvent) => void>();
+
+                request.onpaymentmethodchange = handler;
+
+                expect(subscriptions).toHaveLength(1);
+                expect(subscriptions[0]?.type).toBe('paymentmethodchange');
+                expect(request.onpaymentmethodchange).toBe(handler);
+            });
+
+            it('should keep an explicit addEventListener registration alive when the same function is cleared as the attribute handler', async () => {
+                expect.hasAssertions();
+
+                const request = createInteractiveRequest();
+                const sharedListener = jest.fn<(event: PaymentRequestUpdateEvent) => void>();
+
+                request.addEventListener('shippingaddresschange', sharedListener);
+                request.onshippingaddresschange = sharedListener;
+                request.onshippingaddresschange = null;
+
+                emitNativeEvent('shippingaddresschange', { requestId: request.id, shippingAddress: address });
+                await nativeUpdate;
+
+                expect(sharedListener).toHaveBeenCalledTimes(1);
+            });
+
+            it('should keep an explicit addEventListener registration alive when the same function is replaced as the attribute handler', async () => {
+                expect.hasAssertions();
+
+                const request = createInteractiveRequest();
+                const sharedListener = jest.fn<(event: PaymentRequestUpdateEvent) => void>();
+                const replacementHandler = jest.fn<(event: PaymentRequestUpdateEvent) => void>();
+
+                request.addEventListener('shippingaddresschange', sharedListener);
+                request.onshippingaddresschange = sharedListener;
+                request.onshippingaddresschange = replacementHandler;
+
+                emitNativeEvent('shippingaddresschange', { requestId: request.id, shippingAddress: address });
+                await nativeUpdate;
+
+                expect(sharedListener).toHaveBeenCalledTimes(1);
+                expect(replacementHandler).toHaveBeenCalledTimes(1);
+            });
         });
     });
 });

@@ -55,6 +55,7 @@
         "webpack-node-externals",
         "react-dom",
         "@expo/config-plugins",
+        "expo",
         "ioredis",
         "prom-client",
         "redlock",
