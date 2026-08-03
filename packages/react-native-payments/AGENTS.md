@@ -3,7 +3,41 @@
 W3C Payment Request API implementation for React Native — Apple Pay (iOS) and Google Pay (Android). Includes Expo config plugin.
 
 See [readme.md](readme.md) for the human-facing installation and usage guide. For a curated, agent-oriented index of
-every doc in this package (API surface, change-event contract, E2E boundary), see [llms.txt](llms.txt).
+every doc in this package (API surface, change-event contract, E2E boundary), see [llms.txt](llms.txt) (or
+[llms-full.txt](llms-full.txt) for the same tree fully inlined in one file).
+
+## Docs
+
+Pure-Markdown tree, one topic per file, relative links only:
+
+```text
+readme.md                          compact landing — value prop, install, quickstart, doc map
+docs/
+  getting-started/                 install.md + one quickstart per platform (ios/android/expo)
+  platforms/                       ios.md, android.md, web.md, expo.md — setup, capabilities, deviations per platform
+  api/                             index.md + one file per entity group, mirroring src/index.ts
+  guides/                          change-events, modifiers, errors, retry, testing, troubleshooting, migrate-from-v2,
+                                    migrate-from-upstream
+  architecture.md                  the WHY — JS<->native contract, single-use requests, event lifecycle
+  roadmap.md                       W3C compliance checklist + open work as issue links (no bare TODOs elsewhere)
+```
+
+### Adding a new export
+
+Every export reachable from `src/index.ts` needs a `docs/api/<entity>.md` entry (grouped with a tightly-coupled
+sibling only when the existing tree already groups that pair, e.g. a platform's `*DataInterface` with its
+`*DataDataInterface`). Each entity file follows this exact section order:
+
+1. **What & why** — one paragraph: the problem this entity solves, when to reach for it.
+2. **How** — signature/options table, platform behavior matrix where it differs.
+3. **Example** — one minimal compiling example (more only if platforms diverge).
+4. **Pitfalls** — real ones only, sourced from issues/deviations — omit rather than invent one.
+5. **References** — W3C anchor, Apple/Google doc links, and the guide/platform page with the full narrative.
+
+Add the new file to [docs/api/index.md](docs/api/index.md) and to [llms.txt](llms.txt); regenerate
+[llms-full.txt](llms-full.txt) by concatenating the doc tree in doc-map order, rebasing every embedded file's
+relative links to be relative to the package root (llms-full.txt's own frame of reference) rather than leaving
+them relative to the file they originally came from.
 
 ## Package Commands
 

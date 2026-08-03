@@ -6,15 +6,43 @@ TurboModule-based library (React Native New Architecture). An agent given only t
 API surface, the payment change-event contract, platform deviations from the W3C spec, and the native JS<->native
 handshake without a repo-wide search.
 
-## Docs
+## Landing
 
-- [readme.md](readme.md): Installation (Apple Pay / Google Pay / Expo setup) and the step-by-step `PaymentRequest` usage guide.
-- [readme.md — Type & class reference](readme.md#type--class-reference): Per-export API reference — every exported class, enum, interface, and type with its own subsection.
-- [readme.md — Payment change events](readme.md#payment-change-events): `addEventListener`/`removeEventListener`, `updateWith`, sheet errors, and `PaymentMethodChangeEvent`.
-- [readme.md — Known deviations](readme.md#known-deviations): Platform differences from the W3C spec — Android no-op change events, iOS shipping preselection, single-use `PaymentRequest`, `couponcodechange`.
-- [readme.md — Migrating from v2](readme.md#migrating-from-v2): Breaking changes and upgrade steps from the v2 native interface to v3.
-- [readme.md — Web(react-native-web)](readme.md#webreact-native-web): Browser fallback behavior via the W3C `PaymentRequest` implementation.
-- [roadmap.md](roadmap.md): Implementation notes for the open work items linked from the readme's TODO ledger.
+- [readme.md](readme.md): Value proposition, install one-liner, 60-second quickstart, and the doc map below.
+
+## Getting started
+
+- [docs/getting-started/install.md](docs/getting-started/install.md): Install command and platform-setup links.
+- [docs/getting-started/quickstart-ios.md](docs/getting-started/quickstart-ios.md): Fastest path to an Apple Pay sheet.
+- [docs/getting-started/quickstart-android.md](docs/getting-started/quickstart-android.md): Fastest path to a Google Pay sheet.
+- [docs/getting-started/quickstart-expo.md](docs/getting-started/quickstart-expo.md): Expo config plugin + `expo prebuild`.
+
+## Platforms
+
+- [docs/platforms/ios.md](docs/platforms/ios.md): Apple Pay setup, capabilities, and iOS-only known deviations.
+- [docs/platforms/android.md](docs/platforms/android.md): Google Pay setup, capabilities, and Android-only known deviations.
+- [docs/platforms/web.md](docs/platforms/web.md): Browser fallback behavior via the W3C `PaymentRequest` implementation.
+- [docs/platforms/expo.md](docs/platforms/expo.md): Expo config plugin options reference.
+
+## API reference
+
+- [docs/api/index.md](docs/api/index.md): Every exported class, enum, interface and type, one file per entity group.
+
+## Guides
+
+- [docs/guides/change-events.md](docs/guides/change-events.md): `addEventListener`/`removeEventListener`, `updateWith`, sheet errors, `PaymentMethodChangeEvent`.
+- [docs/guides/modifiers.md](docs/guides/modifiers.md): Per-method `PaymentDetailsModifier` resolution.
+- [docs/guides/errors.md](docs/guides/errors.md): The `ConstructorError` / `DOMException` / `PaymentsError` mapping table.
+- [docs/guides/retry.md](docs/guides/retry.md): `PaymentResponse.retry()` semantics and platform limits.
+- [docs/guides/testing.md](docs/guides/testing.md): Jest `NativeModules.Payments` mock and example apps.
+- [docs/guides/troubleshooting.md](docs/guides/troubleshooting.md): Real reported issues and their fixes.
+- [docs/guides/migrate-from-v2.md](docs/guides/migrate-from-v2.md): Breaking changes and upgrade steps from v2 to v3.
+- [docs/guides/migrate-from-upstream.md](docs/guides/migrate-from-upstream.md): API mapping from `naoufal/react-native-payments`.
+
+## Architecture & roadmap
+
+- [docs/architecture.md](docs/architecture.md): The JS<->native contract, single-use requests, event lifecycle.
+- [docs/roadmap.md](docs/roadmap.md): W3C compliance checklist and open work as issue links.
 
 ## Architecture & conventions
 
