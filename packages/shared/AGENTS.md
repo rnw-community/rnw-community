@@ -1,58 +1,67 @@
 # @rnw-community/shared
 
-Core utility hub — type guards, helper functions, and TypeScript utility types. Zero dependencies. Many packages in the monorepo depend on this package.
+Core utility hub — type guards, helper functions, and TypeScript utility types. Zero runtime dependencies; the most-depended-on package in the monorepo.
 
 ## Package Commands
 
 ```bash
-yarn test               # Run tests
-yarn test --watch       # Watch mode
-yarn test:coverage      # Tests with coverage
-yarn build              # Build (dual ESM + CJS)
-yarn ts                 # Type check
-yarn lint:fix           # Fix lint issues
+yarn test && yarn test:coverage && yarn build && yarn ts && yarn lint:fix
 ```
 
 ## Architecture
 
-### Directory Layout
-
-```
+```text
 src/
-  type/           — TypeScript utility types (Maybe, AnyFn, ClassType, EmptyFn, Enum, MethodDecoratorType, etc.)
-  type-guard/     — Runtime type narrowing functions
-    generic/      — isDefined, isError, isObject, isPromise, isRecord
-    array/        — isArray, isEmptyArray, isNotEmptyArray, isNotEmptyArrayOf
-    boolean/      — isBoolean
-    number/       — isNumber, isPositiveNumber
-    string/       — isString, isEmptyString, isNotEmptyString
-  util/           — Runtime utilities (cs, emptyFn, getDefined, getErrorMessage, wait)
+  type/                             — TypeScript utility types, one folder per entity
+    maybe-type/                     — Maybe<T> = T | null
+    empty-fn-type/                  — EmptyFn = (...args: any[]) => void
+    any-fn-type/                    — AnyFn = (...args: any) => any
+    class-type/                     — ClassType<T> = new (...args: any[]) => T
+    abstract-constructor-type/      — AbstractConstructor<T> = abstract new (...args: any[]) => T
+    method-decorator-type/          — MethodDecoratorType<K> (typed method-decorator factory result)
+    on-event-fn-type/               — OnEventFn<T, R> = (event: T) => R
+    enum-type/                      — Enum<D> = Record<string, D>
+    is-not-empty-array-type/        — IsNotEmptyArray<T> = [T, ...T[]]
+    readonly-is-not-empty-array-type/ — ReadonlyIsNotEmptyArray<T> = readonly [T, ...T[]]
+  type-guard/                       — Runtime type narrowing functions, one folder per entity
+    generic/    — isDefined, isError, isObject, isPromise, isRecord
+    array/      — isArray, isEmptyArray, isNotEmptyArray, isNotEmptyArrayOf (+ is-never.spec-type.ts, a
+                  compile-time-only IsNever<T> helper used by the array specs, never exported)
+    boolean/    — isBoolean
+    number/     — isNumber, isPositiveNumber
+    string/     — isString, isEmptyString, isNotEmptyString, isDecimalMonetaryValue
+  util/                             — Runtime utilities, one folder per entity
+    cs/              — conditional style-object picker for RN/RNW `style` props
+    empty-fn/        — emptyFn, the canonical no-op
+    get-defined/     — getDefined(value, defaultFn) — sync lazy default when nullish
+    get-defined-async/ — getDefinedAsync(value, defaultFn) — async counterpart; on disk, NOT in index.ts
+    get-error-message/ — getErrorMessage(err, fallback?)
+    wait/            — Promise-based sleep
 ```
 
-Source for `getDefinedAsync` exists on disk but is intentionally NOT re-exported from `src/index.ts` — treat it as internal.
+### Key Patterns
 
-### Key Conventions
+- **One exported entity per folder, including single-file types.** This package predates the root-level rule that a lone
+  file (no spec, no `.md`) stays flat at the category level — every entity here, even a one-line `.type.ts`, still gets its
+  own folder with `<entity>.ts` + `<entity>.md` (and a `.spec.ts` for guards/utils). New packages follow the root convention
+  (flat single-file types); this package's existing layout is intentionally left alone rather than restructured piecemeal.
+- `getDefinedAsync` is fully implemented and tested on disk (`src/util/get-defined-async/`) but is deliberately **not**
+  re-exported from `src/index.ts` — verified directly against the barrel, which lists `getDefined` but not
+  `getDefinedAsync`. Treat it as internal until a consumer need promotes it to the public surface.
+- `isObject` is a public guard (`isDefined(value) && typeof value === 'object' && !isArray(value)`) and `isRecord` composes
+  it directly (`isRecord = (value) => isObject(value)`) rather than re-implementing the same narrowing — the guard chain is
+  the pattern to follow for any new object-shaped guard.
+- Composition over re-implementation elsewhere too: `isNotEmptyArray` builds on `isArray`, `isNotEmptyString`/`isEmptyString`
+  build on `isString`, `isDecimalMonetaryValue` builds on `isString` plus a regexp test — `isDefined` is the guard every
+  other guard ultimately bottoms out on.
+- Types are always `export type` — never import a type from this package as a value.
 
-- **One entity per file.** This package predates the monorepo-wide flat-layout-for-single-file-entities rule codified in the root `AGENTS.md`; the shared package's existing layout places every entity (including single-file interfaces) in its own folder. Root convention now prefers flat `src/<category>/<entity>.<suffix>.ts` for lone files — new packages should follow root convention; do not restructure existing shared folders without a separate refactor.
-- Each entity directory contains: implementation `.ts`, test `.spec.ts`, documentation `.md`
-- Types are always `export type` — never import types as values from this package
-- `isDefined` is the foundation guard — most other guards compose with it
-- `getDefinedAsync` exists but is intentionally **not exported** (internal use only)
-- Composition over re-implementation: guards chain (`isString` → `isDefined`, `isNotEmptyArray` → `isArray`)
+### Dependencies
+
+None at runtime (`package.json` has no `dependencies` field). This is deliberate: `shared` is the dependency floor every
+other package in the monorepo builds on, so it must not itself depend on anything workspace-local or third-party.
 
 ### Coverage
 
-Default monorepo threshold: **99.9%** for statements, branches, functions, and lines.
-
-### Key Types
-
-| Type | Definition | Purpose |
-|------|-----------|---------|
-| `Maybe<T>` | `T \| null` | Nullable values |
-| `EmptyFn` | `(...args: any[]) => void` | Default event handlers, no-op slots, abort-listener cleanup |
-| `AnyFn` | `(...args: any) => any` | Generic function constraint for decorator factories |
-| `ClassType<T>` | `new (...args: any[]) => T` | Concrete constructor (DI, reflection) |
-| `AbstractConstructor<T>` | `abstract new (...args: any[]) => T` | Abstract class mixins |
-| `MethodDecoratorType<K>` | Typed method-decorator factory result | Used across every decorator package in the monorepo (not just NestJS) — the canonical home for the decorator-return type |
-| `IsNotEmptyArray<T>` | `[T, ...T[]]` | Non-empty array assertion |
-| `Enum<D>` | `Record<string, D>` | Enum-like object |
+Default monorepo threshold: **99.9%** for statements, branches, functions, and lines (`get-jest.config.js`, no
+per-package override in `packages/shared/jest.config.js`).
