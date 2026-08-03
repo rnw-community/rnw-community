@@ -108,7 +108,9 @@ jobs:
                 run: yarn turbo run build --filter=@rnw-community/shared --filter=@rnw-community/react-native-payments
 
             -   name: Pack tarballs
-                run: npm pack --silent --pack-destination "$RUNNER_TEMP/tarballs" ./packages/shared ./packages/react-native-payments
+                run: |
+                    mkdir -p "$RUNNER_TEMP/tarballs"
+                    npm pack --silent --pack-destination "$RUNNER_TEMP/tarballs" ./packages/shared ./packages/react-native-payments
 
             -   name: Scaffold smoke project
                 run: |
