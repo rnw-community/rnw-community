@@ -17,6 +17,8 @@ Each factory takes `{ store }: CreateLockOptionsInterface` and returns a decorat
 
 ## Sequential (Promise)
 
+### `createSequentialLockDecorator`
+
 FIFO queue on the key. Supports `timeoutMs` (→ `LockAcquireTimeoutError`) and `AbortSignal` (→ `DOMException('AbortError')`).
 
 ```ts
@@ -44,6 +46,8 @@ Key-fn `args` is inferred from the method signature — no annotations needed. T
 
 ## Exclusive (Promise)
 
+### `createExclusiveLockDecorator`
+
 Rejects immediately with `LockBusyError` if the key is held. No waiting, no timeout, no signal.
 
 ```ts
@@ -65,6 +69,8 @@ class Cache {
 
 For methods that return `Observable<T>`, use `createSequentialLockDecorator$` / `createExclusiveLockDecorator$`. Same store contract, same key-argument shapes. The acquired handle is released on the inner Observable's `complete`, `error`, or `unsubscribe` — the lock tracks the subscription lifecycle.
 
+### `createSequentialLockDecorator$`
+
 ```ts
 import { createSequentialLockDecorator$ } from '@rnw-community/lock-decorator';
 
@@ -81,48 +87,186 @@ class StreamService {
 }
 ```
 
-## Raw middleware (`createLockMiddleware` / `createLockMiddleware$`)
+### `createExclusiveLockDecorator$`
 
-If you are building a custom decorator (for example a DI-aware NestJS adapter), consume the raw middleware directly and feed it into your own `createInterceptor({ middleware })` call:
+```ts
+import { createExclusiveLockDecorator$ } from '@rnw-community/lock-decorator';
+
+import type { LockStoreInterface } from '@rnw-community/lock-decorator';
+import type { Observable } from 'rxjs';
+
+declare const store: LockStoreInterface;
+
+const ExclusiveLock$ = createExclusiveLockDecorator$({ store });
+
+class StreamService {
+    @ExclusiveLock$({ key: 'feed' })
+    subscribe$(symbol: string): Observable<number> { /* ... */ }
+}
+```
+
+## Raw middleware
+
+If you are building a custom decorator (for example a DI-aware NestJS adapter), consume the raw middleware directly and feed it into your own `createInterceptor({ middleware })` call. Both are used internally by the four factories above.
+
+### `createLockMiddleware`
+
+Returns an `InterceptorMiddleware<TArgs>` for Promise-returning methods:
+
+```ts
+import { createInterceptor } from '@rnw-community/decorators-core';
+import { createLockMiddleware } from '@rnw-community/lock-decorator';
+
+import type { LockStoreInterface } from '@rnw-community/lock-decorator';
+
+declare const store: LockStoreInterface;
+
+const withSequentialLock = createInterceptor({ middleware: createLockMiddleware(store, 'sequential', 'my-key') });
+```
+
+### `createLockMiddleware$`
+
+Returns an `InterceptorMiddleware<TArgs, Observable<unknown>>` for Observable-returning methods, and additionally bridges an external `AbortSignal` through to the store:
 
 ```ts
 import { createInterceptor } from '@rnw-community/decorators-core';
 import { createLockMiddleware$ } from '@rnw-community/lock-decorator';
-```
 
-`createLockMiddleware(store, mode, arg)` returns an `InterceptorMiddleware<TArgs>` for Promise methods; `createLockMiddleware$` returns one for Observable methods and additionally bridges an external `AbortSignal` through to the store. Both are used internally by the four factories above.
+import type { LockStoreInterface } from '@rnw-community/lock-decorator';
+
+declare const store: LockStoreInterface;
+
+const withSequentialLock$ = createInterceptor({ middleware: createLockMiddleware$(store, 'sequential', 'my-key') });
+```
 
 ## Store contract
 
-Bring your own [`LockStoreInterface`](src/interface/lock-store.interface.ts) implementation — Redis, in-process, cluster-aware, whatever fits the deployment target. The contract is a single method:
+Bring your own `LockStoreInterface` implementation — Redis, in-process, cluster-aware, whatever fits the deployment target. The store returns a handle; the handle releases itself. A minimal adapter is typically a few dozen lines.
+
+### `LockStoreInterface`
 
 ```ts
-interface LockStoreInterface {
-    acquire: (key: string, mode: LockModeType, options?: AcquireOptionsInterface) => Promise<LockHandleInterface>;
-}
+import type { LockStoreInterface } from '@rnw-community/lock-decorator';
 
-interface LockHandleInterface {
-    readonly key: string;
-    readonly mode: LockModeType;
-    release: () => void | Promise<void>;
-}
+const store: LockStoreInterface = {
+    acquire: async (key, mode, options) => ({
+        key,
+        mode,
+        release: async () => { /* ... */ },
+    }),
+};
 ```
 
-The store returns a handle; the handle releases itself. A minimal adapter is typically a few dozen lines.
+### `LockHandleInterface`
+
+The handle returned by `LockStoreInterface.acquire`; the four factories call `release()` for you.
+
+```ts
+import type { LockHandleInterface } from '@rnw-community/lock-decorator';
+
+const handle: LockHandleInterface = { key: 'my-key', mode: 'sequential', release: () => undefined };
+```
+
+### `AcquireOptionsInterface`
+
+`{ timeoutMs?: number; signal?: AbortSignal }` — the third argument to `LockStoreInterface.acquire`.
+
+```ts
+import type { AcquireOptionsInterface } from '@rnw-community/lock-decorator';
+
+const options: AcquireOptionsInterface = { timeoutMs: 5000 };
+```
+
+### `LockModeType`
+
+`'sequential' | 'exclusive'` — passed to `LockStoreInterface.acquire` so the store knows which semantics to apply.
+
+```ts
+import type { LockModeType } from '@rnw-community/lock-decorator';
+
+const mode: LockModeType = 'sequential';
+```
+
+### `CreateLockOptionsInterface`
+
+`{ store: LockStoreInterface }` — the sole argument to all four factories.
+
+```ts
+import { createSequentialLockDecorator } from '@rnw-community/lock-decorator';
+
+import type { CreateLockOptionsInterface, LockStoreInterface } from '@rnw-community/lock-decorator';
+
+declare const store: LockStoreInterface;
+
+const options: CreateLockOptionsInterface = { store };
+const SequentialLock = createSequentialLockDecorator(options);
+```
 
 ## Errors
 
-- [`LockBusyError`](src/error/lock-busy-error/lock-busy.error.ts) — exclusive key already held
-- [`LockAcquireTimeoutError`](src/error/lock-acquire-timeout-error/lock-acquire-timeout.error.ts) — sequential `timeoutMs` expired
+### `LockBusyError`
 
-## Types & interfaces
+Thrown by `createExclusiveLockDecorator` / `createExclusiveLockDecorator$` when the key is already held.
 
-- [`SequentialLockArgumentType<TArgs>`](src/type/sequential-lock-argument.type.ts) — `string | ((args: TArgs) => string) | { key, timeoutMs?, signal? }`
-- [`ExclusiveLockArgumentType<TArgs>`](src/type/exclusive-lock-argument.type.ts) — `string | ((args: TArgs) => string) | { key }`
-- [`LockArgumentType<TArgs>`](src/type/lock-argument.type.ts) — union of the two above
-- [`LockModeType`](src/type/lock-mode.type.ts) — `'sequential' | 'exclusive'`
-- [`AcquireOptionsInterface`](src/interface/acquire-options.interface.ts) — `{ timeoutMs?, signal? }`
-- [`CreateLockOptionsInterface`](src/interface/create-lock-options.interface.ts) — `{ store }`
+```ts
+import { LockBusyError } from '@rnw-community/lock-decorator';
+
+try {
+    await cache.write(value);
+} catch (error) {
+    if (error instanceof LockBusyError) {
+        console.warn(`busy: ${error.key}`);
+    }
+}
+```
+
+### `LockAcquireTimeoutError`
+
+Thrown by `createSequentialLockDecorator` / `createSequentialLockDecorator$` when `timeoutMs` elapses before the key becomes free.
+
+```ts
+import { LockAcquireTimeoutError } from '@rnw-community/lock-decorator';
+
+try {
+    await service.charge(amount);
+} catch (error) {
+    if (error instanceof LockAcquireTimeoutError) {
+        console.warn(`timed out after ${error.timeoutMs}ms for ${error.key}`);
+    }
+}
+```
+
+## Key-argument types
+
+### `SequentialLockArgumentType<TArgs>`
+
+Accepted key shapes for `createSequentialLockDecorator` / `createSequentialLockDecorator$`:
+
+```ts
+import type { SequentialLockArgumentType } from '@rnw-community/lock-decorator';
+
+const byId: SequentialLockArgumentType<[id: string]> = ([id]) => `order:${id}`;
+```
+
+### `ExclusiveLockArgumentType<TArgs>`
+
+Accepted key shapes for `createExclusiveLockDecorator` / `createExclusiveLockDecorator$` — no `timeoutMs`/`signal`, exclusive locks never wait:
+
+```ts
+import type { ExclusiveLockArgumentType } from '@rnw-community/lock-decorator';
+
+const byId: ExclusiveLockArgumentType<[id: string]> = ([id]) => ({ key: `cache:${id}` });
+```
+
+### `LockArgumentType<TArgs>`
+
+`SequentialLockArgumentType<TArgs> | ExclusiveLockArgumentType<TArgs>` — the union accepted internally by `createLockMiddleware` / `createLockMiddleware$`.
+
+```ts
+import type { LockArgumentType } from '@rnw-community/lock-decorator';
+
+const arg: LockArgumentType<[id: string]> = 'static-key';
+```
 
 ## License
 

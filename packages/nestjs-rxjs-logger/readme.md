@@ -6,40 +6,47 @@ NestJS default logger wrapper for using with RxJS streams.
 [![coverage](https://img.shields.io/codecov/c/github/rnw-community/rnw-community?flag=nestjs-rxjs-logger&label=coverage)](https://app.codecov.io/gh/rnw-community/rnw-community)
 [![npm downloads](https://img.shields.io/npm/dm/%40rnw-community%2Fnestjs-rxjs-logger.svg)](https://www.npmjs.com/package/%40rnw-community%2Fnestjs-rxjs-logger)
 
-## Supported log levels
+## Exports
 
--   `error` - `error$` RxJS operator
--   `info` - `info$` RxJS operator
--   `warn` - `warn$` RxJS operator
--   `debug` - `debug$` RxJS operator
--   `verbose` - `verbose$` RxJS operator
+### `AppLogLevelEnum`
 
-## Configuration
-
-Import `NestJsRxJsLoggerModule` into your module:
+`'debug' | 'error' | 'info' | 'verbose' | 'warn'` — the level argument accepted by `NestJSRxJSLoggerService.print` / `create$`; each level also has its own same-named pipeable method (`debug`, `error`, `info`, `verbose`, `warn`) shown below.
 
 ```ts
-import { Logger, Module } from '@nestjs/common';
-import { NestJsRxjsLoggerService } from '@rnw-community/nestjs-rxjs-logger';
+import { AppLogLevelEnum } from '@rnw-community/nestjs-rxjs-logger';
+
+const level: AppLogLevelEnum = AppLogLevelEnum.warn;
+```
+
+### `NestJSRxJSLoggerModule`
+
+Provides `NestJSRxJSLoggerService` (bound to NestJS's own `Logger` under the `'LOGGER'` DI token) for your module to import.
+
+```ts
+import { Module } from '@nestjs/common';
+
+import { NestJSRxJSLoggerModule } from '@rnw-community/nestjs-rxjs-logger';
 
 @Module({
-    imports: [NestJsRxJsLoggerModule],
+    imports: [NestJSRxJSLoggerModule],
     providers: [],
     exports: [],
 })
 export class MyModule {}
 ```
 
-Inject `NestJsRxjsLoggerService` into your service:
+### `NestJSRxJSLoggerService`
+
+`TRANSIENT`-scoped injectable with one pipeable method per log level (`debug`, `error`, `info`, `verbose`, `warn`), plus `create$` (starts a logged `Observable<boolean>`), `catch` (logs and rethrows), `setContext`, and `print` (imperative logging, no stream involved).
 
 ```ts
 import { Injectable } from '@nestjs/common';
-import { NestJsRxjsLoggerService } from '@rnw-community/nestjs-rxjs-logger';
-import { mapTo } from 'rxjs';
+
+import { NestJSRxJSLoggerService } from '@rnw-community/nestjs-rxjs-logger';
 
 @Injectable()
 export class MyService {
-    constructor(private readonly logger: NestJsRxjsLoggerService) {}
+    constructor(private readonly logger: NestJSRxJSLoggerService) {}
 }
 ```
 
@@ -49,15 +56,18 @@ export class MyService {
 
 ```ts
 import { Injectable } from '@nestjs/common';
-import { NestJsRxjsLoggerService } from '@rnw-community/nestjs-rxjs-logger';
-import { mapTo } from 'rxjs';
+
+import { NestJSRxJSLoggerService } from '@rnw-community/nestjs-rxjs-logger';
+import { of } from 'rxjs';
+
+import type { Observable } from 'rxjs';
 
 @Injectable()
 export class MyService {
-    constructor(private readonly logger: NestJsRxjsLoggerService) {}
+    constructor(private readonly logger: NestJSRxJSLoggerService) {}
 
     loggerOperatorExample$(): Observable<true> {
-        return of(true).pipe(this.logger.info$('My message', 'OtherContext'));
+        return of(true).pipe(this.logger.info('My message', 'OtherContext'));
     }
 }
 ```
@@ -66,15 +76,37 @@ export class MyService {
 
 ```ts
 import { Injectable } from '@nestjs/common';
-import { NestJsRxjsLoggerService } from '@rnw-community/nestjs-rxjs-logger';
-import { mapTo } from 'rxjs';
+
+import { NestJSRxJSLoggerService } from '@rnw-community/nestjs-rxjs-logger';
+import { map } from 'rxjs';
+
+import type { Observable } from 'rxjs';
 
 @Injectable()
 export class MyService {
-    constructor(private readonly logger: NestJsRxjsLoggerService) {}
+    constructor(private readonly logger: NestJSRxJSLoggerService) {}
 
     loggerCreateStreamExample$(): Observable<number> {
-        return this.logger.create$('My message', MyService.name).pipe(mapTo(1));
+        return this.logger.create$('My message', MyService.name).pipe(map(() => 1));
+    }
+}
+```
+
+### Catch and rethrow example
+
+```ts
+import { Injectable } from '@nestjs/common';
+
+import { NestJSRxJSLoggerService } from '@rnw-community/nestjs-rxjs-logger';
+
+import type { Observable } from 'rxjs';
+
+@Injectable()
+export class MyService {
+    constructor(private readonly logger: NestJSRxJSLoggerService) {}
+
+    loggerCatchExample$(source$: Observable<number>): Observable<number> {
+        return source$.pipe(this.logger.catch((error: unknown) => `failed: ${String(error)}`));
     }
 }
 ```
@@ -83,21 +115,24 @@ export class MyService {
 
 ```ts
 import { Injectable } from '@nestjs/common';
-import { NestJsRxjsLoggerService } from '@rnw-community/nestjs-rxjs-logger';
-import { mapTo } from 'rxjs';
+
+import { NestJSRxJSLoggerService } from '@rnw-community/nestjs-rxjs-logger';
+import { map, of } from 'rxjs';
+
+import type { Observable } from 'rxjs';
 
 @Injectable()
 export class MyService {
-    constructor(private readonly logger: NestJsRxjsLoggerService) {
+    constructor(private readonly logger: NestJSRxJSLoggerService) {
         this.logger.setContext(MyService.name);
     }
 
     loggerOperatorExample$(): Observable<true> {
-        return of(true).pipe(this.logger.info$('My message'));
+        return of(true).pipe(this.logger.info('My message'));
     }
 
     loggerCreateStreamExample$(): Observable<number> {
-        return this.logger.create$('My message').pipe(mapTo(1));
+        return this.logger.create$('My message').pipe(map(() => 1));
     }
 }
 ```

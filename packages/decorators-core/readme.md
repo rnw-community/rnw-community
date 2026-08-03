@@ -8,13 +8,23 @@ Framework-agnostic middleware primitive for building method decorators (log, met
 
 ## The primitive
 
-`createInterceptor({ middleware })` wraps a method descriptor with a single middleware function:
+### `createInterceptor`
+
+`createInterceptor({ middleware }: CreateInterceptorOptionsInterface)` wraps a method descriptor with a single middleware function and returns a `MethodDecoratorType<AnyFn>`:
 
 ```ts
-type InterceptorMiddleware<TArgs, TResult> = (
-    context: ExecutionContextInterface<TArgs>,
-    next: () => TResult
-) => TResult;
+import { createInterceptor } from '@rnw-community/decorators-core';
+
+import type { InterceptorMiddleware } from '@rnw-community/decorators-core';
+
+const passthrough: InterceptorMiddleware = (_context, next) => next();
+
+const Passthrough = createInterceptor({ middleware: passthrough });
+
+class Service {
+    @Passthrough
+    run(): void { /* ... */ }
+}
 ```
 
 `next()` invokes the original method. The middleware decides what to do before, after, around, or instead of that call — observe timings, retry, short-circuit, log, acquire a lock — and returns whatever shape the method returns (sync value, `Promise<T>`, `Observable<T>`, or anything else). The engine is transport-agnostic and result-shape-agnostic; the middleware owns both.
@@ -32,12 +42,44 @@ class OrderService {
 
 ## Exports
 
-| Export | Purpose |
-|---|---|
-| `createInterceptor` | Method-decorator factory; takes `{ middleware }`, returns a `MethodDecoratorType<AnyFn>` |
-| `InterceptorMiddleware<TArgs, TResult>` | Function type: `(context, next) => TResult` |
-| `ExecutionContextInterface<TArgs>` | `{ className, methodName, args, logContext }` — stable identity per invocation |
-| `CreateInterceptorOptionsInterface<TArgs, TResult>` | `{ middleware }` — the sole option |
+### `InterceptorMiddleware<TArgs, TResult>`
+
+Function type: `(context: ExecutionContextInterface<TArgs>, next: () => TResult) => TResult`. See "Build your own decorator" above for a full implementation.
+
+```ts
+import type { InterceptorMiddleware } from '@rnw-community/decorators-core';
+
+const timingMiddleware: InterceptorMiddleware<[id: string]> = (context, next) => {
+    const start = performance.now();
+
+    return next();
+};
+```
+
+### `ExecutionContextInterface<TArgs>`
+
+`{ className, methodName, args, logContext }` — stable identity per invocation, passed as the first argument to every `InterceptorMiddleware`. See "Execution context" below for field semantics.
+
+```ts
+import type { ExecutionContextInterface } from '@rnw-community/decorators-core';
+
+const describe = (context: ExecutionContextInterface): string => context.logContext;
+```
+
+### `CreateInterceptorOptionsInterface<TArgs, TResult>`
+
+`{ middleware: InterceptorMiddleware<TArgs, TResult> }` — the sole option accepted by `createInterceptor`.
+
+```ts
+import { createInterceptor } from '@rnw-community/decorators-core';
+
+import type { CreateInterceptorOptionsInterface, InterceptorMiddleware } from '@rnw-community/decorators-core';
+
+declare const middleware: InterceptorMiddleware;
+
+const options: CreateInterceptorOptionsInterface<readonly unknown[], unknown> = { middleware };
+const withMiddleware = createInterceptor(options);
+```
 
 `MethodDecoratorType<K>` comes from [`@rnw-community/shared`](https://github.com/rnw-community/rnw-community/tree/master/packages/shared) — import it directly, not through this package.
 

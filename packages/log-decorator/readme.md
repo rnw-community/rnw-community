@@ -43,12 +43,95 @@ Omit any hook to skip that lifecycle event. Hook results that are empty strings 
 
 ## Public API
 
-- [`createLogDecorator`](src/create-log-decorator/create-log-decorator.ts) — factory; takes `{ transport }` and returns the `@Log(preLog?, postLog?, errorLog?)` decorator factory
-- [`consoleTransport`](src/console-transport/console-transport.ts) — default `LogTransportInterface` forwarding to `console.log` / `console.debug` / `console.error`
-- [`LogTransportInterface`](src/interface/log-transport.interface.ts) — three methods (`log`, `debug`, `error`); plug in Pino, Winston, NestJS `Logger`, anything
-- [`CreateLogOptionsInterface`](src/interface/create-log-options.interface.ts) — `{ transport }`
-- [`PreLogInputType`](src/type/pre-log-input.type.ts) / [`PostLogInputType`](src/type/post-log-input.type.ts) / [`ErrorLogInputType`](src/type/error-log-input.type.ts) — string or spread-args function
-- [`GetResultType<T>`](src/type/get-result.type.ts) — unwraps `Promise<U>` / `Observable<U>` → `U`; used by the factory's generic constraint and re-exported so consumer-bound factories (for example `nestjs-enterprise`'s `Log`) stay portable under legacy CJS module resolution
+### `createLogDecorator`
+
+Factory; takes `{ transport }: CreateLogOptionsInterface` and returns the `@Log(preLog?, postLog?, errorLog?)` decorator factory used in the examples above.
+
+```ts
+import { createLogDecorator, consoleTransport } from '@rnw-community/log-decorator';
+
+const Log = createLogDecorator({ transport: consoleTransport });
+```
+
+### `consoleTransport`
+
+Default `LogTransportInterface` forwarding to `console.log` / `console.debug` / `console.error`.
+
+```ts
+import { consoleTransport } from '@rnw-community/log-decorator';
+
+consoleTransport.log('placing order 1', 'OrderService::placeOrder');
+```
+
+### `LogTransportInterface`
+
+Three methods (`log`, `debug`, `error`); implement it to plug in Pino, Winston, NestJS `Logger`, or anything else.
+
+```ts
+import type { LogTransportInterface } from '@rnw-community/log-decorator';
+
+const pinoTransport: LogTransportInterface = {
+    log: (message, logContext) => logger.info({ logContext }, message),
+    debug: (message, logContext) => logger.debug({ logContext }, message),
+    error: (message, error, logContext) => logger.error({ logContext, error }, message),
+};
+```
+
+### `CreateLogOptionsInterface`
+
+`{ transport: LogTransportInterface }` — the sole argument to `createLogDecorator`.
+
+```ts
+import { createLogDecorator } from '@rnw-community/log-decorator';
+
+import type { CreateLogOptionsInterface, LogTransportInterface } from '@rnw-community/log-decorator';
+
+declare const transport: LogTransportInterface;
+
+const options: CreateLogOptionsInterface = { transport };
+const Log = createLogDecorator(options);
+```
+
+### `PreLogInputType<TArgs>`
+
+`string | ((...args: TArgs) => string)` — the shape accepted by `@Log`'s first (`preLog`) hook.
+
+```ts
+import type { PreLogInputType } from '@rnw-community/log-decorator';
+
+const preLog: PreLogInputType<[orderId: string]> = orderId => `placing order ${orderId}`;
+```
+
+### `PostLogInputType<TArgs, TResult>`
+
+`string | ((result: TResult, ...args: TArgs) => string)` — the shape accepted by `@Log`'s second (`postLog`) hook.
+
+```ts
+import type { PostLogInputType } from '@rnw-community/log-decorator';
+
+const postLog: PostLogInputType<[orderId: string], { id: string }> = (result, orderId) =>
+    `order ${orderId} placed: ${result.id}`;
+```
+
+### `ErrorLogInputType<TArgs>`
+
+`string | ((error: unknown, ...args: TArgs) => string)` — the shape accepted by `@Log`'s third (`errorLog`) hook.
+
+```ts
+import type { ErrorLogInputType } from '@rnw-community/log-decorator';
+
+const errorLog: ErrorLogInputType<[orderId: string]> = (error, orderId) => `order ${orderId} failed: ${String(error)}`;
+```
+
+### `GetResultType<T>`
+
+Unwraps `Promise<U>` / `Observable<U>` → `U` (passes any other `T` through unchanged). Used by the factory's generic constraint and re-exported so consumer-bound factories (for example `nestjs-enterprise`'s `Log`) stay portable under legacy CJS module resolution.
+
+```ts
+import type { GetResultType } from '@rnw-community/log-decorator';
+
+type Unwrapped = GetResultType<Promise<{ id: string }>>; // { id: string }
+```
 
 ## Observable support
 
