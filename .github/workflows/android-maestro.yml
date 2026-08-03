@@ -225,9 +225,12 @@ jobs:
                       exit 1
                     fi
                     apk_path="${apks[0]}"
-                    unzip -l "$apk_path" | grep -q 'assets/index.android.bundle'
+                    apk_listing=$(unzip -l "$apk_path")
+                    grep -q 'assets/index.android.bundle' <<< "$apk_listing"
                     mkdir -p ".ci-cache/android-native-app/$TARGET"
                     cp "$apk_path" ".ci-cache/android-native-app/$TARGET/app-release.apk"
+                    mkdir -p "ci-artifacts/android-e2e-app-$TARGET"
+                    cp "$apk_path" "ci-artifacts/android-e2e-app-$TARGET/app-release.apk"
 
             -   name: Save canonical native app
                 if: steps.native-app-cache.outputs.cache-hit != 'true'
@@ -239,7 +242,7 @@ jobs:
             -   uses: actions/upload-artifact@v4
                 with:
                     name: android-e2e-app-${{ matrix.target }}
-                    path: .ci-cache/android-native-app/${{ matrix.target }}/app-release.apk
+                    path: ci-artifacts/android-e2e-app-${{ matrix.target }}/app-release.apk
                     retention-days: 1
 
     test:
