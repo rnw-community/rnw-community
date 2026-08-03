@@ -199,6 +199,24 @@ jobs:
                       echo "Duration: $((build_end - build_start))s"
                     } >> "$GITHUB_STEP_SUMMARY"
 
+            -   name: Diagnose NDK/cmake host architecture
+                if: always() && steps.native-app-cache.outputs.cache-hit != 'true'
+                run: |
+                    {
+                      echo "### NDK/cmake host arch diagnostic (${{ matrix.target }})"
+                      echo '```'
+                      echo "uname -m: $(uname -m)"
+                      echo "--- cmake binaries under ANDROID_HOME/cmake ---"
+                      find "$ANDROID_HOME/cmake" -type f -perm -u+x -iname 'cmake' 2>/dev/null | while read -r bin; do
+                        echo "$bin: $(file -b "$bin" 2>/dev/null || echo 'file unavailable')"
+                      done
+                      echo "--- ANDROID_HOME/ndk/*/toolchains/llvm/prebuilt listing ---"
+                      find "$ANDROID_HOME/ndk" -maxdepth 4 -type d -path '*/toolchains/llvm/prebuilt' 2>/dev/null | while read -r d; do
+                        echo "$d:"; ls -1 "$d" 2>/dev/null
+                      done
+                      echo '```'
+                    } >> "$GITHUB_STEP_SUMMARY"
+
             -   name: Save Gradle cache
                 if: steps.native-app-cache.outputs.cache-hit != 'true'
                 uses: actions/cache/save@v4
