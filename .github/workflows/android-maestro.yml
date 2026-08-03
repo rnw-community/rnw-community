@@ -147,11 +147,32 @@ jobs:
                       echo "Native fingerprint hit; embedded JS bundle dates from when this shell was cached."
                     } >> "$GITHUB_STEP_SUMMARY"
 
+            # accept-android-sdk-licenses is disabled here because the action's
+            # own "sdkmanager --licenses" call walks the dependency graph of the
+            # *entire* remote repository listing, unscoped to the packages this
+            # workflow actually needs. On this fleet's linux-aarch64 runners,
+            # that walk hits a package whose metadata declares a dependency on
+            # "emulator" that Google does not publish for this host
+            # architecture, and sdkmanager exits 1 before any package is even
+            # installed. Pre-seeding the two publicly documented license hashes
+            # below satisfies every consumer (this step's own `packages`
+            # install, Gradle, and reactivecircus/android-emulator-runner later
+            # in this workflow) without ever invoking the unscoped walk.
             -   name: Set up Android SDK
                 if: steps.native-app-cache.outputs.cache-hit != 'true'
                 uses: android-actions/setup-android@v3
                 with:
                     cmdline-tools-version: ${{ env.ANDROID_CMDLINE_TOOLS_VERSION }}
+                    accept-android-sdk-licenses: false
+                    packages: platform-tools
+
+            -   name: Accept Android SDK licenses
+                if: steps.native-app-cache.outputs.cache-hit != 'true'
+                run: |
+                    set -euo pipefail
+                    mkdir -p "$ANDROID_HOME/licenses"
+                    printf '24333f8a63b6825ea9c5514f83c2829b004d1fee\nd56f5187479451eabf01fb78af6dfcb131a6481e\n' > "$ANDROID_HOME/licenses/android-sdk-license"
+                    printf '84831b9409646a918e30573bab4c9c91346d8abd\n' > "$ANDROID_HOME/licenses/android-sdk-preview-license"
 
             -   name: Restore Gradle cache
                 if: steps.native-app-cache.outputs.cache-hit != 'true'
