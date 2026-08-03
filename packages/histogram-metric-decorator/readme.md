@@ -3,6 +3,7 @@
 Framework-agnostic method decorator that records call duration into any histogram transport (Prometheus, OpenTelemetry, in-memory, …). Built on [`@rnw-community/decorators-core`](https://github.com/rnw-community/rnw-community/tree/master/packages/decorators-core). Handles sync, `Promise`, and `Observable` return types with a single decorator. TypeScript `experimentalDecorators`.
 
 [![npm version](https://badge.fury.io/js/%40rnw-community%2Fhistogram-metric-decorator.svg)](https://badge.fury.io/js/%40rnw-community%2Fhistogram-metric-decorator)
+[![coverage](https://img.shields.io/codecov/c/github/rnw-community/rnw-community?flag=histogram-metric-decorator&label=coverage)](https://app.codecov.io/gh/rnw-community/rnw-community)
 [![npm downloads](https://img.shields.io/npm/dm/%40rnw-community%2Fhistogram-metric-decorator.svg)](https://www.npmjs.com/package/%40rnw-community%2Fhistogram-metric-decorator)
 
 ## When the observation fires
