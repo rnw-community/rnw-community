@@ -130,7 +130,7 @@ jobs:
                     echo "$HOME/.maestro/bin" >> "$GITHUB_PATH"
 
             -   name: Boot emulator, build, install, and test
-                uses: reactivecircus/android-emulator-runner@v2.34.0
+                uses: reactivecircus/android-emulator-runner@v2.38.0
                 with:
                     api-level: 34
                     target: google_apis
