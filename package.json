@@ -19,7 +19,7 @@
     "lint": "turbo run lint",
     "lint:fix": "turbo run lint:fix",
     "lint:force": "turbo run lint --force",
-    "publint": "turbo run build --filter=@rnw-community/shared --filter=@rnw-community/react-native-payments && publint run packages/shared && publint run packages/react-native-payments && attw --pack packages/shared --ignore-rules no-resolution internal-resolution-error && attw --pack packages/react-native-payments --ignore-rules no-resolution internal-resolution-error",
+    "publint": "turbo run build --filter=@rnw-community/shared --filter=@rnw-community/react-native-payments && publint run packages/shared && publint run packages/react-native-payments && attw --pack packages/shared --profile node16 --ignore-rules internal-resolution-error && attw --pack packages/react-native-payments --profile node16 --ignore-rules internal-resolution-error",
     "release": "lerna publish --yes --conventional-commits --create-release=github -m \"chore: release %s [skip ci]\"",
     "test": "turbo run test",
     "test:coverage": "turbo run test:coverage",

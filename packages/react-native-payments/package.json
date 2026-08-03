@@ -77,7 +77,7 @@
         "access": "public"
     },
     "engines": {
-        "node": ">=18.0.0"
+        "node": ">=20.19.4"
     },
     "scripts": {
         "ts": "run -T tsc --pretty -p tsconfig.json",
