@@ -14,195 +14,195 @@ coverage:
       decorators-core:
         flags:
           - decorators-core
-        target: 99.9
-        threshold: 0.5%
+        target: &target-default 99.9
+        threshold: &threshold-project-default 0.5%
       eslint-plugin:
         flags:
           - eslint-plugin
-        target: 94.1
-        threshold: 0.5%
+        target: &target-eslint-plugin 94.1
+        threshold: *threshold-project-default
       fast-style:
         flags:
           - fast-style
-        target: 99.9
-        threshold: 0.5%
+        target: *target-default
+        threshold: *threshold-project-default
       histogram-metric-decorator:
         flags:
           - histogram-metric-decorator
-        target: 99.9
-        threshold: 0.5%
+        target: *target-default
+        threshold: *threshold-project-default
       lock-decorator:
         flags:
           - lock-decorator
-        target: 99.9
-        threshold: 0.5%
+        target: *target-default
+        threshold: *threshold-project-default
       log-decorator:
         flags:
           - log-decorator
-        target: 99.9
-        threshold: 0.5%
+        target: *target-default
+        threshold: *threshold-project-default
       nestjs-enterprise:
         flags:
           - nestjs-enterprise
-        target: 99.9
-        threshold: 0.5%
+        target: *target-default
+        threshold: *threshold-project-default
       nestjs-rxjs-lock:
         flags:
           - nestjs-rxjs-lock
-        target: 99.9
-        threshold: 0.5%
+        target: *target-default
+        threshold: *threshold-project-default
       nestjs-rxjs-logger:
         flags:
           - nestjs-rxjs-logger
-        target: 99.9
-        threshold: 0.5%
+        target: *target-default
+        threshold: *threshold-project-default
       nestjs-rxjs-metrics:
         flags:
           - nestjs-rxjs-metrics
-        target: 99.9
-        threshold: 0.5%
+        target: *target-default
+        threshold: *threshold-project-default
       nestjs-rxjs-redis:
         flags:
           - nestjs-rxjs-redis
-        target: 99.9
-        threshold: 0.5%
+        target: *target-default
+        threshold: *threshold-project-default
       nestjs-typed-config:
         flags:
           - nestjs-typed-config
-        target: 99.9
-        threshold: 0.5%
+        target: *target-default
+        threshold: *threshold-project-default
       object-field-tree:
         flags:
           - object-field-tree
-        target: 99.9
-        threshold: 0.5%
+        target: *target-default
+        threshold: *threshold-project-default
       platform:
         flags:
           - platform
-        target: 99.9
-        threshold: 0.5%
+        target: *target-default
+        threshold: *threshold-project-default
       react-native-payments:
         flags:
           - react-native-payments
-        target: 100
-        threshold: 0%
+        target: &target-payments 100
+        threshold: &threshold-payments 0%
       redux-loadable:
         flags:
           - redux-loadable
-        target: 99.9
-        threshold: 0.5%
+        target: *target-default
+        threshold: *threshold-project-default
       rxjs-errors:
         flags:
           - rxjs-errors
-        target: 99.9
-        threshold: 0.5%
+        target: *target-default
+        threshold: *threshold-project-default
       shared:
         flags:
           - shared
-        target: 99.9
-        threshold: 0.5%
+        target: *target-default
+        threshold: *threshold-project-default
       wdio:
         flags:
           - wdio
-        target: 99.9
-        threshold: 0.5%
+        target: *target-default
+        threshold: *threshold-project-default
     patch:
       default: off
       decorators-core:
         flags:
           - decorators-core
-        target: 99.9
-        threshold: 1%
+        target: *target-default
+        threshold: &threshold-patch-default 1%
       eslint-plugin:
         flags:
           - eslint-plugin
-        target: 94.1
-        threshold: 1%
+        target: *target-eslint-plugin
+        threshold: *threshold-patch-default
       fast-style:
         flags:
           - fast-style
-        target: 99.9
-        threshold: 1%
+        target: *target-default
+        threshold: *threshold-patch-default
       histogram-metric-decorator:
         flags:
           - histogram-metric-decorator
-        target: 99.9
-        threshold: 1%
+        target: *target-default
+        threshold: *threshold-patch-default
       lock-decorator:
         flags:
           - lock-decorator
-        target: 99.9
-        threshold: 1%
+        target: *target-default
+        threshold: *threshold-patch-default
       log-decorator:
         flags:
           - log-decorator
-        target: 99.9
-        threshold: 1%
+        target: *target-default
+        threshold: *threshold-patch-default
       nestjs-enterprise:
         flags:
           - nestjs-enterprise
-        target: 99.9
-        threshold: 1%
+        target: *target-default
+        threshold: *threshold-patch-default
       nestjs-rxjs-lock:
         flags:
           - nestjs-rxjs-lock
-        target: 99.9
-        threshold: 1%
+        target: *target-default
+        threshold: *threshold-patch-default
       nestjs-rxjs-logger:
         flags:
           - nestjs-rxjs-logger
-        target: 99.9
-        threshold: 1%
+        target: *target-default
+        threshold: *threshold-patch-default
       nestjs-rxjs-metrics:
         flags:
           - nestjs-rxjs-metrics
-        target: 99.9
-        threshold: 1%
+        target: *target-default
+        threshold: *threshold-patch-default
       nestjs-rxjs-redis:
         flags:
           - nestjs-rxjs-redis
-        target: 99.9
-        threshold: 1%
+        target: *target-default
+        threshold: *threshold-patch-default
       nestjs-typed-config:
         flags:
           - nestjs-typed-config
-        target: 99.9
-        threshold: 1%
+        target: *target-default
+        threshold: *threshold-patch-default
       object-field-tree:
         flags:
           - object-field-tree
-        target: 99.9
-        threshold: 1%
+        target: *target-default
+        threshold: *threshold-patch-default
       platform:
         flags:
           - platform
-        target: 99.9
-        threshold: 1%
+        target: *target-default
+        threshold: *threshold-patch-default
       react-native-payments:
         flags:
           - react-native-payments
-        target: 100
-        threshold: 0%
+        target: *target-payments
+        threshold: *threshold-payments
       redux-loadable:
         flags:
           - redux-loadable
-        target: 99.9
-        threshold: 1%
+        target: *target-default
+        threshold: *threshold-patch-default
       rxjs-errors:
         flags:
           - rxjs-errors
-        target: 99.9
-        threshold: 1%
+        target: *target-default
+        threshold: *threshold-patch-default
       shared:
         flags:
           - shared
-        target: 99.9
-        threshold: 1%
+        target: *target-default
+        threshold: *threshold-patch-default
       wdio:
         flags:
           - wdio
-        target: 99.9
-        threshold: 1%
+        target: *target-default
+        threshold: *threshold-patch-default
 
 flags:
   decorators-core:
