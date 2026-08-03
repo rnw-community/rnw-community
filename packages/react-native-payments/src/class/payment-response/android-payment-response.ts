@@ -17,10 +17,11 @@ import type { AndroidSignedKey } from '../../@standard/android/response/android-
 import type { AndroidSignedMessage } from '../../@standard/android/response/android-signed-message';
 import type { PaymentResponseAddressInterface } from '../../interface/payment-response-address.interface';
 import type { PaymentResponseDetailsInterface } from '../../interface/payment-response-details.interface';
+import type { Maybe } from '@rnw-community/shared';
 
 export class AndroidPaymentResponse extends PaymentResponse {
-    constructor(requestId: string, methodName: string, jsonData: string) {
-        super(requestId, methodName, AndroidPaymentResponse.parseDetails(jsonData));
+    constructor(requestId: string, methodName: string, jsonData: string, shippingOption: Maybe<string> = null) {
+        super(requestId, methodName, AndroidPaymentResponse.parseDetails(jsonData), shippingOption);
     }
 
     private static parseDetails(jsonData: string): PaymentResponseDetailsInterface {

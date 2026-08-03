@@ -183,6 +183,19 @@ describe('AndroidPaymentResponse', () => {
         expect(details.payerPhone).toBe('');
     });
 
+    it('should forward an explicit shippingOption to the base PaymentResponse', () => {
+        expect.hasAssertions();
+
+        const response = new AndroidPaymentResponse(
+            'requestId',
+            PaymentMethodNameEnum.AndroidPay,
+            JSON.stringify(authorizedPayment),
+            'express'
+        );
+
+        expect(response.shippingOption).toBe('express');
+    });
+
     it('should throw a domain-specific error when the tokenization data is missing a token', () => {
         expect.hasAssertions();
 

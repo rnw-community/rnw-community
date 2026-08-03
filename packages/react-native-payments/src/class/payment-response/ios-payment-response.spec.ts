@@ -162,6 +162,19 @@ describe('IosPaymentResponse', () => {
         expect(construct).not.toThrow(TypeError);
     });
 
+    it('should forward an explicit shippingOption to the base PaymentResponse', () => {
+        expect.hasAssertions();
+
+        const response = new IosPaymentResponse(
+            'requestId',
+            PaymentMethodNameEnum.ApplePay,
+            JSON.stringify(authorizedPayment),
+            'express'
+        );
+
+        expect(response.shippingOption).toBe('express');
+    });
+
     it('should throw a domain-specific error when the token payment data is not valid JSON', () => {
         expect.hasAssertions();
 

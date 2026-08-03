@@ -15,10 +15,11 @@ import type { IosPKToken } from '../../@standard/ios/response/ios-pk-token';
 import type { IosRawPKToken } from '../../@standard/ios/response/ios-raw-pk-token';
 import type { PaymentResponseAddressInterface } from '../../interface/payment-response-address.interface';
 import type { PaymentResponseDetailsInterface } from '../../interface/payment-response-details.interface';
+import type { Maybe } from '@rnw-community/shared';
 
 export class IosPaymentResponse extends PaymentResponse {
-    constructor(requestId: string, methodName: string, jsonData: string) {
-        super(requestId, methodName, IosPaymentResponse.parseDetails(jsonData));
+    constructor(requestId: string, methodName: string, jsonData: string, shippingOption: Maybe<string> = null) {
+        super(requestId, methodName, IosPaymentResponse.parseDetails(jsonData), shippingOption);
     }
 
     private static parseDetails(jsonData: string): PaymentResponseDetailsInterface {

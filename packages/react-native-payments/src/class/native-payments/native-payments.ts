@@ -3,6 +3,7 @@ import { NativeModules, Platform } from 'react-native';
 import { isDefined } from '@rnw-community/shared';
 
 import type { NativePaymentsChangeEventsInterface } from '../../interface/native-payments-change-events.interface';
+import type { NativePaymentsRetryInterface } from '../../interface/native-payments-retry.interface';
 import type { Spec } from '../../NativePayments';
 
 const LINKING_ERROR = `The package 'react-native-payments' doesn't seem to be linked. Make sure: \n\n${Platform.select({
@@ -10,11 +11,14 @@ const LINKING_ERROR = `The package 'react-native-payments' doesn't seem to be li
     default: '',
 })}- You rebuilt the app after installing the package\n- You are not using Expo Go\n`;
 
-type NativePaymentsType = NativePaymentsChangeEventsInterface & Omit<Spec, keyof NativePaymentsChangeEventsInterface>;
+type NativePaymentsOptionalInterface = NativePaymentsChangeEventsInterface & NativePaymentsRetryInterface;
 
-const changeEventMethodNames = new Set<PropertyKey>([
+type NativePaymentsType = NativePaymentsOptionalInterface & Omit<Spec, keyof NativePaymentsOptionalInterface>;
+
+const optionalNativeMethodNames = new Set<PropertyKey>([
     'addListener',
     'removeListeners',
+    'retry',
     'setActiveEvents',
     'updatePaymentDetails',
 ]);
@@ -32,7 +36,7 @@ const PaymentsProxy = new Proxy(
     {},
     {
         get(_target: object, propertyName: PropertyKey) {
-            if (changeEventMethodNames.has(propertyName)) {
+            if (optionalNativeMethodNames.has(propertyName)) {
                 return void 0;
             }
 
