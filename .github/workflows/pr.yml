@@ -58,6 +58,9 @@ jobs:
             -   name: ESLint checks
                 run: yarn turbo run lint --affected
 
+            -   name: Publish hygiene checks (publint, attw)
+                run: yarn publint
+
             -   name: Find dead code
                 run: yarn deadcode
 
@@ -74,10 +77,115 @@ jobs:
                     fail_ci_if_error: true
                     verbose: true
 
+    package-manager-smoke:
+        name: Package manager smoke (${{ matrix.package-manager }})
+        timeout-minutes: 10
+        runs-on: ubuntu-latest
+        permissions:
+            contents: read
+        strategy:
+            fail-fast: false
+            matrix:
+                package-manager: [npm, yarn, pnpm, bun]
+
+        steps:
+            -   name: Checkout repository
+                uses: actions/checkout@v5
+
+            -   name: Setup Node
+                uses: actions/setup-node@v5
+                with:
+                    node-version: 22.x
+                    cache: yarn
+
+            -   name: Enable corepack
+                run: corepack enable
+
+            -   name: Install dependencies
+                run: yarn install --immutable
+
+            -   name: Build shared and react-native-payments
+                run: yarn turbo run build --filter=@rnw-community/shared --filter=@rnw-community/react-native-payments
+
+            -   name: Pack tarballs
+                run: npm pack --silent --pack-destination "$RUNNER_TEMP/tarballs" ./packages/shared ./packages/react-native-payments
+
+            -   name: Scaffold smoke project
+                run: |
+                    mkdir -p "$RUNNER_TEMP/smoke"
+                    cat > "$RUNNER_TEMP/smoke/package.json" <<JSON
+                    {
+                      "name": "smoke-${{ matrix.package-manager }}",
+                      "private": true,
+                      "version": "1.0.0",
+                      "dependencies": {
+                        "@rnw-community/react-native-payments": "file:$(ls "$RUNNER_TEMP"/tarballs/rnw-community-react-native-payments-*.tgz)",
+                        "@rnw-community/shared": "file:$(ls "$RUNNER_TEMP"/tarballs/rnw-community-shared-*.tgz)",
+                        "react": "^19.2.3",
+                        "react-native": "^0.86.2"
+                      },
+                      "devDependencies": {
+                        "@types/react": "^19.2.0",
+                        "typescript": "^5.9.3"
+                      }
+                    }
+                    JSON
+                    cat > "$RUNNER_TEMP/smoke/smoke.ts" <<'TS'
+                    import type { PaymentDetailsInit } from '@rnw-community/react-native-payments';
+                    import { PaymentRequest } from '@rnw-community/react-native-payments';
+
+                    const details: PaymentDetailsInit | undefined = undefined;
+
+                    void PaymentRequest;
+                    void details;
+                    TS
+
+            -   name: Set up pnpm
+                if: matrix.package-manager == 'pnpm'
+                uses: pnpm/action-setup@v4
+                with:
+                    version: 9
+
+            -   name: Set up bun
+                if: matrix.package-manager == 'bun'
+                uses: oven-sh/setup-bun@v2
+
+            -   name: Install tarball with npm
+                if: matrix.package-manager == 'npm'
+                working-directory: ${{ runner.temp }}/smoke
+                run: npm install --no-audit --no-fund
+
+            -   name: Install tarball with yarn
+                if: matrix.package-manager == 'yarn'
+                working-directory: ${{ runner.temp }}/smoke
+                run: yarn install --no-lockfile
+
+            -   name: Install tarball with pnpm
+                if: matrix.package-manager == 'pnpm'
+                working-directory: ${{ runner.temp }}/smoke
+                run: pnpm install --no-frozen-lockfile
+
+            -   name: Install tarball with bun
+                if: matrix.package-manager == 'bun'
+                working-directory: ${{ runner.temp }}/smoke
+                run: bun install
+
+            -   name: Resolve require (CJS) condition
+                working-directory: ${{ runner.temp }}/smoke
+                run: node -e "require.resolve('@rnw-community/react-native-payments')"
+
+            -   name: Resolve import (ESM) condition
+                working-directory: ${{ runner.temp }}/smoke
+                run: node --input-type=module -e "import.meta.resolve('@rnw-community/react-native-payments')"
+
+            -   name: Typecheck against shipped types
+                working-directory: ${{ runner.temp }}/smoke
+                run: ./node_modules/.bin/tsc --noEmit --strict --target es2021 --lib es2021,dom --module esnext --moduleResolution bundler --jsx react smoke.ts
+
     required-checks:
         name: Required checks
         if: always()
-        needs: [code-quality]
+        needs: [code-quality, package-manager-smoke]
         timeout-minutes: 5
         runs-on: ubuntu-latest
         permissions: {}
@@ -86,9 +194,11 @@ jobs:
             -   name: Verify required jobs succeeded
                 env:
                     CODE_QUALITY_RESULT: ${{ needs.code-quality.result }}
+                    PACKAGE_MANAGER_SMOKE_RESULT: ${{ needs.package-manager-smoke.result }}
                 run: |
                     echo "code-quality=${CODE_QUALITY_RESULT}"
-                    if [ "${CODE_QUALITY_RESULT}" != 'success' ]; then
+                    echo "package-manager-smoke=${PACKAGE_MANAGER_SMOKE_RESULT}"
+                    if [ "${CODE_QUALITY_RESULT}" != 'success' ] || [ "${PACKAGE_MANAGER_SMOKE_RESULT}" != 'success' ]; then
                       echo "Required jobs did not pass"
                       exit 1
                     fi
