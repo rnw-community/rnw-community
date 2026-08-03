@@ -1,96 +1,283 @@
+codecov:
+  require_ci_to_pass: true
+
+comment:
+  layout: "condensed_header, diff, flags, condensed_footer"
+  require_changes: true
+
 coverage:
+  precision: 2
+  round: down
   status:
     project:
       default: off
+      decorators-core:
+        flags:
+          - decorators-core
+        target: &target-default 99.9
+        threshold: &threshold-project-default 0.5%
+      eslint-plugin:
+        flags:
+          - eslint-plugin
+        target: &target-eslint-plugin 94.1
+        threshold: *threshold-project-default
       fast-style:
         flags:
           - fast-style
-      hoverable:
+        target: *target-default
+        threshold: *threshold-project-default
+      histogram-metric-decorator:
         flags:
-          - hoverable
+          - histogram-metric-decorator
+        target: *target-default
+        threshold: *threshold-project-default
+      lock-decorator:
+        flags:
+          - lock-decorator
+        target: *target-default
+        threshold: *threshold-project-default
+      log-decorator:
+        flags:
+          - log-decorator
+        target: *target-default
+        threshold: *threshold-project-default
+      nestjs-enterprise:
+        flags:
+          - nestjs-enterprise
+        target: *target-default
+        threshold: *threshold-project-default
       nestjs-rxjs-lock:
         flags:
           - nestjs-rxjs-lock
+        target: *target-default
+        threshold: *threshold-project-default
       nestjs-rxjs-logger:
         flags:
           - nestjs-rxjs-logger
+        target: *target-default
+        threshold: *threshold-project-default
       nestjs-rxjs-metrics:
         flags:
           - nestjs-rxjs-metrics
+        target: *target-default
+        threshold: *threshold-project-default
       nestjs-rxjs-redis:
         flags:
           - nestjs-rxjs-redis
+        target: *target-default
+        threshold: *threshold-project-default
       nestjs-typed-config:
         flags:
           - nestjs-typed-config
-      nestjs-webpack-swc:
-        flags:
-          - nestjs-webpack-swc
+        target: *target-default
+        threshold: *threshold-project-default
       object-field-tree:
         flags:
           - object-field-tree
+        target: *target-default
+        threshold: *threshold-project-default
       platform:
         flags:
           - platform
+        target: *target-default
+        threshold: *threshold-project-default
       react-native-payments:
         flags:
           - react-native-payments
+        target: &target-payments 100
+        threshold: &threshold-payments 0%
       redux-loadable:
         flags:
           - redux-loadable
+        target: *target-default
+        threshold: *threshold-project-default
       rxjs-errors:
         flags:
           - rxjs-errors
+        target: *target-default
+        threshold: *threshold-project-default
       shared:
         flags:
           - shared
+        target: *target-default
+        threshold: *threshold-project-default
       wdio:
         flags:
           - wdio
+        target: *target-default
+        threshold: *threshold-project-default
+    patch:
+      default: off
+      decorators-core:
+        flags:
+          - decorators-core
+        target: *target-default
+        threshold: &threshold-patch-default 1%
+      eslint-plugin:
+        flags:
+          - eslint-plugin
+        target: *target-eslint-plugin
+        threshold: *threshold-patch-default
+      fast-style:
+        flags:
+          - fast-style
+        target: *target-default
+        threshold: *threshold-patch-default
+      histogram-metric-decorator:
+        flags:
+          - histogram-metric-decorator
+        target: *target-default
+        threshold: *threshold-patch-default
+      lock-decorator:
+        flags:
+          - lock-decorator
+        target: *target-default
+        threshold: *threshold-patch-default
+      log-decorator:
+        flags:
+          - log-decorator
+        target: *target-default
+        threshold: *threshold-patch-default
+      nestjs-enterprise:
+        flags:
+          - nestjs-enterprise
+        target: *target-default
+        threshold: *threshold-patch-default
+      nestjs-rxjs-lock:
+        flags:
+          - nestjs-rxjs-lock
+        target: *target-default
+        threshold: *threshold-patch-default
+      nestjs-rxjs-logger:
+        flags:
+          - nestjs-rxjs-logger
+        target: *target-default
+        threshold: *threshold-patch-default
+      nestjs-rxjs-metrics:
+        flags:
+          - nestjs-rxjs-metrics
+        target: *target-default
+        threshold: *threshold-patch-default
+      nestjs-rxjs-redis:
+        flags:
+          - nestjs-rxjs-redis
+        target: *target-default
+        threshold: *threshold-patch-default
+      nestjs-typed-config:
+        flags:
+          - nestjs-typed-config
+        target: *target-default
+        threshold: *threshold-patch-default
+      object-field-tree:
+        flags:
+          - object-field-tree
+        target: *target-default
+        threshold: *threshold-patch-default
+      platform:
+        flags:
+          - platform
+        target: *target-default
+        threshold: *threshold-patch-default
+      react-native-payments:
+        flags:
+          - react-native-payments
+        target: *target-payments
+        threshold: *threshold-payments
+      redux-loadable:
+        flags:
+          - redux-loadable
+        target: *target-default
+        threshold: *threshold-patch-default
+      rxjs-errors:
+        flags:
+          - rxjs-errors
+        target: *target-default
+        threshold: *threshold-patch-default
+      shared:
+        flags:
+          - shared
+        target: *target-default
+        threshold: *threshold-patch-default
+      wdio:
+        flags:
+          - wdio
+        target: *target-default
+        threshold: *threshold-patch-default
 
 flags:
+  decorators-core:
+    carryforward: true
+    paths:
+      - packages/decorators-core/
+  eslint-plugin:
+    carryforward: true
+    paths:
+      - packages/eslint-plugin/
   fast-style:
+    carryforward: true
     paths:
       - packages/fast-style/
-  hoverable:
+  histogram-metric-decorator:
+    carryforward: true
     paths:
-      - packages/hoverable/
+      - packages/histogram-metric-decorator/
+  lock-decorator:
+    carryforward: true
+    paths:
+      - packages/lock-decorator/
+  log-decorator:
+    carryforward: true
+    paths:
+      - packages/log-decorator/
+  nestjs-enterprise:
+    carryforward: true
+    paths:
+      - packages/nestjs-enterprise/
   nestjs-rxjs-lock:
+    carryforward: true
     paths:
       - packages/nestjs-rxjs-lock/
   nestjs-rxjs-logger:
+    carryforward: true
     paths:
       - packages/nestjs-rxjs-logger/
   nestjs-rxjs-metrics:
+    carryforward: true
     paths:
       - packages/nestjs-rxjs-metrics/
   nestjs-rxjs-redis:
+    carryforward: true
     paths:
       - packages/nestjs-rxjs-redis/
   nestjs-typed-config:
+    carryforward: true
     paths:
       - packages/nestjs-typed-config/
-  nestjs-webpack-swc:
-    paths:
-      - packages/nestjs-webpack-swc/
   object-field-tree:
+    carryforward: true
     paths:
       - packages/object-field-tree/
   platform:
+    carryforward: true
     paths:
       - packages/platform/
   react-native-payments:
+    carryforward: true
     paths:
       - packages/react-native-payments/
   redux-loadable:
+    carryforward: true
     paths:
       - packages/redux-loadable/
   rxjs-errors:
+    carryforward: true
     paths:
       - packages/rxjs-errors/
   shared:
+    carryforward: true
     paths:
       - packages/shared/
   wdio:
+    carryforward: true
     paths:
       - packages/wdio/
