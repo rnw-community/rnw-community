@@ -3,6 +3,7 @@
 NestJS redis wrapper for using with RxJS streams.
 
 [![npm version](https://badge.fury.io/js/%40rnw-community%2Fnestjs-rxjs-redis.svg)](https://badge.fury.io/js/%40rnw-community%2Fnestjs-rxjs-redis)
+[![coverage](https://img.shields.io/codecov/c/github/rnw-community/rnw-community?flag=nestjs-rxjs-redis&label=coverage)](https://app.codecov.io/gh/rnw-community/rnw-community)
 [![npm downloads](https://img.shields.io/npm/dm/%40rnw-community%2Fnestjs-rxjs-redis.svg)](https://www.npmjs.com/package/%40rnw-community%2Fnestjs-rxjs-redis)
 
 ## TODO

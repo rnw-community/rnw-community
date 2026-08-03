@@ -3,6 +3,7 @@
 NestJS default logger wrapper for using with RxJS streams.
 
 [![npm version](https://badge.fury.io/js/%40rnw-community%2Fnestjs-rxjs-logger.svg)](https://badge.fury.io/js/%40rnw-community%2Fnestjs-rxjs-logger)
+[![coverage](https://img.shields.io/codecov/c/github/rnw-community/rnw-community?flag=nestjs-rxjs-logger&label=coverage)](https://app.codecov.io/gh/rnw-community/rnw-community)
 [![npm downloads](https://img.shields.io/npm/dm/%40rnw-community%2Fnestjs-rxjs-logger.svg)](https://www.npmjs.com/package/%40rnw-community%2Fnestjs-rxjs-logger)
 
 ## Supported log levels
