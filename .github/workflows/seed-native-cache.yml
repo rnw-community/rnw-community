@@ -256,7 +256,12 @@ jobs:
 
     seed-android:
         name: Seed Android native app (${{ matrix.target }})
-        runs-on: [self-hosted, linux-tiered, linux-xl]
+        # Runs on the same self-hosted macOS fleet as seed-ios, not a Linux
+        # runner — see android-maestro.yml's header comment for the full
+        # rationale (Google publishes no linux-aarch64 Android SDK cmake/NDK
+        # binaries; the NDK's "darwin-x86_64" toolchain is a universal binary
+        # that runs natively on Apple Silicon).
+        runs-on: [self-hosted, macOS, ARM64, macos-maestro]
         timeout-minutes: 60
         strategy:
             fail-fast: false
@@ -315,11 +320,10 @@ jobs:
             # accept-android-sdk-licenses is disabled here for the same reason
             # as android-maestro.yml's identical step: the action's own
             # "sdkmanager --licenses" call walks the entire remote repository
-            # listing, unscoped to the packages this job needs, and that walk
-            # fails on this fleet's linux-aarch64 runners on a package
-            # depending on "emulator", which Google does not publish for this
-            # host architecture. Pre-seeding the two publicly documented
-            # license hashes below avoids the unscoped walk entirely.
+            # listing, unscoped to the packages this job needs — including
+            # legacy, deprecated packages this job never touches. Pre-seeding
+            # the two publicly documented license hashes below avoids the
+            # unscoped walk entirely, on any host platform.
             -   name: Set up Android SDK
                 if: steps.native-app-cache.outputs.cache-hit != 'true'
                 uses: android-actions/setup-android@9fc6c4e9069bf8d3d10b2204b1fb8f6ef7065407 # v3.2.2
@@ -335,6 +339,13 @@ jobs:
                     mkdir -p "$ANDROID_HOME/licenses"
                     printf '24333f8a63b6825ea9c5514f83c2829b004d1fee\nd56f5187479451eabf01fb78af6dfcb131a6481e\n' > "$ANDROID_HOME/licenses/android-sdk-license"
                     printf '84831b9409646a918e30573bab4c9c91346d8abd\n' > "$ANDROID_HOME/licenses/android-sdk-preview-license"
+
+            -   name: Setup JDK
+                if: steps.native-app-cache.outputs.cache-hit != 'true'
+                uses: actions/setup-java@d7793b545071e98d581d3bf084a51c3213318a07 # v4.9.0
+                with:
+                    distribution: temurin
+                    java-version: '17'
 
             -   name: Restore Gradle cache
                 if: steps.native-app-cache.outputs.cache-hit != 'true'

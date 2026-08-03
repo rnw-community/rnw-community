@@ -2,9 +2,23 @@ name: Android Maestro E2E
 
 # Draft workflow for issue #395 (react-native-payments revival, epic #372),
 # canary-optimized per issue #447: fingerprinted native-app cache seeded by
-# seed-native-cache.yml plus a build/test split with Maestro shards. The
-# self-hosted Linux fleet is a single runner, so shard matrix jobs queue
-# rather than run concurrently — that is expected and safe.
+# seed-native-cache.yml plus a build/test split with Maestro shards.
+#
+# Runs on the self-hosted macOS fleet (macos-maestro), not a Linux runner:
+# Google does not publish linux-aarch64 builds of the Android SDK's cmake,
+# NDK toolchain, or emulator packages (confirmed against this fleet's actual
+# runner and Google's own issue tracker, issuetracker.google.com/issues/397407933)
+# — sdkmanager silently installs the x86_64 Linux binaries regardless of host
+# arch, and executing them on this fleet's linux-aarch64 runners fails at the
+# kernel level (surfaces as a shell "Syntax error" from the exec-format
+# mismatch, not a clean error message). The Android NDK's "darwin-x86_64"
+# toolchain, despite the name, ships as a universal (fat) Mach-O binary that
+# runs natively on Apple Silicon, so the identical native-build step that is
+# structurally broken on linux-aarch64 works unmodified here. Trade-off: iOS
+# and Android now share the one mac runner and queue serially instead of
+# running in parallel across two runner pools — acceptable until an
+# x86_64 Linux runner joins the fleet, which would let Android move back to
+# Linux (or run on both) for real parallelism.
 on:
     workflow_dispatch:
     pull_request:
@@ -79,7 +93,7 @@ jobs:
         name: Build (${{ matrix.target }})
         needs: detect
         if: needs.detect.outputs.payments_affected == 'true'
-        runs-on: [self-hosted, linux-tiered, linux-xl]
+        runs-on: [self-hosted, macOS, ARM64, macos-maestro]
         timeout-minutes: 60
         strategy:
             fail-fast: false
@@ -148,16 +162,15 @@ jobs:
                     } >> "$GITHUB_STEP_SUMMARY"
 
             # accept-android-sdk-licenses is disabled here because the action's
-            # own "sdkmanager --licenses" call walks the dependency graph of the
-            # *entire* remote repository listing, unscoped to the packages this
-            # workflow actually needs. On this fleet's linux-aarch64 runners,
-            # that walk hits a package whose metadata declares a dependency on
-            # "emulator" that Google does not publish for this host
-            # architecture, and sdkmanager exits 1 before any package is even
-            # installed. Pre-seeding the two publicly documented license hashes
-            # below satisfies every consumer (this step's own `packages`
-            # install, Gradle, and reactivecircus/android-emulator-runner later
-            # in this workflow) without ever invoking the unscoped walk.
+            # own "sdkmanager --licenses" call walks the dependency graph of
+            # the *entire* remote repository listing, unscoped to the
+            # packages this workflow actually needs — including legacy,
+            # deprecated packages this workflow never touches. Pre-seeding
+            # the two publicly documented license hashes below satisfies
+            # every consumer (this step's own `packages` install, Gradle,
+            # and reactivecircus/android-emulator-runner later in this
+            # workflow) without ever invoking that unscoped walk, on any
+            # host platform.
             -   name: Set up Android SDK
                 if: steps.native-app-cache.outputs.cache-hit != 'true'
                 uses: android-actions/setup-android@v3
@@ -173,6 +186,13 @@ jobs:
                     mkdir -p "$ANDROID_HOME/licenses"
                     printf '24333f8a63b6825ea9c5514f83c2829b004d1fee\nd56f5187479451eabf01fb78af6dfcb131a6481e\n' > "$ANDROID_HOME/licenses/android-sdk-license"
                     printf '84831b9409646a918e30573bab4c9c91346d8abd\n' > "$ANDROID_HOME/licenses/android-sdk-preview-license"
+
+            -   name: Setup JDK
+                if: steps.native-app-cache.outputs.cache-hit != 'true'
+                uses: actions/setup-java@v4
+                with:
+                    distribution: temurin
+                    java-version: '17'
 
             -   name: Restore Gradle cache
                 if: steps.native-app-cache.outputs.cache-hit != 'true'
@@ -267,7 +287,7 @@ jobs:
         name: Maestro shard ${{ matrix.shard-index }} (${{ matrix.target }})
         needs: [detect, build]
         if: needs.detect.outputs.payments_affected == 'true'
-        runs-on: [self-hosted, linux-tiered, linux-xl]
+        runs-on: [self-hosted, macOS, ARM64, macos-maestro]
         timeout-minutes: 60
         strategy:
             fail-fast: false
@@ -296,6 +316,30 @@ jobs:
                     name: android-e2e-app-${{ matrix.target }}
                     path: .ci-artifacts/android-e2e-app-${{ matrix.target }}
 
+            # This job runs in a separate execution context from `build`, so it
+            # needs its own JDK and ANDROID_HOME — reactivecircus/android-emulator-runner
+            # itself is JVM-tooled (avdmanager/sdkmanager) and requires
+            # ANDROID_HOME to already point at a valid SDK before it runs.
+            -   name: Setup JDK
+                uses: actions/setup-java@v4
+                with:
+                    distribution: temurin
+                    java-version: '17'
+
+            -   name: Set up Android SDK
+                uses: android-actions/setup-android@v3
+                with:
+                    cmdline-tools-version: ${{ env.ANDROID_CMDLINE_TOOLS_VERSION }}
+                    accept-android-sdk-licenses: false
+                    packages: platform-tools
+
+            -   name: Accept Android SDK licenses
+                run: |
+                    set -euo pipefail
+                    mkdir -p "$ANDROID_HOME/licenses"
+                    printf '24333f8a63b6825ea9c5514f83c2829b004d1fee\nd56f5187479451eabf01fb78af6dfcb131a6481e\n' > "$ANDROID_HOME/licenses/android-sdk-license"
+                    printf '84831b9409646a918e30573bab4c9c91346d8abd\n' > "$ANDROID_HOME/licenses/android-sdk-preview-license"
+
             -   name: Install Maestro
                 run: |
                     maestro_bin="$HOME/.maestro/bin/maestro"
@@ -304,12 +348,20 @@ jobs:
                     fi
                     echo "$HOME/.maestro/bin" >> "$GITHUB_PATH"
 
+            # arch: arm64-v8a matches this fleet's Apple Silicon hosts natively,
+            # accelerated via macOS's Hypervisor.Framework — an x86_64 image
+            # here would run unaccelerated (Apple Silicon's HVF only
+            # virtualizes arm64 guests) and be prohibitively slow. api-level
+            # is pinned to 30 rather than the Linux config's 34: arm64-v8a
+            # system images are only published for a subset of API levels,
+            # and 30 is the documented, broadly-available one (30 > this
+            # app's minSdkVersion 24, so app installation is unaffected).
             -   name: Boot emulator, install app, and run Maestro shard
                 uses: reactivecircus/android-emulator-runner@v2.34.0
                 with:
-                    api-level: 34
+                    api-level: 30
                     target: google_apis
-                    arch: x86_64
+                    arch: arm64-v8a
                     profile: pixel_6
                     disable-animations: true
                     disable-spellchecker: true
