@@ -1,0 +1,33 @@
+# `PaymentsError`
+
+A plain domain error for failures the W3C spec does not name. Reach for `instanceof Error` with
+`name === 'Error'` to catch it; it is the catch-all for native bridge and payload-parsing failures.
+
+## How
+
+| Trigger |
+| --- |
+| `show()` rejecting with a non-`Error` reason from the native module bridge (an `Error` reason is propagated as-is instead). |
+| Every `abort()` rejection from the native module bridge, regardless of the rejection reason's type. |
+| A native payment response payload that fails to parse (malformed or incomplete JSON, including direct construction of `AndroidPaymentResponse`/`IosPaymentResponse` with malformed tokenization data). |
+
+## Example
+
+```ts
+try {
+    await paymentRequest.abort();
+} catch (error) {
+    if (error instanceof Error && error.name === 'Error') {
+        // native bridge rejection
+    }
+}
+```
+
+## Pitfalls
+
+Not spec-mandated — do not branch on `error.name` the way you would for `DOMException`; use `instanceof
+PaymentsError` (or `instanceof Error` plus `name === 'Error'`) instead.
+
+## References
+
+- [guides/errors.md](../guides/errors.md)
