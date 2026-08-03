@@ -10,7 +10,7 @@ yarn test && yarn test:coverage && yarn build && yarn ts && yarn lint:fix
 
 ## Architecture
 
-```
+```text
 src/
   interface/
     create-log-options.interface.ts  — CreateLogOptionsInterface: { transport }

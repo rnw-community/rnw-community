@@ -10,7 +10,7 @@ yarn test && yarn test:coverage && yarn build && yarn ts && yarn lint:fix
 
 ## Architecture
 
-```
+```text
 src/
   index.ts                                — barrel: module, service
   nestjs-rxjs-metrics.module.ts           — NestJSRxJSMetricsModule.create<C,G,H,S,HL,SL>()

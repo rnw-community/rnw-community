@@ -10,7 +10,7 @@ yarn test && yarn test:coverage && yarn build && yarn ts && yarn lint:fix
 
 ## Architecture
 
-```
+```text
 src/
   add-wdio-commands.ts — addWdioCommands(browser) entry point, registers every command below
   wdio.d.ts         — ambient `WebdriverIO` namespace augmentation (Element/Browser/MultiRemoteBrowser

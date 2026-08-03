@@ -16,7 +16,7 @@ percentage to report for this package, and none should be assumed or backfilled 
 
 ## Architecture
 
-```
+```text
 src/
   index.ts                                     — barrel: `export * from './typeorm'` + `export * from './hmr'`
                                                   (does NOT re-export config/ — see Subpath Exports)

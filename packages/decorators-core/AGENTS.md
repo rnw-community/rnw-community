@@ -10,7 +10,7 @@ yarn test && yarn test:coverage && yarn build && yarn ts && yarn lint:fix
 
 ## Architecture
 
-```
+```text
 src/
   interface/
     execution-context.interface.ts        — ExecutionContextInterface<TArgs>: { className, methodName, args, logContext }

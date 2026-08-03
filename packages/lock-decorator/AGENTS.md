@@ -10,7 +10,7 @@ yarn test && yarn test:coverage && yarn build && yarn ts && yarn lint:fix
 
 ## Architecture
 
-```
+```text
 src/
   error/
     lock-acquire-timeout-error/  — LockAcquireTimeoutError(key, timeoutMs, { cause? }) + spec

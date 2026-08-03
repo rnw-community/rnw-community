@@ -10,7 +10,7 @@ yarn test && yarn test:coverage && yarn build && yarn ts && yarn lint:fix
 
 ## Architecture
 
-```
+```text
 src/
   index.ts                            — barrel: service, module (named exports, not `export *`)
   nestjs-rxjs-redis-core.module.ts    — @Global() NestJSRxJSRedisCoreModule.forRootAsync(options)

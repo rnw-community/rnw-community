@@ -10,7 +10,7 @@ yarn test && yarn test:coverage && yarn build && yarn ts && yarn lint:fix
 
 ## Architecture
 
-```
+```text
 src/
   type/
     data-fn.type.ts    — DataFn1..DataFn5: (t1: keyof T1, ..., tN: keyof TN) => D

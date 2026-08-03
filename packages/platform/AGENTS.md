@@ -10,7 +10,7 @@ yarn test && yarn test:coverage && yarn build && yarn ts && yarn lint:fix
 
 ## Architecture
 
-```
+```text
 src/
   platform/
     platform.ts       — isWeb, isIOS, isAndroid, isMobile: booleans derived once from react-native's Platform.OS

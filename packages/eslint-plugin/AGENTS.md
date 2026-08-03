@@ -10,7 +10,7 @@ yarn test && yarn test:coverage && yarn build && yarn ts && yarn lint:fix
 
 ## Architecture
 
-```
+```text
 src/
   index.ts       — plugin object (meta, configs.recommended, configs['flat/recommended'], rules); `export = plugin`
   rules/

@@ -10,7 +10,7 @@ yarn test && yarn test:coverage && yarn build && yarn ts && yarn lint:fix
 
 ## Architecture
 
-```
+```text
 src/
   index.ts                          — barrel: module, service
   env.type.ts                       — EnvType<T, K extends keyof T> = T[K] (indexed access utility type)

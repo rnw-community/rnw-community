@@ -10,7 +10,7 @@ yarn test && yarn test:coverage && yarn build && yarn ts && yarn lint:fix
 
 ## Architecture
 
-```
+```text
 src/
   index.ts                                 — barrel: options, module, service
   nestjs-rxjs-lock-module.options.ts       — NestJSRxJSLockModuleOptions (extends redlock's Settings + defaultExpireMs);

@@ -10,7 +10,7 @@ yarn test && yarn test:coverage && yarn build && yarn ts && yarn lint:fix
 
 ## Architecture
 
-```
+```text
 src/
   interface/
     create-histogram-metric-options.interface.ts — CreateHistogramMetricOptionsInterface: { transport, onLabelsError? }

@@ -10,7 +10,7 @@ yarn test && yarn test:coverage && yarn build && yarn ts && yarn lint:fix
 
 ## Architecture
 
-```
+```text
 src/
   type/
     pre-decorator-function.type.ts   — PreDecoratorFunction<TArgs, TResult = string> = (...args: TArgs) => TResult

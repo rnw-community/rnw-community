@@ -11,7 +11,7 @@ yarn test && yarn test:coverage && yarn build && yarn ts && yarn lint:fix
 
 ## Architecture
 
-```
+```text
 src/
   interface/
     loading-state.interface.ts    — LoadingStateInterface { error: string; isLoading: boolean; isPristine: boolean } + initialLoadingState

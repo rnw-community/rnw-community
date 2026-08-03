@@ -4,7 +4,7 @@ Private. Single example package for the Payment Request API library, with one sh
 
 ## Layout
 
-```
+```text
 src/
   index.ts                       — exports `App`
   component/                     — app.tsx, demo-status.tsx, request-builder-form.tsx, demo-actions.tsx,

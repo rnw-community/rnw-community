@@ -10,7 +10,7 @@ yarn test && yarn test:coverage && yarn build && yarn ts && yarn lint:fix
 
 ## Architecture
 
-```
+```text
 src/
   type/                             — TypeScript utility types, one folder per entity
     maybe-type/                     — Maybe<T> = T | null
