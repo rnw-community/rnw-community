@@ -82,7 +82,7 @@
     },
     "gitHead": "4fd24bd92936d1793f8f7ff08d6420fce4f211d9",
     "dependencies": {
-        "@expo/config-plugins": "^9.1.7",
+        "@expo/config-plugins": "^57.0.6",
         "@rnw-community/shared": "^2.9.0",
         "react-native-uuid": "^2.0.4"
     },
