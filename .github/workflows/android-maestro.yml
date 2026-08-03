@@ -109,7 +109,7 @@ jobs:
                 run: yarn prebuild:expo
 
             -   name: Set up Android SDK
-                uses: android-actions/setup-android@v3
+                uses: android-actions/setup-android@v4
 
             -   name: Restore Gradle cache
                 uses: actions/cache@v4
