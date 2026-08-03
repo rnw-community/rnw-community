@@ -1,96 +1,283 @@
+codecov:
+  require_ci_to_pass: true
+
+comment:
+  layout: "condensed_header, diff, flags, condensed_footer"
+  require_changes: true
+
 coverage:
+  precision: 2
+  round: down
   status:
     project:
       default: off
+      decorators-core:
+        flags:
+          - decorators-core
+        target: 99.9
+        threshold: 0.5%
+      eslint-plugin:
+        flags:
+          - eslint-plugin
+        target: 94.1
+        threshold: 0.5%
       fast-style:
         flags:
           - fast-style
-      hoverable:
+        target: 99.9
+        threshold: 0.5%
+      histogram-metric-decorator:
         flags:
-          - hoverable
+          - histogram-metric-decorator
+        target: 99.9
+        threshold: 0.5%
+      lock-decorator:
+        flags:
+          - lock-decorator
+        target: 99.9
+        threshold: 0.5%
+      log-decorator:
+        flags:
+          - log-decorator
+        target: 99.9
+        threshold: 0.5%
+      nestjs-enterprise:
+        flags:
+          - nestjs-enterprise
+        target: 99.9
+        threshold: 0.5%
       nestjs-rxjs-lock:
         flags:
           - nestjs-rxjs-lock
+        target: 99.9
+        threshold: 0.5%
       nestjs-rxjs-logger:
         flags:
           - nestjs-rxjs-logger
+        target: 99.9
+        threshold: 0.5%
       nestjs-rxjs-metrics:
         flags:
           - nestjs-rxjs-metrics
+        target: 99.9
+        threshold: 0.5%
       nestjs-rxjs-redis:
         flags:
           - nestjs-rxjs-redis
+        target: 99.9
+        threshold: 0.5%
       nestjs-typed-config:
         flags:
           - nestjs-typed-config
-      nestjs-webpack-swc:
-        flags:
-          - nestjs-webpack-swc
+        target: 99.9
+        threshold: 0.5%
       object-field-tree:
         flags:
           - object-field-tree
+        target: 99.9
+        threshold: 0.5%
       platform:
         flags:
           - platform
+        target: 99.9
+        threshold: 0.5%
       react-native-payments:
         flags:
           - react-native-payments
+        target: 100
+        threshold: 0%
       redux-loadable:
         flags:
           - redux-loadable
+        target: 99.9
+        threshold: 0.5%
       rxjs-errors:
         flags:
           - rxjs-errors
+        target: 99.9
+        threshold: 0.5%
       shared:
         flags:
           - shared
+        target: 99.9
+        threshold: 0.5%
       wdio:
         flags:
           - wdio
+        target: 99.9
+        threshold: 0.5%
+    patch:
+      default: off
+      decorators-core:
+        flags:
+          - decorators-core
+        target: 99.9
+        threshold: 1%
+      eslint-plugin:
+        flags:
+          - eslint-plugin
+        target: 94.1
+        threshold: 1%
+      fast-style:
+        flags:
+          - fast-style
+        target: 99.9
+        threshold: 1%
+      histogram-metric-decorator:
+        flags:
+          - histogram-metric-decorator
+        target: 99.9
+        threshold: 1%
+      lock-decorator:
+        flags:
+          - lock-decorator
+        target: 99.9
+        threshold: 1%
+      log-decorator:
+        flags:
+          - log-decorator
+        target: 99.9
+        threshold: 1%
+      nestjs-enterprise:
+        flags:
+          - nestjs-enterprise
+        target: 99.9
+        threshold: 1%
+      nestjs-rxjs-lock:
+        flags:
+          - nestjs-rxjs-lock
+        target: 99.9
+        threshold: 1%
+      nestjs-rxjs-logger:
+        flags:
+          - nestjs-rxjs-logger
+        target: 99.9
+        threshold: 1%
+      nestjs-rxjs-metrics:
+        flags:
+          - nestjs-rxjs-metrics
+        target: 99.9
+        threshold: 1%
+      nestjs-rxjs-redis:
+        flags:
+          - nestjs-rxjs-redis
+        target: 99.9
+        threshold: 1%
+      nestjs-typed-config:
+        flags:
+          - nestjs-typed-config
+        target: 99.9
+        threshold: 1%
+      object-field-tree:
+        flags:
+          - object-field-tree
+        target: 99.9
+        threshold: 1%
+      platform:
+        flags:
+          - platform
+        target: 99.9
+        threshold: 1%
+      react-native-payments:
+        flags:
+          - react-native-payments
+        target: 100
+        threshold: 0%
+      redux-loadable:
+        flags:
+          - redux-loadable
+        target: 99.9
+        threshold: 1%
+      rxjs-errors:
+        flags:
+          - rxjs-errors
+        target: 99.9
+        threshold: 1%
+      shared:
+        flags:
+          - shared
+        target: 99.9
+        threshold: 1%
+      wdio:
+        flags:
+          - wdio
+        target: 99.9
+        threshold: 1%
 
 flags:
+  decorators-core:
+    carryforward: true
+    paths:
+      - packages/decorators-core/
+  eslint-plugin:
+    carryforward: true
+    paths:
+      - packages/eslint-plugin/
   fast-style:
+    carryforward: true
     paths:
       - packages/fast-style/
-  hoverable:
+  histogram-metric-decorator:
+    carryforward: true
     paths:
-      - packages/hoverable/
+      - packages/histogram-metric-decorator/
+  lock-decorator:
+    carryforward: true
+    paths:
+      - packages/lock-decorator/
+  log-decorator:
+    carryforward: true
+    paths:
+      - packages/log-decorator/
+  nestjs-enterprise:
+    carryforward: true
+    paths:
+      - packages/nestjs-enterprise/
   nestjs-rxjs-lock:
+    carryforward: true
     paths:
       - packages/nestjs-rxjs-lock/
   nestjs-rxjs-logger:
+    carryforward: true
     paths:
       - packages/nestjs-rxjs-logger/
   nestjs-rxjs-metrics:
+    carryforward: true
     paths:
       - packages/nestjs-rxjs-metrics/
   nestjs-rxjs-redis:
+    carryforward: true
     paths:
       - packages/nestjs-rxjs-redis/
   nestjs-typed-config:
+    carryforward: true
     paths:
       - packages/nestjs-typed-config/
-  nestjs-webpack-swc:
-    paths:
-      - packages/nestjs-webpack-swc/
   object-field-tree:
+    carryforward: true
     paths:
       - packages/object-field-tree/
   platform:
+    carryforward: true
     paths:
       - packages/platform/
   react-native-payments:
+    carryforward: true
     paths:
       - packages/react-native-payments/
   redux-loadable:
+    carryforward: true
     paths:
       - packages/redux-loadable/
   rxjs-errors:
+    carryforward: true
     paths:
       - packages/rxjs-errors/
   shared:
+    carryforward: true
     paths:
       - packages/shared/
   wdio:
+    carryforward: true
     paths:
       - packages/wdio/
