@@ -69,173 +69,173 @@ jobs:
                 run: yarn turbo run test:coverage --affected
 
             -   name: Upload coverage - decorators-core
-                if: hashFiles('packages/decorators-core/coverage/lcov.info') != '' && !(github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork)
+                if: hashFiles('packages/decorators-core/coverage/lcov.info') != ''
                 uses: codecov/codecov-action@v5
                 with:
-                    use_oidc: true
-                    fail_ci_if_error: true
+                    use_oidc: ${{ !(github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork) }}
+                    fail_ci_if_error: ${{ !(github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork) }}
                     files: packages/decorators-core/coverage/lcov.info
                     flags: decorators-core
 
             -   name: Upload coverage - eslint-plugin
-                if: hashFiles('packages/eslint-plugin/coverage/lcov.info') != '' && !(github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork)
+                if: hashFiles('packages/eslint-plugin/coverage/lcov.info') != ''
                 uses: codecov/codecov-action@v5
                 with:
-                    use_oidc: true
-                    fail_ci_if_error: true
+                    use_oidc: ${{ !(github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork) }}
+                    fail_ci_if_error: ${{ !(github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork) }}
                     files: packages/eslint-plugin/coverage/lcov.info
                     flags: eslint-plugin
 
             -   name: Upload coverage - fast-style
-                if: hashFiles('packages/fast-style/coverage/lcov.info') != '' && !(github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork)
+                if: hashFiles('packages/fast-style/coverage/lcov.info') != ''
                 uses: codecov/codecov-action@v5
                 with:
-                    use_oidc: true
-                    fail_ci_if_error: true
+                    use_oidc: ${{ !(github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork) }}
+                    fail_ci_if_error: ${{ !(github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork) }}
                     files: packages/fast-style/coverage/lcov.info
                     flags: fast-style
 
             -   name: Upload coverage - histogram-metric-decorator
-                if: hashFiles('packages/histogram-metric-decorator/coverage/lcov.info') != '' && !(github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork)
+                if: hashFiles('packages/histogram-metric-decorator/coverage/lcov.info') != ''
                 uses: codecov/codecov-action@v5
                 with:
-                    use_oidc: true
-                    fail_ci_if_error: true
+                    use_oidc: ${{ !(github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork) }}
+                    fail_ci_if_error: ${{ !(github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork) }}
                     files: packages/histogram-metric-decorator/coverage/lcov.info
                     flags: histogram-metric-decorator
 
             -   name: Upload coverage - lock-decorator
-                if: hashFiles('packages/lock-decorator/coverage/lcov.info') != '' && !(github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork)
+                if: hashFiles('packages/lock-decorator/coverage/lcov.info') != ''
                 uses: codecov/codecov-action@v5
                 with:
-                    use_oidc: true
-                    fail_ci_if_error: true
+                    use_oidc: ${{ !(github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork) }}
+                    fail_ci_if_error: ${{ !(github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork) }}
                     files: packages/lock-decorator/coverage/lcov.info
                     flags: lock-decorator
 
             -   name: Upload coverage - log-decorator
-                if: hashFiles('packages/log-decorator/coverage/lcov.info') != '' && !(github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork)
+                if: hashFiles('packages/log-decorator/coverage/lcov.info') != ''
                 uses: codecov/codecov-action@v5
                 with:
-                    use_oidc: true
-                    fail_ci_if_error: true
+                    use_oidc: ${{ !(github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork) }}
+                    fail_ci_if_error: ${{ !(github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork) }}
                     files: packages/log-decorator/coverage/lcov.info
                     flags: log-decorator
 
             -   name: Upload coverage - nestjs-enterprise
-                if: hashFiles('packages/nestjs-enterprise/coverage/lcov.info') != '' && !(github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork)
+                if: hashFiles('packages/nestjs-enterprise/coverage/lcov.info') != ''
                 uses: codecov/codecov-action@v5
                 with:
-                    use_oidc: true
-                    fail_ci_if_error: true
+                    use_oidc: ${{ !(github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork) }}
+                    fail_ci_if_error: ${{ !(github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork) }}
                     files: packages/nestjs-enterprise/coverage/lcov.info
                     flags: nestjs-enterprise
 
             -   name: Upload coverage - nestjs-rxjs-lock
-                if: hashFiles('packages/nestjs-rxjs-lock/coverage/lcov.info') != '' && !(github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork)
+                if: hashFiles('packages/nestjs-rxjs-lock/coverage/lcov.info') != ''
                 uses: codecov/codecov-action@v5
                 with:
-                    use_oidc: true
-                    fail_ci_if_error: true
+                    use_oidc: ${{ !(github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork) }}
+                    fail_ci_if_error: ${{ !(github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork) }}
                     files: packages/nestjs-rxjs-lock/coverage/lcov.info
                     flags: nestjs-rxjs-lock
 
             -   name: Upload coverage - nestjs-rxjs-logger
-                if: hashFiles('packages/nestjs-rxjs-logger/coverage/lcov.info') != '' && !(github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork)
+                if: hashFiles('packages/nestjs-rxjs-logger/coverage/lcov.info') != ''
                 uses: codecov/codecov-action@v5
                 with:
-                    use_oidc: true
-                    fail_ci_if_error: true
+                    use_oidc: ${{ !(github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork) }}
+                    fail_ci_if_error: ${{ !(github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork) }}
                     files: packages/nestjs-rxjs-logger/coverage/lcov.info
                     flags: nestjs-rxjs-logger
 
             -   name: Upload coverage - nestjs-rxjs-metrics
-                if: hashFiles('packages/nestjs-rxjs-metrics/coverage/lcov.info') != '' && !(github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork)
+                if: hashFiles('packages/nestjs-rxjs-metrics/coverage/lcov.info') != ''
                 uses: codecov/codecov-action@v5
                 with:
-                    use_oidc: true
-                    fail_ci_if_error: true
+                    use_oidc: ${{ !(github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork) }}
+                    fail_ci_if_error: ${{ !(github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork) }}
                     files: packages/nestjs-rxjs-metrics/coverage/lcov.info
                     flags: nestjs-rxjs-metrics
 
             -   name: Upload coverage - nestjs-rxjs-redis
-                if: hashFiles('packages/nestjs-rxjs-redis/coverage/lcov.info') != '' && !(github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork)
+                if: hashFiles('packages/nestjs-rxjs-redis/coverage/lcov.info') != ''
                 uses: codecov/codecov-action@v5
                 with:
-                    use_oidc: true
-                    fail_ci_if_error: true
+                    use_oidc: ${{ !(github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork) }}
+                    fail_ci_if_error: ${{ !(github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork) }}
                     files: packages/nestjs-rxjs-redis/coverage/lcov.info
                     flags: nestjs-rxjs-redis
 
             -   name: Upload coverage - nestjs-typed-config
-                if: hashFiles('packages/nestjs-typed-config/coverage/lcov.info') != '' && !(github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork)
+                if: hashFiles('packages/nestjs-typed-config/coverage/lcov.info') != ''
                 uses: codecov/codecov-action@v5
                 with:
-                    use_oidc: true
-                    fail_ci_if_error: true
+                    use_oidc: ${{ !(github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork) }}
+                    fail_ci_if_error: ${{ !(github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork) }}
                     files: packages/nestjs-typed-config/coverage/lcov.info
                     flags: nestjs-typed-config
 
             -   name: Upload coverage - object-field-tree
-                if: hashFiles('packages/object-field-tree/coverage/lcov.info') != '' && !(github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork)
+                if: hashFiles('packages/object-field-tree/coverage/lcov.info') != ''
                 uses: codecov/codecov-action@v5
                 with:
-                    use_oidc: true
-                    fail_ci_if_error: true
+                    use_oidc: ${{ !(github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork) }}
+                    fail_ci_if_error: ${{ !(github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork) }}
                     files: packages/object-field-tree/coverage/lcov.info
                     flags: object-field-tree
 
             -   name: Upload coverage - platform
-                if: hashFiles('packages/platform/coverage/lcov.info') != '' && !(github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork)
+                if: hashFiles('packages/platform/coverage/lcov.info') != ''
                 uses: codecov/codecov-action@v5
                 with:
-                    use_oidc: true
-                    fail_ci_if_error: true
+                    use_oidc: ${{ !(github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork) }}
+                    fail_ci_if_error: ${{ !(github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork) }}
                     files: packages/platform/coverage/lcov.info
                     flags: platform
 
             -   name: Upload coverage - react-native-payments
-                if: hashFiles('packages/react-native-payments/coverage/lcov.info') != '' && !(github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork)
+                if: hashFiles('packages/react-native-payments/coverage/lcov.info') != ''
                 uses: codecov/codecov-action@v5
                 with:
-                    use_oidc: true
-                    fail_ci_if_error: true
+                    use_oidc: ${{ !(github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork) }}
+                    fail_ci_if_error: ${{ !(github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork) }}
                     files: packages/react-native-payments/coverage/lcov.info
                     flags: react-native-payments
 
             -   name: Upload coverage - redux-loadable
-                if: hashFiles('packages/redux-loadable/coverage/lcov.info') != '' && !(github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork)
+                if: hashFiles('packages/redux-loadable/coverage/lcov.info') != ''
                 uses: codecov/codecov-action@v5
                 with:
-                    use_oidc: true
-                    fail_ci_if_error: true
+                    use_oidc: ${{ !(github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork) }}
+                    fail_ci_if_error: ${{ !(github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork) }}
                     files: packages/redux-loadable/coverage/lcov.info
                     flags: redux-loadable
 
             -   name: Upload coverage - rxjs-errors
-                if: hashFiles('packages/rxjs-errors/coverage/lcov.info') != '' && !(github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork)
+                if: hashFiles('packages/rxjs-errors/coverage/lcov.info') != ''
                 uses: codecov/codecov-action@v5
                 with:
-                    use_oidc: true
-                    fail_ci_if_error: true
+                    use_oidc: ${{ !(github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork) }}
+                    fail_ci_if_error: ${{ !(github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork) }}
                     files: packages/rxjs-errors/coverage/lcov.info
                     flags: rxjs-errors
 
             -   name: Upload coverage - shared
-                if: hashFiles('packages/shared/coverage/lcov.info') != '' && !(github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork)
+                if: hashFiles('packages/shared/coverage/lcov.info') != ''
                 uses: codecov/codecov-action@v5
                 with:
-                    use_oidc: true
-                    fail_ci_if_error: true
+                    use_oidc: ${{ !(github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork) }}
+                    fail_ci_if_error: ${{ !(github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork) }}
                     files: packages/shared/coverage/lcov.info
                     flags: shared
 
             -   name: Upload coverage - wdio
-                if: hashFiles('packages/wdio/coverage/lcov.info') != '' && !(github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork)
+                if: hashFiles('packages/wdio/coverage/lcov.info') != ''
                 uses: codecov/codecov-action@v5
                 with:
-                    use_oidc: true
-                    fail_ci_if_error: true
+                    use_oidc: ${{ !(github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork) }}
+                    fail_ci_if_error: ${{ !(github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork) }}
                     files: packages/wdio/coverage/lcov.info
                     flags: wdio
 
