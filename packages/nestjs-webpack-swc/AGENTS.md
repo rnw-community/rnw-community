@@ -75,5 +75,8 @@ the dev/prod factories.
 
 Peers: `@nestjs/common`, `@swc/cli`, `@swc/core`, `@swc/helpers`, `run-script-webpack-plugin`, `swc-loader`,
 `terser-webpack-plugin`, `webpack`, `webpack-node-externals` (all consumer-supplied at their own compatible
-versions — declared as `peerDependencies`, with matching `devDependencies` pins for building/type-checking this
-package itself). Direct dependency: `@rnw-community/shared` (`isDefined`, used in `handleNestJSWebpackHmr`).
+versions — declared as `peerDependencies`). Only `@nestjs/common`, `run-script-webpack-plugin`,
+`terser-webpack-plugin`, `webpack`, and `webpack-node-externals` also have a matching `devDependencies` pin for
+building/type-checking this package itself; `@swc/cli`, `@swc/core`, `@swc/helpers`, and `swc-loader` have no
+devDependency entry in this package's own `package.json`. Direct dependency: `@rnw-community/shared` (`isDefined`,
+used in `handleNestJSWebpackHmr`).

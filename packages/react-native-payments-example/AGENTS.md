@@ -76,7 +76,7 @@ excluded from Lerna (`lerna.json` keeps `packages/*`), so they are never version
 - The Maestro suite is one shared, parameterized flow set per scenario, not one per app target/platform: only the `APP_ID`
   env value and the connected device change between `apps/bare`/`apps/expo` and iOS/Android, and in-flow platform branching
   uses Maestro's `when: platform:` condition. Flows assert against the on-screen event log and flow-state/can-make-status
-  labels, never native dialogs directly — except five iOS flows, which briefly assert against the PassKit sheet's own
+  labels, never native dialogs directly — except six iOS flows, which briefly assert against the PassKit sheet's own
   accessibility tree (via `subflows/dismiss_ios_sheet.yaml`) purely to dismiss it, since iOS blocks UI-test tooling from
   querying the app's own tree while that sheet is presented.
 - `.github/workflows/ios-maestro.yml` and `android-maestro.yml` at the repo root run this suite per matrix target

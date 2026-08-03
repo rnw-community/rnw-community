@@ -30,7 +30,7 @@ src/
 
 - Every util is generic over `T extends LoadingStateInterface`, mutates the three fields on `state` directly, then
   returns `{ ...state }` — the mutate-then-spread shape matches Redux Toolkit's Immer-drafted `createSlice` reducers
-- `isPristine` means "this slice has never finished a loading cycle" — it starts `true` in `initialLoadingState` and
+- `isPristine` means "this slice has never started a loading cycle" — it starts `true` in `initialLoadingState` and
   every one of `loadingStarted`/`loadingFinished`/`loadingFailed` sets it to `false`; only `loadingReset` can restore
   it to `true`
 - There is no separate `isFailed` field stored on state. `loadingFailed` only sets `error` to the given reason;

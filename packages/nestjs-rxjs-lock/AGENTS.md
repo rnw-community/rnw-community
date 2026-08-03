@@ -33,8 +33,10 @@ src/
   becomes the per-instance default lock TTL, `redlockOptions` is passed straight into `new Redlock([redis], ...)`
 - `lock$<T>(name, prefix, handler$, expireInMs = this.expireInMs)`: `from(this.lock.acquire([lockName], expireInMs))`
   piped through `concatMap(lock => handler$().pipe(finalize(() => void lock.release().catch(() => void 0))))` — the
-  handler only runs after acquisition succeeds, and the lock is always released on completion/error/unsubscribe
-  because `finalize` runs regardless of how the inner observable terminates
+  handler only runs after acquisition succeeds, and release is always attempted on completion/error/unsubscribe
+  because `finalize` runs regardless of how the inner observable terminates — release is only attempted, not
+  guaranteed: if Redis rejects the release call, the swallowed error (see below) means the lock stays held until
+  its TTL expires rather than being freed immediately
 - Lock key is built by the private static `generateName(name, prefix)`: `['lock', prefix, name].filter(isNotEmptyString).join(':')`
   — a falsy/empty `prefix` collapses to `lock:name` instead of `lock::name`
 - An error thrown while **acquiring** the lock propagates to the subscriber and neither `handler$` nor `release` ever run

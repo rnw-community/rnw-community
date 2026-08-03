@@ -37,8 +37,9 @@ src/
 - `mget$<K extends string>(keys)` zips the resolved value array back onto the input `keys` via `reduce`, returning
   `Record<K, string | null>` — the only method that turns a positional array result into a keyed object
 - Operator methods (`save`, `load`, `remove`, `cache`) are pipeable `MonoTypeOperatorFunction`/`OperatorFunction`s that
-  wrap the `$` methods; all default their `keyFn`/`errorFn`/`toValueFn`/`fromValueFn` params (`String(input)` for keys,
-  `JSON.stringify`/`JSON.parse` for (de)serialization)
+  wrap the `$` methods; `load`, `remove`, and `cache` default their `keyFn`/`errorFn`/`toValueFn`/`fromValueFn` params
+  (`String(input)` for keys, `JSON.stringify`/`JSON.parse` for (de)serialization) — `save` takes `keyFn` as its first,
+  required parameter (no default), since the caller must say how to derive a Redis key from the value being saved
 - `cache(ttlInSeconds, prepareFn$, keyFn?, fromValueFn?, toValueFn?)`: on each input, tries `get$(key)` + `fromValueFn`
   first; if that observable errors (cache miss or Redis error, indistinguishable), falls back to
   `prepareFn$(key)` and pipes its result into `set$` before re-emitting the freshly prepared value — a cache miss and

@@ -14,7 +14,7 @@ yarn test && yarn test:coverage && yarn build && yarn ts && yarn lint:fix
 src/
   interface/
     create-log-options.interface.ts  — CreateLogOptionsInterface: { transport }
-    log-transport.interface.ts       — LogTransportInterface: log/debug/error(message, logContext[, error])
+    log-transport.interface.ts       — LogTransportInterface: log/debug(message, logContext), error(message, error, logContext)
   type/
     pre-log-input.type.ts    — PreLogInputType<TArgs> = string | ((...args: TArgs) => string)
     post-log-input.type.ts   — PostLogInputType<TArgs, TResult> = string | ((result: TResult, ...args: TArgs) => string)

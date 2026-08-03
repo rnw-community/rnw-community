@@ -53,7 +53,7 @@ src/
 
 ### Dependencies
 
-Peers: `@nestjs/common`, `@willsoto/nestjs-prometheus`, `prom-client`, `rxjs` (all three declared in both
+Peers: `@nestjs/common`, `@willsoto/nestjs-prometheus`, `prom-client`, `rxjs` (all four declared in both
 `devDependencies` and `peerDependencies`). Direct dependency: `@rnw-community/shared` (`isDefined`, used in
 production `src` for the missing-start-timer check).
 
