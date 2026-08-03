@@ -1,0 +1,50 @@
+name: PR Closed Cleanup
+
+on:
+    pull_request:
+        types: [closed]
+
+jobs:
+    cancel-queued-runs:
+        name: Cancel queued/in-progress runs for the closed PR branch
+        runs-on: ubuntu-latest
+        permissions:
+            actions: write
+
+        steps:
+            -   name: Cancel queued and in-progress runs for this branch
+                env:
+                    GH_TOKEN: ${{ github.token }}
+                    HEAD_BRANCH: ${{ github.event.pull_request.head.ref }}
+                    CURRENT_RUN_ID: ${{ github.run_id }}
+                run: |
+                    set -euo pipefail
+
+                    for status in queued in_progress; do
+                      page=1
+                      while :; do
+                        response=$(gh api \
+                          "repos/${{ github.repository }}/actions/runs?branch=${HEAD_BRANCH}&status=${status}&per_page=100&page=${page}")
+
+                        run_count=$(echo "$response" | jq '.workflow_runs | length')
+                        if [ "$run_count" -eq 0 ]; then
+                          break
+                        fi
+
+                        echo "$response" | jq -r --arg repo "${{ github.repository }}" --arg current "$CURRENT_RUN_ID" '
+                          .workflow_runs[]
+                          | select(.head_repository.full_name == $repo)
+                          | select((.id | tostring) != $current)
+                          | .id
+                        ' | while read -r run_id; do
+                          echo "Cancelling run ${run_id}"
+                          gh api --method POST \
+                            "repos/${{ github.repository }}/actions/runs/${run_id}/cancel" || true
+                        done
+
+                        if [ "$run_count" -lt 100 ]; then
+                          break
+                        fi
+                        page=$((page + 1))
+                      done
+                    done
