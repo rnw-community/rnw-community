@@ -32,7 +32,7 @@
         "access": "public"
     },
     "engines": {
-        "node": ">=18.0.0"
+        "node": ">=22.0.0"
     },
     "scripts": {
         "ts": "run -T tsc --pretty -p tsconfig.json",

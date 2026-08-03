@@ -44,7 +44,7 @@
         "clear:deps": "rm -rf ./node_modules && rm -rf ./dist"
     },
     "engines": {
-        "node": ">=18.0.0"
+        "node": ">=22.0.0"
     },
     "dependencies": {
         "@rnw-community/decorators-core": "workspace:^",
