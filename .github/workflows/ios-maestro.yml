@@ -151,6 +151,17 @@ jobs:
                     echo "hash=$hash" >> "$GITHUB_OUTPUT"
                     echo "Native fingerprint (${{ matrix.target }}): $hash"
 
+            # A cache miss leaves whatever this persistent self-hosted runner
+            # already had on disk from a previous fingerprint untouched —
+            # actions/checkout does not remove gitignored paths, and
+            # actions/cache/restore only ever adds/overwrites on a hit, never
+            # deletes on a miss. Clearing first guarantees the later `ditto`
+            # packaging step always overlays onto an empty directory instead
+            # of a stale Base.app that could still contain frameworks or
+            # resources this fingerprint's native change removed.
+            -   name: Clear native app cache directory
+                run: rm -rf .ci-cache/ios-native-app/${{ matrix.target }}
+
             -   name: Restore canonical native app
                 id: native-app-cache
                 uses: actions/cache/restore@v4
