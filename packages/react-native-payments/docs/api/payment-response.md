@@ -1,5 +1,7 @@
 # `PaymentResponse`
 
+## What & why
+
 The result of a settled `show()` call — carries the payment method's token/details and the methods to close out
 the sheet. Reach for it right after `await paymentRequest.show()` to send data to your backend and finish the
 transaction.

@@ -11,7 +11,7 @@ or a coupon code. `PaymentRequest` models these as W3C change events: register l
 > the browser's own `PaymentRequest` is used, so change events there follow the browser implementation. A request
 > without listeners shows the same sheet with the same summary items as before — PassKit now asks the app on
 > every change and is answered immediately with no change, which is a main thread round trip and no longer a
-> purely local update. The end to end verification on devices is tracked in
+> purely local update. The end-to-end verification on devices is tracked in
 > [#393](https://github.com/rnw-community/rnw-community/issues/393).
 >
 > iOS only shows the shipping method picker and the coupon code field (iOS 15+) when a `shippingoptionchange` /
@@ -117,13 +117,13 @@ is reported to the console and never reaches the sheet.
 
 ## Sheet errors
 
-`error` is either a plain string or a field level error that Apple Pay renders inline, next to the offending row
+`error` is either a plain string or a field-level error that Apple Pay renders inline, next to the offending row
 of the sheet, instead of as a generic banner. A string keeps the previous behaviour: an unserviceable shipping
 address for `shippingaddresschange`, an invalid coupon code for `couponcodechange` (iOS 15+) and a generic
 payment error everywhere else. `shippingoptionchange` has no error slot in PassKit, so an error answered there is
 ignored.
 
-A field level error carries the discriminator, the field it belongs to and the message shown to the user:
+A field-level error carries the discriminator, the field it belongs to and the message shown to the user:
 
 ```ts
 import {
@@ -156,7 +156,7 @@ paymentRequest.addEventListener('couponcodechange', event => {
 | `couponCode` | `expired?: boolean` | `paymentCouponCodeInvalidError` / `paymentCouponCodeExpiredError` (iOS 15+) |
 
 `PaymentAddressFieldEnum` maps onto the `CNPostalAddress` keys PassKit accepts: `addressLine` (street), `city`,
-`country` (ISO country code), `dependentLocality` (sub locality), `postalCode`, `region` (state) and
+`country` (ISO country code), `dependentLocality` (sub-locality), `postalCode`, `region` (state) and
 `subAdministrativeArea`. `PaymentContactFieldEnum` maps onto `PKContactField`: `email`, `name`, `phone` and
 `postalAddress`. An unknown field, an empty message or a coupon error below iOS 15 is dropped and the sheet is
 answered with the updated details only. Android ignores every error because Google Pay never asks the app for an

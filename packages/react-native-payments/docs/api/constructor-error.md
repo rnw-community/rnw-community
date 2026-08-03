@@ -1,5 +1,7 @@
 # `ConstructorError`
 
+## What & why
+
 A native `TypeError` thrown from `new PaymentRequest(...)` when the input dictionaries fail W3C validation.
 Reach for `instanceof TypeError` to catch it, matching the spec's WebIDL / `check and canonicalize (total)
 amount` algorithm, which itself throws `TypeError`.

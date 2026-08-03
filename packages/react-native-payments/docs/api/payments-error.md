@@ -1,5 +1,7 @@
 # `PaymentsError`
 
+## What & why
+
 A plain domain error for failures the W3C spec does not name. Reach for `instanceof Error` with
 `name === 'Error'` to catch it; it is the catch-all for native bridge and payload-parsing failures.
 

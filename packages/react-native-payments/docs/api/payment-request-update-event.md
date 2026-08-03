@@ -1,5 +1,7 @@
 # `PaymentRequestUpdateEvent` / `PaymentMethodChangeEvent`
 
+## What & why
+
 The event object handed to a change-event listener; `PaymentMethodChangeEvent` is the subtype delivered for
 `paymentmethodchange`, extending the base with the selected method. Reach for these when you register
 `addEventListener` and need to answer with updated details. The full narrative (dispatch order, timeout,

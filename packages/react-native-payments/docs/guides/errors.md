@@ -1,6 +1,7 @@
 # Error handling
 
-Every throw/reject in this package maps to one of three error shapes:
+Every throw/reject in this package maps to one of three W3C-facing error shapes, or a plain `Error` for the one
+non-spec build/config failure (the native module not being linked at all — see the table below):
 
 - **`ConstructorError`** — a native `TypeError` (`instanceof TypeError`, `name === 'TypeError'`) for
   `new PaymentRequest(...)` validation failures: missing/invalid payment methods, total, display items or

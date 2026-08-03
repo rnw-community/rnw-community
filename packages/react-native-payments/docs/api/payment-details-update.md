@@ -1,5 +1,7 @@
 # `PaymentDetailsUpdate` / `PaymentDetailsUpdateError`
 
+## What & why
+
 The dictionary answered from `updateWith`, and the type of its optional `error` member. Reach for these when
 typing a change-event listener's response.
 

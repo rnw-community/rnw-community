@@ -1,15 +1,16 @@
-# `IosPaymentMethodDataInterface` / `IosPaymentMethodDataDataInterface` / `IosPKMerchantCapability`
+# `IosPaymentMethodDataInterface` / `IosPaymentMethodDataDataInterface`
 
-The typed shape of the Apple Pay entry of `methodData`, and the enum populating its `merchantCapabilities`.
-Reach for these when building the `ApplePay` entry of your `methodData` array.
+## What & why
+
+The typed shape of the Apple Pay entry of `methodData`. Reach for these when building the `ApplePay` entry of
+your `methodData` array.
 
 ## How
 
 | Type | Notes |
 | --- | --- |
 | `IosPaymentMethodDataInterface` | `supportedMethods: PaymentMethodNameEnum.ApplePay` paired with an `IosPaymentMethodDataDataInterface` `data`. |
-| `IosPaymentMethodDataDataInterface` | `merchantIdentifier`, `supportedNetworks`, `countryCode`, `currencyCode`, plus the iOS-only options in [platforms/ios.md](../platforms/ios.md) (`merchantCapabilities`, `shippingType`, `couponCode`, `applicationData`) and the cross-platform request flags below. |
-| `IosPKMerchantCapability` | Defaults to 3-D Secure, debit and credit when `merchantCapabilities` is omitted. |
+| `IosPaymentMethodDataDataInterface` | `merchantIdentifier`, `supportedNetworks`, `countryCode`, `currencyCode`, plus the iOS-only options in [platforms/ios.md](../platforms/ios.md) (`merchantCapabilities?` — [`IosPKMerchantCapability`](./ios-pk-merchant-capability.md), `shippingType`, `couponCode`, `applicationData`) and the cross-platform request flags below. |
 
 `requestBillingAddress`, `requestPayerEmail`, `requestPayerName`, `requestPayerPhone` and `requestShipping` are
 shared with [`AndroidPaymentMethodDataDataInterface`](./android-payment-method-data.md) (both extend the
@@ -44,3 +45,4 @@ not to pass data your backend needs verbatim.
 
 - [platforms/ios.md](../platforms/ios.md)
 - [api/payment-method-name-enum.md](./payment-method-name-enum.md)
+- [api/ios-pk-merchant-capability.md](./ios-pk-merchant-capability.md)

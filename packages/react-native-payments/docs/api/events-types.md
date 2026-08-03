@@ -1,5 +1,7 @@
 # Event support types
 
+## What & why
+
 The small supporting types for the change-event system: the event-name union, the listener signatures, and the
 raw native payload. Reach for these when typing a standalone listener function or when inspecting the payload
 before it reaches a listener.

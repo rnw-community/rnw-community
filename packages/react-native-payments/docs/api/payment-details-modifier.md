@@ -1,5 +1,7 @@
 # `PaymentDetailsModifier`
 
+## What & why
+
 A per-`supportedMethods` override for `total` and `displayItems`. Reach for it when a payment method needs a
 different price than the top-level `total` (e.g. an Apple Pay discount).
 

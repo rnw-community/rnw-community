@@ -1,5 +1,7 @@
 # `PaymentItem` / `PaymentShippingOption`
 
+## What & why
+
 The line-item shapes used throughout `PaymentDetailsInit` and change-event updates: `PaymentItem` for `total`
 and `displayItems`, `PaymentShippingOption` for `shippingOptions`. Reach for these when building or updating any
 priced row of the sheet.

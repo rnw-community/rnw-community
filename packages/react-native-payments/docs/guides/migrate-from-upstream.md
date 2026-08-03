@@ -95,6 +95,7 @@ const paymentResponse = await paymentRequest.show();
 const applePayToken = paymentResponse.details.applePayToken; // typed IosPKToken
 
 let responseBody: unknown;
+let backendAccepted = false;
 
 try {
     const result = await fetch('...', { method: 'POST', body: JSON.stringify(applePayToken) });
@@ -102,15 +103,17 @@ try {
         throw new Error(`Backend rejected the payment: ${result.status}`);
     }
     responseBody = await result.json();
-    await paymentResponse.complete(PaymentComplete.SUCCESS);
+    backendAccepted = true;
 } catch (error) {
     errorHandler(error);
-    await paymentResponse.complete(PaymentComplete.FAIL);
-    return;
 }
 
-// Outside the try: a throw here must not flip an already-successful charge to Fail.
-successHandler(responseBody);
+// complete() is called exactly once, outside any catch, so it never fires twice even if it rejects itself.
+await paymentResponse.complete(backendAccepted ? PaymentComplete.SUCCESS : PaymentComplete.FAIL);
+
+if (backendAccepted) {
+    successHandler(responseBody);
+}
 ```
 
 The differences that matter beyond syntax: no `global.PaymentRequest` polyfill, enums instead of string literals,

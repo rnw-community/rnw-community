@@ -4,7 +4,7 @@
 the payment. Call it **instead of** `complete()`, before the sheet has been dismissed:
 
 ```ts
-import { PaymentAddressFieldEnum, PaymentContactFieldEnum } from '@rnw-community/react-native-payments';
+import { PaymentAddressFieldEnum, PaymentComplete, PaymentContactFieldEnum } from '@rnw-community/react-native-payments';
 
 const validation = await validatePaymentOnBackend(paymentResponse);
 

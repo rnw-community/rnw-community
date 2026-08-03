@@ -10,7 +10,7 @@ every doc in this package (API surface, change-event contract, E2E boundary), se
 
 Pure-Markdown tree, one topic per file, relative links only:
 
-```
+```text
 readme.md                          compact landing — value prop, install, quickstart, doc map
 docs/
   getting-started/                 install.md + one quickstart per platform (ios/android/expo)

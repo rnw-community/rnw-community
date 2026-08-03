@@ -1,16 +1,17 @@
-# `IosPaymentResponse` / `IosPKToken`
+# `IosPaymentResponse`
 
-The `PaymentResponse` subclass `show()` resolves with on iOS, and the PassKit payment token it carries. Reach for
-`IosPaymentResponse` when you need to branch on the platform response type; reach for `IosPKToken` to read the
-Apple Pay token to send to your gateway.
+## What & why
+
+The `PaymentResponse` subclass `show()` resolves with on iOS. Reach for it when you need to branch on the
+platform response type or read the Apple Pay token via `details.applePayToken` — see
+[api/ios-pk-token.md](./ios-pk-token.md).
 
 ## How
 
 | Member | Signature | Notes |
 | --- | --- | --- |
 | `IosPaymentResponse` | `class extends PaymentResponse` | Parsed from the PassKit payment token. Consumers do not construct it directly — it comes back from `show()`. |
-| `IosPaymentResponse.details.applePayToken` | `IosPKToken` | The Apple Pay token exposed on the response, carrying the PassKit payment data. |
-| `IosPKToken.transactionIdentifier` | `string` | Correlates the payment attempt with Apple's servers. |
+| `IosPaymentResponse.details.applePayToken` | `IosPKToken` | The Apple Pay token exposed on the response, carrying the PassKit payment data — see [api/ios-pk-token.md](./ios-pk-token.md). |
 
 ## Example
 
@@ -35,4 +36,5 @@ if (response instanceof IosPaymentResponse) {
 ## References
 
 - [api/payment-response.md](./payment-response.md)
+- [api/ios-pk-token.md](./ios-pk-token.md)
 - [Apple Pay payment token reference](https://developer.apple.com/documentation/passkit/apple_pay/payment_token_format_reference?language=objc)

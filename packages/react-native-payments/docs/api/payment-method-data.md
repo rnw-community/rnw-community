@@ -1,5 +1,7 @@
 # `PaymentMethodData`
 
+## What & why
+
 The generic W3C union type backing one entry of the `methodData` array passed to `new PaymentRequest(...)`. Reach
 for it only when writing platform-agnostic helper code; concrete integrations use the platform-specific
 `IosPaymentMethodDataInterface` / `AndroidPaymentMethodDataInterface` instead.
@@ -15,7 +17,12 @@ discriminated by `supportedMethods` (`PaymentMethodNameEnum`).
 const methodData: PaymentMethodData[] = [
     {
         supportedMethods: PaymentMethodNameEnum.ApplePay,
-        data: { merchantIdentifier: 'merchant.com.your-app.namespace', countryCode: 'US', currencyCode: 'USD' },
+        data: {
+            merchantIdentifier: 'merchant.com.your-app.namespace',
+            supportedNetworks: [SupportedNetworkEnum.Visa],
+            countryCode: 'US',
+            currencyCode: 'USD',
+        },
     },
 ];
 ```

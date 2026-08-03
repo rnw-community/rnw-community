@@ -1,5 +1,7 @@
 # `PaymentRequest`
 
+## What & why
+
 The entry point of the library: constructs a W3C-shaped payment request, checks device capability, and drives
 the native Apple Pay / Google Pay sheet through one TurboModule. Reach for it whenever you need to accept a
 payment — everything else in this package (events, responses, errors) hangs off an instance of this class.
@@ -13,7 +15,7 @@ import { PaymentRequest } from '@rnw-community/react-native-payments';
 | Member | Signature | Notes |
 | --- | --- | --- |
 | constructor | `new PaymentRequest(methodData, details)` | Validates per W3C spec, then serializes platform-specific JSON for native. Throws `ConstructorError` on invalid input, `DOMException NotSupportedError` when no platform-matching method is found — see [architecture.md](../architecture.md). |
-| `canMakePayment()` | `(): Promise<boolean>` | iOS: PassKit `canMakePaymentsUsingNetworks:` restricted to `supportedNetworks`. Android: Google Pay `isReadyToPay` against `EnvironmentEnum.Test` always — see [platforms/android.md](../platforms/android.md). Rejects `InvalidStateError` when not `created`. |
+| `canMakePayment()` | `(): Promise<boolean>` | iOS: PassKit `canMakePaymentsUsingNetworks:` restricted to `supportedNetworks`. Android: Google Pay `isReadyToPay` against `EnvironmentEnum.TEST` always — see [platforms/android.md](../platforms/android.md). Rejects `InvalidStateError` when not `created`. |
 | `hasEnrolledInstrument()` | `(): Promise<boolean>` | Android: `isReadyToPay` with `existingPaymentMethodRequired: true`, optimistic — see [platforms/android.md](../platforms/android.md). Rejects `InvalidStateError` when not `created`. |
 | `show()` | `(): Promise<PaymentResponse>` | Presents the sheet; single-use — see [architecture.md](../architecture.md). Rejects `AbortError` on user cancellation, `InvalidStateError` when not `created`. |
 | `abort()` | `(): Promise<void>` | Dismisses an interactive sheet. No effect on Android (Google Pay activity has no in-sheet dismiss). Rejects `InvalidStateError` when not `interactive`. |

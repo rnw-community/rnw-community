@@ -1,16 +1,17 @@
-# `AndroidPaymentResponse` / `AndroidPaymentMethodToken`
+# `AndroidPaymentResponse`
 
-The `PaymentResponse` subclass `show()` resolves with on Android, and the Google Pay payment token it carries.
-Reach for `AndroidPaymentResponse` when you need to branch on the platform response type; reach for
-`AndroidPaymentMethodToken` to read the Google Pay token to send to your gateway.
+## What & why
+
+The `PaymentResponse` subclass `show()` resolves with on Android. Reach for it when you need to branch on the
+platform response type or read the Google Pay token via `details.androidPayToken` — see
+[api/android-payment-method-token.md](./android-payment-method-token.md).
 
 ## How
 
 | Member | Signature | Notes |
 | --- | --- | --- |
 | `AndroidPaymentResponse` | `class extends PaymentResponse` | Parsed from the Google Pay JSON payload. Consumers do not construct it directly — it comes back from `show()`. |
-| `AndroidPaymentResponse.details.androidPayToken` | `AndroidPaymentMethodToken` | The Google Pay token exposed on the response. |
-| `AndroidPaymentMethodToken.cardInfo.cardNetwork` | `string` | The card network of the tokenized card. |
+| `AndroidPaymentResponse.details.androidPayToken` | `AndroidPaymentMethodToken` | The Google Pay token exposed on the response — see [api/android-payment-method-token.md](./android-payment-method-token.md). |
 
 ## Example
 
@@ -33,4 +34,5 @@ if (response instanceof AndroidPaymentResponse) {
 ## References
 
 - [api/payment-response.md](./payment-response.md)
+- [api/android-payment-method-token.md](./android-payment-method-token.md)
 - [Google Pay API for Android — response objects](https://developers.google.com/pay/api/android/reference/request-objects)

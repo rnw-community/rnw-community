@@ -1,5 +1,7 @@
 # `PaymentsErrorEnum`
 
+## What & why
+
 The W3C `DOMException` **names** this library throws — `PaymentsErrorEnum.AbortError` etc. are the exact strings
 assigned to `error.name`, not the human-readable message. Reach for it when constructing or comparing against a
 `DOMException`'s `name`, e.g. in a custom native module shim or a test fixture.

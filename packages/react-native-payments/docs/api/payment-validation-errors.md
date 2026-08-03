@@ -1,5 +1,7 @@
 # `PaymentValidationErrors`
 
+## What & why
+
 The type of `PaymentResponse.retry()`'s `errorFields` argument. Reach for it when telling `retry()` which fields
 to highlight in the sheet.
 

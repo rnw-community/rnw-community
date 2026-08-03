@@ -34,7 +34,7 @@ Apple Pay must be verified end-to-end on a physical device signed into an Apple 
 card before shipping. Conversely, a device-only failure usually means the merchant ID/capabilities/entitlement
 above, not the JS integration.
 
-**Google Pay `canMakePayment()` returns `true` in `EnvironmentEnum.Production` you never tested.** This is by
+**Google Pay `canMakePayment()` returns `true` in `EnvironmentEnum.PRODUCTION` you never tested.** This is by
 design, not a bug: `canMakePayment()` on Android always checks against `ENVIRONMENT_TEST` regardless of the
 `environment` set in `methodData.data`, mirroring the W3C surface (`canMakePayment` only answers "is a payment
 handler available", not "is this specific environment reachable") — see

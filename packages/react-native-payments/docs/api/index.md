@@ -8,8 +8,10 @@ pairing the package already uses for tightly-coupled siblings (a data shape and 
 
 - [payment-request.md](./payment-request.md) — `PaymentRequest`
 - [payment-response.md](./payment-response.md) — `PaymentResponse`
-- [ios-payment-response.md](./ios-payment-response.md) — `IosPaymentResponse`, `IosPKToken`
-- [android-payment-response.md](./android-payment-response.md) — `AndroidPaymentResponse`, `AndroidPaymentMethodToken`
+- [ios-payment-response.md](./ios-payment-response.md) — `IosPaymentResponse`
+- [ios-pk-token.md](./ios-pk-token.md) — `IosPKToken`
+- [android-payment-response.md](./android-payment-response.md) — `AndroidPaymentResponse`
+- [android-payment-method-token.md](./android-payment-method-token.md) — `AndroidPaymentMethodToken`
 
 ## Change events
 
@@ -46,5 +48,7 @@ pairing the package already uses for tightly-coupled siblings (a data shape and 
 
 ## Platform method data
 
-- [android-payment-method-data.md](./android-payment-method-data.md) — `AndroidPaymentMethodDataInterface`, `AndroidPaymentMethodDataDataInterface`, `AndroidAllowedAuthMethodsEnum`
-- [ios-payment-method-data.md](./ios-payment-method-data.md) — `IosPaymentMethodDataInterface`, `IosPaymentMethodDataDataInterface`, `IosPKMerchantCapability`
+- [android-payment-method-data.md](./android-payment-method-data.md) — `AndroidPaymentMethodDataInterface`, `AndroidPaymentMethodDataDataInterface`
+- [android-allowed-auth-methods-enum.md](./android-allowed-auth-methods-enum.md) — `AndroidAllowedAuthMethodsEnum`
+- [ios-payment-method-data.md](./ios-payment-method-data.md) — `IosPaymentMethodDataInterface`, `IosPaymentMethodDataDataInterface`
+- [ios-pk-merchant-capability.md](./ios-pk-merchant-capability.md) — `IosPKMerchantCapability`

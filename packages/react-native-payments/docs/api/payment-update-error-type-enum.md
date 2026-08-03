@@ -1,5 +1,7 @@
 # `PaymentUpdateErrorTypeEnum`
 
+## What & why
+
 The discriminator for a field-level `PaymentDetailsUpdateError` answered from `updateWith`. Reach for it when
 building a field-level sheet error instead of a plain string.
 

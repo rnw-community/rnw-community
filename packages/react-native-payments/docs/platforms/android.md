@@ -14,14 +14,15 @@ Setup, capabilities, and how this package's `PaymentRequest` maps onto the Googl
 
 ### Native setup
 
-Use `19.0.0+` of Google Play Services in your application:
+This package's own `android/build.gradle` depends on `com.google.android.gms:play-services-wallet:18.0.0` — match
+or exceed that in your application if you pin the wallet dependency yourself:
 
 ```groovy
 dependencies {
     // The version of react-native is set by the React Native Gradle Plugin
     implementation("com.facebook.react:react-android")
 
-    implementation 'com.google.android.gms:play-services-wallet:19.2.0'
+    implementation 'com.google.android.gms:play-services-wallet:18.0.0'
 }
 ```
 
@@ -39,7 +40,7 @@ dependencies {
 - `transactionId` correlates the payment attempt in Google Pay transaction events.
 - `allowedAuthMethods` (`AndroidAllowedAuthMethodsEnum`) defaults to both `PAN_ONLY` and `CRYPTOGRAM_3DS` when
   omitted. See [api/android-payment-method-data.md](../api/android-payment-method-data.md).
-- `canMakePayment()` calls Google Pay's `isReadyToPay` and always checks against `EnvironmentEnum.Test` regardless
+- `canMakePayment()` calls Google Pay's `isReadyToPay` and always checks against `EnvironmentEnum.TEST` regardless
   of the `environment` set in `methodData.data`, mirroring the W3C surface (`canMakePayment` only answers "is a
   payment handler available", not "is this specific environment reachable"). See
   [#259](https://github.com/rnw-community/rnw-community/issues/259).

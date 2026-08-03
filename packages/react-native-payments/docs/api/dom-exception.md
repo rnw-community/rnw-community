@@ -1,5 +1,7 @@
 # `DOMException`
 
+## What & why
+
 The spec-mandated runtime error for `created`/`interactive`/`closed` state violations and abort/not-supported
 conditions. Reach for `instanceof DOMException` plus `error.name` to branch on the W3C error name.
 

@@ -1,5 +1,7 @@
 # `PaymentComplete`
 
+## What & why
+
 The outcome passed to `PaymentResponse.complete()` to close the sheet. Reach for it right after your backend has
 confirmed (or rejected) the charge.
 

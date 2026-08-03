@@ -1,5 +1,7 @@
 # `PaymentAddressFieldEnum` / `PaymentContactFieldEnum`
 
+## What & why
+
 The field-key enums used by field-level sheet errors and `PaymentResponse.retry()`'s `errorFields`. Reach for
 these when you need to point a validation error at a specific row of the sheet instead of showing a generic
 banner.

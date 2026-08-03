@@ -1,5 +1,7 @@
 # `PaymentDetailsInit`
 
+## What & why
+
 The second constructor argument to `PaymentRequest`. Reach for it to type the `paymentDetails` object you build
 before constructing a request.
 

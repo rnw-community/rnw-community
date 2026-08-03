@@ -1,5 +1,7 @@
 # `PaymentShippingTypeEnum`
 
+## What & why
+
 Populates the optional `shippingType` of `methodData.data`, mapping to the W3C `PaymentOptions.shippingType`
 concept. Reach for it when you need PassKit to label the shipping picker as delivery vs. pickup.
 

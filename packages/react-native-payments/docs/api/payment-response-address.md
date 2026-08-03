@@ -1,5 +1,7 @@
 # `PaymentResponseAddressInterface`
 
+## What & why
+
 The shape of `PaymentResponse.details.billingAddress` and `PaymentResponse.details.shippingAddress`, and of
 `PaymentRequest.shippingAddress` while a change event is pending. Reach for it when reading a user's address off
 a response or an in-progress shipping-address change.

@@ -1,5 +1,7 @@
 # `SupportedNetworkEnum`
 
+## What & why
+
 The card networks a `methodData` entry accepts. Reach for it when populating `methodData.data.supportedNetworks`
 on either platform.
 
