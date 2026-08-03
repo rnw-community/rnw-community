@@ -1,7 +1,19 @@
 # Roadmap
 
-Implementation notes for the open work items linked from [readme.md](./readme.md#todo). Each issue subsection maps to
-one tracked GitHub issue; the readme keeps a one-line pointer, the detail lives here.
+Open work for this package, as tracked GitHub issues, plus the W3C compliance checklist. The [landing
+readme](../readme.md) links here instead of carrying its own TODO ledger.
+
+## Open work
+
+- [ ] Payment sheet GIFs for iOS and Android — [#469](https://github.com/rnw-community/rnw-community/issues/469),
+      capture procedure below.
+- [ ] Shipping options and coupon support on Android — [#438](https://github.com/rnw-community/rnw-community/issues/438).
+- Rewrite iOS to Swift — **deferred indefinitely**, decision recorded on
+  [#442](https://github.com/rnw-community/rnw-community/issues/442).
+- [ ] Rewrite Android to Kotlin — decided, low effort, tracked in
+      [#442](https://github.com/rnw-community/rnw-community/issues/442).
+- [ ] Drop the `AppDelegate.h` PassKit import requirement — looks droppable, needs a build-verify pass, tracked in
+      [#442](https://github.com/rnw-community/rnw-community/issues/442).
 
 ## Docs
 
@@ -10,7 +22,7 @@ one tracked GitHub issue; the readme keeps a one-line pointer, the detail lives 
 Capture procedure once the on-device Maestro fleet has capacity:
 
 1. Add `startRecording: "sheet"` / `stopRecording` around the sheet-presenting step of the `sheet_opens_on_show.yaml`
-   flow documented in [e2e/readme.md](../react-native-payments-example/e2e/readme.md#flows).
+   flow documented in [e2e/readme.md](../../react-native-payments-example/e2e/readme.md#flows).
 2. Run `maestro test --test-output-dir "$MAESTRO_DEBUG_OUTPUT_DIRECTORY" -e APP_ID=... e2e/flows` from
    `packages/react-native-payments-example` (the `e2e:ios:bare` / `e2e:android:bare` / `:expo` scripts in
    `package.json` don't pass `--test-output-dir` today — add it for the capture run), with
@@ -21,7 +33,7 @@ Capture procedure once the on-device Maestro fleet has capacity:
    and would nest a duplicate `packages/react-native-payments-example/` segment. This makes the `.mp4` land there
    instead of Maestro's default `~/.maestro/tests/<datetime>/`.
 3. Convert with `ffmpeg -i sheet.mp4 -vf "fps=12,scale=320:-1" sheet.gif`.
-4. Embed the result under [Screenshots](./readme.md#screenshots), replacing the placeholder.
+4. Embed the result under [Screenshots](../readme.md#screenshots), replacing the placeholder.
 
 ## Native
 
@@ -67,6 +79,29 @@ Spike findings (decision recorded on the issue):
   import" instructions look like they predate that framework-level linking. Not yet build-verified; needs a
   `pod install` + build against both the ObjC and Swift `AppDelegate` templates before the readme instruction is
   dropped. Effort: XS.
+
+## W3C compliance checklist
+
+- [x] [PaymentRequestUpdateEvent](https://www.w3.org/TR/payment-request/#dom-paymentrequestupdateevent) — JavaScript
+      layer and iOS PassKit delivery implemented (see [guides/change-events.md](./guides/change-events.md)); on-device
+      verification is tracked in [#393](https://github.com/rnw-community/rnw-community/issues/393)
+- [x] [PaymentMethodChangeEvent](https://www.w3.org/TR/payment-request/#dom-paymentmethodchangeevent) — same
+      implementation and verification status as `PaymentRequestUpdateEvent`
+- [x] Implement [PaymentDetailsModifier](https://www.w3.org/TR/payment-request/#dom-paymentdetailsmodifier) — see
+      [guides/modifiers.md](./guides/modifiers.md)
+- [x] Improve and unify errors according to the spec — see [guides/errors.md](./guides/errors.md)
+- [x] Implement [`hasEnrolledInstrument()`](https://www.w3.org/TR/payment-request/#hasenrolledinstrument-method) — see
+      [api/payment-request.md](./api/payment-request.md); Android answers via Google Pay's
+      `existingPaymentMethodRequired`, see [platforms/android.md](./platforms/android.md)
+- [x] Implement the event-handler attributes (`onshippingaddresschange`, `onshippingoptionchange`,
+      `onpaymentmethodchange`, `oncouponcodechange`) — see
+      [guides/change-events.md](./guides/change-events.md#event-handler-attributes)
+- [x] Implement [`PaymentOptions.shippingType`](https://www.w3.org/TR/payment-request/#dom-paymentoptions-shippingtype) as
+      `methodData.data.shippingType` — see [platforms/ios.md](./platforms/ios.md); no-op on Android, see
+      [platforms/android.md](./platforms/android.md)
+- [x] Implement `PaymentResponse` `retry()` method — best-effort subset on iOS, documented no-op on Android; see
+      [guides/retry.md](./guides/retry.md)
+- [x] Implement `PaymentResponse` `toJSON()` method — see [api/payment-response.md](./api/payment-response.md)
 
 ## Related
 
