@@ -3,6 +3,7 @@
 Framework-agnostic middleware primitive for building method decorators (log, metrics, lock, retry, …). Depends only on [`@rnw-community/shared`](https://github.com/rnw-community/rnw-community/tree/master/packages/shared) for its `MethodDecoratorType<K>` primitive. TypeScript `experimentalDecorators`. Dual ESM + CJS.
 
 [![npm version](https://badge.fury.io/js/%40rnw-community%2Fdecorators-core.svg)](https://badge.fury.io/js/%40rnw-community%2Fdecorators-core)
+[![coverage](https://img.shields.io/codecov/c/github/rnw-community/rnw-community?flag=decorators-core&label=coverage)](https://app.codecov.io/gh/rnw-community/rnw-community)
 [![npm downloads](https://img.shields.io/npm/dm/%40rnw-community%2Fdecorators-core.svg)](https://www.npmjs.com/package/%40rnw-community%2Fdecorators-core)
 
 ## The primitive
