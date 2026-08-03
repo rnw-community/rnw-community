@@ -35,4 +35,4 @@ if (response instanceof AndroidPaymentResponse) {
 
 - [api/payment-response.md](./payment-response.md)
 - [api/android-payment-method-token.md](./android-payment-method-token.md)
-- [Google Pay API for Android — response objects](https://developers.google.com/pay/api/android/reference/request-objects)
+- [Google Pay API for Android — response objects](https://developers.google.com/pay/api/android/reference/response-objects)

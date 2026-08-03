@@ -12,7 +12,7 @@ different price than the top-level `total` (e.g. an Apple Pay discount).
 | `supportedMethods` | Matched against the platform's active payment method — see [api/payment-method-name-enum.md](./payment-method-name-enum.md). |
 | `total` | Overrides the top-level `total` when matched. |
 | `additionalDisplayItems` | Appended to `displayItems` when matched. |
-| `data` | Validated for shape but not forwarded to native — the bridge has no per-method extension point for it. |
+| `data` | Not validated by `validateModifiers()` (which only checks `supportedMethods`, `total` and `additionalDisplayItems`) and not forwarded to native — the bridge has no per-method extension point for it. |
 
 ## Example
 

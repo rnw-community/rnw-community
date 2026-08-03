@@ -10,21 +10,23 @@ non-spec build/config failure (the native module not being linked at all — see
 - **`DOMException`** (`instanceof DOMException`, `error.name` is the W3C name) — for the spec-mandated runtime
   states: `AbortError`, `InvalidStateError`, `NotAllowedError`, `NotSupportedError`. `SecurityError` is defined
   but not currently reachable from this implementation (no permission-policy check exists in React Native).
-- **`PaymentsError`** — a plain domain error (`instanceof Error`, `name === 'Error'`) for failures the W3C spec
-  does not name: `show()` rejecting with a non-`Error` reason from the native module bridge (an `Error` reason is
-  propagated as-is instead), every `abort()` rejection from the native module bridge regardless of the rejection
-  reason's type, and a native payment response payload that fails to parse (malformed or syntactically valid but
-  incomplete JSON from the platform SDK, including direct construction of
-  `AndroidPaymentResponse`/`IosPaymentResponse` with malformed tokenization data).
+- **`PaymentsError`** — a plain domain error for failures the W3C spec does not name: `show()` rejecting with a
+  non-`Error` reason from the native module bridge (an `Error` reason is propagated **as-is** instead — see
+  Pitfalls), every `abort()` rejection from the native module bridge regardless of the rejection reason's type,
+  and a native payment response payload that fails to parse (malformed or syntactically valid but incomplete
+  JSON from the platform SDK, including direct construction of `AndroidPaymentResponse`/`IosPaymentResponse`
+  with malformed tokenization data).
 
 ```ts
-import { DOMException } from '@rnw-community/react-native-payments';
+import { DOMException, PaymentsError } from '@rnw-community/react-native-payments';
 
 try {
     await paymentRequest.show();
 } catch (error) {
     if (error instanceof DOMException && error.name === 'AbortError') {
         // user cancelled
+    } else if (error instanceof PaymentsError && !(error instanceof DOMException)) {
+        // this package's own catch-all — see Pitfalls below
     }
 }
 ```
@@ -52,6 +54,16 @@ try {
 | Native payment response payload is malformed or incomplete JSON (incl. direct `AndroidPaymentResponse`/`IosPaymentResponse` construction) | _(not specified)_ | `PaymentsError` |
 | An `updateWith()` listener answers with an invalid total/items/options | _(not specified — spec treats this as no update)_ | Logged via `console.warn`, change event answered with unchanged details |
 | Native module is not linked (`Payments` bridge missing) | _(not specified — build/config error)_ | `Error` |
+
+## Pitfalls
+
+**Neither `error.name === 'Error'` nor `instanceof PaymentsError` alone uniquely identifies `PaymentsError`.**
+`DOMException extends PaymentsError` (see [api/payments-error.md](../api/payments-error.md)), so
+`instanceof PaymentsError` also matches every `DOMException`. Conversely, `show()`'s non-`Error`-reason path
+propagates an already-`Error` native rejection **unchanged**, and that propagated `Error` also has
+`name === 'Error'` by default without being `instanceof PaymentsError` at all. Use
+`error instanceof PaymentsError && !(error instanceof DOMException)` to catch only this package's own catch-all,
+as distinct from a raw `Error` propagated from the native bridge.
 
 ## References
 

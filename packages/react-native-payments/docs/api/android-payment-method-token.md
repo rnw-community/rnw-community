@@ -12,6 +12,10 @@ to your payment gateway.
 | --- | --- | --- |
 | `cardInfo.cardNetwork` | `string` | The card network of the tokenized card. |
 | `cardInfo.cardDetails` | `string` | The last four digits or similar display detail, as returned by Google Pay. |
+| `intermediateSigningKey` | `{ signatures: string; signedKey: AndroidSignedKey }` | The intermediate signing key used to verify the token signature. |
+| `protocolVersion` | `string` | The protocol version of the signed message (e.g. `ECv2`). |
+| `signature` | `string` | The signature over `signedMessage`. |
+| `signedMessage` | `{ encryptedMessage: string; ephemeralPublicKey: string; tag: string }` | The encrypted message envelope — see [Google Pay payment data cryptography](https://developers.google.com/pay/api/android/guides/resources/payment-data-cryptography#signed-message). |
 | `rawToken` | `string` | The raw tokenization payload as returned by Google Pay, before this package's parsing. |
 
 ## Example
@@ -30,10 +34,13 @@ if (response instanceof AndroidPaymentResponse) {
 
 ## Pitfalls
 
-Consumers do not construct this token directly — it comes back parsed from `show()`. Direct construction with
-malformed tokenization data throws `PaymentsError` — see [guides/errors.md](../guides/errors.md).
+`AndroidPaymentMethodToken` is a plain TypeScript interface with no runtime validation of its own — constructing
+an object that merely matches its shape never throws. `PaymentsError` is thrown by
+[`AndroidPaymentResponse`](./android-payment-response.md) when it parses a malformed or incomplete native JSON
+payload (including direct construction of `AndroidPaymentResponse` with malformed tokenization data), not by
+this token type — see [guides/errors.md](../guides/errors.md).
 
 ## References
 
-- [Google Pay API for Android — response objects](https://developers.google.com/pay/api/android/reference/request-objects)
+- [Google Pay API for Android — response objects](https://developers.google.com/pay/api/android/reference/response-objects)
 - [api/android-payment-response.md](./android-payment-response.md)

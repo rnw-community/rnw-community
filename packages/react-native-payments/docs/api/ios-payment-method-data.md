@@ -37,9 +37,11 @@ const iosMethod: IosPaymentMethodDataInterface = {
 
 ## Pitfalls
 
-`applicationData` is not transmitted to Apple but is included in the payment token as a SHA-256 hash
-(`applicationDataHash`) — use it to prevent replay attacks by associating a payment with a specific transaction,
-not to pass data your backend needs verbatim.
+`applicationData` is not transmitted to Apple but is included in the decrypted payment token payload as a
+SHA-256 hash, under the token's own `applicationData` key (per Apple's
+[Payment Token Format Reference](https://developer.apple.com/documentation/passkit/payment-token-format-reference))
+— use it to prevent replay attacks by associating a payment with a specific transaction, not to pass data your
+backend needs verbatim.
 
 ## References
 

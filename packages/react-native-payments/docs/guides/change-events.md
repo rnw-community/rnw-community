@@ -123,7 +123,9 @@ address for `shippingaddresschange`, an invalid coupon code for `couponcodechang
 payment error everywhere else. `shippingoptionchange` has no error slot in PassKit, so an error answered there is
 ignored.
 
-A field-level error carries the discriminator, the field it belongs to and the message shown to the user:
+`error` has three possible shapes, all discriminated by `type`: a `shippingAddressField` or `contactField` error
+carries the offending field (`key`/`field`) and the message shown to the user; a `couponCode` error carries no
+field — instead an optional `expired` flag and the message:
 
 ```ts
 import {

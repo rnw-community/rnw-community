@@ -26,6 +26,14 @@ jest.mock('react-native', () => ({
     },
     Platform: { OS: 'ios', select: (specifics: { default: string }) => specifics.default },
     TurboModuleRegistry: { get: () => null },
+    NativeEventEmitter: class {
+        addListener() {
+            return { remove: () => undefined };
+        }
+        removeAllListeners() {
+            return undefined;
+        }
+    },
 }));
 ```
 
@@ -34,8 +42,13 @@ This works regardless of architecture: `NativePayments` only reaches for the Tur
 normally never sets, so it resolves `NativeModules.Payments` instead — mock that key directly rather than
 `TurboModuleRegistry.getEnforcing`, which this package never calls. All ten `Spec` members from
 `NativePayments.ts` are stubbed, so `retry()` and event registration do not silently no-op in a test that
-exercises them. If Jest fails with `The package 'react-native-payments' doesn't seem to be linked`, this mock is
-the fix — see [#227](https://github.com/rnw-community/rnw-community/issues/227) and
+exercises them. The `NativeEventEmitter` stub is required as soon as `addListener`/`removeListeners` are
+present: `getNativePaymentsEventEmitter()` (`src/util/get-native-payments-event-emitter/`) constructs a real
+`new NativeEventEmitter(...)` the moment those two methods are defined, and a fully-replaced `react-native`
+module has no real `NativeEventEmitter` export to construct — omitting the stub throws
+`NativeEventEmitter is not a constructor` from `PaymentRequest.addEventListener(...)`. If Jest fails with
+`The package 'react-native-payments' doesn't seem to be linked`, this mock is the fix — see
+[#227](https://github.com/rnw-community/rnw-community/issues/227) and
 [troubleshooting.md](./troubleshooting.md).
 
 `show`'s fake resolves to `{ token: {} }` rather than `'{}'` because `PaymentRequest.show()` parses the resolved

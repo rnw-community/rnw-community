@@ -35,7 +35,9 @@ sibling only when the existing tree already groups that pair, e.g. a platform's 
 5. **References** — W3C anchor, Apple/Google doc links, and the guide/platform page with the full narrative.
 
 Add the new file to [docs/api/index.md](docs/api/index.md) and to [llms.txt](llms.txt); regenerate
-[llms-full.txt](llms-full.txt) by concatenating the doc tree in doc-map order.
+[llms-full.txt](llms-full.txt) by concatenating the doc tree in doc-map order, rebasing every embedded file's
+relative links to be relative to the package root (llms-full.txt's own frame of reference) rather than leaving
+them relative to the file they originally came from.
 
 ## Package Commands
 

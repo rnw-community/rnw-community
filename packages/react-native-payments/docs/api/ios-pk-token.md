@@ -10,7 +10,7 @@ tokenized card data to send to your payment gateway.
 
 | Member | Type | Notes |
 | --- | --- | --- |
-| `paymentData` | `IosPaymentData` | The decrypted-shape payment data — send this to your payment processor. |
+| `paymentData` | `IosPaymentData` | The still-**encrypted** payment token envelope (`data`, `header`, `signature`, `version`) — send it to your e-commerce backend, where it is decrypted with your payment processing certificate and submitted to your payment processor. |
 | `paymentMethod.displayName` / `.network` / `.type` | `string` / `string` / `IosPKPaymentMethodType` | Describes the card used for the payment. |
 | `transactionIdentifier` | `string` | Correlates the payment attempt with Apple's servers. |
 
@@ -30,8 +30,13 @@ if (response instanceof IosPaymentResponse) {
 
 ## Pitfalls
 
-Consumers do not construct this token directly — it comes back parsed from `show()`. Direct construction with
-malformed tokenization data throws `PaymentsError` — see [guides/errors.md](../guides/errors.md).
+- `IosPKToken` is a plain TypeScript interface with no runtime validation of its own — constructing an object
+  that merely matches its shape never throws. `PaymentsError` is thrown by
+  [`IosPaymentResponse`](./ios-payment-response.md) when it parses a malformed or incomplete native JSON payload
+  (including direct construction of `IosPaymentResponse` with malformed tokenization data), not by this token
+  type — see [guides/errors.md](../guides/errors.md).
+- `paymentData` is never decrypted by this package — decrypt it on your backend with your payment processing
+  certificate before submitting it to your processor.
 
 ## References
 

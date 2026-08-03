@@ -7,8 +7,9 @@ method (`PaymentMethodNameEnum.ApplePay` on iOS, `PaymentMethodNameEnum.AndroidP
 before serializing details to native: `modifier.total` overrides the top-level `total` and
 `modifier.additionalDisplayItems` is appended to `displayItems`. A modifier for the other platform's method is
 ignored. The same resolution runs again on every `updateWith()` call, so a listener can ship an updated
-`modifiers` array together with the rest of the update. `modifier.data` is validated for shape but not forwarded
-to native — the bridge has no per-method extension point for it.
+`modifiers` array together with the rest of the update. `modifier.data` is not validated (`validateModifiers()`
+only checks `supportedMethods`, `total` and `additionalDisplayItems`) and is not forwarded to native — the
+bridge has no per-method extension point for it.
 
 ```ts
 const paymentDetails = {

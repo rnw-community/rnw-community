@@ -96,6 +96,7 @@ const applePayToken = paymentResponse.details.applePayToken; // typed IosPKToken
 
 let responseBody: unknown;
 let backendAccepted = false;
+let backendError: unknown;
 
 try {
     const result = await fetch('...', { method: 'POST', body: JSON.stringify(applePayToken) });
@@ -105,14 +106,17 @@ try {
     responseBody = await result.json();
     backendAccepted = true;
 } catch (error) {
-    errorHandler(error);
+    backendError = error;
 }
 
-// complete() is called exactly once, outside any catch, so it never fires twice even if it rejects itself.
+// complete() is called exactly once, before either handler, so a throw from successHandler/errorHandler can
+// never prevent it from running or trigger a second call.
 await paymentResponse.complete(backendAccepted ? PaymentComplete.SUCCESS : PaymentComplete.FAIL);
 
 if (backendAccepted) {
     successHandler(responseBody);
+} else {
+    errorHandler(backendError);
 }
 ```
 
