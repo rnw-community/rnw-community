@@ -1,21 +1,24 @@
 # `PaymentsErrorEnum`
 
-The message carried by every `DOMException` and rejection the library throws. Reach for it to compare against
-`error.message`, though `error.name` is the more stable field to branch on.
+The W3C `DOMException` **names** this library throws — `PaymentsErrorEnum.AbortError` etc. are the exact strings
+assigned to `error.name`, not the human-readable message. Reach for it when constructing or comparing against a
+`DOMException`'s `name`, e.g. in a custom native module shim or a test fixture.
 
 ## How
 
-| Member | W3C error name |
-| --- | --- |
-| `AbortError` | User or code aborted the request. |
-| `InvalidStateError` | Method called while the request/response is in the wrong state. |
-| `NotAllowedError` | Not currently reachable from this implementation. |
-| `NotSupportedError` | No platform-matching payment handler. |
-| `SecurityError` | Defined but not currently reachable — no permission-policy check exists in React Native. |
+| Member | `error.name` value | Meaning |
+| --- | --- | --- |
+| `AbortError` | `'AbortError'` | User or code aborted the request. |
+| `InvalidStateError` | `'InvalidStateError'` | Method called while the request/response is in the wrong state. |
+| `NotAllowedError` | `'NotAllowedError'` | Not currently reachable from this implementation. |
+| `NotSupportedError` | `'NotSupportedError'` | No platform-matching payment handler. |
+| `SecurityError` | `'SecurityError'` | Defined but not currently reachable — no permission-policy check exists in React Native. |
 
-Every `DOMException` also carries the W3C error name in `error.name`, which is the stable way to branch on the
-failure. Native user cancellation (the person dismissing the payment sheet on either platform) is normalized to
-an `AbortError` `DOMException`, matching the W3C behaviour.
+Every `DOMException` sets `this.name` to the `PaymentsErrorEnum` member it was constructed with, so
+`error.name` (not `error.message`) is the stable way to branch on the failure — `error.message` is a separate,
+human-readable string (e.g. `"The operation was aborted."`) formatted independently of this enum. Native user
+cancellation (the person dismissing the payment sheet on either platform) is normalized to an `AbortError`
+`DOMException`, matching the W3C behaviour.
 
 ## Example
 
@@ -29,9 +32,10 @@ paymentRequest.show().catch((error: Error) => {
 
 ## Pitfalls
 
-Branch on `error.name`, not on `error.message` — the enum values back the message, but the name is the field the
-W3C spec actually stabilizes.
+Branch on `error.name`, not `error.message` — `PaymentsErrorEnum` members are names, and the message text is an
+implementation detail that can change without notice.
 
 ## References
 
 - [guides/errors.md](../guides/errors.md)
+- [api/dom-exception.md](./dom-exception.md)

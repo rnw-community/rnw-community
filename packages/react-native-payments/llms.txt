@@ -34,7 +34,7 @@ handshake without a repo-wide search.
 - [docs/guides/modifiers.md](docs/guides/modifiers.md): Per-method `PaymentDetailsModifier` resolution.
 - [docs/guides/errors.md](docs/guides/errors.md): The `ConstructorError` / `DOMException` / `PaymentsError` mapping table.
 - [docs/guides/retry.md](docs/guides/retry.md): `PaymentResponse.retry()` semantics and platform limits.
-- [docs/guides/testing.md](docs/guides/testing.md): Jest `TurboModuleRegistry` mock and example apps.
+- [docs/guides/testing.md](docs/guides/testing.md): Jest `NativeModules.Payments` mock and example apps.
 - [docs/guides/troubleshooting.md](docs/guides/troubleshooting.md): Real reported issues and their fixes.
 - [docs/guides/migrate-from-v2.md](docs/guides/migrate-from-v2.md): Breaking changes and upgrade steps from v2 to v3.
 - [docs/guides/migrate-from-upstream.md](docs/guides/migrate-from-upstream.md): API mapping from `naoufal/react-native-payments`.

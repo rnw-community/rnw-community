@@ -15,7 +15,7 @@ if (!validation.ok) {
         shippingAddress: { [PaymentAddressFieldEnum.PostalCode]: 'We do not ship to this postal code' },
     });
 } else {
-    await paymentResponse.complete(PaymentComplete.Success);
+    await paymentResponse.complete(PaymentComplete.SUCCESS);
 }
 ```
 

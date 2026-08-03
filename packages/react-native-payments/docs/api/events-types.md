@@ -9,9 +9,9 @@ before it reaches a listener.
 | Type | Shape | Notes |
 | --- | --- | --- |
 | `PaymentRequestEventType` | `'shippingaddresschange' \| 'shippingoptionchange' \| 'paymentmethodchange' \| 'couponcodechange'` | Accepted by `addEventListener`/`removeEventListener`. |
-| `PaymentRequestEventListener` | `(event: PaymentRequestUpdateEvent) => void` | For `shippingaddresschange`, `shippingoptionchange` and `couponcodechange`. |
-| `PaymentMethodChangeEventListener` | `(event: PaymentMethodChangeEvent) => void` | For `paymentmethodchange`. |
-| `PaymentRequestEventPayloadInterface` | `{ requestId: string; eventId: number; … }` | The raw native payload carried by a change event, before it is applied to the request and dispatched to listeners. `requestId`/`eventId` identify the request and the native completion handler; the rest is event-type specific. |
+| `PaymentRequestEventListener` | `(event: PaymentRequestUpdateEvent) => Promise<void> \| void` | For `shippingaddresschange`, `shippingoptionchange` and `couponcodechange`. Both sync and async listeners are accepted — see [guides/change-events.md](../guides/change-events.md). |
+| `PaymentMethodChangeEventListener` | `(event: PaymentMethodChangeEvent) => Promise<void> \| void` | For `paymentmethodchange`. |
+| `PaymentRequestEventPayloadInterface` | `{ requestId: string; eventId?: number; … }` | The raw native payload carried by a change event, before it is applied to the request and dispatched to listeners. `requestId` always identifies the request; `eventId` identifies the native completion handler and is optional — the rest is event-type specific. |
 
 ## Example
 
@@ -37,7 +37,10 @@ const payload: PaymentRequestEventPayloadInterface = {
 
 ## Pitfalls
 
-None beyond the listener/dispatch rules documented in [guides/change-events.md](../guides/change-events.md).
+- `eventId` on `PaymentRequestEventPayloadInterface` is optional — guard with `isDefined`/`?.` before forwarding
+  it to a native completion call instead of assuming it is always a `number`.
+- A listener may return either synchronously or a `Promise` — `updateWith` does not have to be called before the
+  listener function returns. See [guides/change-events.md](../guides/change-events.md).
 
 ## References
 

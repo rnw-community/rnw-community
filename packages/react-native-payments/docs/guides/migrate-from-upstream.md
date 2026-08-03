@@ -17,7 +17,7 @@ the concrete API surface so an existing integration can be ported.
 | `addEventListener('shippingaddresschange' \| 'shippingoptionchange', e => e.updateWith(...))` | Same two, plus `paymentmethodchange` and the PassKit-only `couponcodechange` | Request-scoped native events, `isAnswered`, field-level errors. See [change-events.md](./change-events.md). |
 | `paymentResponse.details.paymentData` / `transactionIdentifier` (iOS) | `paymentResponse.details.applePayToken` (`IosPKToken`) | One typed token object instead of loose fields. |
 | `paymentResponse.details.getPaymentToken()` (Android, async) / `.paymentToken` (gateway) | `paymentResponse.details.androidPayToken` (`AndroidPaymentMethodToken`) | Synchronous typed field; no async indirection, no built-in gateway token. |
-| `paymentResponse.complete('success' \| 'fail' \| 'unknown')` (string) | `paymentResponse.complete(PaymentComplete.Success \| PaymentComplete.Fail \| PaymentComplete.Unknown)` (enum) | Same three outcomes, typed — see [api/payment-complete-enum.md](../api/payment-complete-enum.md). |
+| `paymentResponse.complete('success' \| 'fail' \| 'unknown')` (string) | `paymentResponse.complete(PaymentComplete.SUCCESS \| PaymentComplete.FAIL \| PaymentComplete.UNKNOWN)` (enum) | Same three outcomes, typed — see [api/payment-complete-enum.md](../api/payment-complete-enum.md). |
 | Built-in Stripe / Braintree add-on packages | Removed — bring your own gateway via `gatewayConfig` (Android) or the raw token (iOS) | Stripe/Braintree already ship their own maintained RN SDKs. |
 | Untyped JS, legacy bridge module | Full TypeScript, TurboModule (New Architecture-ready) | See [architecture.md](../architecture.md). |
 | Ad-hoc thrown errors, no stable identity | Spec-mapped `ConstructorError` / `DOMException` / `PaymentsError` | See [errors.md](./errors.md). |
@@ -94,17 +94,23 @@ const paymentRequest = new PaymentRequest(methodData, paymentDetails);
 const paymentResponse = await paymentRequest.show();
 const applePayToken = paymentResponse.details.applePayToken; // typed IosPKToken
 
+let responseBody: unknown;
+
 try {
     const result = await fetch('...', { method: 'POST', body: JSON.stringify(applePayToken) });
     if (!result.ok) {
         throw new Error(`Backend rejected the payment: ${result.status}`);
     }
-    successHandler(await result.json());
-    await paymentResponse.complete(PaymentComplete.Success);
+    responseBody = await result.json();
+    await paymentResponse.complete(PaymentComplete.SUCCESS);
 } catch (error) {
     errorHandler(error);
-    await paymentResponse.complete(PaymentComplete.Fail);
+    await paymentResponse.complete(PaymentComplete.FAIL);
+    return;
 }
+
+// Outside the try: a throw here must not flip an already-successful charge to Fail.
+successHandler(responseBody);
 ```
 
 The differences that matter beyond syntax: no `global.PaymentRequest` polyfill, enums instead of string literals,

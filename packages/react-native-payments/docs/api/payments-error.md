@@ -25,8 +25,13 @@ try {
 
 ## Pitfalls
 
-Not spec-mandated — do not branch on `error.name` the way you would for `DOMException`; use `instanceof
-PaymentsError` (or `instanceof Error` plus `name === 'Error'`) instead.
+- **`instanceof PaymentsError` also matches `DOMException`** — `DOMException extends PaymentsError` in this
+  package's error hierarchy, so a bare `instanceof PaymentsError` check catches every spec-mapped abort/invalid-
+  state/not-supported error too, not just the failures documented above. Use `error instanceof Error &&
+  error.name === 'Error'` (as in the example) to catch only this catch-all shape, or check
+  `!(error instanceof DOMException)` first if you need `instanceof PaymentsError` for some other reason.
+- Not spec-mandated — do not branch on `error.name` the way you would for `DOMException`; `PaymentsError`
+  inherits the default `Error.prototype.name` (`'Error'`) instead of a stable W3C name.
 
 ## References
 

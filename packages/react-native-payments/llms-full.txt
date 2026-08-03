@@ -66,11 +66,11 @@ if (await paymentRequest.canMakePayment()) {
     const paymentResponse = await paymentRequest.show();
     const isConfirmed = await sendToYourBackend(paymentResponse.details); // your own gateway call
 
-    await paymentResponse.complete(isConfirmed ? PaymentComplete.Success : PaymentComplete.Fail);
+    await paymentResponse.complete(isConfirmed ? PaymentComplete.SUCCESS : PaymentComplete.FAIL);
 }
 ```
 
-Only call `complete(PaymentComplete.Success)` once your backend has actually confirmed the charge. A
+Only call `complete(PaymentComplete.SUCCESS)` once your backend has actually confirmed the charge. A
 `PaymentRequest` is single-use — build a new one per payment attempt rather than reusing a settled request; see
 [docs/architecture.md](docs/architecture.md). For the full two-platform `methodData` shape, shipping/coupon
 change events, and payment details modifiers, see the [doc map](#doc-map) below.
@@ -768,9 +768,9 @@ before it reaches a listener.
 | Type | Shape | Notes |
 | --- | --- | --- |
 | `PaymentRequestEventType` | `'shippingaddresschange' \| 'shippingoptionchange' \| 'paymentmethodchange' \| 'couponcodechange'` | Accepted by `addEventListener`/`removeEventListener`. |
-| `PaymentRequestEventListener` | `(event: PaymentRequestUpdateEvent) => void` | For `shippingaddresschange`, `shippingoptionchange` and `couponcodechange`. |
-| `PaymentMethodChangeEventListener` | `(event: PaymentMethodChangeEvent) => void` | For `paymentmethodchange`. |
-| `PaymentRequestEventPayloadInterface` | `{ requestId: string; eventId: number; … }` | The raw native payload carried by a change event, before it is applied to the request and dispatched to listeners. `requestId`/`eventId` identify the request and the native completion handler; the rest is event-type specific. |
+| `PaymentRequestEventListener` | `(event: PaymentRequestUpdateEvent) => Promise<void> \| void` | For `shippingaddresschange`, `shippingoptionchange` and `couponcodechange`. Both sync and async listeners are accepted — see [guides/change-events.md](../guides/change-events.md). |
+| `PaymentMethodChangeEventListener` | `(event: PaymentMethodChangeEvent) => Promise<void> \| void` | For `paymentmethodchange`. |
+| `PaymentRequestEventPayloadInterface` | `{ requestId: string; eventId?: number; … }` | The raw native payload carried by a change event, before it is applied to the request and dispatched to listeners. `requestId` always identifies the request; `eventId` identifies the native completion handler and is optional — the rest is event-type specific. |
 
 ## Example
 
@@ -796,7 +796,10 @@ const payload: PaymentRequestEventPayloadInterface = {
 
 ## Pitfalls
 
-None beyond the listener/dispatch rules documented in [guides/change-events.md](../guides/change-events.md).
+- `eventId` on `PaymentRequestEventPayloadInterface` is optional — guard with `isDefined`/`?.` before forwarding
+  it to a native completion call instead of assuming it is always a `number`.
+- A listener may return either synchronously or a `Promise` — `updateWith` does not have to be called before the
+  listener function returns. See [guides/change-events.md](../guides/change-events.md).
 
 ## References
 
@@ -946,24 +949,24 @@ confirmed (or rejected) the charge.
 
 ## How
 
-| Member | Meaning |
-| --- | --- |
-| `Success` | The payment was confirmed by your backend. |
-| `Fail` | The payment failed or your backend rejected it. |
-| `Unknown` | The outcome could not be determined. |
+| Member | Runtime value | Meaning |
+| --- | --- | --- |
+| `SUCCESS` | `'success'` | The payment was confirmed by your backend. |
+| `FAIL` | `'fail'` | The payment failed or your backend rejected it. |
+| `UNKNOWN` | `'unknown'` | The outcome could not be determined. |
 
 ## Example
 
 ```ts
 import { PaymentComplete } from '@rnw-community/react-native-payments';
 
-paymentResponse.complete(PaymentComplete.Success); // OR PaymentComplete.Fail
+paymentResponse.complete(PaymentComplete.SUCCESS); // OR PaymentComplete.FAIL
 ```
 
 ## Pitfalls
 
-- Only call `complete(PaymentComplete.Success)` once your backend has actually confirmed the charge — completing
-  with `Success` before that point tells the sheet (and the user) the payment went through even if it didn't.
+- Only call `complete(PaymentComplete.SUCCESS)` once your backend has actually confirmed the charge — completing
+  with `SUCCESS` before that point tells the sheet (and the user) the payment went through even if it didn't.
 - Has no effect on Android — see [platforms/android.md](../platforms/android.md).
 
 ## References
@@ -1064,7 +1067,7 @@ typing a change-event listener's response.
 
 | Type | Shape | Notes |
 | --- | --- | --- |
-| `PaymentDetailsUpdate` | `{ total?, displayItems?, shippingOptions?, error?: PaymentDetailsUpdateError }` | Every member is optional — only the provided members replace the current details. See [guides/change-events.md](../guides/change-events.md). |
+| `PaymentDetailsUpdate` | `{ total?, displayItems?, shippingOptions?, modifiers?: PaymentDetailsModifier[], error?: PaymentDetailsUpdateError }` | Every member is optional — only the provided members replace the current details. `modifiers` is inherited from `PaymentDetailsBase` and is re-resolved against the platform's active payment method on every `updateWith()` call — see [guides/modifiers.md](../guides/modifiers.md). |
 | `PaymentDetailsUpdateError` | `string \| { type: PaymentUpdateErrorTypeEnum; … }` | A plain string, or a field-level error — see [api/payment-update-error-type-enum.md](./payment-update-error-type-enum.md). |
 
 ## Example
@@ -1091,6 +1094,7 @@ reported to the console and never reaches the sheet. See [guides/change-events.m
 
 - [W3C `PaymentDetailsUpdate`](https://www.w3.org/TR/payment-request/#dom-paymentdetailsupdate)
 - [guides/change-events.md](../guides/change-events.md#sheet-errors)
+- [guides/modifiers.md](../guides/modifiers.md)
 
 ---
 
@@ -1230,7 +1234,7 @@ per-class signature reference.
 | --- | --- | --- |
 | `updateWith(detailsOrPromise)` | `(details: PaymentDetailsUpdate \| Promise<PaymentDetailsUpdate>) => void` | Answers the event. Throws `InvalidStateError` if called twice. |
 | `isAnswered` | `boolean` | `true` once `updateWith` was called for the event. |
-| `PaymentMethodChangeEvent.methodDetails` | `Record<string, unknown> \| undefined` | The selected payment method's details, only on `paymentmethodchange`. |
+| `PaymentMethodChangeEvent.methodDetails` | `Record<string, unknown> \| null` | The selected payment method's details, only on `paymentmethodchange`. `null` (not `undefined`) when the native layer omits the field. |
 
 ## Example
 
@@ -1317,7 +1321,7 @@ if (await paymentRequest.canMakePayment()) {
     const paymentResponse = await paymentRequest.show();
     const isConfirmed = await sendToYourBackend(paymentResponse.details);
 
-    await paymentResponse.complete(isConfirmed ? PaymentComplete.Success : PaymentComplete.Fail);
+    await paymentResponse.complete(isConfirmed ? PaymentComplete.SUCCESS : PaymentComplete.FAIL);
 }
 ```
 
@@ -1327,8 +1331,8 @@ if (await paymentRequest.canMakePayment()) {
   request moves to the `closed` state, its change-event listeners are released and every further `show()`
   rejects with `InvalidStateError`. Build a new `PaymentRequest` to retry a payment. See
   [architecture.md](../architecture.md).
-- Only call `complete(PaymentComplete.Success)` once your backend has actually confirmed the charge — completing
-  with `Success` before that point tells the sheet (and the user) the payment went through even if it didn't.
+- Only call `complete(PaymentComplete.SUCCESS)` once your backend has actually confirmed the charge — completing
+  with `SUCCESS` before that point tells the sheet (and the user) the payment went through even if it didn't.
 - On web, `PaymentRequest` resolves to the browser's own implementation — see [platforms/web.md](../platforms/web.md).
 
 ## References
@@ -1343,29 +1347,44 @@ if (await paymentRequest.canMakePayment()) {
 
 # `PaymentResponseAddressInterface`
 
-The shape of `PaymentResponse.billingAddress` and `PaymentResponse.shippingAddress`, and of
+The shape of `PaymentResponse.details.billingAddress` and `PaymentResponse.details.shippingAddress`, and of
 `PaymentRequest.shippingAddress` while a change event is pending. Reach for it when reading a user's address off
 a response or an in-progress shipping-address change.
 
 ## How
 
-Present on `PaymentResponse` only when the matching `request*` flag (`requestBillingAddress` /
-`requestShipping`) was set on `methodData.data`.
+`details.billingAddress` and `details.shippingAddress` are always objects on the two concrete response classes
+(`IosPaymentResponse`, `AndroidPaymentResponse`) — never absent — but every field is an empty string unless the
+matching request flag was set:
+
+| Platform | Populated when |
+| --- | --- |
+| iOS `billingAddress` | `requestBillingAddress` is `true`. |
+| iOS `shippingAddress` | `requestShipping` is `true`. |
+| Android `billingAddress` | `requestBillingAddress`, `requestPayerName` **or** `requestPayerPhone` is `true` — Google Pay returns the billing address whenever any of the three is requested, not only `requestBillingAddress`. |
+| Android `shippingAddress` | `requestShipping` is `true`. |
+
+`PaymentRequest.shippingAddress` (the in-progress change-event value, not the settled response) is
+`Maybe<PaymentResponseAddressInterface>` — `null` until the first `shippingaddresschange` event arrives.
 
 ## Example
 
 ```ts
 const response = await paymentRequest.show();
 
-response.billingAddress; // PaymentResponseAddressInterface | null
+response.details.billingAddress; // PaymentResponseAddressInterface, empty strings if not requested
 ```
 
 ## Pitfalls
 
-On iOS the shipping address of a change event is **redacted** by PassKit: only `address2` (city), `address3`
-(state), `postalCode` and `countryCode` are filled, while the street and the payer name, email and phone stay
-empty until the payment is authorized — quote shipping from the postal code and the country, never from the
-street. See [guides/change-events.md](../guides/change-events.md#changed-values-on-the-request).
+- Reading `response.billingAddress` directly (instead of `response.details.billingAddress`) reads `undefined` —
+  see [api/payment-response.md](./payment-response.md).
+- On Android, `billingAddress` is populated by `requestPayerName`/`requestPayerPhone` alone, even without
+  `requestBillingAddress` — do not use its presence to infer that billing address was explicitly requested.
+- On iOS the shipping address of a change event is **redacted** by PassKit: only `address2` (city), `address3`
+  (state), `postalCode` and `countryCode` are filled, while the street and the payer name, email and phone stay
+  empty until the payment is authorized — quote shipping from the postal code and the country, never from the
+  street. See [guides/change-events.md](../guides/change-events.md#changed-values-on-the-request).
 
 ## References
 
@@ -1418,24 +1437,36 @@ transaction.
 
 | Member | Signature | Notes |
 | --- | --- | --- |
+| `requestId`, `methodName`, `shippingOption` | readonly properties | Mirror the constructor arguments — `shippingOption` is the selected option's id at the moment `show()` resolved, or `null`. |
+| `details` | `PaymentResponseDetailsInterface` | Everything platform/payment-method specific lives here — see below. |
 | `complete(result)` | `(result: PaymentComplete): Promise<void>` | Dismisses the sheet with the given outcome. No effect on Android. See [platforms/android.md](../platforms/android.md). |
 | `retry(errorFields?)` | `(errorFields?: PaymentValidationErrors): Promise<void>` | Asks the user to correct fields instead of completing — see [guides/retry.md](../guides/retry.md). |
 | `toJSON()` | `(): PaymentResponseJsonInterface` | Spec-shaped serialization — see [api/payment-response-json.md](./payment-response-json.md). |
-| `billingAddress` | `PaymentResponseAddressInterface \| null` | Present only if `requestBillingAddress` was set. See [api/payment-response-address.md](./payment-response-address.md). |
-| `shippingAddress` | `PaymentResponseAddressInterface \| null` | Present only if `requestShipping` was set. |
-| `payerEmail`, `payerName`, `payerPhone` | `string \| null` | Present only if the matching `request*` flag was set. |
-| `androidPayToken` | `AndroidPaymentMethodToken \| undefined` | Only on `AndroidPaymentResponse` — see [api/android-payment-response.md](./android-payment-response.md). |
-| `applePayToken` | `IosPKToken \| undefined` | Only on `IosPaymentResponse` — see [api/ios-payment-response.md](./ios-payment-response.md). |
+
+`billingAddress`, `shippingAddress`, `payerEmail`, `payerName`, `payerPhone`, `androidPayToken` and
+`applePayToken` are **not** direct properties of `PaymentResponse` — they live on `paymentResponse.details`
+(`PaymentResponseDetailsInterface`):
+
+| `details` member | Type | Notes |
+| --- | --- | --- |
+| `billingAddress?` | `PaymentResponseAddressInterface` | Present only if `requestBillingAddress` was set — also populated on Android when `requestPayerName`/`requestPayerPhone` is set, see [api/payment-response-address.md](./payment-response-address.md). |
+| `shippingAddress?` | `PaymentResponseAddressInterface` | Present only if `requestShipping` was set. |
+| `payerEmail?`, `payerName?`, `payerPhone?` | `string` | Present only if the matching `request*` flag was set. |
+| `androidPayToken` | `AndroidPaymentMethodToken` | Populated on `AndroidPaymentResponse`, an empty placeholder token otherwise — see [api/android-payment-response.md](./android-payment-response.md). |
+| `applePayToken` | `IosPKToken` | Populated on `IosPaymentResponse`, an empty placeholder token otherwise — see [api/ios-payment-response.md](./ios-payment-response.md). |
 
 ## Example
 
 ```ts
 const paymentResponse = await paymentRequest.show();
 
+paymentResponse.details.billingAddress;
+paymentResponse.details.payerEmail;
+
 const json = paymentResponse.toJSON();
 // { requestId, methodName, details, shippingAddress, shippingOption, payerName, payerEmail, payerPhone }
 
-await paymentResponse.complete(PaymentComplete.Success);
+await paymentResponse.complete(PaymentComplete.SUCCESS);
 ```
 
 ## Pitfalls
@@ -1446,6 +1477,9 @@ await paymentResponse.complete(PaymentComplete.Success);
 - `shippingAddress`, `payerName`, `payerEmail` and `payerPhone` on `toJSON()`'s output default to `null` when not
   requested; `shippingOption` mirrors `PaymentRequest.shippingOption` at the moment `show()` resolved and is
   `null` when shipping options were never offered.
+- Reading `paymentResponse.billingAddress` (or any of the other `details` members) directly on the response
+  instead of through `.details` is `undefined` at the type level — `PaymentResponse` only declares `requestId`,
+  `methodName`, `details` and `shippingOption`.
 
 ## References
 
@@ -1576,22 +1610,25 @@ An omitted `payer`/`shippingAddress` still fails the attempt but nothing is high
 
 # `PaymentsErrorEnum`
 
-The message carried by every `DOMException` and rejection the library throws. Reach for it to compare against
-`error.message`, though `error.name` is the more stable field to branch on.
+The W3C `DOMException` **names** this library throws — `PaymentsErrorEnum.AbortError` etc. are the exact strings
+assigned to `error.name`, not the human-readable message. Reach for it when constructing or comparing against a
+`DOMException`'s `name`, e.g. in a custom native module shim or a test fixture.
 
 ## How
 
-| Member | W3C error name |
-| --- | --- |
-| `AbortError` | User or code aborted the request. |
-| `InvalidStateError` | Method called while the request/response is in the wrong state. |
-| `NotAllowedError` | Not currently reachable from this implementation. |
-| `NotSupportedError` | No platform-matching payment handler. |
-| `SecurityError` | Defined but not currently reachable — no permission-policy check exists in React Native. |
+| Member | `error.name` value | Meaning |
+| --- | --- | --- |
+| `AbortError` | `'AbortError'` | User or code aborted the request. |
+| `InvalidStateError` | `'InvalidStateError'` | Method called while the request/response is in the wrong state. |
+| `NotAllowedError` | `'NotAllowedError'` | Not currently reachable from this implementation. |
+| `NotSupportedError` | `'NotSupportedError'` | No platform-matching payment handler. |
+| `SecurityError` | `'SecurityError'` | Defined but not currently reachable — no permission-policy check exists in React Native. |
 
-Every `DOMException` also carries the W3C error name in `error.name`, which is the stable way to branch on the
-failure. Native user cancellation (the person dismissing the payment sheet on either platform) is normalized to
-an `AbortError` `DOMException`, matching the W3C behaviour.
+Every `DOMException` sets `this.name` to the `PaymentsErrorEnum` member it was constructed with, so
+`error.name` (not `error.message`) is the stable way to branch on the failure — `error.message` is a separate,
+human-readable string (e.g. `"The operation was aborted."`) formatted independently of this enum. Native user
+cancellation (the person dismissing the payment sheet on either platform) is normalized to an `AbortError`
+`DOMException`, matching the W3C behaviour.
 
 ## Example
 
@@ -1605,12 +1642,13 @@ paymentRequest.show().catch((error: Error) => {
 
 ## Pitfalls
 
-Branch on `error.name`, not on `error.message` — the enum values back the message, but the name is the field the
-W3C spec actually stabilizes.
+Branch on `error.name`, not `error.message` — `PaymentsErrorEnum` members are names, and the message text is an
+implementation detail that can change without notice.
 
 ## References
 
 - [guides/errors.md](../guides/errors.md)
+- [api/dom-exception.md](./dom-exception.md)
 
 ---
 
@@ -1643,8 +1681,13 @@ try {
 
 ## Pitfalls
 
-Not spec-mandated — do not branch on `error.name` the way you would for `DOMException`; use `instanceof
-PaymentsError` (or `instanceof Error` plus `name === 'Error'`) instead.
+- **`instanceof PaymentsError` also matches `DOMException`** — `DOMException extends PaymentsError` in this
+  package's error hierarchy, so a bare `instanceof PaymentsError` check catches every spec-mapped abort/invalid-
+  state/not-supported error too, not just the failures documented above. Use `error instanceof Error &&
+  error.name === 'Error'` (as in the example) to catch only this catch-all shape, or check
+  `!(error instanceof DOMException)` first if you need `instanceof PaymentsError` for some other reason.
+- Not spec-mandated — do not branch on `error.name` the way you would for `DOMException`; `PaymentsError`
+  inherits the default `Error.prototype.name` (`'Error'`) instead of a stable W3C name.
 
 ## References
 
@@ -2024,7 +2067,7 @@ if (!validation.ok) {
         shippingAddress: { [PaymentAddressFieldEnum.PostalCode]: 'We do not ship to this postal code' },
     });
 } else {
-    await paymentResponse.complete(PaymentComplete.Success);
+    await paymentResponse.complete(PaymentComplete.SUCCESS);
 }
 ```
 
@@ -2074,31 +2117,36 @@ dismisses the sheet, which would silently cancel the correction opportunity `ret
 
 # Unit testing
 
-Due to the New Architecture TurboModules in React Native, you can
-[encounter issues](https://github.com/rnw-community/rnw-community/issues/227) with Jest tests. To fix this, you
-can mock the `TurboModuleRegistry` to disable the `Payments` module in Jest tests:
+Without a linked native binary, `NativePayments` (`src/class/native-payments/native-payments.ts`) falls back to a
+`Proxy` that throws `The package 'react-native-payments' doesn't seem to be linked` for any required method call
+(`show`, `abort`, `complete`, `canMakePayment`, `hasEnrolledInstrument`) — see
+[architecture.md](../architecture.md). Mock `react-native`'s `NativeModules.Payments` so the module resolves to
+your own fakes instead of falling through to that proxy:
 
 ```ts
-const turboModuleRegistry = jest.requireActual('react-native/Libraries/TurboModule/TurboModuleRegistry');
+import { jest } from '@jest/globals';
 
-export function setupJestTurboModuleMock(): void {
-    jest.mock('react-native/Libraries/TurboModule/TurboModuleRegistry', () => {
-        return {
-            ...turboModuleRegistry,
-            getEnforcing: (name: string) => {
-                if (name === 'Payment') {
-                    return null;
-                }
-                return turboModuleRegistry.getEnforcing(name);
-            },
-        };
-    });
-}
+jest.mock('react-native', () => ({
+    NativeModules: {
+        Payments: {
+            show: jest.fn(() => Promise.resolve('{}')),
+            abort: jest.fn(() => Promise.resolve()),
+            canMakePayments: jest.fn(() => Promise.resolve(true)),
+            hasEnrolledInstrument: jest.fn(() => Promise.resolve(true)),
+            complete: jest.fn(() => Promise.resolve()),
+        },
+    },
+    Platform: { OS: 'ios', select: (specifics: { default: string }) => specifics.default },
+    TurboModuleRegistry: { get: () => null },
+}));
 ```
 
-If Jest fails with `TurboModuleRegistry.getEnforcing(...): 'Payments' could not be found`, this mock is the fix —
-see [#227](https://github.com/rnw-community/rnw-community/issues/227) and
-[troubleshooting.md](./troubleshooting.md).
+This works regardless of architecture: `NativePayments` only reaches for the TurboModule path
+(`TurboModuleRegistry.get('Payments')`, plural) when `global.__turboModuleProxy` is set, which a Jest run
+normally never sets, so it resolves `NativeModules.Payments` instead — mock that key directly rather than
+`TurboModuleRegistry.getEnforcing`, which this package never calls. If Jest fails with
+`The package 'react-native-payments' doesn't seem to be linked`, this mock is the fix — see
+[#227](https://github.com/rnw-community/rnw-community/issues/227) and [troubleshooting.md](./troubleshooting.md).
 
 ## Example apps
 
@@ -2183,9 +2231,10 @@ as [migrate-from-v2.md](./migrate-from-v2.md) describes, regardless of architect
 `TSObjectKeyword` or an abstract-method mismatch when New Architecture is enabled is the codegen version-skew
 issue above, not a New Architecture incompatibility.
 
-**Jest: `TurboModuleRegistry.getEnforcing(...): 'Payments' could not be found`.** Covered in
-[testing.md](./testing.md) — mock `TurboModuleRegistry` to return `null` for the `Payments` module
-([#227](https://github.com/rnw-community/rnw-community/issues/227)).
+**Jest: `The package 'react-native-payments' doesn't seem to be linked` (originally reported as
+`TurboModuleRegistry.getEnforcing(...): 'Payments' could not be found`).** Covered in
+[testing.md](./testing.md) — mock `NativeModules.Payments` so the module resolves to a fake instead of falling
+through to the linking-error proxy ([#227](https://github.com/rnw-community/rnw-community/issues/227)).
 
 ---
 
@@ -2237,7 +2286,7 @@ the concrete API surface so an existing integration can be ported.
 | `addEventListener('shippingaddresschange' \| 'shippingoptionchange', e => e.updateWith(...))` | Same two, plus `paymentmethodchange` and the PassKit-only `couponcodechange` | Request-scoped native events, `isAnswered`, field-level errors. See [change-events.md](./change-events.md). |
 | `paymentResponse.details.paymentData` / `transactionIdentifier` (iOS) | `paymentResponse.details.applePayToken` (`IosPKToken`) | One typed token object instead of loose fields. |
 | `paymentResponse.details.getPaymentToken()` (Android, async) / `.paymentToken` (gateway) | `paymentResponse.details.androidPayToken` (`AndroidPaymentMethodToken`) | Synchronous typed field; no async indirection, no built-in gateway token. |
-| `paymentResponse.complete('success' \| 'fail' \| 'unknown')` (string) | `paymentResponse.complete(PaymentComplete.Success \| PaymentComplete.Fail \| PaymentComplete.Unknown)` (enum) | Same three outcomes, typed — see [api/payment-complete-enum.md](../api/payment-complete-enum.md). |
+| `paymentResponse.complete('success' \| 'fail' \| 'unknown')` (string) | `paymentResponse.complete(PaymentComplete.SUCCESS \| PaymentComplete.FAIL \| PaymentComplete.UNKNOWN)` (enum) | Same three outcomes, typed — see [api/payment-complete-enum.md](../api/payment-complete-enum.md). |
 | Built-in Stripe / Braintree add-on packages | Removed — bring your own gateway via `gatewayConfig` (Android) or the raw token (iOS) | Stripe/Braintree already ship their own maintained RN SDKs. |
 | Untyped JS, legacy bridge module | Full TypeScript, TurboModule (New Architecture-ready) | See [architecture.md](../architecture.md). |
 | Ad-hoc thrown errors, no stable identity | Spec-mapped `ConstructorError` / `DOMException` / `PaymentsError` | See [errors.md](./errors.md). |
@@ -2314,17 +2363,23 @@ const paymentRequest = new PaymentRequest(methodData, paymentDetails);
 const paymentResponse = await paymentRequest.show();
 const applePayToken = paymentResponse.details.applePayToken; // typed IosPKToken
 
+let responseBody: unknown;
+
 try {
     const result = await fetch('...', { method: 'POST', body: JSON.stringify(applePayToken) });
     if (!result.ok) {
         throw new Error(`Backend rejected the payment: ${result.status}`);
     }
-    successHandler(await result.json());
-    await paymentResponse.complete(PaymentComplete.Success);
+    responseBody = await result.json();
+    await paymentResponse.complete(PaymentComplete.SUCCESS);
 } catch (error) {
     errorHandler(error);
-    await paymentResponse.complete(PaymentComplete.Fail);
+    await paymentResponse.complete(PaymentComplete.FAIL);
+    return;
 }
+
+// Outside the try: a throw here must not flip an already-successful charge to Fail.
+successHandler(responseBody);
 ```
 
 The differences that matter beyond syntax: no `global.PaymentRequest` polyfill, enums instead of string literals,

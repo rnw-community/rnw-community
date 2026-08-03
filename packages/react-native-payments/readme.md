@@ -58,11 +58,11 @@ if (await paymentRequest.canMakePayment()) {
     const paymentResponse = await paymentRequest.show();
     const isConfirmed = await sendToYourBackend(paymentResponse.details); // your own gateway call
 
-    await paymentResponse.complete(isConfirmed ? PaymentComplete.Success : PaymentComplete.Fail);
+    await paymentResponse.complete(isConfirmed ? PaymentComplete.SUCCESS : PaymentComplete.FAIL);
 }
 ```
 
-Only call `complete(PaymentComplete.Success)` once your backend has actually confirmed the charge. A
+Only call `complete(PaymentComplete.SUCCESS)` once your backend has actually confirmed the charge. A
 `PaymentRequest` is single-use — build a new one per payment attempt rather than reusing a settled request; see
 [docs/architecture.md](docs/architecture.md). For the full two-platform `methodData` shape, shipping/coupon
 change events, and payment details modifiers, see the [doc map](#doc-map) below.

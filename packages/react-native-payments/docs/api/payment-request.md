@@ -55,7 +55,7 @@ if (await paymentRequest.canMakePayment()) {
     const paymentResponse = await paymentRequest.show();
     const isConfirmed = await sendToYourBackend(paymentResponse.details);
 
-    await paymentResponse.complete(isConfirmed ? PaymentComplete.Success : PaymentComplete.Fail);
+    await paymentResponse.complete(isConfirmed ? PaymentComplete.SUCCESS : PaymentComplete.FAIL);
 }
 ```
 
@@ -65,8 +65,8 @@ if (await paymentRequest.canMakePayment()) {
   request moves to the `closed` state, its change-event listeners are released and every further `show()`
   rejects with `InvalidStateError`. Build a new `PaymentRequest` to retry a payment. See
   [architecture.md](../architecture.md).
-- Only call `complete(PaymentComplete.Success)` once your backend has actually confirmed the charge — completing
-  with `Success` before that point tells the sheet (and the user) the payment went through even if it didn't.
+- Only call `complete(PaymentComplete.SUCCESS)` once your backend has actually confirmed the charge — completing
+  with `SUCCESS` before that point tells the sheet (and the user) the payment went through even if it didn't.
 - On web, `PaymentRequest` resolves to the browser's own implementation — see [platforms/web.md](../platforms/web.md).
 
 ## References

@@ -7,7 +7,7 @@ typing a change-event listener's response.
 
 | Type | Shape | Notes |
 | --- | --- | --- |
-| `PaymentDetailsUpdate` | `{ total?, displayItems?, shippingOptions?, error?: PaymentDetailsUpdateError }` | Every member is optional — only the provided members replace the current details. See [guides/change-events.md](../guides/change-events.md). |
+| `PaymentDetailsUpdate` | `{ total?, displayItems?, shippingOptions?, modifiers?: PaymentDetailsModifier[], error?: PaymentDetailsUpdateError }` | Every member is optional — only the provided members replace the current details. `modifiers` is inherited from `PaymentDetailsBase` and is re-resolved against the platform's active payment method on every `updateWith()` call — see [guides/modifiers.md](../guides/modifiers.md). |
 | `PaymentDetailsUpdateError` | `string \| { type: PaymentUpdateErrorTypeEnum; … }` | A plain string, or a field-level error — see [api/payment-update-error-type-enum.md](./payment-update-error-type-enum.md). |
 
 ## Example
@@ -34,3 +34,4 @@ reported to the console and never reaches the sheet. See [guides/change-events.m
 
 - [W3C `PaymentDetailsUpdate`](https://www.w3.org/TR/payment-request/#dom-paymentdetailsupdate)
 - [guides/change-events.md](../guides/change-events.md#sheet-errors)
+- [guides/modifiers.md](../guides/modifiers.md)

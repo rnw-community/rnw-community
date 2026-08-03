@@ -12,7 +12,7 @@ per-class signature reference.
 | --- | --- | --- |
 | `updateWith(detailsOrPromise)` | `(details: PaymentDetailsUpdate \| Promise<PaymentDetailsUpdate>) => void` | Answers the event. Throws `InvalidStateError` if called twice. |
 | `isAnswered` | `boolean` | `true` once `updateWith` was called for the event. |
-| `PaymentMethodChangeEvent.methodDetails` | `Record<string, unknown> \| undefined` | The selected payment method's details, only on `paymentmethodchange`. |
+| `PaymentMethodChangeEvent.methodDetails` | `Record<string, unknown> \| null` | The selected payment method's details, only on `paymentmethodchange`. `null` (not `undefined`) when the native layer omits the field. |
 
 ## Example
 

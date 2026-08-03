@@ -62,6 +62,7 @@ as [migrate-from-v2.md](./migrate-from-v2.md) describes, regardless of architect
 `TSObjectKeyword` or an abstract-method mismatch when New Architecture is enabled is the codegen version-skew
 issue above, not a New Architecture incompatibility.
 
-**Jest: `TurboModuleRegistry.getEnforcing(...): 'Payments' could not be found`.** Covered in
-[testing.md](./testing.md) — mock `TurboModuleRegistry` to return `null` for the `Payments` module
-([#227](https://github.com/rnw-community/rnw-community/issues/227)).
+**Jest: `The package 'react-native-payments' doesn't seem to be linked` (originally reported as
+`TurboModuleRegistry.getEnforcing(...): 'Payments' could not be found`).** Covered in
+[testing.md](./testing.md) — mock `NativeModules.Payments` so the module resolves to a fake instead of falling
+through to the linking-error proxy ([#227](https://github.com/rnw-community/rnw-community/issues/227)).
