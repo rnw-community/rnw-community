@@ -12,6 +12,7 @@ only this shape (see Pitfalls — neither check alone is unambiguous).
 | --- |
 | `show()` rejecting with a non-`Error` reason from the native module bridge (an `Error` reason is propagated as-is instead — see Pitfalls). |
 | Every `abort()` rejection from the native module bridge, regardless of the rejection reason's type. |
+| `PaymentResponse.retry()` rejecting for any reason — caught and re-thrown as `new PaymentsError('Failed retrying PaymentRequest')`, regardless of the underlying rejection reason. |
 | A native payment response payload that fails to parse (malformed or incomplete JSON, including direct construction of `AndroidPaymentResponse`/`IosPaymentResponse` with malformed tokenization data). |
 
 ## Example

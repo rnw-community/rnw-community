@@ -22,9 +22,8 @@ transaction.
 
 | `details` member | Type | Notes |
 | --- | --- | --- |
-| `billingAddress?` | `PaymentResponseAddressInterface` | Present only if `requestBillingAddress` was set — also populated on Android when `requestPayerName`/`requestPayerPhone` is set, see [api/payment-response-address.md](./payment-response-address.md). |
-| `shippingAddress?` | `PaymentResponseAddressInterface` | Present only if `requestShipping` was set. |
-| `payerEmail?`, `payerName?`, `payerPhone?` | `string` | Present only if the matching `request*` flag was set. |
+| `billingAddress?`, `shippingAddress?` | `PaymentResponseAddressInterface` | Optional at the type level, but both concrete response classes (`IosPaymentResponse`, `AndroidPaymentResponse`) always assign a full object — never absent — with every field an empty string unless the matching `request*` flag was set (also true for `requestPayerName`/`requestPayerPhone` on Android's `billingAddress`). See [api/payment-response-address.md](./payment-response-address.md). |
+| `payerEmail?`, `payerName?`, `payerPhone?` | `string` | Always present with an empty-string default on iOS. On Android, `payerEmail` reflects the native payload directly (can be `undefined` if `requestPayerEmail` was never set) and `payerName`/`payerPhone` are only present at all when a shipping or billing address was returned. |
 | `androidPayToken` | `AndroidPaymentMethodToken` | Populated on `AndroidPaymentResponse`, an empty placeholder token otherwise — see [api/android-payment-response.md](./android-payment-response.md). |
 | `applePayToken` | `IosPKToken` | Populated on `IosPaymentResponse`, an empty placeholder token otherwise — see [api/ios-payment-response.md](./ios-payment-response.md). |
 
