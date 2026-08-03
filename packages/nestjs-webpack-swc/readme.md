@@ -4,6 +4,7 @@ NestJS webpack and SWC configuration helpers, this can speed up your local NestJ
 [10x](https://docs.nestjs.com/recipes/swc).
 
 [![npm version](https://badge.fury.io/js/%40rnw-community%2Fnestjs-webpack-swc.svg)](https://badge.fury.io/js/%40rnw-community%2Fnestjs-webpack-swc)
+[![coverage](https://img.shields.io/codecov/c/github/rnw-community/rnw-community?flag=nestjs-webpack-swc&label=coverage)](https://app.codecov.io/gh/rnw-community/rnw-community)
 [![npm downloads](https://img.shields.io/npm/dm/%40rnw-community%2Fnestjs-webpack-swc.svg)](https://www.npmjs.com/package/%40rnw-community%2Fnestjs-webpack-swc)
 
 -   [NestJS](https://docs.nestjs.com) offers [Webpack](https://webpack.js.org) configuration with [HMR](https://docs.nestjs.com/recipes/hot-reload) which significantly

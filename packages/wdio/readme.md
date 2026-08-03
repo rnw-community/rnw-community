@@ -3,6 +3,7 @@
 WDIO commands and utils.
 
 [![npm version](https://badge.fury.io/js/%40rnw-community%2Fwdio.svg)](https://badge.fury.io/js/%40rnw-community%2Fwdio)
+[![coverage](https://img.shields.io/codecov/c/github/rnw-community/rnw-community?flag=wdio&label=coverage)](https://app.codecov.io/gh/rnw-community/rnw-community)
 [![npm downloads](https://img.shields.io/npm/dm/%40rnw-community%2Fwdio.svg)](https://www.npmjs.com/package/%40rnw-community%2Fwdio)
 
 ## TODO

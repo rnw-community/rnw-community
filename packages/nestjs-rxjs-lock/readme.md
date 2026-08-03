@@ -5,6 +5,7 @@ NestJS
 using [Redlock](https://github.com/mike-marcacci/node-redlock)
 
 [![npm version](https://badge.fury.io/js/%40rnw-community%2Fnestjs-rxjs-lock.svg)](https://badge.fury.io/js/%40rnw-community%2Fnestjs-rxjs-lock)
+[![coverage](https://img.shields.io/codecov/c/github/rnw-community/rnw-community?flag=nestjs-rxjs-lock&label=coverage)](https://app.codecov.io/gh/rnw-community/rnw-community)
 [![npm downloads](https://img.shields.io/npm/dm/%40rnw-community%2Fnestjs-rxjs-lock.svg)](https://www.npmjs.com/package/%40rnw-community%2Fnestjs-rxjs-lock)
 
 ## TODO
