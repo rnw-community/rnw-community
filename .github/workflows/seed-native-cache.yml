@@ -57,12 +57,12 @@ jobs:
 
         steps:
             -   name: Checkout repository
-                uses: actions/checkout@v5
+                uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
                 with:
                     persist-credentials: false
 
             -   name: Setup Node
-                uses: actions/setup-node@v5
+                uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
                 with:
                     node-version: 22.x
 
@@ -105,9 +105,20 @@ jobs:
                     echo "hash=$hash" >> "$GITHUB_OUTPUT"
                     echo "Native fingerprint (${{ matrix.target }}): $hash"
 
+            # A cache miss leaves whatever this persistent self-hosted runner
+            # already had on disk from a previous fingerprint untouched —
+            # actions/checkout does not remove gitignored paths, and
+            # actions/cache/restore only ever adds/overwrites on a hit, never
+            # deletes on a miss. Clearing first guarantees the later `ditto`
+            # packaging step always overlays onto an empty directory instead
+            # of a stale Base.app that could still contain frameworks or
+            # resources this fingerprint's native change removed.
+            -   name: Clear native app cache directory
+                run: rm -rf .ci-cache/ios-native-app/${{ matrix.target }}
+
             -   name: Restore canonical native app
                 id: native-app-cache
-                uses: actions/cache/restore@v4
+                uses: actions/cache/restore@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
                 with:
                     path: .ci-cache/ios-native-app/${{ matrix.target }}
                     key: ios-native-v1-${{ matrix.target }}-${{ runner.os }}-arm64-xcode-${{ env.XCODE_VERSION }}-${{ env.XCODE_BUILD }}-${{ steps.fingerprint.outputs.hash }}
@@ -118,7 +129,7 @@ jobs:
 
             -   name: Restore CocoaPods cache
                 if: steps.native-app-cache.outputs.cache-hit != 'true'
-                uses: actions/cache/restore@v4
+                uses: actions/cache/restore@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
                 with:
                     path: |
                         ~/Library/Caches/CocoaPods
@@ -147,7 +158,7 @@ jobs:
 
             -   name: Restore ccache
                 if: steps.native-app-cache.outputs.cache-hit != 'true'
-                uses: actions/cache/restore@v4
+                uses: actions/cache/restore@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
                 with:
                     path: ${{ env.CCACHE_DIR }}
                     key: ccache-ios-${{ matrix.target }}-${{ runner.os }}-xcode-${{ env.XCODE_VERSION }}-${{ hashFiles('yarn.lock', format('{0}/ios/Podfile.lock', env.APP_DIR)) }}
@@ -166,7 +177,7 @@ jobs:
 
             -   name: Save CocoaPods cache
                 if: steps.native-app-cache.outputs.cache-hit != 'true'
-                uses: actions/cache/save@v4
+                uses: actions/cache/save@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
                 with:
                     path: |
                         ~/Library/Caches/CocoaPods
@@ -220,7 +231,7 @@ jobs:
 
             -   name: Save ccache
                 if: steps.native-app-cache.outputs.cache-hit != 'true'
-                uses: actions/cache/save@v4
+                uses: actions/cache/save@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
                 with:
                     path: ${{ env.CCACHE_DIR }}
                     key: ccache-ios-${{ matrix.target }}-${{ runner.os }}-xcode-${{ env.XCODE_VERSION }}-${{ hashFiles('yarn.lock', format('{0}/ios/Podfile.lock', env.APP_DIR)) }}
@@ -238,7 +249,7 @@ jobs:
 
             -   name: Save canonical native app
                 if: steps.native-app-cache.outputs.cache-hit != 'true'
-                uses: actions/cache/save@v4
+                uses: actions/cache/save@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
                 with:
                     path: .ci-cache/ios-native-app/${{ matrix.target }}
                     key: ios-native-v1-${{ matrix.target }}-${{ runner.os }}-arm64-xcode-${{ env.XCODE_VERSION }}-${{ env.XCODE_BUILD }}-${{ steps.fingerprint.outputs.hash }}
@@ -256,12 +267,12 @@ jobs:
 
         steps:
             -   name: Checkout repository
-                uses: actions/checkout@v5
+                uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
                 with:
                     persist-credentials: false
 
             -   name: Setup Node
-                uses: actions/setup-node@v5
+                uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
                 with:
                     node-version: 22.x
 
@@ -292,7 +303,7 @@ jobs:
 
             -   name: Restore canonical native app
                 id: native-app-cache
-                uses: actions/cache/restore@v4
+                uses: actions/cache/restore@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
                 with:
                     path: .ci-cache/android-native-app/${{ matrix.target }}
                     key: android-native-v1-${{ matrix.target }}-${{ runner.os }}-cmdline-${{ env.ANDROID_CMDLINE_TOOLS_VERSION }}-${{ steps.fingerprint.outputs.hash }}
@@ -301,15 +312,33 @@ jobs:
                 if: steps.native-app-cache.outputs.cache-hit == 'true'
                 run: echo 'Canonical native app already exists for this fingerprint — nothing to seed.'
 
+            # accept-android-sdk-licenses is disabled here for the same reason
+            # as android-maestro.yml's identical step: the action's own
+            # "sdkmanager --licenses" call walks the entire remote repository
+            # listing, unscoped to the packages this job needs, and that walk
+            # fails on this fleet's linux-aarch64 runners on a package
+            # depending on "emulator", which Google does not publish for this
+            # host architecture. Pre-seeding the two publicly documented
+            # license hashes below avoids the unscoped walk entirely.
             -   name: Set up Android SDK
                 if: steps.native-app-cache.outputs.cache-hit != 'true'
-                uses: android-actions/setup-android@v3
+                uses: android-actions/setup-android@9fc6c4e9069bf8d3d10b2204b1fb8f6ef7065407 # v3.2.2
                 with:
                     cmdline-tools-version: ${{ env.ANDROID_CMDLINE_TOOLS_VERSION }}
+                    accept-android-sdk-licenses: false
+                    packages: platform-tools
+
+            -   name: Accept Android SDK licenses
+                if: steps.native-app-cache.outputs.cache-hit != 'true'
+                run: |
+                    set -euo pipefail
+                    mkdir -p "$ANDROID_HOME/licenses"
+                    printf '24333f8a63b6825ea9c5514f83c2829b004d1fee\nd56f5187479451eabf01fb78af6dfcb131a6481e\n' > "$ANDROID_HOME/licenses/android-sdk-license"
+                    printf '84831b9409646a918e30573bab4c9c91346d8abd\n' > "$ANDROID_HOME/licenses/android-sdk-preview-license"
 
             -   name: Restore Gradle cache
                 if: steps.native-app-cache.outputs.cache-hit != 'true'
-                uses: actions/cache/restore@v4
+                uses: actions/cache/restore@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
                 with:
                     path: |
                         ~/.gradle/caches
@@ -334,7 +363,7 @@ jobs:
 
             -   name: Save Gradle cache
                 if: steps.native-app-cache.outputs.cache-hit != 'true'
-                uses: actions/cache/save@v4
+                uses: actions/cache/save@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
                 with:
                     path: |
                         ~/.gradle/caches
@@ -358,13 +387,14 @@ jobs:
                       exit 1
                     fi
                     apk_path="${apks[0]}"
-                    unzip -l "$apk_path" | grep -q 'assets/index.android.bundle'
+                    apk_listing=$(unzip -l "$apk_path")
+                    grep -q 'assets/index.android.bundle' <<< "$apk_listing"
                     mkdir -p ".ci-cache/android-native-app/$TARGET"
                     cp "$apk_path" ".ci-cache/android-native-app/$TARGET/app-release.apk"
 
             -   name: Save canonical native app
                 if: steps.native-app-cache.outputs.cache-hit != 'true'
-                uses: actions/cache/save@v4
+                uses: actions/cache/save@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
                 with:
                     path: .ci-cache/android-native-app/${{ matrix.target }}
                     key: android-native-v1-${{ matrix.target }}-${{ runner.os }}-cmdline-${{ env.ANDROID_CMDLINE_TOOLS_VERSION }}-${{ steps.fingerprint.outputs.hash }}
