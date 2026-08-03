@@ -8,7 +8,21 @@ Utils that help work with errors in rxjs observable's.
 
 ## Classes
 
--   `RxJSFilterError` - custom error used by error operators.
+### RxJSFilterError
+
+Custom `Error` subclass; the default error thrown/created by `filterWithException` and `rethrowException` when no custom `ErrorCtor` is passed in.
+
+```typescript
+import { RxJSFilterError } from '@rnw-community/rxjs-errors';
+
+try {
+    throw new RxJSFilterError('Invalid letter received');
+} catch (error) {
+    if (error instanceof RxJSFilterError) {
+        console.error(error.message);
+    }
+}
+```
 
 ## Available operators
 

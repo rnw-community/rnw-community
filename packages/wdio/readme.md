@@ -8,10 +8,9 @@ WDIO commands and utils.
 
 ## TODO
 
--  [ ] Refactor tests to mock MockElement(rename to MockElementPromise), use it instead of mockElement object
--  [ ] Rename all tests `its` properly after API stabilizes
--  [ ] Write docs with the examples
--  [ ] Add tests for extended class instance ctor return from async function - it resolves to WDIO element =)
+-  [ ] Unify `MockElement`/`mockElement` test scaffolding into one fixture — [#520](https://github.com/rnw-community/rnw-community/issues/520)
+-  [ ] Rename generic test descriptions to describe real behavior — [#521](https://github.com/rnw-community/rnw-community/issues/521)
+-  [ ] Add tests for the Promise-extending component ctor resolving to a WDIO element — [#522](https://github.com/rnw-community/rnw-community/issues/522)
 -  [ ] Rename everything with `$` to `CSS` to make things more clear, leave backward compatibility
 -  [ ] Remove all dependencies from `@wdio`, library should be agnostic, and support `wdio` and `playwright` via adapters(maybe others):
   - [ ] Create generic adapter and element interface
@@ -43,13 +42,14 @@ generated components.
 Example usage:
 
 ```tsx
-import React, { FC } from 'react';
 import { Text } from 'react-native';
 
-import { IOSTestIDProps, setTestId } from '@rnw-community/wdio';
+import { setTestID } from '@rnw-community/wdio';
 
-export const DynamicComponent: = ({ testID = 'ParentTestID' }:IOSTestIDProps) => (
-    <Text {...setTestId(testID, `Text`)}>Text</Text>
+import type { TestIDProps } from '@rnw-community/wdio';
+
+export const DynamicComponent = ({ testID = 'ParentTestID' }: TestIDProps) => (
+    <Text {...setTestID(testID, 'Text')}>Text</Text>
 );
 ```
 
@@ -57,14 +57,27 @@ Which will generate `ParentTestID_Text`;
 
 ### getTestID
 
+Reads the platform-specific testID back out of the props object produced by `setTestID` / `setPropTestID` — `props[WebSelectorConfig]` on web, `props.testID` on Android/iOS, falling back to `defaultTestID`.
+
+```tsx
+import { getTestID, setTestID } from '@rnw-community/wdio';
+
+const props = setTestID('DynamicComponent', 'Text');
+
+getTestID(props); // 'DynamicComponent_Text'
+```
+
 ### setPropTestID
 
 Setting _testID_ similar to `setTestID` but with overriding default _testID_.
 
 ```tsx
 import React from 'react';
-import { Text } from 'react-native';
-import { TestIDProps } from '@rnw-community/wdio';
+import { View } from 'react-native';
+
+import { setPropTestID } from '@rnw-community/wdio';
+
+import type { TestIDProps } from '@rnw-community/wdio';
 
 interface Props extends TestIDProps, React.PropsWithChildren {
     testID?: string;

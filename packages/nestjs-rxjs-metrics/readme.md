@@ -41,14 +41,9 @@ const summaryLabels = {
 -   Create metrics module and service for NestJS DI, this module and service should be used in the project:
 
 ```ts
-import { Inject, Injectable } from '@nestjs/common';
+import { Injectable, Module } from '@nestjs/common';
 
-import { MetricsServiceMixin } from '@rnw-community/nestjs-rxjs-metrics';
-
-import type { counterMetrics } from './counter.metrics';
-import type { gaugeMetrics } from './gauge.metrics';
-import type { histogramMetrics } from './histogram.metrics';
-import type { summaryMetrics } from './summary.metrics';
+import { NestJSRxJSMetricsModule } from '@rnw-community/nestjs-rxjs-metrics';
 
 export const [BaseMetricsModule, BaseMetricsService] = NestJSRxJSMetricsModule.create({
     counterMetrics,
@@ -57,7 +52,6 @@ export const [BaseMetricsModule, BaseMetricsService] = NestJSRxJSMetricsModule.c
     summaryMetrics,
     summaryLabels,
     histogramLabels,
-    controller: PrometheusController,
 });
 
 @Injectable()
@@ -103,8 +97,8 @@ export class MyService {
 [Gauge](https://prometheus.io/docs/concepts/metric_types/#gauge) supports next operators:
 
 -   `gauge(GaugeMetric, handler: (gauge: Gauge<string>) => void)` operator - observe Gauge metric and perform callback on it
--   `gaugeInc(GaugeMetric, value = 1) => void)` operator - increment Gauge metric by `value`
--   `gaugeDec(GaugeMetric, value = 1) => void)` operator - decrement Gauge metric by `value`
+-   `gaugeInc(GaugeMetric, value = 1)` operator - increment Gauge metric by `value`
+-   `gaugeDec(GaugeMetric, value = 1)` operator - decrement Gauge metric by `value`
 
 ```ts
 const gaugeMetrics = { my_gauge_metric: 'Text gauge metric' };
@@ -134,7 +128,7 @@ export class MyService {
 [Histogram](https://prometheus.io/docs/concepts/metric_types/#histogram) supports next operators:
 
 -   `histogramStart(HistogramMetric, labels?: LabelValues<L>)` operator - start observing Histogram metric with labels
--   `histogramEnd(HistogramMetric, labels?: LabelValues<L>))` operator - finish observing Histogram metric with labels
+-   `histogramEnd(HistogramMetric, labels?: LabelValues<L>)` operator - finish observing Histogram metric with labels
 
 ```ts
 const histogramMetrics = { my_histogram_metric: 'Text histogram metric' };
@@ -158,8 +152,8 @@ export class MyService {
 
 [Summary](https://prometheus.io/docs/concepts/metric_types/#summary) supports next operators:
 
--   `histogramStart(SumaryMetric, labels?: LabelValues<L>)` operator - start observing Summary metric with labels
--   `histogramEnd(SummaryMetric, labels?: LabelValues<L>))` operator - finish observing Summary metric with labels
+-   `summaryStart(SummaryMetric, labels?: LabelValues<L>)` operator - start observing Summary metric with labels
+-   `summaryEnd(SummaryMetric, labels?: LabelValues<L>)` operator - finish observing Summary metric with labels
 
 ```ts
 const summaryMetrics = { my_summary_metric: 'Text summary metric' };
@@ -171,9 +165,9 @@ export class MyService {
 
     exampleAction$() {
         return of(true).pipe(
-            this.metrics.histogramStart('my_summary_metric', { my_summary_metric_label1: 1 }),
+            this.metrics.summaryStart('my_summary_metric', { my_summary_metric_label1: 1 }),
             // perform actions
-            this.metrics.histogramEnd('my_summary_metric', { my_summary_metric_label1: 2 })
+            this.metrics.summaryEnd('my_summary_metric', { my_summary_metric_label1: 2 })
         );
     }
 }

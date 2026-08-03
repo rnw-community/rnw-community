@@ -12,6 +12,57 @@ with IDE autocompletion.
 Real world usage examples:
 [@rnw-community/fast-style](https://github.com/rnw-community/rnw-community/tree/master/packages/fast-style)
 
+## Exports
+
+### `combine`
+
+Overloaded for 1–5 enum-like collection arguments; builds a nested lookup object where each leaf is `dataFn(key1, key2, ...)`. See the two full examples below.
+
+### `Enum`
+
+Re-exported from [`@rnw-community/shared`](https://github.com/rnw-community/rnw-community/tree/master/packages/shared) — the constraint every `combine` collection argument must satisfy (a plain string/number enum-like object).
+
+```ts
+import type { Enum } from '@rnw-community/object-field-tree';
+
+const isValidCollection = <T extends Enum>(collection: T): T => collection;
+```
+
+### `CombineReturn1<T, D>`
+
+Return type of `combine` called with 1 collection: `Record<keyof T, D>`.
+
+```ts
+import type { CombineReturn1 } from '@rnw-community/object-field-tree';
+
+type Sizes = CombineReturn1<{ Small: 'Small'; Large: 'Large' }, string>; // Record<'Small' | 'Large', string>
+```
+
+### `CombineReturn2<D, T1, T2>`
+
+Return type of `combine` called with 2 collections — nests one more level of `Record`: `Record<keyof T1, CombineReturn1<T2, D>>`.
+
+```ts
+import type { CombineReturn2 } from '@rnw-community/object-field-tree';
+
+type Sizes = { Small: 'Small'; Large: 'Large' };
+type Colors = { Red: 'Red'; Blue: 'Blue' };
+
+type SizeColor = CombineReturn2<string, Sizes, Colors>; // Record<'Small' | 'Large', Record<'Red' | 'Blue', string>>
+```
+
+### `CombineReturn3<D, T1, T2, T3>`
+
+Return type of `combine` called with 3 collections: `Record<keyof T1, CombineReturn2<D, T2, T3>>` — one more nesting level than `CombineReturn2`.
+
+### `CombineReturn4<D, T1, T2, T3, T4>`
+
+Return type of `combine` called with 4 collections: `Record<keyof T1, CombineReturn3<D, T2, T3, T4>>`.
+
+### `CombineReturn5<D, T1, T2, T3, T4, T5>`
+
+Return type of `combine` called with 5 collections: `Record<keyof T1, CombineReturn4<D, T2, T3, T4, T5>>` — the deepest arity `combine` supports.
+
 ## Example
 
 ### Typescript enum and object usage example

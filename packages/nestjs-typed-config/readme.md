@@ -13,6 +13,16 @@ Install additional peer dependencies:
 -   [@nestjs/config](https://github.com/nestjs/config)
 -   [joi](https://github.com/sideway/joi)
 
+## Exports
+
+### `NestJSTypedConfigModule`
+
+`NestJSTypedConfigModule.create<Enum, Config>(validationSchema)` returns a `[DynamicModule, Type<NestJSTypedConfigService<Enum, Config>>]` tuple — extend the returned service class and wire the module into your own `@Module({ imports: [BaseConfigModule] })`. See "Configuration" below for the full setup.
+
+### `NestJSTypedConfigService`
+
+Injectable service with a single `get<K extends keyof Config>(envVariable: K): Config[K]` method; caches lookups and transparently reads `_FILE`-suffixed variables from disk. See "Usage" below.
+
 ## Configuration
 
 -   Create enum with names for all the required environment variable names, interface with type for every environment variable
@@ -43,7 +53,7 @@ export const environmentVariablesValidationSchema = Joi.object({
 -   Create config module and service for NestJS DI, this module and service should be used in the project:
 
 ```ts
-import { Inject, Injectable } from '@nestjs/common';
+import { Injectable, Module } from '@nestjs/common';
 
 import { NestJSTypedConfigModule } from '@rnw-community/nestjs-typed-config';
 

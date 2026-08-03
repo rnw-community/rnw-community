@@ -6,9 +6,6 @@ NestJS redis wrapper for using with RxJS streams.
 [![coverage](https://img.shields.io/codecov/c/github/rnw-community/rnw-community?flag=nestjs-rxjs-redis&label=coverage)](https://app.codecov.io/gh/rnw-community/rnw-community)
 [![npm downloads](https://img.shields.io/npm/dm/%40rnw-community%2Fnestjs-rxjs-redis.svg)](https://www.npmjs.com/package/%40rnw-community%2Fnestjs-rxjs-redis)
 
-## TODO
-- [ ] Merge and refactor `@nestjs-modules/ioredis` into this repo, as it has not been updated for 3+ years.
-
 ## Configuration
 
 Import `NestJSRxJSRedisModule` into your module:
