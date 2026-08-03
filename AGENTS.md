@@ -106,7 +106,20 @@ Allowed pragma comments only (no other exceptions):
 - `// eslint-disable-next-line <rule>` — suppressing a specific lint rule with good reason
 - `/* istanbul ignore <next|else|if> -- <why> */` — **last resort** for truly unreachable branches; PREFER restructuring code to eliminate the dead branch entirely
 
-No JSDoc usage examples in source. No `@example`, no `@see`. Examples live in `readme.md` and per-entity `.md` files.
+**Scoped TSDoc on the public API — the one sanctioned documentation comment.** Every EXPORTED public API declaration
+(class, method, interface, type, function reachable from a package's `index.ts`) carries a TSDoc block of exactly this
+shape, and nothing else may:
+
+- one sentence: what it is and when to reach for it (mirrors the entity doc's "why" line)
+- `@see` links only: the entity's doc page and the governing spec (W3C / Apple / Google) where one exists
+
+Still forbidden everywhere, including on public API: `@example` (examples live in the docs), narrative/multi-paragraph
+blocks, `@param`/`@returns` prose that restates the types, TSDoc on non-exported or private members, and all other
+inline comments per the rules above. Rationale: consumers' IDEs and AI agents read the published `.d.ts` — the
+one-liner + `@see` gives them the entry point without duplicating the docs. Enforced by lint (required on exports,
+banned elsewhere) once the public surface is annotated.
+
+No JSDoc usage examples in source. Examples live in the docs tree and per-entity `.md` files.
 
 ### Decorator factories — `experimentalDecorators` only
 
