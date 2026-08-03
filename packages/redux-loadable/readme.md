@@ -49,7 +49,11 @@ Helper reducer functions that mutate then return `{ ...state }` — designed to 
 Sets `isLoading: true`, clears `error`, and flips `isPristine` to `false`.
 
 ```ts
+import { createSlice } from '@reduxjs/toolkit';
+
 import { loadingStarted } from '@rnw-community/redux-loadable';
+
+declare const initialState: UserState;
 
 const userSlice = createSlice({
     name: 'user',
@@ -65,7 +69,13 @@ const userSlice = createSlice({
 Sets `isLoading: false` and clears `error` on a successful load.
 
 ```ts
+import { createSlice } from '@reduxjs/toolkit';
+
 import { loadingFinished } from '@rnw-community/redux-loadable';
+
+import type { PayloadAction } from '@reduxjs/toolkit';
+
+declare const initialState: UserState;
 
 const userSlice = createSlice({
     name: 'user',
@@ -85,7 +95,13 @@ const userSlice = createSlice({
 Sets `isLoading: false` and stores `errorReason` in `error`.
 
 ```ts
+import { createSlice } from '@reduxjs/toolkit';
+
 import { loadingFailed } from '@rnw-community/redux-loadable';
+
+import type { PayloadAction } from '@reduxjs/toolkit';
+
+declare const initialState: UserState;
 
 const userSlice = createSlice({
     name: 'user',
@@ -101,7 +117,11 @@ const userSlice = createSlice({
 Resets the slice back to `initialLoadingState`'s values.
 
 ```ts
+import { createSlice } from '@reduxjs/toolkit';
+
 import { loadingReset } from '@rnw-community/redux-loadable';
+
+declare const initialState: UserState;
 
 const userSlice = createSlice({
     name: 'user',
@@ -123,7 +143,11 @@ interface RootState {
     user: UserState;
 }
 
-const [isLoading, isFailed, isPristine, error] = loadingStateSelector<RootState>('user')(state);
+declare const rootState: RootState;
+
+const selectUserLoadingState = (state: RootState) => loadingStateSelector<RootState>('user')(state);
+
+const [isLoading, isFailed, isPristine, error] = selectUserLoadingState(rootState);
 ```
 
 ## License

@@ -53,7 +53,7 @@ export const environmentVariablesValidationSchema = Joi.object({
 -   Create config module and service for NestJS DI, this module and service should be used in the project:
 
 ```ts
-import { Inject, Injectable } from '@nestjs/common';
+import { Injectable, Module } from '@nestjs/common';
 
 import { NestJSTypedConfigModule } from '@rnw-community/nestjs-typed-config';
 

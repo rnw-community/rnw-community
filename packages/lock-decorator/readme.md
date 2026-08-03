@@ -143,7 +143,7 @@ const withSequentialLock$ = createInterceptor({ middleware: createLockMiddleware
 
 ## Store contract
 
-Bring your own `LockStoreInterface` implementation — Redis, in-process, cluster-aware, whatever fits the deployment target. The store returns a handle; the handle releases itself. A minimal adapter is typically a few dozen lines.
+Bring your own `LockStoreInterface` implementation — Redis, in-process, cluster-aware, whatever fits the deployment target. The store returns a handle; the lock decorators/middleware call the handle's `release()` for you — when the protected Promise settles for the Promise variants, or when the Observable completes, errors, or unsubscribes for the `$` variants. A minimal adapter is typically a few dozen lines.
 
 ### `LockStoreInterface`
 
@@ -215,8 +215,10 @@ Convention: a store's `acquire()` should reject with this when `mode: 'exclusive
 ```ts
 import { LockBusyError } from '@rnw-community/lock-decorator';
 
+declare const cache: { write: (value: string) => Promise<void> };
+
 try {
-    await cache.write(value);
+    await cache.write('value');
 } catch (error) {
     if (error instanceof LockBusyError) {
         console.warn(`busy: ${error.key}`);
@@ -231,8 +233,10 @@ Convention: a store's `acquire()` should reject with this when `mode: 'sequentia
 ```ts
 import { LockAcquireTimeoutError } from '@rnw-community/lock-decorator';
 
+declare const service: { charge: (amount: number) => Promise<string> };
+
 try {
-    await service.charge(amount);
+    await service.charge(100);
 } catch (error) {
     if (error instanceof LockAcquireTimeoutError) {
         console.warn(`timed out after ${error.timeoutMs}ms for ${error.key}`);

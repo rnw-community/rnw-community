@@ -45,7 +45,7 @@ const { SequentialLock$, ExclusiveLock$ } = createObservableLockDecorators(MyLoc
     const preLock: PreDecoratorFunction<[orderId: string], string[]> = orderId => [`order:${orderId}`];
     ```
 
-- `LockServiceInterface` - the contract `createPromiseLockDecorators` / `createObservableLockDecorators` expect from an injectable NestJS provider: `acquire(resources, duration)` and `tryAcquire(resources, duration)`, both resolving a `LockHandle`.
+- `LockServiceInterface` - the contract `createPromiseLockDecorators` / `createObservableLockDecorators` expect from an injectable NestJS provider: `acquire(resources, duration)` resolves a `LockHandle`; `tryAcquire(resources, duration)` resolves `LockHandle | undefined`, returning `undefined` on contention instead of waiting or throwing.
 
     ```ts
     import type { LockServiceInterface } from '@rnw-community/nestjs-enterprise';

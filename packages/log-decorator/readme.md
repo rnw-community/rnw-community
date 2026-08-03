@@ -70,6 +70,12 @@ Three methods (`log`, `debug`, `error`); implement it to plug in Pino, Winston, 
 ```ts
 import type { LogTransportInterface } from '@rnw-community/log-decorator';
 
+declare const logger: {
+    info: (meta: Readonly<Record<string, unknown>>, message: string) => void;
+    debug: (meta: Readonly<Record<string, unknown>>, message: string) => void;
+    error: (meta: Readonly<Record<string, unknown>>, message: string) => void;
+};
+
 const pinoTransport: LogTransportInterface = {
     log: (message, logContext) => logger.info({ logContext }, message),
     debug: (message, logContext) => logger.debug({ logContext }, message),
@@ -139,6 +145,8 @@ Observable returns are handled internally — no opt-in, no strategy wiring. `rx
 
 ```ts
 import { createLogDecorator, consoleTransport } from '@rnw-community/log-decorator';
+
+import type { Observable } from 'rxjs';
 
 const Log = createLogDecorator({ transport: consoleTransport });
 

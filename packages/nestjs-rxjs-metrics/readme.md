@@ -41,7 +41,7 @@ const summaryLabels = {
 -   Create metrics module and service for NestJS DI, this module and service should be used in the project:
 
 ```ts
-import { Injectable } from '@nestjs/common';
+import { Injectable, Module } from '@nestjs/common';
 
 import { NestJSRxJSMetricsModule } from '@rnw-community/nestjs-rxjs-metrics';
 
@@ -97,8 +97,8 @@ export class MyService {
 [Gauge](https://prometheus.io/docs/concepts/metric_types/#gauge) supports next operators:
 
 -   `gauge(GaugeMetric, handler: (gauge: Gauge<string>) => void)` operator - observe Gauge metric and perform callback on it
--   `gaugeInc(GaugeMetric, value = 1) => void)` operator - increment Gauge metric by `value`
--   `gaugeDec(GaugeMetric, value = 1) => void)` operator - decrement Gauge metric by `value`
+-   `gaugeInc(GaugeMetric, value = 1)` operator - increment Gauge metric by `value`
+-   `gaugeDec(GaugeMetric, value = 1)` operator - decrement Gauge metric by `value`
 
 ```ts
 const gaugeMetrics = { my_gauge_metric: 'Text gauge metric' };
@@ -128,7 +128,7 @@ export class MyService {
 [Histogram](https://prometheus.io/docs/concepts/metric_types/#histogram) supports next operators:
 
 -   `histogramStart(HistogramMetric, labels?: LabelValues<L>)` operator - start observing Histogram metric with labels
--   `histogramEnd(HistogramMetric, labels?: LabelValues<L>))` operator - finish observing Histogram metric with labels
+-   `histogramEnd(HistogramMetric, labels?: LabelValues<L>)` operator - finish observing Histogram metric with labels
 
 ```ts
 const histogramMetrics = { my_histogram_metric: 'Text histogram metric' };
@@ -153,7 +153,7 @@ export class MyService {
 [Summary](https://prometheus.io/docs/concepts/metric_types/#summary) supports next operators:
 
 -   `summaryStart(SummaryMetric, labels?: LabelValues<L>)` operator - start observing Summary metric with labels
--   `summaryEnd(SummaryMetric, labels?: LabelValues<L>))` operator - finish observing Summary metric with labels
+-   `summaryEnd(SummaryMetric, labels?: LabelValues<L>)` operator - finish observing Summary metric with labels
 
 ```ts
 const summaryMetrics = { my_summary_metric: 'Text summary metric' };
