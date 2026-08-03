@@ -112,7 +112,7 @@ jobs:
                 uses: android-actions/setup-android@v3
 
             -   name: Restore Gradle cache
-                uses: actions/cache@v4
+                uses: actions/cache@v6
                 with:
                     path: |
                         ~/.gradle/caches
