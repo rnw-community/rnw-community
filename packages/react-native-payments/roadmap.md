@@ -14,10 +14,12 @@ Capture procedure once the on-device Maestro fleet has capacity:
 2. Run `maestro test --test-output-dir "$MAESTRO_DEBUG_OUTPUT_DIRECTORY" -e APP_ID=... e2e/flows` from
    `packages/react-native-payments-example` (the `e2e:ios:bare` / `e2e:android:bare` / `:expo` scripts in
    `package.json` don't pass `--test-output-dir` today — add it for the capture run), with
-   `MAESTRO_DEBUG_OUTPUT_DIRECTORY` set to the same path the `ios-maestro.yml` / `android-maestro.yml` CI workflows
-   use for their post-run screenshot/artifact upload
-   (`packages/react-native-payments-example/artifacts/maestro-<platform>-<target>`), so the `.mp4` lands next to the
-   other Maestro artifacts instead of Maestro's default `~/.maestro/tests/<datetime>/`.
+   `MAESTRO_DEBUG_OUTPUT_DIRECTORY` set to an **absolute** path the same way `ios-maestro.yml` / `android-maestro.yml`
+   do for their post-run screenshot/artifact upload (`${{ github.workspace }}/packages/react-native-payments-example/artifacts/maestro-<platform>-<target>`
+   in CI; locally, `$(git rev-parse --show-toplevel)/packages/react-native-payments-example/artifacts/maestro-<platform>-<target>`) —
+   a relative value resolves under the current directory, which is already `packages/react-native-payments-example`,
+   and would nest a duplicate `packages/react-native-payments-example/` segment. This makes the `.mp4` land there
+   instead of Maestro's default `~/.maestro/tests/<datetime>/`.
 3. Convert with `ffmpeg -i sheet.mp4 -vf "fps=12,scale=320:-1" sheet.gif`.
 4. Embed the result under [Screenshots](./readme.md#screenshots), replacing the placeholder.
 
@@ -32,11 +34,15 @@ new infrastructure, not a small tweak to the existing no-op: `AndroidManifest.xm
 all, and `PaymentsModule.java`'s `setActiveEvents`/`updatePaymentDetails` resolve immediately without touching Google
 Pay. Shipping on Android would require registering a `Service` extending `BasePaymentDataCallbacks` in the manifest
 (with the `com.google.android.gms.permission.BIND_PAYMENTS_CALLBACK_SERVICE` permission and a
-`com.google.android.gms.wallet.callback.PAYMENT_DATA_CALLBACKS` intent filter), implementing `onPaymentDataChanged`
-there, and adapting its result into the existing `updatePaymentDetails` call so JS `updateWith` observes it the same
-way it does on iOS; `PAYMENT_AUTHORIZATION`/`onPaymentAuthorized` is a separate, unrelated callback and is only needed
-if in-sheet authorization review is also in scope. Coupons are a separate spike: investigate the Google Pay
-offer/promo surface, documenting the outcome either way (`couponcodechange` would stay iOS-only if unsupported).
+`com.google.android.gms.wallet.callback.PAYMENT_DATA_CALLBACKS` intent filter) that overrides
+`onPaymentDataChanged(IntermediatePaymentData, OnCompleteListener<PaymentDataRequestUpdate>)` for the declared
+`SHIPPING_ADDRESS`/`SHIPPING_OPTION` callback intents, adapting the `PaymentDataRequestUpdate` handed to that
+listener into the existing `updatePaymentDetails` call so JS `updateWith` observes it the same way it does on iOS.
+`onPaymentAuthorized` is a second override on that same `BasePaymentDataCallbacks` service — not a separate
+mechanism — required only when `PAYMENT_AUTHORIZATION` is also declared in `callbackIntents` for in-sheet
+authorization review, which is out of scope for the shipping/coupon work here. Coupons are a separate spike:
+investigate the Google Pay offer/promo surface, documenting the outcome either way (`couponcodechange` would stay
+iOS-only if unsupported).
 
 ### Native modernization — [#442](https://github.com/rnw-community/rnw-community/issues/442)
 
