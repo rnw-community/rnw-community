@@ -4,7 +4,7 @@ Private. Single example package for the Payment Request API library, with one sh
 
 ## Layout
 
-```
+```text
 src/
   index.ts                       — exports `App`
   component/                     — app.tsx, demo-status.tsx, request-builder-form.tsx, demo-actions.tsx,
@@ -28,6 +28,17 @@ apps/
     index.js, app.json, babel.config.js, metro.config.js, ios/, android/
   expo/                          — @rnw-community/react-native-payments-example-expo (Expo)
     index.js, app.json, babel.config.js, metro.config.js, assets/
+e2e/
+  flows/                         — one Maestro scenario per file (app_launch, can_make_payment_probe,
+                                   sheet_opens_on_show, dismiss_abort_reject_state,
+                                   shipping_listener_wiring_enabled/disabled, async_update_toggle_state,
+                                   reset_new_request_state_transitions), run directly by `maestro test`
+  subflows/                      — shared steps included via `runFlow` (dismiss_ios_sheet, show_request,
+                                   launch_and_wait_for_probe), never run standalone
+  readme.md                      — flow inventory, APP_ID table per target/platform, and the two documented
+                                   E2E coverage gaps (iOS PassKit sheet sandboxes the app's own accessibility
+                                   tree while presented; native-sheet-driven completion is out of reach on a
+                                   simulator/emulator)
 ```
 
 `apps/bare` and `apps/expo` are nested Yarn workspaces (root glob `packages/react-native-payments-example/apps/*`). They are
@@ -62,14 +73,30 @@ excluded from Lerna (`lerna.json` keeps `packages/*`), so they are never version
 - Change-event listeners are attached per request in `attach-change-listeners.ts`: `paymentmethodchange` always,
   the shipping pair when `requestShipping` is on, `couponcodechange` only on iOS with the coupon toggle on. On Android the
   log records the documented no-op instead of staying silent.
+- The Maestro suite is one shared, parameterized flow set per scenario, not one per app target/platform: only the `APP_ID`
+  env value and the connected device change between `apps/bare`/`apps/expo` and iOS/Android, and in-flow platform branching
+  uses Maestro's `when: platform:` condition. Flows assert against the on-screen event log and flow-state/can-make-status
+  labels, never native dialogs directly — except six iOS flows, which briefly assert against the PassKit sheet's own
+  accessibility tree (via `subflows/dismiss_ios_sheet.yaml`) purely to dismiss it, since iOS blocks UI-test tooling from
+  querying the app's own tree while that sheet is presented.
+- `.github/workflows/ios-maestro.yml` and `android-maestro.yml` at the repo root run this suite per matrix target
+  (`bare`/`expo`) on `[self-hosted, macOS, ARM64, macos-maestro]` / an equivalent Android runner, gated by a
+  turbo-`--affected` check against this package and its two app workspaces. As of this writing the workflows are wired but
+  queue rather than execute — the self-hosted fleet label is not yet registered (tracked separately) — so treat CI as
+  configured, not as a currently green signal. The `maestro-e2e` agent skill (`.claude/skills/maestro-e2e`) documents how to
+  drive and extend the suite locally.
 
 ## Commands
 
 Target scripts live on this package and delegate to the nested workspaces: `ios:bare`, `android:bare`, `start:bare`,
 `ios:expo`, `android:expo`, `start:expo`, `prebuild:expo`. `ts`, `lint`, `lint:fix` and `format` cover `src` only.
+`e2e:ios:bare`, `e2e:ios:expo`, `e2e:android:bare`, `e2e:android:expo` each run `maestro test -e APP_ID=<target appId>
+e2e/flows` against whichever simulator/emulator is currently booted — the app under test must already be built and
+installed (`ios:bare`/`android:bare`/`ios:expo`/`android:expo`, or `prebuild:expo` first for the Expo native projects).
 
 ## Dependencies
 
 `@rnw-community/react-native-payments` (workspace), `@rnw-community/shared` (workspace), `react`, `react-native`.
 
-This is an example/demo package — no tests, no build, no publish.
+This is an example/demo package — no unit tests, no build, no publish. It does carry a real, runnable Maestro e2e suite
+(`e2e/`) exercising the JS-observable half of the demo flow; see `e2e/readme.md` for the coverage boundary.

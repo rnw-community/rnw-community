@@ -1,49 +1,44 @@
 # @rnw-community/histogram-metric-decorator
 
-Framework-agnostic method decorator for recording call durations into any histogram transport. Built on `@rnw-community/decorators-core`. Targets TypeScript's `experimentalDecorators` mode.
+Transport-agnostic histogram/duration method decorator built on `@rnw-community/decorators-core`'s single-middleware interceptor. Targets TypeScript's `experimentalDecorators` mode. Zero opinion on the metrics backend — consumers wire their own `HistogramTransportInterface`.
 
 ## Package Commands
 
 ```bash
-yarn test               # Run tests
-yarn test:coverage      # Tests with coverage
-yarn build              # Build (dual ESM + CJS)
-yarn ts                 # Type check
-yarn lint:fix           # Fix lint issues
+yarn test && yarn test:coverage && yarn build && yarn ts && yarn lint:fix
 ```
 
 ## Architecture
 
-```
+```text
 src/
   interface/
-    create-histogram-metric-options.interface.ts
-    histogram-options.interface.ts
-    histogram-transport.interface.ts
+    create-histogram-metric-options.interface.ts — CreateHistogramMetricOptionsInterface: { transport, onLabelsError? }
+    histogram-options.interface.ts                — HistogramOptionsInterface<TArgs>: { name?, labels? }
+    histogram-transport.interface.ts               — HistogramTransportInterface: observe(name, durationMs, labels?)
   factory/
-    create-histogram-metric-decorator/      — decorator factory + spec
-  transport/
-    in-memory-histogram-transport.mock.ts       — test-only transport (not shipped)
-    in-memory-histogram-transport.mock.spec.ts
+    create-histogram-metric-decorator/ — createHistogramMetricDecorator(options) factory + spec
   index.ts
 ```
 
-The in-memory transport lives as a `*.mock.ts` helper so the dist stays transport-agnostic. Build tsconfigs exclude `**/*.mock.*`, and the monorepo jest config's `coveragePathIgnorePatterns: ['.mock.ts']` keeps it out of coverage reports.
+There is no `transport/` directory and no `*.mock.ts` in-memory transport shipped in `src/`. The spec builds its own throwaway in-memory `HistogramTransportInterface` fixture inline (`createInMemoryTransport`), per the monorepo's rule that test-only fixtures live inside the spec that needs them.
 
-## Key Patterns
+### Key Patterns
 
-- One entity per file; folders only to group `source + spec` (+ optional `.md`)
-- Observation emitted on BOTH success and error paths (via `onSuccess` + `onError` engine hooks)
-- Metric name defaults to `<ClassName>_<methodName>_duration_ms` when omitted; consumer can override via `{ name }`
-- Sync returns emit on return; Promise returns emit on settle (resolve or reject); Observable returns emit one observation on stream `complete` or `error` via `completionObservableStrategy` from `@rnw-community/decorators-core` (wired by default in the factory)
-- `labels` is a function that receives the method's args as a tuple — inferred from the method signature, no annotations required
+- The single middleware (`buildHistogramMiddleware`) measures elapsed time with `performance.now()` at entry and calls `transport.observe(...)` on the terminal event, branching by hand on `next()`'s return shape with `isPromise` (from `@rnw-community/shared`) and `isObservable` (from `rxjs`) — the same one-middleware-covers-every-shape pattern as `log-decorator`; there is no `completionObservableStrategy` import from `decorators-core` (that strategy no longer exists).
+- Default metric name is `` `${className}_${methodName}_duration_ms` ``, read off `ExecutionContextInterface`, unless `config.name` is supplied.
+- Sync and Promise-returning methods emit exactly one observation, on return or on settle (resolve **or** reject) — duration is measured even when the method throws/rejects.
+- Observable-returning methods emit exactly one observation on stream `complete` **or** `error` (via `tap({ complete })` + `catchError`), regardless of how many values were emitted in between — including a stream that completes without ever emitting.
+- `labels` resolution is defensive: `resolveLabelsSafely` wraps the `labels(args)` call in try/catch. A thrown error means the observation is still recorded, just without labels, and the error is forwarded to the optional `onLabelsError(err, args)` hook — which is itself wrapped in try/catch so a broken hook can never block the observation or crash the decorated method.
+- `labels` receives the method's argument tuple as a single array parameter (`(args: TArgs) => ({...})` — array form), the same convention `lock-decorator`'s key resolvers use, distinct from `log-decorator`'s spread form (`(...args) => ...`).
 
-## Dependencies
+### Dependencies
 
-- `@rnw-community/decorators-core` — interceptor engine + `completionObservableStrategy`
-- `@rnw-community/shared` — `MethodDecoratorType`, `AnyFn`
-- **Optional peer**: `rxjs` (only needed when methods return `Observable`)
+- `@rnw-community/decorators-core` — `createInterceptor`, `InterceptorMiddleware`
+- `@rnw-community/shared` — `isPromise`
+- **Optional peer**: `rxjs` — only touched at runtime via `isObservable`
+- **Optional peer**: `typescript` (`>=5.2.0`)
 
-## Coverage
+### Coverage
 
-Default monorepo threshold: **99.9%** on all metrics. Currently **100%**.
+Default monorepo threshold: **99.9%** on all metrics (statements, branches, functions, lines).
