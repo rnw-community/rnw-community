@@ -17,6 +17,7 @@ jobs:
                     GH_TOKEN: ${{ github.token }}
                     HEAD_BRANCH: ${{ github.event.pull_request.head.ref }}
                     CURRENT_RUN_ID: ${{ github.run_id }}
+                    PR_NUMBER: ${{ github.event.pull_request.number }}
                 run: |
                     set -euo pipefail
 
@@ -38,9 +39,11 @@ jobs:
                           -f "per_page=100" \
                           -f "page=1")
 
-                        cancellable_ids=$(echo "$response" | jq -r --arg repo "${{ github.repository }}" --arg current "$CURRENT_RUN_ID" '
+                        cancellable_ids=$(echo "$response" | jq -r --arg repo "${{ github.repository }}" --arg current "$CURRENT_RUN_ID" --argjson pr_number "$PR_NUMBER" '
                           [.workflow_runs[]
                             | select(.head_repository.full_name == $repo)
+                            | select(.event == "pull_request")
+                            | select([.pull_requests[]?.number] | index($pr_number))
                             | select((.id | tostring) != $current)
                             | .id
                           ] | .[]
