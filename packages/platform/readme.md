@@ -2,9 +2,9 @@
 
 Platform specific helpers and utils for react native web.
 
-[![npm version](https://badge.fury.io/js/%40rnw-community%2Fredux-loadable.svg)](https://badge.fury.io/js/%40rnw-community%2Fredux-loadable)
+[![npm version](https://badge.fury.io/js/%40rnw-community%2Fplatform.svg)](https://badge.fury.io/js/%40rnw-community%2Fplatform)
 [![coverage](https://img.shields.io/codecov/c/github/rnw-community/rnw-community?flag=platform&label=coverage)](https://app.codecov.io/gh/rnw-community/rnw-community)
-[![npm downloads](https://img.shields.io/npm/dm/%40rnw-community%2Fredux-loadable.svg)](https://www.npmjs.com/package/%40rnw-community%2Fredux-loadable)
+[![npm downloads](https://img.shields.io/npm/dm/%40rnw-community%2Fplatform.svg)](https://www.npmjs.com/package/%40rnw-community%2Fplatform)
 
 ### Platform constants
 
@@ -21,7 +21,6 @@ Simple platform-specific styling helpers:
 
 -   `webStyles(style)`
 -   `androidStyles(style)`
--   `iosStyles(style)`
 -   `iosStyles(style)`
 -   `mobileStyles(style)`
 

@@ -8,11 +8,6 @@ using [Redlock](https://github.com/mike-marcacci/node-redlock)
 [![coverage](https://img.shields.io/codecov/c/github/rnw-community/rnw-community?flag=nestjs-rxjs-lock&label=coverage)](https://app.codecov.io/gh/rnw-community/rnw-community)
 [![npm downloads](https://img.shields.io/npm/dm/%40rnw-community%2Fnestjs-rxjs-lock.svg)](https://www.npmjs.com/package/%40rnw-community%2Fnestjs-rxjs-lock)
 
-## TODO
-
--   [ ] Add module tests
--   [ ] Add `lock$` docs usage example
-
 ## Installation
 
 Add `@rnw-community/nestjs-rxjs-lock` to your project using you package manager of choice.

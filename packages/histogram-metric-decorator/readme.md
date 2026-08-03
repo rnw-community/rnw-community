@@ -61,10 +61,59 @@ The `onLabelsError` hook itself is crash-safe — exceptions inside it are swall
 
 ## Public API
 
-- [`createHistogramMetricDecorator`](src/factory/create-histogram-metric-decorator/create-histogram-metric-decorator.ts) — factory; takes `{ transport, onLabelsError? }` and returns `<K extends AnyFn>(config?) => MethodDecoratorType<K>`
-- [`HistogramTransportInterface`](src/interface/histogram-transport.interface.ts) — `observe(name, durationMs, labels?)`; implement for any backend
-- [`HistogramOptionsInterface<TArgs>`](src/interface/histogram-options.interface.ts) — per-decoration `{ name?, labels? }`
-- [`CreateHistogramMetricOptionsInterface`](src/interface/create-histogram-metric-options.interface.ts) — `{ transport, onLabelsError? }`
+### `createHistogramMetricDecorator`
+
+Factory; takes `{ transport, onLabelsError? }: CreateHistogramMetricOptionsInterface` and returns `<K extends AnyFn>(config?: HistogramOptionsInterface) => MethodDecoratorType<K>` — see the usage example above.
+
+```ts
+import { createHistogramMetricDecorator } from '@rnw-community/histogram-metric-decorator';
+
+import type { HistogramTransportInterface } from '@rnw-community/histogram-metric-decorator';
+
+declare const transport: HistogramTransportInterface;
+
+const HistogramMetric = createHistogramMetricDecorator({ transport });
+```
+
+### `HistogramTransportInterface`
+
+`observe(name, durationMs, labels?)`; implement for any backend (Prometheus, OpenTelemetry, in-memory, …).
+
+```ts
+import type { HistogramTransportInterface } from '@rnw-community/histogram-metric-decorator';
+
+const inMemoryTransport: HistogramTransportInterface = {
+    observe: (name, durationMs, labels) => console.log(name, durationMs, labels),
+};
+```
+
+### `HistogramOptionsInterface<TArgs>`
+
+Per-decoration `{ name?, labels? }` — the optional argument to `@HistogramMetric(...)`.
+
+```ts
+import type { HistogramOptionsInterface } from '@rnw-community/histogram-metric-decorator';
+
+const config: HistogramOptionsInterface<[id: string]> = {
+    name: 'order_fetch_ms',
+    labels: ([id]) => ({ orderId: id }),
+};
+```
+
+### `CreateHistogramMetricOptionsInterface`
+
+`{ transport, onLabelsError? }` — the sole argument to `createHistogramMetricDecorator`.
+
+```ts
+import { createHistogramMetricDecorator } from '@rnw-community/histogram-metric-decorator';
+
+import type { CreateHistogramMetricOptionsInterface, HistogramTransportInterface } from '@rnw-community/histogram-metric-decorator';
+
+declare const transport: HistogramTransportInterface;
+
+const options: CreateHistogramMetricOptionsInterface = { transport, onLabelsError: (err, args) => console.warn(err, args) };
+const HistogramMetric = createHistogramMetricDecorator(options);
+```
 
 ## License
 

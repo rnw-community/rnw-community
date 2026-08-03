@@ -35,6 +35,39 @@ const { SequentialLock$, ExclusiveLock$ } = createObservableLockDecorators(MyLoc
 - [createPromiseLockDecorators](./src/decorator/lock/create-promise-lock-decorators/create-promise-lock-decorators.md) - `SequentialLock` + `ExclusiveLock` for async methods
 - [createObservableLockDecorators](./src/decorator/lock/create-observable-lock-decorators/create-observable-lock-decorators.md) - `SequentialLock$` + `ExclusiveLock$` for Observable methods
 
+### Types
+
+- `PreDecoratorFunction<TArgs, TResult>` - `(...args: TArgs) => TResult`; the spread-form callback shape accepted as the `preLock` argument to `SequentialLock`/`ExclusiveLock`/`SequentialLock$`/`ExclusiveLock$` (and the deprecated `LockPromise`/`LockObservable`) — computes the lock resource key(s) from the decorated method's own arguments.
+
+    ```ts
+    import type { PreDecoratorFunction } from '@rnw-community/nestjs-enterprise';
+
+    const preLock: PreDecoratorFunction<[orderId: string], string[]> = orderId => [`order:${orderId}`];
+    ```
+
+- `LockServiceInterface` - the contract `createPromiseLockDecorators` / `createObservableLockDecorators` expect from an injectable NestJS provider: `acquire(resources, duration)` resolves a `LockHandle`; `tryAcquire(resources, duration)` resolves `LockHandle | undefined`, returning `undefined` on contention instead of waiting or throwing.
+
+    ```ts
+    import type { LockServiceInterface } from '@rnw-community/nestjs-enterprise';
+
+    class RedlockService implements LockServiceInterface {
+        async acquire(resources: string[], duration: number) {
+            return { release: async () => undefined };
+        }
+        async tryAcquire(resources: string[], duration: number) {
+            return { release: async () => undefined };
+        }
+    }
+    ```
+
+- `LockHandle` - `{ release(): Promise<void> }`; returned by `LockServiceInterface.acquire` / `tryAcquire` and released automatically once the decorated method settles.
+
+    ```ts
+    import type { LockHandle } from '@rnw-community/nestjs-enterprise';
+
+    const handle: LockHandle = { release: async () => undefined };
+    ```
+
 ### Deprecated
 
 - [LockPromise](./src/decorator/lock/lock-promise/lock-promise-decorator.md) - use `createPromiseLockDecorators` instead

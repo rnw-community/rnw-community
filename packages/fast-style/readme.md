@@ -13,6 +13,20 @@ generating complex object field structure.
 
 Special object `Flex` for rapid React native FlexBox styles generation with IDE autocomplete(IntelliSense).
 
+### Enums backing `Flex`'s keys
+
+`Flex` is built via `combine()` from [`@rnw-community/object-field-tree`](https://github.com/rnw-community/rnw-community/tree/master/packages/object-field-tree) over these three enums — their member names are exactly the property chain used above (`Flex.row.flexEnd.stretch`):
+
+-   `FlexDirectionEnum` - `column` | `columnReverse` | `row` | `rowReverse`
+-   `FlexJustifyContentEnum` - `center` | `flexEnd` | `flexStart` | `spaceAround` | `spaceBetween` | `spaceEvenly`
+-   `FlexAlignItemsEnum` - `baseline` | `center` | `flexEnd` | `flexStart` | `stretch`
+
+```ts
+import { FlexDirectionEnum } from '@rnw-community/fast-style';
+
+const direction: FlexDirectionEnum = FlexDirectionEnum.row;
+```
+
 ### Usage in Style object
 
 Styles usage example with spreading styles:
