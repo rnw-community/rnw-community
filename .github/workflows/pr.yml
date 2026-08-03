@@ -17,9 +17,13 @@ on:
 
 jobs:
     code-quality:
-        name: Build, lint and test
+        name: Build, lint and test (Node ${{ matrix.node-version }})
         timeout-minutes: 15
         runs-on: ubuntu-latest
+        strategy:
+            fail-fast: false
+            matrix:
+                node-version: [22.x, 24.x]
         permissions:
             contents: read
             issues: write
@@ -32,12 +36,13 @@ jobs:
                     fetch-depth: 0
 
             -   name: Close Stale Issues
+                if: matrix.node-version == '22.x'
                 uses: actions/stale@v10
 
             -   name: Setup Node
                 uses: actions/setup-node@v5
                 with:
-                    node-version: 22.x
+                    node-version: ${{ matrix.node-version }}
                     cache: yarn
 
             -   name: Enable corepack

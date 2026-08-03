@@ -41,7 +41,7 @@
         "clear:deps": "rm -rf ./node_modules && rm -rf ./dist"
     },
     "engines": {
-        "node": ">=18.0.0"
+        "node": ">=22.0.0"
     },
     "gitHead": "4fd24bd92936d1793f8f7ff08d6420fce4f211d9",
     "dependencies": {
