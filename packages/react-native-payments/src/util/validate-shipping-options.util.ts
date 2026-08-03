@@ -1,6 +1,6 @@
 import { type ClassType, isDefined, isNotEmptyString, isString } from '@rnw-community/shared';
 
-import { isValidDecimalMonetaryValue } from './is-valid-decimal-monetary-value.util';
+import { isValidDecimalMonetaryValue } from './is-valid-decimal-monetary-value/is-valid-decimal-monetary-value.util';
 
 import type { PaymentShippingOption } from '../@standard/w3c/payment-shipping-option';
 

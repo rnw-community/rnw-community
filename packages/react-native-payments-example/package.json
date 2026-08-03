@@ -1,6 +1,6 @@
 {
     "name": "@rnw-community/react-native-payments-example",
-    "version": "2.7.1",
+    "version": "2.11.0",
     "private": true,
     "license": "MIT",
     "sideEffects": false,

@@ -19,11 +19,14 @@ import { DOMException } from '../../error/dom.exception';
 import { PaymentsError } from '../../error/payments.error';
 import { getNativePaymentsEventEmitter } from '../../util/get-native-payments-event-emitter/get-native-payments-event-emitter.util';
 import { isNativeUserCancellation } from '../../util/is-native-user-cancellation.util';
+import { resolvePaymentDetailsModifier } from '../../util/resolve-payment-details-modifier.util';
 import { validateAndroidTransactionInfo } from '../../util/validate-android-transaction-info.util';
 import { validateDetailsUpdate } from '../../util/validate-details-update.util';
 import { validateDisplayItems } from '../../util/validate-display-items.util';
+import { validateModifiers } from '../../util/validate-modifiers.util';
 import { validatePaymentMethods } from '../../util/validate-payment-methods.util';
 import { validateShippingOptions } from '../../util/validate-shipping-options.util';
+import { validateShippingType } from '../../util/validate-shipping-type.util';
 import { validateTotal } from '../../util/validate-total.util';
 import { warnChangeEventError } from '../../util/warn-change-event-error.util';
 import { ChangeEventDispatcher } from '../change-event-dispatcher/change-event-dispatcher';
@@ -38,14 +41,17 @@ import type { IosPaymentMethodDataDataInterface } from '../../@standard/ios/mapp
 import type { IosPaymentDataRequest } from '../../@standard/ios/request/ios-payment-data-request';
 import type { PaymentDetailsInit } from '../../@standard/w3c/payment-details-init';
 import type { PaymentDetailsUpdate } from '../../@standard/w3c/payment-details-update';
+import type { PaymentItem } from '../../@standard/w3c/payment-item';
 import type { PaymentMethodData } from '../../@standard/w3c/payment-method-data';
 import type { NativePaymentDetailsUpdateInterface } from '../../interface/native-payment-details-update.interface';
 import type { PaymentRequestEventPayloadInterface } from '../../interface/payment-request-event-payload.interface';
 import type { PaymentRequestEventRegistrationInterface } from '../../interface/payment-request-event-registration.interface';
 import type { PaymentResponseAddressInterface } from '../../interface/payment-response-address.interface';
+import type { ResolvedPaymentDetailsInterface } from '../../interface/resolved-payment-details.interface';
 import type { PaymentMethodChangeEventListener } from '../../type/payment-method-change-event-listener.type';
 import type { PaymentRequestEventListener } from '../../type/payment-request-event-listener.type';
 import type { PaymentRequestEventType } from '../../type/payment-request-event.type';
+import type { PaymentRequestUpdateEvent } from '../payment-request-update-event/payment-request-update-event';
 import type { Maybe } from '@rnw-community/shared';
 import type { EmitterSubscription } from 'react-native';
 
@@ -67,6 +73,11 @@ export class PaymentRequest {
     private readonly platformMethodData: AndroidPaymentMethodDataDataInterface | IosPaymentMethodDataDataInterface;
     private readonly eventRegistrations = new Map<PaymentRequestEventType, PaymentRequestEventRegistrationInterface>();
     private readonly pendingDispatchers = new Set<ChangeEventDispatcher>();
+    private readonly attributeHandlers = new Map<
+        PaymentRequestEventType,
+        PaymentMethodChangeEventListener | PaymentRequestEventListener
+    >();
+    private readonly attributeHandlerWrappers = new Map<PaymentRequestEventType, PaymentRequestEventListener>();
     private eventGeneration = 0;
     private isNativeEventsSynced = false;
 
@@ -84,27 +95,56 @@ export class PaymentRequest {
         }
         this.id = details.id;
 
-        // 4. Process payment methods
-        validatePaymentMethods(methodData);
-        validateAndroidTransactionInfo(methodData, ConstructorError);
-
-        // 5. Process the total
-        validateTotal(details.total, ConstructorError);
-
-        // 6. If the displayItems member of details is present, then for each item in details.displayItems:
-        validateDisplayItems(ConstructorError, details.displayItems);
-
-        validateShippingOptions(ConstructorError, details.shippingOptions);
+        this.validateConstructorInputs(methodData, details);
 
         // 17. Set request.[[serializedMethodData]] to serializedMethodData.         */
         this.platformMethodData = this.findPlatformPaymentMethodData();
 
         const nativePlatformMethodData =
             Platform.OS === 'android'
-                ? this.getAndroidPaymentMethodData(this.platformMethodData as AndroidPaymentMethodDataDataInterface, details)
+                ? this.getAndroidPaymentMethodData(
+                      this.platformMethodData as AndroidPaymentMethodDataDataInterface,
+                      this.resolveEffectiveDetails(details).total
+                  )
                 : this.getIosPaymentMethodData(this.platformMethodData as IosPaymentMethodDataDataInterface);
 
         this.serializedMethodData = JSON.stringify(nativePlatformMethodData);
+    }
+
+    // https://www.w3.org/TR/payment-request/#dom-paymentrequest-onshippingaddresschange
+    get onshippingaddresschange(): Maybe<PaymentRequestEventListener> {
+        return this.getAttributeHandler('shippingaddresschange') as Maybe<PaymentRequestEventListener>;
+    }
+
+    // https://www.w3.org/TR/payment-request/#dom-paymentrequest-onshippingoptionchange
+    get onshippingoptionchange(): Maybe<PaymentRequestEventListener> {
+        return this.getAttributeHandler('shippingoptionchange') as Maybe<PaymentRequestEventListener>;
+    }
+
+    // https://www.w3.org/TR/payment-request/#dom-paymentrequest-onpaymentmethodchange
+    get onpaymentmethodchange(): Maybe<PaymentMethodChangeEventListener> {
+        return this.getAttributeHandler('paymentmethodchange');
+    }
+
+    // couponcodechange is a PassKit extension: https://developer.apple.com/documentation/passkit/pkpaymentrequest/3801275-couponcode?language=objc
+    get oncouponcodechange(): Maybe<PaymentRequestEventListener> {
+        return this.getAttributeHandler('couponcodechange') as Maybe<PaymentRequestEventListener>;
+    }
+
+    set onshippingaddresschange(listener: Maybe<PaymentRequestEventListener>) {
+        this.setAttributeHandler('shippingaddresschange', listener);
+    }
+
+    set onshippingoptionchange(listener: Maybe<PaymentRequestEventListener>) {
+        this.setAttributeHandler('shippingoptionchange', listener);
+    }
+
+    set onpaymentmethodchange(listener: Maybe<PaymentMethodChangeEventListener>) {
+        this.setAttributeHandler('paymentmethodchange', listener);
+    }
+
+    set oncouponcodechange(listener: Maybe<PaymentRequestEventListener>) {
+        this.setAttributeHandler('couponcodechange', listener);
     }
 
     // https://www.w3.org/TR/payment-request/#canmakepayment-method
@@ -116,6 +156,15 @@ export class PaymentRequest {
         return NativePayments.canMakePayments(this.serializedMethodData);
     }
 
+    // https://www.w3.org/TR/payment-request/#hasenrolledinstrument-method
+    async hasEnrolledInstrument(): Promise<boolean> {
+        if (this.state !== 'created') {
+            throw new DOMException(PaymentsErrorEnum.InvalidStateError);
+        }
+
+        return NativePayments.hasEnrolledInstrument(this.serializedMethodData);
+    }
+
     // https://www.w3.org/TR/payment-request/#show-method
     show(): Promise<AndroidPaymentResponse | IosPaymentResponse> {
         if (this.state !== 'created') {
@@ -125,14 +174,17 @@ export class PaymentRequest {
         this.state = 'interactive';
         this.syncActiveEvents();
 
+        const resolvedDetails = this.resolveEffectiveDetails(this.details);
+
         // HINT: We need to pass Android environment configuration to native module via details
         const details =
             Platform.OS === 'android'
                 ? {
                       ...this.details,
                       environment: (this.platformMethodData as AndroidPaymentMethodDataDataInterface).environment,
+                      ...resolvedDetails,
                   }
-                : this.details;
+                : { ...this.details, ...resolvedDetails };
 
         return new Promise<AndroidPaymentResponse | IosPaymentResponse>((resolve, reject) => {
             this.acceptPromiseRejecter = reject;
@@ -225,6 +277,72 @@ export class PaymentRequest {
     private closeRequest(): void {
         this.state = 'closed';
         this.clearEventRegistrations();
+    }
+
+    private validateConstructorInputs(methodData: PaymentMethodData[], details: PaymentDetailsInit): void {
+        // 4. Process payment methods
+        validatePaymentMethods(methodData);
+        validateAndroidTransactionInfo(methodData, ConstructorError);
+        validateShippingType(methodData, ConstructorError);
+
+        // 5. Process the total
+        validateTotal(details.total, ConstructorError);
+
+        // 6. If the displayItems member of details is present, then for each item in details.displayItems:
+        validateDisplayItems(ConstructorError, details.displayItems);
+
+        validateShippingOptions(ConstructorError, details.shippingOptions);
+        validateModifiers(ConstructorError, details.modifiers);
+    }
+
+    private getAttributeHandler(
+        type: PaymentRequestEventType
+    ): Maybe<PaymentMethodChangeEventListener | PaymentRequestEventListener> {
+        return this.attributeHandlers.get(type) ?? null;
+    }
+
+    private setAttributeHandler(
+        type: PaymentRequestEventType,
+        listener: Maybe<PaymentMethodChangeEventListener | PaymentRequestEventListener>
+    ): void {
+        if (!isDefined(listener)) {
+            this.attributeHandlers.delete(type);
+            this.removeAttributeHandlerWrapper(type);
+
+            return;
+        }
+
+        this.attributeHandlers.set(type, listener);
+        this.ensureAttributeHandlerWrapper(type);
+    }
+
+    private ensureAttributeHandlerWrapper(type: PaymentRequestEventType): void {
+        if (this.attributeHandlerWrappers.has(type)) {
+            return;
+        }
+
+        const wrapper: PaymentRequestEventListener = event => this.dispatchToAttributeHandler(type, event);
+
+        this.attributeHandlerWrappers.set(type, wrapper);
+        this.addEventListener(type, wrapper);
+    }
+
+    private removeAttributeHandlerWrapper(type: PaymentRequestEventType): void {
+        const wrapper = this.attributeHandlerWrappers.get(type);
+
+        if (!isDefined(wrapper)) {
+            return;
+        }
+
+        this.attributeHandlerWrappers.delete(type);
+        this.removeEventListener(type, wrapper);
+    }
+
+    private dispatchToAttributeHandler(
+        type: PaymentRequestEventType,
+        event: PaymentRequestUpdateEvent
+    ): Promise<void> | void {
+        return (this.attributeHandlers.get(type) as PaymentRequestEventListener)(event);
     }
 
     private handleAccept(details: string): AndroidPaymentResponse | IosPaymentResponse {
@@ -394,15 +512,16 @@ export class PaymentRequest {
         }
 
         const updatedDetails = this.getUpdatedDetails(detailsUpdate);
+        const resolvedDetails = this.resolveEffectiveDetails(updatedDetails);
         const update: NativePaymentDetailsUpdateInterface = {
             error: detailsUpdate?.error ?? '',
             eventName: type,
             requestId: this.id,
-            total: updatedDetails.total,
+            total: resolvedDetails.total,
             ...(isDefined(eventId) && { eventId }),
         };
 
-        await updatePaymentDetails(update, updatedDetails.displayItems ?? [], updatedDetails.shippingOptions ?? []);
+        await updatePaymentDetails(update, resolvedDetails.displayItems, updatedDetails.shippingOptions ?? []);
 
         this.details = updatedDetails;
     }
@@ -417,12 +536,25 @@ export class PaymentRequest {
             ...(isDefined(detailsUpdate.total) && { total: detailsUpdate.total }),
             ...(isDefined(detailsUpdate.displayItems) && { displayItems: detailsUpdate.displayItems }),
             ...(isDefined(detailsUpdate.shippingOptions) && { shippingOptions: detailsUpdate.shippingOptions }),
+            ...(isDefined(detailsUpdate.modifiers) && { modifiers: detailsUpdate.modifiers }),
         };
     }
 
+    private resolveEffectiveDetails(details: PaymentDetailsInit): ResolvedPaymentDetailsInterface {
+        return resolvePaymentDetailsModifier(
+            this.getPlatformSupportedMethod(),
+            details.total,
+            details.displayItems,
+            details.modifiers
+        );
+    }
+
+    private getPlatformSupportedMethod(): PaymentMethodNameEnum {
+        return Platform.OS === 'ios' ? PaymentMethodNameEnum.ApplePay : PaymentMethodNameEnum.AndroidPay;
+    }
+
     private findPlatformPaymentMethodData(): AndroidPaymentMethodDataDataInterface | IosPaymentMethodDataDataInterface {
-        const platformSupportedMethod =
-            Platform.OS === 'ios' ? PaymentMethodNameEnum.ApplePay : PaymentMethodNameEnum.AndroidPay;
+        const platformSupportedMethod = this.getPlatformSupportedMethod();
 
         const platformMethod = this.methodData.find(
             paymentMethodData => paymentMethodData.supportedMethods === platformSupportedMethod
@@ -437,7 +569,7 @@ export class PaymentRequest {
 
     private getAndroidPaymentMethodData(
         methodData: AndroidPaymentMethodDataDataInterface,
-        details: PaymentDetailsInit
+        total: PaymentItem
     ): AndroidPaymentDataRequest {
         const isBillingRequired =
             methodData.requestBillingAddress === true ||
@@ -449,13 +581,13 @@ export class PaymentRequest {
         return {
             ...defaultAndroidPaymentDataRequest,
             merchantInfo: {
-                merchantName: details.total.label,
+                merchantName: total.label,
             },
             transactionInfo: {
                 ...defaultAndroidTransactionInfo,
                 currencyCode: methodData.currencyCode,
-                totalPrice: details.total.amount.value,
-                totalPriceLabel: details.total.label,
+                totalPrice: total.amount.value,
+                totalPriceLabel: total.label,
                 countryCode: methodData.countryCode,
                 totalPriceStatus,
                 ...(isDefined(methodData.checkoutOption) && { checkoutOption: methodData.checkoutOption }),
@@ -551,6 +683,7 @@ export class PaymentRequest {
             ...(isShippingRequested && { requiredShippingContactFields: requestedShippingFields }),
             ...(isDefined(methodData.applicationData) && { applicationData: methodData.applicationData }),
             ...(isNotEmptyString(methodData.couponCode) && { couponCode: methodData.couponCode }),
+            ...(isDefined(methodData.shippingType) && { shippingType: methodData.shippingType }),
         };
     }
 

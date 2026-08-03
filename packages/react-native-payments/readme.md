@@ -34,6 +34,72 @@ fantastic [react-native-payments](https://github.com/naoufal/react-native-paymen
 These enhancements ensure that the library is more efficient, maintainable, and future-proof, offering a seamless payment
 integration experience for your applications.
 
+## For AI agents
+
+Start with [llms.txt](llms.txt) for a curated, agent-oriented index of this package's docs (API surface, payment
+change events, platform deviations, migration notes, native contract, and E2E coverage) and [AGENTS.md](AGENTS.md)
+for architecture and contributor conventions.
+
+## Quickstart
+
+The fastest path from an empty project to an open payment sheet. Every step links to the full section for the details
+this condensed version skips.
+
+1. **Install** the package with your package manager, e.g. `yarn add @rnw-community/react-native-payments`. Autolinking
+   picks up the TurboModule on both architectures — no manual `react-native link` step.
+2. **Platform setup** (once per platform, before writing any code):
+   - iOS — [Apple Pay setup](#applepay-setup): Apple developer account, merchant ID, `PassKit` import in
+     `AppDelegate`.
+   - Android — [Android Pay setup](#androidpay-setup): Google developer account, `play-services-wallet` dependency,
+     test-card allowlist.
+   - Expo — [Expo setup](#expo-setup): the `app.plugin` entry plus `expo prebuild --clean`.
+3. **Ship a payment** — construct a request, check capability, show the sheet, close it:
+
+```ts
+import {
+    PaymentComplete,
+    PaymentMethodNameEnum,
+    PaymentRequest,
+    SupportedNetworkEnum,
+} from '@rnw-community/react-native-payments';
+
+const methodData = [
+    {
+        // Add a matching AndroidPay entry to the same array to support both platforms — see #2 below.
+        supportedMethods: PaymentMethodNameEnum.ApplePay,
+        data: {
+            merchantIdentifier: 'merchant.com.your-app.namespace',
+            supportedNetworks: [SupportedNetworkEnum.Visa, SupportedNetworkEnum.Mastercard],
+            countryCode: 'US',
+            currencyCode: 'USD',
+        },
+    },
+];
+const paymentDetails = { total: { label: 'Total', amount: { currency: 'USD', value: '10.00' } } };
+
+const paymentRequest = new PaymentRequest(methodData, paymentDetails);
+
+if (await paymentRequest.canMakePayment()) {
+    const paymentResponse = await paymentRequest.show();
+    const isConfirmed = await sendToYourBackend(paymentResponse.details); // your own gateway call
+
+    await paymentResponse.complete(isConfirmed ? PaymentComplete.Success : PaymentComplete.Fail);
+}
+```
+
+Only call `complete(PaymentComplete.Success)` once your backend has actually confirmed the charge — completing with
+`Success` before that point tells the sheet (and the user) the payment went through even if it didn't. See
+[Creating an Instance](#2-creating-an-instance) for the full two-platform `methodData`, [Payment change events](#payment-change-events)
+for shipping/coupon updates while the sheet is open, and [How it works](#how-it-works) for why a `PaymentRequest` is
+single-use — build a new one per payment attempt rather than reusing a settled request.
+
+### Screenshots
+
+Recording is deferred — not a documentation gap, a scheduling one: capturing needs the on-device Maestro fleet, which
+is at capacity. The `Docs` [TODO](#todo) below carries the exact capture command so this stays actionable instead of
+silently dropped; once captured, an Apple Pay and a Google Pay sheet GIF replace this placeholder, showing the exact
+flow from the snippet above.
+
 ## Features
 
 - Streamlined. Say goodbye to complicated checkout forms.
@@ -100,7 +166,7 @@ dependencies {
 
 ### Expo setup
 
-To integrate with Expo [custom builds](https://docs.expo.dev/custom-builds/get-started/), you need to add the `@rnw-community/react-native-payments` plugin into your `app.config.js`:
+This package links native code (PassKit on iOS, the Google Pay API on Android), so it cannot run inside **Expo Go**. It requires an Expo [custom build](https://docs.expo.dev/custom-builds/get-started/) (a.k.a. development build / `expo-dev-client`) — add the `@rnw-community/react-native-payments` plugin into your `app.config.js`:
 
 1. Update your `app.config.js` configuration:
 
@@ -127,11 +193,23 @@ export default {
 }
 ```
 
+#### Plugin options reference
+
+| Option | Type | Default | What it mutates |
+| --- | --- | --- | --- |
+| `merchantIdentifier` | `string \| string[]` | *(required)* | iOS entitlements plist: appends every non-empty identifier to `com.apple.developer.in-app-payments`, de-duplicated. Throws at prebuild time if no non-empty identifier is provided. |
+| `supportedNetworks` | `SupportedNetworkEnum[]` | every `SupportedNetworkEnum` value | Android `AndroidManifest.xml`: writes the comma-joined list as the `com.rnw-community.react-native-payments.supported-networks` meta-data value on the main application. Throws if given an empty array or a value outside `SupportedNetworkEnum`. |
+| `googlePayEnvironment` | `EnvironmentEnum` | `EnvironmentEnum.PRODUCTION` | Android `AndroidManifest.xml`: writes the `com.google.android.gms.wallet.api.environment` meta-data value on the main application. Throws if given a value outside `EnvironmentEnum`. |
+
+`withGooglePay` also always writes `com.google.android.gms.wallet.api.enabled=true` (no option needed) so the Google Pay API is enabled for the app. `SupportedNetworkEnum` and `EnvironmentEnum` are both exported from the package root.
+
 2. Prebuild your project:
 
 ```bash
 npx expo prebuild --clean
 ```
+
+Building the package before prebuild is required for local/monorepo consumers: `expo prebuild` resolves `@rnw-community/react-native-payments/app.plugin` through the package's `exports` map, which only points at `dist` — run `yarn build` (or your workspace's build step) for this package before `expo prebuild` if you are linking it locally rather than installing it from npm.
 
 ## Usage
 
@@ -222,6 +300,10 @@ Depending on the platform and payment method, you can provide additional data to
   include the email address of the payer.
 - `requestShipping`: An optional boolean field that, when present and set to true, indicates that the `PaymentResponse` will
   include the shipping address of the payer.
+- `shippingType`: An optional field (`PaymentShippingTypeEnum.Shipping` / `Delivery` / `Pickup`) mapping to the W3C
+  [`PaymentOptions.shippingType`](https://www.w3.org/TR/payment-request/#dom-paymentoptions-shippingtype) concept,
+  forwarded to `PKShippingType` on iOS — `Pickup` maps to `PKShippingTypeStorePickup`, see
+  [Known deviations](#known-deviations). No-op on Android, which has no equivalent concept.
 - `applicationData`: An optional string or object field for Apple Pay that allows you to store application-specific data. This data is not transmitted to Apple but is included in the payment token as a SHA-256 hash (applicationDataHash). You can use it to prevent replay attacks by associating a payment with a specific transaction.
 - `couponCode`: An optional Apple Pay field, **beyond the W3C specification**, that prefills the coupon code field of the
   payment sheet. The field itself is only rendered when a `couponcodechange` listener is registered before `show()`, so
@@ -270,6 +352,29 @@ const paymentDetails = {
 };
 ```
 
+#### 2.4 Payment details modifiers
+
+`details.modifiers` accepts an array of [`PaymentDetailsModifier`](https://www.w3.org/TR/payment-request/#dom-paymentdetailsmodifier),
+one entry per `supportedMethods`. The library picks the entry whose `supportedMethods` matches the platform's active
+payment method (`PaymentMethodNameEnum.ApplePay` on iOS, `PaymentMethodNameEnum.AndroidPay` on Android) and applies it
+before serializing details to native: `modifier.total` overrides the top-level `total` and `modifier.additionalDisplayItems`
+is appended to `displayItems`. A modifier for the other platform's method is ignored. The same resolution runs again on
+every `updateWith()` call, so a listener can ship an updated `modifiers` array together with the rest of the update.
+`modifier.data` is validated for shape but not forwarded to native — the bridge has no per-method extension point for it.
+
+```ts
+const paymentDetails = {
+    total: { label: 'Total', amount: { currency: 'USD', value: '10.00' } },
+    modifiers: [
+        {
+            supportedMethods: PaymentMethodNameEnum.ApplePay,
+            total: { label: 'Total with Apple Pay discount', amount: { currency: 'USD', value: '9.00' } },
+            additionalDisplayItems: [{ label: 'Apple Pay discount', amount: { currency: 'USD', value: '-1.00' } }],
+        },
+    ],
+};
+```
+
 ### 3. Checking Payment Capability
 
 Before displaying the payment sheet to the user, you can check if the current device supports the payment methods specified:
@@ -281,6 +386,18 @@ const isPaymentPossible = await paymentRequest.canMakePayment();
 This method returns a boolean value indicating whether the device supports the specified payment methods.
 
 > The `PaymentRequest` class automatically handles platform-specific payment data based on the provided methodData.
+
+To check whether the user has a payment instrument enrolled — not just device/API support — use
+[`hasEnrolledInstrument()`](https://www.w3.org/TR/payment-request/#hasenrolledinstrument-method):
+
+```ts
+const hasCard = await paymentRequest.hasEnrolledInstrument();
+```
+
+Both methods reject with `InvalidStateError` when the request is not in the `created` state. On iOS this maps to
+PassKit's `canMakePaymentsUsingNetworks:`, restricting the capability check to the request's `supportedNetworks`. On
+Android it calls Google Pay's `isReadyToPay` with `existingPaymentMethodRequired: true` — see
+[Known deviations](#known-deviations) for the precision trade-off this implies.
 
 ### 4. Displaying the Payment Sheet
 
@@ -512,6 +629,26 @@ payment sheet is open.
 paymentRequest.removeEventListener('shippingaddresschange', onShippingAddressChange);
 ```
 
+### Event-handler attributes (`onshippingaddresschange`, `onshippingoptionchange`, `onpaymentmethodchange`, `oncouponcodechange`)
+
+Thin property alternatives to `addEventListener`/`removeEventListener`, one per event type, matching the `EventTarget`
+IDL attribute semantics: assigning a function **replaces** the previously assigned attribute handler (an implicit
+`removeEventListener` of the old one followed by `addEventListener` of the new one); assigning `null` clears it without
+registering a new listener; reading the property returns the currently assigned handler, or `null` when none was set.
+The attribute handler is otherwise an ordinary listener — it coexists with every listener registered through
+`addEventListener` for the same type and runs in the order it was (re-)registered.
+
+```ts
+paymentRequest.onshippingaddresschange = event => {
+    event.updateWith({
+        total: { label: 'Total', amount: { currency: 'USD', value: '25.00' } },
+        displayItems: [{ label: 'Shipping', amount: { currency: 'USD', value: '5.00' } }],
+    });
+};
+
+paymentRequest.onshippingaddresschange = null; // clears it
+```
+
 ### `PaymentRequestUpdateEvent.updateWith(detailsOrPromise)`
 
 Answers the event with updated `PaymentDetailsUpdate` — `total`, `displayItems`, `shippingOptions` and `error` are all
@@ -638,6 +775,55 @@ street. `paymentRequest.updating` is `true` while an event is being processed; a
 arrives during that window is answered with the unchanged details and is not dispatched to the listeners, but its
 selection is still stored on the request, so these values always describe what the sheet shows right now.
 
+## How it works
+
+`PaymentRequest` is a thin JS state machine (`created` → `interactive` → `closed`) sitting on top of one TurboModule,
+`Payments` (`NativePayments.ts` → `Payments.mm` on iOS, `PaymentsModule.java` on Android). Method calls (`show`,
+`abort`, `canMakePayment`) go JS → native directly through the module. Change events flow the other way — native →
+JS — through a `NativeEventEmitter` built over the same module handle, scoped to the request that is currently on
+screen:
+
+```text
+ JS                                            Native (PassKit / Google Pay)
+ ┌────────────────────────┐  show(requestId, …)  ┌───────────────────────────────┐
+ │ PaymentRequest          │ ───────────────────▶ │ Payments TurboModule          │
+ │ created -> interactive  │                       │ (Payments.mm / …Module.java) │
+ └────────────┬────────────┘                       └───────────────┬───────────────┘
+              │ addEventListener(type)                              │
+              │ ── setActiveEvents(requestId, types) ──────────────▶│
+              │                                                     │
+              │◀─ shippingaddresschange {requestId, eventId, …} ────┤  (request-scoped emit)
+              ▼
+ ChangeEventDispatcher.dispatch(listeners)
+              │ listener runs, calls updateWith(details) — or times out (changeEventTimeoutMs)
+              ▼
+ updatePaymentDetails(update, displayItems, shippingOptions) ───────▶  resolves the *pending*
+   update = { requestId, eventId, eventName, total, error }           completion for that eventId
+              │
+              ▼
+ show() resolves/rejects ── closeRequest() ──▶  state: closed  (single-use — see below)
+```
+
+**Why events are request-scoped.** The native module is a singleton — exactly one sheet can be interactive at a time —
+but a JS app can construct several `PaymentRequest` instances in a session (retries, different carts). `show()` passes
+the request's own `id`, native adopts it as the `activeRequestId`, and every event and completion carries `requestId` /
+`eventId` so a second request can never intercept or answer the first one's events. The full contract — every native
+method, payload shape and teardown path — is documented in
+[get-native-payments-event-emitter.md](src/util/get-native-payments-event-emitter/get-native-payments-event-emitter.md);
+the JS-side dispatch/timeout/answer lifecycle for one event is in
+[change-event-dispatcher.md](src/class/change-event-dispatcher/change-event-dispatcher.md).
+
+**Why a request is single-use.** The W3C spec already moves a settled `PaymentRequest` to a `closed` state; this
+package treats that state as terminal instead of reusable. Reusing a request would mean keeping its native event
+subscriptions alive with no terminal path left to release them, since `show()`/`abort()` are what tear them down. Making
+`closed` permanent gives every request exactly one teardown path, guarantees against a leaked native listener, and keeps
+the request-scoping guarantee above simple — a `requestId` is only ever active once. See
+[Migrating from v2](#migrating-from-v2) below for the concrete behavior change, and
+[Known deviations](#known-deviations) for how this differs from the spec.
+
+For the full class/file layout and the native-side invariants that keep this contract intact across old architecture,
+New Architecture and bridgeless, see [AGENTS.md](AGENTS.md).
+
 ## Migrating from v2
 
 > **The native module interface changed** (`show()` now carries the request id, and the change-event methods are part of
@@ -654,6 +840,166 @@ consumer who never calls `addEventListener` sees the same sheet as before (aside
 > a `PaymentRequest` is single-use — once `show()` settles or `abort()` resolves the request is `closed`,
 > `addEventListener` becomes a no-op and every further `show()` rejects with `InvalidStateError`. Construct a new
 > `PaymentRequest` per payment attempt instead of reusing one across retries.
+
+## Migrating from `react-native-payments` (upstream)
+
+This package started as a rewrite of [naoufal/react-native-payments](https://github.com/naoufal/react-native-payments),
+the original — now unmaintained — library. The intro bullets at the top of this readme summarize the rewrite; this
+section maps the concrete API surface so an existing integration can be ported.
+
+### API mapping
+
+| Upstream (`react-native-payments`)                                                        | This package (`@rnw-community/react-native-payments`)                                          | Notes                                                                                          |
+| -------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------ |
+| `npm install react-native-payments` + `react-native link`                                    | `yarn add @rnw-community/react-native-payments`                                                    | Autolinked TurboModule — no manual linking step. See [Installation](#installation).             |
+| `global.PaymentRequest = require('react-native-payments').PaymentRequest;`                   | `import { PaymentRequest } from '@rnw-community/react-native-payments';`                           | No global polyfill; import the class where you use it.                                          |
+| `supportedMethods: ['apple-pay']` / `['android-pay']` (string)                               | `supportedMethods: PaymentMethodNameEnum.ApplePay` / `PaymentMethodNameEnum.AndroidPay` (enum)     | Same runtime values, typed.                                                                      |
+| `new PaymentRequest(methodData, details, options)` — 3rd arg `options.requestPayerName` etc. | `new PaymentRequest(methodData, details)` — payer/shipping flags live on each entry's `methodData.data` | No top-level `options` object. See [Additional methodData.data options](#21-additional-methoddatadata-options). |
+| `paymentRequest.show()`, reusable after a rejection                                          | `paymentRequest.show()` — **single-use**, `closed` once it settles                                 | See [How it works](#how-it-works) and [Migrating from v2](#migrating-from-v2).                   |
+| `paymentRequest.abort()`                                                                      | `paymentRequest.abort()`                                                                            | Same name, TurboModule-backed, spec-mapped `DOMException` on misuse.                             |
+| `addEventListener('shippingaddresschange' \| 'shippingoptionchange', e => e.updateWith(...))` | Same two, plus `paymentmethodchange` and the PassKit-only `couponcodechange`                        | Request-scoped native events, `isAnswered`, field-level errors. See [Payment change events](#payment-change-events). |
+| `paymentResponse.details.paymentData` / `transactionIdentifier` (iOS)                        | `paymentResponse.details.applePayToken` (`IosPKToken`)                                              | One typed token object instead of loose fields.                                                  |
+| `paymentResponse.details.getPaymentToken()` (Android, async) / `.paymentToken` (gateway)     | `paymentResponse.details.androidPayToken` (`AndroidPaymentMethodToken`)                             | Synchronous typed field; no async indirection, no built-in gateway token.                        |
+| `paymentResponse.complete('success' \| 'fail' \| 'unknown')` (string)                        | `paymentResponse.complete(PaymentComplete.Success \| PaymentComplete.Fail \| PaymentComplete.Unknown)` (enum) | Same three outcomes, typed — see `PaymentComplete` in [Closing the Payment Sheet](#6-closing-the-payment-sheet). |
+| Built-in Stripe / Braintree add-on packages                                                  | Removed — bring your own gateway via `gatewayConfig` (Android) or the raw token (iOS)               | Stripe/Braintree already ship their own maintained RN SDKs.                                      |
+| Untyped JS, legacy bridge module                                                             | Full TypeScript, TurboModule (New Architecture-ready)                                               | See [How it works](#how-it-works).                                                                |
+| Ad-hoc thrown errors, no stable identity                                                     | Spec-mapped `ConstructorError` / `DOMException` / `PaymentsError`                                   | See [Error Handling](#error-handling).                                                            |
+
+### Worked example
+
+Before (upstream, from the original readme's Apple Pay quickstart):
+
+```js
+// index.ios.js
+global.PaymentRequest = require('react-native-payments').PaymentRequest;
+
+const METHOD_DATA = [
+    {
+        supportedMethods: ['apple-pay'],
+        data: {
+            merchantIdentifier: 'merchant.com.your-app.namespace',
+            supportedNetworks: ['visa', 'mastercard', 'amex'],
+            countryCode: 'US',
+            currencyCode: 'USD',
+        },
+    },
+];
+
+const DETAILS = {
+    id: 'basic-example',
+    displayItems: [{ label: 'Movie Ticket', amount: { currency: 'USD', value: '15.00' } }],
+    total: { label: 'Merchant Name', amount: { currency: 'USD', value: '15.00' } },
+};
+
+const paymentRequest = new PaymentRequest(METHOD_DATA, DETAILS);
+
+paymentRequest.show().then(paymentResponse => {
+    const { transactionIdentifier, paymentData } = paymentResponse.details;
+
+    return fetch('...', { method: 'POST', body: { transactionIdentifier, paymentData } })
+        .then(res => res.json())
+        .then(successHandler)
+        .catch(errorHandler)
+        .then(() => paymentResponse.complete('success'));
+});
+```
+
+After (this package):
+
+```ts
+import {
+    PaymentComplete,
+    PaymentMethodNameEnum,
+    PaymentRequest,
+    SupportedNetworkEnum,
+} from '@rnw-community/react-native-payments';
+
+const methodData = [
+    {
+        supportedMethods: PaymentMethodNameEnum.ApplePay,
+        data: {
+            merchantIdentifier: 'merchant.com.your-app.namespace',
+            supportedNetworks: [SupportedNetworkEnum.Visa, SupportedNetworkEnum.Mastercard, SupportedNetworkEnum.Amex],
+            countryCode: 'US',
+            currencyCode: 'USD',
+        },
+    },
+];
+
+const paymentDetails = {
+    id: 'basic-example',
+    displayItems: [{ label: 'Movie Ticket', amount: { currency: 'USD', value: '15.00' } }],
+    total: { label: 'Merchant Name', amount: { currency: 'USD', value: '15.00' } },
+};
+
+const paymentRequest = new PaymentRequest(methodData, paymentDetails);
+
+const paymentResponse = await paymentRequest.show();
+const applePayToken = paymentResponse.details.applePayToken; // typed IosPKToken
+
+try {
+    const result = await fetch('...', { method: 'POST', body: JSON.stringify(applePayToken) });
+    if (!result.ok) {
+        throw new Error(`Backend rejected the payment: ${result.status}`);
+    }
+    successHandler(await result.json());
+    await paymentResponse.complete(PaymentComplete.Success);
+} catch (error) {
+    errorHandler(error);
+    await paymentResponse.complete(PaymentComplete.Fail);
+}
+```
+
+The differences that matter beyond syntax: no `global.PaymentRequest` polyfill, enums instead of string literals, one
+typed `applePayToken` instead of loose `transactionIdentifier`/`paymentData` fields, and — most importantly — this
+`paymentRequest` cannot `show()` again. A retry constructs a new `PaymentRequest` from the same `methodData` /
+`paymentDetails`, matching [Migrating from v2](#migrating-from-v2) above.
+
+## Web platform
+
+`payment-request.web.ts` / `payment-response.web.ts` are one-line passthroughs — `PaymentRequest` and `PaymentResponse`
+resolve to `window.PaymentRequest` / `window.PaymentResponse` (or `null` when `window` is not defined, e.g. during SSR),
+typed as `WebPaymentRequestConstructor` / `WebPaymentResponseConstructor` — aliases for the browser's own
+`typeof window.PaymentRequest` / `typeof window.PaymentResponse` from `lib.dom`. On web there is no TurboModule, no
+native class and none of this package's own logic in the loop: you get the browser's implementation of the W3C Payment
+Request API, unmodified.
+
+> **Type visibility caveat:** a bundler that platform-resolves `.web.ts` files (Metro building for the web target,
+> `react-native-web` webpack configs) swaps in this passthrough at *runtime* regardless of what TypeScript shows you.
+> `src/index.ts` re-exports the platform-agnostic `PaymentRequest` / `PaymentResponse` specifiers without a build-time
+> branch, so a plain `tsc`/IDE setup resolves `import { PaymentRequest } from '@rnw-community/react-native-payments'`
+> to the native class documented above on every platform, web included. Add
+> `"moduleSuffixes": [".web", ".native", ""]` (or an order matching your own bundler's platform resolution) to your
+> app's `tsconfig.json` if you need the IDE/`tsc` to show the true DOM types for a web build.
+
+Apple Pay through this browser passthrough is **not** the native iOS integration documented under
+[Apple Pay setup](#applepay-setup) — calling `show()` in Safari drives Safari's own Apple Pay JS flow, which fires a
+`merchantvalidation` event that your own server must answer by completing Apple's merchant validation session
+round-trip (TLS, your merchant certificate, Apple's validation URL) before the sheet can display line items. There is
+no `merchantIdentifier` Expo plugin config, no PassKit entitlement and no `merchantCapabilities` on this path — see
+[Apple Pay on the Web](https://developer.apple.com/documentation/apple_pay_on_the_web).
+
+Browser support is inconsistent: Chrome, Edge and Safari (with the merchant-validation caveat above) implement the
+Payment Request API; Firefox removed its implementation. Check [caniuse](https://caniuse.com/payment-request) before
+shipping a web checkout on top of it, and always guard for `PaymentRequest`/`PaymentResponse` being **nullish** (a
+truthiness or `== null` check, never `=== null`) — the passthrough returns `null` outside a `window` (SSR), while an
+unsupported browser has no `window.PaymentRequest` at all, so the export resolves to `undefined` there.
+
+None of the native-only behavior documented above for the `PaymentRequest` class applies to the browser's own
+implementation:
+
+- **`couponCode`** — populated only by the iOS 15+ PassKit `couponcodechange` flow; the browser's `PaymentRequest` has
+  no `couponCode` property.
+- **Normalized `AbortError`** — dismissing the sheet on web throws the browser's own native `DOMException`, not this
+  package's [`PaymentsErrorEnum`](#paymentserrorenum)-driven `DOMException`; `isNativeUserCancellation` never runs on
+  web.
+- **Single-use request semantics** — the native class tracks `state: 'created' | 'interactive' | 'closed'` itself and
+  rejects a reused, settled request with its own `InvalidStateError`. The browser enforces single-use per the W3C spec
+  independently, through its own internal slots, not this package's state machine.
+- **Listener auto-cleanup** — the request-scoped subscription bookkeeping and automatic teardown on `show()`/`abort()`
+  described in [Payment change events](#payment-change-events) is this package's `NativeEventEmitter` plumbing over the
+  TurboModule. The browser's `PaymentRequest` follows plain DOM `addEventListener`/`removeEventListener` semantics with
+  no auto-cleanup — remove your own listeners when you are done with them.
 
 ## Type & class reference
 
@@ -732,6 +1078,18 @@ const data = {
         IosPKMerchantCapability.PKMerchantCapability3DS,
         IosPKMerchantCapability.PKMerchantCapabilityDebit,
     ],
+};
+```
+
+### `PaymentShippingTypeEnum`
+
+Populates the optional `shippingType` of `methodData.data` documented in
+[2.1 Additional methodData.data options](#21-additional-methoddatadata-options): `Shipping`, `Delivery` or `Pickup`.
+
+```ts
+const data = {
+    merchantIdentifier: 'merchant.com.your-app.namespace',
+    shippingType: PaymentShippingTypeEnum.Delivery,
 };
 ```
 
@@ -895,12 +1253,82 @@ On web the library will fallback to [W3C implementation](https://developer.mozil
 
 You can find working example in the `App` component of the [react-native-payments-example](../react-native-payments-example/readme.md) package, running through its `apps/bare` target.
 
+## Troubleshooting
+
+Every entry below traces back to a real report against this package or its native tooling.
+
+**`pod install` / Gradle fails right after adding the package.** Autolinking (RN 0.60+) should pick this module up
+without a manual link step. A stale `Podfile.lock`/`Pods` directory or an old Node version behind the CocoaPods
+autolinking script are the most common causes of a cryptic `Podfile` parse error — matching the Node version pinned in
+[`.nvmrc`](.nvmrc) resolved it in [#163](https://github.com/rnw-community/rnw-community/issues/163). Delete
+`ios/Pods`, `ios/Podfile.lock` and re-run `pod install` before assuming the package itself is at fault.
+
+**`UnsupportedTypeAnnotationParserError: TypeScript type annotation 'TSObjectKeyword' is unsupported in NativeModule specs`
+during Gradle/Pod codegen, or Gradle's `PaymentsModule is not abstract and does not override abstract method show(...)`.**
+Both are react-native-codegen/TurboModule spec mismatches between the installed package version and the installed
+`react-native` version — see [#238](https://github.com/rnw-community/rnw-community/issues/238) and
+[#174](https://github.com/rnw-community/rnw-community/issues/174). Upgrade `@rnw-community/react-native-payments` and
+`react-native` together rather than pinning one against a much newer or older other; a leftover generated
+`PaymentsSpec.java`/`Payments.mm` codegen artifact from before the bump is a common secondary cause — see the Metro vs
+native rebuild entry below.
+
+**Apple Pay sheet never appears, or fails with a merchant/entitlement error.** The `merchantIdentifier` passed to
+`methodData.data` must exactly match a merchant ID declared in the app's `com.apple.developer.in-app-payments`
+entitlement. For a bare RN app, add it in Xcode's Signing & Capabilities; for Expo, use the `merchantIdentifier` config
+plugin option — single string or array — documented in [Expo setup](#expo-setup) and re-run `expo prebuild --clean`
+after changing it. If the sheet still won't open on a physical device while running from Metro in `DEV`, first check
+`merchantCapabilities`/`supportedNetworks` are set explicitly on `methodData.data` — a worked configuration that
+resolved this for other users is in [#234](https://github.com/rnw-community/rnw-community/issues/234).
+
+**Apple Pay works in the simulator but the token is unusable, or the reverse.** The simulator renders the real PassKit
+sheet UI, but `paymentResponse.details.applePayToken` from it is not valid production payment data — Apple Pay must be
+verified end-to-end on a physical device signed into an Apple ID with at least one provisioned card before shipping.
+Conversely, a device-only failure usually means the merchant ID/capabilities/entitlement above, not the JS integration.
+
+**Google Pay `canMakePayment()` returns `true` in `EnvironmentEnum.Production` you never tested.** This is by design,
+not a bug: `canMakePayment()` on Android always checks against `ENVIRONMENT_TEST` regardless of the `environment` set
+in `methodData.data`, mirroring the W3C surface (`canMakePayment` only answers "is a payment handler available", not
+"is this specific environment reachable") — see [#259](https://github.com/rnw-community/rnw-community/issues/259).
+Set the real `environment` for `show()` regardless of what `canMakePayment()` reported, and use accounts from the
+[Test Cards Allowlist](https://groups.google.com/g/googlepay-test-mode-stub-data) documented under
+[AndroidPay setup](#androidpay-setup) when testing.
+
+**Metro reload doesn't pick up a fix, or the app red-screens / white-screens after bumping `react-native`.** A JS-only
+Metro reload never re-runs native linking or codegen — after bumping `react-native`, this package's major version (see
+[Migrating from v2](#migrating-from-v2)), or Xcode/Gradle toolchain versions, do a full native rebuild rather than a
+Fast Refresh: delete `ios/Pods`, `ios/build`, `android/build`, `android/.cxx`, then `pod install` and rebuild from
+Xcode/Gradle. A patch-version-only `react-native` bump that broke both platforms with no JS-visible error, as reported
+in [#185](https://github.com/rnw-community/rnw-community/issues/185), is exactly this class of stale-native-artifact
+failure, not a JS regression.
+
+**New Architecture / bridgeless.** The package ships one TurboModule `Spec` consumed identically on the old
+architecture, the New Architecture and bridgeless — `getNativePaymentsEventEmitter()` resolves through the same module
+handle on all three, so switching `newArchEnabled` does not by itself require touching this package's integration (see
+[How it works](#how-it-works)). This `null`-when-unimplemented guard only covers the *optional* change-event contract
+(`setActiveEvents`/`updatePaymentDetails`/`addListener`/`removeListeners`) degrading to the v2 no-events flow — it does
+**not** cover the required `show(requestId, methodData, details)` call: a `v3` JS bundle still needs a rebuilt `v3`
+native binary, exactly as [Migrating from v2](#migrating-from-v2) describes, regardless of architecture. A build error
+mentioning `TSObjectKeyword` or an abstract-method mismatch when New Architecture is enabled is the codegen
+version-skew issue above, not a New Architecture incompatibility.
+
+**Jest: `TurboModuleRegistry.getEnforcing(...): 'Payments' could not be found`.** Covered in
+[Unit testing](#unit-testing) — mock `TurboModuleRegistry` to return `null` for the `Payments` module
+([#227](https://github.com/rnw-community/rnw-community/issues/227)).
+
 ## TODO
 
 ### Docs
 
-- [ ] Add gifs to the docs showing payment sheets appearing on IOS and Android.
-- [ ] Provide migration guide from `react-native-payments`.
+- [ ] Add gifs to the docs showing payment sheets appearing on IOS and Android — add `startRecording: "sheet"` /
+      `stopRecording` around the sheet-presenting step of the `sheet_opens_on_show.yaml` flow documented in
+      [e2e/readme.md](../react-native-payments-example/e2e/readme.md#flows), then run `yarn workspace
+      @rnw-community/react-native-payments-example e2e:ios:bare` / `e2e:android:bare` (or the `:expo` targets) with
+      `MAESTRO_DEBUG_OUTPUT_DIRECTORY` set the same way the `ios-maestro.yml` / `android-maestro.yml` CI workflows set
+      it (`packages/react-native-payments-example/artifacts/maestro-<platform>-<target>`) so the `.mp4` lands next to
+      the other Maestro artifacts; convert with `ffmpeg -i sheet.mp4 -vf "fps=12,scale=320:-1" sheet.gif`, then embed
+      under [Screenshots](#screenshots).
+- [x] Provide migration guide from `react-native-payments`. — see
+      [Migrating from `react-native-payments` (upstream)](#migrating-from-react-native-payments-upstream)
 
 ### Native
 
@@ -919,8 +1347,19 @@ You can find working example in the `App` component of the [react-native-payment
       verification is tracked in [#393](https://github.com/rnw-community/rnw-community/issues/393)
 - [x] [PaymentMethodChangeEvent](https://www.w3.org/TR/payment-request/#dom-paymentmethodchangeevent) — same
       implementation and verification status as `PaymentRequestUpdateEvent`
-- [ ] Implement [PaymentDetailsModifier](https://www.w3.org/TR/payment-request/#dom-paymentdetailsmodifier)
+- [x] Implement [PaymentDetailsModifier](https://www.w3.org/TR/payment-request/#dom-paymentdetailsmodifier) — see
+      [Payment details modifiers](#24-payment-details-modifiers)
 - [x] Improve and unify errors according to the spec — see [Error Handling](#error-handling)
+- [x] Implement [`hasEnrolledInstrument()`](https://www.w3.org/TR/payment-request/#hasenrolledinstrument-method) — see
+      [3. Checking Payment Capability](#3-checking-payment-capability); Android answers via Google Pay's
+      `existingPaymentMethodRequired`, see Known deviations
+- [x] Implement the event-handler attributes (`onshippingaddresschange`, `onshippingoptionchange`,
+      `onpaymentmethodchange`, `oncouponcodechange`) — see
+      [Event-handler attributes](#event-handler-attributes-onshippingaddresschange-onshippingoptionchange-onpaymentmethodchange-oncouponcodechange)
+- [x] Implement [`PaymentOptions.shippingType`](https://www.w3.org/TR/payment-request/#dom-paymentoptions-shippingtype) as
+      `methodData.data.shippingType` — see
+      [2.1 Additional methodData.data options](#21-additional-methoddatadata-options); no-op on Android, see Known
+      deviations
 - [x] Implement `PaymentResponse` `retry()` method — best-effort subset on iOS, documented no-op on Android; see
       [Retrying the Payment](#7-retrying-the-payment) and [Known deviations](#known-deviations)
 - [x] Implement `PaymentResponse` `toJSON()` method — see [Processing the PaymentResponse](#5-processing-the-paymentresponse)
@@ -940,6 +1379,14 @@ You can find working example in the `App` component of the [react-native-payment
   `PaymentRequest` constructor as soon as it fails to find a platform-matching payment method, since the native bridge
   needs to know the target platform's method data up front to serialize the request. The error name matches the spec;
   only the algorithm step it fires from differs.
+- **`hasEnrolledInstrument()` on Android is an optimistic signal, not a guarantee.** It calls Google Pay's
+  `isReadyToPay` with `existingPaymentMethodRequired: true`, the closest reachable equivalent of "an instrument is
+  enrolled" that the API exposes; Google documents this as best-effort and it can still resolve `true` without a fully
+  usable card in some configurations.
+- **`methodData.data.shippingType` (`PaymentOptions.shippingType`) is a no-op on Android.** Google Pay has no
+  `PKShippingType`-equivalent concept; the value is validated but not forwarded to native.
+- **iOS `shippingType: 'pickup'` maps to `PKShippingTypeStorePickup`.** PassKit also has `PKShippingTypeServicePickup`,
+  which has no W3C equivalent and is not exposed by this library.
 - **`PaymentResponse.retry()` supports at most one in-sheet correction pass, and only on iOS.** The spec algorithm
   re-presents the sheet and lets the user submit a corrected response an arbitrary number of times, handing back the
   same `PaymentResponse` updated in place. This package's `PaymentRequest` is single-use (above) and its native bridge
