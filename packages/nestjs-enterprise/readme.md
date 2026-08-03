@@ -37,12 +37,12 @@ const { SequentialLock$, ExclusiveLock$ } = createObservableLockDecorators(MyLoc
 
 ### Types
 
-- `PreDecoratorFunction<TArgs, TResult>` - `(...args: TArgs) => TResult`; the spread-form callback shape used by `Log`'s `preLog`/`postLog`/`errorLog` hooks and `HistogramMetric`'s `labels` hook.
+- `PreDecoratorFunction<TArgs, TResult>` - `(...args: TArgs) => TResult`; the spread-form callback shape accepted as the `preLock` argument to `SequentialLock`/`ExclusiveLock`/`SequentialLock$`/`ExclusiveLock$` (and the deprecated `LockPromise`/`LockObservable`) — computes the lock resource key(s) from the decorated method's own arguments.
 
     ```ts
     import type { PreDecoratorFunction } from '@rnw-community/nestjs-enterprise';
 
-    const preLog: PreDecoratorFunction<[orderId: string]> = orderId => `placing order ${orderId}`;
+    const preLock: PreDecoratorFunction<[orderId: string], string[]> = orderId => [`order:${orderId}`];
     ```
 
 - `LockServiceInterface` - the contract `createPromiseLockDecorators` / `createObservableLockDecorators` expect from an injectable NestJS provider: `acquire(resources, duration)` and `tryAcquire(resources, duration)`, both resolving a `LockHandle`.

@@ -15,11 +15,13 @@ Framework-agnostic sequential and exclusive method lock decorators. Promise and 
 
 Each factory takes `{ store }: CreateLockOptionsInterface` and returns a decorator factory that accepts the same key argument shape (string, `(args) => string`, or `{ key, timeoutMs?, signal? }` for sequential; `{ key }` only for exclusive — exclusive does not wait, so timeout/signal make no sense).
 
+"FIFO queue" and "skip-on-busy" are the semantics a `LockStoreInterface` implementation is expected to provide — the decorators/middleware only resolve the key and forward `mode`, `key`, and `options` (`timeoutMs`/`signal`) to `store.acquire()`, then propagate whatever it resolves or rejects with. See "Store contract" and "Errors" below for exactly what the library itself does vs. what the store owns.
+
 ## Sequential (Promise)
 
 ### `createSequentialLockDecorator`
 
-FIFO queue on the key. Supports `timeoutMs` (→ `LockAcquireTimeoutError`) and `AbortSignal` (→ `DOMException('AbortError')`).
+Forwards `timeoutMs` and `signal` to `store.acquire()` as part of `AcquireOptionsInterface` — a compliant store queues on the key (FIFO) and rejects with `LockAcquireTimeoutError` if `timeoutMs` elapses, or honors the `AbortSignal` itself. The decorator does not enforce either behavior; it only awaits `store.acquire()` and propagates whatever it resolves or rejects with.
 
 ```ts
 import { createSequentialLockDecorator } from '@rnw-community/lock-decorator';
@@ -48,7 +50,7 @@ Key-fn `args` is inferred from the method signature — no annotations needed. T
 
 ### `createExclusiveLockDecorator`
 
-Rejects immediately with `LockBusyError` if the key is held. No waiting, no timeout, no signal.
+No `timeoutMs`/`signal` — `ExclusiveLockArgumentType` only accepts `string | ((args) => string) | { key }`, so there is nothing to wait on. A compliant store's `acquire()` is expected to reject immediately (no queueing) with `LockBusyError` when the key is already held; the decorator itself just propagates that rejection.
 
 ```ts
 import { createExclusiveLockDecorator } from '@rnw-community/lock-decorator';
@@ -67,7 +69,7 @@ class Cache {
 
 ## Observable variants — `$` factories
 
-For methods that return `Observable<T>`, use `createSequentialLockDecorator$` / `createExclusiveLockDecorator$`. Same store contract, same key-argument shapes. The acquired handle is released on the inner Observable's `complete`, `error`, or `unsubscribe` — the lock tracks the subscription lifecycle.
+For methods that return `Observable<T>`, use `createSequentialLockDecorator$` / `createExclusiveLockDecorator$`. Same store contract, same key-argument shapes. The acquired handle is released on the inner Observable's `complete`, `error`, or `unsubscribe` — the lock tracks the subscription lifecycle. Unlike the Promise variants above, the `$` factories bridge an external `AbortSignal` themselves: aborting it errors the subscriber with `DOMException('The operation was aborted.', 'AbortError')` directly, independent of what the store does.
 
 ### `createSequentialLockDecorator$`
 
@@ -204,9 +206,11 @@ const SequentialLock = createSequentialLockDecorator(options);
 
 ## Errors
 
+Neither of these is thrown by the decorators or `createLockMiddleware`/`createLockMiddleware$` themselves — both are exported as the conventional error classes a `LockStoreInterface.acquire()` implementation is expected to throw/reject with, so callers get a stable `instanceof` check no matter which store is plugged in. The library only awaits `store.acquire()` and propagates whatever it resolves or rejects with.
+
 ### `LockBusyError`
 
-Thrown by `createExclusiveLockDecorator` / `createExclusiveLockDecorator$` when the key is already held.
+Convention: a store's `acquire()` should reject with this when `mode: 'exclusive'` and the key is already held.
 
 ```ts
 import { LockBusyError } from '@rnw-community/lock-decorator';
@@ -222,7 +226,7 @@ try {
 
 ### `LockAcquireTimeoutError`
 
-Thrown by `createSequentialLockDecorator` / `createSequentialLockDecorator$` when `timeoutMs` elapses before the key becomes free.
+Convention: a store's `acquire()` should reject with this when `mode: 'sequential'` and `options.timeoutMs` elapses before the key becomes free.
 
 ```ts
 import { LockAcquireTimeoutError } from '@rnw-community/lock-decorator';
