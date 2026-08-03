@@ -3,6 +3,7 @@
 Utils that help work with errors in rxjs observable's.
 
 [![npm version](https://badge.fury.io/js/%40rnw-community%2Frxjs-errors.svg)](https://badge.fury.io/js/%40rnw-community%2Frxjs-errors)
+[![coverage](https://img.shields.io/codecov/c/github/rnw-community/rnw-community?flag=rxjs-errors&label=coverage)](https://app.codecov.io/gh/rnw-community/rnw-community)
 [![npm downloads](https://img.shields.io/npm/dm/%40rnw-community%2Frxjs-errors.svg)](https://www.npmjs.com/package/%40rnw-community%2Frxjs-errors)
 
 ## Classes

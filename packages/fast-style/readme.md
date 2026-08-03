@@ -3,6 +3,7 @@
 Utility library for rapid React Native styling.
 
 [![npm version](https://badge.fury.io/js/%40rnw-community%2Ffast-style.svg)](https://badge.fury.io/js/%40rnw-community%2Ffast-style)
+[![coverage](https://img.shields.io/codecov/c/github/rnw-community/rnw-community?flag=fast-style&label=coverage)](https://app.codecov.io/gh/rnw-community/rnw-community)
 [![npm downloads](https://img.shields.io/npm/dm/%40rnw-community%2Ffast-style.svg)](https://www.npmjs.com/package/%40rnw-community%2Ffast-style)
 
 Library using [@rnw-community/object-field-tree](https://www.npmjs.com/package/@rnw-community/object-field-tree) package for

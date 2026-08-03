@@ -4,6 +4,7 @@ Utility for generating complex nested objects with data generation callback and 
 with IDE autocompletion.
 
 [![npm version](https://badge.fury.io/js/%40rnw-community%2Fobject-field-tree.svg)](https://badge.fury.io/js/%40rnw-community%2Fobject-field-tree)
+[![coverage](https://img.shields.io/codecov/c/github/rnw-community/rnw-community?flag=object-field-tree&label=coverage)](https://app.codecov.io/gh/rnw-community/rnw-community)
 [![npm downloads](https://img.shields.io/npm/dm/%40rnw-community%2Fobject-field-tree.svg)](https://www.npmjs.com/package/%40rnw-community%2Fobject-field-tree)
 
 `combine((...keys) => data, ...objects)`
