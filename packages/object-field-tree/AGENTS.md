@@ -1,6 +1,6 @@
 # @rnw-community/object-field-tree
 
-Generates fully-typed nested lookup objects from combinations of enum-like objects using a data generator function. Type-safe Cartesian product of enum keys.
+Generates a fully-typed nested lookup object from 1-5 enum-like collections, calling a data generator function once per leaf combination. Type-safe Cartesian product of enum keys.
 
 ## Package Commands
 
@@ -13,24 +13,30 @@ yarn test && yarn test:coverage && yarn build && yarn ts && yarn lint:fix
 ```
 src/
   type/
-    data-fn.type.ts    — DataFn1..DataFn5 (typed generator function signatures)
-    return.type.type.ts     — CombineReturn1..CombineReturn5 (nested Record return types)
-  index.ts             — exports combine() + types
-  index.spec.ts        — tests (co-located with index, unusual for this repo — package is small)
+    data-fn.type.ts    — DataFn1..DataFn5: (t1: keyof T1, ..., tN: keyof TN) => D
+    return.type.ts     — CombineReturn1..CombineReturn5: nested Record<keyof T1, Record<keyof T2, ...>>
+  index.ts             — combine() overloads (arity 1-5) + runtime implementation, re-exports Enum
+  index.spec.ts        — tests (co-located with index — the only file in the package with a spec)
 ```
 
 ### Key Patterns
 
-- `combine(dataFn, ...enums)` — overloaded for 1-5 enum args, builds nested object where each leaf is `dataFn(key1, key2, ...)`
-- Runtime implementation is recursive: shifts first object, recurses with partial-application of `dataFn`
-- Used by `fast-style` to build the `Flex` constant (3D: direction x justifyContent x alignItems)
-- Re-exports `Enum` type from `@rnw-community/shared`
+- `combine(dataFn, collection1, ..., collectionN)` is overloaded for exactly **1 through 5** collections
+  (`DataFn1`/`CombineReturn1` … `DataFn5`/`CombineReturn5`); there is no 6-collection overload, though the untyped
+  implementation signature (`dataFn, ...objects: any[]`) would run with any count at runtime
+- The runtime implementation in `index.ts` is genuinely recursive: it `shift()`s the first collection off `objects`,
+  and for each of its keys recurses with `combine((...args) => dataFn(key, ...args), ...objects)` (partial
+  application), terminating with `dataFn(key)` once `objects` is empty
+- `Object.keys()` enumerates collection keys, so both string and numeric TypeScript enums work — a numeric enum's
+  reverse-mapping entries (`'0': 'Key'`) are walked like any other key, which is why the spec covers a 2-numeric-enum
+  case explicitly
+- Consumed by `fast-style` to build the `Flex` 3D lookup constant (direction x justifyContent x alignItems)
+- Re-exports `Enum` type from `@rnw-community/shared` — the constraint every `T1..T5` collection type must satisfy
 
 ### Dependencies
 
-`@rnw-community/shared` (for `Enum` type).
+- `@rnw-community/shared` — supplies the `Enum` constraint type used by every `combine()` overload
 
 ### Coverage
 
-Default: **99.9%** all metrics.
-```
+Default monorepo threshold: 99.9% on all metrics.
