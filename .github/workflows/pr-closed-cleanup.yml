@@ -20,31 +20,40 @@ jobs:
                 run: |
                     set -euo pipefail
 
-                    for status in queued in_progress; do
-                      page=1
-                      while :; do
-                        response=$(gh api \
-                          "repos/${{ github.repository }}/actions/runs?branch=${HEAD_BRANCH}&status=${status}&per_page=100&page=${page}")
+                    max_iterations=20
 
-                        run_count=$(echo "$response" | jq '.workflow_runs | length')
-                        if [ "$run_count" -eq 0 ]; then
+                    for status in queued in_progress; do
+                      iteration=0
+                      while :; do
+                        iteration=$((iteration + 1))
+                        if [ "$iteration" -gt "$max_iterations" ]; then
+                          echo "Reached max iterations (${max_iterations}) for status=${status}, stopping."
                           break
                         fi
 
-                        echo "$response" | jq -r --arg repo "${{ github.repository }}" --arg current "$CURRENT_RUN_ID" '
-                          .workflow_runs[]
-                          | select(.head_repository.full_name == $repo)
-                          | select((.id | tostring) != $current)
-                          | .id
-                        ' | while read -r run_id; do
+                        response=$(gh api --method GET \
+                          "repos/${{ github.repository }}/actions/runs" \
+                          -f "branch=${HEAD_BRANCH}" \
+                          -f "status=${status}" \
+                          -f "per_page=100" \
+                          -f "page=1")
+
+                        cancellable_ids=$(echo "$response" | jq -r --arg repo "${{ github.repository }}" --arg current "$CURRENT_RUN_ID" '
+                          [.workflow_runs[]
+                            | select(.head_repository.full_name == $repo)
+                            | select((.id | tostring) != $current)
+                            | .id
+                          ] | .[]
+                        ')
+
+                        if [ -z "$cancellable_ids" ]; then
+                          break
+                        fi
+
+                        echo "$cancellable_ids" | while read -r run_id; do
                           echo "Cancelling run ${run_id}"
                           gh api --method POST \
                             "repos/${{ github.repository }}/actions/runs/${run_id}/cancel" || true
                         done
-
-                        if [ "$run_count" -lt 100 ]; then
-                          break
-                        fi
-                        page=$((page + 1))
                       done
                     done
