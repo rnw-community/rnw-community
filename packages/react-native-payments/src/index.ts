@@ -16,6 +16,8 @@ export type { PaymentDetailsModifier } from './@standard/w3c/payment-details-mod
 export type { PaymentDetailsUpdate } from './@standard/w3c/payment-details-update';
 export type { PaymentItem } from './@standard/w3c/payment-item';
 export type { PaymentShippingOption } from './@standard/w3c/payment-shipping-option';
+export type { PaymentValidationErrors } from './@standard/w3c/payment-validation-errors';
+export type { PaymentResponseJsonInterface } from './interface/payment-response-json.interface';
 
 export { IosPKMerchantCapability } from './@standard/ios/enum/ios-pk-merchant-capability.enum';
 
