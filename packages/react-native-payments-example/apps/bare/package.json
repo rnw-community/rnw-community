@@ -10,7 +10,7 @@
     "dependencies": {
         "@rnw-community/react-native-payments": "workspace:*",
         "@rnw-community/react-native-payments-example": "workspace:*",
-        "react": "19.2.3",
+        "react": "19.2.8",
         "react-native": "0.86.2"
     },
     "devDependencies": {

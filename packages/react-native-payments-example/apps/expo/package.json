@@ -16,7 +16,7 @@
         "@rnw-community/react-native-payments-example": "workspace:*",
         "expo": "~57.0.9",
         "expo-system-ui": "~57.0.2",
-        "react": "19.2.3",
+        "react": "19.2.8",
         "react-dom": "19.2.3",
         "react-native": "0.86.2",
         "react-native-web": "~0.21.2"
