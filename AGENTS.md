@@ -101,7 +101,7 @@ Suffix patterns:
 - **`readme.md`** at the package root — documents what each public export does, with one minimal usage example per entity
 - **Per-entity `<entity>.md`** (optional) — a 5–20 line file next to the source with a focused example
 
-Allowed pragma comments only (no other exceptions):
+Allowed pragma comments only (the scoped public-API TSDoc below is the single other exception):
 
 - `// eslint-disable-next-line <rule>` — suppressing a specific lint rule with good reason
 - `/* istanbul ignore <next|else|if> -- <why> */` — **last resort** for truly unreachable branches; PREFER restructuring code to eliminate the dead branch entirely
@@ -111,7 +111,10 @@ Allowed pragma comments only (no other exceptions):
 shape, and nothing else may:
 
 - one sentence: what it is and when to reach for it (mirrors the entity doc's "why" line)
-- `@see` links only: the entity's doc page and the governing spec (W3C / Apple / Google) where one exists
+- `@see` links only: the entity's canonical doc target and the governing spec (W3C / Apple / Google) where one exists.
+  The canonical doc target is resolved in this order: the package's `docs/api/<entity>.md` (once a docs tree exists) →
+  the colocated `<entity>.md` → the package `readme.md` section anchor for that export. Every public export always has
+  at least the readme anchor, so the rule is always satisfiable.
 
 Still forbidden everywhere, including on public API: `@example` (examples live in the docs), narrative/multi-paragraph
 blocks, `@param`/`@returns` prose that restates the types, TSDoc on non-exported or private members, and all other
