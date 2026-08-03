@@ -14,6 +14,7 @@ handshake without a repo-wide search.
 - [readme.md — Known deviations](readme.md#known-deviations): Platform differences from the W3C spec — Android no-op change events, iOS shipping preselection, single-use `PaymentRequest`, `couponcodechange`.
 - [readme.md — Migrating from v2](readme.md#migrating-from-v2): Breaking changes and upgrade steps from the v2 native interface to v3.
 - [readme.md — Web(react-native-web)](readme.md#webreact-native-web): Browser fallback behavior via the W3C `PaymentRequest` implementation.
+- [roadmap.md](roadmap.md): Implementation notes for the open work items linked from the readme's TODO ledger.
 
 ## Architecture & conventions
 

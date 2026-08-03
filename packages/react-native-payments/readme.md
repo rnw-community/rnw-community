@@ -96,7 +96,7 @@ single-use — build a new one per payment attempt rather than reusing a settled
 ### Screenshots
 
 Recording is deferred — not a documentation gap, a scheduling one: capturing needs the on-device Maestro fleet, which
-is at capacity. The `Docs` [TODO](#todo) below carries the exact capture command so this stays actionable instead of
+is at capacity. [roadmap.md](./roadmap.md#docs) carries the exact capture command so this stays actionable instead of
 silently dropped; once captured, an Apple Pay and a Google Pay sheet GIF replace this placeholder, showing the exact
 flow from the snippet above.
 
@@ -1319,28 +1319,24 @@ version-skew issue above, not a New Architecture incompatibility.
 
 ### Docs
 
-- [ ] Add gifs to the docs showing payment sheets appearing on IOS and Android — add `startRecording: "sheet"` /
-      `stopRecording` around the sheet-presenting step of the `sheet_opens_on_show.yaml` flow documented in
-      [e2e/readme.md](../react-native-payments-example/e2e/readme.md#flows), then run `yarn workspace
-      @rnw-community/react-native-payments-example e2e:ios:bare` / `e2e:android:bare` (or the `:expo` targets) with
-      `MAESTRO_DEBUG_OUTPUT_DIRECTORY` set the same way the `ios-maestro.yml` / `android-maestro.yml` CI workflows set
-      it (`packages/react-native-payments-example/artifacts/maestro-<platform>-<target>`) so the `.mp4` lands next to
-      the other Maestro artifacts; convert with `ffmpeg -i sheet.mp4 -vf "fps=12,scale=320:-1" sheet.gif`, then embed
-      under [Screenshots](#screenshots).
-- [x] Provide migration guide from `react-native-payments`. — see
-      [Migrating from `react-native-payments` (upstream)](#migrating-from-react-native-payments-upstream)
+- [ ] Payment sheet GIFs for iOS and Android — tracked in
+      [#469](https://github.com/rnw-community/rnw-community/issues/469); capture procedure in
+      [roadmap.md](./roadmap.md#docs).
 
 ### Native
 
-- [ ] Investigate and implement `shipping options` on Android (iOS passes them to PassKit with a `shippingoptionchange`
-      listener).
-- [ ] Investigate and implement `coupons` support on Android (iOS enables the PassKit coupon field with a
-      `couponcodechange` listener).
-- [ ] Rewrite IOS to swift?
-- [ ] Rewrite Android to Kotlin?
-- [ ] Can we avoid modifying `AppDelegate.h` with importing `PassKit`?
+- [ ] Shipping options and coupon support on Android — tracked in
+      [#438](https://github.com/rnw-community/rnw-community/issues/438).
+- Rewrite iOS to Swift — **deferred indefinitely**: Codegen has no Swift TurboModule support, so a rewrite would add a
+  bridging layer on top of the existing ObjC++ interop instead of removing it; decision recorded on
+  [#442](https://github.com/rnw-community/rnw-community/issues/442).
+- [ ] Rewrite Android to Kotlin — decided, low effort; tracked in
+      [#442](https://github.com/rnw-community/rnw-community/issues/442).
+- [ ] Drop the `AppDelegate.h` PassKit import requirement — looks droppable since the podspec already links the
+      framework, needs a build-verify pass; tracked in
+      [#442](https://github.com/rnw-community/rnw-community/issues/442).
 
-### W3C compliance checklist
+## W3C compliance checklist
 
 - [x] [PaymentRequestUpdateEvent](https://www.w3.org/TR/payment-request/#dom-paymentrequestupdateevent) — JavaScript
       layer and iOS PassKit delivery implemented (see [Payment change events](#payment-change-events)); on-device
@@ -1364,7 +1360,7 @@ version-skew issue above, not a New Architecture incompatibility.
       [Retrying the Payment](#7-retrying-the-payment) and [Known deviations](#known-deviations)
 - [x] Implement `PaymentResponse` `toJSON()` method — see [Processing the PaymentResponse](#5-processing-the-paymentresponse)
 
-#### Known deviations
+### Known deviations
 
 - **Android change events are a no-op.** Google Pay renders its sheet in its own activity and never asks the app for
   an in-sheet update, so `addEventListener` can be called but a registered listener never fires on Android.
@@ -1399,11 +1395,6 @@ version-skew issue above, not a New Architecture incompatibility.
   native show-path (a second, JS-observable authorization channel) that is out of scope here. On Android, `retry()` is a
   documented no-op: it resolves without any visual effect, consistent with `complete()` and `abort()`'s existing no-op
   boundary on Android (Google Pay's sheet is a separate activity with no in-sheet update mechanism at all).
-
-### Other
-
-- [ ] Refactor `utils`
-- [ ] Find alternative/suctom implementation for the `validator` library
 
 ## License
 
