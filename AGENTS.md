@@ -267,11 +267,31 @@ Always write plans to `.plans/` as `.md` files before executing multi-step chang
 The monorepo uses dual ESM + CJS output. Key decisions:
 
 - `sideEffects: false` (boolean) in all package.json files
-- `"types"` condition is **first** in all `exports` entries (required for `moduleResolution: "nodenext"` consumers)
+- `"types"` condition is **first** within each conditional `exports` block (required for `moduleResolution: "nodenext"`
+  consumers). `shared` and `react-native-payments` nest `types` under `import`/`require` rather than sharing one
+  top-level `types` key — a single shared `types` key resolves the wrong module kind for one of the two conditions
+  (confirmed by `@arethetypeswrong/cli`); splitting it keeps `types` first inside each condition while giving each
+  format its own accurate declaration file (`dist/esm/index.d.ts` for `import`, `dist/cjs/index.d.ts` for `require`)
+- `dist/esm/package.json` (`{"type":"module"}`) and `dist/cjs/package.json` (`{"type":"commonjs"}`) are written by the
+  `build` script (`shared`, `react-native-payments`) so Node's own module-kind detection matches each directory's real
+  output instead of falling through to the CJS default for the ESM build
 - `moduleResolution: "bundler"` in root tsconfig, `"node"` override in CJS build tsconfig
 - `verbatimModuleSyntax: true` enforces explicit `import type` for type-only imports
 - `lib: ["es2021"]` matches the build target
 - Build scripts correctly reference their tsconfig files (`build:esm` → `tsconfig.build-esm.json`)
+- **`node10` module resolution is not a supported target.** `yarn publint`'s `attw` step runs with `--profile node16`,
+  which scopes checks to `node16`/`nodenext` (both `require` and `import`) and `bundler` — the resolution modes real
+  consumers use (Metro included). Packages declare their actual supported Node floor via `engines.node` instead of
+  chasing the legacy pre-`exports` resolution algorithm
+- **Known, accepted publish-time limitation**, surfaced by `@arethetypeswrong/cli` and ignored explicitly
+  (`--ignore-rules internal-resolution-error`) in `yarn publint`, with this paragraph as the recorded justification for
+  `shared` and `react-native-payments`: `tsc` emits relative import specifiers without file extensions
+  (`./enum/foo.enum`, not `./enum/foo.enum.js`). Node's own `node16`/`nodenext` ESM resolution requires the extension,
+  so a consumer forcing that exact resolution mode against the `import` condition sees unresolved relative imports in
+  the shipped `.d.ts` files. Every other real consumption path — bundlers (Metro included) and `node16`/`nodenext`
+  `require` — resolves cleanly; only the `node16`/`nodenext` **ESM** path is affected. Rewriting every relative import
+  across every package's `src` tree to carry an explicit extension is a repo-wide source-emit change, not a
+  publish-config fix, so it is deferred rather than bundled into publication hardening
 
 ## PR Review & Merge Policy
 
