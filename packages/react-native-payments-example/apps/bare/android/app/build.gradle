@@ -16,6 +16,14 @@ react {
     codegenDir = file("../../../../node_modules/@react-native/codegen")
     //   The cli.js file which is the React Native CLI entrypoint. Default is ../../node_modules/react-native/cli.js
     cliFile = file("../../../../../../node_modules/react-native/cli.js")
+    //   hermesCommand's own default lookup (node_modules/hermes-compiler/hermesc/%OS-BIN%/hermesc,
+    //   relative to `root`) never resolves here: `root` defaults to apps/bare/, which has no
+    //   node_modules of its own in this monorepo. hermes-compiler is only ever hoisted to the
+    //   workspace root, so point directly at it rather than widen `root` (which entryFile's own
+    //   index.js/index.android.js auto-detection also derives from, and would break). Resolved to
+    //   an absolute path at configuration time so it is correct regardless of the working
+    //   directory the bundling task executes hermesc from.
+    hermesCommand = file("../../../../../../node_modules/hermes-compiler/hermesc/%OS-BIN%/hermesc").path
 
     /* Variants */
     //   The list of variants to that are debuggable. For those we're going to
