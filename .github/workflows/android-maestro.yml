@@ -4,21 +4,42 @@ name: Android Maestro E2E
 # canary-optimized per issue #447: fingerprinted native-app cache seeded by
 # seed-native-cache.yml plus a build/test split with Maestro shards.
 #
-# Runs on the self-hosted macOS fleet (macos-maestro), not a Linux runner:
-# Google does not publish linux-aarch64 builds of the Android SDK's cmake,
-# NDK toolchain, or emulator packages (confirmed against this fleet's actual
-# runner and Google's own issue tracker, issuetracker.google.com/issues/397407933)
-# — sdkmanager silently installs the x86_64 Linux binaries regardless of host
-# arch, and executing them on this fleet's linux-aarch64 runners fails at the
-# kernel level (surfaces as a shell "Syntax error" from the exec-format
-# mismatch, not a clean error message). The Android NDK's "darwin-x86_64"
-# toolchain, despite the name, ships as a universal (fat) Mach-O binary that
-# runs natively on Apple Silicon, so the identical native-build step that is
-# structurally broken on linux-aarch64 works unmodified here. Trade-off: iOS
-# and Android now share the one mac runner and queue serially instead of
-# running in parallel across two runner pools — acceptable until an
-# x86_64 Linux runner joins the fleet, which would let Android move back to
-# Linux (or run on both) for real parallelism.
+# Build (native APK) runs on the self-hosted macOS fleet (macos-maestro), not
+# a Linux runner: Google does not publish linux-aarch64 builds of the Android
+# SDK's cmake, NDK toolchain, or emulator packages (confirmed against this
+# fleet's actual runner and Google's own issue tracker,
+# issuetracker.google.com/issues/397407933) — sdkmanager silently installs
+# the x86_64 Linux binaries regardless of host arch, and executing them on
+# this fleet's linux-aarch64 runners fails at the kernel level (surfaces as a
+# shell "Syntax error" from the exec-format mismatch, not a clean error
+# message). The Android NDK's "darwin-x86_64" toolchain, despite the name,
+# ships as a universal (fat) Mach-O binary that runs natively on Apple
+# Silicon, so the identical native-build step that is structurally broken on
+# linux-aarch64 works unmodified here.
+#
+# Test (Maestro execution) runs on the self-hosted Linux fleet
+# ([self-hosted, linux-tiered, linux-xl]) via Redroid — Android-in-a-
+# privileged-container over the binder_linux kernel module — instead of an
+# AVD emulator. This sidesteps the gap above entirely rather than working
+# around it: Redroid needs no sdkmanager, no NDK, no emulator binary on the
+# runner at all, just a prewarmed container image and the host's binder
+# module, so the linux-aarch64 block above never applies to this job. The
+# container-bring-up plumbing (docker run --privileged, adb connect,
+# boot-completed wait, APK install) is adapted from a sister project's
+# android-maestro.yml, where it was observed reliable across several runs;
+# that project's own Maestro *flow assertions* were failing at the time
+# (element-not-found on one screen's custom grid under Redroid's guest GPU
+# mode), which is an app-level concern, not a Redroid-plumbing one — so this
+# is an adaptation of an in-progress technique, not a port of a green
+# pipeline. Keeps the macOS fleet free for iOS-only Maestro; Android build
+# still cross-compiles on macOS (build job, unchanged) since the NDK/cmake
+# gap above is a build-time problem this job never touches. Requires the
+# linux-xl runner image to carry a Redroid prewarm (docker + a pulled arm64
+# redroid/redroid image + a prewarmed /data volume, manifest at
+# $HOME/.rnw-ci/android-emulator.json) — unverified on this fleet as of this
+# commit; the "Start prewarmed Redroid container" step fails fast with a
+# clear error if that prewarm is missing rather than hanging on a per-shard
+# multi-GB cold `docker pull`.
 on:
     workflow_dispatch:
     pull_request:
@@ -169,10 +190,10 @@ jobs:
             # packages this workflow actually needs — including legacy,
             # deprecated packages this workflow never touches. Pre-seeding
             # the two publicly documented license hashes below satisfies
-            # every consumer (this step's own `packages` install, Gradle,
-            # and reactivecircus/android-emulator-runner later in this
-            # workflow) without ever invoking that unscoped walk, on any
-            # host platform.
+            # every consumer (this step's own `packages` install and Gradle)
+            # without ever invoking that unscoped walk, on any host platform.
+            # The `test` job below no longer needs an SDK at all — it runs
+            # Maestro against a Redroid container, not an AVD emulator.
             -   name: Set up Android SDK
                 if: steps.native-app-cache.outputs.cache-hit != 'true'
                 uses: android-actions/setup-android@v3
@@ -302,7 +323,7 @@ jobs:
         name: Maestro shard ${{ matrix.shard-index }} (${{ matrix.target }})
         needs: [detect, build]
         if: needs.detect.outputs.payments_affected == 'true'
-        runs-on: [self-hosted, macOS, ARM64, macos-maestro]
+        runs-on: [self-hosted, linux-tiered, linux-xl]
         timeout-minutes: 60
         strategy:
             fail-fast: false
@@ -318,42 +339,65 @@ jobs:
                 with:
                     persist-credentials: false
 
+            # 4 shard cells (2 targets x 2 shard-index) can land on the same
+            # linux-xl host concurrently — unlike the sister repo's single,
+            # unsharded job, so its fixed container name/adb port would
+            # collide here. Give every cell its own container and adb port.
             -   name: Resolve target metadata
                 id: meta
                 run: |
+                    set -euo pipefail
                     case "${{ matrix.target }}" in
-                      bare) echo "app_id=com.reactnativepaymentsexample" >> "$GITHUB_OUTPUT" ;;
-                      expo) echo "app_id=com.reactnativepaymentsexpoexample" >> "$GITHUB_OUTPUT" ;;
+                      bare) echo "app_id=com.reactnativepaymentsexample" >> "$GITHUB_OUTPUT"; target_index=0 ;;
+                      expo) echo "app_id=com.reactnativepaymentsexpoexample" >> "$GITHUB_OUTPUT"; target_index=1 ;;
                     esac
+                    cell_index=$(( target_index * 2 + ${{ matrix.shard-index }} ))
+                    echo "adb_port=$(( 5555 + cell_index * 10 ))" >> "$GITHUB_OUTPUT"
+                    echo "container_name=redroid-e2e-${{ matrix.target }}-${{ matrix.shard-index }}" >> "$GITHUB_OUTPUT"
+
+            # Ported from the sister sudoku-game repo's android-maestro.yml:
+            # container boot, adb connect, and the boot-completed wait were
+            # verified reliable there across several runs (only that repo's
+            # own Maestro flow assertions were failing, not this bring-up).
+            # --memory/--cpus below are halved from that repo's single-job
+            # 6g/4cpu request (to 3g/2cpu) since up to 4 of these run
+            # concurrently on one linux-xl host here versus their 1 — revisit
+            # once real contention on this runner pool is observed.
+            -   name: Start prewarmed Redroid container
+                id: redroid
+                shell: bash
+                run: |
+                    set -euo pipefail
+                    manifest="$HOME/.rnw-ci/android-emulator.json"
+                    test -f "$manifest" || {
+                      echo '::error::The guest image lacks the Redroid prewarm; provision docker + a pulled redroid/redroid arm64 image + a prewarmed /data volume on this runner image first.'
+                      exit 1
+                    }
+                    image=$(python3 -c "import json; print(json.load(open('$manifest'))['image'])")
+                    data=$(python3 -c "import json; print(json.load(open('$manifest'))['dataDir'])")
+                    echo "REDROID_PREWARM_OK image=$image dataDir=$data"
+                    sudo modprobe binder_linux devices=binder,hwbinder,vndbinder 2>/dev/null || true
+                    sudo docker rm -f "${{ steps.meta.outputs.container_name }}" >/dev/null 2>&1 || true
+                    sudo docker run -d --name "${{ steps.meta.outputs.container_name }}" --privileged \
+                      --memory 3g --memory-swap 3g --cpus 2 \
+                      -v "$data":/data -p ${{ steps.meta.outputs.adb_port }}:5555 \
+                      "$image" androidboot.redroid_gpu_mode=guest
+                    adb connect "localhost:${{ steps.meta.outputs.adb_port }}"
+                    deadline=$(( $(date +%s) + 300 ))
+                    until [ "$(adb -s "localhost:${{ steps.meta.outputs.adb_port }}" shell getprop sys.boot_completed 2>/dev/null | tr -d '\r')" = "1" ]; do
+                      test "$(date +%s)" -lt "$deadline"
+                      sleep 5
+                      adb connect "localhost:${{ steps.meta.outputs.adb_port }}" >/dev/null 2>&1 || true
+                    done
+                    echo "ANDROID_SERIAL=localhost:${{ steps.meta.outputs.adb_port }}" >> "$GITHUB_ENV"
 
             -   uses: actions/download-artifact@v4
                 with:
                     name: android-e2e-app-${{ matrix.target }}
                     path: .ci-artifacts/android-e2e-app-${{ matrix.target }}
 
-            # This job runs in a separate execution context from `build`, so it
-            # needs its own JDK and ANDROID_HOME — reactivecircus/android-emulator-runner
-            # itself is JVM-tooled (avdmanager/sdkmanager) and requires
-            # ANDROID_HOME to already point at a valid SDK before it runs.
-            -   name: Setup JDK
-                uses: actions/setup-java@v4
-                with:
-                    distribution: temurin
-                    java-version: '17'
-
-            -   name: Set up Android SDK
-                uses: android-actions/setup-android@v3
-                with:
-                    cmdline-tools-version: ${{ env.ANDROID_CMDLINE_TOOLS_VERSION }}
-                    accept-android-sdk-licenses: false
-                    packages: platform-tools
-
-            -   name: Accept Android SDK licenses
-                run: |
-                    set -euo pipefail
-                    mkdir -p "$ANDROID_HOME/licenses"
-                    printf '24333f8a63b6825ea9c5514f83c2829b004d1fee\nd56f5187479451eabf01fb78af6dfcb131a6481e\n' > "$ANDROID_HOME/licenses/android-sdk-license"
-                    printf '84831b9409646a918e30573bab4c9c91346d8abd\n' > "$ANDROID_HOME/licenses/android-sdk-preview-license"
+            -   name: Install APK
+                run: adb -s "${{ env.ANDROID_SERIAL }}" install -r ".ci-artifacts/android-e2e-app-${{ matrix.target }}/app-release.apk"
 
             -   name: Install Maestro
                 run: |
@@ -363,48 +407,27 @@ jobs:
                     fi
                     echo "$HOME/.maestro/bin" >> "$GITHUB_PATH"
 
-            # arch: arm64-v8a matches this fleet's Apple Silicon hosts natively,
-            # accelerated via macOS's Hypervisor.Framework — an x86_64 image
-            # here would run unaccelerated (Apple Silicon's HVF only
-            # virtualizes arm64 guests) and be prohibitively slow. api-level
-            # is pinned to 30 rather than the Linux config's 34: arm64-v8a
-            # system images are only published for a subset of API levels,
-            # and 30 is the documented, broadly-available one (30 > this
-            # app's minSdkVersion 24, so app installation is unaffected).
-            -   name: Boot emulator, install app, and run Maestro shard
-                uses: reactivecircus/android-emulator-runner@v2.34.0
-                with:
-                    api-level: 30
-                    target: google_apis
-                    arch: arm64-v8a
-                    profile: pixel_6
-                    disable-animations: true
-                    disable-spellchecker: true
-                    force-avd-creation: false
-                    emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
-                    script: |
-                        set -euo pipefail
-                        set -x
-                        adb wait-for-device
-                        timeout 180 bash -c 'until [ "$(adb shell getprop sys.boot_completed | tr -d "\r")" = "1" ]; do sleep 2; done'
-                        adb install -r ".ci-artifacts/android-e2e-app-${{ matrix.target }}/app-release.apk"
-                        flows=()
-                        while IFS= read -r flow; do
-                          flows+=("$flow")
-                        done < <(find "${{ env.EXAMPLE_DIR }}/e2e/flows" -type f \( -name '*.yaml' -o -name '*.yml' \) | sort)
-                        test "${#flows[@]}" -gt 0
-                        selected=()
-                        for index in "${!flows[@]}"; do
-                          if (( index % MAESTRO_SHARD_COUNT == ${{ matrix.shard-index }} )); then
-                            selected+=("${flows[$index]}")
-                          fi
-                        done
-                        if [ "${#selected[@]}" -eq 0 ]; then
-                          echo "Shard ${{ matrix.shard-index }} has no flows; nothing to run."
-                          exit 0
-                        fi
-                        printf 'Shard ${{ matrix.shard-index }} flows:\n%s\n' "${selected[*]}"
-                        maestro test -e "APP_ID=${{ steps.meta.outputs.app_id }}" "${selected[@]}"
+            -   name: Run Maestro shard
+                shell: bash
+                run: |
+                    set -euo pipefail
+                    flows=()
+                    while IFS= read -r flow; do
+                      flows+=("$flow")
+                    done < <(find "${{ env.EXAMPLE_DIR }}/e2e/flows" -type f \( -name '*.yaml' -o -name '*.yml' \) | sort)
+                    test "${#flows[@]}" -gt 0
+                    selected=()
+                    for index in "${!flows[@]}"; do
+                      if (( index % MAESTRO_SHARD_COUNT == ${{ matrix.shard-index }} )); then
+                        selected+=("${flows[$index]}")
+                      fi
+                    done
+                    if [ "${#selected[@]}" -eq 0 ]; then
+                      echo "Shard ${{ matrix.shard-index }} has no flows; nothing to run."
+                      exit 0
+                    fi
+                    printf 'Shard ${{ matrix.shard-index }} flows:\n%s\n' "${selected[*]}"
+                    maestro test -e "APP_ID=${{ steps.meta.outputs.app_id }}" "${selected[@]}"
 
             -   name: Capture final device state
                 if: always()
@@ -412,13 +435,13 @@ jobs:
                 run: |
                     out="${{ env.MAESTRO_DEBUG_OUTPUT_DIRECTORY }}"
                     mkdir -p "$out"
-                    adb exec-out screencap -p > "$out/final-screen.png" || true
-                    adb logcat -d > "$out/logcat-full.txt" 2>&1 || true
-                    adb logcat -d -b crash > "$out/logcat-crash.txt" 2>&1 || true
+                    adb -s "${{ env.ANDROID_SERIAL }}" exec-out screencap -p > "$out/final-screen.png" || true
+                    adb -s "${{ env.ANDROID_SERIAL }}" logcat -d > "$out/logcat-full.txt" 2>&1 || true
+                    adb -s "${{ env.ANDROID_SERIAL }}" logcat -d -b crash > "$out/logcat-crash.txt" 2>&1 || true
 
-            -   name: Shutdown emulator
+            -   name: Teardown Redroid container
                 if: always()
-                run: adb emu kill || true
+                run: sudo docker rm -f "${{ steps.meta.outputs.container_name }}" || true
 
             -   name: Upload Maestro artifacts
                 if: always()
