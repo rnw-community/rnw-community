@@ -27,6 +27,8 @@ on:
         paths:
             - packages/react-native-payments/**
             - packages/react-native-payments-example/**
+            - yarn.lock
+            - package.json
             - .github/workflows/android-maestro.yml
     schedule:
         - cron: '47 3 * * *'
@@ -276,6 +278,19 @@ jobs:
                 with:
                     path: .ci-cache/android-native-app/${{ matrix.target }}
                     key: android-native-v1-${{ matrix.target }}-${{ runner.os }}-cmdline-${{ env.ANDROID_CMDLINE_TOOLS_VERSION }}-${{ steps.fingerprint.outputs.hash }}
+
+            # "Package native app" (the step that stages ci-artifacts/) only runs
+            # on a cache miss. Stage the restored cache-hit APK the same way here
+            # so the unconditional upload-artifact step below always finds one.
+            -   name: Stage native app for upload (cache hit)
+                if: steps.native-app-cache.outputs.cache-hit == 'true'
+                shell: bash
+                env:
+                    TARGET: ${{ matrix.target }}
+                run: |
+                    set -euo pipefail
+                    mkdir -p "ci-artifacts/android-e2e-app-$TARGET"
+                    cp ".ci-cache/android-native-app/$TARGET/app-release.apk" "ci-artifacts/android-e2e-app-$TARGET/app-release.apk"
 
             -   uses: actions/upload-artifact@v4
                 with:

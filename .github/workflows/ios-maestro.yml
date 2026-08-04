@@ -14,6 +14,8 @@ on:
         paths:
             - packages/react-native-payments/**
             - packages/react-native-payments-example/**
+            - yarn.lock
+            - package.json
             - .github/workflows/ios-maestro.yml
     schedule:
         - cron: '17 3 * * *'

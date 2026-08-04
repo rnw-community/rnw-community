@@ -16,6 +16,8 @@ on:
         paths:
             - packages/react-native-payments/**
             - packages/react-native-payments-example/**
+            - yarn.lock
+            - package.json
             - .github/workflows/seed-native-cache.yml
 
 concurrency:
