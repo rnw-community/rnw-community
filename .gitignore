@@ -33,6 +33,8 @@ coverage
 .turbo
 .npmrc
 .plans
+.smoke-esm
+.scratch
 
 # YARN BERRY
 .yarn/*
