@@ -33,13 +33,18 @@ name: Android Maestro E2E
 # is an adaptation of an in-progress technique, not a port of a green
 # pipeline. Keeps the macOS fleet free for iOS-only Maestro; Android build
 # still cross-compiles on macOS (build job, unchanged) since the NDK/cmake
-# gap above is a build-time problem this job never touches. Requires the
-# linux-xl runner image to carry a Redroid prewarm (docker + a pulled arm64
-# redroid/redroid image + a prewarmed /data volume, manifest at
-# $HOME/.rnw-ci/android-emulator.json) — unverified on this fleet as of this
-# commit; the "Start prewarmed Redroid container" step fails fast with a
-# clear error if that prewarm is missing rather than hanging on a per-shard
-# multi-GB cold `docker pull`.
+# gap above is a build-time problem this job never touches. The linux-xl
+# runner image may optionally carry a Redroid prewarm (docker + a pulled
+# arm64 redroid/redroid image + a prewarmed /data volume, manifest at
+# $HOME/.rnw-ci/android-emulator.json) for fast, warm shard starts; the
+# "Start prewarmed Redroid container" step falls back to an in-workflow
+# `docker pull` of a pinned default image plus a fresh $RUNNER_TEMP data dir
+# when that manifest is absent, so a fleet lacking the prewarm degrades to a
+# slower cold start instead of hard-failing every shard. The one thing that
+# step cannot self-heal is the binder_linux kernel module itself (host-kernel
+# provisioning, not something a job can safely install unattended) — it
+# modprobes and then verifies /dev/binder et al. actually exist, failing with
+# a clear, actionable error if the host genuinely lacks binder support.
 on:
     workflow_dispatch:
     pull_request:
@@ -363,27 +368,49 @@ jobs:
             # 6g/4cpu request (to 3g/2cpu) since up to 4 of these run
             # concurrently on one linux-xl host here versus their 1 — revisit
             # once real contention on this runner pool is observed.
+            #
+            # A missing prewarm manifest no longer hard-fails the shard: it
+            # falls back to a pinned default image and an on-the-fly data dir
+            # under $RUNNER_TEMP, paying for a cold `docker pull` (bounded by
+            # a generous timeout) and a cold Android first boot instead. The
+            # binder_linux kernel module is the one dependency that fallback
+            # cannot paper over — modprobe is attempted, then verified by
+            # checking for the device nodes it is asked to create, and a
+            # missing module fails the shard with an explicit, actionable
+            # error rather than proceeding into a `docker run` that would
+            # only fail later with a far more confusing symptom.
             -   name: Start prewarmed Redroid container
                 id: redroid
                 shell: bash
+                timeout-minutes: 25
+                env:
+                    REDROID_DEFAULT_IMAGE: redroid/redroid:13.0.0-latest
                 run: |
                     set -euo pipefail
                     manifest="$HOME/.rnw-ci/android-emulator.json"
-                    test -f "$manifest" || {
-                      echo '::error::The guest image lacks the Redroid prewarm; provision docker + a pulled redroid/redroid arm64 image + a prewarmed /data volume on this runner image first.'
+                    if [ -f "$manifest" ]; then
+                      image=$(python3 -c "import json; print(json.load(open('$manifest'))['image'])")
+                      data=$(python3 -c "import json; print(json.load(open('$manifest'))['dataDir'])")
+                      echo "REDROID_PREWARM_OK image=$image dataDir=$data"
+                    else
+                      image="$REDROID_DEFAULT_IMAGE"
+                      data="$RUNNER_TEMP/redroid-data/${{ steps.meta.outputs.container_name }}"
+                      mkdir -p "$data"
+                      echo "::warning::No Redroid prewarm manifest at $manifest; pulling $image in-workflow and cold-booting a fresh /data volume for this shard instead (slower than a prewarmed host)."
+                      timeout 900 sudo docker pull "$image"
+                    fi
+                    sudo modprobe binder_linux devices=binder,hwbinder,vndbinder 2>&1 || true
+                    if [ ! -e /dev/binder ] && [ ! -e /dev/vndbinder ] && [ ! -e /dev/hwbinder ]; then
+                      echo '::error::binder_linux produced none of /dev/binder, /dev/vndbinder, /dev/hwbinder on this host after modprobe. Redroid cannot run without the binder_linux kernel module; this is host-kernel provisioning a workflow run cannot self-heal safely. See issue #447 for the exact host-provisioning commands.'
                       exit 1
-                    }
-                    image=$(python3 -c "import json; print(json.load(open('$manifest'))['image'])")
-                    data=$(python3 -c "import json; print(json.load(open('$manifest'))['dataDir'])")
-                    echo "REDROID_PREWARM_OK image=$image dataDir=$data"
-                    sudo modprobe binder_linux devices=binder,hwbinder,vndbinder 2>/dev/null || true
+                    fi
                     sudo docker rm -f "${{ steps.meta.outputs.container_name }}" >/dev/null 2>&1 || true
                     sudo docker run -d --name "${{ steps.meta.outputs.container_name }}" --privileged \
                       --memory 3g --memory-swap 3g --cpus 2 \
                       -v "$data":/data -p ${{ steps.meta.outputs.adb_port }}:5555 \
                       "$image" androidboot.redroid_gpu_mode=guest
                     adb connect "localhost:${{ steps.meta.outputs.adb_port }}"
-                    deadline=$(( $(date +%s) + 300 ))
+                    deadline=$(( $(date +%s) + 600 ))
                     until [ "$(adb -s "localhost:${{ steps.meta.outputs.adb_port }}" shell getprop sys.boot_completed 2>/dev/null | tr -d '\r')" = "1" ]; do
                       test "$(date +%s)" -lt "$deadline"
                       sleep 5
@@ -429,15 +456,22 @@ jobs:
                     printf 'Shard ${{ matrix.shard-index }} flows:\n%s\n' "${selected[*]}"
                     maestro test -e "APP_ID=${{ steps.meta.outputs.app_id }}" "${selected[@]}"
 
+            # Guarded on ANDROID_SERIAL being set: when "Start prewarmed
+            # Redroid container" fails before exporting it (e.g. the binder
+            # guard above), an unguarded `adb -s ""` here previously hung the
+            # shard for tens of minutes instead of failing fast, burning the
+            # runner pool's capacity and starving the other queued shards of
+            # a timely run. The per-command timeout is defense in depth
+            # against any other stall in a device that connected but wedged.
             -   name: Capture final device state
-                if: always()
+                if: always() && env.ANDROID_SERIAL != ''
                 shell: bash
                 run: |
                     out="${{ env.MAESTRO_DEBUG_OUTPUT_DIRECTORY }}"
                     mkdir -p "$out"
-                    adb -s "${{ env.ANDROID_SERIAL }}" exec-out screencap -p > "$out/final-screen.png" || true
-                    adb -s "${{ env.ANDROID_SERIAL }}" logcat -d > "$out/logcat-full.txt" 2>&1 || true
-                    adb -s "${{ env.ANDROID_SERIAL }}" logcat -d -b crash > "$out/logcat-crash.txt" 2>&1 || true
+                    timeout 30 adb -s "${{ env.ANDROID_SERIAL }}" exec-out screencap -p > "$out/final-screen.png" || true
+                    timeout 30 adb -s "${{ env.ANDROID_SERIAL }}" logcat -d > "$out/logcat-full.txt" 2>&1 || true
+                    timeout 30 adb -s "${{ env.ANDROID_SERIAL }}" logcat -d -b crash > "$out/logcat-crash.txt" 2>&1 || true
 
             -   name: Teardown Redroid container
                 if: always()
