@@ -349,7 +349,16 @@ jobs:
             # 4 shard cells (2 targets x 2 shard-index) can land on the same
             # linux-xl host concurrently — unlike the sister repo's single,
             # unsharded job, so its fixed container name/adb port would
-            # collide here. Give every cell its own container and adb port.
+            # collide here. A name/port unique only within this run isn't
+            # enough either: this fleet can run more than one workflow run
+            # on the same host pool at once, and two concurrent runs would
+            # still compute the identical name/port for the same cell. Fold
+            # github.run_id/run_attempt into the container name so no two
+            # runs, concurrent or not, ever collide; the adb port is derived
+            # similarly and then probed for an actually free port in the
+            # step that starts the container (a deterministic seed alone
+            # still collides often enough across concurrent runs that it
+            # isn't sufficient by itself).
             -   name: Resolve target metadata
                 id: meta
                 run: |
@@ -359,8 +368,24 @@ jobs:
                       expo) echo "app_id=com.reactnativepaymentsexpoexample" >> "$GITHUB_OUTPUT"; target_index=1 ;;
                     esac
                     cell_index=$(( target_index * 2 + ${{ matrix.shard-index }} ))
-                    echo "adb_port=$(( 5555 + cell_index * 10 ))" >> "$GITHUB_OUTPUT"
-                    echo "container_name=redroid-e2e-${{ matrix.target }}-${{ matrix.shard-index }}" >> "$GITHUB_OUTPUT"
+                    container_name="redroid-e2e-${{ matrix.target }}-${{ matrix.shard-index }}-${{ github.run_id }}-${{ github.run_attempt }}"
+                    # container_name reaches sudo rm -rf by way of a
+                    # constructed data-dir path in the next step; validate it
+                    # here too (defense in depth — never trust a value to
+                    # still be what an earlier step checked once it crosses a
+                    # step boundary).
+                    case "$container_name" in
+                      ''|.|..)
+                        echo "::error::Invalid computed container name."
+                        exit 1
+                        ;;
+                      *[!A-Za-z0-9_.-]*)
+                        echo "::error::Invalid computed container name '$container_name': only [A-Za-z0-9_.-] characters are allowed."
+                        exit 1
+                        ;;
+                    esac
+                    echo "cell_index=$cell_index" >> "$GITHUB_OUTPUT"
+                    echo "container_name=$container_name" >> "$GITHUB_OUTPUT"
 
             # Ported from the sister sudoku-game repo's android-maestro.yml:
             # container boot, adb connect, and the boot-completed wait were
@@ -392,17 +417,46 @@ jobs:
                     # same pin here so a cold-start fallback (no prewarm manifest) doesn't
                     # risk trading a slow boot for one that never completes.
                     REDROID_DEFAULT_IMAGE: redroid/redroid:15.0.0_64only-latest
+                    CONTAINER_NAME: ${{ steps.meta.outputs.container_name }}
+                    CELL_INDEX: ${{ steps.meta.outputs.cell_index }}
+                    RUN_ID: ${{ github.run_id }}
+                    RUN_ATTEMPT: ${{ github.run_attempt }}
                 run: |
                     set -euo pipefail
+                    case "$CONTAINER_NAME" in
+                      ''|.|..)
+                        echo "::error::Invalid container name."
+                        exit 1
+                        ;;
+                      *[!A-Za-z0-9_.-]*)
+                        echo "::error::Invalid container name '$CONTAINER_NAME': only [A-Za-z0-9_.-] characters are allowed."
+                        exit 1
+                        ;;
+                    esac
+                    data_root=$(realpath -m "$RUNNER_TEMP/redroid-data")
+                    data=$(realpath -m "$data_root/$CONTAINER_NAME")
+                    case "$data" in
+                      "$data_root"/*) ;;
+                      *)
+                        echo "::error::Resolved data directory '$data' escapes '$data_root'; refusing to operate on it."
+                        exit 1
+                        ;;
+                    esac
+                    mkdir -p "$data"
                     manifest="$HOME/.rnw-ci/android-emulator.json"
                     if [ -f "$manifest" ]; then
                       image=$(python3 -c "import json; print(json.load(open('$manifest'))['image'])")
-                      data=$(python3 -c "import json; print(json.load(open('$manifest'))['dataDir'])")
-                      echo "REDROID_PREWARM_OK image=$image dataDir=$data"
+                      prewarm_data=$(python3 -c "import json; print(json.load(open('$manifest'))['dataDir'])")
+                      # Every concurrent cell — within this run, and across any
+                      # concurrent run sharing this host — would otherwise
+                      # bind-mount the one manifest-provided dataDir straight
+                      # into its own container. Copy it into this cell's own
+                      # directory instead so concurrent writers never mutate a
+                      # shared, live Android userdata filesystem.
+                      sudo cp -a "$prewarm_data/." "$data/"
+                      echo "REDROID_PREWARM_OK image=$image dataDir=$prewarm_data (copied into isolated $data)"
                     else
                       image="$REDROID_DEFAULT_IMAGE"
-                      data="$RUNNER_TEMP/redroid-data/${{ steps.meta.outputs.container_name }}"
-                      mkdir -p "$data"
                       echo "::warning::No Redroid prewarm manifest at $manifest; pulling $image in-workflow and cold-booting a fresh /data volume for this shard instead (slower than a prewarmed host)."
                       timeout 900 sudo docker pull "$image"
                     fi
@@ -411,17 +465,39 @@ jobs:
                       echo '::error::binder_linux produced none of /dev/binder, /dev/vndbinder, /dev/hwbinder on this host after modprobe. Redroid cannot run without the binder_linux kernel module; this is host-kernel provisioning a workflow run cannot self-heal safely. See issue #447 for the exact host-provisioning commands.'
                       exit 1
                     fi
-                    sudo docker rm -f "${{ steps.meta.outputs.container_name }}" >/dev/null 2>&1 || true
-                    sudo docker run -d --name "${{ steps.meta.outputs.container_name }}" --privileged \
+                    # A deterministic candidate port from run_id/run_attempt/cell
+                    # spreads concurrent runs across different bands, but the seed
+                    # alone still collides often enough across concurrent runs
+                    # (birthday-bound over a handful of them) to need an actual
+                    # liveness check, not just thinned odds — probe forward from
+                    # the candidate for a port nothing is already listening on.
+                    seed=$(( (RUN_ID * 10 + RUN_ATTEMPT) % 4000 ))
+                    port=$(( 20000 + seed * 10 + CELL_INDEX ))
+                    attempts=0
+                    while ss -H -tln "sport = :$port" 2>/dev/null | grep -q .; do
+                      port=$((port + 1))
+                      attempts=$((attempts + 1))
+                      if [ "$attempts" -ge 50 ]; then
+                        echo "::error::Could not find a free adb port after 50 attempts."
+                        exit 1
+                      fi
+                    done
+                    sudo docker rm -f "$CONTAINER_NAME" >/dev/null 2>&1 || true
+                    sudo docker run -d --name "$CONTAINER_NAME" --privileged \
                       --memory 3g --memory-swap 3g --cpus 2 \
-                      -v "$data":/data -p ${{ steps.meta.outputs.adb_port }}:5555 \
+                      -v "$data":/data -p "$port":5555 \
                       "$image" androidboot.redroid_gpu_mode=guest
-                    adb connect "localhost:${{ steps.meta.outputs.adb_port }}"
+                    # Tolerate failure here: Redroid has not necessarily opened
+                    # 5555 yet immediately after `docker run -d` returns, and
+                    # under set -e a hard connect failure at this point would
+                    # abort the whole step before the boot-completed loop below
+                    # (which retries adb connect every 5s) ever runs.
+                    adb connect "localhost:$port" || true
                     deadline=$(( $(date +%s) + 600 ))
-                    until [ "$(adb -s "localhost:${{ steps.meta.outputs.adb_port }}" shell getprop sys.boot_completed 2>/dev/null | tr -d '\r')" = "1" ]; do
+                    until [ "$(adb -s "localhost:$port" shell getprop sys.boot_completed 2>/dev/null | tr -d '\r')" = "1" ]; do
                       test "$(date +%s)" -lt "$deadline"
                       sleep 5
-                      adb connect "localhost:${{ steps.meta.outputs.adb_port }}" >/dev/null 2>&1 || true
+                      adb connect "localhost:$port" >/dev/null 2>&1 || true
                     done
                     # A prewarmed /data volume already carries these settings baked in,
                     # but the cold-start fallback above boots a bare volume with default
@@ -429,9 +505,10 @@ jobs:
                     # assertion can never race a transition/window animation under
                     # Redroid's software-rendered guest GPU mode, prewarmed or not.
                     for setting in window_animation_scale transition_animation_scale animator_duration_scale; do
-                      adb -s "localhost:${{ steps.meta.outputs.adb_port }}" shell settings put global "$setting" 0
+                      adb -s "localhost:$port" shell settings put global "$setting" 0
                     done
-                    echo "ANDROID_SERIAL=localhost:${{ steps.meta.outputs.adb_port }}" >> "$GITHUB_ENV"
+                    echo "ANDROID_SERIAL=localhost:$port" >> "$GITHUB_ENV"
+                    echo "data_dir=$data" >> "$GITHUB_OUTPUT"
 
             -   uses: actions/download-artifact@v4
                 with:
@@ -494,9 +571,19 @@ jobs:
                       > "$out/logcat-app.txt" 2>&1 || true
                     timeout 30 adb -s "${{ env.ANDROID_SERIAL }}" shell dumpsys activity top > "$out/activity-top.txt" 2>&1 || true
 
+            # container-name now folds in run_id/run_attempt, so a leftover
+            # data dir from this cell is never reused by a later run (unlike
+            # the pre-run-scoped names, nothing else will ever land on this
+            # exact path) — clean it up here rather than leaking it forever
+            # on this fleet's persistent self-hosted runners.
             -   name: Teardown Redroid container
                 if: always()
-                run: sudo docker rm -f "${{ steps.meta.outputs.container_name }}" || true
+                shell: bash
+                run: |
+                    sudo docker rm -f "${{ steps.meta.outputs.container_name }}" || true
+                    if [ -n "${{ steps.redroid.outputs.data_dir }}" ]; then
+                      sudo rm -rf "${{ steps.redroid.outputs.data_dir }}" || true
+                    fi
 
             -   name: Upload Maestro artifacts
                 if: always()
