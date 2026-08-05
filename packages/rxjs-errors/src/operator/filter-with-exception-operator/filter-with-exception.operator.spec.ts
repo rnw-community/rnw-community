@@ -4,9 +4,9 @@ import { EMPTY, catchError, of } from 'rxjs';
 
 import { getErrorMessage } from '@rnw-community/shared';
 
-import { RxJSFilterError } from '../../rxjs-filter-error';
+import { RxJSFilterError } from '../../rxjs-filter-error.js';
 
-import { filterWithException } from './filter-with-exception.operator';
+import { filterWithException } from './filter-with-exception.operator.js';
 
 describe('filterWithException', () => {
     it('should pass the value forward if condition returns true', async () => {

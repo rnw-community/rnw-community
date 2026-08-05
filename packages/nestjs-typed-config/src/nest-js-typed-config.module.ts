@@ -2,7 +2,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 
-import { NestJSTypedConfigService } from './nest-js-typed-config.service';
+import { NestJSTypedConfigService } from './nest-js-typed-config.service.js';
 
 import type { DynamicModule, Type } from '@nestjs/common';
 import type Joi from 'joi';

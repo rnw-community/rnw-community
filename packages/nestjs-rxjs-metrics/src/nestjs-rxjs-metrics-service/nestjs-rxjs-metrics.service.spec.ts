@@ -3,9 +3,9 @@ import { describe, expect, it, jest } from '@jest/globals';
 import { Logger } from '@nestjs/common';
 import { of } from 'rxjs';
 
-import { createMetricsRecord } from '../util/create-metrics-record.util';
+import { createMetricsRecord } from '../util/create-metrics-record.util.js';
 
-import { NestJSRxJSMetricsService } from './nestjs-rxjs-metrics.service';
+import { NestJSRxJSMetricsService } from './nestjs-rxjs-metrics.service.js';
 
 import type { Counter, Gauge, Histogram, Summary } from 'prom-client';
 

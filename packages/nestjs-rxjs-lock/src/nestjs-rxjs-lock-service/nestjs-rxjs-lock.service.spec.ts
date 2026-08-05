@@ -4,9 +4,9 @@ import { of } from 'rxjs';
 
 import { emptyFn, getErrorMessage } from '@rnw-community/shared';
 
-import { type NestJSRxJSLockModuleOptions, defaultNestJSRxJSLockModuleOptions } from '../nestjs-rxjs-lock-module.options';
+import { type NestJSRxJSLockModuleOptions, defaultNestJSRxJSLockModuleOptions } from '../nestjs-rxjs-lock-module.options.js';
 
-import { NestJSRxJSLockService } from './nestjs-rxjs-lock.service';
+import { NestJSRxJSLockService } from './nestjs-rxjs-lock.service.js';
 
 import type Redis from 'ioredis';
 

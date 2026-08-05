@@ -1,4 +1,4 @@
-import type { ErrorCtor } from './error-ctor.type';
+import type { ErrorCtor } from './error-ctor.type.js';
 
 export type CreateErrorFn = (msg: string) => Error;
 

@@ -19,17 +19,19 @@
         "expo",
         "expo-plugin"
     ],
-    "author": "Vitalii Yehorov <vitalyiegorov@gmail.com> (https://github.com/rnw-community/rnw-community/packages/react-native-payments)",
     "homepage": "https://github.com/rnw-community/rnw-community/tree/master/packages/react-native-payments",
+    "bugs": {
+        "url": "https://github.com/rnw-community/rnw-community/issues"
+    },
     "repository": {
         "type": "git",
         "url": "https://github.com/rnw-community/rnw-community.git",
         "directory": "packages/react-native-payments"
     },
-    "bugs": {
-        "url": "https://github.com/rnw-community/rnw-community/issues"
-    },
     "license": "MIT",
+    "author": "Vitalii Yehorov <vitalyiegorov@gmail.com> (https://github.com/rnw-community/rnw-community/packages/react-native-payments)",
+    "sideEffects": false,
+    "type": "module",
     "exports": {
         ".": {
             "import": {
@@ -53,9 +55,9 @@
         },
         "./package.json": "./package.json"
     },
-    "react-native": "src/index.ts",
     "main": "dist/cjs/index.js",
     "module": "dist/esm/index.js",
+    "react-native": "src/index.ts",
     "types": "dist/esm/index.d.ts",
     "files": [
         "dist",
@@ -78,28 +80,20 @@
         "!src/**/e2e/**",
         "!**/.*"
     ],
-    "sideEffects": false,
-    "publishConfig": {
-        "access": "public"
-    },
-    "engines": {
-        "node": ">=22.0.0"
-    },
     "scripts": {
-        "ts": "run -T tsc --pretty -p tsconfig.json",
-        "build:esm": "run -T tsc --pretty -p tsconfig.build-esm.json",
-        "build:cjs": "run -T tsc --pretty -p tsconfig.build-cjs.json",
         "build": "yarn build:esm && yarn build:cjs && rm -rf ./dist/*/*.tsbuildinfo && echo '{\"type\":\"module\"}' > dist/esm/package.json && echo '{\"type\":\"commonjs\"}' > dist/cjs/package.json",
+        "build:cjs": "run -T tsc --pretty -p tsconfig.build-cjs.json",
+        "build:esm": "run -T tsc --pretty -p tsconfig.build-esm.json",
+        "clear": "rm -rf coverage && rm -rf dist && rm -f *.tsbuildinfo",
+        "clear:deps": "rm -rf ./node_modules && rm -rf ./dist",
+        "example": "yarn --cwd example",
+        "format": "run -T prettier --write \"./src/**/*.{ts,tsx}\"",
         "lint": "run -T eslint src",
         "lint:fix": "run -T eslint --fix src",
         "test": "run -T jest",
         "test:coverage": "run -T jest --coverage",
-        "format": "run -T prettier --write \"./src/**/*.{ts,tsx}\"",
-        "clear": "rm -rf coverage && rm -rf dist && rm -f *.tsbuildinfo",
-        "clear:deps": "rm -rf ./node_modules && rm -rf ./dist",
-        "example": "yarn --cwd example"
+        "ts": "run -T tsc --pretty -p tsconfig.json"
     },
-    "gitHead": "4fd24bd92936d1793f8f7ff08d6420fce4f211d9",
     "dependencies": {
         "@expo/config-plugins": "^9.1.7",
         "@rnw-community/shared": "^2.12.7",
@@ -119,6 +113,12 @@
             "optional": true
         }
     },
+    "engines": {
+        "node": ">=22.0.0"
+    },
+    "publishConfig": {
+        "access": "public"
+    },
     "codegenConfig": {
         "name": "RNPaymentsSpec",
         "type": "modules",
@@ -126,5 +126,6 @@
         "android": {
             "javaPackageName": "com.payments"
         }
-    }
+    },
+    "gitHead": "4fd24bd92936d1793f8f7ff08d6420fce4f211d9"
 }

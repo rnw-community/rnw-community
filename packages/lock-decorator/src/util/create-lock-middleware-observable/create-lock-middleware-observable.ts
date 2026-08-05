@@ -2,12 +2,12 @@ import { Observable, concatMap, finalize, from } from 'rxjs';
 
 import { type EmptyFn, emptyFn, isDefined } from '@rnw-community/shared';
 
-import { resolveLockKey } from '../resolve-lock-key/resolve-lock-key';
+import { resolveLockKey } from '../resolve-lock-key/resolve-lock-key.js';
 
-import type { LockHandleInterface } from '../../interface/lock-handle.interface';
-import type { LockStoreInterface } from '../../interface/lock-store.interface';
-import type { LockArgumentType } from '../../type/lock-argument.type';
-import type { LockModeType } from '../../type/lock-mode.type';
+import type { LockHandleInterface } from '../../interface/lock-handle.interface.js';
+import type { LockStoreInterface } from '../../interface/lock-store.interface.js';
+import type { LockArgumentType } from '../../type/lock-argument.type.js';
+import type { LockModeType } from '../../type/lock-mode.type.js';
 import type { InterceptorMiddleware } from '@rnw-community/decorators-core';
 
 const bridgeSignal = (external: AbortSignal | undefined, onAbort: () => void): EmptyFn => {

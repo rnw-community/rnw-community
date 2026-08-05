@@ -1,9 +1,9 @@
 /* eslint-disable */
 import { isDefined } from '@rnw-community/shared';
 
-import { SelectorElement } from '../selector-element/selector-element';
+import { SelectorElement } from '../selector-element/selector-element.js';
 
-import type { ComponentConfigInterface } from '../type';
+import type { ComponentConfigInterface } from '../type/index.js';
 import type { ChainablePromiseArray, ChainablePromiseElement } from 'webdriverio';
 
  

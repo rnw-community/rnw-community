@@ -2,16 +2,16 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { isDefined } from '@rnw-community/shared';
 
-import { defaultRequestOptions } from '../constant/default-request-options';
-import { abortPaymentRequest } from '../payment/abort-payment-request';
-import { checkCanMakePayment } from '../payment/check-can-make-payment';
-import { createDemoRequest } from '../payment/create-demo-request';
-import { showPaymentRequest } from '../payment/show-payment-request';
-import { createFlowStateGuard } from '../util/create-flow-state-guard';
-import { formatLogMessage } from '../util/format-log-message';
+import { defaultRequestOptions } from '../constant/default-request-options.js';
+import { abortPaymentRequest } from '../payment/abort-payment-request.js';
+import { checkCanMakePayment } from '../payment/check-can-make-payment.js';
+import { createDemoRequest } from '../payment/create-demo-request.js';
+import { showPaymentRequest } from '../payment/show-payment-request.js';
+import { createFlowStateGuard } from '../util/create-flow-state-guard.js';
+import { formatLogMessage } from '../util/format-log-message.js';
 
-import type { PaymentDemoInterface } from '../interface/payment-demo.interface';
-import type { RequestOptionsInterface } from '../interface/request-options.interface';
+import type { PaymentDemoInterface } from '../interface/payment-demo.interface.js';
+import type { RequestOptionsInterface } from '../interface/request-options.interface.js';
 import type { PaymentRequest } from '@rnw-community/react-native-payments';
 import type { Maybe, OnEventFn } from '@rnw-community/shared';
 

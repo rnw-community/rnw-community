@@ -1,11 +1,11 @@
 import { describe, expect, it, jest } from '@jest/globals';
 
-import { PaymentsErrorEnum } from '../../enum/payments-error.enum';
-import { DOMException } from '../../error/dom.exception';
+import { PaymentsErrorEnum } from '../../enum/payments-error.enum.js';
+import { DOMException } from '../../error/dom.exception.js';
 
-import { PaymentRequestUpdateEvent } from './payment-request-update-event';
+import { PaymentRequestUpdateEvent } from './payment-request-update-event.js';
 
-import type { PaymentDetailsUpdate } from '../../@standard/w3c/payment-details-update';
+import type { PaymentDetailsUpdate } from '../../@standard/w3c/payment-details-update.js';
 
 const detailsUpdate: PaymentDetailsUpdate = {
     total: { label: 'Total', amount: { currency: 'USD', value: '15.00' } },

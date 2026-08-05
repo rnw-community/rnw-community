@@ -3,7 +3,7 @@ import { unlinkSync, writeFileSync } from 'fs';
 import { describe, expect, it, jest } from '@jest/globals';
 import { ConfigService as NestConfigService } from '@nestjs/config';
 
-import { NestJSTypedConfigService } from './nest-js-typed-config.service';
+import { NestJSTypedConfigService } from './nest-js-typed-config.service.js';
 
 jest.mock('@nestjs/common', () => {
     const actual = jest.requireActual<typeof import('@nestjs/common')>('@nestjs/common');

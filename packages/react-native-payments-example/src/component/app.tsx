@@ -1,15 +1,15 @@
 import React from 'react';
 import { SafeAreaView, ScrollView } from 'react-native';
 
-import { demoStyle } from '../constant/demo-style';
-import { useEventLog } from '../hook/use-event-log';
-import { usePaymentDemo } from '../hook/use-payment-demo';
-import { useRequestOptions } from '../hook/use-request-options';
+import { demoStyle } from '../constant/demo-style.js';
+import { useEventLog } from '../hook/use-event-log.js';
+import { usePaymentDemo } from '../hook/use-payment-demo.js';
+import { useRequestOptions } from '../hook/use-request-options.js';
 
-import { DemoActions } from './demo-actions';
-import { DemoStatus } from './demo-status';
-import { EventLogView } from './event-log-view';
-import { RequestBuilderForm } from './request-builder-form';
+import { DemoActions } from './demo-actions.js';
+import { DemoStatus } from './demo-status.js';
+import { EventLogView } from './event-log-view.js';
+import { RequestBuilderForm } from './request-builder-form.js';
 
 export const App = (): React.JSX.Element => {
     const { entries, log } = useEventLog();

@@ -4,9 +4,9 @@ import { Observable, concatMap, of, throwError } from 'rxjs';
 
 import { getErrorMessage, isNotEmptyString } from '@rnw-community/shared';
 
-import { AppLogLevelEnum } from '../enum/app-log-level.enum';
+import { AppLogLevelEnum } from '../enum/app-log-level.enum.js';
 
-import { NestJSRxJSLoggerService } from './nestjs-rxjs-logger.service';
+import { NestJSRxJSLoggerService } from './nestjs-rxjs-logger.service.js';
 
 import type { LoggerService } from '@nestjs/common';
 

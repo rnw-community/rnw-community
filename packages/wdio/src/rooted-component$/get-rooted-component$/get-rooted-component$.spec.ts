@@ -1,13 +1,13 @@
 import { describe, expect, it, jest } from '@jest/globals';
 
-import { mockDefault$Config, mockDefaultConfig, mockElement } from '../../element.mock';
-import { RootedComponentSelectorsMock } from '../../rooted-component/mocks/rooted-component-selectors.mock';
-import { DefaultRootRootedComponent$Mock } from '../mocks/default-root-rooted-component$.mock';
-import { RootedComponent$SelectorsMock } from '../mocks/rooted-component$-selectors.mock';
-import { RootedComponent$Mock } from '../mocks/rooted-component$.mock';
-import { RootedExtendedComponent$SelectorsMock } from '../mocks/rooted-extended-component$-selectors.mock';
-import { RootedExtendedComponent$Mock } from '../mocks/rooted-extended-component$.mock';
-import { RootedMixedComponent$Mock } from '../mocks/rooted-mixed-component$.mock';
+import { mockDefault$Config, mockDefaultConfig, mockElement } from '../../element.mock.js';
+import { RootedComponentSelectorsMock } from '../../rooted-component/mocks/rooted-component-selectors.mock.js';
+import { DefaultRootRootedComponent$Mock } from '../mocks/default-root-rooted-component$.mock.js';
+import { RootedComponent$SelectorsMock } from '../mocks/rooted-component$-selectors.mock.js';
+import { RootedComponent$Mock } from '../mocks/rooted-component$.mock.js';
+import { RootedExtendedComponent$SelectorsMock } from '../mocks/rooted-extended-component$-selectors.mock.js';
+import { RootedExtendedComponent$Mock } from '../mocks/rooted-extended-component$.mock.js';
+import { RootedMixedComponent$Mock } from '../mocks/rooted-mixed-component$.mock.js';
 
 describe('getRootedComponent$', () => {
     it('should get RootedComponent instance with selectors and $* selector functions', async () => {

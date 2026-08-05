@@ -1,9 +1,9 @@
 import {
     type AndroidAssuranceDetailsSpecifications,
     emptyAndroidAssuranceDetailsSpecifications,
-} from './android-assurance-details-specifications';
+} from './android-assurance-details-specifications.js';
 
-import type { AndroidFullAddress } from './android-full-address';
+import type { AndroidFullAddress } from './android-full-address.js';
 
 // https://developers.google.com/pay/api/android/reference/response-objects#CardInfo
 export interface AndroidCardInfo {

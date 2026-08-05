@@ -3,10 +3,10 @@ import { EMPTY, Observable, lastValueFrom, of, tap } from 'rxjs';
 
 import { LockBusyError } from '@rnw-community/lock-decorator';
 
-import { createObservableLockDecorators } from './create-observable-lock-decorators';
+import { createObservableLockDecorators } from './create-observable-lock-decorators.js';
 
-import type { LockHandle } from '../interface/lock-handle.interface';
-import type { LockServiceInterface } from '../interface/lock-service.interface';
+import type { LockHandle } from '../interface/lock-handle.interface.js';
+import type { LockServiceInterface } from '../interface/lock-service.interface.js';
 
 const mockRelease = jest.fn<() => Promise<void>>().mockResolvedValue();
 const mockAcquire = jest

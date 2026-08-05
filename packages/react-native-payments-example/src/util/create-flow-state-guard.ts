@@ -1,4 +1,4 @@
-import { formatLogMessage } from './format-log-message';
+import { formatLogMessage } from './format-log-message.js';
 
 import type { OnEventFn } from '@rnw-community/shared';
 

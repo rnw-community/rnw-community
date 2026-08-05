@@ -1,8 +1,8 @@
-import { AndroidAllowedAuthMethodsEnum } from '../enum/android-allowed-auth-methods.enum';
+import { AndroidAllowedAuthMethodsEnum } from '../enum/android-allowed-auth-methods.enum.js';
 
-import type { AndroidPaymentMethodCardParameters } from './android-payment-method-card-parameters';
-import type { AndroidTokenizationDirectSpecification } from './android-tokenization-direct-specification';
-import type { AndroidTokenizationGatewaySpecification } from './android-tokenization-gateway-specification';
+import type { AndroidPaymentMethodCardParameters } from './android-payment-method-card-parameters.js';
+import type { AndroidTokenizationDirectSpecification } from './android-tokenization-direct-specification.js';
+import type { AndroidTokenizationGatewaySpecification } from './android-tokenization-gateway-specification.js';
 
 // https://developers.google.com/pay/api/android/reference/request-objects#PaymentMethod
 export interface AndroidPaymentMethod {

@@ -1,9 +1,9 @@
 import { beforeEach, describe, expect, it, jest } from '@jest/globals';
 import { Observable, lastValueFrom, of, throwError } from 'rxjs';
 
-import { createLogDecorator } from './create-log-decorator';
+import { createLogDecorator } from './create-log-decorator.js';
 
-import type { LogTransportInterface } from '../interface/log-transport.interface';
+import type { LogTransportInterface } from '../interface/log-transport.interface.js';
 
 const transportLog = jest.fn<LogTransportInterface['log']>();
 const transportDebug = jest.fn<LogTransportInterface['debug']>();

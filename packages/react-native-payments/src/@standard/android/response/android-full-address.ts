@@ -1,4 +1,4 @@
-import type { AndroidMinAddress } from './android-min-address';
+import type { AndroidMinAddress } from './android-min-address.js';
 
 // https://developers.google.com/pay/api/android/reference/response-objects#Address
 export interface AndroidFullAddress extends AndroidMinAddress {

@@ -3,8 +3,8 @@ import { catchError, isObservable, tap, throwError } from 'rxjs';
 import { createInterceptor } from '@rnw-community/decorators-core';
 import { isPromise } from '@rnw-community/shared';
 
-import type { CreateHistogramMetricOptionsInterface } from '../../interface/create-histogram-metric-options.interface';
-import type { HistogramOptionsInterface } from '../../interface/histogram-options.interface';
+import type { CreateHistogramMetricOptionsInterface } from '../../interface/create-histogram-metric-options.interface.js';
+import type { HistogramOptionsInterface } from '../../interface/histogram-options.interface.js';
 import type { InterceptorMiddleware } from '@rnw-community/decorators-core';
 import type { AnyFn, MethodDecoratorType } from '@rnw-community/shared';
 

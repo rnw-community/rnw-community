@@ -1,4 +1,4 @@
-import type { LockStoreInterface } from './lock-store.interface';
+import type { LockStoreInterface } from './lock-store.interface.js';
 
 
 export interface CreateLockOptionsInterface {

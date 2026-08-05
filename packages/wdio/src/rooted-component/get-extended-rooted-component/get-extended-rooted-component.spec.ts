@@ -1,12 +1,12 @@
 import { describe, expect, it, jest } from '@jest/globals';
 
-import { mockDefaultConfig, mockElement } from '../../element.mock';
-import { DefaultRootRootedExtendedComponentMock } from '../mocks/default-root-rooted-extended-component.mock';
-import { RootedComponentSelectorsMock } from '../mocks/rooted-component-selectors.mock';
-import { RootedComponentMock } from '../mocks/rooted-component.mock';
-import { RootedExtendedComponentMock } from '../mocks/rooted-extended-component.mock';
-import { RootedOverrideComponentMock } from '../mocks/rooted-override-component.mock';
-import { RootedParentComponentSelectorsMock } from '../mocks/rooted-parent-component-selectors.mock';
+import { mockDefaultConfig, mockElement } from '../../element.mock.js';
+import { DefaultRootRootedExtendedComponentMock } from '../mocks/default-root-rooted-extended-component.mock.js';
+import { RootedComponentSelectorsMock } from '../mocks/rooted-component-selectors.mock.js';
+import { RootedComponentMock } from '../mocks/rooted-component.mock.js';
+import { RootedExtendedComponentMock } from '../mocks/rooted-extended-component.mock.js';
+import { RootedOverrideComponentMock } from '../mocks/rooted-override-component.mock.js';
+import { RootedParentComponentSelectorsMock } from '../mocks/rooted-parent-component-selectors.mock.js';
 
  
 describe('getExtendedRootedComponent', () => {

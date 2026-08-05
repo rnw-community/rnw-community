@@ -3,7 +3,7 @@ import { Histogram, type HistogramConfiguration, type LabelValues, type Registry
 import { createHistogramMetricDecorator } from '@rnw-community/histogram-metric-decorator';
 import { isDefined } from '@rnw-community/shared';
 
-import { histogramMetricTracking } from './histogram-metric-tracking';
+import { histogramMetricTracking } from './histogram-metric-tracking.js';
 
 import type { HistogramOptionsInterface, HistogramTransportInterface } from '@rnw-community/histogram-metric-decorator';
 

@@ -1,4 +1,4 @@
-import { isString } from '../is-string/is-string';
+import { isString } from '../is-string/is-string.js';
 
 const DECIMAL_MONETARY_VALUE_REGEXP = /^-?[0-9]+(\.[0-9]+)?$/u;
 

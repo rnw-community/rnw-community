@@ -1,11 +1,11 @@
 import { describe, expect, it } from '@jest/globals';
 
-import { isPositiveNumber } from '../../number/is-positive-number/is-positive-number';
-import { isNotEmptyString } from '../../string/is-not-empty-string/is-not-empty-string';
+import { isPositiveNumber } from '../../number/is-positive-number/is-positive-number.js';
+import { isNotEmptyString } from '../../string/is-not-empty-string/is-not-empty-string.js';
 
-import { isNotEmptyArrayOf } from './is-not-empty-array-of';
+import { isNotEmptyArrayOf } from './is-not-empty-array-of.js';
 
-import type { IsNever } from '../is-never.spec-type';
+import type { IsNever } from '../is-never.spec-type.js';
 
 describe('isNotEmptyArrayOf', () => {
     it('should return true for non-empty array where all elements match guard', () => {

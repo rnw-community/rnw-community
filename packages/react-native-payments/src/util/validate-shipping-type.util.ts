@@ -1,8 +1,8 @@
 import { isDefined } from '@rnw-community/shared';
 
-import { PaymentShippingTypeEnum } from '../enum/payment-shipping-type.enum';
+import { PaymentShippingTypeEnum } from '../enum/payment-shipping-type.enum.js';
 
-import type { PaymentMethodData } from '../@standard/w3c/payment-method-data';
+import type { PaymentMethodData } from '../@standard/w3c/payment-method-data.js';
 import type { ClassType } from '@rnw-community/shared';
 
 const validShippingTypes: readonly string[] = Object.values(PaymentShippingTypeEnum);

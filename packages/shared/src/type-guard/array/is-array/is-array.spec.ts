@@ -1,6 +1,6 @@
 import { describe, expect, it } from '@jest/globals';
 
-import { isArray } from './is-array';
+import { isArray } from './is-array.js';
 
 describe('isArray', () => {
     it('should return true if variable is array', () => {

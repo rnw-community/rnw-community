@@ -1,6 +1,6 @@
 import { describe, expect, it } from '@jest/globals';
 
-import { getDefined } from './get-defined';
+import { getDefined } from './get-defined.js';
 
 describe('getDefined', () => {
     it('should return value if defined', () => {

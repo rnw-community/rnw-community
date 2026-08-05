@@ -1,8 +1,8 @@
 import React from 'react';
 import { Button, Text, View } from 'react-native';
 
-import { demoStyle } from '../constant/demo-style';
-import { getPaymentName } from '../util/get-payment-name';
+import { demoStyle } from '../constant/demo-style.js';
+import { getPaymentName } from '../util/get-payment-name.js';
 
 import type { EmptyFn } from '@rnw-community/shared';
 import type { ReactNode } from 'react';
