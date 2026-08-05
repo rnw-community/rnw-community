@@ -268,13 +268,13 @@ The monorepo uses dual ESM + CJS output. Key decisions:
 
 - `sideEffects: false` (boolean) in all package.json files
 - `"types"` condition is **first** within each conditional `exports` block (required for `moduleResolution: "nodenext"`
-  consumers). `shared` and `react-native-payments` nest `types` under `import`/`require` rather than sharing one
-  top-level `types` key — a single shared `types` key resolves the wrong module kind for one of the two conditions
-  (confirmed by `@arethetypeswrong/cli`); splitting it keeps `types` first inside each condition while giving each
-  format its own accurate declaration file (`dist/esm/index.d.ts` for `import`, `dist/cjs/index.d.ts` for `require`)
+  consumers). Every dual-format package nests `types` under `import`/`require` rather than sharing one top-level
+  `types` key — a single shared `types` key resolves the wrong module kind for one of the two conditions (confirmed by
+  `@arethetypeswrong/cli`); splitting it keeps `types` first inside each condition while giving each format its own
+  accurate declaration file (`dist/esm/index.d.ts` for `import`, `dist/cjs/index.d.ts` for `require`)
 - `dist/esm/package.json` (`{"type":"module"}`) and `dist/cjs/package.json` (`{"type":"commonjs"}`) are written by the
-  `build` script (`shared`, `react-native-payments`) so Node's own module-kind detection matches each directory's real
-  output instead of falling through to the CJS default for the ESM build
+  `build` script of every dual-format package so Node's own module-kind detection matches each directory's real output
+  instead of falling through to the CJS default for the ESM build. `eslint-plugin` is the one exception — see below
 - `moduleResolution: "bundler"` in root tsconfig, `"node"` override in CJS build tsconfig
 - `verbatimModuleSyntax: true` enforces explicit `import type` for type-only imports
 - `lib: ["es2021"]` matches the build target
@@ -284,14 +284,34 @@ The monorepo uses dual ESM + CJS output. Key decisions:
   consumers use (Metro included). Packages declare their actual supported Node floor via `engines.node` instead of
   chasing the legacy pre-`exports` resolution algorithm
 - **Known, accepted publish-time limitation**, surfaced by `@arethetypeswrong/cli` and ignored explicitly
-  (`--ignore-rules internal-resolution-error`) in `yarn publint`, with this paragraph as the recorded justification for
-  `shared` and `react-native-payments`: `tsc` emits relative import specifiers without file extensions
-  (`./enum/foo.enum`, not `./enum/foo.enum.js`). Node's own `node16`/`nodenext` ESM resolution requires the extension,
-  so a consumer forcing that exact resolution mode against the `import` condition sees unresolved relative imports in
-  the shipped `.d.ts` files. Every other real consumption path — bundlers (Metro included) and `node16`/`nodenext`
-  `require` — resolves cleanly; only the `node16`/`nodenext` **ESM** path is affected. Rewriting every relative import
-  across every package's `src` tree to carry an explicit extension is a repo-wide source-emit change, not a
-  publish-config fix, so it is deferred rather than bundled into publication hardening
+  (`--ignore-rules internal-resolution-error`) in `yarn publint` for every package, with this paragraph as the
+  recorded justification: `tsc` emits relative import specifiers without file extensions (`./enum/foo.enum`, not
+  `./enum/foo.enum.js`). Node's own `node16`/`nodenext` ESM resolution requires the extension, so a consumer forcing
+  that exact resolution mode against the `import` condition sees unresolved relative imports in the shipped `.d.ts`
+  files. Every other real consumption path — bundlers (Metro included) and `node16`/`nodenext` `require` — resolves
+  cleanly; only the `node16`/`nodenext` **ESM** path is affected. Rewriting every relative import across every
+  package's `src` tree to carry an explicit extension is a repo-wide source-emit change, not a publish-config fix, so
+  it is deferred rather than bundled into publication hardening
+- **`eslint-plugin` ships CommonJS only, by design, not oversight.** Its `src/index.ts` ends in `export = plugin` —
+  the shape ESLint's own legacy plugin loader (`@eslint/eslintrc`, string-based `"plugins": ["@rnw-community"]`
+  resolution) requires: it `require()`s the module and uses the returned value directly, with no `.default` unwrap.
+  Switching to `export default plugin` would satisfy a "real" ESM build but silently break every consumer still on
+  legacy `.eslintrc` config. Because `export =` cannot be re-emitted as genuine ESM syntax, the package's own
+  `tsconfig.build-esm.json` targets `NodeNext` against a `type`-less source tree so `tsc` compiles it as CommonJS
+  even under `dist/esm/` — both dist trees are byte-equivalent CJS. The package.json reflects this honestly instead of
+  papering over it: root-level `"type": "commonjs"` (not per-directory markers, since neither directory is ESM), no
+  `"module"` field (there is no real ESM entry to advertise to bundlers), and `yarn publint`'s `attw` invocation for
+  this package alone adds `--ignore-rules named-exports` — `attw`'s "TypeScript allows ESM named imports that will
+  crash at runtime" finding is exactly the CJS-via-`import`-statement default-interop pattern this package's own
+  readme documents as its supported usage (`import rnwcPlugin from '@rnw-community/eslint-plugin'`), never named
+  imports of individual properties
+- **`tsc`'s `resolveJsonModule` copies imported `.json` files into `dist/`, including nested `package.json` copies
+  with a self-referential (and Node-ignored) `"exports"` field.** `eslint-plugin`'s `src/index.ts` imports
+  `../package.json` for `meta.name`/`meta.version`; because that import falls outside `./src`, `tsc` widens its
+  inferred `rootDir` to the package root and mirrors `package.json` into both `dist/esm/` and `dist/cjs/` verbatim.
+  `publint` flags the duplicated, non-functional `"exports"` field. The package's `build` script now deletes both
+  copies (`rm -f dist/esm/package.json dist/cjs/package.json`) after compilation — the import itself stays, since
+  rewriting it to avoid the `rootDir` widening is a larger refactor than a publish-hygiene pass warrants
 
 ## PR Review & Merge Policy
 

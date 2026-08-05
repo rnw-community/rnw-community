@@ -47,6 +47,18 @@ src/
   `moduleResolution`/`module` set to `nodenext`/`NodeNext`/`node16` variants and `verbatimModuleSyntax: false` —
   the latter is required because `export = plugin` cannot coexist with `verbatimModuleSyntax: true`
 
+### Publication shape — CommonJS only, no `"module"` field
+
+Unlike every other package in the repo, this one does not ship a genuine ESM build: `export = plugin` cannot be
+re-emitted as ESM syntax, so `tsc` compiles both `dist/esm/` and `dist/cjs/` as CommonJS (see root AGENTS.md's ESM
+Modernization Status for the full reasoning). `package.json` reflects this with root-level `"type": "commonjs"`
+(covering both dist trees) and no `"module"` field. `yarn publint`'s `attw` check for this package alone passes
+`--ignore-rules named-exports`, since `attw`'s named-export warning only flags the unsupported (and undocumented)
+`import { x } from '@rnw-community/eslint-plugin'` form — the readme's documented usage is a default import. The
+`build` script also deletes `dist/esm/package.json` / `dist/cjs/package.json` after compiling: `tsc`'s
+`resolveJsonModule` copies the `../package.json` import target into both output trees verbatim (self-referential
+`"exports"` field and all), which `publint` correctly flags as dead weight.
+
 ### Dependencies
 
 - `@typescript-eslint/utils` — `ESLintUtils.RuleCreator` and `TSESLint`/`AST_NODE_TYPES` used by the rule
