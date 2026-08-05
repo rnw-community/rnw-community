@@ -44,6 +44,25 @@ const RESOLUTION_ONLY_PACKAGES = [
 ];
 
 const eslintPluginPackageJsonSpecifier = '../package.json';
+const nativePaymentsNativeModuleRequireSpecifier = '../../NativePayments';
+
+function isRuntimeRequireCall(fullMatchText) {
+    return /^require\s*\(/.test(fullMatchText);
+}
+
+const MODULE_RESOLUTION_ERROR_CODES = new Set([
+    'ERR_MODULE_NOT_FOUND',
+    'MODULE_NOT_FOUND',
+    'ERR_UNSUPPORTED_DIR_IMPORT',
+    'ERR_INVALID_MODULE_SPECIFIER',
+    'ERR_PACKAGE_PATH_NOT_EXPORTED',
+    'ERR_UNSUPPORTED_ESM_URL_SCHEME',
+    'ERR_INVALID_PACKAGE_CONFIG',
+]);
+
+function createRelativeSpecifierRegex() {
+    return /(?:from\s*|import\s*\(\s*|require\s*\(\s*|import\s+)(['"])(\.[^'"]*)\1/g;
+}
 
 const ALL_PACKAGE_NAMES = [...EXECUTABLE_PACKAGES.map(entry => entry.pkg), ...RESOLUTION_ONLY_PACKAGES.map(entry => entry.pkg)];
 
@@ -118,7 +137,7 @@ function checkExecutable({ pkg, exportName }) {
 
 function findSpotCheckableRelativeSpecifier(entryFile) {
     const content = fs.readFileSync(entryFile, 'utf8');
-    const specRe = /(?:from\s*|require\s*\(\s*)(['"])(\.[^'"]*)\1/g;
+    const specRe = createRelativeSpecifierRegex();
     let match;
     while ((match = specRe.exec(content))) {
         if (match[2] !== eslintPluginPackageJsonSpecifier) {
@@ -159,13 +178,31 @@ function checkResolutionOnly({ pkg, unloadableBecause }) {
         return;
     }
 
-    const parentUrl = `file://${entryFile}`;
-    const script = `console.log(import.meta.resolve('${deepSpecifier}', '${parentUrl}'))`;
+    const resolutionErrorCodesLiteral = JSON.stringify([...MODULE_RESOLUTION_ERROR_CODES]);
+    const probeFile = path.join(path.dirname(entryFile), '.rnw-smoke-deep-specifier-probe.mjs');
+    fs.writeFileSync(
+        probeFile,
+        `
+        const resolutionErrorCodes = new Set(${resolutionErrorCodesLiteral});
+        import('${deepSpecifier}').then(
+            () => { console.log('imported'); },
+            e => {
+                if (resolutionErrorCodes.has(e.code)) {
+                    console.error(e.code, e.message);
+                    process.exit(1);
+                }
+                console.log('resolved-but-not-executable ' + e.constructor.name + ' ' + e.code);
+            }
+        );
+        `
+    );
     try {
-        runNode(['--input-type=module', '-e', script], projectDir);
-        log(`  OK   ${pkg} (ESM import.meta.resolve deep specifier '${deepSpecifier}')`);
+        const out = runNode([probeFile], projectDir).trim();
+        log(`  OK   ${pkg} (ESM deep specifier '${deepSpecifier}', resolved from a probe placed next to the real entry: ${out})`);
     } catch (error) {
-        fail(pkg, `import.meta.resolve('${deepSpecifier}') relative to ${entryRelative} threw: ${error.message.split('\n')[0]}`);
+        fail(pkg, `import('${deepSpecifier}') relative to ${entryRelative} threw: ${error.message.split('\n')[0]}`);
+    } finally {
+        fs.rmSync(probeFile, { force: true });
     }
 }
 
@@ -188,20 +225,23 @@ function collectJsAndDtsFiles(rootDir) {
 }
 
 function scanInstalledPackagesForExtensionlessSpecifiers() {
-    const specRe = /(from\s*|import\s*\(\s*)(['"])(\.[^'"]*)\2/g;
     let totalFound = 0;
 
     for (const pkg of ALL_PACKAGE_NAMES) {
         const esmDir = path.join(scopeDir, pkg, 'dist', 'esm');
-        if (!fs.existsSync(esmDir)) continue;
+        if (!fs.existsSync(esmDir)) {
+            fail(pkg, `installed package has no dist/esm directory at ${path.relative(scopeDir, esmDir)}`);
+            continue;
+        }
 
         for (const file of collectJsAndDtsFiles(esmDir)) {
             const content = fs.readFileSync(file, 'utf8');
+            const specRe = createRelativeSpecifierRegex();
             let match;
-            specRe.lastIndex = 0;
             while ((match = specRe.exec(content))) {
-                const spec = match[3];
-                if (!/\.(js|mjs|cjs|json)$/.test(spec)) {
+                const spec = match[2];
+                const isExemptRuntimeRequire = spec === nativePaymentsNativeModuleRequireSpecifier && isRuntimeRequireCall(match[0]);
+                if (!isExemptRuntimeRequire && !/\.(js|mjs|cjs|json)$/.test(spec)) {
                     fail(pkg, `installed dist/esm has an extensionless relative specifier '${spec}' in ${path.relative(scopeDir, file)}`);
                     totalFound++;
                 }
