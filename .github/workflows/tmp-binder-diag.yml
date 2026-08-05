@@ -1,0 +1,74 @@
+name: tmp-binder-diag
+
+on:
+    workflow_dispatch:
+
+permissions:
+    contents: read
+
+jobs:
+    diag:
+        name: Binder diagnostic
+        runs-on: [self-hosted, linux-tiered, linux-xl]
+        timeout-minutes: 10
+        steps:
+            - name: Host + kernel info
+              shell: bash
+              run: |
+                  set -x
+                  hostname
+                  uname -a
+                  cat /etc/os-release || true
+                  whoami
+                  id
+
+            - name: Binder module state before modprobe
+              shell: bash
+              run: |
+                  set -x
+                  lsmod | grep -i binder || echo "NOT_LOADED_BEFORE"
+                  find /lib/modules/$(uname -r) -iname 'binder*' 2>&1 || true
+                  modinfo binder_linux 2>&1 || echo "MODINFO_FAILED"
+                  ls -la /dev | grep -i binder || echo "NO_DEV_NODES_BEFORE"
+
+            - name: modprobe with captured exit code and stderr
+              shell: bash
+              run: |
+                  set -x
+                  sudo modprobe binder_linux devices=binder,hwbinder,vndbinder
+                  echo "modprobe_exit=$?"
+
+            - name: Immediate device check
+              shell: bash
+              run: |
+                  set -x
+                  ls -la /dev | grep -i binder || echo "NO_DEV_NODES_IMMEDIATELY_AFTER"
+                  lsmod | grep -i binder || echo "NOT_LOADED_AFTER"
+
+            - name: udevadm settle then recheck
+              shell: bash
+              run: |
+                  set -x
+                  sudo udevadm settle --timeout=10 2>&1 || echo "UDEVADM_SETTLE_FAILED_OR_ABSENT"
+                  ls -la /dev | grep -i binder || echo "NO_DEV_NODES_AFTER_SETTLE"
+
+            - name: Poll for device nodes over 10s
+              shell: bash
+              run: |
+                  set -x
+                  for i in $(seq 1 10); do
+                    echo "poll $i:"
+                    ls -la /dev/binder /dev/hwbinder /dev/vndbinder 2>&1 || true
+                    sleep 1
+                  done
+
+            - name: dmesg tail
+              shell: bash
+              run: sudo dmesg 2>&1 | tail -n 80 || echo "DMESG_FAILED"
+
+            - name: Docker + privileged container device visibility
+              shell: bash
+              run: |
+                  set -x
+                  sudo docker version
+                  sudo docker run --rm --privileged busybox sh -c "ls -la /dev | grep -i binder || echo NO_BINDER_IN_CONTAINER"
