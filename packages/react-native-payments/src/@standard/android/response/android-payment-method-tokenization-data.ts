@@ -1,4 +1,4 @@
-import type { AndroidPaymentMethodTokenizationType } from '../enum/android-payment-method-tokenization-type.enum';
+import type { AndroidPaymentMethodTokenizationType } from '../enum/android-payment-method-tokenization-type.enum.js';
 
 // https://developers.google.com/pay/api/android/reference/response-objects#PaymentMethodTokenizationData
 export interface AndroidPaymentMethodTokenizationData {

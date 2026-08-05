@@ -375,6 +375,10 @@ jobs:
                 working-directory: ${{ runner.temp }}/smoke
                 run: ./node_modules/.bin/tsc --noEmit --strict --target es2021 --lib es2021,dom --module esnext --moduleResolution bundler --jsx react smoke.ts
 
+            -   name: Comprehensive ESM/CJS require()/import() smoke (every publishable package, npm leg only)
+                if: matrix.package-manager == 'npm'
+                run: yarn smoke:esm
+
     required-checks:
         name: Required checks
         if: always()

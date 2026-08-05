@@ -1,6 +1,6 @@
-import type { PaymentItem } from '../@standard/w3c/payment-item';
-import type { PaymentDetailsUpdateError } from '../type/payment-details-update-error.type';
-import type { PaymentRequestEventType } from '../type/payment-request-event.type';
+import type { PaymentItem } from '../@standard/w3c/payment-item.js';
+import type { PaymentDetailsUpdateError } from '../type/payment-details-update-error.type.js';
+import type { PaymentRequestEventType } from '../type/payment-request-event.type.js';
 
 // Feeds the PassKit sheet update: https://developer.apple.com/documentation/passkit/pkpaymentrequestupdate
 export interface NativePaymentDetailsUpdateInterface {

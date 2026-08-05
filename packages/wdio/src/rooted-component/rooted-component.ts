@@ -1,8 +1,8 @@
 import { isDefined, isString } from '@rnw-community/shared';
 
-import { Component } from '../component/component';
+import { Component } from '../component/component.js';
 
-import type { ComponentConfigInterface, ComponentInputArg } from '../type';
+import type { ComponentConfigInterface, ComponentInputArg } from '../type/index.js';
 import type { ChainablePromiseArray, ChainablePromiseElement } from 'webdriverio';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any

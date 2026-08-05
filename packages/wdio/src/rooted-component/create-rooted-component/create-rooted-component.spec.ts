@@ -1,9 +1,9 @@
 import { describe, expect, it } from '@jest/globals';
 
-import { mockDefaultConfig, mockElement } from '../../element.mock';
-import { RootedComponentSelectorsMock } from '../mocks/rooted-component-selectors.mock';
+import { mockDefaultConfig, mockElement } from '../../element.mock.js';
+import { RootedComponentSelectorsMock } from '../mocks/rooted-component-selectors.mock.js';
 
-import { createRootedComponent } from './create-rooted-component';
+import { createRootedComponent } from './create-rooted-component.js';
 
 describe('createRootedComponent', () => {
     it('should create RootedComponent instance with selectors, using selector as root', async () => {

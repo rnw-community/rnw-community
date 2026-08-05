@@ -1,22 +1,22 @@
 import { isDefined } from '@rnw-community/shared';
 
-import { type AndroidCardInfo, emptyAndroidCardInfo } from '../../@standard/android/response/android-card-info';
-import { emptyAndroidIntermediateSigningKey } from '../../@standard/android/response/android-intermediate-signing-key';
-import { emptyAndroidPaymentMethodToken } from '../../@standard/android/response/android-payment-method-token';
-import { emptyIosPKToken } from '../../@standard/ios/response/ios-pk-token';
-import { PaymentsError } from '../../error/payments.error';
+import { type AndroidCardInfo, emptyAndroidCardInfo } from '../../@standard/android/response/android-card-info.js';
+import { emptyAndroidIntermediateSigningKey } from '../../@standard/android/response/android-intermediate-signing-key.js';
+import { emptyAndroidPaymentMethodToken } from '../../@standard/android/response/android-payment-method-token.js';
+import { emptyIosPKToken } from '../../@standard/ios/response/ios-pk-token.js';
+import { PaymentsError } from '../../error/payments.error.js';
 
-import { PaymentResponse } from './payment-response';
+import { PaymentResponse } from './payment-response.js';
 
-import type { AndroidFullAddress } from '../../@standard/android/response/android-full-address';
-import type { AndroidMinAddress } from '../../@standard/android/response/android-min-address';
-import type { AndroidPaymentData } from '../../@standard/android/response/android-payment-data';
-import type { AndroidPaymentMethodToken } from '../../@standard/android/response/android-payment-method-token';
-import type { AndroidRawPaymentMethodToken } from '../../@standard/android/response/android-raw-payment-method-token';
-import type { AndroidSignedKey } from '../../@standard/android/response/android-signed-key';
-import type { AndroidSignedMessage } from '../../@standard/android/response/android-signed-message';
-import type { PaymentResponseAddressInterface } from '../../interface/payment-response-address.interface';
-import type { PaymentResponseDetailsInterface } from '../../interface/payment-response-details.interface';
+import type { AndroidFullAddress } from '../../@standard/android/response/android-full-address.js';
+import type { AndroidMinAddress } from '../../@standard/android/response/android-min-address.js';
+import type { AndroidPaymentData } from '../../@standard/android/response/android-payment-data.js';
+import type { AndroidPaymentMethodToken } from '../../@standard/android/response/android-payment-method-token.js';
+import type { AndroidRawPaymentMethodToken } from '../../@standard/android/response/android-raw-payment-method-token.js';
+import type { AndroidSignedKey } from '../../@standard/android/response/android-signed-key.js';
+import type { AndroidSignedMessage } from '../../@standard/android/response/android-signed-message.js';
+import type { PaymentResponseAddressInterface } from '../../interface/payment-response-address.interface.js';
+import type { PaymentResponseDetailsInterface } from '../../interface/payment-response-details.interface.js';
 import type { Maybe } from '@rnw-community/shared';
 
 export class AndroidPaymentResponse extends PaymentResponse {

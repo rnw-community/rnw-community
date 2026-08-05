@@ -1,4 +1,4 @@
-import { isDefined } from '../is-defined/is-defined';
+import { isDefined } from '../is-defined/is-defined.js';
 
 /*
  * HINT: https://promisesaplus.com/#the-promise-resolution-procedure

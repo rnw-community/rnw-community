@@ -2,7 +2,7 @@ import { NativeEventEmitter } from 'react-native';
 
 import { isDefined } from '@rnw-community/shared';
 
-import { NativePayments } from '../../class/native-payments/native-payments';
+import { NativePayments } from '../../class/native-payments/native-payments.js';
 
 import type { Maybe } from '@rnw-community/shared';
 import type { NativeModule } from 'react-native';

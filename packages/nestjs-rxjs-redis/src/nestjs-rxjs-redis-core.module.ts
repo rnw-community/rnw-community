@@ -1,7 +1,7 @@
 import { Global, Module } from '@nestjs/common';
 import { RedisModule } from '@nestjs-modules/ioredis';
 
-import { NestJSRxJSRedisService } from './nestjs-rxjs-redis-service/nestjs-rxjs-redis.service';
+import { NestJSRxJSRedisService } from './nestjs-rxjs-redis-service/nestjs-rxjs-redis.service.js';
 
 import type { DynamicModule } from '@nestjs/common';
 import type { RedisModuleAsyncOptions } from '@nestjs-modules/ioredis';

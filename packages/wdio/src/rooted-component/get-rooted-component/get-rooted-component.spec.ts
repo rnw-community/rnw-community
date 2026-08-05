@@ -1,9 +1,9 @@
 import { describe, expect, it } from '@jest/globals';
 
-import { mockDefaultConfig } from '../../element.mock';
-import { DefaultRootRootedComponentMock } from '../mocks/default-root-rooted-component.mock';
-import { RootedComponentSelectorsMock } from '../mocks/rooted-component-selectors.mock';
-import { RootedComponentMock } from '../mocks/rooted-component.mock';
+import { mockDefaultConfig } from '../../element.mock.js';
+import { DefaultRootRootedComponentMock } from '../mocks/default-root-rooted-component.mock.js';
+import { RootedComponentSelectorsMock } from '../mocks/rooted-component-selectors.mock.js';
+import { RootedComponentMock } from '../mocks/rooted-component.mock.js';
 
 describe('getRootedComponent', () => {
     it('should call parent RootedComponent methods', async () => {

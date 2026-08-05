@@ -6,7 +6,7 @@ import { type Observable, concatMap, finalize, from } from 'rxjs';
 import { isNotEmptyString } from '@rnw-community/shared';
 
  
-import type { NestJSRxJSLockModuleOptions } from '../nestjs-rxjs-lock-module.options';
+import type { NestJSRxJSLockModuleOptions } from '../nestjs-rxjs-lock-module.options.js';
 
 export abstract class NestJSRxJSLockService<E = string> {
     private readonly lock: Redlock;

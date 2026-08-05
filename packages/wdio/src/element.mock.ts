@@ -1,9 +1,9 @@
  
 import { jest } from '@jest/globals';
 
-import type { ComponentConfigInterface } from './type';
+import type { ComponentConfigInterface } from './type/index.js';
 import type { ChainablePromiseArray, ChainablePromiseElement } from 'webdriverio';
-import './wdio.mock';
+import './wdio.mock.js';
 
  
 export const mockElement = {

@@ -1,6 +1,6 @@
-/* eslint-disable no-implicit-globals */
-import type { DataFn1, DataFn2, DataFn3, DataFn4, DataFn5 } from './type/data-fn.type';
-import type { CombineReturn1, CombineReturn2, CombineReturn3, CombineReturn4, CombineReturn5 } from './type/return.type';
+ 
+import type { DataFn1, DataFn2, DataFn3, DataFn4, DataFn5 } from './type/data-fn.type.js';
+import type { CombineReturn1, CombineReturn2, CombineReturn3, CombineReturn4, CombineReturn5 } from './type/return.type.js';
 import type { Enum } from '@rnw-community/shared';
 
 // TODO: Investigate if we can add types without specifying all combinations
@@ -59,4 +59,4 @@ export function combine(dataFn: (...keys: any) => any, ...objects: any[]): any {
 }
 
 export type { Enum };
-export type { CombineReturn1, CombineReturn2, CombineReturn3, CombineReturn4, CombineReturn5 } from './type/return.type';
+export type { CombineReturn1, CombineReturn2, CombineReturn3, CombineReturn4, CombineReturn5 } from './type/return.type.js';

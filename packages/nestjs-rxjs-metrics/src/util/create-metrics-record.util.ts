@@ -2,8 +2,8 @@ import { getOrCreateMetric } from '@willsoto/nestjs-prometheus';
 
 import { isDefined } from '@rnw-community/shared';
 
-import type { LabelsConfig } from '../type/labels-config.type';
-import type { MetricConfig } from '../type/metrics-config.type';
+import type { LabelsConfig } from '../type/labels-config.type.js';
+import type { MetricConfig } from '../type/metrics-config.type.js';
 import type { Metrics } from '@willsoto/nestjs-prometheus';
 
 export const createMetricsRecord = <M, T extends MetricConfig>(

@@ -25,6 +25,7 @@
     "lint:force": "turbo run lint --force",
     "publint": "bash scripts/publint.sh",
     "release": "lerna publish --yes --conventional-commits --create-release=github -m \"chore: release %s [skip ci]\"",
+    "smoke:esm": "node scripts/smoke-esm.mjs",
     "test": "turbo run test",
     "test:coverage": "turbo run test:coverage",
     "ts": "turbo run ts",

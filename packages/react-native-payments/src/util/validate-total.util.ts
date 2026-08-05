@@ -1,9 +1,9 @@
 import { type ClassType, isDefined, isNumber } from '@rnw-community/shared';
 
-import { isValidDecimalMonetaryValue } from './is-valid-decimal-monetary-value/is-valid-decimal-monetary-value.util';
+import { isValidDecimalMonetaryValue } from './is-valid-decimal-monetary-value/is-valid-decimal-monetary-value.util.js';
 
-import type { PaymentItem } from '../@standard/w3c/payment-item';
-import type { AmountValue } from '../type/amount-value.type';
+import type { PaymentItem } from '../@standard/w3c/payment-item.js';
+import type { AmountValue } from '../type/amount-value.type.js';
 
 const isNegative = (amountValue: AmountValue): boolean =>
     isNumber(amountValue) ? amountValue < 0 : amountValue.startsWith('-');

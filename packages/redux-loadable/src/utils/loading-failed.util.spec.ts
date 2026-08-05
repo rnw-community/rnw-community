@@ -1,10 +1,10 @@
 import { describe, expect, it } from '@jest/globals';
 
-import { initialLoadingState } from '../interface/loading-state.interface';
+import { initialLoadingState } from '../interface/loading-state.interface.js';
 
-import { loadingFailed } from './loading-failed.util';
+import { loadingFailed } from './loading-failed.util.js';
 
-import type { LoadingStateInterface } from '../interface/loading-state.interface';
+import type { LoadingStateInterface } from '../interface/loading-state.interface.js';
 
 describe('loadingFailed', () => {
     it('should mutate and return loading failed state', () => {

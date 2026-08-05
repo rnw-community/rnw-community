@@ -1,14 +1,14 @@
 import { isDefined } from '@rnw-community/shared';
 
-import { PaymentsErrorEnum } from '../../enum/payments-error.enum';
-import { DOMException } from '../../error/dom.exception';
-import { PaymentsError } from '../../error/payments.error';
-import { NativePayments } from '../native-payments/native-payments';
+import { PaymentsErrorEnum } from '../../enum/payments-error.enum.js';
+import { DOMException } from '../../error/dom.exception.js';
+import { PaymentsError } from '../../error/payments.error.js';
+import { NativePayments } from '../native-payments/native-payments.js';
 
-import type { PaymentValidationErrors } from '../../@standard/w3c/payment-validation-errors';
-import type { PaymentComplete } from '../../enum/payment-complete.enum';
-import type { PaymentResponseDetailsInterface } from '../../interface/payment-response-details.interface';
-import type { PaymentResponseJsonInterface } from '../../interface/payment-response-json.interface';
+import type { PaymentValidationErrors } from '../../@standard/w3c/payment-validation-errors.js';
+import type { PaymentComplete } from '../../enum/payment-complete.enum.js';
+import type { PaymentResponseDetailsInterface } from '../../interface/payment-response-details.interface.js';
+import type { PaymentResponseJsonInterface } from '../../interface/payment-response-json.interface.js';
 import type { Maybe } from '@rnw-community/shared';
 
 /*

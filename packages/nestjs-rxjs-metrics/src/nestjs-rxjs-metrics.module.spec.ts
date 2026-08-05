@@ -1,7 +1,7 @@
 import { describe, expect, it, jest } from '@jest/globals';
 
-import { NestJSRxJSMetricsModule } from './nestjs-rxjs-metrics.module';
-import { createMetricsRecord } from './util/create-metrics-record.util';
+import { NestJSRxJSMetricsModule } from './nestjs-rxjs-metrics.module.js';
+import { createMetricsRecord } from './util/create-metrics-record.util.js';
 
 import type { Counter, Gauge, Histogram, Summary } from 'prom-client';
 

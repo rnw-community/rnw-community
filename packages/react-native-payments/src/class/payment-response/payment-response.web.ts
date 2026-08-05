@@ -1,4 +1,4 @@
-import type { WebPaymentResponseConstructor } from '../../type/web-payment-response-constructor.type';
+import type { WebPaymentResponseConstructor } from '../../type/web-payment-response-constructor.type.js';
 import type { Maybe } from '@rnw-community/shared';
 
 

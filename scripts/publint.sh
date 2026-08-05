@@ -34,11 +34,15 @@ for pkg in "${packages[@]}"; do
     echo ""
     echo "── @rnw-community/${pkg} ──"
 
-    ignore_rules=(internal-resolution-error)
+    ignore_rules=()
     if [ "${pkg}" = "eslint-plugin" ]; then
         ignore_rules+=(named-exports)
     fi
 
     publint run "packages/${pkg}"
-    attw --pack "packages/${pkg}" --profile node16 --ignore-rules "${ignore_rules[@]}"
+    if [ "${#ignore_rules[@]}" -gt 0 ]; then
+        attw --pack "packages/${pkg}" --profile node16 --ignore-rules "${ignore_rules[@]}"
+    else
+        attw --pack "packages/${pkg}" --profile node16
+    fi
 done

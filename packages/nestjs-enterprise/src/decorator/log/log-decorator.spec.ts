@@ -3,7 +3,7 @@ import { describe, expect, it, jest } from '@jest/globals';
 import { Logger } from '@nestjs/common';
 import { Observable, of, throwError } from 'rxjs';
 
-import { Log } from './log.decorator';
+import { Log } from './log.decorator.js';
 
 const preLogText = 'testPreLog';
 const postLogText = 'testPostLog';

@@ -1,6 +1,6 @@
-import { emptyAndroidSignedKey } from './android-signed-key';
+import { emptyAndroidSignedKey } from './android-signed-key.js';
 
-import type { AndroidSignedKey } from './android-signed-key';
+import type { AndroidSignedKey } from './android-signed-key.js';
 
 // https://developers.google.com/pay/api/android/guides/resources/payment-data-cryptography#intermediate-signing-key
 export interface AndroidIntermediateSigningKey {

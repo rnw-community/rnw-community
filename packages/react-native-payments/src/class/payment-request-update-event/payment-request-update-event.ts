@@ -1,9 +1,9 @@
-import { PaymentsErrorEnum } from '../../enum/payments-error.enum';
-import { DOMException } from '../../error/dom.exception';
+import { PaymentsErrorEnum } from '../../enum/payments-error.enum.js';
+import { DOMException } from '../../error/dom.exception.js';
 
-import type { PaymentDetailsUpdate } from '../../@standard/w3c/payment-details-update';
-import type { PaymentRequestEventType } from '../../type/payment-request-event.type';
-import type { PaymentRequestUpdateHandler } from '../../type/payment-request-update-handler.type';
+import type { PaymentDetailsUpdate } from '../../@standard/w3c/payment-details-update.js';
+import type { PaymentRequestEventType } from '../../type/payment-request-event.type.js';
+import type { PaymentRequestUpdateHandler } from '../../type/payment-request-update-handler.type.js';
 
 // https://www.w3.org/TR/payment-request/#dom-paymentrequestupdateevent
 export class PaymentRequestUpdateEvent {

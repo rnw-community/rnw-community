@@ -1,7 +1,7 @@
-import { defaultAndroidTransactionInfo } from '../@standard/android/request/android-transaction-info';
-import { PaymentMethodNameEnum } from '../enum/payment-method-name.enum';
+import { defaultAndroidTransactionInfo } from '../@standard/android/request/android-transaction-info.js';
+import { PaymentMethodNameEnum } from '../enum/payment-method-name.enum.js';
 
-import type { PaymentMethodData } from '../@standard/w3c/payment-method-data';
+import type { PaymentMethodData } from '../@standard/w3c/payment-method-data.js';
 import type { ClassType } from '@rnw-community/shared';
 
 export const validateAndroidTransactionInfo = (methodData: PaymentMethodData[], ErrorType: ClassType<Error>): void => {

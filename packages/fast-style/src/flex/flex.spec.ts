@@ -1,6 +1,6 @@
 import { describe, expect, it } from '@jest/globals';
 
-import { Flex } from './flex';
+import { Flex } from './flex.js';
 
 const expectedCenter = (flexDirection: string): Record<string, unknown> => ({
     center: {

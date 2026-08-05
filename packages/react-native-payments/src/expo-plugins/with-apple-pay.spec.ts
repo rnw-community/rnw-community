@@ -1,13 +1,13 @@
 import { describe, expect, it, jest } from '@jest/globals';
 
-import { EnvironmentEnum } from '../enum/environment.enum';
-import { SupportedNetworkEnum } from '../enum/supported-networks.enum';
+import { EnvironmentEnum } from '../enum/environment.enum.js';
+import { SupportedNetworkEnum } from '../enum/supported-networks.enum.js';
 
-import { withApplePay } from './with-apple-pay';
+import { withApplePay } from './with-apple-pay.js';
 
-import type { ReactNativePaymentsPluginProps } from './plugin.props';
+import type { ReactNativePaymentsPluginProps } from './plugin.props.js';
 
-jest.mock('expo/config-plugins', () => ({
+jest.mock('@expo/config-plugins', () => ({
     withEntitlementsPlist: jest.fn((config: unknown, modifier: (config: unknown) => unknown) => modifier(config)),
 }));
 

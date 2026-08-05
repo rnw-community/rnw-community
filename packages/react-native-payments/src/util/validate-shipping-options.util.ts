@@ -1,8 +1,8 @@
 import { type ClassType, isDefined, isNotEmptyString, isString } from '@rnw-community/shared';
 
-import { isValidDecimalMonetaryValue } from './is-valid-decimal-monetary-value/is-valid-decimal-monetary-value.util';
+import { isValidDecimalMonetaryValue } from './is-valid-decimal-monetary-value/is-valid-decimal-monetary-value.util.js';
 
-import type { PaymentShippingOption } from '../@standard/w3c/payment-shipping-option';
+import type { PaymentShippingOption } from '../@standard/w3c/payment-shipping-option.js';
 
 export const validateShippingOptions = (
     ErrorType: ClassType<Error>,

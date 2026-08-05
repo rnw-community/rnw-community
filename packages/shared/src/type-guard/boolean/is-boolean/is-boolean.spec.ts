@@ -1,8 +1,8 @@
 import { describe, expect, it } from '@jest/globals';
 
-import { isBoolean } from './is-boolean';
+import { isBoolean } from './is-boolean.js';
 
-import type { IsNever } from '../../array/is-never.spec-type';
+import type { IsNever } from '../../array/is-never.spec-type.js';
 
 describe('isBoolean', () => {
     it('should return true if variable is a boolean', () => {

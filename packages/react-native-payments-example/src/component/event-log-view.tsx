@@ -1,9 +1,9 @@
 import React from 'react';
 import { ScrollView, Text, View } from 'react-native';
 
-import { demoStyle } from '../constant/demo-style';
+import { demoStyle } from '../constant/demo-style.js';
 
-import type { EventLogEntryInterface } from '../interface/event-log-entry.interface';
+import type { EventLogEntryInterface } from '../interface/event-log-entry.interface.js';
 import type { ReactNode } from 'react';
 
 interface EventLogViewProps {

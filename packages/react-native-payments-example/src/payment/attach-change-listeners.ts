@@ -1,10 +1,10 @@
 import { Platform } from 'react-native';
 
-import { formatLogMessage } from '../util/format-log-message';
+import { formatLogMessage } from '../util/format-log-message.js';
 
-import { createChangeEventListener } from './create-change-event-listener';
+import { createChangeEventListener } from './create-change-event-listener.js';
 
-import type { RequestOptionsInterface } from '../interface/request-options.interface';
+import type { RequestOptionsInterface } from '../interface/request-options.interface.js';
 import type { PaymentRequest, PaymentRequestEventType } from '@rnw-community/react-native-payments';
 import type { OnEventFn } from '@rnw-community/shared';
 

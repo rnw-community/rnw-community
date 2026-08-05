@@ -1,8 +1,8 @@
 import { describe, expect, it } from '@jest/globals';
 
-import { SupportedNetworkEnum } from '../enum/supported-networks.enum';
+import { SupportedNetworkEnum } from '../enum/supported-networks.enum.js';
 
-import { validateSupportedNetworks } from './validate-supported-networks.util';
+import { validateSupportedNetworks } from './validate-supported-networks.util.js';
 
 describe('validateSupportedNetworks', () => {
     it('should default to every supported network when undefined', () => {

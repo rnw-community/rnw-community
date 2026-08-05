@@ -2,9 +2,9 @@ import { NativeModules, Platform } from 'react-native';
 
 import { isDefined } from '@rnw-community/shared';
 
-import type { NativePaymentsChangeEventsInterface } from '../../interface/native-payments-change-events.interface';
-import type { NativePaymentsRetryInterface } from '../../interface/native-payments-retry.interface';
-import type { Spec } from '../../NativePayments';
+import type { NativePaymentsChangeEventsInterface } from '../../interface/native-payments-change-events.interface.js';
+import type { NativePaymentsRetryInterface } from '../../interface/native-payments-retry.interface.js';
+import type { Spec } from '../../NativePayments.js';
 
 const LINKING_ERROR = `The package 'react-native-payments' doesn't seem to be linked. Make sure: \n\n${Platform.select({
     ios: "- You have run 'pod install'\n",
@@ -28,7 +28,7 @@ const optionalNativeMethodNames = new Set<PropertyKey>([
 const isTurboModuleEnabled = isDefined(global.__turboModuleProxy);
 
 const PaymentsModule = isTurboModuleEnabled
-    ? // eslint-disable-next-line @typescript-eslint/no-require-imports,n/no-missing-require,@typescript-eslint/no-unsafe-member-access
+    ? // eslint-disable-next-line @typescript-eslint/no-require-imports,@typescript-eslint/no-unsafe-member-access
       (require('../../NativePayments').default as NativePaymentsType)
     : (NativeModules as { Payments: NativePaymentsType }).Payments;
 

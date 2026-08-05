@@ -2,16 +2,16 @@ import { afterEach, beforeEach, describe, expect, it, jest } from '@jest/globals
 
 import { emptyFn, wait } from '@rnw-community/shared';
 
-import { changeEventTimeoutMs } from '../../constant/change-event-timeout-ms';
-import { PaymentsErrorEnum } from '../../enum/payments-error.enum';
-import { DOMException } from '../../error/dom.exception';
-import { PaymentMethodChangeEvent } from '../payment-method-change-event/payment-method-change-event';
+import { changeEventTimeoutMs } from '../../constant/change-event-timeout-ms.js';
+import { PaymentsErrorEnum } from '../../enum/payments-error.enum.js';
+import { DOMException } from '../../error/dom.exception.js';
+import { PaymentMethodChangeEvent } from '../payment-method-change-event/payment-method-change-event.js';
 
-import { ChangeEventDispatcher } from './change-event-dispatcher';
+import { ChangeEventDispatcher } from './change-event-dispatcher.js';
 
-import type { PaymentDetailsUpdate } from '../../@standard/w3c/payment-details-update';
-import type { PaymentRequestEventListener } from '../../type/payment-request-event-listener.type';
-import type { PaymentRequestUpdateEvent } from '../payment-request-update-event/payment-request-update-event';
+import type { PaymentDetailsUpdate } from '../../@standard/w3c/payment-details-update.js';
+import type { PaymentRequestEventListener } from '../../type/payment-request-event-listener.type.js';
+import type { PaymentRequestUpdateEvent } from '../payment-request-update-event/payment-request-update-event.js';
 
 const detailsUpdate: PaymentDetailsUpdate = {
     total: { label: 'Total', amount: { currency: 'USD', value: '15.00' } },

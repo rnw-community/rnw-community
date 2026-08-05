@@ -1,4 +1,4 @@
-import type { LockModeType } from '../type/lock-mode.type';
+import type { LockModeType } from '../type/lock-mode.type.js';
 
 export interface LockHandleInterface {
     readonly key: string;

@@ -275,7 +275,9 @@ The monorepo uses dual ESM + CJS output. Key decisions:
 - `dist/esm/package.json` (`{"type":"module"}`) and `dist/cjs/package.json` (`{"type":"commonjs"}`) are written by the
   `build` script of every dual-format package so Node's own module-kind detection matches each directory's real output
   instead of falling through to the CJS default for the ESM build. `eslint-plugin` is the one exception — see below
-- `moduleResolution: "bundler"` in root tsconfig, `"node"` override in CJS build tsconfig
+- `moduleResolution: "bundler"` in the root type-check tsconfig (matches Metro's actual runtime resolution, so
+  `yarn ts` validates against the same leniency real consumers get); `"nodenext"` in the ESM build tsconfig; `"node"`
+  in the CJS build tsconfig
 - `verbatimModuleSyntax: true` enforces explicit `import type` for type-only imports
 - `lib: ["es2021"]` matches the build target
 - Build scripts correctly reference their tsconfig files (`build:esm` → `tsconfig.build-esm.json`)
@@ -283,15 +285,40 @@ The monorepo uses dual ESM + CJS output. Key decisions:
   which scopes checks to `node16`/`nodenext` (both `require` and `import`) and `bundler` — the resolution modes real
   consumers use (Metro included). Packages declare their actual supported Node floor via `engines.node` instead of
   chasing the legacy pre-`exports` resolution algorithm
-- **Known, accepted publish-time limitation**, surfaced by `@arethetypeswrong/cli` and ignored explicitly
-  (`--ignore-rules internal-resolution-error`) in `yarn publint` for every package, with this paragraph as the
-  recorded justification: `tsc` emits relative import specifiers without file extensions (`./enum/foo.enum`, not
-  `./enum/foo.enum.js`). Node's own `node16`/`nodenext` ESM resolution requires the extension, so a consumer forcing
-  that exact resolution mode against the `import` condition sees unresolved relative imports in the shipped `.d.ts`
-  files. Every other real consumption path — bundlers (Metro included) and `node16`/`nodenext` `require` — resolves
-  cleanly; only the `node16`/`nodenext` **ESM** path is affected. Rewriting every relative import across every
-  package's `src` tree to carry an explicit extension is a repo-wide source-emit change, not a publish-config fix, so
-  it is deferred rather than bundled into publication hardening
+- **Invariant: zero extensionless relative specifiers in any published output.** Every relative `import`/`export …
+  from`/dynamic `import()` specifier in every package's `src` tree carries an explicit `.js` (or `/index.js` for a
+  barrel-style directory import) extension, exactly as Node's own ESM resolver requires — `tsc` is the gate, not a
+  post-build rewrite: `tsconfig.build-esm.json` sets `"module"`/`"moduleResolution"` to `"nodenext"`, and every
+  dual-format package's root `package.json` carries a real `"type": "module"` so `tsc` resolves `src/*.ts` as
+  genuine ESM (nodenext's extension mandate only activates for files it resolves as ESM-format; a `"type"`-less
+  package is treated as CommonJS-format and silently tolerates a missing extension, which is exactly how the
+  original defect went unnoticed). A missing or wrong extension is therefore a compile error, not a runtime surprise
+  discovered by a consumer. `tsconfig.build-cjs.json` keeps `"module": "commonjs"` / `"moduleResolution": "node"`
+  regardless — an explicit `.js` extension resolves identically under classic Node resolution (it already maps a
+  `.js` specifier back to the sibling `.ts` source), so the CJS build's `require(...)` output is unaffected and
+  byte-for-byte equivalent to before. Setting `"type": "module"` on the package root also reclassifies every plain
+  `.js` file living there as ESM, which broke the two Babel/Jest config loaders that use `module.exports`
+  (`babel.config.js`, `jest.config.js`) the moment Node tried to `require()` them — both are renamed to
+  `babel.config.cjs` / `jest.config.cjs` (Jest and Babel both auto-discover the `.cjs` variant with no script
+  changes), and the handful of sibling packages whose `babel.config.cjs` delegates to `shared`'s config via
+  `require('../shared/babel.config.cjs')` were updated to the new extensioned filename — a bare `require()` does
+  not probe `.cjs` the way it probes `.js`, so the old extensionless cross-package reference would otherwise 404.
+  `eslint-plugin` keeps root-level `"type": "commonjs"` (see below) so its own `babel.config.js`/`jest.config.js`
+  stay untouched, but its one `require('../shared/babel.config.cjs')` reference still needed the same rename. Every
+  relative specifier in every package's `src` (`eslint-plugin` included, for consistency — harmless there since a
+  CJS-format file under `moduleResolution: "nodenext"` resolves an explicit extension just as well) now carries its
+  `.js` (or `/index.js`) suffix. `no-restricted-syntax` selectors in `eslint.config.mjs` flag any `Import`/`Export`
+  declaration or dynamic `import()` whose relative specifier lacks one, so new code cannot regress this — plain
+  `import/extensions` from `eslint-plugin-import` was evaluated and rejected: it keys its "required extension" check
+  off the *resolved* file's real extension (`.ts`), so it would demand `./foo.ts` in source, the opposite of the
+  `.js`-refers-to-`.ts` convention `tsc`'s `nodenext` relies on. `get-jest.config.js` adds a `moduleNameMapper`
+  (`^(\.{1,2}/.*)\.js$` → `$1`) so Jest — which runs directly against `src/*.ts` via `babel-jest`, never against the
+  compiled `dist/esm` output — strips that same extension back off before resolving, since Jest's resolver (unlike
+  `tsc`'s `node16`/`nodenext` mode) has no built-in `.js`-refers-to-`.ts` convention. `scripts/publint.sh` no longer
+  ignores `internal-resolution-error` for any package — the class of defect that rule used to paper over (unresolved
+  relative imports in the shipped ESM tree, `#531`) is now a real compile failure long before `publint` ever runs.
+  `yarn smoke:esm` (and the `package-manager-smoke` CI job) packs and imports every publishable package's tarball
+  under real `node --input-type=module`/`require()` to keep this from regressing at the runtime layer too
 - **`eslint-plugin` ships CommonJS only, by design, not oversight.** Its `src/index.ts` ends in `export = plugin` —
   the shape ESLint's own legacy plugin loader (`@eslint/eslintrc`, string-based `"plugins": ["@rnw-community"]`
   resolution) requires: it `require()`s the module and uses the returned value directly, with no `.default` unwrap.

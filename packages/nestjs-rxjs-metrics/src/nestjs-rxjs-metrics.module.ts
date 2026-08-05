@@ -2,12 +2,12 @@
 import { Module } from '@nestjs/common';
 import { PrometheusModule } from '@willsoto/nestjs-prometheus';
 
-import { NestJSRxJSMetricsService } from './nestjs-rxjs-metrics-service/nestjs-rxjs-metrics.service';
-import { createMetricsRecord } from './util/create-metrics-record.util';
+import { NestJSRxJSMetricsService } from './nestjs-rxjs-metrics-service/nestjs-rxjs-metrics.service.js';
+import { createMetricsRecord } from './util/create-metrics-record.util.js';
 
-import type { MetricsModuleOptionsInterface } from './interface/metrics-module-options.interface';
-import type { LabelsConfig } from './type/labels-config.type';
-import type { MetricConfig as MC } from './type/metrics-config.type';
+import type { MetricsModuleOptionsInterface } from './interface/metrics-module-options.interface.js';
+import type { LabelsConfig } from './type/labels-config.type.js';
+import type { MetricConfig as MC } from './type/metrics-config.type.js';
 import type { DynamicModule, Type } from '@nestjs/common';
 
 @Module({})

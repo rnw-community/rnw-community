@@ -2,7 +2,7 @@ import { $, browser } from '@wdio/globals';
 
 import { isEmptyString } from '@rnw-community/shared';
 
-import { isAndroidCapability, isIOSCapability } from '../../capability';
+import { isAndroidCapability, isIOSCapability } from '../../capability/index.js';
 
 const getPackageNameFromCapabilities = (context: WebdriverIO.Browser): string =>
     'appPackage' in context.capabilities ? (context.capabilities.appPackage as string) : '';

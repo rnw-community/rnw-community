@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 
-import { NestJSRxJSRedisCoreModule } from './nestjs-rxjs-redis-core.module';
+import { NestJSRxJSRedisCoreModule } from './nestjs-rxjs-redis-core.module.js';
 
 import type { DynamicModule } from '@nestjs/common';
 import type { RedisModuleAsyncOptions } from '@nestjs-modules/ioredis';

@@ -1,8 +1,8 @@
 import { describe, expect, it, jest } from '@jest/globals';
 
-import { withApplePay } from './with-apple-pay';
-import { withGooglePay } from './with-google-pay';
-import { withPayments } from './with-payments';
+import { withApplePay } from './with-apple-pay.js';
+import { withGooglePay } from './with-google-pay.js';
+import { withPayments } from './with-payments.js';
 
 jest.mock('./with-apple-pay', () => ({ withApplePay: jest.fn(config => config) }));
 jest.mock('./with-google-pay', () => ({ withGooglePay: jest.fn(config => config) }));

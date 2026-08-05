@@ -1,9 +1,9 @@
 import { emptyFn, isDefined, isPromise } from '@rnw-community/shared';
 
-import { runPreLock } from './run-pre-lock.util';
+import { runPreLock } from './run-pre-lock.util.js';
 
-import type { PreDecoratorFunction } from '../../../type/pre-decorator-function.type';
-import type { LockServiceInterface } from '../interface/lock-service.interface';
+import type { PreDecoratorFunction } from '../../../type/pre-decorator-function.type.js';
+import type { LockServiceInterface } from '../interface/lock-service.interface.js';
 
 export const executeLockPromise = <TArgs extends unknown[] = unknown[]>(
     getLockServiceFn: (instance: unknown) => LockServiceInterface,

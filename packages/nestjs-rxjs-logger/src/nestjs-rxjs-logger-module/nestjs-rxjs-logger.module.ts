@@ -1,7 +1,7 @@
  
 import { Logger, Module } from '@nestjs/common';
 
-import { NestJSRxJSLoggerService } from '../nestjs-rxjs-logger-service/nestjs-rxjs-logger.service';
+import { NestJSRxJSLoggerService } from '../nestjs-rxjs-logger-service/nestjs-rxjs-logger.service.js';
 
 @Module({
     imports: [],

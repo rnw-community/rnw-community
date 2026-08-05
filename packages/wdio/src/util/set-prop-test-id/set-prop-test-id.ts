@@ -1,7 +1,7 @@
-import { getTestID } from '../get-test-id/get-test-id';
-import { setTestID } from '../set-test-id/set-test-id';
+import { getTestID } from '../get-test-id/get-test-id.js';
+import { setTestID } from '../set-test-id/set-test-id.js';
 
-import type { AndroidTestIDProps, TestIDProps, WebTestIDProps } from '../../interface';
+import type { AndroidTestIDProps, TestIDProps, WebTestIDProps } from '../../interface/index.js';
 
 /**
  * Shortcut for getting object with TestID fields by reading it from object with TestID props.

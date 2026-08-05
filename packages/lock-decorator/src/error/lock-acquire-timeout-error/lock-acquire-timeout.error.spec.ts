@@ -1,6 +1,6 @@
 import { describe, expect, it } from '@jest/globals';
 
-import { LockAcquireTimeoutError } from './lock-acquire-timeout.error';
+import { LockAcquireTimeoutError } from './lock-acquire-timeout.error.js';
 
 describe('LockAcquireTimeoutError', () => {
     it('sets key, timeoutMs and name', () => {

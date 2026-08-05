@@ -1,7 +1,7 @@
 import { PaymentComplete } from '@rnw-community/react-native-payments';
 import { getErrorMessage } from '@rnw-community/shared';
 
-import { formatLogMessage } from '../util/format-log-message';
+import { formatLogMessage } from '../util/format-log-message.js';
 
 import type { PaymentResponse } from '@rnw-community/react-native-payments';
 import type { OnEventFn } from '@rnw-community/shared';

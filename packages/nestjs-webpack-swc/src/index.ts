@@ -1,2 +1,2 @@
-export * from './typeorm';
-export * from './hmr';
+export * from './typeorm/index.js';
+export * from './hmr/index.js';

@@ -1,4 +1,4 @@
-import { noComplexJsxLogicRule } from './no-complex-jsx-logic/no-complex-jsx-logic.rule';
+import { noComplexJsxLogicRule } from './no-complex-jsx-logic/no-complex-jsx-logic.rule.js';
 
 import type { TSESLint } from '@typescript-eslint/utils';
 

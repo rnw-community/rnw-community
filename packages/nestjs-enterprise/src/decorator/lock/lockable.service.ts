@@ -1,6 +1,6 @@
 import Redlock, { type Settings } from 'redlock';
 
-import type Redis from 'ioredis';
+import type { Redis } from 'ioredis';
 
 /**
  * @deprecated Use `createPromiseLockDecorators` or `createObservableLockDecorators` with a custom `LockServiceInterface` instead.

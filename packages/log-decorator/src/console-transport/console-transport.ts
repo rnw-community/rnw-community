@@ -1,5 +1,5 @@
 /* eslint-disable no-console */
-import type { LogTransportInterface } from '../interface/log-transport.interface';
+import type { LogTransportInterface } from '../interface/log-transport.interface.js';
 
 export const consoleTransport: LogTransportInterface = {
     log: (message: string, logContext: string): void => {

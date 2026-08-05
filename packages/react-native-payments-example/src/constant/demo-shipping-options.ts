@@ -1,7 +1,7 @@
-import { defaultShippingOptionId } from './default-shipping-option-id';
-import { demoCurrency } from './demo-currency';
-import { shippingSurchargeValue } from './shipping-surcharge-value';
-import { zeroAmountValue } from './zero-amount-value';
+import { defaultShippingOptionId } from './default-shipping-option-id.js';
+import { demoCurrency } from './demo-currency.js';
+import { shippingSurchargeValue } from './shipping-surcharge-value.js';
+import { zeroAmountValue } from './zero-amount-value.js';
 
 import type { PaymentShippingOption } from '@rnw-community/react-native-payments';
 
