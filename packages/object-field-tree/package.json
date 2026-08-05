@@ -1,6 +1,6 @@
 {
     "name": "@rnw-community/object-field-tree",
-    "version": "2.12.8",
+    "version": "2.12.9",
     "description": "Create a object fields combinations tree with data generator function",
     "keywords": [
         "object field tree",
@@ -52,7 +52,7 @@
         "ts": "run -T tsc --pretty -p tsconfig.json"
     },
     "dependencies": {
-        "@rnw-community/shared": "^2.12.7"
+        "@rnw-community/shared": "^2.12.9"
     },
     "engines": {
         "node": ">=22.0.0"
