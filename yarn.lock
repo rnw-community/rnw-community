@@ -5823,7 +5823,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@rnw-community/fast-style@workspace:packages/fast-style"
   dependencies:
-    "@rnw-community/object-field-tree": "npm:^2.12.7"
+    "@rnw-community/object-field-tree": "npm:^2.12.8"
     "@rnw-community/shared": "npm:^2.12.7"
     react-native: "npm:^0.76.1"
   peerDependencies:
@@ -6017,7 +6017,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@rnw-community/object-field-tree@npm:^2.12.7, @rnw-community/object-field-tree@workspace:packages/object-field-tree":
+"@rnw-community/object-field-tree@npm:^2.12.8, @rnw-community/object-field-tree@workspace:packages/object-field-tree":
   version: 0.0.0-use.local
   resolution: "@rnw-community/object-field-tree@workspace:packages/object-field-tree"
   dependencies:

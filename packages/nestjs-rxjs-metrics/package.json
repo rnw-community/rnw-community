@@ -1,6 +1,6 @@
 {
     "name": "@rnw-community/nestjs-rxjs-metrics",
-    "version": "2.12.7",
+    "version": "2.12.8",
     "description": "NestJS RxJS logger",
     "keywords": [
         "nestjs",
