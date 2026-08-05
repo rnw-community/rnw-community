@@ -38,10 +38,10 @@ jobs:
 
             -   name: Close Stale Issues
                 if: matrix.node-version == '22.x'
-                uses: actions/stale@v10
+                uses: actions/stale@v11
 
             -   name: Setup Node
-                uses: actions/setup-node@v5
+                uses: actions/setup-node@v7
                 with:
                     node-version: ${{ matrix.node-version }}
                     cache: yarn
@@ -78,7 +78,7 @@ jobs:
 
             -   name: Upload coverage - decorators-core
                 if: hashFiles('packages/decorators-core/coverage/lcov.info') != ''
-                uses: codecov/codecov-action@0fb7174895f61a3b6b78fc075e0cd60383518dac # v5.5.5
+                uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7.0.0
                 with:
                     use_oidc: ${{ !(github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork) }}
                     fail_ci_if_error: ${{ !(github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork) }}
@@ -88,7 +88,7 @@ jobs:
 
             -   name: Upload coverage - eslint-plugin
                 if: hashFiles('packages/eslint-plugin/coverage/lcov.info') != ''
-                uses: codecov/codecov-action@0fb7174895f61a3b6b78fc075e0cd60383518dac # v5.5.5
+                uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7.0.0
                 with:
                     use_oidc: ${{ !(github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork) }}
                     fail_ci_if_error: ${{ !(github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork) }}
@@ -98,7 +98,7 @@ jobs:
 
             -   name: Upload coverage - fast-style
                 if: hashFiles('packages/fast-style/coverage/lcov.info') != ''
-                uses: codecov/codecov-action@0fb7174895f61a3b6b78fc075e0cd60383518dac # v5.5.5
+                uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7.0.0
                 with:
                     use_oidc: ${{ !(github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork) }}
                     fail_ci_if_error: ${{ !(github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork) }}
@@ -108,7 +108,7 @@ jobs:
 
             -   name: Upload coverage - histogram-metric-decorator
                 if: hashFiles('packages/histogram-metric-decorator/coverage/lcov.info') != ''
-                uses: codecov/codecov-action@0fb7174895f61a3b6b78fc075e0cd60383518dac # v5.5.5
+                uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7.0.0
                 with:
                     use_oidc: ${{ !(github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork) }}
                     fail_ci_if_error: ${{ !(github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork) }}
@@ -118,7 +118,7 @@ jobs:
 
             -   name: Upload coverage - lock-decorator
                 if: hashFiles('packages/lock-decorator/coverage/lcov.info') != ''
-                uses: codecov/codecov-action@0fb7174895f61a3b6b78fc075e0cd60383518dac # v5.5.5
+                uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7.0.0
                 with:
                     use_oidc: ${{ !(github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork) }}
                     fail_ci_if_error: ${{ !(github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork) }}
@@ -128,7 +128,7 @@ jobs:
 
             -   name: Upload coverage - log-decorator
                 if: hashFiles('packages/log-decorator/coverage/lcov.info') != ''
-                uses: codecov/codecov-action@0fb7174895f61a3b6b78fc075e0cd60383518dac # v5.5.5
+                uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7.0.0
                 with:
                     use_oidc: ${{ !(github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork) }}
                     fail_ci_if_error: ${{ !(github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork) }}
@@ -138,7 +138,7 @@ jobs:
 
             -   name: Upload coverage - nestjs-enterprise
                 if: hashFiles('packages/nestjs-enterprise/coverage/lcov.info') != ''
-                uses: codecov/codecov-action@0fb7174895f61a3b6b78fc075e0cd60383518dac # v5.5.5
+                uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7.0.0
                 with:
                     use_oidc: ${{ !(github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork) }}
                     fail_ci_if_error: ${{ !(github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork) }}
@@ -148,7 +148,7 @@ jobs:
 
             -   name: Upload coverage - nestjs-rxjs-lock
                 if: hashFiles('packages/nestjs-rxjs-lock/coverage/lcov.info') != ''
-                uses: codecov/codecov-action@0fb7174895f61a3b6b78fc075e0cd60383518dac # v5.5.5
+                uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7.0.0
                 with:
                     use_oidc: ${{ !(github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork) }}
                     fail_ci_if_error: ${{ !(github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork) }}
@@ -158,7 +158,7 @@ jobs:
 
             -   name: Upload coverage - nestjs-rxjs-logger
                 if: hashFiles('packages/nestjs-rxjs-logger/coverage/lcov.info') != ''
-                uses: codecov/codecov-action@0fb7174895f61a3b6b78fc075e0cd60383518dac # v5.5.5
+                uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7.0.0
                 with:
                     use_oidc: ${{ !(github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork) }}
                     fail_ci_if_error: ${{ !(github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork) }}
@@ -168,7 +168,7 @@ jobs:
 
             -   name: Upload coverage - nestjs-rxjs-metrics
                 if: hashFiles('packages/nestjs-rxjs-metrics/coverage/lcov.info') != ''
-                uses: codecov/codecov-action@0fb7174895f61a3b6b78fc075e0cd60383518dac # v5.5.5
+                uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7.0.0
                 with:
                     use_oidc: ${{ !(github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork) }}
                     fail_ci_if_error: ${{ !(github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork) }}
@@ -178,7 +178,7 @@ jobs:
 
             -   name: Upload coverage - nestjs-rxjs-redis
                 if: hashFiles('packages/nestjs-rxjs-redis/coverage/lcov.info') != ''
-                uses: codecov/codecov-action@0fb7174895f61a3b6b78fc075e0cd60383518dac # v5.5.5
+                uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7.0.0
                 with:
                     use_oidc: ${{ !(github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork) }}
                     fail_ci_if_error: ${{ !(github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork) }}
@@ -188,7 +188,7 @@ jobs:
 
             -   name: Upload coverage - nestjs-typed-config
                 if: hashFiles('packages/nestjs-typed-config/coverage/lcov.info') != ''
-                uses: codecov/codecov-action@0fb7174895f61a3b6b78fc075e0cd60383518dac # v5.5.5
+                uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7.0.0
                 with:
                     use_oidc: ${{ !(github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork) }}
                     fail_ci_if_error: ${{ !(github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork) }}
@@ -198,7 +198,7 @@ jobs:
 
             -   name: Upload coverage - object-field-tree
                 if: hashFiles('packages/object-field-tree/coverage/lcov.info') != ''
-                uses: codecov/codecov-action@0fb7174895f61a3b6b78fc075e0cd60383518dac # v5.5.5
+                uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7.0.0
                 with:
                     use_oidc: ${{ !(github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork) }}
                     fail_ci_if_error: ${{ !(github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork) }}
@@ -208,7 +208,7 @@ jobs:
 
             -   name: Upload coverage - platform
                 if: hashFiles('packages/platform/coverage/lcov.info') != ''
-                uses: codecov/codecov-action@0fb7174895f61a3b6b78fc075e0cd60383518dac # v5.5.5
+                uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7.0.0
                 with:
                     use_oidc: ${{ !(github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork) }}
                     fail_ci_if_error: ${{ !(github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork) }}
@@ -218,7 +218,7 @@ jobs:
 
             -   name: Upload coverage - react-native-payments
                 if: hashFiles('packages/react-native-payments/coverage/lcov.info') != ''
-                uses: codecov/codecov-action@0fb7174895f61a3b6b78fc075e0cd60383518dac # v5.5.5
+                uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7.0.0
                 with:
                     use_oidc: ${{ !(github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork) }}
                     fail_ci_if_error: ${{ !(github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork) }}
@@ -228,7 +228,7 @@ jobs:
 
             -   name: Upload coverage - redux-loadable
                 if: hashFiles('packages/redux-loadable/coverage/lcov.info') != ''
-                uses: codecov/codecov-action@0fb7174895f61a3b6b78fc075e0cd60383518dac # v5.5.5
+                uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7.0.0
                 with:
                     use_oidc: ${{ !(github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork) }}
                     fail_ci_if_error: ${{ !(github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork) }}
@@ -238,7 +238,7 @@ jobs:
 
             -   name: Upload coverage - rxjs-errors
                 if: hashFiles('packages/rxjs-errors/coverage/lcov.info') != ''
-                uses: codecov/codecov-action@0fb7174895f61a3b6b78fc075e0cd60383518dac # v5.5.5
+                uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7.0.0
                 with:
                     use_oidc: ${{ !(github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork) }}
                     fail_ci_if_error: ${{ !(github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork) }}
@@ -248,7 +248,7 @@ jobs:
 
             -   name: Upload coverage - shared
                 if: hashFiles('packages/shared/coverage/lcov.info') != ''
-                uses: codecov/codecov-action@0fb7174895f61a3b6b78fc075e0cd60383518dac # v5.5.5
+                uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7.0.0
                 with:
                     use_oidc: ${{ !(github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork) }}
                     fail_ci_if_error: ${{ !(github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork) }}
@@ -258,7 +258,7 @@ jobs:
 
             -   name: Upload coverage - wdio
                 if: hashFiles('packages/wdio/coverage/lcov.info') != ''
-                uses: codecov/codecov-action@0fb7174895f61a3b6b78fc075e0cd60383518dac # v5.5.5
+                uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7.0.0
                 with:
                     use_oidc: ${{ !(github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork) }}
                     fail_ci_if_error: ${{ !(github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork) }}
@@ -284,7 +284,7 @@ jobs:
                     persist-credentials: false
 
             -   name: Setup Node
-                uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5
+                uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
                 with:
                     node-version: 22.x
                     cache: yarn
