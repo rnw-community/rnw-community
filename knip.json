@@ -40,11 +40,13 @@
         "run"
     ],
     "ignoreDependencies": [
+        "@arethetypeswrong/cli",
         "@babel/preset-env",
         "@babel/preset-typescript",
         "@babel/runtime",
         "babel-jest",
         "husky",
+        "publint",
         "reflect-metadata",
         "rimraf",
         "@types/hapi__joi",

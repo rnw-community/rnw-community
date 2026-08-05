@@ -12,19 +12,34 @@
     "license": "MIT",
     "exports": {
         ".": {
-            "types": "./dist/esm/index.d.ts",
-            "import": "./dist/esm/index.js",
-            "require": "./dist/cjs/index.js"
+            "import": {
+                "types": "./dist/esm/index.d.ts",
+                "default": "./dist/esm/index.js"
+            },
+            "require": {
+                "types": "./dist/cjs/index.d.ts",
+                "default": "./dist/cjs/index.js"
+            }
         },
         "./get-nestjs-webpack-dev.config": {
-            "types": "./dist/esm/config/get-nestjs-webpack-dev.config.d.ts",
-            "import": "./dist/esm/config/get-nestjs-webpack-dev.config.js",
-            "require": "./dist/cjs/config/get-nestjs-webpack-dev.config.js"
+            "import": {
+                "types": "./dist/esm/config/get-nestjs-webpack-dev.config.d.ts",
+                "default": "./dist/esm/config/get-nestjs-webpack-dev.config.js"
+            },
+            "require": {
+                "types": "./dist/cjs/config/get-nestjs-webpack-dev.config.d.ts",
+                "default": "./dist/cjs/config/get-nestjs-webpack-dev.config.js"
+            }
         },
         "./get-nestjs-webpack-prod.config": {
-            "types": "./dist/esm/config/get-nestjs-webpack-prod.config.d.ts",
-            "import": "./dist/esm/config/get-nestjs-webpack-prod.config.js",
-            "require": "./dist/cjs/config/get-nestjs-webpack-prod.config.js"
+            "import": {
+                "types": "./dist/esm/config/get-nestjs-webpack-prod.config.d.ts",
+                "default": "./dist/esm/config/get-nestjs-webpack-prod.config.js"
+            },
+            "require": {
+                "types": "./dist/cjs/config/get-nestjs-webpack-prod.config.d.ts",
+                "default": "./dist/cjs/config/get-nestjs-webpack-prod.config.js"
+            }
         }
     },
     "main": "dist/cjs/index.js",
@@ -41,7 +56,7 @@
         "ts": "run -T tsc --pretty -p tsconfig.json",
         "build:esm": "run -T tsc --pretty -p tsconfig.build-esm.json",
         "build:cjs": "run -T tsc --pretty -p tsconfig.build-cjs.json",
-        "build": "yarn build:esm && yarn build:cjs && rm -rf ./dist/*/*.tsbuildinfo",
+        "build": "yarn build:esm && yarn build:cjs && rm -rf ./dist/*/*.tsbuildinfo && echo '{\"type\":\"module\"}' > dist/esm/package.json && echo '{\"type\":\"commonjs\"}' > dist/cjs/package.json",
         "lint": "run -T eslint src",
         "lint:fix": "run -T eslint --fix src",
         "format": "run -T prettier --write \"./src/**/*.{ts,tsx}\"",

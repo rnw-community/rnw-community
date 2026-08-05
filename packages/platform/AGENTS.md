@@ -39,6 +39,12 @@ src/
 - Jest preset is `'react-native'` (second arg to `get-jest.config.js('platform', 'react-native')`), unlike the other
   packages in this document which pass no preset
 
+### Publication
+
+`tsconfig.build-esm.json`/`tsconfig.build-cjs.json` exclude `**/*.mock.*` (matching `wdio`'s existing pattern) so
+`platform.mock.ts` is type-checked by `yarn ts` but never compiled into `dist/` or shipped in the npm tarball — it is
+a test-only fixture for `platform-style.spec.ts`, not a public export.
+
 ### Dependencies
 
 - No runtime `dependencies` — this package has none
