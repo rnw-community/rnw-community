@@ -97,7 +97,7 @@ jobs:
               env:
                   TURBO_SCM_BASE: ${{ github.event.pull_request.base.sha }}
               run: |
-                  if [ "${{ github.event_name }}" != "pull_request" ]; then
+                  if [ "$GITHUB_EVENT_NAME" != "pull_request" ]; then
                     echo "payments_affected=true" >> "$GITHUB_OUTPUT"
                     echo "Non-PR event: payments pipeline always runs."
                     exit 0
@@ -161,13 +161,16 @@ jobs:
             -   name: Generate native fingerprint
                 id: fingerprint
                 working-directory: ${{ env.APP_DIR }}
+                env:
+                    TARGET: ${{ matrix.target }}
                 run: |
                     set -euo pipefail
-                    npx --yes "@expo/fingerprint@${EXPO_FINGERPRINT_VERSION}" fingerprint:generate --platform android > "$RUNNER_TEMP/android-fingerprint-${{ matrix.target }}.json"
-                    hash=$(node -e "process.stdout.write(require('$RUNNER_TEMP/android-fingerprint-${{ matrix.target }}.json').hash)")
+                    fingerprint_file="$RUNNER_TEMP/android-fingerprint-$TARGET.json"
+                    npx --yes "@expo/fingerprint@${EXPO_FINGERPRINT_VERSION}" fingerprint:generate --platform android > "$fingerprint_file"
+                    hash=$(node -e "process.stdout.write(require(process.argv[1]).hash)" "$fingerprint_file")
                     test -n "$hash"
                     echo "hash=$hash" >> "$GITHUB_OUTPUT"
-                    echo "Native fingerprint (${{ matrix.target }}): $hash"
+                    echo "Native fingerprint ($TARGET): $hash"
 
             -   name: Restore canonical native app
                 id: native-app-cache
@@ -185,9 +188,11 @@ jobs:
             # matching note in ios-maestro.yml).
             -   name: Report cache hit
                 if: steps.native-app-cache.outputs.cache-hit == 'true'
+                env:
+                    TARGET: ${{ matrix.target }}
                 run: |
                     {
-                      echo "### Android build: ${{ matrix.target }} (warm — native build skipped)"
+                      echo "### Android build: $TARGET (warm — native build skipped)"
                       echo "Native fingerprint hit; embedded JS bundle dates from when this shell was cached."
                     } >> "$GITHUB_STEP_SUMMARY"
 
@@ -239,21 +244,25 @@ jobs:
                 if: steps.native-app-cache.outputs.cache-hit != 'true'
                 working-directory: ${{ env.APP_DIR }}/android
                 shell: bash
+                env:
+                    TARGET: ${{ matrix.target }}
                 run: |
                     set -euo pipefail
                     build_start=$(date +%s)
                     ./gradlew assembleRelease
                     build_end=$(date +%s)
                     {
-                      echo "### Android build: ${{ matrix.target }} (cold — native build ran)"
+                      echo "### Android build: $TARGET (cold — native build ran)"
                       echo "Duration: $((build_end - build_start))s"
                     } >> "$GITHUB_STEP_SUMMARY"
 
             -   name: Diagnose NDK/cmake host architecture
                 if: always() && steps.native-app-cache.outputs.cache-hit != 'true'
+                env:
+                    TARGET: ${{ matrix.target }}
                 run: |
                     {
-                      echo "### NDK/cmake host arch diagnostic (${{ matrix.target }})"
+                      echo "### NDK/cmake host arch diagnostic ($TARGET)"
                       echo '```'
                       echo "uname -m: $(uname -m)"
                       echo "--- cmake binaries under ANDROID_HOME/cmake ---"
@@ -349,26 +358,27 @@ jobs:
             # 4 shard cells (2 targets x 2 shard-index) can land on the same
             # linux-xl host concurrently — unlike the sister repo's single,
             # unsharded job, so its fixed container name/adb port would
-            # collide here. A name/port unique only within this run isn't
-            # enough either: this fleet can run more than one workflow run
-            # on the same host pool at once, and two concurrent runs would
-            # still compute the identical name/port for the same cell. Fold
+            # collide here. A name unique only within this run isn't enough
+            # either: this fleet can run more than one workflow run on the
+            # same host pool at once, and two concurrent runs would still
+            # compute the identical name for the same cell. Fold
             # github.run_id/run_attempt into the container name so no two
-            # runs, concurrent or not, ever collide; the adb port is derived
-            # similarly and then probed for an actually free port in the
-            # step that starts the container (a deterministic seed alone
-            # still collides often enough across concurrent runs that it
-            # isn't sufficient by itself).
+            # runs, concurrent or not, ever collide. The adb port needs no
+            # equivalent scoping: the container publishes 5555 on loopback
+            # with an OS-assigned ephemeral host port instead of a port this
+            # workflow picks itself, so the kernel guarantees it every time.
             -   name: Resolve target metadata
                 id: meta
+                env:
+                    TARGET: ${{ matrix.target }}
+                    SHARD_INDEX: ${{ matrix.shard-index }}
                 run: |
                     set -euo pipefail
-                    case "${{ matrix.target }}" in
-                      bare) echo "app_id=com.reactnativepaymentsexample" >> "$GITHUB_OUTPUT"; target_index=0 ;;
-                      expo) echo "app_id=com.reactnativepaymentsexpoexample" >> "$GITHUB_OUTPUT"; target_index=1 ;;
+                    case "$TARGET" in
+                      bare) echo "app_id=com.reactnativepaymentsexample" >> "$GITHUB_OUTPUT" ;;
+                      expo) echo "app_id=com.reactnativepaymentsexpoexample" >> "$GITHUB_OUTPUT" ;;
                     esac
-                    cell_index=$(( target_index * 2 + ${{ matrix.shard-index }} ))
-                    container_name="redroid-e2e-${{ matrix.target }}-${{ matrix.shard-index }}-${{ github.run_id }}-${{ github.run_attempt }}"
+                    container_name="redroid-e2e-${TARGET}-${SHARD_INDEX}-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
                     # container_name reaches sudo rm -rf by way of a
                     # constructed data-dir path in the next step; validate it
                     # here too (defense in depth — never trust a value to
@@ -384,7 +394,6 @@ jobs:
                         exit 1
                         ;;
                     esac
-                    echo "cell_index=$cell_index" >> "$GITHUB_OUTPUT"
                     echo "container_name=$container_name" >> "$GITHUB_OUTPUT"
 
             # Ported from the sister sudoku-game repo's android-maestro.yml:
@@ -418,9 +427,6 @@ jobs:
                     # risk trading a slow boot for one that never completes.
                     REDROID_DEFAULT_IMAGE: redroid/redroid:15.0.0_64only-latest
                     CONTAINER_NAME: ${{ steps.meta.outputs.container_name }}
-                    CELL_INDEX: ${{ steps.meta.outputs.cell_index }}
-                    RUN_ID: ${{ github.run_id }}
-                    RUN_ATTEMPT: ${{ github.run_attempt }}
                 run: |
                     set -euo pipefail
                     case "$CONTAINER_NAME" in
@@ -445,8 +451,11 @@ jobs:
                     mkdir -p "$data"
                     manifest="$HOME/.rnw-ci/android-emulator.json"
                     if [ -f "$manifest" ]; then
-                      image=$(python3 -c "import json; print(json.load(open('$manifest'))['image'])")
-                      prewarm_data=$(python3 -c "import json; print(json.load(open('$manifest'))['dataDir'])")
+                      # Read the manifest path from the environment rather
+                      # than interpolating it into the generated source, so
+                      # its contents can never be interpreted as Python.
+                      image=$(MANIFEST_PATH="$manifest" python3 -c "import os, json; print(json.load(open(os.environ['MANIFEST_PATH']))['image'])")
+                      prewarm_data=$(MANIFEST_PATH="$manifest" python3 -c "import os, json; print(json.load(open(os.environ['MANIFEST_PATH']))['dataDir'])")
                       # Every concurrent cell — within this run, and across any
                       # concurrent run sharing this host — would otherwise
                       # bind-mount the one manifest-provided dataDir straight
@@ -465,28 +474,28 @@ jobs:
                       echo '::error::binder_linux produced none of /dev/binder, /dev/vndbinder, /dev/hwbinder on this host after modprobe. Redroid cannot run without the binder_linux kernel module; this is host-kernel provisioning a workflow run cannot self-heal safely. See issue #447 for the exact host-provisioning commands.'
                       exit 1
                     fi
-                    # A deterministic candidate port from run_id/run_attempt/cell
-                    # spreads concurrent runs across different bands, but the seed
-                    # alone still collides often enough across concurrent runs
-                    # (birthday-bound over a handful of them) to need an actual
-                    # liveness check, not just thinned odds — probe forward from
-                    # the candidate for a port nothing is already listening on.
-                    seed=$(( (RUN_ID * 10 + RUN_ATTEMPT) % 4000 ))
-                    port=$(( 20000 + seed * 10 + CELL_INDEX ))
-                    attempts=0
-                    while ss -H -tln "sport = :$port" 2>/dev/null | grep -q .; do
-                      port=$((port + 1))
-                      attempts=$((attempts + 1))
-                      if [ "$attempts" -ge 50 ]; then
-                        echo "::error::Could not find a free adb port after 50 attempts."
-                        exit 1
-                      fi
-                    done
+                    # A "probe with ss, then docker run" port pick is a TOCTOU
+                    # race: nothing stops a concurrent cell from binding the
+                    # same observed-free port between the check and the bind.
+                    # Sidestep the race entirely instead — bind to loopback
+                    # with an empty host port (127.0.0.1::5555) and let the
+                    # kernel, via Docker, atomically assign whichever
+                    # ephemeral port is actually free, then read back what it
+                    # picked. This also keeps Redroid's adb port off every
+                    # non-loopback interface, unreachable from anywhere but
+                    # this host.
                     sudo docker rm -f "$CONTAINER_NAME" >/dev/null 2>&1 || true
                     sudo docker run -d --name "$CONTAINER_NAME" --privileged \
                       --memory 3g --memory-swap 3g --cpus 2 \
-                      -v "$data":/data -p "$port":5555 \
+                      -v "$data":/data -p 127.0.0.1::5555 \
                       "$image" androidboot.redroid_gpu_mode=guest
+                    port=$(sudo docker port "$CONTAINER_NAME" 5555/tcp | head -n1 | sed -E 's/.*:([0-9]+)$/\1/')
+                    case "$port" in
+                      ''|*[!0-9]*)
+                        echo "::error::Could not determine the host port Docker assigned to container port 5555 on '$CONTAINER_NAME'."
+                        exit 1
+                        ;;
+                    esac
                     # Tolerate failure here: Redroid has not necessarily opened
                     # 5555 yet immediately after `docker run -d` returns, and
                     # under set -e a hard connect failure at this point would
@@ -516,7 +525,9 @@ jobs:
                     path: .ci-artifacts/android-e2e-app-${{ matrix.target }}
 
             -   name: Install APK
-                run: adb -s "${{ env.ANDROID_SERIAL }}" install -r ".ci-artifacts/android-e2e-app-${{ matrix.target }}/app-release.apk"
+                env:
+                    TARGET: ${{ matrix.target }}
+                run: adb -s "$ANDROID_SERIAL" install -r ".ci-artifacts/android-e2e-app-$TARGET/app-release.apk"
 
             -   name: Install Maestro
                 run: |
@@ -531,25 +542,27 @@ jobs:
                 env:
                     JAVA_TOOL_OPTIONS: -Djava.awt.headless=true -Xmx2048m
                     MAESTRO_DRIVER_STARTUP_TIMEOUT: '180000'
+                    SHARD_INDEX: ${{ matrix.shard-index }}
+                    APP_ID: ${{ steps.meta.outputs.app_id }}
                 run: |
                     set -euo pipefail
                     flows=()
                     while IFS= read -r flow; do
                       flows+=("$flow")
-                    done < <(find "${{ env.EXAMPLE_DIR }}/e2e/flows" -type f \( -name '*.yaml' -o -name '*.yml' \) | sort)
+                    done < <(find "$EXAMPLE_DIR/e2e/flows" -type f \( -name '*.yaml' -o -name '*.yml' \) | sort)
                     test "${#flows[@]}" -gt 0
                     selected=()
                     for index in "${!flows[@]}"; do
-                      if (( index % MAESTRO_SHARD_COUNT == ${{ matrix.shard-index }} )); then
+                      if (( index % MAESTRO_SHARD_COUNT == SHARD_INDEX )); then
                         selected+=("${flows[$index]}")
                       fi
                     done
                     if [ "${#selected[@]}" -eq 0 ]; then
-                      echo "Shard ${{ matrix.shard-index }} has no flows; nothing to run."
+                      echo "Shard $SHARD_INDEX has no flows; nothing to run."
                       exit 0
                     fi
-                    printf 'Shard ${{ matrix.shard-index }} flows:\n%s\n' "${selected[*]}"
-                    maestro test -e "APP_ID=${{ steps.meta.outputs.app_id }}" "${selected[@]}"
+                    printf 'Shard %s flows:\n%s\n' "$SHARD_INDEX" "${selected[*]}"
+                    maestro test -e "APP_ID=$APP_ID" "${selected[@]}"
 
             # Guarded on ANDROID_SERIAL being set: when "Start prewarmed
             # Redroid container" fails before exporting it (e.g. the binder
@@ -562,14 +575,14 @@ jobs:
                 if: always() && env.ANDROID_SERIAL != ''
                 shell: bash
                 run: |
-                    out="${{ env.MAESTRO_DEBUG_OUTPUT_DIRECTORY }}"
+                    out="$MAESTRO_DEBUG_OUTPUT_DIRECTORY"
                     mkdir -p "$out"
-                    timeout 30 adb -s "${{ env.ANDROID_SERIAL }}" exec-out screencap -p > "$out/final-screen.png" || true
-                    timeout 30 adb -s "${{ env.ANDROID_SERIAL }}" logcat -d > "$out/logcat-full.txt" 2>&1 || true
-                    timeout 30 adb -s "${{ env.ANDROID_SERIAL }}" logcat -d -b crash > "$out/logcat-crash.txt" 2>&1 || true
-                    timeout 30 adb -s "${{ env.ANDROID_SERIAL }}" logcat -d ReactNative:V ReactNativeJS:V AndroidRuntime:E NativeModule:V '*:E' \
+                    timeout 30 adb -s "$ANDROID_SERIAL" exec-out screencap -p > "$out/final-screen.png" || true
+                    timeout 30 adb -s "$ANDROID_SERIAL" logcat -d > "$out/logcat-full.txt" 2>&1 || true
+                    timeout 30 adb -s "$ANDROID_SERIAL" logcat -d -b crash > "$out/logcat-crash.txt" 2>&1 || true
+                    timeout 30 adb -s "$ANDROID_SERIAL" logcat -d ReactNative:V ReactNativeJS:V AndroidRuntime:E NativeModule:V '*:E' \
                       > "$out/logcat-app.txt" 2>&1 || true
-                    timeout 30 adb -s "${{ env.ANDROID_SERIAL }}" shell dumpsys activity top > "$out/activity-top.txt" 2>&1 || true
+                    timeout 30 adb -s "$ANDROID_SERIAL" shell dumpsys activity top > "$out/activity-top.txt" 2>&1 || true
 
             # container-name now folds in run_id/run_attempt, so a leftover
             # data dir from this cell is never reused by a later run (unlike
@@ -579,10 +592,13 @@ jobs:
             -   name: Teardown Redroid container
                 if: always()
                 shell: bash
+                env:
+                    CONTAINER_NAME: ${{ steps.meta.outputs.container_name }}
+                    DATA_DIR: ${{ steps.redroid.outputs.data_dir }}
                 run: |
-                    sudo docker rm -f "${{ steps.meta.outputs.container_name }}" || true
-                    if [ -n "${{ steps.redroid.outputs.data_dir }}" ]; then
-                      sudo rm -rf "${{ steps.redroid.outputs.data_dir }}" || true
+                    sudo docker rm -f "$CONTAINER_NAME" || true
+                    if [ -n "$DATA_DIR" ]; then
+                      sudo rm -rf "$DATA_DIR" || true
                     fi
 
             -   name: Upload Maestro artifacts
@@ -601,20 +617,25 @@ jobs:
         runs-on: ubuntu-latest
         steps:
             - name: Report
+              env:
+                  DETECT_RESULT: ${{ needs.detect.result }}
+                  PAYMENTS_AFFECTED: ${{ needs.detect.outputs.payments_affected }}
+                  BUILD_RESULT: ${{ needs.build.result }}
+                  TEST_RESULT: ${{ needs.test.result }}
               run: |
-                  if [ "${{ needs.detect.result }}" != "success" ]; then
+                  if [ "$DETECT_RESULT" != "success" ]; then
                     echo "Detection job did not succeed."
                     exit 1
                   fi
-                  if [ "${{ needs.detect.outputs.payments_affected }}" != "true" ]; then
+                  if [ "$PAYMENTS_AFFECTED" != "true" ]; then
                     echo "Skipped: payments dependency tree untouched."
                     exit 0
                   fi
-                  if [ "${{ needs.build.result }}" != "success" ]; then
+                  if [ "$BUILD_RESULT" != "success" ]; then
                     echo "Build job failed."
                     exit 1
                   fi
-                  if [ "${{ needs.test.result }}" != "success" ]; then
+                  if [ "$TEST_RESULT" != "success" ]; then
                     echo "Maestro suite failed."
                     exit 1
                   fi
