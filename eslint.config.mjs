@@ -71,6 +71,16 @@ export default defineConfig(
             'prefer-named-capture-group': 'off',
             'member-ordering': 'off',
             'grouped-accessor-pairs': 'off',
+            'no-restricted-syntax': [
+                'error',
+                ...['ImportDeclaration', 'ExportNamedDeclaration', 'ExportAllDeclaration', 'ImportExpression'].map(
+                    nodeType => ({
+                        selector: `${nodeType}[source.value=/^\\.(?!.*\\.(js|jsx|mjs|cjs|json)$)/]`,
+                        message:
+                            "Relative import/export specifiers must carry an explicit file extension (e.g. '.js', matching the compiled output) — Node's ESM resolver does not append extensions the way bundlers do.",
+                    })
+                ),
+            ],
         },
     },
     {

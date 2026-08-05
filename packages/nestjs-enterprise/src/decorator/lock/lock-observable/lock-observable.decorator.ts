@@ -1,8 +1,8 @@
-import { executeLockObservable } from '../util/execute-lock-observable.util';
-import { getMethodName } from '../util/get-method-name.util';
-import { getRedlockService } from '../util/get-redlock-service.util';
+import { executeLockObservable } from '../util/execute-lock-observable.util.js';
+import { getMethodName } from '../util/get-method-name.util.js';
+import { getRedlockService } from '../util/get-redlock-service.util.js';
 
-import type { PreDecoratorFunction } from '../../../type/pre-decorator-function.type';
+import type { PreDecoratorFunction } from '../../../type/pre-decorator-function.type.js';
 import type { MethodDecoratorType } from '@rnw-community/shared';
 import type { Observable } from 'rxjs';
 

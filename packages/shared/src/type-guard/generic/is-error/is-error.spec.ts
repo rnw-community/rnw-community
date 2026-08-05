@@ -1,6 +1,6 @@
 import { describe, expect, it } from '@jest/globals';
 
-import { isError } from './is-error';
+import { isError } from './is-error.js';
 
 describe('isError', () => {
     it('should return true if variable is Error', () => {

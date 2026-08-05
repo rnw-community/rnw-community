@@ -1,6 +1,6 @@
 import { describe, expect, it } from '@jest/globals';
 
-import { assertValidTimeoutMs } from './assert-valid-timeout-ms';
+import { assertValidTimeoutMs } from './assert-valid-timeout-ms.js';
 
 describe('assertValidTimeoutMs', () => {
     it('accepts undefined (no timeout)', () => {

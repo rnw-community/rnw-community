@@ -1,20 +1,20 @@
 import { isNotEmptyString } from '@rnw-community/shared';
 
-import { emptyAndroidPaymentMethodToken } from '../../@standard/android/response/android-payment-method-token';
-import { emptyIosPaymentData } from '../../@standard/ios/response/ios-payment-data';
-import { PaymentsError } from '../../error/payments.error';
+import { emptyAndroidPaymentMethodToken } from '../../@standard/android/response/android-payment-method-token.js';
+import { emptyIosPaymentData } from '../../@standard/ios/response/ios-payment-data.js';
+import { PaymentsError } from '../../error/payments.error.js';
 
-import { PaymentResponse } from './payment-response';
+import { PaymentResponse } from './payment-response.js';
 
-import type { IosCNPhoneNumber } from '../../@standard/ios/response/ios-cn-phone-number';
-import type { IosCNPostalAddress } from '../../@standard/ios/response/ios-cn-postal-address';
-import type { IosNSPersonNameComponents } from '../../@standard/ios/response/ios-ns-person-name-components';
-import type { IosPaymentData } from '../../@standard/ios/response/ios-payment-data';
-import type { IosPKPayment } from '../../@standard/ios/response/ios-pk-payment';
-import type { IosPKToken } from '../../@standard/ios/response/ios-pk-token';
-import type { IosRawPKToken } from '../../@standard/ios/response/ios-raw-pk-token';
-import type { PaymentResponseAddressInterface } from '../../interface/payment-response-address.interface';
-import type { PaymentResponseDetailsInterface } from '../../interface/payment-response-details.interface';
+import type { IosCNPhoneNumber } from '../../@standard/ios/response/ios-cn-phone-number.js';
+import type { IosCNPostalAddress } from '../../@standard/ios/response/ios-cn-postal-address.js';
+import type { IosNSPersonNameComponents } from '../../@standard/ios/response/ios-ns-person-name-components.js';
+import type { IosPaymentData } from '../../@standard/ios/response/ios-payment-data.js';
+import type { IosPKPayment } from '../../@standard/ios/response/ios-pk-payment.js';
+import type { IosPKToken } from '../../@standard/ios/response/ios-pk-token.js';
+import type { IosRawPKToken } from '../../@standard/ios/response/ios-raw-pk-token.js';
+import type { PaymentResponseAddressInterface } from '../../interface/payment-response-address.interface.js';
+import type { PaymentResponseDetailsInterface } from '../../interface/payment-response-details.interface.js';
 import type { Maybe } from '@rnw-community/shared';
 
 export class IosPaymentResponse extends PaymentResponse {

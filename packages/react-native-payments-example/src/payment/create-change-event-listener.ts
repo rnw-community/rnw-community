@@ -1,9 +1,9 @@
-import { formatLogMessage } from '../util/format-log-message';
+import { formatLogMessage } from '../util/format-log-message.js';
 
-import { answerChangeEvent } from './answer-change-event';
-import { getChangeEventSummary } from './get-change-event-summary';
+import { answerChangeEvent } from './answer-change-event.js';
+import { getChangeEventSummary } from './get-change-event-summary.js';
 
-import type { RequestOptionsInterface } from '../interface/request-options.interface';
+import type { RequestOptionsInterface } from '../interface/request-options.interface.js';
 import type {
     PaymentRequest,
     PaymentRequestEventListener,

@@ -1,6 +1,6 @@
 import { describe, expect, it } from '@jest/globals';
 
-import { resolveFallbackClassName } from './resolve-fallback-class-name';
+import { resolveFallbackClassName } from './resolve-fallback-class-name.js';
 
 describe('resolveFallbackClassName', () => {
     it("returns a named function target's own name", () => {

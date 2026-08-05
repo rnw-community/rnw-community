@@ -1,8 +1,8 @@
 
-import { resolveFallbackClassName } from '../../util/resolve-fallback-class-name/resolve-fallback-class-name';
-import { buildContext } from '../build-context/build-context';
+import { resolveFallbackClassName } from '../../util/resolve-fallback-class-name/resolve-fallback-class-name.js';
+import { buildContext } from '../build-context/build-context.js';
 
-import type { CreateInterceptorOptionsInterface } from '../../interface/create-interceptor-options.interface';
+import type { CreateInterceptorOptionsInterface } from '../../interface/create-interceptor-options.interface.js';
 import type { AnyFn, MethodDecoratorType } from '@rnw-community/shared';
 
 export const createInterceptor = <TArgs extends readonly unknown[], TResult>(

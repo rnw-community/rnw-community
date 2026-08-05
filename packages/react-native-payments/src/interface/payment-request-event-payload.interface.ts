@@ -1,4 +1,4 @@
-import type { PaymentResponseAddressInterface } from './payment-response-address.interface';
+import type { PaymentResponseAddressInterface } from './payment-response-address.interface.js';
 
 // Mirrors the PassKit delegate change callbacks: https://developer.apple.com/documentation/passkit/pkpaymentauthorizationcontrollerdelegate
 export interface PaymentRequestEventPayloadInterface {

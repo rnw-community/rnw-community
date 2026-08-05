@@ -1,8 +1,8 @@
 import { isDefined, isEmptyArray, isNotEmptyArray } from '@rnw-community/shared';
 
-import { SupportedNetworkEnum } from '../enum/supported-networks.enum';
+import { SupportedNetworkEnum } from '../enum/supported-networks.enum.js';
 
-import { PLUGIN_DEFAULT_OPTIONS } from './plugin-default-options.constant';
+import { PLUGIN_DEFAULT_OPTIONS } from './plugin-default-options.constant.js';
 
 const validSupportedNetworks: readonly string[] = Object.values(SupportedNetworkEnum);
 

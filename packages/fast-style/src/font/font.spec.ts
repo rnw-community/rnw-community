@@ -1,6 +1,6 @@
 import { describe, expect, it } from '@jest/globals';
 
-import { getFont } from './font';
+import { getFont } from './font.js';
 
 import type { TextStyle } from 'react-native';
 

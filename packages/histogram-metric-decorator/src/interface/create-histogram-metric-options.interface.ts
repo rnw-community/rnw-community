@@ -1,4 +1,4 @@
-import type { HistogramTransportInterface } from './histogram-transport.interface';
+import type { HistogramTransportInterface } from './histogram-transport.interface.js';
 
 
 export interface CreateHistogramMetricOptionsInterface {

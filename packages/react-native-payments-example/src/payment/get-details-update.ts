@@ -1,12 +1,12 @@
 import { isDefined, isNotEmptyArray } from '@rnw-community/shared';
 
-import { demoCurrency } from '../constant/demo-currency';
-import { zeroAmountValue } from '../constant/zero-amount-value';
+import { demoCurrency } from '../constant/demo-currency.js';
+import { zeroAmountValue } from '../constant/zero-amount-value.js';
 
-import { getShippingOptions } from './get-shipping-options';
-import { getUpdatedTotalValue } from './get-updated-total-value';
+import { getShippingOptions } from './get-shipping-options.js';
+import { getUpdatedTotalValue } from './get-updated-total-value.js';
 
-import type { RequestOptionsInterface } from '../interface/request-options.interface';
+import type { RequestOptionsInterface } from '../interface/request-options.interface.js';
 import type { PaymentDetailsUpdate, PaymentItem, PaymentShippingOption } from '@rnw-community/react-native-payments';
 import type { Maybe } from '@rnw-community/shared';
 

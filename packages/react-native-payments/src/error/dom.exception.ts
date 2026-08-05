@@ -1,6 +1,6 @@
-import { PaymentsErrorEnum } from '../enum/payments-error.enum';
+import { PaymentsErrorEnum } from '../enum/payments-error.enum.js';
 
-import { PaymentsError } from './payments.error';
+import { PaymentsError } from './payments.error.js';
 
 export class DOMException extends PaymentsError {
     private static readonly messages: Record<PaymentsErrorEnum, string> = {

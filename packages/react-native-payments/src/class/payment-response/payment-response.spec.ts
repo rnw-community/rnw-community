@@ -1,17 +1,17 @@
 import { beforeEach, describe, expect, it, jest } from '@jest/globals';
 
-import { IosPKPaymentMethodType } from '../../@standard/ios/enum/ios-pk-payment-method-type.enum';
-import { PaymentComplete } from '../../enum/payment-complete.enum';
-import { PaymentContactFieldEnum } from '../../enum/payment-contact-field.enum';
-import { PaymentsErrorEnum } from '../../enum/payments-error.enum';
-import { DOMException } from '../../error/dom.exception';
-import { PaymentsError } from '../../error/payments.error';
-import { NativePayments } from '../native-payments/native-payments';
+import { IosPKPaymentMethodType } from '../../@standard/ios/enum/ios-pk-payment-method-type.enum.js';
+import { PaymentComplete } from '../../enum/payment-complete.enum.js';
+import { PaymentContactFieldEnum } from '../../enum/payment-contact-field.enum.js';
+import { PaymentsErrorEnum } from '../../enum/payments-error.enum.js';
+import { DOMException } from '../../error/dom.exception.js';
+import { PaymentsError } from '../../error/payments.error.js';
+import { NativePayments } from '../native-payments/native-payments.js';
 
-import { PaymentResponse } from './payment-response';
+import { PaymentResponse } from './payment-response.js';
 
-import type { PaymentValidationErrors } from '../../@standard/w3c/payment-validation-errors';
-import type { PaymentResponseDetailsInterface } from '../../interface/payment-response-details.interface';
+import type { PaymentValidationErrors } from '../../@standard/w3c/payment-validation-errors.js';
+import type { PaymentResponseDetailsInterface } from '../../interface/payment-response-details.interface.js';
 
 jest.mock('../native-payments/native-payments', () => ({
     NativePayments: {

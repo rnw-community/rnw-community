@@ -1,8 +1,8 @@
 import { describe, expect, it } from '@jest/globals';
 
-import { isEmptyArray } from './is-empty-array';
+import { isEmptyArray } from './is-empty-array.js';
 
-import type { IsNever } from '../is-never.spec-type';
+import type { IsNever } from '../is-never.spec-type.js';
 
 describe('isEmptyArray', () => {
     it('should return true if variable is empty array', () => {

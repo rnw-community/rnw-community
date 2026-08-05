@@ -1,9 +1,9 @@
 import { beforeEach, describe, expect, it, jest } from '@jest/globals';
 import { NativeEventEmitter } from 'react-native';
 
-import { NativePayments } from '../../class/native-payments/native-payments';
+import { NativePayments } from '../../class/native-payments/native-payments.js';
 
-import { getNativePaymentsEventEmitter } from './get-native-payments-event-emitter.util';
+import { getNativePaymentsEventEmitter } from './get-native-payments-event-emitter.util.js';
 
 jest.mock('react-native', () => ({ NativeEventEmitter: jest.fn() }));
 

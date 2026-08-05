@@ -1,8 +1,8 @@
 import { describe, expect, it } from '@jest/globals';
 
-import { mockDefault$Config, mockElement } from '../../element.mock';
-import { ExtendedComponent$Mock } from '../mocks/extended-component$.mock';
-import { ParentComponent$SelectorsMock } from '../mocks/parent-component$-selectors.mock';
+import { mockDefault$Config, mockElement } from '../../element.mock.js';
+import { ExtendedComponent$Mock } from '../mocks/extended-component$.mock.js';
+import { ParentComponent$SelectorsMock } from '../mocks/parent-component$-selectors.mock.js';
 
 describe('getExtendedComponent$', () => {
     it('should use extended parent component$ testID selector functions', async () => {

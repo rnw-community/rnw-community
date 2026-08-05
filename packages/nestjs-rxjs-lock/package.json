@@ -13,6 +13,8 @@
         "directory": "packages/nestjs-rxjs-lock"
     },
     "license": "MIT",
+    "sideEffects": false,
+    "type": "module",
     "exports": {
         ".": {
             "import": {
@@ -25,33 +27,25 @@
             }
         }
     },
-    "engines": {
-        "node": ">=22.0.0"
-    },
     "main": "dist/cjs/index.js",
     "module": "dist/esm/index.js",
     "types": "dist/esm/index.d.ts",
     "files": [
         "dist/**/*"
     ],
-    "sideEffects": false,
-    "publishConfig": {
-        "access": "public"
-    },
     "scripts": {
-        "ts": "run -T tsc --pretty -p tsconfig.json",
-        "build:esm": "run -T tsc --pretty -p tsconfig.build-esm.json",
-        "build:cjs": "run -T tsc --pretty -p tsconfig.build-cjs.json",
         "build": "yarn build:esm && yarn build:cjs && rm -rf ./dist/*/*.tsbuildinfo && echo '{\"type\":\"module\"}' > dist/esm/package.json && echo '{\"type\":\"commonjs\"}' > dist/cjs/package.json",
+        "build:cjs": "run -T tsc --pretty -p tsconfig.build-cjs.json",
+        "build:esm": "run -T tsc --pretty -p tsconfig.build-esm.json",
+        "clear": "rm -rf coverage && rm -rf dist && rm -f *.tsbuildinfo",
+        "clear:deps": "rm -rf ./node_modules && rm -rf ./dist",
+        "format": "run -T prettier --write \"./src/**/*.{ts,tsx}\"",
         "lint": "run -T eslint src",
         "lint:fix": "run -T eslint --fix src",
         "test": "run -T jest",
         "test:coverage": "run -T jest --coverage",
-        "format": "run -T prettier --write \"./src/**/*.{ts,tsx}\"",
-        "clear": "rm -rf coverage && rm -rf dist && rm -f *.tsbuildinfo",
-        "clear:deps": "rm -rf ./node_modules && rm -rf ./dist"
+        "ts": "run -T tsc --pretty -p tsconfig.json"
     },
-    "gitHead": "4fd24bd92936d1793f8f7ff08d6420fce4f211d9",
     "dependencies": {
         "@nestjs-modules/ioredis": "^2.2.2",
         "@nestjs/common": "^11.1.28",
@@ -60,5 +54,12 @@
         "ioredis": "^5.11.1",
         "redlock": "patch:redlock@npm%3A5.0.0-beta2#~/.yarn/patches/redlock-npm-5.0.0-beta2-4d0e335fe9.patch",
         "rxjs": "^7.8.2"
-    }
+    },
+    "engines": {
+        "node": ">=22.0.0"
+    },
+    "publishConfig": {
+        "access": "public"
+    },
+    "gitHead": "4fd24bd92936d1793f8f7ff08d6420fce4f211d9"
 }

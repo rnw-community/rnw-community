@@ -1,6 +1,6 @@
 import { RuleTester } from '@typescript-eslint/rule-tester';
 
-import { noComplexJsxLogicRule } from './no-complex-jsx-logic.rule';
+import { noComplexJsxLogicRule } from './no-complex-jsx-logic.rule.js';
 
 const ruleTester = new RuleTester({
     languageOptions: {

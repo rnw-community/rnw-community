@@ -1,4 +1,4 @@
-import type { RequestOptionsInterface } from '../interface/request-options.interface';
+import type { RequestOptionsInterface } from '../interface/request-options.interface.js';
 
 export const defaultRequestOptions: RequestOptionsInterface = {
     asyncUpdate: false,

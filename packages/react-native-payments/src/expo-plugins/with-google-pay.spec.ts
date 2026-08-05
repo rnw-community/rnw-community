@@ -1,9 +1,9 @@
 import { describe, expect, it, jest } from '@jest/globals';
 
-import { EnvironmentEnum } from '../enum/environment.enum';
-import { SupportedNetworkEnum } from '../enum/supported-networks.enum';
+import { EnvironmentEnum } from '../enum/environment.enum.js';
+import { SupportedNetworkEnum } from '../enum/supported-networks.enum.js';
 
-import { withGooglePay } from './with-google-pay';
+import { withGooglePay } from './with-google-pay.js';
 
 jest.mock('@expo/config-plugins', () => ({
     ...jest.requireActual<typeof import('@expo/config-plugins')>('@expo/config-plugins'),

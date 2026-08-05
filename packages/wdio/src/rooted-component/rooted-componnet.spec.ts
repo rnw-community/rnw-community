@@ -1,10 +1,10 @@
 import { describe, expect, it, jest } from '@jest/globals';
 
-import { MockElement, mockDefaultConfig, mockElement } from '../element.mock';
-import { SelectorElement } from '../selector-element/selector-element';
+import { MockElement, mockDefaultConfig, mockElement } from '../element.mock.js';
+import { SelectorElement } from '../selector-element/selector-element.js';
 
-import { RootedComponentSelectorsMock } from './mocks/rooted-component-selectors.mock';
-import { RootedComponent } from './rooted-component';
+import { RootedComponentSelectorsMock } from './mocks/rooted-component-selectors.mock.js';
+import { RootedComponent } from './rooted-component.js';
 
 import type { ChainablePromiseElement } from 'webdriverio';
 

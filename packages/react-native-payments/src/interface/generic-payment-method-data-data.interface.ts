@@ -1,5 +1,5 @@
-import type { PaymentShippingTypeEnum } from '../enum/payment-shipping-type.enum';
-import type { SupportedNetworkEnum } from '../enum/supported-networks.enum';
+import type { PaymentShippingTypeEnum } from '../enum/payment-shipping-type.enum.js';
+import type { SupportedNetworkEnum } from '../enum/supported-networks.enum.js';
 
 /**
  * Common PaymentMethod data field shared across platforms

@@ -1,8 +1,8 @@
 import { describe, expect, it, jest } from '@jest/globals';
 
-import { getEnv } from './get-env';
+import { getEnv } from './get-env.js';
 
-jest.mock('react-native-config', () => ({}));
+jest.mock('react-native-config', () => ({ Config: {} }));
 
 describe('getEnv', () => {
     it('should return undefined if variable is not defined', () => {

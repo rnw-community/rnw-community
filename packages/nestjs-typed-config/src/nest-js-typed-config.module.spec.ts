@@ -1,7 +1,7 @@
 import { describe, expect, it } from '@jest/globals';
 import Joi from 'joi';
 
-import { NestJSTypedConfigModule } from './nest-js-typed-config.module';
+import { NestJSTypedConfigModule } from './nest-js-typed-config.module.js';
 
 import type { DynamicModule } from '@nestjs/common';
 import type { ObjectSchema } from 'joi';
