@@ -6,7 +6,11 @@
         "rxjs error operator",
         "rxjs error handling"
     ],
-    "repository": "https://github.com/rnw-community/rnw-community/tree/master/packages/rxjs-errors",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/rnw-community/rnw-community.git",
+        "directory": "packages/rxjs-errors"
+    },
     "license": "MIT",
     "exports": {
         ".": {

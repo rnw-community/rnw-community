@@ -7,7 +7,11 @@
         "nestjs logger",
         "rxjs logger"
     ],
-    "repository": "https://github.com/rnw-community/rnw-community/tree/master/packages/nestjs-rxjs-logger",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/rnw-community/rnw-community.git",
+        "directory": "packages/nestjs-rxjs-logger"
+    },
     "license": "MIT",
     "exports": {
         ".": {

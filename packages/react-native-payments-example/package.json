@@ -2,6 +2,11 @@
     "name": "@rnw-community/react-native-payments-example",
     "version": "2.12.6",
     "private": true,
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/rnw-community/rnw-community.git",
+        "directory": "packages/react-native-payments-example"
+    },
     "license": "MIT",
     "sideEffects": false,
     "main": "src/index.ts",

@@ -21,7 +21,11 @@
     ],
     "author": "Vitalii Yehorov <vitalyiegorov@gmail.com> (https://github.com/rnw-community/rnw-community/packages/react-native-payments)",
     "homepage": "https://github.com/rnw-community/rnw-community/tree/master/packages/react-native-payments",
-    "repository": "https://github.com/rnw-community/rnw-community/tree/master/packages/react-native-payments",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/rnw-community/rnw-community.git",
+        "directory": "packages/react-native-payments"
+    },
     "bugs": {
         "url": "https://github.com/rnw-community/rnw-community/issues"
     },
@@ -79,7 +83,7 @@
         "access": "public"
     },
     "engines": {
-        "node": ">=20.19.4"
+        "node": ">=22.0.0"
     },
     "scripts": {
         "ts": "run -T tsc --pretty -p tsconfig.json",

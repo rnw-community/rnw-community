@@ -12,7 +12,11 @@
         "universal",
         "framework-agnostic"
     ],
-    "repository": "https://github.com/rnw-community/rnw-community/tree/master/packages/decorators-core",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/rnw-community/rnw-community.git",
+        "directory": "packages/decorators-core"
+    },
     "license": "MIT",
     "exports": {
         ".": {

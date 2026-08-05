@@ -8,7 +8,11 @@
         "nestjs swc",
         "nestjs swc-loader"
     ],
-    "repository": "https://github.com/rnw-community/rnw-community/tree/master/packages/nestjs-typed-config",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/rnw-community/rnw-community.git",
+        "directory": "packages/nestjs-webpack-swc"
+    },
     "license": "MIT",
     "exports": {
         ".": {

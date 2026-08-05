@@ -7,7 +7,11 @@
         "nestjs lock",
         "rxjs lock"
     ],
-    "repository": "https://github.com/rnw-community/rnw-community/tree/master/packages/nestjs-rxjs-lock",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/rnw-community/rnw-community.git",
+        "directory": "packages/nestjs-rxjs-lock"
+    },
     "license": "MIT",
     "exports": {
         ".": {

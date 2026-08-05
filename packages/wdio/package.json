@@ -8,7 +8,11 @@
         "wdio selectors",
         "wdio pageobject"
     ],
-    "repository": "https://github.com/rnw-community/rnw-community/tree/master/packages/wdio",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/rnw-community/rnw-community.git",
+        "directory": "packages/wdio"
+    },
     "license": "MIT",
     "exports": {
         ".": {

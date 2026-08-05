@@ -7,7 +7,11 @@
         "nestjs redis",
         "rxjs redis"
     ],
-    "repository": "https://github.com/rnw-community/rnw-community/tree/master/packages/nestjs-rxjs-redis",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/rnw-community/rnw-community.git",
+        "directory": "packages/nestjs-rxjs-redis"
+    },
     "license": "MIT",
     "exports": {
         ".": {
