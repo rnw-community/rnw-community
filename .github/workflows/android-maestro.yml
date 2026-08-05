@@ -26,12 +26,14 @@ name: Android Maestro E2E
 # module, so the linux-aarch64 block above never applies to this job. The
 # container-bring-up plumbing (docker run --privileged, adb connect,
 # boot-completed wait, APK install) is adapted from a sister project's
-# android-maestro.yml, where it was observed reliable across several runs;
-# that project's own Maestro *flow assertions* were failing at the time
-# (element-not-found on one screen's custom grid under Redroid's guest GPU
-# mode), which is an app-level concern, not a Redroid-plumbing one — so this
-# is an adaptation of an in-progress technique, not a port of a green
-# pipeline. Keeps the macOS fleet free for iOS-only Maestro; Android build
+# android-maestro.yml, whose own Maestro suite has since gone green there
+# (element-not-found failures traced to app-level selector/animation races
+# under Redroid's guest GPU mode, not the container plumbing itself) — the
+# fixes that got it green (a redroid tag verified against the host kernel
+# instead of one that never finishes boot, and forcing all three animation
+# scales to 0 so no flow assertion can race a transition) are folded into
+# this job's own steps below. Keeps the macOS fleet free for iOS-only
+# Maestro; Android build
 # still cross-compiles on macOS (build job, unchanged) since the NDK/cmake
 # gap above is a build-time problem this job never touches. The linux-xl
 # runner image may optionally carry a Redroid prewarm (docker + a pulled
@@ -384,7 +386,12 @@ jobs:
                 shell: bash
                 timeout-minutes: 25
                 env:
-                    REDROID_DEFAULT_IMAGE: redroid/redroid:13.0.0-latest
+                    # 13.0.0 never finishes boot and 14.x hard-locks the guest kernel
+                    # version on the sister repo's identical Redroid setup; 15.0.0_64only
+                    # is that repo's verified-good tag against a 6.17 host kernel. Use the
+                    # same pin here so a cold-start fallback (no prewarm manifest) doesn't
+                    # risk trading a slow boot for one that never completes.
+                    REDROID_DEFAULT_IMAGE: redroid/redroid:15.0.0_64only-latest
                 run: |
                     set -euo pipefail
                     manifest="$HOME/.rnw-ci/android-emulator.json"
@@ -416,6 +423,14 @@ jobs:
                       sleep 5
                       adb connect "localhost:${{ steps.meta.outputs.adb_port }}" >/dev/null 2>&1 || true
                     done
+                    # A prewarmed /data volume already carries these settings baked in,
+                    # but the cold-start fallback above boots a bare volume with default
+                    # (non-zero) animation scales. Un-set them unconditionally so a flow's
+                    # assertion can never race a transition/window animation under
+                    # Redroid's software-rendered guest GPU mode, prewarmed or not.
+                    for setting in window_animation_scale transition_animation_scale animator_duration_scale; do
+                      adb -s "localhost:${{ steps.meta.outputs.adb_port }}" shell settings put global "$setting" 0
+                    done
                     echo "ANDROID_SERIAL=localhost:${{ steps.meta.outputs.adb_port }}" >> "$GITHUB_ENV"
 
             -   uses: actions/download-artifact@v4
@@ -436,6 +451,9 @@ jobs:
 
             -   name: Run Maestro shard
                 shell: bash
+                env:
+                    JAVA_TOOL_OPTIONS: -Djava.awt.headless=true -Xmx2048m
+                    MAESTRO_DRIVER_STARTUP_TIMEOUT: '180000'
                 run: |
                     set -euo pipefail
                     flows=()
@@ -472,6 +490,9 @@ jobs:
                     timeout 30 adb -s "${{ env.ANDROID_SERIAL }}" exec-out screencap -p > "$out/final-screen.png" || true
                     timeout 30 adb -s "${{ env.ANDROID_SERIAL }}" logcat -d > "$out/logcat-full.txt" 2>&1 || true
                     timeout 30 adb -s "${{ env.ANDROID_SERIAL }}" logcat -d -b crash > "$out/logcat-crash.txt" 2>&1 || true
+                    timeout 30 adb -s "${{ env.ANDROID_SERIAL }}" logcat -d ReactNative:V ReactNativeJS:V AndroidRuntime:E NativeModule:V '*:E' \
+                      > "$out/logcat-app.txt" 2>&1 || true
+                    timeout 30 adb -s "${{ env.ANDROID_SERIAL }}" shell dumpsys activity top > "$out/activity-top.txt" 2>&1 || true
 
             -   name: Teardown Redroid container
                 if: always()
