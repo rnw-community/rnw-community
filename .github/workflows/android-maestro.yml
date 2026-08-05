@@ -449,6 +449,15 @@ jobs:
                         ;;
                     esac
                     mkdir -p "$data"
+                    # Emitted as soon as the directory exists, not after the
+                    # container finishes booting: a docker pull/run or
+                    # boot-completed failure below still leaves this
+                    # directory on disk, and the always() teardown step only
+                    # cleans it up if this output was set before the step
+                    # exited. This fleet's self-hosted runners are persistent,
+                    # so skipping this on every failed shard would accumulate
+                    # full Redroid userdata copies until disk space runs out.
+                    echo "data_dir=$data" >> "$GITHUB_OUTPUT"
                     manifest="$HOME/.rnw-ci/android-emulator.json"
                     if [ -f "$manifest" ]; then
                       # Read the manifest path from the environment rather
@@ -517,7 +526,6 @@ jobs:
                       adb -s "localhost:$port" shell settings put global "$setting" 0
                     done
                     echo "ANDROID_SERIAL=localhost:$port" >> "$GITHUB_ENV"
-                    echo "data_dir=$data" >> "$GITHUB_OUTPUT"
 
             -   uses: actions/download-artifact@v4
                 with:
