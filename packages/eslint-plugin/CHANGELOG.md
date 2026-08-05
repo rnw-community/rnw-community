@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.12.9](https://github.com/rnw-community/rnw-community/compare/v2.12.8...v2.12.9) (2026-08-05)
+
+### Bug Fixes
+
+- emit explicit .js extensions so dist/esm resolves under real Node ESM ([#532](https://github.com/rnw-community/rnw-community/issues/532)) ([aa505b8](https://github.com/rnw-community/rnw-community/commit/aa505b85416479a8cf9aeeeb8f77549f24c726b2)), closes [#531](https://github.com/rnw-community/rnw-community/issues/531) [#531](https://github.com/rnw-community/rnw-community/issues/531) [#531](https://github.com/rnw-community/rnw-community/issues/531) [#531](https://github.com/rnw-community/rnw-community/issues/531) [#531](https://github.com/rnw-community/rnw-community/issues/531)
+
 ## [2.12.8](https://github.com/rnw-community/rnw-community/compare/v2.12.7...v2.12.8) (2026-08-05)
 
 **Note:** Version bump only for package @rnw-community/eslint-plugin

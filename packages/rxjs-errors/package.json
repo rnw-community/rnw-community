@@ -1,6 +1,6 @@
 {
     "name": "@rnw-community/rxjs-errors",
-    "version": "2.12.8",
+    "version": "2.12.9",
     "description": "RxJS errors utils",
     "keywords": [
         "rxjs error operator",
@@ -46,7 +46,7 @@
         "ts": "run -T tsc --pretty -p tsconfig.json"
     },
     "dependencies": {
-        "@rnw-community/shared": "^2.12.7"
+        "@rnw-community/shared": "^2.12.9"
     },
     "devDependencies": {
         "expect-type": "^0.20.0",

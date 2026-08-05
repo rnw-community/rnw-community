@@ -1,6 +1,6 @@
 {
     "name": "@rnw-community/nestjs-rxjs-metrics",
-    "version": "2.12.8",
+    "version": "2.12.9",
     "description": "NestJS RxJS logger",
     "keywords": [
         "nestjs",
@@ -48,7 +48,7 @@
         "ts": "run -T tsc --pretty -p tsconfig.json"
     },
     "dependencies": {
-        "@rnw-community/shared": "^2.12.7"
+        "@rnw-community/shared": "^2.12.9"
     },
     "devDependencies": {
         "@nestjs/common": "^11.1.28",
