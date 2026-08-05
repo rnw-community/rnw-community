@@ -11,9 +11,13 @@
         "react-native-web"
     ],
     "engines": {
-        "node": ">=20.19.0"
+        "node": ">=22.0.0"
     },
-    "repository": "https://github.com/rnw-community/rnw-community/tree/master/packages/shared",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/rnw-community/rnw-community.git",
+        "directory": "packages/shared"
+    },
     "license": "MIT",
     "exports": {
         ".": {

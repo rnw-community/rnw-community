@@ -9,7 +9,11 @@
         "nestjs metrics",
         "nestjs metrics decorator"
     ],
-    "repository": "https://github.com/rnw-community/rnw-community/tree/master/packages/nestjs-enterprise",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/rnw-community/rnw-community.git",
+        "directory": "packages/nestjs-enterprise"
+    },
     "license": "MIT",
     "exports": {
         ".": {
