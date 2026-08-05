@@ -5,10 +5,14 @@
     "keywords": [
         "nestjs",
         "nestjs metrics",
-        "rxjs metrice",
+        "rxjs metrics",
         "rxjs prometheus"
     ],
-    "repository": "https://github.com/rnw-community/rnw-community/tree/master/packages/nestjs-rxjs-metrics",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/rnw-community/rnw-community.git",
+        "directory": "packages/nestjs-rxjs-metrics"
+    },
     "license": "MIT",
     "exports": {
         ".": {

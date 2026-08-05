@@ -2,6 +2,10 @@
   "name": "rnw-community",
   "version": "0.59.4",
   "private": true,
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/rnw-community/rnw-community.git"
+  },
   "workspaces": [
     "packages/*",
     "packages/react-native-payments-example/apps/*"
