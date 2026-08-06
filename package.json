@@ -29,7 +29,9 @@
     "test": "turbo run test",
     "test:coverage": "turbo run test:coverage",
     "ts": "turbo run ts",
-    "ts:force": "turbo run ts --force"
+    "ts:force": "turbo run ts --force",
+    "ts:nodenext": "turbo run ts:nodenext",
+    "ts:nodenext:force": "turbo run ts:nodenext --force"
   },
   "resolutions": {
     "axios": "^1.19.0",

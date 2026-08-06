@@ -319,6 +319,24 @@ The monorepo uses dual ESM + CJS output. Key decisions:
   relative imports in the shipped ESM tree, `#531`) is now a real compile failure long before `publint` ever runs.
   `yarn smoke:esm` (and the `package-manager-smoke` CI job) packs and imports every publishable package's tarball
   under real `node --input-type=module`/`require()` to keep this from regressing at the runtime layer too
+- **`yarn ts` alone does not catch every `nodenext`-only defect, because it deliberately never runs `nodenext`
+  against spec files.** `yarn ts` uses `moduleResolution: "bundler"` (matches Metro's leniency, see above);
+  `tsconfig.build-esm.json` is the only `nodenext`-mode compile, and every package's copy of it excludes
+  `**/*.spec.*` (specs are never part of the publishable build). A default import of a CJS-only dependency whose
+  `.d.ts` uses `export default X` instead of the CJS-correct `export = X` (`ioredis`'s `Redis`, for one) type-checks
+  fine under `bundler` but fails under real `nodenext` (`TS2709`/`TS2351`) — and until this gate existed, that failure
+  mode could recur inside a `.spec.ts` file indefinitely with zero CI signal, since Jest never type-checks
+  (`babel-jest` is transpile-only) and `yarn smoke:esm` only exercises published tarballs, which never contain specs.
+  Each dual-format package (plus `eslint-plugin`) now carries a sibling `tsconfig.nodenext-check.json` that extends
+  the package's own `tsconfig.build-esm.json`, flips `noEmit` back to `true`, and — critically — re-declares
+  `include`/`exclude` without the `**/*.spec.*` exclusion, so every spec file gets checked under the exact same
+  `nodenext` resolution the ESM build uses, without ever emitting to `dist/`. This is a parallel, check-only compile
+  (`yarn ts:nodenext`, wired into the `code-quality` CI job right after the existing `yarn turbo run ts --affected`
+  step, which itself runs after packages are built so workspace `@rnw-community/*` deps resolve their real `dist/`
+  output) — it does not touch `tsconfig.build-esm.json` itself (which must keep excluding specs) or `yarn ts`'s
+  `bundler` resolution (changing that would lose the "validates against the same leniency real consumers get"
+  property documented above), and it does not affect Jest's own resolution in any way (Jest never reads any of these
+  tsconfig files). Runs in low single-digit seconds across all 20 packages, cold, via `turbo`'s per-package caching.
 - **`eslint-plugin` ships CommonJS only, by design, not oversight.** Its `src/index.ts` ends in `export = plugin` —
   the shape ESLint's own legacy plugin loader (`@eslint/eslintrc`, string-based `"plugins": ["@rnw-community"]`
   resolution) requires: it `require()`s the module and uses the returned value directly, with no `.default` unwrap.

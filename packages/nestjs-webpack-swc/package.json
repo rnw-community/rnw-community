@@ -63,7 +63,8 @@
         "format": "run -T prettier --write \"./src/**/*.{ts,tsx}\"",
         "lint": "run -T eslint src",
         "lint:fix": "run -T eslint --fix src",
-        "ts": "run -T tsc --pretty -p tsconfig.json"
+        "ts": "run -T tsc --pretty -p tsconfig.json",
+        "ts:nodenext": "run -T tsc --pretty -p tsconfig.nodenext-check.json"
     },
     "dependencies": {
         "@rnw-community/shared": "^2.12.9"
