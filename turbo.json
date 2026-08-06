@@ -26,6 +26,14 @@
         "node_modules/.cache/tsbuildinfo.json"
       ]
     },
+    "ts:nodenext": {
+      "dependsOn": [
+        "^topo"
+      ],
+      "outputs": [
+        "node_modules/.cache/tsbuildinfo-nodenext.json"
+      ]
+    },
     "lint": {
       "dependsOn": [
         "^topo"

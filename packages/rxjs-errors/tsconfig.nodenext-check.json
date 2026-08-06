@@ -1,0 +1,14 @@
+{
+    "extends": "./tsconfig.build-esm.json",
+    "compilerOptions": {
+        "noEmit": true,
+        "tsBuildInfoFile": "./node_modules/.cache/tsbuildinfo-nodenext.json"
+    },
+    "include": [
+        "./src"
+    ],
+    "exclude": [
+        "node_modules",
+        "dist"
+    ]
+}

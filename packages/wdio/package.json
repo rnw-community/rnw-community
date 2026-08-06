@@ -45,7 +45,8 @@
         "lint:fix": "run -T eslint --fix src",
         "test": "run -T jest",
         "test:coverage": "run -T jest --coverage",
-        "ts": "run -T tsc --pretty -p tsconfig.json"
+        "ts": "run -T tsc --pretty -p tsconfig.json",
+        "ts:nodenext": "run -T tsc --pretty -p tsconfig.nodenext-check.json"
     },
     "dependencies": {
         "@rnw-community/shared": "^2.12.9",
