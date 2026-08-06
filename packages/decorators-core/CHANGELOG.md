@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.12.10](https://github.com/rnw-community/rnw-community/compare/v2.12.9...v2.12.10) (2026-08-06)
+
+### Bug Fixes
+
+- nodenext spec type-check gate and ioredis import regression ([#541](https://github.com/rnw-community/rnw-community/issues/541)) ([e14ab3c](https://github.com/rnw-community/rnw-community/commit/e14ab3c1c8ead519008e7818eb1acd8066904407)), closes [#532](https://github.com/rnw-community/rnw-community/issues/532)
+
 ## [2.12.9](https://github.com/rnw-community/rnw-community/compare/v2.12.8...v2.12.9) (2026-08-05)
 
 ### Bug Fixes
