@@ -1,6 +1,6 @@
 {
     "name": "@rnw-community/nestjs-webpack-swc",
-    "version": "2.12.9",
+    "version": "2.12.10",
     "description": "NestJS typed config",
     "keywords": [
         "nestjs",
@@ -67,7 +67,7 @@
         "ts:nodenext": "run -T tsc --pretty -p tsconfig.nodenext-check.json"
     },
     "dependencies": {
-        "@rnw-community/shared": "^2.12.9"
+        "@rnw-community/shared": "^2.12.10"
     },
     "devDependencies": {
         "@nestjs/common": "^11.1.28",
