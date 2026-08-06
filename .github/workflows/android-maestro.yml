@@ -45,8 +45,15 @@ name: Android Maestro E2E
 # slower cold start instead of hard-failing every shard. The one thing that
 # step cannot self-heal is the binder_linux kernel module itself (host-kernel
 # provisioning, not something a job can safely install unattended) — it
-# modprobes and then verifies /dev/binder et al. actually exist, failing with
-# a clear, actionable error if the host genuinely lacks binder support.
+# modprobes and then verifies the module is actually loaded via
+# /sys/module/binder_linux, failing with a clear, actionable error if the
+# host genuinely lacks binder support. This fleet's linux-xl image runs a 6.x
+# binderfs kernel, where /dev/binder and friends never appear on the host at
+# all — only the privileged container mounts binderfs and creates its own
+# device nodes — so probing for those host-side device nodes fails even when
+# the module is loaded and Redroid boots fine; module presence is the only
+# portable signal (verified against this fleet's own kernel and against the
+# sister repo's identical, long-green Redroid pipeline).
 on:
     workflow_dispatch:
     pull_request:
@@ -410,11 +417,16 @@ jobs:
             # under $RUNNER_TEMP, paying for a cold `docker pull` (bounded by
             # a generous timeout) and a cold Android first boot instead. The
             # binder_linux kernel module is the one dependency that fallback
-            # cannot paper over — modprobe is attempted, then verified by
-            # checking for the device nodes it is asked to create, and a
-            # missing module fails the shard with an explicit, actionable
-            # error rather than proceeding into a `docker run` that would
-            # only fail later with a far more confusing symptom.
+            # cannot paper over — modprobe is attempted, then verified via
+            # /sys/module/binder_linux, and a missing module fails the shard
+            # with an explicit, actionable error rather than proceeding into
+            # a `docker run` that would only fail later with a far more
+            # confusing symptom. Checking for /dev/binder, /dev/vndbinder or
+            # /dev/hwbinder instead (an earlier version of this check) is
+            # wrong on this fleet's binderfs (6.x) kernel: those nodes never
+            # appear on the host at all — only the privileged container
+            # mounts binderfs and creates its own — so that probe fails even
+            # when the module is loaded and Redroid boots and runs fine.
             -   name: Start prewarmed Redroid container
                 id: redroid
                 shell: bash
@@ -479,8 +491,15 @@ jobs:
                       timeout 900 sudo docker pull "$image"
                     fi
                     sudo modprobe binder_linux devices=binder,hwbinder,vndbinder 2>&1 || true
-                    if [ ! -e /dev/binder ] && [ ! -e /dev/vndbinder ] && [ ! -e /dev/hwbinder ]; then
-                      echo '::error::binder_linux produced none of /dev/binder, /dev/vndbinder, /dev/hwbinder on this host after modprobe. Redroid cannot run without the binder_linux kernel module; this is host-kernel provisioning a workflow run cannot self-heal safely. See issue #447 for the exact host-provisioning commands.'
+                    # Presence of the module is the only portable signal. On
+                    # binderfs kernels (6.x, this fleet's included) no
+                    # /dev/binder, /dev/vndbinder or /dev/hwbinder ever
+                    # appears on the host — the privileged container mounts
+                    # binderfs and creates its own devices — so probing for
+                    # those nodes fails on exactly the hosts Redroid works
+                    # best on.
+                    if [ ! -d /sys/module/binder_linux ]; then
+                      echo '::error::binder_linux is not loaded on this host after modprobe. Redroid cannot run without it; this is host-kernel provisioning a workflow run cannot self-heal safely.'
                       exit 1
                     fi
                     # A "probe with ss, then docker run" port pick is a TOCTOU
