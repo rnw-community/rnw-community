@@ -1,10 +1,11 @@
 import { beforeEach, describe, expect, it, jest } from '@jest/globals';
-import Redis from 'ioredis';
 import { EMPTY, Observable, lastValueFrom, of, tap } from 'rxjs';
 
 import { LockableService } from '../lockable.service.js';
 
 import { LockObservable } from './lock-observable.decorator.js';
+
+import type { Redis } from 'ioredis';
 
 const getRedisService = (): Redis => jest.fn() as unknown as Redis;
 const mockRelease = jest.fn<() => Promise<boolean>>().mockResolvedValue(true);
