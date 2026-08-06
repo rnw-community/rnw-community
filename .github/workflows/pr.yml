@@ -61,6 +61,9 @@ jobs:
             -   name: Typescript checks
                 run: yarn turbo run ts --affected
 
+            -   name: Typescript checks (spec files, nodenext resolution)
+                run: yarn turbo run ts:nodenext --affected
+
             -   name: ESLint checks
                 run: yarn turbo run lint --affected
 

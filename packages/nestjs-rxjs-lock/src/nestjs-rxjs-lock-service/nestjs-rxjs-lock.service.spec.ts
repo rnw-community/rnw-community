@@ -8,7 +8,7 @@ import { type NestJSRxJSLockModuleOptions, defaultNestJSRxJSLockModuleOptions } 
 
 import { NestJSRxJSLockService } from './nestjs-rxjs-lock.service.js';
 
-import type Redis from 'ioredis';
+import type { Redis } from 'ioredis';
 
 const mockRelease = jest.fn<() => Promise<boolean>>().mockResolvedValue(true);
 const mockAcquire = jest
