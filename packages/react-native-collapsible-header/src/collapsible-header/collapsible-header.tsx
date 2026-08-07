@@ -92,10 +92,10 @@ export const CollapsibleHeader = (props: CollapsibleHeaderProps) => {
         height: interpolate(scrollY.get(), [0, collapseDistance], [expandedHeight, collapsedHeight], Extrapolation.CLAMP),
     }));
     const expandedAnimatedProps = useAnimatedProps<ViewProps>(() => ({
-        pointerEvents: scrollY.get() < collapseDistance * 0.5 ? 'auto' : 'none',
+        pointerEvents: scrollY.get() <= collapseDistance * 0.5 ? 'auto' : 'none',
     }));
     const collapsedAnimatedProps = useAnimatedProps<ViewProps>(() => ({
-        pointerEvents: scrollY.get() < collapseDistance * 0.5 ? 'none' : 'auto',
+        pointerEvents: scrollY.get() <= collapseDistance * 0.5 ? 'none' : 'auto',
     }));
 
     return (

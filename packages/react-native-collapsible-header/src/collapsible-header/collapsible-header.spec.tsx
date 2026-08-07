@@ -216,6 +216,7 @@ describe('CollapsibleHeader animation', () => {
 describe('CollapsibleHeader interaction', () => {
     it.each([
         [0, 'auto', 'none'],
+        [COLLAPSE_DISTANCE * 0.5, 'auto', 'none'],
         [COLLAPSE_DISTANCE, 'none', 'auto'],
     ])(
         'keeps only the visible content interactive at scroll offset %s',
