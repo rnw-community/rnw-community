@@ -7,6 +7,7 @@ interface Instance {
 }
 
 const INSTANCE: Instance = { id: 'instance' };
+const NEWER_INSTANCE: Instance = { id: 'newer-instance' };
 
 describe('mergeRefs', () => {
     it('writes to object refs', () => {
@@ -60,5 +61,35 @@ describe('mergeRefs', () => {
         mergedCleanup();
 
         expect(cleanup).toHaveBeenCalledTimes(1);
+    });
+
+    it('returns a cleanup that clears object refs', () => {
+        const objectRef: { current: Instance | null } = { current: null };
+        const mergedRef = mergeRefs(objectRef);
+        const mergedCleanup = mergedRef(INSTANCE);
+
+        if (typeof mergedCleanup !== 'function') {
+            throw new Error('mergeRefs did not return a cleanup');
+        }
+
+        mergedCleanup();
+
+        expect(objectRef.current).toBeNull();
+    });
+
+    it('does not clear a newer object ref value from an older cleanup', () => {
+        const objectRef: { current: Instance | null } = { current: null };
+        const mergedRef = mergeRefs(objectRef);
+        const olderCleanup = mergedRef(INSTANCE);
+
+        mergedRef(NEWER_INSTANCE);
+
+        if (typeof olderCleanup !== 'function') {
+            throw new Error('mergeRefs did not return a cleanup');
+        }
+
+        olderCleanup();
+
+        expect(objectRef.current).toBe(NEWER_INSTANCE);
     });
 });

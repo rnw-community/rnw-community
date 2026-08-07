@@ -27,6 +27,11 @@ export const mergeRefs =
             }
 
             ref.current = instance;
+            cleanups.push(() => {
+                if (ref.current === instance) {
+                    ref.current = null;
+                }
+            });
         });
 
         if (cleanups.length === 0) {
