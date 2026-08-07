@@ -1,0 +1,18 @@
+{
+    "extends": "../../tsconfig.build-esm.json",
+    "compilerOptions": {
+        "baseUrl": ".",
+        "paths": {
+            "@react-native-masked-view/masked-view": ["src/type/masked-view-module.type.d.ts"]
+        },
+        "outDir": "./dist/esm"
+    },
+    "include": [
+        "./src"
+    ],
+    "exclude": [
+        "node_modules",
+        "dist",
+        "**/*.spec.*"
+    ]
+}

@@ -16,6 +16,10 @@
         "packages/react-native-payments": {
             "entry": ["src/index.ts", "src/**/*.web.ts"]
         },
+        "packages/react-native-screen-chrome": {
+            "entry": ["src/index.ts", "src/**/*.web.ts", "src/**/*.web.tsx"],
+            "ignoreDependencies": ["@react-native-masked-view/masked-view"]
+        },
         "packages/react-native-payments-example/apps/bare": {
             "ignoreDependencies": ["@rnw-community/react-native-payments"]
         }

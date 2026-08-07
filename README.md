@@ -20,6 +20,7 @@ Monorepo for useful NestJS, React Native and React Native Web packages and nativ
 ### React Native utilities
 
 -   [react-native-collapsible-header](https://github.com/rnw-community/rnw-community/tree/master/packages/react-native-collapsible-header) [![npm version](https://badge.fury.io/js/%40rnw-community%2Freact-native-collapsible-header.svg)](https://badge.fury.io/js/%40rnw-community%2Freact-native-collapsible-header)
+-   [react-native-screen-chrome](https://github.com/rnw-community/rnw-community/tree/master/packages/react-native-screen-chrome) [![npm version](https://badge.fury.io/js/%40rnw-community%2Freact-native-screen-chrome.svg)](https://badge.fury.io/js/%40rnw-community%2Freact-native-screen-chrome)
 
 ### General
 
