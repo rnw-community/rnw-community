@@ -44,6 +44,16 @@ const interpolateFadeIn = (value: number, start: number, end: number): number =>
     return interpolate(value, [start, end], [0, 1], Extrapolation.CLAMP);
 };
 
+const interpolateCollapsedTranslateY = (value: number, start: number, end: number, collapsedTranslateY: number): number => {
+    'worklet';
+
+    if (start === end) {
+        return value < start ? collapsedTranslateY : 0;
+    }
+
+    return interpolate(value, [start, end], [collapsedTranslateY, 0], Extrapolation.CLAMP);
+};
+
 interface CollapsibleHeaderAnimationConfig {
     readonly scrollY: CollapsibleHeaderProps['scrollY'];
     readonly expandedHeight: number;
@@ -91,11 +101,11 @@ const useCollapsibleHeaderAnimatedLayers = ({
         opacity: interpolateFadeIn(scrollY.get(), collapsedOpacityStart, collapseEnd),
         transform: [
             {
-                translateY: interpolate(
+                translateY: interpolateCollapsedTranslateY(
                     scrollY.get(),
-                    [collapsedOpacityStart, collapseEnd],
-                    [motionConfig.collapsedTranslateY, 0],
-                    Extrapolation.CLAMP
+                    collapsedOpacityStart,
+                    collapseEnd,
+                    motionConfig.collapsedTranslateY
                 ),
             },
         ],

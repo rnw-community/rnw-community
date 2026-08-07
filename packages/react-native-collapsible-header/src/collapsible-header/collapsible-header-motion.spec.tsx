@@ -192,7 +192,7 @@ describe('CollapsibleHeader endpoint animation', () => {
             'expanded end at start',
             { motion: { expandedOpacityEndProgress: 0, collapsedOpacityStartProgress: 0 } },
             EXPANDED_LAYER,
-            0,
+            { opacity: 0 },
         ],
         [
             'collapsed before end',
@@ -201,13 +201,13 @@ describe('CollapsibleHeader endpoint animation', () => {
                 motion: { expandedOpacityEndProgress: 1, collapsedOpacityStartProgress: 1 },
             },
             COLLAPSED_LAYER,
-            0,
+            { opacity: 0 },
         ],
         [
             'background before end',
             { scrollOffset: BEFORE_COLLAPSED_ENDPOINT_SCROLL_OFFSET, motion: { backgroundOpacityStartProgress: 1 } },
             BACKGROUND_LAYER,
-            0,
+            { opacity: 0 },
         ],
         [
             'collapsed end',
@@ -216,19 +216,19 @@ describe('CollapsibleHeader endpoint animation', () => {
                 motion: { expandedOpacityEndProgress: 1, collapsedOpacityStartProgress: 1 },
             },
             COLLAPSED_LAYER,
-            1,
+            { opacity: 1, transform: [{ translateY: 0 }] },
         ],
         [
             'background end',
             { scrollOffset: COLLAPSE_DISTANCE, motion: { backgroundOpacityStartProgress: 1 } },
             BACKGROUND_LAYER,
-            1,
+            { opacity: 1 },
         ],
-    ])('handles endpoint opacity threshold for %s', (_name, subjectProps, layer, opacity) => {
+    ])('handles endpoint opacity threshold for %s', (_name, subjectProps, layer, style) => {
         expect.hasAssertions();
         const screen = render(<Subject {...subjectProps} />);
 
-        expect(StyleSheet.flatten(getLayerProps(getLayer(screen, layer)).style)).toMatchObject({ opacity });
+        expect(StyleSheet.flatten(getLayerProps(getLayer(screen, layer)).style)).toMatchObject(style);
     });
 });
 
