@@ -1,6 +1,6 @@
 import type { ScreenChromeConfigInterface } from './screen-chrome-config.interface.js';
 import type { ColorSchemeEnum } from '../enum/color-scheme.enum.js';
-import type { ScrollView } from 'react-native';
+import type Animated from 'react-native-reanimated';
 import type { AnimatedRef, ScrollHandlerProcessed, SharedValue } from 'react-native-reanimated';
 
 /**
@@ -12,5 +12,5 @@ export interface ScreenChromeContextValueInterface {
     readonly config: ScreenChromeConfigInterface;
     readonly scrollY: SharedValue<number>;
     readonly scrollHandler: ScrollHandlerProcessed;
-    readonly scrollRef: AnimatedRef<ScrollView>;
+    readonly scrollRef: AnimatedRef<Animated.ScrollView>;
 }
