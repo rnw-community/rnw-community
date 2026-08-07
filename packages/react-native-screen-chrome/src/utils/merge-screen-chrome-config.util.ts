@@ -9,9 +9,7 @@ const mergeMaskStops = (
     defaults: Readonly<Record<number, ScreenChromeMaskStopInterface>>,
     overrides: Readonly<Record<number, ScreenChromeMaskStopInterface>> | undefined
 ): Readonly<Record<number, ScreenChromeMaskStopInterface>> =>
-    Object.fromEntries(
-        Object.entries({ ...defaults, ...overrides }).map(([position, stop]) => [position, { ...stop }])
-    );
+    Object.fromEntries(Object.entries({ ...defaults, ...overrides }).map(([position, stop]) => [position, { ...stop }]));
 
 /**
  * Resolves partial screen chrome overrides into a complete immutable configuration object.

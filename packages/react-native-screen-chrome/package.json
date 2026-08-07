@@ -34,8 +34,10 @@
     "module": "dist/esm/index.js",
     "types": "dist/esm/index.d.ts",
     "browser": {
+        "./dist/cjs/constant/screen-chrome-default-config.constant.js": "./dist/cjs/constant/screen-chrome-default-config.constant.web.js",
         "./dist/esm/constant/screen-chrome-default-config.constant.js": "./dist/esm/constant/screen-chrome-default-config.constant.web.js",
-        "./dist/cjs/constant/screen-chrome-default-config.constant.js": "./dist/cjs/constant/screen-chrome-default-config.constant.web.js"
+        "./dist/cjs/edge-fade/edge-fade.js": "./dist/cjs/edge-fade/edge-fade.web.js",
+        "./dist/esm/edge-fade/edge-fade.js": "./dist/esm/edge-fade/edge-fade.web.js"
     },
     "files": [
         "dist/**/*"
@@ -61,17 +63,21 @@
     },
     "devDependencies": {
         "@babel/core": "^7.29.7",
+        "@react-native-masked-view/masked-view": "^0.3.2",
         "@react-native/babel-preset": "0.85.3",
         "@react-native/jest-preset": "0.85.3",
         "@react-native/metro-config": "0.85.3",
         "@testing-library/react-native": "^13.3.3",
         "@types/react": "^19.2.0",
         "@types/react-test-renderer": "^19.1.0",
-        "react": "^19.2.3",
+        "expo-blur": "~56.0.3",
+        "expo-linear-gradient": "~56.0.4",
+        "react": "19.2.3",
         "react-native": "0.85.3",
         "react-native-reanimated": "4.3.1",
+        "react-native-safe-area-context": "~5.7.0",
         "react-native-worklets": "0.8.3",
-        "react-test-renderer": "^19.2.3"
+        "react-test-renderer": "19.2.3"
     },
     "peerDependencies": {
         "@react-native-masked-view/masked-view": ">=0.3.2 <1",
