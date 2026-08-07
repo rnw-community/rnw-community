@@ -4,9 +4,6 @@ on:
     pull_request:
         types: [closed]
 
-permissions:
-    actions: write
-
 jobs:
     cleanup:
         permissions:

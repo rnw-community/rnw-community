@@ -27,7 +27,7 @@ jobs:
             targets: >-
                 [{"name":"bare","appDir":"packages/react-native-payments-example/apps/bare","workspace":"ReactNativePaymentsExample.xcworkspace","scheme":"ReactNativePaymentsExample","appId":"org.reactjs.native.example.ReactNativePaymentsExample","prebuildCommand":""},{"name":"expo","appDir":"packages/react-native-payments-example/apps/expo","workspace":"reactnativepaymentsexpoexample.xcworkspace","scheme":"reactnativepaymentsexpoexample","appId":"com.reactnativepaymentsexpoexample","prebuildCommand":"yarn prebuild"}]
             flows-dir: packages/react-native-payments-example/e2e/flows
-            flows-name-pattern: '*.yaml'
+            flows-name-pattern: '*.yaml *.yml'
             shard-count: 2
             target-packages: |
                 @rnw-community/react-native-payments
@@ -35,3 +35,4 @@ jobs:
                 @rnw-community/react-native-payments-example-bare
                 @rnw-community/react-native-payments-example-expo
             build-command: yarn build --filter=@rnw-community/react-native-payments
+            repack-on-hit: true
