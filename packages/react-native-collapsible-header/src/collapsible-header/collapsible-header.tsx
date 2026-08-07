@@ -28,7 +28,7 @@ const interpolateFadeOut = (value: number, start: number, end: number): number =
     'worklet';
 
     if (start === end) {
-        return value < start ? 1 : 0;
+        return Number(value < start);
     }
 
     return interpolate(value, [start, end], [1, 0], Extrapolation.CLAMP);
@@ -38,7 +38,7 @@ const interpolateFadeIn = (value: number, start: number, end: number): number =>
     'worklet';
 
     if (start === end) {
-        return value < end ? 0 : 1;
+        return Number(value >= end);
     }
 
     return interpolate(value, [start, end], [0, 1], Extrapolation.CLAMP);
