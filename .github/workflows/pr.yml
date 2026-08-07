@@ -229,6 +229,16 @@ jobs:
                     files: packages/react-native-collapsible-header/coverage/lcov.info
                     flags: react-native-collapsible-header
 
+            -   name: Upload coverage - react-native-screen-chrome
+                if: hashFiles('packages/react-native-screen-chrome/coverage/lcov.info') != ''
+                uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7.0.0
+                with:
+                    use_oidc: ${{ !(github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork) }}
+                    fail_ci_if_error: ${{ !(github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork) }}
+                    disable_search: true
+                    files: packages/react-native-screen-chrome/coverage/lcov.info
+                    flags: react-native-screen-chrome
+
             -   name: Upload coverage - react-native-payments
                 if: hashFiles('packages/react-native-payments/coverage/lcov.info') != ''
                 uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7.0.0
@@ -309,12 +319,12 @@ jobs:
                 run: yarn install --immutable
 
             -   name: Build smoke packages
-                run: yarn turbo run build --filter=@rnw-community/shared --filter=@rnw-community/react-native-collapsible-header --filter=@rnw-community/react-native-payments
+                run: yarn turbo run build --filter=@rnw-community/shared --filter=@rnw-community/react-native-collapsible-header --filter=@rnw-community/react-native-screen-chrome --filter=@rnw-community/react-native-payments
 
             -   name: Pack tarballs
                 run: |
                     mkdir -p "$RUNNER_TEMP/tarballs"
-                    npm pack --silent --pack-destination "$RUNNER_TEMP/tarballs" ./packages/shared ./packages/react-native-collapsible-header ./packages/react-native-payments
+                    npm pack --silent --pack-destination "$RUNNER_TEMP/tarballs" ./packages/shared ./packages/react-native-collapsible-header ./packages/react-native-screen-chrome ./packages/react-native-payments
 
             -   name: Scaffold smoke project
                 run: |
@@ -326,11 +336,16 @@ jobs:
                       "version": "1.0.0",
                       "dependencies": {
                         "@rnw-community/react-native-collapsible-header": "file:$(ls "$RUNNER_TEMP"/tarballs/rnw-community-react-native-collapsible-header-*.tgz)",
+                        "@rnw-community/react-native-screen-chrome": "file:$(ls "$RUNNER_TEMP"/tarballs/rnw-community-react-native-screen-chrome-*.tgz)",
                         "@rnw-community/react-native-payments": "file:$(ls "$RUNNER_TEMP"/tarballs/rnw-community-react-native-payments-*.tgz)",
                         "@rnw-community/shared": "file:$(ls "$RUNNER_TEMP"/tarballs/rnw-community-shared-*.tgz)",
+                        "@react-native-masked-view/masked-view": "^0.3.2",
+                        "expo-blur": "~56.0.3",
+                        "expo-linear-gradient": "~56.0.4",
                         "react": "^19.2.3",
                         "react-native": "0.85.3",
                         "react-native-reanimated": "4.3.1",
+                        "react-native-safe-area-context": "~5.7.0",
                         "react-native-worklets": "0.8.3"
                       },
                       "devDependencies": {
@@ -346,14 +361,19 @@ jobs:
                     import { PaymentRequest } from '@rnw-community/react-native-payments';
                     import type { CollapsibleHeaderProps } from '@rnw-community/react-native-collapsible-header';
                     import { CollapsibleHeader } from '@rnw-community/react-native-collapsible-header';
+                    import type { ScreenChromeConfigInterface } from '@rnw-community/react-native-screen-chrome';
+                    import { ScreenChromeProvider } from '@rnw-community/react-native-screen-chrome';
 
                     const details: PaymentDetailsInit | undefined = undefined;
                     const collapsibleHeaderProps: CollapsibleHeaderProps | undefined = undefined;
+                    const screenChromeConfig: ScreenChromeConfigInterface | undefined = undefined;
 
                     void PaymentRequest;
                     void details;
                     void CollapsibleHeader;
                     void collapsibleHeaderProps;
+                    void ScreenChromeProvider;
+                    void screenChromeConfig;
                     TS
 
             -   name: Set up pnpm
@@ -388,11 +408,11 @@ jobs:
 
             -   name: Resolve require (CJS) condition
                 working-directory: ${{ runner.temp }}/smoke
-                run: node -e "require.resolve('@rnw-community/react-native-collapsible-header'); require.resolve('@rnw-community/react-native-payments')"
+                run: node -e "require.resolve('@rnw-community/react-native-collapsible-header'); require.resolve('@rnw-community/react-native-screen-chrome'); require.resolve('@rnw-community/react-native-payments')"
 
             -   name: Resolve import (ESM) condition
                 working-directory: ${{ runner.temp }}/smoke
-                run: node --input-type=module -e "import.meta.resolve('@rnw-community/react-native-collapsible-header'); import.meta.resolve('@rnw-community/react-native-payments')"
+                run: node --input-type=module -e "import.meta.resolve('@rnw-community/react-native-collapsible-header'); import.meta.resolve('@rnw-community/react-native-screen-chrome'); import.meta.resolve('@rnw-community/react-native-payments')"
 
             -   name: Typecheck against shipped types
                 working-directory: ${{ runner.temp }}/smoke

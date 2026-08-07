@@ -46,6 +46,7 @@ yarn lint:fix           # Fix lint issues in this package
 - **react-native-payments** — Payment Request API for Apple Pay/Google Pay
 - **react-native-payments-example** — private example package: shared `src/` screens plus `apps/bare` (React Native CLI) and `apps/expo` (Expo) app targets
 - **react-native-collapsible-header** — Generic slot-based Reanimated header transition driven by a caller-owned scroll value
+- **react-native-screen-chrome** — Safe-area screen structure, progressive edge fades, and compound collapsible chrome
 - **platform, fast-style, redux-loadable** — React Native/Web utilities
 - **object-field-tree** — Object field combination trees
 - **wdio** — WebDriverIO page objects and commands

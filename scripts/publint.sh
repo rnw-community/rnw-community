@@ -18,6 +18,7 @@ packages=(
     object-field-tree
     platform
     react-native-collapsible-header
+    react-native-screen-chrome
     react-native-payments
     redux-loadable
     rxjs-errors
