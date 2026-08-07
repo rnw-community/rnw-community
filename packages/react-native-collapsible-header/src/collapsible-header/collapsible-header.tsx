@@ -8,13 +8,14 @@ import {
     useAnimatedStyle,
 } from 'react-native-reanimated';
 
-import { isPositiveNumber } from '@rnw-community/shared';
+import { isDefined } from '@rnw-community/shared';
 
+import { assertValidCollapsibleHeaderConfig } from '../utils/assert-valid-collapsible-header-config.util.js';
+import { resolveCollapsibleHeaderMotionConfig } from '../utils/resolve-collapsible-header-motion-config.util.js';
+
+import type { CollapsibleHeaderMotionConfig } from '../interface/collapsible-header-motion-config.interface.js';
 import type { CollapsibleHeaderProps } from '../interface/collapsible-header-props.interface.js';
 import type { ViewProps } from 'react-native';
-
-const BACKGROUND_FADE_START = 0.7;
-const COLLAPSED_SCALE = 0.9;
 
 const styles = StyleSheet.create({
     background: { position: 'absolute', top: 0, right: 0, bottom: 0, left: 0 },
@@ -23,19 +24,88 @@ const styles = StyleSheet.create({
 });
 const AnimatedView = createAnimatedComponent(View);
 
-const assertValidGeometry = (expandedHeight: number, collapsedHeight: number, collapseDistance: number) => {
-    if (!isPositiveNumber(expandedHeight)) {
-        throw new Error('expandedHeight must be greater than zero');
-    }
-    if (!isPositiveNumber(collapsedHeight)) {
-        throw new Error('collapsedHeight must be greater than zero');
-    }
-    if (!isPositiveNumber(collapseDistance)) {
-        throw new Error('collapseDistance must be greater than zero');
-    }
-    if (expandedHeight < collapsedHeight) {
-        throw new Error('expandedHeight must be greater than or equal to collapsedHeight');
-    }
+interface CollapsibleHeaderAnimationConfig {
+    readonly scrollY: CollapsibleHeaderProps['scrollY'];
+    readonly expandedHeight: number;
+    readonly collapsedHeight: number;
+    readonly collapseStart: number;
+    readonly collapseDistance: number;
+    readonly motionConfig: CollapsibleHeaderMotionConfig;
+}
+
+const useCollapsibleHeaderAnimatedLayers = ({
+    scrollY,
+    expandedHeight,
+    collapsedHeight,
+    collapseStart,
+    collapseDistance,
+    motionConfig,
+}: CollapsibleHeaderAnimationConfig) => {
+    const collapseEnd = collapseStart + collapseDistance;
+    const expandedOpacityEnd = collapseStart + collapseDistance * motionConfig.expandedOpacityEndProgress;
+    const collapsedOpacityStart = collapseStart + collapseDistance * motionConfig.collapsedOpacityStartProgress;
+    const backgroundOpacityStart = collapseStart + collapseDistance * motionConfig.backgroundOpacityStartProgress;
+    const pointerEventsSwitch = collapseStart + collapseDistance * motionConfig.pointerEventsSwitchProgress;
+    const expandedAnimatedStyle = useAnimatedStyle(() => ({
+        opacity: interpolate(scrollY.get(), [collapseStart, expandedOpacityEnd], [1, 0], Extrapolation.CLAMP),
+        transform: [
+            {
+                translateY: interpolate(
+                    scrollY.get(),
+                    [collapseStart, collapseEnd],
+                    [0, motionConfig.expandedTranslateY],
+                    Extrapolation.CLAMP
+                ),
+            },
+            {
+                scale: interpolate(
+                    scrollY.get(),
+                    [collapseStart, collapseEnd],
+                    [1, motionConfig.expandedScale],
+                    Extrapolation.CLAMP
+                ),
+            },
+        ],
+    }));
+    const collapsedAnimatedStyle = useAnimatedStyle(() => ({
+        opacity: interpolate(scrollY.get(), [collapsedOpacityStart, collapseEnd], [0, 1], Extrapolation.CLAMP),
+        transform: [
+            {
+                translateY: interpolate(
+                    scrollY.get(),
+                    [collapsedOpacityStart, collapseEnd],
+                    [motionConfig.collapsedTranslateY, 0],
+                    Extrapolation.CLAMP
+                ),
+            },
+        ],
+    }));
+    const backgroundAnimatedStyle = useAnimatedStyle(() => ({
+        opacity: interpolate(scrollY.get(), [backgroundOpacityStart, collapseEnd], [0, 1], Extrapolation.CLAMP),
+    }));
+    const headerAnimatedStyle = useAnimatedStyle(() => ({
+        height: interpolate(
+            scrollY.get(),
+            [collapseStart, collapseEnd],
+            [expandedHeight, collapsedHeight],
+            Extrapolation.CLAMP
+        ),
+    }));
+    const expandedAnimatedProps = useAnimatedProps<ViewProps>(() => ({
+        pointerEvents: scrollY.get() <= pointerEventsSwitch ? 'auto' : 'none',
+    }));
+    const collapsedAnimatedProps = useAnimatedProps<ViewProps>(() => ({
+        pointerEvents: scrollY.get() <= pointerEventsSwitch ? 'none' : 'auto',
+    }));
+
+    return {
+        expandedAnimatedStyle,
+        collapsedAnimatedStyle,
+        backgroundAnimatedStyle,
+        headerAnimatedStyle,
+        expandedAnimatedProps,
+        collapsedAnimatedProps,
+    };
 };
 
 /**
@@ -46,57 +116,39 @@ export const CollapsibleHeader = (props: CollapsibleHeaderProps) => {
     const {
         expandedContent,
         collapsedContent,
+        persistentContent,
         scrollY,
         expandedHeight,
         collapsedHeight,
         collapseDistance,
+        collapseStart = 0,
+        motion,
         headerStyle,
         backgroundStyle,
         expandedContentContainerStyle,
         collapsedContentContainerStyle,
+        persistentContentContainerStyle,
         style,
         ...viewProps
     } = props;
+    const motionConfig = resolveCollapsibleHeaderMotionConfig(motion);
 
-    assertValidGeometry(expandedHeight, collapsedHeight, collapseDistance);
-
-    const expandedAnimatedStyle = useAnimatedStyle(() => ({
-        opacity: interpolate(scrollY.get(), [0, collapseDistance * 0.6], [1, 0], Extrapolation.CLAMP),
-        transform: [
-            { translateY: interpolate(scrollY.get(), [0, collapseDistance], [0, -20], Extrapolation.CLAMP) },
-            { scale: interpolate(scrollY.get(), [0, collapseDistance], [1, COLLAPSED_SCALE], Extrapolation.CLAMP) },
-        ],
-    }));
-    const collapsedAnimatedStyle = useAnimatedStyle(() => ({
-        opacity: interpolate(scrollY.get(), [collapseDistance * 0.5, collapseDistance], [0, 1], Extrapolation.CLAMP),
-        transform: [
-            {
-                translateY: interpolate(
-                    scrollY.get(),
-                    [collapseDistance * 0.5, collapseDistance],
-                    [10, 0],
-                    Extrapolation.CLAMP
-                ),
-            },
-        ],
-    }));
-    const backgroundAnimatedStyle = useAnimatedStyle(() => ({
-        opacity: interpolate(
-            scrollY.get(),
-            [collapseDistance * BACKGROUND_FADE_START, collapseDistance],
-            [0, 1],
-            Extrapolation.CLAMP
-        ),
-    }));
-    const headerAnimatedStyle = useAnimatedStyle(() => ({
-        height: interpolate(scrollY.get(), [0, collapseDistance], [expandedHeight, collapsedHeight], Extrapolation.CLAMP),
-    }));
-    const expandedAnimatedProps = useAnimatedProps<ViewProps>(() => ({
-        pointerEvents: scrollY.get() <= collapseDistance * 0.5 ? 'auto' : 'none',
-    }));
-    const collapsedAnimatedProps = useAnimatedProps<ViewProps>(() => ({
-        pointerEvents: scrollY.get() <= collapseDistance * 0.5 ? 'none' : 'auto',
-    }));
+    assertValidCollapsibleHeaderConfig({ expandedHeight, collapsedHeight, collapseDistance, collapseStart }, motionConfig);
+    const {
+        expandedAnimatedStyle,
+        collapsedAnimatedStyle,
+        backgroundAnimatedStyle,
+        headerAnimatedStyle,
+        expandedAnimatedProps,
+        collapsedAnimatedProps,
+    } = useCollapsibleHeaderAnimatedLayers({
+        scrollY,
+        expandedHeight,
+        collapsedHeight,
+        collapseStart,
+        collapseDistance,
+        motionConfig,
+    });
 
     return (
         <View {...viewProps} style={style}>
@@ -114,6 +166,11 @@ export const CollapsibleHeader = (props: CollapsibleHeaderProps) => {
                 >
                     {expandedContent}
                 </AnimatedView>
+                {isDefined(persistentContent) && (
+                    <View pointerEvents="box-none" style={[styles.content, persistentContentContainerStyle]}>
+                        {persistentContent}
+                    </View>
+                )}
             </AnimatedView>
         </View>
     );

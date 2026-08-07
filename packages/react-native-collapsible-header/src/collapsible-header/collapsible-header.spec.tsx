@@ -1,139 +1,35 @@
 import { describe, expect, it } from '@jest/globals';
 import { render } from '@testing-library/react-native';
 import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
-import { useSharedValue } from 'react-native-reanimated';
+import { StyleSheet } from 'react-native';
 
-import { getDefined } from '@rnw-community/shared';
+import { CollapsibleHeaderTestSupport } from './collapsible-header.spec.support.js';
 
-import { CollapsibleHeader } from './collapsible-header.js';
-
-import type { CollapsibleHeaderProps } from '../interface/collapsible-header-props.interface.js';
-import type { StyleProp, ViewProps, ViewStyle } from 'react-native';
-import type { ReactTestInstance } from 'react-test-renderer';
-
-const BACKGROUND_LAYER = 1;
-const HEADER_LAYER = 2;
-const EXPANDED_LAYER = 3;
-const COLLAPSED_LAYER = 4;
-const EXPANDED_HEIGHT = 156;
-const COLLAPSED_HEIGHT = 40;
-const COLLAPSE_DISTANCE = 100;
-const OUTER_PADDING = 24;
-const INVALID_EXPANDED_HEIGHT = 39;
-const NEGATIVE_SCROLL_OFFSET = -20;
-const BEYOND_COLLAPSE_SCROLL_OFFSET = 140;
-const COLLAPSED_SCALE = 0.9;
-const INTERMEDIATE_SCROLL_OFFSET = 75;
-const INTERMEDIATE_HEIGHT = 69;
-const INTERMEDIATE_BACKGROUND_OPACITY = 1 / 6;
-const INTERMEDIATE_SCALE = 0.925;
-
-interface SubjectProps extends Partial<
-    Pick<CollapsibleHeaderProps, 'expandedHeight' | 'collapsedHeight' | 'collapseDistance'>
-> {
-    readonly scrollOffset?: number;
-}
-
-interface LayerProps {
-    readonly style: StyleProp<ViewStyle>;
-    readonly pointerEvents?: ViewProps['pointerEvents'];
-}
-
-interface AnimationExpectation {
-    readonly name: string;
-    readonly scrollOffset: number;
-    readonly height: number;
-    readonly backgroundOpacity: number;
-    readonly expandedOpacity: number;
-    readonly expandedTranslateY: number;
-    readonly expandedScale: number;
-    readonly collapsedOpacity: number;
-    readonly collapsedTranslateY: number;
-}
-
-const Subject = ({
-    scrollOffset = 0,
-    expandedHeight = EXPANDED_HEIGHT,
-    collapsedHeight = COLLAPSED_HEIGHT,
-    collapseDistance = COLLAPSE_DISTANCE,
-}: SubjectProps) => {
-    const scrollY = useSharedValue(scrollOffset);
-
-    return (
-        <CollapsibleHeader
-            accessibilityLabel="Account summary"
-            testID="collapsible-header"
-            style={{ paddingTop: OUTER_PADDING }}
-            scrollY={scrollY}
-            expandedHeight={expandedHeight}
-            collapsedHeight={collapsedHeight}
-            collapseDistance={collapseDistance}
-            expandedContent={<Text testID="expanded-content">Expanded</Text>}
-            collapsedContent={<Text testID="collapsed-content">Collapsed</Text>}
-            backgroundStyle={{ zIndex: BACKGROUND_LAYER }}
-            headerStyle={{ zIndex: HEADER_LAYER }}
-            expandedContentContainerStyle={{ zIndex: EXPANDED_LAYER }}
-            collapsedContentContainerStyle={{ zIndex: COLLAPSED_LAYER }}
-        />
-    );
-};
-
-const getLayerProps = (layer: ReactTestInstance): LayerProps => layer.props as LayerProps;
-const getLayer = (screen: ReturnType<typeof render>, marker: number): ReactTestInstance =>
-    getDefined(
-        screen.UNSAFE_getAllByType(View).find(layer => StyleSheet.flatten(getLayerProps(layer).style).zIndex === marker),
-        () => {
-            throw new Error(`Layer ${marker} was not rendered`);
-        }
-    );
-
-const animationExpectations: readonly AnimationExpectation[] = [
-    {
-        name: 'negative overscroll',
-        scrollOffset: NEGATIVE_SCROLL_OFFSET,
-        height: EXPANDED_HEIGHT,
-        backgroundOpacity: 0,
-        expandedOpacity: 1,
-        expandedTranslateY: 0,
-        expandedScale: 1,
-        collapsedOpacity: 0,
-        collapsedTranslateY: 10,
-    },
-    {
-        name: 'expanded endpoint',
-        scrollOffset: 0,
-        height: EXPANDED_HEIGHT,
-        backgroundOpacity: 0,
-        expandedOpacity: 1,
-        expandedTranslateY: 0,
-        expandedScale: 1,
-        collapsedOpacity: 0,
-        collapsedTranslateY: 10,
-    },
-    {
-        name: 'collapsed endpoint',
-        scrollOffset: COLLAPSE_DISTANCE,
-        height: COLLAPSED_HEIGHT,
-        backgroundOpacity: 1,
-        expandedOpacity: 0,
-        expandedTranslateY: NEGATIVE_SCROLL_OFFSET,
-        expandedScale: COLLAPSED_SCALE,
-        collapsedOpacity: 1,
-        collapsedTranslateY: 0,
-    },
-    {
-        name: 'offset beyond collapse distance',
-        scrollOffset: BEYOND_COLLAPSE_SCROLL_OFFSET,
-        height: COLLAPSED_HEIGHT,
-        backgroundOpacity: 1,
-        expandedOpacity: 0,
-        expandedTranslateY: NEGATIVE_SCROLL_OFFSET,
-        expandedScale: COLLAPSED_SCALE,
-        collapsedOpacity: 1,
-        collapsedTranslateY: 0,
-    },
-];
+const {
+    BACKGROUND_LAYER,
+    HEADER_LAYER,
+    EXPANDED_LAYER,
+    COLLAPSED_LAYER,
+    PERSISTENT_LAYER,
+    COLLAPSED_HEIGHT,
+    COLLAPSE_DISTANCE,
+    CUSTOM_COLLAPSE_START,
+    CUSTOM_COLLAPSE_DISTANCE,
+    OUTER_PADDING,
+    INVALID_EXPANDED_HEIGHT,
+    INTERMEDIATE_SCROLL_OFFSET,
+    INTERMEDIATE_HEIGHT,
+    INTERMEDIATE_BACKGROUND_OPACITY,
+    INTERMEDIATE_SCALE,
+    CUSTOM_MOTION,
+    Subject,
+    getLayerProps,
+    getLayer,
+    animationExpectations,
+    motionConfigExpectations,
+    customMotionExpectations,
+    expectCustomMotionFrame,
+} = CollapsibleHeaderTestSupport;
 
 describe('CollapsibleHeader rendering', () => {
     it('renders caller-owned expanded and collapsed content', () => {
@@ -142,6 +38,18 @@ describe('CollapsibleHeader rendering', () => {
 
         expect(getByTestId('expanded-content')).toBeOnTheScreen();
         expect(getByTestId('collapsed-content')).toBeOnTheScreen();
+    });
+
+    it('renders caller-owned persistent content once above transition layers', () => {
+        expect.hasAssertions();
+        const screen = render(<Subject withPersistentContent />);
+        const persistentLayer = getLayerProps(getLayer(screen, PERSISTENT_LAYER));
+        const persistentStyle = StyleSheet.flatten(persistentLayer.style);
+
+        expect(screen.getAllByTestId('persistent-content')).toHaveLength(1);
+        expect(persistentStyle).toMatchObject({ zIndex: PERSISTENT_LAYER });
+        expect(persistentStyle.zIndex).toBeGreaterThan(EXPANDED_LAYER);
+        expect(persistentStyle.zIndex).toBeGreaterThan(COLLAPSED_LAYER);
     });
 
     it('forwards standard view properties and outer style', () => {
@@ -159,6 +67,7 @@ describe('CollapsibleHeader geometry', () => {
         ['expandedHeight', { expandedHeight: 0 }, 'expandedHeight must be greater than zero'],
         ['collapsedHeight', { collapsedHeight: 0 }, 'collapsedHeight must be greater than zero'],
         ['collapseDistance', { collapseDistance: 0 }, 'collapseDistance must be greater than zero'],
+        ['collapseStart', { collapseStart: -1 }, 'collapseStart must be greater than or equal to zero'],
         [
             'height order',
             { expandedHeight: INVALID_EXPANDED_HEIGHT, collapsedHeight: COLLAPSED_HEIGHT },
@@ -168,6 +77,14 @@ describe('CollapsibleHeader geometry', () => {
         expect.hasAssertions();
 
         expect(() => render(<Subject {...overrides} />)).toThrow(message);
+    });
+});
+
+describe('CollapsibleHeader motion config', () => {
+    it.each(motionConfigExpectations)('rejects invalid $name motion', expectation => {
+        expect.hasAssertions();
+
+        expect(() => render(<Subject motion={expectation.motion} />)).toThrow(expectation.message);
     });
 });
 
@@ -210,6 +127,20 @@ describe('CollapsibleHeader animation', () => {
             opacity: 0.5,
             transform: [{ translateY: 5 }],
         });
+    });
+
+    it.each(customMotionExpectations)('uses custom collapse start and motion at the $name', expectation => {
+        expect.hasAssertions();
+        const screen = render(
+            <Subject
+                scrollOffset={expectation.scrollOffset}
+                collapseStart={CUSTOM_COLLAPSE_START}
+                collapseDistance={CUSTOM_COLLAPSE_DISTANCE}
+                motion={CUSTOM_MOTION}
+            />
+        );
+
+        expectCustomMotionFrame(screen, expectation);
     });
 });
 
