@@ -219,6 +219,16 @@ jobs:
                     files: packages/platform/coverage/lcov.info
                     flags: platform
 
+            -   name: Upload coverage - react-native-collapsible-header
+                if: hashFiles('packages/react-native-collapsible-header/coverage/lcov.info') != ''
+                uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7.0.0
+                with:
+                    use_oidc: ${{ !(github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork) }}
+                    fail_ci_if_error: ${{ !(github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork) }}
+                    disable_search: true
+                    files: packages/react-native-collapsible-header/coverage/lcov.info
+                    flags: react-native-collapsible-header
+
             -   name: Upload coverage - react-native-payments
                 if: hashFiles('packages/react-native-payments/coverage/lcov.info') != ''
                 uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7.0.0
@@ -298,13 +308,13 @@ jobs:
             -   name: Install dependencies
                 run: yarn install --immutable
 
-            -   name: Build shared and react-native-payments
-                run: yarn turbo run build --filter=@rnw-community/shared --filter=@rnw-community/react-native-payments
+            -   name: Build smoke packages
+                run: yarn turbo run build --filter=@rnw-community/shared --filter=@rnw-community/react-native-collapsible-header --filter=@rnw-community/react-native-payments
 
             -   name: Pack tarballs
                 run: |
                     mkdir -p "$RUNNER_TEMP/tarballs"
-                    npm pack --silent --pack-destination "$RUNNER_TEMP/tarballs" ./packages/shared ./packages/react-native-payments
+                    npm pack --silent --pack-destination "$RUNNER_TEMP/tarballs" ./packages/shared ./packages/react-native-collapsible-header ./packages/react-native-payments
 
             -   name: Scaffold smoke project
                 run: |
@@ -315,12 +325,17 @@ jobs:
                       "private": true,
                       "version": "1.0.0",
                       "dependencies": {
+                        "@rnw-community/react-native-collapsible-header": "file:$(ls "$RUNNER_TEMP"/tarballs/rnw-community-react-native-collapsible-header-*.tgz)",
                         "@rnw-community/react-native-payments": "file:$(ls "$RUNNER_TEMP"/tarballs/rnw-community-react-native-payments-*.tgz)",
                         "@rnw-community/shared": "file:$(ls "$RUNNER_TEMP"/tarballs/rnw-community-shared-*.tgz)",
                         "react": "^19.2.3",
-                        "react-native": "^0.86.2"
+                        "react-native": "0.85.3",
+                        "react-native-reanimated": "4.3.1",
+                        "react-native-worklets": "0.8.3"
                       },
                       "devDependencies": {
+                        "@babel/core": "^7.29.7",
+                        "@react-native/metro-config": "0.85.3",
                         "@types/react": "^19.2.0",
                         "typescript": "^5.9.3"
                       }
@@ -329,11 +344,16 @@ jobs:
                     cat > "$RUNNER_TEMP/smoke/smoke.ts" <<'TS'
                     import type { PaymentDetailsInit } from '@rnw-community/react-native-payments';
                     import { PaymentRequest } from '@rnw-community/react-native-payments';
+                    import type { CollapsibleHeaderProps } from '@rnw-community/react-native-collapsible-header';
+                    import { CollapsibleHeader } from '@rnw-community/react-native-collapsible-header';
 
                     const details: PaymentDetailsInit | undefined = undefined;
+                    const collapsibleHeaderProps: CollapsibleHeaderProps | undefined = undefined;
 
                     void PaymentRequest;
                     void details;
+                    void CollapsibleHeader;
+                    void collapsibleHeaderProps;
                     TS
 
             -   name: Set up pnpm
@@ -368,11 +388,11 @@ jobs:
 
             -   name: Resolve require (CJS) condition
                 working-directory: ${{ runner.temp }}/smoke
-                run: node -e "require.resolve('@rnw-community/react-native-payments')"
+                run: node -e "require.resolve('@rnw-community/react-native-collapsible-header'); require.resolve('@rnw-community/react-native-payments')"
 
             -   name: Resolve import (ESM) condition
                 working-directory: ${{ runner.temp }}/smoke
-                run: node --input-type=module -e "import.meta.resolve('@rnw-community/react-native-payments')"
+                run: node --input-type=module -e "import.meta.resolve('@rnw-community/react-native-collapsible-header'); import.meta.resolve('@rnw-community/react-native-payments')"
 
             -   name: Typecheck against shipped types
                 working-directory: ${{ runner.temp }}/smoke

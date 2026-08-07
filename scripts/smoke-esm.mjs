@@ -33,6 +33,11 @@ const EXECUTABLE_PACKAGES = [
 const RESOLUTION_ONLY_PACKAGES = [
     { pkg: 'platform', unloadableBecause: "imports the value 'Platform' from 'react-native', untranspiled Flow/JSX" },
     {
+        pkg: 'react-native-collapsible-header',
+        unloadableBecause: 'imports React Native and Reanimated runtime bindings that require a native or Metro environment',
+        unresolvedPeerPackages: ['react-native-reanimated'],
+    },
+    {
         pkg: 'react-native-payments',
         unloadableBecause: "imports value bindings ('Platform', 'NativeModules', 'TurboModuleRegistry', 'NativeEventEmitter') from 'react-native', untranspiled Flow/JSX",
     },
@@ -148,7 +153,7 @@ function findSpotCheckableRelativeSpecifier(entryFile) {
     return undefined;
 }
 
-function checkResolutionOnly({ pkg, unloadableBecause }) {
+function checkResolutionOnly({ pkg, unloadableBecause, unresolvedPeerPackages = [] }) {
     const specifier = `@rnw-community/${pkg}`;
     const pkgDir = path.join(scopeDir, pkg);
     const pkgJson = JSON.parse(fs.readFileSync(path.join(pkgDir, 'package.json'), 'utf8'));
@@ -179,14 +184,23 @@ function checkResolutionOnly({ pkg, unloadableBecause }) {
     }
 
     const resolutionErrorCodesLiteral = JSON.stringify([...MODULE_RESOLUTION_ERROR_CODES]);
+    const unresolvedPeerPackagesLiteral = JSON.stringify(unresolvedPeerPackages);
     const probeFile = path.join(path.dirname(entryFile), '.rnw-smoke-deep-specifier-probe.mjs');
     fs.writeFileSync(
         probeFile,
         `
         const resolutionErrorCodes = new Set(${resolutionErrorCodesLiteral});
+        const unresolvedPeerPackages = ${unresolvedPeerPackagesLiteral};
         import('${deepSpecifier}').then(
             () => { console.log('imported'); },
             e => {
+                const isAllowedUnresolvedPeer = e.code === 'ERR_MODULE_NOT_FOUND' && unresolvedPeerPackages.some(
+                    peerPackage => e.message.includes("Cannot find package '" + peerPackage + "'")
+                );
+                if (isAllowedUnresolvedPeer) {
+                    console.log('resolved-but-peer-missing ' + e.message.split('\\n')[0]);
+                    return;
+                }
                 if (resolutionErrorCodes.has(e.code)) {
                     console.error(e.code, e.message);
                     process.exit(1);
