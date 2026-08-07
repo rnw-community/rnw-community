@@ -14,7 +14,8 @@ yarn test && yarn test:coverage && yarn build && yarn ts && yarn ts:nodenext && 
 src/
   collapsible-header/
     collapsible-header.tsx       — public component, geometry and motion validation, and animated layers
-    collapsible-header.spec.tsx  — rendering, validation, animation, clamping, and interaction coverage
+    collapsible-header.spec.tsx  — rendering and validation coverage
+    collapsible-header-motion.spec.tsx — animation, clamping, and interaction coverage
   constant/
     default-collapsible-header-motion-config.constant.ts — original-compatible motion preset
   interface/

@@ -40,6 +40,8 @@ const CUSTOM_MOTION: CollapsibleHeaderMotionConfig = {
     expandedScale: 1,
     collapsedTranslateY: 0,
 };
+const CUSTOM_POINTER_EVENTS_SWITCH_SCROLL_OFFSET =
+    CUSTOM_COLLAPSE_START + CUSTOM_COLLAPSE_DISTANCE * CUSTOM_MOTION.pointerEventsSwitchProgress;
 
 type SubjectProps = Partial<
     Pick<CollapsibleHeaderProps, 'expandedHeight' | 'collapsedHeight' | 'collapseDistance' | 'collapseStart' | 'motion'>
@@ -184,6 +186,23 @@ describe('CollapsibleHeader animation', () => {
             expectCustomMotionFrame(screen, expectation);
         }
     );
+
+    it('uses the default motion value when an override is undefined', () => {
+        expect.hasAssertions();
+        const motionWithMissingExpandedScale: Pick<Partial<CollapsibleHeaderMotionConfig>, 'expandedScale'> = {};
+        const screen = render(
+            <Subject
+                scrollOffset={COLLAPSE_DISTANCE}
+                motion={{ expandedScale: motionWithMissingExpandedScale.expandedScale }}
+            />
+        );
+        const expanded = getLayerProps(getLayer(screen, EXPANDED_LAYER));
+
+        expect(StyleSheet.flatten(expanded.style).transform).toMatchObject([
+            { translateY: NEGATIVE_SCROLL_OFFSET },
+            { scale: COLLAPSED_SCALE },
+        ]);
+    });
 });
 
 describe('CollapsibleHeader endpoint animation', () => {
@@ -242,6 +261,29 @@ describe('CollapsibleHeader interaction', () => {
         (scrollOffset, expectedExpandedPointerEvents, expectedCollapsedPointerEvents) => {
             expect.hasAssertions();
             const screen = render(<Subject scrollOffset={scrollOffset} />);
+            const expanded = getLayerProps(getLayer(screen, EXPANDED_LAYER));
+            const collapsed = getLayerProps(getLayer(screen, COLLAPSED_LAYER));
+
+            expect(expanded.pointerEvents).toBe(expectedExpandedPointerEvents);
+            expect(collapsed.pointerEvents).toBe(expectedCollapsedPointerEvents);
+        }
+    );
+
+    it.each([
+        [CUSTOM_POINTER_EVENTS_SWITCH_SCROLL_OFFSET, 'auto', 'none'],
+        [CUSTOM_POINTER_EVENTS_SWITCH_SCROLL_OFFSET + 1, 'none', 'auto'],
+    ])(
+        'uses the custom pointer-event threshold at scroll offset %s',
+        (scrollOffset, expectedExpandedPointerEvents, expectedCollapsedPointerEvents) => {
+            expect.hasAssertions();
+            const screen = render(
+                <Subject
+                    scrollOffset={scrollOffset}
+                    collapseStart={CUSTOM_COLLAPSE_START}
+                    collapseDistance={CUSTOM_COLLAPSE_DISTANCE}
+                    motion={CUSTOM_MOTION}
+                />
+            );
             const expanded = getLayerProps(getLayer(screen, EXPANDED_LAYER));
             const collapsed = getLayerProps(getLayer(screen, COLLAPSED_LAYER));
 
