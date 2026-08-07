@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo } from 'react';
-import Animated, {
+import {
     scrollTo,
     useAnimatedRef,
     useAnimatedScrollHandler,
@@ -14,6 +14,7 @@ import { mergeScreenChromeConfig } from '../utils/merge-screen-chrome-config.uti
 
 import type { ScreenChromeConfigOverridesInterface } from '../interface/screen-chrome-config-overrides.interface.js';
 import type { ReactNode } from 'react';
+import type { ScrollView } from 'react-native';
 import type { ScrollHandlers } from 'react-native-reanimated';
 
 const MOMENTUM_VELOCITY_EPSILON = 0.05;
@@ -29,7 +30,7 @@ interface Props {
  * @see https://github.com/rnw-community/rnw-community/tree/master/packages/react-native-screen-chrome#screenchromeprovider
  */
 export const ScreenChromeProvider = ({ children, colorScheme = ColorSchemeEnum.LIGHT, config }: Props): ReactNode => {
-    const scrollRef = useAnimatedRef<Animated.ScrollView>();
+    const scrollRef = useAnimatedRef<ScrollView>();
     const scrollY = useScrollViewOffset(scrollRef);
     const reducedMotion = useReducedMotion();
     const resolvedConfig = useMemo(() => {
@@ -60,6 +61,8 @@ export const ScreenChromeProvider = ({ children, colorScheme = ColorSchemeEnum.L
     const scrollHandlers = useMemo<ScrollHandlers<Record<string, unknown>>>(
         () => ({
             onEndDrag: event => {
+                'worklet';
+
                 if (!snapToCollapse) {
                     return;
                 }
@@ -73,6 +76,8 @@ export const ScreenChromeProvider = ({ children, colorScheme = ColorSchemeEnum.L
                 snapIfNeeded(event.contentOffset.y);
             },
             onMomentumEnd: event => {
+                'worklet';
+
                 if (!snapToCollapse) {
                     return;
                 }
@@ -89,5 +94,5 @@ export const ScreenChromeProvider = ({ children, colorScheme = ColorSchemeEnum.L
         [colorScheme, resolvedConfig, scrollHandler, scrollRef, scrollY]
     );
 
-    return <ScreenChromeContext value={contextValue}>{children}</ScreenChromeContext>;
+    return <ScreenChromeContext.Provider value={contextValue}>{children}</ScreenChromeContext.Provider>;
 };

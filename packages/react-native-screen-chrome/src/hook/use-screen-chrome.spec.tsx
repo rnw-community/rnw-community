@@ -11,7 +11,7 @@ import { useScreenChrome } from './use-screen-chrome.hook.js';
 
 import type { ScreenChromeContextValueInterface } from '../interface/screen-chrome-context-value.interface.js';
 import type { PropsWithChildren } from 'react';
-import type Animated from 'react-native-reanimated';
+import type { ScrollView } from 'react-native';
 
 describe('useScreenChrome', () => {
     it('throws without a provider', () => {
@@ -26,7 +26,7 @@ describe('useScreenChrome', () => {
             const scrollHandler = useAnimatedScrollHandler(() => {
                 'worklet';
             });
-            const scrollRef = useAnimatedRef<Animated.ScrollView>();
+            const scrollRef = useAnimatedRef<ScrollView>();
             const value: ScreenChromeContextValueInterface = {
                 colorScheme: ColorSchemeEnum.LIGHT,
                 config: SCREEN_CHROME_DEFAULT_CONFIG,

@@ -123,6 +123,16 @@ const dispatchMomentumEnd = (context: ScreenChromeContextValueInterface, offsetY
     });
 };
 
+const dispatchEndDragWithoutVelocity = (context: ScreenChromeContextValueInterface, offsetY: number): void => {
+    const { scrollHandler } = context;
+
+    if (!isTestScrollHandler(scrollHandler)) {
+        throw new Error('ScreenChromeProvider did not expose test scroll handlers');
+    }
+
+    scrollHandler.onEndDrag({ contentOffset: { y: offsetY } });
+};
+
 beforeEach(() => {
     scrollToMock.mockClear();
     useReducedMotionMock.mockReturnValue(false);
@@ -203,21 +213,35 @@ describe('ScreenChromeProvider context', () => {
 });
 
 describe('ScreenChromeProvider snapping', () => {
+    it('ignores drag and momentum events when snapping is disabled', () => {
+        const context = captureContext();
+
+        dispatchEndDrag(context, LOWER_INSIDE_OFFSET);
+        dispatchMomentumEnd(context, LOWER_INSIDE_OFFSET);
+
+        expect(scrollToMock).not.toHaveBeenCalled();
+    });
+
+    it('snaps drag events that omit velocity', () => {
+        const context = captureContext({ config: { snapToCollapse: true } });
+
+        dispatchEndDragWithoutVelocity(context, LOWER_INSIDE_OFFSET);
+
+        expect(scrollToMock).toHaveBeenCalledWith(context.scrollRef, 0, SCREEN_CHROME_DEFAULT_CONFIG.collapseStart, true);
+    });
+
     it.each([
         0,
         SCREEN_CHROME_DEFAULT_CONFIG.collapseStart,
         SCREEN_CHROME_DEFAULT_CONFIG.collapseEnd,
         OUTSIDE_COLLAPSE_OFFSET,
-    ])(
-        'does not snap outside or at endpoint %s',
-        offsetY => {
-            const context = captureContext({ config: { snapToCollapse: true } });
+    ])('does not snap outside or at endpoint %s', offsetY => {
+        const context = captureContext({ config: { snapToCollapse: true } });
 
-            dispatchEndDrag(context, offsetY);
+        dispatchEndDrag(context, offsetY);
 
-            expect(scrollToMock).not.toHaveBeenCalled();
-        }
-    );
+        expect(scrollToMock).not.toHaveBeenCalled();
+    });
 
     it('snaps lower-half offsets to collapse start', () => {
         const context = captureContext({ config: { snapToCollapse: true } });
