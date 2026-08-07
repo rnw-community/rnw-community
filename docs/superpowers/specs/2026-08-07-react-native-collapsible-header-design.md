@@ -31,31 +31,41 @@ Required properties:
 - `expandedHeight: number`, `collapsedHeight: number`, and `collapseDistance: number` define the geometry without
   embedding Budgie's dimensions.
 
+Optional composition and motion properties:
+
+- `persistentContent?: ReactNode` renders caller-owned controls once above both transition layers.
+- `collapseStart?: number` offsets the transition interval when content should remain expanded through an initial
+  scroll range.
+- `motion?: Partial<CollapsibleHeaderMotionConfig>` overrides generic progress thresholds and endpoint transforms while
+  preserving the default preset for consumers that omit it.
+
 The props interface extends `Omit<ViewProps, 'children'>`, so `style`, `testID`, accessibility properties, and other
 standard view properties pass through to the outer container. Package-specific `headerStyle`, `backgroundStyle`,
 `expandedContentContainerStyle`, and `collapsedContentContainerStyle` properties expose `StyleProp<ViewStyle>`
 overrides for the four internal animated layers.
 
-The initial API intentionally does not expose individual interpolation thresholds or transforms. Those values are a
-cohesive animation preset derived from the existing implementation. A later release can add an animation configuration
-object if real consumers need a different motion profile.
+The motion object is intentionally small and normalized to collapse progress. It configures expanded opacity end,
+collapsed opacity start, background opacity start, pointer-event handoff, expanded translation and scale endpoints, and
+collapsed translation. It does not expose arbitrary worklets or callbacks.
 
 ## Runtime Behavior
 
-The component renders one animated-height container with three overlapping layers:
+The component renders one animated-height container with four overlapping layers:
 
 1. A background layer fades in near the end of collapse.
 2. Expanded content fades out, moves upward, and scales down during collapse.
 3. Collapsed content fades in and moves into place during the latter half of collapse.
+4. Optional persistent content remains mounted once and does not participate in the crossfade.
 
-All interpolation clamps below zero and beyond `collapseDistance`. The implementation reads `scrollY.get()`, which is
-available in supported Reanimated 3 and 4 releases and follows Reanimated's React Compiler guidance. Safe-area padding
-is consumer-owned so the component works inside screens, navigators, sheets, and custom chrome without requiring
-`react-native-safe-area-context`.
+All interpolation clamps below `collapseStart` and beyond `collapseStart + collapseDistance`. The implementation reads
+`scrollY.get()`, which is available in supported Reanimated 3 and 4 releases and follows Reanimated's React Compiler
+guidance. Safe-area padding is consumer-owned so the component works inside screens, navigators, sheets, and custom
+chrome without requiring `react-native-safe-area-context`.
 
-Invalid geometry is rejected with descriptive runtime errors: heights and collapse distance must be positive, and the
-expanded height must be greater than or equal to the collapsed height. This prevents silent inverted or division-by-zero
-animation behavior.
+Invalid geometry and motion are rejected with descriptive runtime errors: heights and collapse distance must be
+positive, collapse start must be non-negative, the expanded height must be greater than or equal to the collapsed
+height, progress thresholds must be within zero and one, and transforms must be finite. This prevents silent inverted,
+non-finite, or division-by-zero animation behavior.
 
 ## Package Structure
 
@@ -80,6 +90,8 @@ boundary, an intermediate value, the collapse distance, and beyond the collapse 
 - opacity, translation, and scale at each boundary;
 - clamping outside the supported scroll range;
 - style override composition and outer `ViewProps` forwarding;
+- single mounting and pointer behavior for persistent content;
+- non-zero collapse starts and custom motion thresholds/transforms;
 - invalid geometry errors.
 
 The package must meet the repository's 99.9% statement, branch, function, and line coverage threshold.
