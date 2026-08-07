@@ -1,0 +1,79 @@
+{
+    "name": "@rnw-community/react-native-collapsible-header",
+    "version": "2.12.10",
+    "description": "Generic Reanimated collapsible header for React Native",
+    "keywords": [
+        "react",
+        "react-native",
+        "react-native-web",
+        "reanimated",
+        "collapsible header"
+    ],
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/rnw-community/rnw-community.git",
+        "directory": "packages/react-native-collapsible-header"
+    },
+    "license": "MIT",
+    "sideEffects": false,
+    "type": "module",
+    "exports": {
+        ".": {
+            "import": {
+                "types": "./dist/esm/index.d.ts",
+                "default": "./dist/esm/index.js"
+            },
+            "require": {
+                "types": "./dist/cjs/index.d.ts",
+                "default": "./dist/cjs/index.js"
+            }
+        }
+    },
+    "main": "dist/cjs/index.js",
+    "module": "dist/esm/index.js",
+    "types": "dist/esm/index.d.ts",
+    "files": [
+        "dist/**/*"
+    ],
+    "scripts": {
+        "build": "yarn build:esm && yarn build:cjs && rm -rf ./dist/*/*.tsbuildinfo && echo '{\"type\":\"module\"}' > dist/esm/package.json && echo '{\"type\":\"commonjs\"}' > dist/cjs/package.json",
+        "build:cjs": "run -T tsc --pretty -p tsconfig.build-cjs.json",
+        "build:esm": "run -T tsc --pretty -p tsconfig.build-esm.json",
+        "clear": "rm -rf coverage && rm -rf dist && rm -f *.tsbuildinfo",
+        "clear:deps": "rm -rf ./node_modules && rm -rf ./dist",
+        "format": "run -T prettier --write \"./src/**/*.{ts,tsx}\"",
+        "lint": "run -T eslint src",
+        "lint:fix": "run -T eslint --fix src",
+        "test": "run -T jest",
+        "test:coverage": "run -T jest --coverage",
+        "ts": "run -T tsc --pretty -p tsconfig.json",
+        "ts:nodenext": "run -T tsc --pretty -p tsconfig.nodenext-check.json"
+    },
+    "dependencies": {
+        "@rnw-community/shared": "^2.12.10"
+    },
+    "devDependencies": {
+        "@babel/core": "^7.29.7",
+        "@react-native/jest-preset": "0.85.3",
+        "@react-native/metro-config": "0.85.3",
+        "@testing-library/react-native": "^13.3.3",
+        "@types/react": "^19.2.0",
+        "@types/react-test-renderer": "^19.1.0",
+        "react": "^19.2.3",
+        "react-native": "0.85.3",
+        "react-native-reanimated": "4.3.1",
+        "react-native-worklets": "0.8.3",
+        "react-test-renderer": "^19.2.3"
+    },
+    "peerDependencies": {
+        "react": ">=18",
+        "react-native": ">=0.72",
+        "react-native-reanimated": ">=3.17.2 <5"
+    },
+    "engines": {
+        "node": ">=22.0.0"
+    },
+    "publishConfig": {
+        "access": "public"
+    }
+}
