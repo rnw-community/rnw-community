@@ -48,9 +48,10 @@ The component renders one animated-height container with three overlapping layer
 2. Expanded content fades out, moves upward, and scales down during collapse.
 3. Collapsed content fades in and moves into place during the latter half of collapse.
 
-All interpolation clamps below zero and beyond `collapseDistance`. The implementation reads `scrollY.value` for
-compatibility with supported Reanimated 3 and 4 releases. Safe-area padding is consumer-owned so the component works
-inside screens, navigators, sheets, and custom chrome without requiring `react-native-safe-area-context`.
+All interpolation clamps below zero and beyond `collapseDistance`. The implementation reads `scrollY.get()`, which is
+available in supported Reanimated 3 and 4 releases and follows Reanimated's React Compiler guidance. Safe-area padding
+is consumer-owned so the component works inside screens, navigators, sheets, and custom chrome without requiring
+`react-native-safe-area-context`.
 
 Invalid geometry is rejected with descriptive runtime errors: heights and collapse distance must be positive, and the
 expanded height must be greater than or equal to the collapsed height. This prevents silent inverted or division-by-zero
