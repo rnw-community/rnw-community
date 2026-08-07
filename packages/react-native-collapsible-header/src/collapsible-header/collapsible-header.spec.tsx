@@ -1,40 +1,38 @@
 import { describe, expect, it } from '@jest/globals';
 import { render } from '@testing-library/react-native';
 import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
-import { useSharedValue } from 'react-native-reanimated';
+import { StyleSheet } from 'react-native';
 
-import { getDefined } from '@rnw-community/shared';
-
-import { CollapsibleHeader } from './collapsible-header.js';
+import {
+    BACKGROUND_LAYER,
+    BEFORE_COLLAPSED_ENDPOINT_SCROLL_OFFSET,
+    BEYOND_COLLAPSE_SCROLL_OFFSET,
+    COLLAPSED_HEIGHT,
+    COLLAPSED_LAYER,
+    COLLAPSED_SCALE,
+    COLLAPSE_DISTANCE,
+    CUSTOM_COLLAPSE_DISTANCE,
+    CUSTOM_COLLAPSE_START,
+    CUSTOM_INTERMEDIATE_HEIGHT,
+    EXPANDED_HEIGHT,
+    EXPANDED_LAYER,
+    HEADER_LAYER,
+    INTERMEDIATE_HEIGHT,
+    INTERMEDIATE_SCALE,
+    INTERMEDIATE_SCROLL_OFFSET,
+    INTERMEDIATE_TRANSLATE_Y,
+    INVALID_EXPANDED_HEIGHT,
+    NEGATIVE_SCROLL_OFFSET,
+    OUTER_PADDING,
+    PERSISTENT_LAYER,
+    Subject,
+    getLayer,
+    getLayerProps,
+} from './collapsible-header.spec.util.js';
 
 import type { CollapsibleHeaderMotionConfig } from '../interface/collapsible-header-motion-config.interface.js';
-import type { CollapsibleHeaderProps } from '../interface/collapsible-header-props.interface.js';
-import type { StyleProp, ViewProps, ViewStyle } from 'react-native';
-import type { ReactTestInstance } from 'react-test-renderer';
-
-const BACKGROUND_LAYER = 1;
-const HEADER_LAYER = 2;
-const EXPANDED_LAYER = 3;
-const COLLAPSED_LAYER = 4;
-const PERSISTENT_LAYER = 5;
-const EXPANDED_HEIGHT = 156;
-const COLLAPSED_HEIGHT = 40;
-const COLLAPSE_DISTANCE = 100;
-const CUSTOM_COLLAPSE_START = 20;
-const CUSTOM_COLLAPSE_DISTANCE = 80;
-const OUTER_PADDING = 24;
-const INVALID_EXPANDED_HEIGHT = 39;
-const NEGATIVE_SCROLL_OFFSET = -20;
-const BEYOND_COLLAPSE_SCROLL_OFFSET = 140;
-const INTERMEDIATE_SCROLL_OFFSET = 75;
-const INTERMEDIATE_HEIGHT = 69;
-const INTERMEDIATE_TRANSLATE_Y = -15;
-const CUSTOM_INTERMEDIATE_HEIGHT = 98;
 const INVALID_LOW_PROGRESS = -0.1;
 const INVALID_HIGH_PROGRESS = 1.1;
-const COLLAPSED_SCALE = 0.9;
-const INTERMEDIATE_SCALE = 0.925;
 const CUSTOM_MOTION: CollapsibleHeaderMotionConfig = {
     expandedOpacityEndProgress: 0.75,
     collapsedOpacityStartProgress: 0.5,
@@ -44,59 +42,6 @@ const CUSTOM_MOTION: CollapsibleHeaderMotionConfig = {
     expandedScale: 1,
     collapsedTranslateY: 0,
 };
-
-type SubjectProps = Partial<
-    Pick<CollapsibleHeaderProps, 'expandedHeight' | 'collapsedHeight' | 'collapseDistance' | 'collapseStart' | 'motion'>
-> & {
-    readonly scrollOffset?: number;
-    readonly withPersistentContent?: boolean;
-};
-
-type LayerProps = Pick<ViewProps, 'pointerEvents'> & { readonly style: StyleProp<ViewStyle> };
-
-const Subject = ({
-    scrollOffset = 0,
-    expandedHeight = EXPANDED_HEIGHT,
-    collapsedHeight = COLLAPSED_HEIGHT,
-    collapseDistance = COLLAPSE_DISTANCE,
-    collapseStart,
-    motion,
-    withPersistentContent = false,
-}: SubjectProps) => {
-    const scrollY = useSharedValue(scrollOffset);
-    const persistentContent = withPersistentContent ? <Text testID="persistent-content">Persistent</Text> : null;
-
-    return (
-        <CollapsibleHeader
-            accessibilityLabel="Account summary"
-            testID="collapsible-header"
-            style={{ paddingTop: OUTER_PADDING }}
-            scrollY={scrollY}
-            expandedHeight={expandedHeight}
-            collapsedHeight={collapsedHeight}
-            collapseDistance={collapseDistance}
-            collapseStart={collapseStart}
-            motion={motion}
-            expandedContent={<Text testID="expanded-content">Expanded</Text>}
-            collapsedContent={<Text testID="collapsed-content">Collapsed</Text>}
-            persistentContent={persistentContent}
-            backgroundStyle={{ zIndex: BACKGROUND_LAYER }}
-            headerStyle={{ zIndex: HEADER_LAYER }}
-            expandedContentContainerStyle={{ zIndex: EXPANDED_LAYER }}
-            collapsedContentContainerStyle={{ zIndex: COLLAPSED_LAYER }}
-            persistentContentContainerStyle={{ zIndex: PERSISTENT_LAYER }}
-        />
-    );
-};
-
-const getLayerProps = (layer: ReactTestInstance): LayerProps => layer.props as LayerProps;
-const getLayer = (screen: ReturnType<typeof render>, marker: number): ReactTestInstance =>
-    getDefined(
-        screen.UNSAFE_getAllByType(View).find(layer => StyleSheet.flatten(getLayerProps(layer).style).zIndex === marker),
-        () => {
-            throw new Error(`Layer ${marker} was not rendered`);
-        }
-    );
 
 const expandedFrame = [EXPANDED_HEIGHT, 0, 1, 0, 1, 0, 10] as const;
 const collapsedFrame = [COLLAPSED_HEIGHT, 1, 0, NEGATIVE_SCROLL_OFFSET, COLLAPSED_SCALE, 1, 0] as const;
@@ -274,6 +219,52 @@ describe('CollapsibleHeader animation', () => {
             expectCustomMotionFrame(screen, expectation);
         }
     );
+});
+
+describe('CollapsibleHeader endpoint animation', () => {
+    it.each([
+        [
+            'expanded end at start',
+            { motion: { expandedOpacityEndProgress: 0, collapsedOpacityStartProgress: 0 } },
+            EXPANDED_LAYER,
+            0,
+        ],
+        [
+            'collapsed before end',
+            {
+                scrollOffset: BEFORE_COLLAPSED_ENDPOINT_SCROLL_OFFSET,
+                motion: { expandedOpacityEndProgress: 1, collapsedOpacityStartProgress: 1 },
+            },
+            COLLAPSED_LAYER,
+            0,
+        ],
+        [
+            'background before end',
+            { scrollOffset: BEFORE_COLLAPSED_ENDPOINT_SCROLL_OFFSET, motion: { backgroundOpacityStartProgress: 1 } },
+            BACKGROUND_LAYER,
+            0,
+        ],
+        [
+            'collapsed end',
+            {
+                scrollOffset: COLLAPSE_DISTANCE,
+                motion: { expandedOpacityEndProgress: 1, collapsedOpacityStartProgress: 1 },
+            },
+            COLLAPSED_LAYER,
+            1,
+        ],
+        [
+            'background end',
+            { scrollOffset: COLLAPSE_DISTANCE, motion: { backgroundOpacityStartProgress: 1 } },
+            BACKGROUND_LAYER,
+            1,
+        ],
+    ])('handles endpoint opacity threshold for %s', (_name, subjectProps, layer, opacity) => {
+        expect.hasAssertions();
+        const screen = render(<Subject {...subjectProps} />);
+
+        expect(StyleSheet.flatten(getLayerProps(getLayer(screen, layer)).style)).toMatchObject({ opacity });
+    });
 });
 
 describe('CollapsibleHeader interaction', () => {

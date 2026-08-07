@@ -24,6 +24,26 @@ const styles = StyleSheet.create({
 });
 const AnimatedView = createAnimatedComponent(View);
 
+const interpolateFadeOut = (value: number, start: number, end: number): number => {
+    'worklet';
+
+    if (start === end) {
+        return value < start ? 1 : 0;
+    }
+
+    return interpolate(value, [start, end], [1, 0], Extrapolation.CLAMP);
+};
+
+const interpolateFadeIn = (value: number, start: number, end: number): number => {
+    'worklet';
+
+    if (start === end) {
+        return value < end ? 0 : 1;
+    }
+
+    return interpolate(value, [start, end], [0, 1], Extrapolation.CLAMP);
+};
+
 interface CollapsibleHeaderAnimationConfig {
     readonly scrollY: CollapsibleHeaderProps['scrollY'];
     readonly expandedHeight: number;
@@ -47,7 +67,7 @@ const useCollapsibleHeaderAnimatedLayers = ({
     const backgroundOpacityStart = collapseStart + collapseDistance * motionConfig.backgroundOpacityStartProgress;
     const pointerEventsSwitch = collapseStart + collapseDistance * motionConfig.pointerEventsSwitchProgress;
     const expandedAnimatedStyle = useAnimatedStyle(() => ({
-        opacity: interpolate(scrollY.get(), [collapseStart, expandedOpacityEnd], [1, 0], Extrapolation.CLAMP),
+        opacity: interpolateFadeOut(scrollY.get(), collapseStart, expandedOpacityEnd),
         transform: [
             {
                 translateY: interpolate(
@@ -68,7 +88,7 @@ const useCollapsibleHeaderAnimatedLayers = ({
         ],
     }));
     const collapsedAnimatedStyle = useAnimatedStyle(() => ({
-        opacity: interpolate(scrollY.get(), [collapsedOpacityStart, collapseEnd], [0, 1], Extrapolation.CLAMP),
+        opacity: interpolateFadeIn(scrollY.get(), collapsedOpacityStart, collapseEnd),
         transform: [
             {
                 translateY: interpolate(
@@ -81,7 +101,7 @@ const useCollapsibleHeaderAnimatedLayers = ({
         ],
     }));
     const backgroundAnimatedStyle = useAnimatedStyle(() => ({
-        opacity: interpolate(scrollY.get(), [backgroundOpacityStart, collapseEnd], [0, 1], Extrapolation.CLAMP),
+        opacity: interpolateFadeIn(scrollY.get(), backgroundOpacityStart, collapseEnd),
     }));
     const headerAnimatedStyle = useAnimatedStyle(() => ({
         height: interpolate(
