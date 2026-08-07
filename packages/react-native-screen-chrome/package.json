@@ -33,6 +33,10 @@
     "main": "dist/cjs/index.js",
     "module": "dist/esm/index.js",
     "types": "dist/esm/index.d.ts",
+    "browser": {
+        "./dist/esm/constant/screen-chrome-default-config.constant.js": "./dist/esm/constant/screen-chrome-default-config.constant.web.js",
+        "./dist/cjs/constant/screen-chrome-default-config.constant.js": "./dist/cjs/constant/screen-chrome-default-config.constant.web.js"
+    },
     "files": [
         "dist/**/*"
     ],
