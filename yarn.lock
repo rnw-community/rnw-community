@@ -6277,6 +6277,7 @@ __metadata:
   resolution: "@rnw-community/react-native-collapsible-header@workspace:packages/react-native-collapsible-header"
   dependencies:
     "@babel/core": "npm:^7.29.7"
+    "@react-native/babel-preset": "npm:0.85.3"
     "@react-native/jest-preset": "npm:0.85.3"
     "@react-native/metro-config": "npm:0.85.3"
     "@rnw-community/shared": "npm:^2.12.10"
