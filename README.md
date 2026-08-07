@@ -17,6 +17,10 @@ Monorepo for useful NestJS, React Native and React Native Web packages and nativ
 ### ReactNative native libs:
 -   [react-native-payments](https://github.com/rnw-community/rnw-community/tree/master/packages/react-native-payments) [![npm version](https://badge.fury.io/js/%40rnw-community%2Freact-native-payments.svg)](https://badge.fury.io/js/%40rnw-community%2Freact-native-payments)
 
+### React Native utilities
+
+-   [react-native-collapsible-header](https://github.com/rnw-community/rnw-community/tree/master/packages/react-native-collapsible-header) [![npm version](https://badge.fury.io/js/%40rnw-community%2Freact-native-collapsible-header.svg)](https://badge.fury.io/js/%40rnw-community%2Freact-native-collapsible-header)
+
 ### General
 
 -   [Object field tree](https://github.com/rnw-community/rnw-community/tree/master/packages/object-field-tree) [![npm version](https://badge.fury.io/js/%40rnw-community%2Fobject-field-tree.svg)](https://badge.fury.io/js/%40rnw-community%2Fobject-field-tree)

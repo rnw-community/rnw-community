@@ -8,7 +8,7 @@ This file provides guidance to AI coding agents when working with code in this r
 
 ## Project Overview
 
-TypeScript monorepo with 21 packages providing NestJS, React, React Native, and React Native Web utilities. Uses Yarn Workspaces (v4), Turbo for task orchestration, and Lerna for publishing.
+TypeScript monorepo with 22 packages providing NestJS, React, React Native, and React Native Web utilities. Uses Yarn Workspaces (v4), Turbo for task orchestration, and Lerna for publishing.
 
 ## Common Commands
 
@@ -45,6 +45,7 @@ yarn lint:fix           # Fix lint issues in this package
 - **rxjs-errors** — RxJS error utilities
 - **react-native-payments** — Payment Request API for Apple Pay/Google Pay
 - **react-native-payments-example** — private example package: shared `src/` screens plus `apps/bare` (React Native CLI) and `apps/expo` (Expo) app targets
+- **react-native-collapsible-header** — Generic slot-based Reanimated header transition driven by a caller-owned scroll value
 - **platform, fast-style, redux-loadable** — React Native/Web utilities
 - **object-field-tree** — Object field combination trees
 - **wdio** — WebDriverIO page objects and commands
@@ -286,7 +287,7 @@ The monorepo uses dual ESM + CJS output. Key decisions:
   consumers use (Metro included). Packages declare their actual supported Node floor via `engines.node` instead of
   chasing the legacy pre-`exports` resolution algorithm
 - **Invariant: zero extensionless relative specifiers in any published output.** Every relative `import`/`export …
-  from`/dynamic `import()` specifier in every package's `src` tree carries an explicit `.js` (or `/index.js` for a
+from`/dynamic `import()` specifier in every package's `src` tree carries an explicit `.js` (or `/index.js` for a
   barrel-style directory import) extension, exactly as Node's own ESM resolver requires — `tsc` is the gate, not a
   post-build rewrite: `tsconfig.build-esm.json` sets `"module"`/`"moduleResolution"` to `"nodenext"`, and every
   dual-format package's root `package.json` carries a real `"type": "module"` so `tsc` resolves `src/*.ts` as
@@ -310,7 +311,7 @@ The monorepo uses dual ESM + CJS output. Key decisions:
   `.js` (or `/index.js`) suffix. `no-restricted-syntax` selectors in `eslint.config.mjs` flag any `Import`/`Export`
   declaration or dynamic `import()` whose relative specifier lacks one, so new code cannot regress this — plain
   `import/extensions` from `eslint-plugin-import` was evaluated and rejected: it keys its "required extension" check
-  off the *resolved* file's real extension (`.ts`), so it would demand `./foo.ts` in source, the opposite of the
+  off the _resolved_ file's real extension (`.ts`), so it would demand `./foo.ts` in source, the opposite of the
   `.js`-refers-to-`.ts` convention `tsc`'s `nodenext` relies on. `get-jest.config.js` adds a `moduleNameMapper`
   (`^(\.{1,2}/.*)\.js$` → `$1`) so Jest — which runs directly against `src/*.ts` via `babel-jest`, never against the
   compiled `dist/esm` output — strips that same extension back off before resolving, since Jest's resolver (unlike
