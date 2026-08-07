@@ -30,7 +30,7 @@ const assertValidGeometry = (geometry: CollapsibleHeaderGeometry) => {
         throw new Error('collapseDistance must be greater than zero');
     }
     if (!Number.isFinite(geometry.collapseStart) || geometry.collapseStart < 0) {
-        throw new Error('collapseStart must be greater than or equal to zero');
+        throw new Error('collapseStart must be a finite number greater than or equal to zero');
     }
     if (geometry.expandedHeight < geometry.collapsedHeight) {
         throw new Error('expandedHeight must be greater than or equal to collapsedHeight');
