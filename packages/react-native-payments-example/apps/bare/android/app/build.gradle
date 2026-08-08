@@ -44,8 +44,12 @@ react {
     // extraPackagerArgs = []
 
     /* Hermes Commands */
-    //   The hermes compiler command to run. By default it is 'hermesc'
-    // hermesCommand = "$rootDir/my-custom-hermesc/bin/hermesc"
+    //   The hermes compiler command to run. By default it is autodetected relative to `root`
+    //   (this app's own directory), which has no local node_modules in this hoisted monorepo
+    //   layout, so autodetection can't find node_modules/hermes-compiler and fails with
+    //   "Couldn't determine Hermesc location". Point it at the hoisted copy directly; %OS-BIN%
+    //   is substituted by the React Native Gradle plugin for the host OS/arch.
+    hermesCommand = file("../../../../../../node_modules/hermes-compiler/hermesc/%OS-BIN%/hermesc").path
     //
     //   The list of flags to pass to the Hermes compiler. By default is "-O", "-output-source-map"
     // hermesFlags = ["-O", "-output-source-map"]

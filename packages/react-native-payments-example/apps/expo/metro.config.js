@@ -15,5 +15,16 @@ config.resolver.nodeModulesPaths = [
     path.resolve(monorepoRoot, 'node_modules'),
 ];
 config.resolver.unstable_enableSymlinks = true;
+config.resolver.resolveRequest = (context, moduleName, platform) => {
+    try {
+        return context.resolveRequest(context, moduleName, platform);
+    } catch (error) {
+        if (moduleName.startsWith('.') && /\.m?js$/.test(moduleName)) {
+            return context.resolveRequest(context, moduleName.replace(/\.m?js$/, ''), platform);
+        }
+
+        throw error;
+    }
+};
 
 module.exports = config;

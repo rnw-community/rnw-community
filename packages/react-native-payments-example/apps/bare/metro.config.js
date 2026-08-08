@@ -15,5 +15,16 @@ module.exports = mergeConfig(getDefaultConfig(projectRoot), {
             path.resolve(monorepoRoot, 'node_modules'),
         ],
         unstable_enableSymlinks: true,
+        resolveRequest: (context, moduleName, platform) => {
+            try {
+                return context.resolveRequest(context, moduleName, platform);
+            } catch (error) {
+                if (moduleName.startsWith('.') && /\.m?js$/.test(moduleName)) {
+                    return context.resolveRequest(context, moduleName.replace(/\.m?js$/, ''), platform);
+                }
+
+                throw error;
+            }
+        },
     },
 });

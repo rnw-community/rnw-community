@@ -1,9 +1,5 @@
 name: iOS Maestro E2E
 
-# Draft workflow for issue #395 (react-native-payments revival, epic #372). The
-# self-hosted macOS fleet is not registered yet (blocked on #396), so runs
-# simply queue until that lands. workflow_dispatch + path filters + a nightly
-# schedule keep this safe to land ahead of the fleet.
 on:
     workflow_dispatch:
     pull_request:
@@ -23,222 +19,20 @@ concurrency:
 permissions:
     contents: read
 
-env:
-    MAESTRO_VERSION: '2.8.0'
-    MAESTRO_CLI_NO_ANALYTICS: true
-    MAESTRO_CLI_ANALYSIS_NOTIFICATION_DISABLED: true
-    YARN_ENABLE_IMMUTABLE_INSTALLS: true
-    EXAMPLE_DIR: packages/react-native-payments-example
-
 jobs:
-    detect:
-        name: Detect affected packages
-        runs-on: ubuntu-latest
-        outputs:
-            payments_affected: ${{ steps.affected.outputs.payments_affected }}
-        steps:
-            - uses: actions/checkout@v5
-              with:
-                  fetch-depth: 0
-                  persist-credentials: false
-            - uses: actions/setup-node@v5
-              with:
-                  node-version: 22.x
-            - name: Compute affected packages
-              id: affected
-              env:
-                  TURBO_SCM_BASE: ${{ github.event.pull_request.base.sha }}
-              run: |
-                  if [ "${{ github.event_name }}" != "pull_request" ]; then
-                    echo "payments_affected=true" >> "$GITHUB_OUTPUT"
-                    echo "Non-PR event: payments pipeline always runs."
-                    exit 0
-                  fi
-                  affected=$(npx -y turbo@2.10.8 ls --affected --output=json | node -e '
-                    let raw = "";
-                    process.stdin.on("data", chunk => (raw += chunk));
-                    process.stdin.on("end", () => {
-                      const names = (JSON.parse(raw).packages?.items ?? []).map(item => item.name);
-                      const targets = [
-                        "@rnw-community/react-native-payments",
-                        "@rnw-community/react-native-payments-example",
-                        "@rnw-community/react-native-payments-example-bare",
-                        "@rnw-community/react-native-payments-example-expo",
-                      ];
-                      process.stdout.write(String(names.some(name => targets.includes(name))));
-                    });
-                  ')
-                  echo "payments_affected=${affected}" >> "$GITHUB_OUTPUT"
-                  echo "payments_affected=${affected}"
-    maestro:
-        name: Maestro (${{ matrix.target }})
-        needs: detect
-        if: needs.detect.outputs.payments_affected == 'true'
-        runs-on: [self-hosted, macOS, ARM64, macos-maestro]
-        timeout-minutes: 60
-        strategy:
-            fail-fast: false
-            matrix:
-                target: [bare, expo]
-        env:
-            APP_DIR: packages/react-native-payments-example/apps/${{ matrix.target }}
-            MAESTRO_DEBUG_OUTPUT_DIRECTORY: ${{ github.workspace }}/packages/react-native-payments-example/artifacts/maestro-ios-${{ matrix.target }}
-
-        steps:
-            -   name: Checkout repository
-                uses: actions/checkout@v5
-
-            -   name: Setup Node
-                uses: actions/setup-node@v5
-                with:
-                    node-version: 22.x
-                    cache: yarn
-
-            -   name: Enable corepack
-                run: corepack enable
-
-            -   name: Install dependencies
-                run: yarn install --immutable
-
-            -   name: Verify Xcode toolchain
-                run: xcodebuild -version
-
-            -   name: Restore CocoaPods global cache
-                uses: actions/cache@v4
-                with:
-                    path: |
-                        ~/Library/Caches/CocoaPods
-                        ~/.cocoapods
-                    key: pods-global-${{ runner.os }}-${{ hashFiles('yarn.lock') }}
-                    restore-keys: |
-                        pods-global-${{ runner.os }}-
-
-            -   name: Restore project Pods and DerivedData cache
-                uses: actions/cache@v4
-                with:
-                    path: |
-                        ${{ env.APP_DIR }}/ios/Pods
-                        ${{ env.APP_DIR }}/ios/build
-                    key: pods-project-ios-${{ matrix.target }}-${{ runner.os }}-${{ hashFiles(format('{0}/ios/Podfile.lock', env.APP_DIR), format('{0}/package.json', env.APP_DIR), format('{0}/app.json', env.APP_DIR), 'yarn.lock') }}
-                    restore-keys: |
-                        pods-project-ios-${{ matrix.target }}-${{ runner.os }}-
-
-            -   name: Build workspace JS dependencies
-                run: yarn build --filter=@rnw-community/react-native-payments
-
-            -   name: Generate native project (expo)
-                if: matrix.target == 'expo'
-                working-directory: ${{ env.EXAMPLE_DIR }}
-                run: yarn prebuild:expo
-
-            -   name: Install CocoaPods dependencies (bare)
-                if: matrix.target == 'bare'
-                working-directory: ${{ env.APP_DIR }}/ios
-                run: pod install --repo-update
-
-            -   name: Install CocoaPods dependencies (expo)
-                if: matrix.target == 'expo'
-                working-directory: ${{ env.APP_DIR }}/ios
-                run: pod install --repo-update
-
-            -   name: Boot iOS Simulator
-                shell: bash
-                run: |
-                    set -euo pipefail
-                    device_line=$(xcrun simctl list devices available | grep -E '^\s+iPhone.*\(' | tail -1)
-                    test -n "$device_line"
-                    device_udid=$(grep -oE '[0-9A-Fa-f]{8}(-[0-9A-Fa-f]{4}){3}-[0-9A-Fa-f]{12}' <<< "$device_line")
-                    test -n "$device_udid"
-                    echo "Booting simulator: $device_line"
-                    xcrun simctl boot "$device_udid" || true
-                    xcrun simctl bootstatus "$device_udid" -b
-                    echo "SIMULATOR_UDID=$device_udid" >> "$GITHUB_ENV"
-
-            -   name: Build app (bare)
-                if: matrix.target == 'bare'
-                working-directory: ${{ env.APP_DIR }}/ios
-                run: |
-                    set -euo pipefail
-                    xcodebuild \
-                        -workspace ReactNativePaymentsExample.xcworkspace \
-                        -scheme ReactNativePaymentsExample \
-                        -configuration Release \
-                        -sdk iphonesimulator \
-                        -destination 'generic/platform=iOS Simulator' \
-                        -derivedDataPath build \
-                        CODE_SIGNING_ALLOWED=NO \
-                        build
-                    echo "APP_PATH=${{ env.APP_DIR }}/ios/build/Build/Products/Release-iphonesimulator/ReactNativePaymentsExample.app" >> "$GITHUB_ENV"
-
-            -   name: Build app (expo)
-                if: matrix.target == 'expo'
-                working-directory: ${{ env.APP_DIR }}/ios
-                run: |
-                    set -euo pipefail
-                    xcodebuild \
-                        -workspace reactnativepaymentsexpoexample.xcworkspace \
-                        -scheme reactnativepaymentsexpoexample \
-                        -configuration Release \
-                        -sdk iphonesimulator \
-                        -destination 'generic/platform=iOS Simulator' \
-                        -derivedDataPath build \
-                        CODE_SIGNING_ALLOWED=NO \
-                        build
-                    echo "APP_PATH=${{ env.APP_DIR }}/ios/build/Build/Products/Release-iphonesimulator/reactnativepaymentsexpoexample.app" >> "$GITHUB_ENV"
-
-            -   name: Install app on simulator
-                run: xcrun simctl install "$SIMULATOR_UDID" "$APP_PATH"
-
-            -   name: Install Maestro
-                run: |
-                    maestro_bin="$HOME/.maestro/bin/maestro"
-                    if [ ! -x "$maestro_bin" ] || [ "$("$maestro_bin" --version 2>/dev/null | tail -n 1 | tr -d '\r' || true)" != "$MAESTRO_VERSION" ]; then
-                      curl -fsSL https://get.maestro.mobile.dev | env MAESTRO_VERSION="$MAESTRO_VERSION" bash
-                    fi
-                    echo "$HOME/.maestro/bin" >> "$GITHUB_PATH"
-
-            -   name: Run Maestro suite
-                working-directory: ${{ env.EXAMPLE_DIR }}
-                run: yarn e2e:ios:${{ matrix.target }}
-
-            -   name: Capture final simulator state
-                if: failure()
-                shell: bash
-                run: |
-                    mkdir -p "${{ env.MAESTRO_DEBUG_OUTPUT_DIRECTORY }}"
-                    xcrun simctl io "$SIMULATOR_UDID" screenshot "${{ env.MAESTRO_DEBUG_OUTPUT_DIRECTORY }}/final-screen.png" || true
-
-            -   name: Shutdown simulator
-                if: always()
-                run: xcrun simctl shutdown "$SIMULATOR_UDID" || true
-
-            -   name: Upload Maestro artifacts
-                if: failure()
-                uses: actions/upload-artifact@v4
-                with:
-                    name: maestro-ios-${{ matrix.target }}
-                    path: ${{ env.MAESTRO_DEBUG_OUTPUT_DIRECTORY }}/**
-                    if-no-files-found: warn
-                    retention-days: 7
-
-    status:
-        name: iOS Maestro E2E result
-        needs: [detect, maestro]
-        if: always()
-        runs-on: ubuntu-latest
-        steps:
-            - name: Report
-              run: |
-                  if [ "${{ needs.detect.result }}" != "success" ]; then
-                    echo "Detection job did not succeed."
-                    exit 1
-                  fi
-                  if [ "${{ needs.detect.outputs.payments_affected }}" != "true" ]; then
-                    echo "Skipped: payments dependency tree untouched."
-                    exit 0
-                  fi
-                  if [ "${{ needs.maestro.result }}" != "success" ]; then
-                    echo "Maestro suite failed."
-                    exit 1
-                  fi
-                  echo "Maestro suite passed."
+    e2e:
+        uses: rnw-community/mobile-ci/.github/workflows/ios-maestro.yml@e6360047cd92fbf524d99a7ddc352fa566d3638a # v1.3.0
+        with:
+            runner-labels: '["self-hosted","macOS","ARM64","macos-maestro"]'
+            targets: >-
+                [{"name":"bare","appDir":"packages/react-native-payments-example/apps/bare","workspace":"ReactNativePaymentsExample.xcworkspace","scheme":"ReactNativePaymentsExample","appId":"org.reactjs.native.example.ReactNativePaymentsExample","prebuildCommand":""},{"name":"expo","appDir":"packages/react-native-payments-example/apps/expo","workspace":"reactnativepaymentsexpoexample.xcworkspace","scheme":"reactnativepaymentsexpoexample","appId":"com.reactnativepaymentsexpoexample","prebuildCommand":"yarn prebuild"}]
+            flows-dir: packages/react-native-payments-example/e2e/flows
+            flows-name-pattern: '*.yaml *.yml'
+            shard-count: 2
+            target-packages: |
+                @rnw-community/react-native-payments
+                @rnw-community/react-native-payments-example
+                @rnw-community/react-native-payments-example-bare
+                @rnw-community/react-native-payments-example-expo
+            build-command: yarn build --filter=@rnw-community/react-native-payments
+            repack-on-hit: true
