@@ -16,7 +16,7 @@ import { mergeScreenChromeConfig } from '../utils/merge-screen-chrome-config.uti
 import type { ScreenChromeConfigOverridesInterface } from '../interface/screen-chrome-config-overrides.interface.js';
 import type { ReactNode } from 'react';
 import type { ScrollView } from 'react-native';
-import type { ScrollHandlers } from 'react-native-reanimated';
+import type { ScrollEvent, ScrollHandlers } from 'react-native-reanimated';
 
 interface Props {
     readonly children: ReactNode;
@@ -59,7 +59,7 @@ export const ScreenChromeProvider = ({ children, colorScheme = ColorSchemeEnum.L
 
     const scrollHandlers = useMemo<ScrollHandlers<Record<string, unknown>>>(
         () => ({
-            onEndDrag: event => {
+            onEndDrag: (event: ScrollEvent) => {
                 'worklet';
 
                 if (!snapToCollapse) {
@@ -74,7 +74,7 @@ export const ScreenChromeProvider = ({ children, colorScheme = ColorSchemeEnum.L
 
                 snapIfNeeded(event.contentOffset.y);
             },
-            onMomentumEnd: event => {
+            onMomentumEnd: (event: ScrollEvent) => {
                 'worklet';
 
                 if (!snapToCollapse) {
