@@ -21,8 +21,10 @@ permissions:
 
 jobs:
     e2e:
-        uses: rnw-community/mobile-ci/.github/workflows/android-maestro.yml@3ecd0054f64589c063112b73469a492b224bd866 # v1.0.1
+        uses: rnw-community/mobile-ci/.github/workflows/android-maestro.yml@0eadcb345bc704b1ccc8e9965634af1ff3d2e25e # v1.1.0
         with:
+            build-runner-labels: '["self-hosted","macOS","ARM64","macos-maestro"]'
+            test-runner-labels: '["self-hosted","linux-tiered","linux-xl"]'
             targets: >-
                 [{"name":"bare","appDir":"packages/react-native-payments-example/apps/bare","appId":"com.reactnativepaymentsexample","prebuildCommand":""},{"name":"expo","appDir":"packages/react-native-payments-example/apps/expo","appId":"com.reactnativepaymentsexpoexample","prebuildCommand":"yarn prebuild"}]
             flows-dir: packages/react-native-payments-example/e2e/flows
