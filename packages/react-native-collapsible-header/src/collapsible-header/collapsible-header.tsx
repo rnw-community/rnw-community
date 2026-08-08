@@ -1,6 +1,6 @@
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
-import { createAnimatedComponent } from 'react-native-reanimated';
+import Animated from 'react-native-reanimated';
 
 import { isDefined } from '@rnw-community/shared';
 
@@ -16,7 +16,7 @@ const styles = StyleSheet.create({
     header: { position: 'relative' },
     content: { position: 'absolute', top: 0, right: 0, bottom: 0, left: 0 },
 });
-const AnimatedView = createAnimatedComponent(View);
+const AnimatedView = Animated.createAnimatedComponent(View);
 
 /**
  * Renders caller-owned expanded and collapsed content inside an animated header shell.
