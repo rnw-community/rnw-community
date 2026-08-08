@@ -4,18 +4,16 @@ import { createAnimatedComponent } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useScreenChrome } from '../hook/use-screen-chrome.hook.js';
-import { mergeRefs } from '../utils/merge-refs.util.js';
 import { mergeScrollContentInset } from '../utils/merge-scroll-content-inset.util.js';
 
-import type { ComponentProps, ReactNode, Ref } from 'react';
+import type { ComponentProps, ReactNode } from 'react';
 
 const DEFAULT_CONTENT_INSET = 0;
 const AnimatedScrollView = createAnimatedComponent(ScrollView);
 
-interface Props extends ComponentProps<typeof ScrollView> {
+interface Props extends Omit<ComponentProps<typeof ScrollView>, 'ref'> {
     readonly contentInsetTop?: number;
     readonly contentInsetBottom?: number;
-    readonly ref?: Ref<ScrollView>;
 }
 
 /**
@@ -26,12 +24,10 @@ export const ScreenChromeScrollView = ({
     contentInsetTop = DEFAULT_CONTENT_INSET,
     contentInsetBottom = DEFAULT_CONTENT_INSET,
     contentContainerStyle,
-    ref,
     ...scrollViewProps
 }: Props): ReactNode => {
     const { config, scrollHandler, scrollRef } = useScreenChrome();
     const insets = useSafeAreaInsets();
-    const mergedRef = useMemo(() => mergeRefs(scrollRef, ref), [scrollRef, ref]);
     const mergedContentContainerStyle = useMemo(
         () => mergeScrollContentInset(insets, contentInsetTop, contentInsetBottom, contentContainerStyle),
         [contentContainerStyle, contentInsetBottom, contentInsetTop, insets]
@@ -40,7 +36,7 @@ export const ScreenChromeScrollView = ({
     return (
         <AnimatedScrollView
             {...scrollViewProps}
-            ref={mergedRef}
+            ref={scrollRef}
             contentContainerStyle={mergedContentContainerStyle}
             onScroll={scrollHandler}
             scrollEventThrottle={config.scrollEventThrottle}

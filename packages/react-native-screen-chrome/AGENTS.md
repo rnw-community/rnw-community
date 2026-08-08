@@ -11,7 +11,7 @@ yarn test && yarn test:coverage && yarn build && yarn ts && yarn ts:nodenext && 
 ## Architecture
 
 - `ScreenChromeProvider` owns scroll state, validated configuration, reduced motion, and collapse snapping.
-- `ScreenChromeFrame`, `ScreenChromeContent`, and `ScreenChromeScrollView` own paint order and safe-area composition.
+- `ScreenChromeFrame` and `ScreenChromeScrollView` own paint order and safe-area composition.
 - `EdgeFade` has explicit native and web implementations with shared metrics and animation hooks.
 - The compound header validates direct slots and delegates all transitions to `react-native-collapsible-header`.
 - Generic leading and trailing control slots live in one persistent layer and must never be duplicated for transitions.

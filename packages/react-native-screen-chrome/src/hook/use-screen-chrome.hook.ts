@@ -1,4 +1,4 @@
-import { useContext } from 'react';
+import { use } from 'react';
 
 import { isDefined } from '@rnw-community/shared';
 
@@ -11,7 +11,7 @@ import type { ScreenChromeContextValueInterface } from '../interface/screen-chro
  * @see https://github.com/rnw-community/rnw-community/tree/master/packages/react-native-screen-chrome#usescreenchrome
  */
 export const useScreenChrome = (): ScreenChromeContextValueInterface => {
-    const context = useContext(ScreenChromeContext);
+    const context = use(ScreenChromeContext);
 
     if (!isDefined(context)) {
         throw new Error('useScreenChrome must be used within ScreenChromeProvider');

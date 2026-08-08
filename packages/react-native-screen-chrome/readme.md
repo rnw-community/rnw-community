@@ -32,7 +32,6 @@ import {
     CollapsibleHeaderSlot,
     CollapsibleHeaderTitleSlot,
     EdgeFade,
-    ScreenChromeContent,
     ScreenChromeFrame,
     ScreenChromeProvider,
     ScreenChromeScrollView,
@@ -41,11 +40,9 @@ import {
 export const AccountsScreen = () => (
     <ScreenChromeProvider config={{ snapToCollapse: true }}>
         <ScreenChromeFrame>
-            <ScreenChromeContent>
-                <ScreenChromeScrollView contentInsetTop={96} contentInsetBottom={48}>
-                    <Text>Consumer-owned content</Text>
-                </ScreenChromeScrollView>
-            </ScreenChromeContent>
+            <ScreenChromeScrollView contentInsetTop={96} contentInsetBottom={48}>
+                <Text>Consumer-owned content</Text>
+            </ScreenChromeScrollView>
             <CollapsibleHeaderBackdrop />
             <EdgeFade position="bottom" />
             <CollapsibleHeader>
@@ -101,9 +98,8 @@ static. Native defaults use 150-point top and bottom bands, while web defaults u
 
 ## Public utilities
 
-`mergeRefs` combines object and callback refs, including React 19 callback cleanups. `mergeScrollContentInset` composes
-safe-area and caller chrome padding while retaining consumer styles last. `useScrollFadeStyle` creates a clamped
-opacity style from the provider scroll value.
+`mergeScrollContentInset` composes safe-area and caller chrome padding while retaining consumer styles last.
+`useScrollFadeStyle` creates a clamped opacity style from the provider scroll value.
 
 ## License
 

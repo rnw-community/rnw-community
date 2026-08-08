@@ -7,14 +7,12 @@ export { SCREEN_CHROME_DEFAULT_CONFIG } from './constant/screen-chrome-default-c
 export { SCREEN_CHROME_SHARED_DEFAULT_CONFIG } from './constant/screen-chrome-shared-default-config.constant.js';
 export { ScreenChromeContext } from './context/screen-chrome.context.js';
 export { EdgeFade } from './edge-fade/edge-fade.js';
-export { ScreenChromeContent } from './screen-chrome-content/screen-chrome-content.js';
 export { ScreenChromeFrame } from './screen-chrome-frame/screen-chrome-frame.js';
 export { ScreenChromeProvider } from './screen-chrome-provider/screen-chrome-provider.js';
 export { ScreenChromeScrollView } from './screen-chrome-scroll-view/screen-chrome-scroll-view.js';
 export { useScreenChrome } from './hook/use-screen-chrome.hook.js';
 export { useScrollFadeStyle } from './hook/use-scroll-fade-style.hook.js';
 export { assertValidScreenChromeConfig } from './utils/assert-valid-screen-chrome-config.util.js';
-export { mergeRefs } from './utils/merge-refs.util.js';
 export { mergeScrollContentInset } from './utils/merge-scroll-content-inset.util.js';
 export { mergeScreenChromeConfig } from './utils/merge-screen-chrome-config.util.js';
 export type { ScreenChromeColorSetInterface } from './interface/screen-chrome-color-set.interface.js';
