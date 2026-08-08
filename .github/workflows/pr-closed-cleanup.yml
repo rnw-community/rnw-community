@@ -5,58 +5,7 @@ on:
         types: [closed]
 
 jobs:
-    cancel-queued-runs:
-        name: Cancel queued/in-progress runs for the closed PR branch
-        runs-on: ubuntu-latest
+    cleanup:
         permissions:
             actions: write
-
-        steps:
-            -   name: Cancel queued and in-progress runs for this branch
-                env:
-                    GH_TOKEN: ${{ github.token }}
-                    HEAD_BRANCH: ${{ github.event.pull_request.head.ref }}
-                    CURRENT_RUN_ID: ${{ github.run_id }}
-                    PR_NUMBER: ${{ github.event.pull_request.number }}
-                run: |
-                    set -euo pipefail
-
-                    max_iterations=20
-
-                    for status in queued in_progress; do
-                      iteration=0
-                      while :; do
-                        iteration=$((iteration + 1))
-                        if [ "$iteration" -gt "$max_iterations" ]; then
-                          echo "Reached max iterations (${max_iterations}) for status=${status}, stopping."
-                          break
-                        fi
-
-                        response=$(gh api --method GET \
-                          "repos/${{ github.repository }}/actions/runs" \
-                          -f "branch=${HEAD_BRANCH}" \
-                          -f "status=${status}" \
-                          -f "per_page=100" \
-                          -f "page=1")
-
-                        cancellable_ids=$(echo "$response" | jq -r --arg repo "${{ github.repository }}" --arg current "$CURRENT_RUN_ID" --argjson pr_number "$PR_NUMBER" '
-                          [.workflow_runs[]
-                            | select(.head_repository.full_name == $repo)
-                            | select(.event == "pull_request")
-                            | select([.pull_requests[]?.number] | index($pr_number))
-                            | select((.id | tostring) != $current)
-                            | .id
-                          ] | .[]
-                        ')
-
-                        if [ -z "$cancellable_ids" ]; then
-                          break
-                        fi
-
-                        echo "$cancellable_ids" | while read -r run_id; do
-                          echo "Cancelling run ${run_id}"
-                          gh api --method POST \
-                            "repos/${{ github.repository }}/actions/runs/${run_id}/cancel" || true
-                        done
-                      done
-                    done
+        uses: rnw-community/mobile-ci/.github/workflows/pr-closed-cleanup-reusable.yml@0eadcb345bc704b1ccc8e9965634af1ff3d2e25e # v1.1.0
