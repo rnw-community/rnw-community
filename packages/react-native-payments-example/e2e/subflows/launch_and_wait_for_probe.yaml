@@ -2,6 +2,13 @@ appId: ${APP_ID}
 ---
 - launchApp:
     clearState: true
+- runFlow:
+    when:
+      platform: Android
+    commands:
+      - tapOn:
+          text: "OK"
+          optional: true
 - assertVisible:
     id: "payments-flow-state"
     text: "idle"

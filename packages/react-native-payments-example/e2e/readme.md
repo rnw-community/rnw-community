@@ -73,6 +73,21 @@ Android has no equivalent constraint: the Google Pay stub on the emulator never 
 sandboxed sheet, so the app's own elements stay queryable throughout and the flows'
 `when: platform: Android` branches are unaffected by this change.
 
+## Documented gap: Redroid has no Google Play Services
+
+Redroid images are plain AOSP with no Google Play Services at all (`SERVICE_INVALID`, not merely
+"missing"), unlike an AVD's `google_apis` system image. Any construction of a
+`com.google.android.gms.wallet.PaymentsClient` on such a device — not just an explicit user action —
+trips Play Services' own bundled fallback UI, which shows a blocking system dialog ("… won't run
+without Google Play services, which are not supported by your device.") over the whole screen.
+`subflows/show_request.yaml` already anticipated this for the manual `action-show` tap. It also
+fires from `usePaymentDemo`'s `useEffect`-driven `canMakePayment` probe on mount — an entry point
+the suite doesn't tap into, so nothing dismissed it — which occluded `payments-flow-state` for
+every flow (they all route through this subflow) until `launch_and_wait_for_probe.yaml` gained the
+same `optional: true` "OK" dismissal right after `launchApp`. The lesson generalizes: on Redroid,
+guard every code path that can construct a GMS client, not only the ones a flow's own steps
+exercise directly.
+
 ## Documented gap: native-sheet-driven completion
 
 Two behaviors described in the package `readme.md` only fire from an event a **real, user-driven**
