@@ -6,11 +6,8 @@ import { Text } from 'react-native';
 import { CollapsibleHeader as GenericCollapsibleHeader } from '@rnw-community/react-native-collapsible-header';
 import { isDefined } from '@rnw-community/shared';
 
-import { CollapsibleHeaderLargeTitle } from '../collapsible-header-large-title/collapsible-header-large-title.js';
-import { CollapsibleHeaderLeading } from '../collapsible-header-leading/collapsible-header-leading.js';
-import { CollapsibleHeaderSmallTitle } from '../collapsible-header-small-title/collapsible-header-small-title.js';
+import { CollapsibleHeaderSlot } from '../collapsible-header-slot/collapsible-header-slot.js';
 import { CollapsibleHeaderTitleSlot } from '../collapsible-header-title-slot/collapsible-header-title-slot.js';
-import { CollapsibleHeaderTrailing } from '../collapsible-header-trailing/collapsible-header-trailing.js';
 import { SCREEN_CHROME_DEFAULT_CONFIG } from '../constant/screen-chrome-default-config.constant.js';
 
 import { CollapsibleHeader } from './collapsible-header.js';
@@ -32,20 +29,16 @@ describe('CollapsibleHeader', () => {
 
         render(
             <CollapsibleHeader testID="chrome-header">
-                <CollapsibleHeaderLeading>
+                <CollapsibleHeaderSlot>
                     <Text>Back</Text>
-                </CollapsibleHeaderLeading>
+                </CollapsibleHeaderSlot>
                 <CollapsibleHeaderTitleSlot>
-                    <CollapsibleHeaderLargeTitle>
-                        <Text>Large</Text>
-                    </CollapsibleHeaderLargeTitle>
-                    <CollapsibleHeaderSmallTitle>
-                        <Text>Small</Text>
-                    </CollapsibleHeaderSmallTitle>
+                    <Text>Large</Text>
+                    <Text>Small</Text>
                 </CollapsibleHeaderTitleSlot>
-                <CollapsibleHeaderTrailing>
+                <CollapsibleHeaderSlot>
                     <Text>Menu</Text>
-                </CollapsibleHeaderTrailing>
+                </CollapsibleHeaderSlot>
             </CollapsibleHeader>
         );
 
@@ -80,25 +73,21 @@ describe('CollapsibleHeader', () => {
         expect(controls.getAllByText('Menu')).toHaveLength(1);
     });
 
-    it('renders each public marker component', () => {
+    it('renders the public slot components', () => {
         expect.hasAssertions();
 
         const markers = render(
             <>
-                <CollapsibleHeaderLeading>
+                <CollapsibleHeaderSlot>
                     <Text>Leading</Text>
-                </CollapsibleHeaderLeading>
+                </CollapsibleHeaderSlot>
                 <CollapsibleHeaderTitleSlot>
-                    <CollapsibleHeaderLargeTitle>
-                        <Text>Expanded</Text>
-                    </CollapsibleHeaderLargeTitle>
-                    <CollapsibleHeaderSmallTitle>
-                        <Text>Collapsed</Text>
-                    </CollapsibleHeaderSmallTitle>
+                    <Text>Expanded</Text>
+                    <Text>Collapsed</Text>
                 </CollapsibleHeaderTitleSlot>
-                <CollapsibleHeaderTrailing>
+                <CollapsibleHeaderSlot>
                     <Text>Trailing</Text>
-                </CollapsibleHeaderTrailing>
+                </CollapsibleHeaderSlot>
             </>
         );
 

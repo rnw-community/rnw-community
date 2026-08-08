@@ -2,29 +2,22 @@ import { describe, expect, it } from '@jest/globals';
 import React from 'react';
 import { Text } from 'react-native';
 
-import { CollapsibleHeaderLargeTitle } from '../collapsible-header-large-title/collapsible-header-large-title.js';
-import { CollapsibleHeaderLeading } from '../collapsible-header-leading/collapsible-header-leading.js';
-import { CollapsibleHeaderSmallTitle } from '../collapsible-header-small-title/collapsible-header-small-title.js';
+import { CollapsibleHeaderSlot } from '../collapsible-header-slot/collapsible-header-slot.js';
 import { CollapsibleHeaderTitleSlot } from '../collapsible-header-title-slot/collapsible-header-title-slot.js';
-import { CollapsibleHeaderTrailing } from '../collapsible-header-trailing/collapsible-header-trailing.js';
 
 import { getCollapsibleHeaderSlots } from './get-collapsible-header-slots.util.js';
 
 const createValidChildren = () => [
-    <CollapsibleHeaderLeading key="leading">
+    <CollapsibleHeaderSlot key="leading">
         <Text>Back</Text>
-    </CollapsibleHeaderLeading>,
+    </CollapsibleHeaderSlot>,
     <CollapsibleHeaderTitleSlot key="title">
-        <CollapsibleHeaderLargeTitle>
-            <Text>Large</Text>
-        </CollapsibleHeaderLargeTitle>
-        <CollapsibleHeaderSmallTitle>
-            <Text>Small</Text>
-        </CollapsibleHeaderSmallTitle>
+        <Text>Large</Text>
+        <Text>Small</Text>
     </CollapsibleHeaderTitleSlot>,
-    <CollapsibleHeaderTrailing key="trailing">
+    <CollapsibleHeaderSlot key="trailing">
         <Text>Menu</Text>
-    </CollapsibleHeaderTrailing>,
+    </CollapsibleHeaderSlot>,
 ];
 
 describe('getCollapsibleHeaderSlots', () => {
@@ -34,69 +27,67 @@ describe('getCollapsibleHeaderSlots', () => {
         const validChildren = createValidChildren();
         const slots = getCollapsibleHeaderSlots(validChildren);
 
-        expect(slots.leading).toEqual(expect.objectContaining({ type: CollapsibleHeaderLeading }));
-        expect(slots.trailing).toEqual(expect.objectContaining({ type: CollapsibleHeaderTrailing }));
+        expect(slots.leading).toEqual(expect.objectContaining({ type: CollapsibleHeaderSlot }));
+        expect(slots.trailing).toEqual(expect.objectContaining({ type: CollapsibleHeaderSlot }));
         expect(slots.expandedTitle).toBeDefined();
         expect(slots.collapsedTitle).toBeDefined();
     });
 
-    it('rejects wrapper and duplicate top-level slots', () => {
+    it('rejects invalid top-level slot structure', () => {
         expect.hasAssertions();
 
-        expect(() => getCollapsibleHeaderSlots('invalid')).toThrow('CollapsibleHeader slots must be direct children');
+        expect(() => getCollapsibleHeaderSlots('invalid')).toThrow(
+            'CollapsibleHeader requires leading, title, and trailing direct children'
+        );
         expect(() => getCollapsibleHeaderSlots(<>{createValidChildren()}</>)).toThrow(
-            'CollapsibleHeader slots must be direct children'
+            'CollapsibleHeader requires leading, title, and trailing direct children'
         );
         expect(() =>
-            getCollapsibleHeaderSlots([<CollapsibleHeaderLeading key="first" />, <CollapsibleHeaderLeading key="second" />])
-        ).toThrow('CollapsibleHeader slots must be direct children');
+            getCollapsibleHeaderSlots([
+                <CollapsibleHeaderSlot key="leading" />,
+                <CollapsibleHeaderSlot key="wrong-title" />,
+                <CollapsibleHeaderTitleSlot key="wrong-trailing">Title</CollapsibleHeaderTitleSlot>,
+            ])
+        ).toThrow('CollapsibleHeader requires leading, title, and trailing direct children');
     });
 
     it('rejects missing top-level and title slots', () => {
         expect.hasAssertions();
 
-        expect(() => getCollapsibleHeaderSlots(<CollapsibleHeaderLeading />)).toThrow(
+        expect(() => getCollapsibleHeaderSlots(<CollapsibleHeaderSlot />)).toThrow(
             'CollapsibleHeader requires leading, title, and trailing direct children'
         );
         expect(() =>
             getCollapsibleHeaderSlots([
-                <CollapsibleHeaderLeading key="leading" />,
-                <CollapsibleHeaderTitleSlot key="title">
-                    <CollapsibleHeaderLargeTitle>Large</CollapsibleHeaderLargeTitle>
-                </CollapsibleHeaderTitleSlot>,
-                <CollapsibleHeaderTrailing key="trailing" />,
+                <CollapsibleHeaderSlot key="leading" />,
+                <CollapsibleHeaderTitleSlot key="title">Large</CollapsibleHeaderTitleSlot>,
+                <CollapsibleHeaderSlot key="trailing" />,
             ])
-        ).toThrow('CollapsibleHeader requires one large and one small title');
+        ).toThrow('CollapsibleHeader requires expanded and collapsed title direct children');
     });
 
-    it('rejects invalid and duplicate title layers', () => {
+    it('rejects an invalid number of title layers', () => {
         expect.hasAssertions();
 
         expect(() =>
             getCollapsibleHeaderSlots([
-                <CollapsibleHeaderLeading key="leading" />,
-                <CollapsibleHeaderTitleSlot key="title">invalid</CollapsibleHeaderTitleSlot>,
-                <CollapsibleHeaderTrailing key="trailing" />,
-            ])
-        ).toThrow('CollapsibleHeader title layers must be direct children');
-        expect(() =>
-            getCollapsibleHeaderSlots([
-                <CollapsibleHeaderLeading key="leading" />,
+                <CollapsibleHeaderSlot key="leading" />,
                 <CollapsibleHeaderTitleSlot key="title">
                     <Text>Wrapped</Text>
                 </CollapsibleHeaderTitleSlot>,
-                <CollapsibleHeaderTrailing key="trailing" />,
+                <CollapsibleHeaderSlot key="trailing" />,
             ])
-        ).toThrow('CollapsibleHeader title layers must be direct children');
+        ).toThrow('CollapsibleHeader requires expanded and collapsed title direct children');
         expect(() =>
             getCollapsibleHeaderSlots([
-                <CollapsibleHeaderLeading key="leading" />,
+                <CollapsibleHeaderSlot key="leading" />,
                 <CollapsibleHeaderTitleSlot key="title">
-                    <CollapsibleHeaderLargeTitle>First</CollapsibleHeaderLargeTitle>
-                    <CollapsibleHeaderLargeTitle>Second</CollapsibleHeaderLargeTitle>
+                    <Text>First</Text>
+                    <Text>Second</Text>
+                    <Text>Third</Text>
                 </CollapsibleHeaderTitleSlot>,
-                <CollapsibleHeaderTrailing key="trailing" />,
+                <CollapsibleHeaderSlot key="trailing" />,
             ])
-        ).toThrow('CollapsibleHeader title layers must be direct children');
+        ).toThrow('CollapsibleHeader requires expanded and collapsed title direct children');
     });
 });

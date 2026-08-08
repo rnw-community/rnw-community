@@ -1,11 +1,8 @@
 export { ColorSchemeEnum } from './enum/color-scheme.enum.js';
 export { CollapsibleHeader } from './collapsible-header/collapsible-header.js';
 export { CollapsibleHeaderBackdrop } from './collapsible-header-backdrop/collapsible-header-backdrop.js';
-export { CollapsibleHeaderLargeTitle } from './collapsible-header-large-title/collapsible-header-large-title.js';
-export { CollapsibleHeaderLeading } from './collapsible-header-leading/collapsible-header-leading.js';
-export { CollapsibleHeaderSmallTitle } from './collapsible-header-small-title/collapsible-header-small-title.js';
+export { CollapsibleHeaderSlot } from './collapsible-header-slot/collapsible-header-slot.js';
 export { CollapsibleHeaderTitleSlot } from './collapsible-header-title-slot/collapsible-header-title-slot.js';
-export { CollapsibleHeaderTrailing } from './collapsible-header-trailing/collapsible-header-trailing.js';
 export { SCREEN_CHROME_DEFAULT_CONFIG } from './constant/screen-chrome-default-config.constant.js';
 export { SCREEN_CHROME_SHARED_DEFAULT_CONFIG } from './constant/screen-chrome-shared-default-config.constant.js';
 export { ScreenChromeContext } from './context/screen-chrome.context.js';
@@ -15,7 +12,6 @@ export { ScreenChromeFrame } from './screen-chrome-frame/screen-chrome-frame.js'
 export { ScreenChromeProvider } from './screen-chrome-provider/screen-chrome-provider.js';
 export { ScreenChromeScrollView } from './screen-chrome-scroll-view/screen-chrome-scroll-view.js';
 export { useScreenChrome } from './hook/use-screen-chrome.hook.js';
-export { useScreenChromeScrollHandler } from './hook/use-screen-chrome-scroll-handler.hook.js';
 export { useScrollFadeStyle } from './hook/use-scroll-fade-style.hook.js';
 export { assertValidScreenChromeConfig } from './utils/assert-valid-screen-chrome-config.util.js';
 export { mergeRefs } from './utils/merge-refs.util.js';

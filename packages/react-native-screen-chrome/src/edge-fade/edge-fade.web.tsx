@@ -8,18 +8,16 @@ import { isDefined } from '@rnw-community/shared';
 import { useScreenChrome } from '../hook/use-screen-chrome.hook.js';
 
 import { useEdgeFadeOpacityStyle } from './hook/use-edge-fade-opacity-style.hook.js';
+import { buildBackgroundImage } from './utils/build-background-image/build-background-image.util.js';
 import { getEdgeFadeBackdropFilter } from './utils/edge-fade-get-backdrop-filter.util.js';
 import { getEdgeFadeBandMetrics } from './utils/edge-fade-get-band-metrics.util.js';
 
 import type { EdgeFadePropsInterface } from '../interface/edge-fade-props.interface.js';
-import type { ScreenChromeColorSetInterface } from '../interface/screen-chrome-color-set.interface.js';
 import type { WebEdgeFadeStyleInterface } from '../interface/web-edge-fade-style.interface.js';
-import type { EdgeFadePosition } from '../type/edge-fade-position.type.js';
 import type { ReactNode } from 'react';
 
 const AnimatedView = createAnimatedComponent(View);
 const PERCENT_MULTIPLIER = 100;
-const WASH_STOP_PERCENT = 72;
 
 const buildMaskImage = (maskStops: Readonly<Record<number, { readonly color: string }>>): string => {
     const sortedStops = Object.entries(maskStops)
@@ -28,14 +26,6 @@ const buildMaskImage = (maskStops: Readonly<Record<number, { readonly color: str
     const stopsCss = sortedStops.map(([offset, color]) => `${color} ${offset * PERCENT_MULTIPLIER}%`).join(', ');
 
     return `linear-gradient(to bottom, ${stopsCss})`;
-};
-
-const buildBackgroundImage = (colorSet: ScreenChromeColorSetInterface, position: EdgeFadePosition): string => {
-    if (position === 'top') {
-        return `linear-gradient(to bottom, ${colorSet.solid} 0%, ${colorSet.wash} ${WASH_STOP_PERCENT}%, transparent ${PERCENT_MULTIPLIER}%)`;
-    }
-
-    return `linear-gradient(to bottom, transparent 0%, ${colorSet.wash} ${PERCENT_MULTIPLIER - WASH_STOP_PERCENT}%, ${colorSet.solid} ${PERCENT_MULTIPLIER}%)`;
 };
 
 /**

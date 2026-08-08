@@ -29,11 +29,8 @@ import { Pressable, Text } from 'react-native';
 import {
     CollapsibleHeader,
     CollapsibleHeaderBackdrop,
-    CollapsibleHeaderLargeTitle,
-    CollapsibleHeaderLeading,
-    CollapsibleHeaderSmallTitle,
+    CollapsibleHeaderSlot,
     CollapsibleHeaderTitleSlot,
-    CollapsibleHeaderTrailing,
     EdgeFade,
     ScreenChromeContent,
     ScreenChromeFrame,
@@ -52,16 +49,16 @@ export const AccountsScreen = () => (
             <CollapsibleHeaderBackdrop />
             <EdgeFade position="bottom" />
             <CollapsibleHeader>
-                <CollapsibleHeaderLeading>
+                <CollapsibleHeaderSlot>
                     <Pressable accessibilityRole="button"><Text>Back</Text></Pressable>
-                </CollapsibleHeaderLeading>
+                </CollapsibleHeaderSlot>
                 <CollapsibleHeaderTitleSlot>
-                    <CollapsibleHeaderLargeTitle><Text>Accounts</Text></CollapsibleHeaderLargeTitle>
-                    <CollapsibleHeaderSmallTitle><Text>Accounts</Text></CollapsibleHeaderSmallTitle>
+                    <Text>Accounts</Text>
+                    <Text>Accounts</Text>
                 </CollapsibleHeaderTitleSlot>
-                <CollapsibleHeaderTrailing>
+                <CollapsibleHeaderSlot>
                     <Pressable accessibilityRole="button"><Text>Menu</Text></Pressable>
-                </CollapsibleHeaderTrailing>
+                </CollapsibleHeaderSlot>
             </CollapsibleHeader>
         </ScreenChromeFrame>
     </ScreenChromeProvider>
@@ -72,7 +69,7 @@ export const AccountsScreen = () => (
 
 `ScreenChromeProvider` owns the animated scroll ref, shared offset, merged configuration, color scheme, reduced-motion
 state, and collapse-snap handler. `ScreenChromeScrollView` connects that state automatically; custom animated scroll
-views can use `useScreenChromeScrollHandler` and `useScreenChrome` directly.
+views can read `scrollHandler`, `scrollRef`, and `scrollY` from `useScreenChrome` directly.
 
 Render content first, decorative `EdgeFade` and `CollapsibleHeaderBackdrop` layers second, and interactive
 `CollapsibleHeader` chrome last. Native blur then samples the content beneath it while controls remain above decorative
@@ -81,9 +78,9 @@ layers. `ScreenChromeScrollView` adds safe-area padding and caller-provided cont
 
 ## Compound header
 
-`CollapsibleHeaderLeading`, `CollapsibleHeaderTitleSlot`, and `CollapsibleHeaderTrailing` must be direct children of
-`CollapsibleHeader`. The title slot must directly contain one `CollapsibleHeaderLargeTitle` and one
-`CollapsibleHeaderSmallTitle`. Fragments and wrapper components are rejected so slot discovery stays deterministic.
+`CollapsibleHeaderSlot`, `CollapsibleHeaderTitleSlot`, and a second `CollapsibleHeaderSlot` must be direct children of
+`CollapsibleHeader` in that order. The title slot must directly contain the expanded title followed by the collapsed
+title. Fragments and extra wrapper components are rejected so slot discovery stays deterministic.
 Leading and trailing controls are mounted once in a persistent layer while title opacity and pointer-event handoff are
 delegated to `@rnw-community/react-native-collapsible-header`.
 

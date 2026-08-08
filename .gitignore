@@ -49,4 +49,5 @@ coverage
 !.yarn/sdks
 !.yarn/versions
 .superpowers
+/docs/superpowers/
 .claude/worktrees

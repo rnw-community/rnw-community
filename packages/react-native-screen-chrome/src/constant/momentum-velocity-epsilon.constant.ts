@@ -1,0 +1,1 @@
+export const MOMENTUM_VELOCITY_EPSILON = 0.05;
