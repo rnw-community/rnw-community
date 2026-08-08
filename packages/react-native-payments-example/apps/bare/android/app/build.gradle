@@ -8,8 +8,12 @@ apply plugin: "com.facebook.react"
  */
 react {
     /* Folders */
-    //   The root of your project, i.e. where "package.json" lives. Default is '../..'
-    // root = file("../../")
+    //   The root of your project, i.e. where "package.json" lives. Default is '../..'.
+    //   Overridden because node_modules is hoisted to the monorepo root, not this app's
+    //   own directory; without this, Hermesc/codegen path detection that falls back to
+    //   `root`-relative lookups (e.g. node_modules/hermes-compiler) resolves to the wrong
+    //   directory and fails with "Couldn't determine Hermesc location".
+    root = file("../../../../../../")
     //   The folder where the react-native NPM package is. Default is ../../node_modules/react-native
     reactNativeDir = file("../../../../../../node_modules/react-native")
     //   The folder where the react-native Codegen package is. Default is ../../node_modules/@react-native/codegen

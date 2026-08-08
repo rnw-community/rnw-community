@@ -7,5 +7,6 @@ on:
 jobs:
     cleanup:
         permissions:
+            # Required to cancel queued and in-progress runs for the closed pull request.
             actions: write
         uses: rnw-community/mobile-ci/.github/workflows/pr-closed-cleanup-reusable.yml@a252f5df9e911387598b2b01b0bb28bc40057ce0 # v1.2.0
