@@ -82,14 +82,16 @@ Cannot recover.` (`ConnectionResult.SERVICE_INVALID` — per Google's docs, the 
 failed its own authenticity check; a generic availability signal, not a statement that the Payments
 API specifically is unsupported). Play Services' own bundled fallback UI turns that into a blocking
 system dialog ("… won't run without Google Play services, which are not supported by your device.")
-over the whole screen — not just for an explicit user action; any code path that reaches a GMS
-client trips the same UI. `subflows/show_request.yaml` already anticipated this for the manual
-`action-show` tap. It also fires from `usePaymentDemo`'s `useEffect`-driven `canMakePayment` probe
-on mount — an entry point the suite doesn't tap into, so nothing dismissed it — which occluded
-`payments-flow-state` for every flow (they all route through this subflow) until
-`launch_and_wait_for_probe.yaml` gained the same `optional: true` "OK" dismissal right after
-`launchApp`. The lesson generalizes: on Redroid, guard every code path that can construct a GMS
-client, not only the ones a flow's own steps exercise directly.
+over the whole screen — not just for an explicit user action; any code path that invokes a
+GMS-dependent operation (a client can be built harmlessly and invoke one later or elsewhere) trips
+the same UI. `subflows/show_request.yaml` already anticipated this for the manual `action-show` tap
+(which invokes `loadPaymentData` right behind it). It also fires from `usePaymentDemo`'s
+`useEffect`-driven `canMakePayment` probe on mount — an entry point the suite doesn't tap into, so
+nothing dismissed it — which occluded `payments-flow-state` for every flow (they all route through
+this subflow) until `launch_and_wait_for_probe.yaml` gained the same `optional: true` "OK" dismissal
+right after `launchApp`, since that is where the mount-time probe's `isReadyToPay()` call
+effectively lands. The lesson generalizes: on Redroid, guard every code path that invokes a
+GMS-dependent operation, not only the ones a flow's own steps exercise directly.
 
 ## Documented gap: native-sheet-driven completion
 
