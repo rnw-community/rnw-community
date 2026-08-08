@@ -8,12 +8,8 @@ apply plugin: "com.facebook.react"
  */
 react {
     /* Folders */
-    //   The root of your project, i.e. where "package.json" lives. Default is '../..'.
-    //   Overridden because node_modules is hoisted to the monorepo root, not this app's
-    //   own directory; without this, Hermesc/codegen path detection that falls back to
-    //   `root`-relative lookups (e.g. node_modules/hermes-compiler) resolves to the wrong
-    //   directory and fails with "Couldn't determine Hermesc location".
-    root = file("../../../../../../")
+    //   The root of your project, i.e. where "package.json" lives. Default is '../..'
+    // root = file("../../")
     //   The folder where the react-native NPM package is. Default is ../../node_modules/react-native
     reactNativeDir = file("../../../../../../node_modules/react-native")
     //   The folder where the react-native Codegen package is. Default is ../../node_modules/@react-native/codegen
@@ -48,8 +44,12 @@ react {
     // extraPackagerArgs = []
 
     /* Hermes Commands */
-    //   The hermes compiler command to run. By default it is 'hermesc'
-    // hermesCommand = "$rootDir/my-custom-hermesc/bin/hermesc"
+    //   The hermes compiler command to run. By default it is autodetected relative to `root`
+    //   (this app's own directory), which has no local node_modules in this hoisted monorepo
+    //   layout, so autodetection can't find node_modules/hermes-compiler and fails with
+    //   "Couldn't determine Hermesc location". Point it at the hoisted copy directly; %OS-BIN%
+    //   is substituted by the React Native Gradle plugin for the host OS/arch.
+    hermesCommand = file("../../../../../../node_modules/hermes-compiler/hermesc/%OS-BIN%/hermesc").path
     //
     //   The list of flags to pass to the Hermes compiler. By default is "-O", "-output-source-map"
     // hermesFlags = ["-O", "-output-source-map"]
