@@ -90,6 +90,8 @@ Suffix patterns:
 
 - `.type.ts` for `export type` entities
 - `.interface.ts` for `export interface` entities
+- `.assert.ts` for runtime validation functions under `src/assert/`
+- `.config.ts` for configuration values and resolvers under `src/config/`
 - `.ts` for values (functions, constants, classes)
 - `.decorator.ts` / `.util.ts` for kind-specific clarity (legacy packages)
 

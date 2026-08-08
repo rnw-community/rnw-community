@@ -12,18 +12,26 @@ yarn test && yarn test:coverage && yarn build && yarn ts && yarn ts:nodenext && 
 
 ```text
 src/
+  assert/
+    assert-collapsible-header-progress.assert.ts — normalized progress validation
+    assert-finite-collapsible-header-motion-value.assert.ts — finite translation validation
+    assert-valid-collapsible-header-config.assert.ts — geometry and motion validation orchestration
+    assert-valid-collapsible-header-geometry.assert.ts — header geometry validation
+    assert-valid-collapsible-header-motion-config.assert.ts — normalized motion validation
   collapsible-header/
-    collapsible-header.tsx       — public component, geometry and motion validation, and animated layers
+    collapsible-header.tsx       — public component and layer composition
     collapsible-header.spec.tsx  — rendering and validation coverage
     collapsible-header-motion.spec.tsx — animation, clamping, and interaction coverage
-  constant/
-    default-collapsible-header-motion-config.constant.ts — original-compatible motion preset
+    use-collapsible-header-animated-layers.ts — animated style and interaction orchestration
+  config/
+    default-collapsible-header-motion.config.ts — original-compatible motion preset
+    resolve-collapsible-header-motion.config.ts — partial motion override resolution
   interface/
+    collapsible-header-animation-config.interface.ts — internal animation hook input
     collapsible-header-motion-config.interface.ts — public normalized motion contract
     collapsible-header-props.interface.ts — public slot, geometry, style, motion, and ViewProps contract
-  utils/
-    assert-valid-collapsible-header-config.util.ts — geometry and motion validation
-    resolve-collapsible-header-motion-config.util.ts — partial motion override resolution
+  type/
+    collapsible-header-geometry.type.ts — normalized geometry validation input
   index.ts                       — public component and props exports
 ```
 
