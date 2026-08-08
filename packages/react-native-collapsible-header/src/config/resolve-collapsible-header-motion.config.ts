@@ -1,4 +1,4 @@
-import { DefaultCollapsibleHeaderMotionConfig } from '../constant/default-collapsible-header-motion-config.constant.js';
+import { DefaultCollapsibleHeaderMotionConfig } from './default-collapsible-header-motion.config.js';
 
 import type { CollapsibleHeaderMotionConfig } from '../interface/collapsible-header-motion-config.interface.js';
 

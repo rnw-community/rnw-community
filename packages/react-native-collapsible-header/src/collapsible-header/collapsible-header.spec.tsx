@@ -103,9 +103,12 @@ describe('CollapsibleHeader rendering', () => {
 
 describe('CollapsibleHeader geometry', () => {
     it.each([
-        ['expandedHeight', { expandedHeight: 0 }, 'expandedHeight must be greater than zero'],
-        ['collapsedHeight', { collapsedHeight: 0 }, 'collapsedHeight must be greater than zero'],
-        ['collapseDistance', { collapseDistance: 0 }, 'collapseDistance must be greater than zero'],
+        ['expandedHeight', { expandedHeight: 0 }, 'expandedHeight must be a finite number greater than zero'],
+        ['expandedHeight', { expandedHeight: Infinity }, 'expandedHeight must be a finite number greater than zero'],
+        ['collapsedHeight', { collapsedHeight: 0 }, 'collapsedHeight must be a finite number greater than zero'],
+        ['collapsedHeight', { collapsedHeight: Infinity }, 'collapsedHeight must be a finite number greater than zero'],
+        ['collapseDistance', { collapseDistance: 0 }, 'collapseDistance must be a finite number greater than zero'],
+        ['collapseDistance', { collapseDistance: Infinity }, 'collapseDistance must be a finite number greater than zero'],
         ['collapseStart', { collapseStart: -1 }, 'collapseStart must be a finite number greater than or equal to zero'],
         [
             'height order',
