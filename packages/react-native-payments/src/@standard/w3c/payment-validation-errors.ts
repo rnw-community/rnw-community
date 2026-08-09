@@ -2,7 +2,7 @@ import type { PaymentAddressFieldEnum } from '../../enum/payment-address-field.e
 import type { PaymentContactFieldEnum } from '../../enum/payment-contact-field.enum.js';
 
 /**
- * The W3C payment validation errors shape returned to a failing `updateWith` call.
+ * The W3C payment validation errors shape passed to `PaymentResponse.retry()`.
  *
  * @see https://www.w3.org/TR/payment-request/#dom-paymentvalidationerrors
  */

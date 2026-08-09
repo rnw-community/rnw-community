@@ -7,7 +7,7 @@ import type { IosPaymentData } from './ios-payment-data.js';
 /**
  * The Apple PassKit `PKPaymentToken` shape.
  *
- * @see https://developer.apple.com/documentation/passkit/pkpayment?language=objc
+ * @see https://developer.apple.com/documentation/passkit/pkpaymenttoken?language=objc
  */
 export interface IosPKToken {
     paymentData: IosPaymentData;
