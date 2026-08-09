@@ -1,4 +1,8 @@
-// https://developer.apple.com/documentation/passkit_apple_pay_and_wallet/pkcontactfield?language=objc
+/**
+ * The Apple PassKit `PKContactField` option set.
+ *
+ * @see https://developer.apple.com/documentation/passkit_apple_pay_and_wallet/pkcontactfield?language=objc
+ */
 export enum IOSPKContactField {
     PKContactFieldEmailAddress = 'PKContactFieldEmailAddress',
     PKContactFieldName = 'PKContactFieldName',

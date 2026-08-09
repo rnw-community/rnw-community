@@ -1,6 +1,9 @@
-// https://developers.google.com/pay/api/android/reference/request-objects#TransactionInfo
+/**
+ * The Google Pay `TransactionInfo` request shape.
+ *
+ * @see https://developers.google.com/pay/api/android/reference/request-objects#TransactionInfo
+ */
 export interface AndroidTransactionInfo {
-    // This option is only available when totalPriceStatus is set to FINAL.
     checkoutOption?: 'COMPLETE_IMMEDIATE_PURCHASE' | 'DEFAULT';
     countryCode?: string;
     currencyCode: string;

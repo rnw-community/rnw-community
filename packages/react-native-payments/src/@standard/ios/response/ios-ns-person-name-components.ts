@@ -1,4 +1,8 @@
-// https://developer.apple.com/documentation/foundation/nspersonnamecomponents?language=objc
+/**
+ * The Apple Foundation `NSPersonNameComponents` shape.
+ *
+ * @see https://developer.apple.com/documentation/foundation/nspersonnamecomponents?language=objc
+ */
 export interface IosNSPersonNameComponents {
     familyName: string;
     givenName: string;

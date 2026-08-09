@@ -45,7 +45,7 @@ class TestObservableClass extends LockableService {
         return of([this.field, id]);
     }
 
-    // @ts-expect-error — sync method intentionally violates the Observable-returning contract; runtime guard catches it
+    // @ts-expect-error sync return violates Observable contract
     @LockObservable(['test'], 1000)
     testSync(): number {
         return this.field;
@@ -85,7 +85,7 @@ class TestObservableClass extends LockableService {
         return of({ field: this.field, id });
     }
 
-    // @ts-expect-error — sync method intentionally violates the Observable-returning contract; runtime guard catches it
+    // @ts-expect-error sync return violates Observable contract
     @LockObservable(['test'], 1000, undefined, 0)
     testExclusiveSync(): number {
         return this.field;
@@ -132,7 +132,7 @@ describe('LockObservableDecorator', () => {
         expect.assertions(3);
 
         const instance = new TestObservableClass();
-        // @ts-expect-error Test preconditions
+        // @ts-expect-error redlock field forced undefined for test
         instance.redlock = undefined;
 
         await expect(lastValueFrom(instance.testMissingRedlock$(1))).rejects.toThrow(
@@ -157,7 +157,7 @@ describe('LockObservableDecorator', () => {
 
         const instance = new TestObservableClass();
 
-        // @ts-expect-error HINT: Wrong types test
+        // @ts-expect-error sync return violates Observable contract
         await expect(lastValueFrom(instance.testSync())).rejects.toThrow(
             `Method TestObservableClass::testSync does not return an observable`
         );
@@ -245,7 +245,6 @@ describe('LockObservableDecorator', () => {
         const instance = new TestObservableClass();
         mockRelease.mockRejectedValueOnce(new Error('release-failed-on-sync-path'));
 
-        // testExclusiveSync returns a number (not Observable) — early release + throw path
         await expect(lastValueFrom(instance.testExclusiveSync() as unknown as Observable<unknown>)).rejects.toThrow(
             'Method TestObservableClass::testExclusiveSync does not return an observable'
         );
@@ -308,7 +307,7 @@ describe('LockObservableDecorator', () => {
 
             const instance = new TestObservableClass();
 
-            // @ts-expect-error HINT: Wrong types test
+            // @ts-expect-error sync return violates Observable contract
             await expect(lastValueFrom(instance.testExclusiveSync())).rejects.toThrow(
                 'Method TestObservableClass::testExclusiveSync does not return an observable'
             );
