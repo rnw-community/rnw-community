@@ -4,9 +4,9 @@ const attemptNativeClear = async (el: WebdriverIO.Element): Promise<void> => {
 };
 
 const forceClearWithBackspaces = async (el: WebdriverIO.Element): Promise<void> => {
-    const currentText = await el.getText();
+    const currentValue = await el.getValue();
 
-    await el.sendKeys(Array(currentText.length).fill('\ue017') as string[]);
+    await el.sendKeys(Array(currentValue.length).fill('\ue003') as string[]);
 };
 
 export const clearInputCommand = async function clearInputCommand(this: WebdriverIO.Element): Promise<void> {
