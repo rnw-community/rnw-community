@@ -2,7 +2,6 @@ import { isDefined } from '@rnw-community/shared';
 
 import type { LockableService } from '../lockable.service.js';
 
-/** @deprecated Used by deprecated `LockPromise`/`LockObservable` decorators. */
 export const validateRedlock = (self: LockableService): void => {
     if (!isDefined(self.redlock)) {
         throw new Error(
