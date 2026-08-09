@@ -4,7 +4,6 @@ import type { LockHandle } from '../interface/lock-handle.interface';
 import type { LockServiceInterface } from '../interface/lock-service.interface';
 import type { LockableService } from '../lockable.service';
 
-/** @deprecated Used by deprecated `LockPromise`/`LockObservable` decorators. */
 export const getRedlockService = (instance: unknown): LockServiceInterface => {
     const self = instance as LockableService;
     validateRedlock(self);

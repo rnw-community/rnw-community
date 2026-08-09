@@ -184,7 +184,6 @@ describe('NestJSRxJSRedisService', () => {
         const redisService = getRedisService({ set } as unknown as RedisClient);
         const redis = new NestJSRxJSRedisService(redisService);
 
-        // TODO: Check error function
         const errorFn = jest.fn<(input: unknown) => string>().mockReturnValue('Error');
         const toValueFn = jest.fn<(input: unknown) => string>().mockReturnValue(stringRedisValue);
 

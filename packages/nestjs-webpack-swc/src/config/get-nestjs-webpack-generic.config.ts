@@ -14,7 +14,6 @@ export const getNestJSWebpackGenericConfig = (
 ): Configuration => ({
     ...options,
     externals: [
-        // HINT: We need to include this package inside the build to handle missing dependencies errors, and tree-shake it
         nodeExternals({
             modulesFromFile: true,
             allowlist: ['webpack/hot/poll?100', ...(Array.isArray(allowList) ? allowList : [allowList])],

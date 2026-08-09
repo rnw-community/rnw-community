@@ -5,10 +5,9 @@ import { getNestJSWebpackGenericConfig } from './get-nestjs-webpack-generic.conf
 import type { Configuration, WebpackPluginInstance } from 'webpack';
 import type Webpack from 'webpack';
 
-// ts-prune-ignore-next
 export const getNestJSWebpackDevConfig = (options: Configuration, webpack: typeof Webpack): Configuration => ({
     ...getNestJSWebpackGenericConfig(options),
-    // @ts-expect-error Improve this extending
+    // @ts-expect-error entry type mismatch
     entry: ['webpack/hot/poll?100', options.entry],
     plugins: [
         ...(options.plugins as WebpackPluginInstance[]),

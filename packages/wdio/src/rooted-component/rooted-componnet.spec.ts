@@ -81,7 +81,7 @@ describe('RootedComponent', () => {
         expect.assertions(1);
 
         expect(
-            // @ts-expect-error Runtime check
+            // @ts-expect-error runtime guard rejects Promise root
             () => new RootedComponent(mockDefaultConfig, RootedComponentSelectorsMock, Promise.resolve(mockElement))
         ).toThrow('Cannot create RootedComponent from ChainablePromiseElement, use string selector or Element');
     });
@@ -89,7 +89,7 @@ describe('RootedComponent', () => {
     it('should throw error if SelectorElement was passed as Root', () => {
         expect.assertions(1);
 
-        // @ts-expect-error Runtime check
+        // @ts-expect-error runtime guard rejects SelectorElement root
         expect(() => new RootedComponent(mockDefaultConfig, RootedComponentSelectorsMock, new SelectorElement())).toThrow(
             'Cannot create RootedComponent from SelectorElement, use .el()'
         );
@@ -111,7 +111,7 @@ describe('RootedComponent', () => {
         getRootElSpy.mockImplementation(() => el);
 
         const args = [{ button: 1 }];
-        // @ts-expect-error Proxy test
+        // @ts-expect-error proxy resolves fields dynamically
         // eslint-disable-next-line @typescript-eslint/no-unsafe-call
         await rootedComponent.click(...args);
 
@@ -140,7 +140,7 @@ describe('RootedComponent', () => {
             RootedComponentSelectorsMock.Root
         );
 
-        // @ts-expect-error Needed fo tests
+        // @ts-expect-error property does not exist on selectors
         // eslint-disable-next-line @typescript-eslint/no-unsafe-call
         expect(() => void component.IDONOTEXISTS()).toThrow(TypeError);
     });

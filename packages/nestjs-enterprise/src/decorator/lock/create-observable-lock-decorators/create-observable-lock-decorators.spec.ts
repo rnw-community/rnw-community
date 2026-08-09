@@ -49,7 +49,7 @@ class TestClass {
         return of({ field: this.field, id });
     }
 
-    // @ts-expect-error — sync method intentionally violates the Observable-returning contract; runtime guard catches it
+    // @ts-expect-error sync return violates Observable contract
     @SequentialLock$(['test'])
     testSync(): number {
         return this.field;
@@ -108,7 +108,7 @@ class TestClass {
         return of({ field: this.field, id });
     }
 
-    // @ts-expect-error — sync method intentionally violates the Observable-returning contract; runtime guard catches it
+    // @ts-expect-error sync return violates Observable contract
     @ExclusiveLock$(['test'])
     testExclusiveSync(): number {
         return this.field;
@@ -155,7 +155,6 @@ describe('createObservableLockDecorators', () => {
         mockAcquire.mockResolvedValue({ release: mockRelease });
         mockTryAcquire.mockResolvedValue({ release: mockRelease });
         instance = new TestClass();
-        // HINT: Simulate NestJS DI by setting the lock service on the instance via the captured symbol
         (instance as unknown as Record<symbol, unknown>)[injectedSymbol] = getMockLockService();
     });
 
@@ -227,7 +226,7 @@ describe('createObservableLockDecorators', () => {
         it('should throw error if decorated method does not return observable', async () => {
             expect.hasAssertions();
 
-            // @ts-expect-error HINT: Wrong types test
+            // @ts-expect-error sync return violates Observable contract
             await expect(lastValueFrom(instance.testSync())).rejects.toThrow(
                 'Method TestClass::testSync does not return an observable'
             );
@@ -377,7 +376,7 @@ describe('createObservableLockDecorators', () => {
         it('should throw error if decorated method does not return observable', async () => {
             expect.hasAssertions();
 
-            // @ts-expect-error HINT: Wrong types test
+            // @ts-expect-error sync return violates Observable contract
             await expect(lastValueFrom(instance.testExclusiveSync())).rejects.toThrow(
                 'Method TestClass::testExclusiveSync does not return an observable'
             );
@@ -454,8 +453,7 @@ describe('createObservableLockDecorators', () => {
         it('does NOT funnel "Lock key is not defined" through catchErrorFn$ (setup errors bypass)', async () => {
             expect.hasAssertions();
 
-            // Preserve the shared injectedSymbol so subsequent tests still find their DI slot.
-            const savedSymbol = injectedSymbol;
+            const preservedInjectedSymbolForSubsequentTests = injectedSymbol;
             const catchSpy = jest.fn();
 
             try {
@@ -482,7 +480,7 @@ describe('createObservableLockDecorators', () => {
                 expect(catchSpy).not.toHaveBeenCalled();
             } finally {
                 // eslint-disable-next-line require-atomic-updates
-                injectedSymbol = savedSymbol;
+                injectedSymbol = preservedInjectedSymbolForSubsequentTests;
             }
         });
 

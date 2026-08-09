@@ -35,14 +35,12 @@ export const executeLockPromise = <TArgs extends unknown[] = unknown[]>(
 
         const originalResult: unknown = originalMethod.apply(this, args);
         if (!isPromise(originalResult)) {
-            // HINT: https://github.com/mike-marcacci/node-redlock/issues/168
             void currentLock.release().catch(emptyFn);
 
             throw new Error(`Method ${methodName} does not return a promise`);
         }
 
         return await originalResult.finally(() => {
-            // HINT: https://github.com/mike-marcacci/node-redlock/issues/168
             void currentLock.release().catch(emptyFn);
         });
     } catch (err: unknown) {

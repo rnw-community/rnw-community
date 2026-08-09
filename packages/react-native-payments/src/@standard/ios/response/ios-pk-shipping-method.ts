@@ -1,6 +1,10 @@
 import type { PaymentCurrencyAmount } from '../../w3c/payment-currency-amount';
 
-// https://developer.apple.com/documentation/passkit/pkshippingmethod?language=objc
+/**
+ * The Apple PassKit `PKShippingMethod` shape.
+ *
+ * @see https://developer.apple.com/documentation/passkit/pkshippingmethod?language=objc
+ */
 export interface IosPKShippingMethod {
     amount: PaymentCurrencyAmount;
     detail?: string;

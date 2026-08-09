@@ -13,7 +13,6 @@ import type { LockHandleInterface } from '../../interface/lock-handle.interface'
 import type { LockStoreInterface } from '../../interface/lock-store.interface';
 import type { LockModeType } from '../../type/lock-mode.type';
 
-// --- inline in-memory lock store: test fixture only, not a public API ---
 type SettleFn = (action: 'resolve' | 'reject', value?: unknown) => void;
 
 const buildSettle = (
@@ -191,7 +190,6 @@ const createInMemoryLockStore = (): LockStoreInterface => {
         },
     };
 };
-// --- end inline fixture ---
 
 const store = createInMemoryLockStore();
 const ExclusiveLock = createExclusiveLockDecorator({ store });
@@ -212,7 +210,7 @@ class PaymentService {
         return `status:${orderId}`;
     }
 
-    // @ts-expect-error — sync method intentionally violates the Promise-returning contract; runtime guard catches it
+    // @ts-expect-error sync method violates Promise contract
     @ExclusiveLock('validate-card')
     syncValidateCard(cardNumber: string): boolean {
         return cardNumber.length === 16;

@@ -57,12 +57,13 @@ import type { EmitterSubscription } from 'react-native';
 
 const uuid = uuidModule as unknown as { v4: () => string };
 
-/*
- * HINT: Troubleshooting: https://developers.google.com/pay/api/android/support/troubleshooting
- * HINT: Google Pay API Errors: https://developers.google.com/pay/api/web/reference/error-objects
+/**
+ * The W3C Payment Request API entry point; construct one per checkout attempt and call `show()` to present it.
+ *
+ * @see https://developers.google.com/pay/api/android/support/troubleshooting
+ * @see https://developers.google.com/pay/api/web/reference/error-objects
  */
 export class PaymentRequest {
-    // https://www.w3.org/TR/payment-request/#id-attribute
     readonly id: string;
     updating = false;
     state: 'closed' | 'created' | 'interactive' = 'created';
@@ -70,7 +71,6 @@ export class PaymentRequest {
     shippingAddress: Maybe<PaymentResponseAddressInterface> = null;
     shippingOption: Maybe<string> = null;
 
-    // Internal Slots https://www.w3.org/TR/payment-request/#internal-slots
     private readonly serializedMethodData: string;
     private readonly platformMethodData: AndroidPaymentMethodDataDataInterface | IosPaymentMethodDataDataInterface;
     private readonly eventRegistrations = new Map<PaymentRequestEventType, PaymentRequestEventRegistrationInterface>();
@@ -89,17 +89,13 @@ export class PaymentRequest {
         readonly methodData: PaymentMethodData[],
         public details: PaymentDetailsInit
     ) {
-        // 3. Establish the request's id:
         if (!isNotEmptyString(details.id)) {
-            // TODO: Can we avoid using external lib? Use Math.random?
-
             details.id = uuid.v4();
         }
         this.id = details.id;
 
         this.validateConstructorInputs(methodData, details);
 
-        // 17. Set request.[[serializedMethodData]] to serializedMethodData.         */
         this.platformMethodData = this.findPlatformPaymentMethodData();
 
         const nativePlatformMethodData =
@@ -113,22 +109,38 @@ export class PaymentRequest {
         this.serializedMethodData = JSON.stringify(nativePlatformMethodData);
     }
 
-    // https://www.w3.org/TR/payment-request/#dom-paymentrequest-onshippingaddresschange
+    /**
+     * The W3C `PaymentRequest.onshippingaddresschange` event handler attribute.
+     *
+     * @see https://www.w3.org/TR/payment-request/#dom-paymentrequest-onshippingaddresschange
+     */
     get onshippingaddresschange(): Maybe<PaymentRequestEventListener> {
         return this.getAttributeHandler('shippingaddresschange') as Maybe<PaymentRequestEventListener>;
     }
 
-    // https://www.w3.org/TR/payment-request/#dom-paymentrequest-onshippingoptionchange
+    /**
+     * The W3C `PaymentRequest.onshippingoptionchange` event handler attribute.
+     *
+     * @see https://www.w3.org/TR/payment-request/#dom-paymentrequest-onshippingoptionchange
+     */
     get onshippingoptionchange(): Maybe<PaymentRequestEventListener> {
         return this.getAttributeHandler('shippingoptionchange') as Maybe<PaymentRequestEventListener>;
     }
 
-    // https://www.w3.org/TR/payment-request/#dom-paymentrequest-onpaymentmethodchange
+    /**
+     * The W3C `PaymentRequest.onpaymentmethodchange` event handler attribute.
+     *
+     * @see https://www.w3.org/TR/payment-request/#dom-paymentrequest-onpaymentmethodchange
+     */
     get onpaymentmethodchange(): Maybe<PaymentMethodChangeEventListener> {
         return this.getAttributeHandler('paymentmethodchange');
     }
 
-    // couponcodechange is a PassKit extension: https://developer.apple.com/documentation/passkit/pkpaymentrequest/3801275-couponcode?language=objc
+    /**
+     * The Apple PassKit `couponcodechange` event handler attribute extension (not part of the W3C spec).
+     *
+     * @see https://developer.apple.com/documentation/passkit/pkpaymentrequest/3801275-couponcode?language=objc
+     */
     get oncouponcodechange(): Maybe<PaymentRequestEventListener> {
         return this.getAttributeHandler('couponcodechange') as Maybe<PaymentRequestEventListener>;
     }
@@ -149,7 +161,11 @@ export class PaymentRequest {
         this.setAttributeHandler('couponcodechange', listener);
     }
 
-    // https://www.w3.org/TR/payment-request/#canmakepayment-method
+    /**
+     * The W3C `PaymentRequest.canMakePayment()` method.
+     *
+     * @see https://www.w3.org/TR/payment-request/#canmakepayment-method
+     */
     async canMakePayment(): Promise<boolean> {
         if (this.state !== 'created') {
             throw new DOMException(PaymentsErrorEnum.InvalidStateError);
@@ -158,7 +174,11 @@ export class PaymentRequest {
         return NativePayments.canMakePayments(this.serializedMethodData);
     }
 
-    // https://www.w3.org/TR/payment-request/#hasenrolledinstrument-method
+    /**
+     * The W3C `PaymentRequest.hasEnrolledInstrument()` method.
+     *
+     * @see https://www.w3.org/TR/payment-request/#hasenrolledinstrument-method
+     */
     async hasEnrolledInstrument(): Promise<boolean> {
         if (this.state !== 'created') {
             throw new DOMException(PaymentsErrorEnum.InvalidStateError);
@@ -167,7 +187,11 @@ export class PaymentRequest {
         return NativePayments.hasEnrolledInstrument(this.serializedMethodData);
     }
 
-    // https://www.w3.org/TR/payment-request/#show-method
+    /**
+     * The W3C `PaymentRequest.show()` method.
+     *
+     * @see https://www.w3.org/TR/payment-request/#show-method
+     */
     show(): Promise<AndroidPaymentResponse | IosPaymentResponse> {
         if (this.state !== 'created') {
             return Promise.reject(new DOMException(PaymentsErrorEnum.InvalidStateError));
@@ -178,7 +202,6 @@ export class PaymentRequest {
 
         const resolvedDetails = this.resolveEffectiveDetails(this.details);
 
-        // HINT: We need to pass Android environment configuration to native module via details
         const details =
             Platform.OS === 'android'
                 ? {
@@ -214,7 +237,11 @@ export class PaymentRequest {
         });
     }
 
-    // https://www.w3.org/TR/payment-request/#abort-method
+    /**
+     * The W3C `PaymentRequest.abort()` method.
+     *
+     * @see https://www.w3.org/TR/payment-request/#abort-method
+     */
     async abort(): Promise<void> {
         if (this.state !== 'interactive') {
             throw new DOMException(PaymentsErrorEnum.InvalidStateError);
@@ -282,15 +309,12 @@ export class PaymentRequest {
     }
 
     private validateConstructorInputs(methodData: PaymentMethodData[], details: PaymentDetailsInit): void {
-        // 4. Process payment methods
         validatePaymentMethods(methodData);
         validateAndroidTransactionInfo(methodData, ConstructorError);
         validateShippingType(methodData, ConstructorError);
 
-        // 5. Process the total
         validateTotal(details.total, ConstructorError);
 
-        // 6. If the displayItems member of details is present, then for each item in details.displayItems:
         validateDisplayItems(ConstructorError, details.displayItems);
 
         validateShippingOptions(ConstructorError, details.shippingOptions);
@@ -638,7 +662,6 @@ export class PaymentRequest {
     }
 
     private getIosPaymentMethodData(methodData: IosPaymentMethodDataDataInterface): IosPaymentDataRequest {
-        // TODO: Add mappings for other systems if needed
         const supportedNetworkMap: Record<SupportedNetworkEnum, IosPKPaymentNetworksEnum> = {
             [SupportedNetworkEnum.Amex]: IosPKPaymentNetworksEnum.PKPaymentNetworkAmex,
             [SupportedNetworkEnum.Mastercard]: IosPKPaymentNetworksEnum.PKPaymentNetworkMasterCard,

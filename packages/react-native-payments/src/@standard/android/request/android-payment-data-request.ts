@@ -6,7 +6,11 @@ import type { AndroidPaymentMethod } from './android-payment-method';
 import type { AndroidShippingAddressParameters } from './android-shipping-address-parameters';
 import type { AndroidTransactionInfo } from './android-transaction-info';
 
-// https://developers.google.com/pay/api/android/reference/request-objects#PaymentDataRequest
+/**
+ * The Google Pay `PaymentDataRequest` shape.
+ *
+ * @see https://developers.google.com/pay/api/android/reference/request-objects#PaymentDataRequest
+ */
 export interface AndroidPaymentDataRequest {
     allowedPaymentMethods: AndroidPaymentMethod[];
     apiVersion: 2;

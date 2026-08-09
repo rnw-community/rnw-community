@@ -3,7 +3,6 @@ import type { DataFn1, DataFn2, DataFn3, DataFn4, DataFn5 } from './type/data-fn
 import type { CombineReturn1, CombineReturn2, CombineReturn3, CombineReturn4, CombineReturn5 } from './type/return.type';
 import type { Enum } from '@rnw-community/shared';
 
-// TODO: Investigate if we can add types without specifying all combinations
 export function combine<D, T1 extends Enum>(dataFn: DataFn1<D, T1>, collection1: T1): CombineReturn1<T1, D>;
 export function combine<D, T1 extends Enum, T2 extends Enum>(
     dataFn: DataFn2<D, T1, T2>,
@@ -35,7 +34,6 @@ export function combine<D, T1 extends Enum, T2 extends Enum, T3 extends Enum, T4
     collection5: T5
 ): CombineReturn5<D, T1, T2, T3, T4, T5>;
 
-// TODO: Introduce non-recursive optimized solution
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function combine(dataFn: (...keys: any) => any, ...objects: any[]): any {
     const result = {};
@@ -43,13 +41,13 @@ export function combine(dataFn: (...keys: any) => any, ...objects: any[]): any {
     const obj = objects.shift() as object;
     if (objects.length > 0) {
         for (const key of Object.keys(obj)) {
-            // @ts-expect-error Needs improvement
+            // @ts-expect-error no index signature on result
             // eslint-disable-next-line @typescript-eslint/no-unsafe-return,@typescript-eslint/no-unsafe-argument,@typescript-eslint/no-explicit-any
             result[key] = combine((...args: any[]) => dataFn(key, ...args), ...objects);
         }
     } else {
         for (const key of Object.keys(obj)) {
-            // @ts-expect-error Needs improvement
+            // @ts-expect-error no index signature on result
             // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
             result[key] = dataFn(key);
         }

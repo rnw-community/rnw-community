@@ -13,7 +13,6 @@ import type { MonoTypeOperatorFunction } from 'rxjs';
 
 type ValuesOf<T extends readonly string[]> = T[number];
 
-// TODO: Should we add runtime checks for the labels passed? We have TS support right now
 export class NestJSRxJSMetricsService<
     C extends MC,
     G extends MC,

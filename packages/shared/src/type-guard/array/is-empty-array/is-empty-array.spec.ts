@@ -69,7 +69,6 @@ describe('isEmptyArray', () => {
             name: string;
         }
 
-        // Use function return to prevent const narrowing — TS can't see through function calls
         const getItems = (): TestItem[] | undefined => [{ id: 1, name: 'test' }];
         const items = getItems();
 
@@ -77,7 +76,7 @@ describe('isEmptyArray', () => {
             throw new Error('Expected non-empty array');
         }
 
-        // @ts-expect-error FIXME: isEmptyArray false branch does not remove undefined
+        // @ts-expect-error false branch does not remove undefined
         items.push({ id: 2, name: 'added' });
         expect(items).toHaveLength(2);
     });
@@ -94,7 +93,7 @@ describe('isEmptyArray', () => {
             return;
         }
 
-        // @ts-expect-error FIXME: custom type guard false branch on any narrows to never
+        // @ts-expect-error any narrows to never
         const neverCheck: IsNever<typeof value> = false;
         expect(neverCheck).toBe(false);
     });

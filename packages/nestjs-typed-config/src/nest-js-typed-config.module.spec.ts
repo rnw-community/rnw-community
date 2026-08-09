@@ -54,7 +54,6 @@ describe('NestJSTypedConfigModule', () => {
             validationSchema
         );
 
-        // ConfigModule.forRoot() is async since @nestjs/config 3.3+
         await expect((ConfigModule.imports ?? [])[0] as Promise<DynamicModule>).resolves.toBeDefined();
 
         // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
@@ -72,7 +71,6 @@ describe('NestJSTypedConfigModule', () => {
             validationSchema
         );
 
-        // ConfigModule.forRoot() is async since @nestjs/config 3.3+, validation errors become rejected promises
         await expect((ConfigModule.imports ?? [])[0] as Promise<DynamicModule>).rejects.toThrow(
             `Config validation error: "${EnvironmentVariablesEnum.ENVIRONMENT_VARIABLE}" is required`
         );

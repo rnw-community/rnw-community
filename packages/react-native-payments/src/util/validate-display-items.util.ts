@@ -5,9 +5,7 @@ import { isValidDecimalMonetaryValue } from './is-valid-decimal-monetary-value/i
 import type { PaymentItem } from '../@standard/w3c/payment-item';
 
 export const validateDisplayItems = (ErrorType: ClassType<Error>, displayItems: PaymentItem[] = []): void => {
-    // Check that the value of each display item is a valid decimal monetary value
     displayItems.forEach(item => {
-        // TODO: Can we improve this checks?
         if (!isDefined(item) || !isDefined(item.amount) || !isDefined(item.amount.value)) {
             throw new ErrorType(`required member value is undefined.`);
         }

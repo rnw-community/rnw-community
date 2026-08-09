@@ -82,7 +82,7 @@ describe('isNotEmptyArray', () => {
             return;
         }
 
-        // @ts-expect-error FIXME: custom type guard false branch on any narrows to never
+        // @ts-expect-error any narrows to never
         const neverCheck: IsNever<typeof value> = false;
         expect(neverCheck).toBe(false);
     });
@@ -119,7 +119,6 @@ describe('isNotEmptyArray', () => {
         }
 
         const items: TestItem[] | undefined = [{ id: 1, name: 'test' }];
-        // satisfies TestItem fails at compile-time if element type becomes unknown
         const first = isNotEmptyArray(items) ? (items[0] satisfies TestItem) : undefined;
 
         expect(first).toEqual({ id: 1, name: 'test' });
@@ -132,11 +131,9 @@ describe('isNotEmptyArray', () => {
             name: string;
         }
 
-        // Simulate: value comes from a function return, preventing const narrowing
         const getAssetCategory = (): AssetCategory[] | undefined => [{ name: 'test' }];
         const assetCategory = getAssetCategory();
 
-        // Client pattern: isNotEmptyArray(x) && x[0].prop — element must not be unknown
         const hasName = isNotEmptyArray(assetCategory) && 'name' in assetCategory[0];
 
         expect(hasName).toBe(true);

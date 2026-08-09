@@ -124,7 +124,7 @@ describe('LockPromiseDecorator', () => {
         expect.assertions(3);
 
         const instance = new TestClass();
-        // @ts-expect-error Test preconditions
+        // @ts-expect-error redlock field forced undefined for test
         instance.redlock = undefined;
 
         // eslint-disable-next-line @typescript-eslint/unbound-method
@@ -183,7 +183,7 @@ describe('LockPromiseDecorator', () => {
         const instance = new TestClass();
         const errorMsg = 'Acquire lock failed';
         mockAcquire.mockRejectedValueOnce(new Error(errorMsg));
-        // @ts-expect-error Test preconditions
+        // @ts-expect-error mock resolves with mismatched type
         mockErrorFn.mockResolvedValue(0);
 
         await expect(instance.testLockFailedErrorFn()).resolves.toBe(0);
@@ -227,11 +227,8 @@ describe('LockPromiseDecorator', () => {
         expect.assertions(2);
 
         const instance = new TestClass();
-        // Release will reject — the decorator must swallow that rejection via .catch(() => void 0)
-        // on the sync-early-exit path (before throwing "does not return a promise").
         mockRelease.mockRejectedValueOnce(new Error('release-failed-on-sync-path'));
 
-        // testSync returns a number (not Promise) — triggers the early release + throw path
         await expect(instance.testSync()).rejects.toThrow(
             'Method TestClass::testSync does not return a promise'
         );
@@ -243,7 +240,6 @@ describe('LockPromiseDecorator', () => {
 
         mockErrorFn.mockReset();
         const instance = new TestClass();
-        // getRedlockService wraps exclusive acquire with .catch(() => undefined) — simulate that
         mockAcquire.mockRejectedValueOnce(new Error('redlock acquire failed'));
 
         await expect(instance.testExclusiveLockNotAcquiredErrorFn()).resolves.toBe(0);

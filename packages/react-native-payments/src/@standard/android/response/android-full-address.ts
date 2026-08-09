@@ -1,6 +1,10 @@
 import type { AndroidMinAddress } from './android-min-address';
 
-// https://developers.google.com/pay/api/android/reference/response-objects#Address
+/**
+ * The Google Pay `Address` response shape (full fields).
+ *
+ * @see https://developers.google.com/pay/api/android/reference/response-objects#Address
+ */
 export interface AndroidFullAddress extends AndroidMinAddress {
     address1?: string;
     address2?: string;
