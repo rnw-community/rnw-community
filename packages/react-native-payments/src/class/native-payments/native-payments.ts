@@ -23,7 +23,7 @@ const optionalNativeMethodNames = new Set<PropertyKey>([
     'updatePaymentDetails',
 ]);
 
-// @ts-expect-error Temporary hack
+// @ts-expect-error global.__turboModuleProxy is untyped
 // eslint-disable-next-line no-underscore-dangle
 const isTurboModuleEnabled = isDefined(global.__turboModuleProxy);
 
