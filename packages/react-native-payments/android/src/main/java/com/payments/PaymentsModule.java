@@ -9,6 +9,8 @@ import android.util.Log;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.common.api.Status;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -108,6 +110,11 @@ public class PaymentsModule extends PaymentsSpec {
         // HINT: We store promise reference to resolve/reject it later
         mPromise = promise;
 
+        if (isGooglePlayServicesUnavailable(currentActivity)) {
+            rejectPromise(E_UNSUPPORTED_ANDROID_PAY, "AndroidPay is not supported: Google Play services is unavailable");
+            return;
+        }
+
         validatePaymentRequestJSON(paymentMethodData);
 
         // https://developers.google.com/android/reference/com/google/android/gms/wallet/PaymentDataRequest#fromJson(java.lang.String)
@@ -139,6 +146,17 @@ public class PaymentsModule extends PaymentsSpec {
         });
     }
 
+    // Wallet.getPaymentsClient(...) itself never fails; it is the chained isReadyToPay()/loadPaymentData()
+    // call that reaches into Play services and, on a device where it is missing or invalid, surfaces an
+    // unrecoverable system dialog over the whole screen instead of failing the task. Checking availability
+    // first keeps that dialog from ever appearing and reports AndroidPay as unsupported instead, exactly
+    // like https://developers.google.com/android/guides/api-client recommends for any Play services caller.
+    private boolean isGooglePlayServicesUnavailable(Activity activity) {
+        int status = GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(activity);
+
+        return status != ConnectionResult.SUCCESS;
+    }
+
     private IsReadyToPayRequest buildExistingPaymentMethodRequiredRequest(String paymentMethodData) {
         try {
             JSONObject requestJson = new JSONObject(paymentMethodData);
@@ -157,6 +175,11 @@ public class PaymentsModule extends PaymentsSpec {
 
         // HINT: We store promise reference to resolve/reject it later
         mPromise = promise;
+
+        if (isGooglePlayServicesUnavailable(currentActivity)) {
+            rejectPromise(E_FAILED_SHOWING_ANDROID_PAY, "Failed showing AndroidPay: Google Play services is unavailable");
+            return;
+        }
 
         validatePaymentRequestJSON(paymentMethodData);
 

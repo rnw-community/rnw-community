@@ -22,5 +22,8 @@ appId: ${APP_ID}
           text: "checking"
       - assertVisible:
           id: "action-show"
+      - scrollUntilVisible:
+          element:
+            id: "event-log-count"
       - assertVisible:
           id: "event-log-count"

@@ -54,6 +54,38 @@ exists and what it proves instead of a real payment authorization outcome.
 | `async_update_toggle_state.yaml`               | Toggling async `updateWith` on does not change request construction or prevent `show` from attaching listeners — the JS-observable half of the async round trip (see the documented gap below for the half this suite cannot reach), read from the log after the iOS sheet dismisses. |
 | `reset_new_request_state_transitions.yaml`     | The full state machine: `idle` → interactive → `rejected` (Android: `action-abort`; iOS: sheet dismissal) → `idle` (reset, logs `request reset`) → interactive again (iOS: the sheet re-presents, proving `action-reset` really rebuilds a fresh request rather than reusing a closed one). |
 
+## Redroid has no Google Play Services (Android)
+
+Redroid images are plain AOSP with no Google Play Services at all, unlike an AVD's `google_apis`
+system image. Before `PaymentsModule` guarded against this, any GMS-dependent call — the
+mount-time `canMakePayment` probe `usePaymentDemo`'s `useEffect` fires on every launch, and
+`action-show`'s `loadPaymentData` — logged `GoogleApiAvailability: Google Play services is
+invalid. Cannot recover.` (`ConnectionResult.SERVICE_INVALID`, a generic availability signal, not
+a statement that Payments specifically is unsupported), and Play Services' own bundled fallback UI
+turned that into a blocking system dialog ("… won't run without Google Play services, which are
+not supported by your device.") over the whole screen. Since every flow routes through
+`launch_and_wait_for_probe.yaml`, that dialog occluded `payments-flow-state` for all of them, not
+just the flows that call `action-show`.
+
+`PaymentsModule.canMakePayments`/`hasEnrolledInstrument`/`show` now check
+`GoogleApiAvailability.isGooglePlayServicesAvailable()` before the chained
+`isReadyToPay()`/`loadPaymentData()` call that actually reaches into Play services —
+`Wallet.getPaymentsClient(...)` itself never fails on its own. On a device or emulator without
+valid Play Services, `canMakePayment()`/`hasEnrolledInstrument()` now simply resolve `false`
+instead of surfacing the dialog, the same outcome a real user would see on any Play-Services-less
+Android device. `launch_and_wait_for_probe.yaml` keeps an `optional: true` "OK" dismissal on
+Android as a defensive fallback — matching the pattern `subflows/show_request.yaml` already used
+for the `action-show` tap — in case some other GMS-backed path this suite doesn't yet cover ever
+surfaces a similar dialog; it is a no-op once the native guard applies.
+
+Separately (and unrelated to Play Services): `launch_and_wait_for_probe.yaml` used to assert
+`event-log` visible immediately after launch, and `can_make_payment_probe.yaml`'s Android branch
+asserted `event-log-count` the same way. Both ids sit below the fold on Redroid's screen profile,
+so neither is actually on-screen without scrolling first. The shared subflow's assertion was
+dropped (redundant — flows that need `event-log`'s content already scroll to it themselves, e.g.
+`app_launch.yaml`), and `can_make_payment_probe.yaml` gained a `scrollUntilVisible` ahead of its
+own `event-log-count` assertion.
+
 ## Documented gap: the PassKit sheet sandboxes the app's accessibility tree (iOS)
 
 While a `PKPaymentAuthorizationController` sheet is presented, iOS blocks UI-test tooling
