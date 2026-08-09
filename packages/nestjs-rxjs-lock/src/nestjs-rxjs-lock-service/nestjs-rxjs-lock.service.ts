@@ -5,7 +5,6 @@ import { type Observable, concatMap, finalize, from } from 'rxjs';
 
 import { isNotEmptyString } from '@rnw-community/shared';
 
- 
 import type { NestJSRxJSLockModuleOptions } from '../nestjs-rxjs-lock-module.options.js';
 
 export abstract class NestJSRxJSLockService<E = string> {
@@ -22,17 +21,6 @@ export abstract class NestJSRxJSLockService<E = string> {
         this.lock = new Redlock([redis], redlockOptions);
     }
 
-    /**
-     * RxJS wrapper for redlock acquire lock method
-     *
-     * @see https://www.npmjs.com/package/redlock
-     *
-     * @param name Redis lock key name
-     * @param prefix Redis lock key prefix
-     * @param handler$ Observable handler with business logic to be executed under lock
-     * @param expireInMs Lock expiration time in milliseconds, default option is used if not provided
-     * @returns Observable<T> returned from handler$
-     */
     lock$<T>(name: string, prefix: E, handler$: () => Observable<T>, expireInMs = this.expireInMs): Observable<T> {
         const lockName = NestJSRxJSLockService.generateName(name, prefix);
 
