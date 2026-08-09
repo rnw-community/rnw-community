@@ -1,4 +1,3 @@
-// Types
 export type { AbstractConstructor } from './type/abstract-constructor-type/abstract-constructor.type.js';
 export type { AnyFn } from './type/any-fn-type/any-fn.type.js';
 export type { ClassType } from './type/class-type/class.type.js';
@@ -10,7 +9,6 @@ export type { Enum } from './type/enum-type/enum.type.js';
 export type { IsNotEmptyArray } from './type/is-not-empty-array-type/is-not-empty-array.type.js';
 export type { ReadonlyIsNotEmptyArray } from './type/readonly-is-not-empty-array-type/readonly-is-not-empty-array.type.js';
 
-// Type guards
 export { isDefined } from './type-guard/generic/is-defined/is-defined.js';
 export { isError } from './type-guard/generic/is-error/is-error.js';
 export { isObject } from './type-guard/generic/is-object/is-object.js';
@@ -32,7 +30,6 @@ export { isPositiveNumber } from './type-guard/number/is-positive-number/is-posi
 
 export { isBoolean } from './type-guard/boolean/is-boolean/is-boolean.js';
 
-// Utils
 export { cs } from './util/cs/cs.js';
 export { emptyFn } from './util/empty-fn/empty-fn.js';
 export { getErrorMessage } from './util/get-error-message/get-error-message.js';

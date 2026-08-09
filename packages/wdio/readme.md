@@ -177,7 +177,7 @@ describe('Form', () => {
 
 -   clearValue which usually doesn't work
 -   setValue('') which usually doesn't work either
--   gets text and deletes it character by character
+-   reads the input value and deletes it character by character with backspaces
 
 ```ts
 import driver from '@wdio/globals';

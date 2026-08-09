@@ -1,4 +1,8 @@
-// https://developer.apple.com/documentation/contacts/cnpostaladdress?language=objc
+/**
+ * The Apple Contacts `CNPostalAddress` shape.
+ *
+ * @see https://developer.apple.com/documentation/contacts/cnpostaladdress?language=objc
+ */
 export interface IosCNPostalAddress {
     ISOCountryCode: string;
     city: string;

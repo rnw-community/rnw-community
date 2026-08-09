@@ -11,7 +11,7 @@ describe('platform styles', () => {
     it('should return empty style if platform does not match', () => {
         expect.hasAssertions();
 
-        // @ts-expect-error No other way to redefine platform constants
+        // @ts-expect-error no setter API, reassign for test
          
         constants.isWeb = false;
 
@@ -21,7 +21,7 @@ describe('platform styles', () => {
     it('should apply webStyles if platform is WEB', () => {
         expect.hasAssertions();
 
-        // @ts-expect-error No other way to redefine platform constants
+        // @ts-expect-error no setter API, reassign for test
          
         constants.isWeb = true;
 
@@ -31,7 +31,7 @@ describe('platform styles', () => {
     it('should apply iosStyles if platform is IOS', () => {
         expect.hasAssertions();
 
-        // @ts-expect-error No other way to redefine platform constants
+        // @ts-expect-error no setter API, reassign for test
          
         constants.isIOS = true;
 
@@ -41,7 +41,7 @@ describe('platform styles', () => {
     it('should apply androidStyles if platform is Android', () => {
         expect.hasAssertions();
 
-        // @ts-expect-error No other way to redefine platform constants
+        // @ts-expect-error no setter API, reassign for test
          
         constants.isAndroid = true;
 
@@ -51,7 +51,7 @@ describe('platform styles', () => {
     it('should apply mobileStyles if platform is Android or IOS', () => {
         expect.hasAssertions();
 
-        // @ts-expect-error No other way to redefine platform constants
+        // @ts-expect-error no setter API, reassign for test
          
         constants.isMobile = true;
 

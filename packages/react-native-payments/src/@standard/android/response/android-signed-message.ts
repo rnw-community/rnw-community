@@ -1,6 +1,9 @@
-// https://developers.google.com/pay/api/android/guides/resources/payment-data-cryptography#signed-message
+/**
+ * The Google Pay `SignedMessage` shape.
+ *
+ * @see https://developers.google.com/pay/api/android/guides/resources/payment-data-cryptography#signed-message
+ */
 export interface AndroidSignedMessage {
-    // https://developers.google.com/pay/api/android/guides/resources/payment-data-cryptography#encrypted-message
     encryptedMessage: string;
     ephemeralPublicKey: string;
     tag: string;

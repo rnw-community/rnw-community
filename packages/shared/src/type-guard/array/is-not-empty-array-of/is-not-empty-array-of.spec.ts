@@ -39,7 +39,6 @@ describe('isNotEmptyArrayOf', () => {
         expect.hasAssertions();
 
         const values: (string | number)[] | undefined = ['a', 'b'];
-        // satisfies string fails at compile-time if element type is not narrowed
         const first = isNotEmptyArrayOf(values, isNotEmptyString) ? (values[0] satisfies string) : undefined;
 
         expect(first).toBe('a');
@@ -49,7 +48,6 @@ describe('isNotEmptyArrayOf', () => {
         expect.hasAssertions();
 
         const values: (string | number)[] = [1, 2, 3];
-        // satisfies number fails at compile-time if element type is not narrowed
         const first = isNotEmptyArrayOf(values, isPositiveNumber) ? (values[0] satisfies number) : undefined;
 
         expect(first).toBe(1);
@@ -66,7 +64,6 @@ describe('isNotEmptyArrayOf', () => {
             typeof value === 'object' && value !== null && 'name' in value;
 
         const users: unknown[] = [{ name: 'Alice' }, { name: 'Bob' }];
-        // satisfies User fails at compile-time if element type is not narrowed
         const first = isNotEmptyArrayOf(users, isUser) ? (users[0] satisfies User) : undefined;
 
         expect(first).toEqual({ name: 'Alice' });
@@ -85,7 +82,6 @@ describe('isNotEmptyArrayOf', () => {
 
         const getValues = (): string[] | undefined => ['a', 'b'];
         const values = getValues();
-        // satisfies string fails at compile-time if element type is not narrowed
         const first = isNotEmptyArrayOf(values, isNotEmptyString) ? (values[0] satisfies string) : undefined;
 
         expect(first).toBe('a');
@@ -113,7 +109,7 @@ describe('isNotEmptyArrayOf', () => {
             return;
         }
 
-        // @ts-expect-error FIXME: custom type guard false branch on any narrows to never
+        // @ts-expect-error any narrows to never
         const neverCheck: IsNever<typeof value> = false;
         expect(neverCheck).toBe(false);
     });
@@ -151,7 +147,6 @@ describe('isNotEmptyArrayOf', () => {
             typeof value === 'object' && value !== null && 'id' in value && 'name' in value;
 
         const items: TestItem[] | undefined = [{ id: 1, name: 'test' }];
-        // satisfies TestItem fails at compile-time if element type becomes unknown
         const first = isNotEmptyArrayOf(items, isTestItem) ? (items[0] satisfies TestItem) : undefined;
 
         expect(first).toEqual({ id: 1, name: 'test' });

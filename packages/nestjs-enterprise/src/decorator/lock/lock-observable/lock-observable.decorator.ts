@@ -6,10 +6,6 @@ import type { PreDecoratorFunction } from '../../../type/pre-decorator-function.
 import type { MethodDecoratorType } from '@rnw-community/shared';
 import type { Observable } from 'rxjs';
 
-/**
- * @deprecated Use `createObservableLockDecorators` instead. This decorator requires class inheritance from `LockableService`.
- * @see {@link createObservableLockDecorators} for the DI-based approach.
- */
 export const LockObservable =
     <
         // eslint-disable-next-line @typescript-eslint/no-explicit-any

@@ -48,7 +48,6 @@ describe('isArray', () => {
         expect.hasAssertions();
 
         const value: string | string[] = ['a', 'b'];
-        // Verifies narrowing: string | string[] -> string[] (via T & readonly unknown[])
         const narrowed = isArray(value) ? (value satisfies string[]) : undefined;
 
         expect(isArray(value)).toBe(true);

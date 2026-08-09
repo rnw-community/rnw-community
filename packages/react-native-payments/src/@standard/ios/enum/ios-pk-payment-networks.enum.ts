@@ -1,4 +1,8 @@
-// https://developer.apple.com/documentation/passkit/pkpaymentnetwork?language=objc
+/**
+ * The Apple PassKit `PKPaymentNetwork` enumeration.
+ *
+ * @see https://developer.apple.com/documentation/passkit/pkpaymentnetwork?language=objc
+ */
 export enum IosPKPaymentNetworksEnum {
     PKPaymentNetworkAmex = 'PKPaymentNetworkAmex',
     PKPaymentNetworkBancomat = 'PKPaymentNetworkBancomat',

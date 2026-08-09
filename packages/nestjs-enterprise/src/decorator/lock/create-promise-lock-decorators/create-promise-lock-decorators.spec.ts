@@ -46,13 +46,13 @@ class TestClass {
         return Promise.resolve([this.field, id]);
     }
 
-    // @ts-expect-error runtime guard test
+    // @ts-expect-error sync return violates Promise contract
     @SequentialLock(['test'])
     testSync(): number {
         return this.field;
     }
 
-    // @ts-expect-error runtime guard test
+    // @ts-expect-error sync return violates Promise contract
     @SequentialLock([])
     testEmptyResource(): number {
         return this.field;
@@ -94,13 +94,13 @@ class TestClass {
         return Promise.resolve([this.field, id]);
     }
 
-    // @ts-expect-error runtime guard test
+    // @ts-expect-error sync return violates Promise contract
     @ExclusiveLock(['test'])
     testExclusiveSync(): number {
         return this.field;
     }
 
-    // @ts-expect-error runtime guard test
+    // @ts-expect-error sync return violates Promise contract
     @ExclusiveLock([])
     testExclusiveEmptyResource(): number {
         return this.field;
@@ -144,7 +144,6 @@ describe('createPromiseLockDecorators', () => {
         mockAcquire.mockResolvedValue({ release: mockRelease });
         mockTryAcquire.mockResolvedValue({ release: mockRelease });
         instance = new TestClass();
-        // HINT: Simulate NestJS DI by setting the lock service on the instance via the captured symbols
         for (const sym of injectedSymbols) {
             (instance as unknown as Record<symbol, unknown>)[sym] = getMockLockService();
         }
@@ -501,7 +500,6 @@ describe('createPromiseLockDecorators', () => {
                 }
             }
 
-            // Do NOT inject the lock service
             const instanceLocal = new NoDIClass();
 
             await expect(instanceLocal.test()).rejects.toThrow('LockService was not injected');

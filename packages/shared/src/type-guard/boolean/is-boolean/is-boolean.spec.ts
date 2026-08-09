@@ -51,7 +51,6 @@ describe('isBoolean', () => {
             return;
         }
 
-        // Simple `unknown` parameter does not narrow `any` to `never` in false branch
         const neverCheck: IsNever<typeof value> = false;
         expect(neverCheck).toBe(false);
     });

@@ -12,12 +12,6 @@ import type { DynamicModule, Type } from '@nestjs/common';
 
 @Module({})
 export class NestJSRxJSMetricsModule {
-    /**
-     * Create module and strongly typed service class for extension.
-     *
-     * @param options Metrics configuration object
-     * @return [DynamicModule, Type<NestJSRxJSMetricsService<C, G, H, S, SL, HL>>] Tuple with typed dynamic module and service class for extending
-     */
     static create<
         C extends MC,
         G extends MC,

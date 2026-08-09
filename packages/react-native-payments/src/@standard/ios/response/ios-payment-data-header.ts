@@ -1,4 +1,8 @@
-// https://developer.apple.com/documentation/passkit/apple_pay/payment_token_format_reference?language=objc
+/**
+ * The Apple PassKit encrypted payment token header shape.
+ *
+ * @see https://developer.apple.com/documentation/passkit/apple_pay/payment_token_format_reference?language=objc
+ */
 export interface IosPaymentDataHeader {
     applicationData?: string;
     ephemeralPublicKey: string;

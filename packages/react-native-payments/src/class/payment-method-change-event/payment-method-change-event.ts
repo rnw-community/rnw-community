@@ -3,7 +3,11 @@ import { PaymentRequestUpdateEvent } from '../payment-request-update-event/payme
 import type { PaymentRequestUpdateHandler } from '../../type/payment-request-update-handler.type.js';
 import type { Maybe } from '@rnw-community/shared';
 
-// https://www.w3.org/TR/payment-request/#dom-paymentmethodchangeevent
+/**
+ * The W3C `PaymentMethodChangeEvent` interface.
+ *
+ * @see https://www.w3.org/TR/payment-request/#dom-paymentmethodchangeevent
+ */
 export class PaymentMethodChangeEvent extends PaymentRequestUpdateEvent {
     readonly methodDetails: Maybe<Record<string, unknown>>;
     readonly methodName: string;

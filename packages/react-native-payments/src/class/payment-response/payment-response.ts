@@ -11,24 +11,27 @@ import type { PaymentResponseDetailsInterface } from '../../interface/payment-re
 import type { PaymentResponseJsonInterface } from '../../interface/payment-response-json.interface.js';
 import type { Maybe } from '@rnw-community/shared';
 
-/*
- * https://www.w3.org/TR/payment-request/#paymentresponse-interface
+/**
+ * The W3C `PaymentResponse` interface, returned once `PaymentRequest.show()` resolves.
+ *
+ * @see https://www.w3.org/TR/payment-request/#paymentresponse-interface
  */
 export class PaymentResponse {
     private completeCalled = false;
     private retryCalled = false;
 
     constructor(
-        // https://www.w3.org/TR/payment-request/#dom-paymentresponse-requestid
         readonly requestId: string,
-        // https://www.w3.org/TR/payment-request/#dom-paymentresponse-methodname
         readonly methodName: string,
-        // https://www.w3.org/TR/payment-request/#dom-paymentresponse-details
         readonly details: PaymentResponseDetailsInterface,
         readonly shippingOption: Maybe<string> = null
     ) {}
 
-    // https://www.w3.org/TR/payment-request/#complete-method
+    /**
+     * The W3C `PaymentResponse.complete()` method.
+     *
+     * @see https://www.w3.org/TR/payment-request/#complete-method
+     */
     async complete(result: PaymentComplete): Promise<void> {
         if (this.completeCalled || this.retryCalled) {
             throw new DOMException(PaymentsErrorEnum.InvalidStateError);
@@ -36,12 +39,14 @@ export class PaymentResponse {
 
         this.completeCalled = true;
 
-        // TODO: Implement logic https://www.w3.org/TR/payment-request/#complete-method
-
         return NativePayments.complete(result);
     }
 
-    // https://www.w3.org/TR/payment-request/#dom-paymentresponse-retry
+    /**
+     * The W3C `PaymentResponse.retry()` method.
+     *
+     * @see https://www.w3.org/TR/payment-request/#dom-paymentresponse-retry
+     */
     async retry(errorFields?: PaymentValidationErrors): Promise<undefined> {
         if (this.completeCalled) {
             throw new DOMException(PaymentsErrorEnum.InvalidStateError);

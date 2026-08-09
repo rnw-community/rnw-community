@@ -135,10 +135,8 @@ describe('combine', () => {
 
         expect(dataFnMock).toHaveBeenCalledTimes(getCombinationsCount(TestEnum1));
 
-        // Check generated tree structure
         Object.keys(TestEnum1).forEach(enumKey => void expect(result).toHaveProperty(enumKey));
 
-        // Check passed data to final tree node
         expect(result.TestEnum1Key1).toStrictEqual({
             0: 'TestEnum1Key1',
         });
@@ -151,12 +149,10 @@ describe('combine', () => {
 
         expect(dataFnMock).toHaveBeenCalledTimes(getCombinationsCount(TestEnum1, TestEnum2, TestEnum3, TestEnum4));
 
-        // Check generated tree structure
         Object.keys(TestEnum4).forEach(
             enumKey => void expect(result.TestEnum1Key1.TestEnum2Key1.TestEnum3Key3).toHaveProperty(enumKey)
         );
 
-        // Check passed data to final tree node
         expect(result.TestEnum1Key1.TestEnum2Key1.TestEnum3Key1.TestEnum4Key1).toStrictEqual({
             0: 'TestEnum1Key1',
             1: 'TestEnum2Key1',
@@ -172,10 +168,8 @@ describe('combine', () => {
 
         expect(dataFnMock).toHaveBeenCalledTimes(getCombinationsCount(testObj1, testObj2));
 
-        // Check generated tree structure
         Object.keys(testObj2).forEach(enumKey => void expect(result.obj1_key1).toHaveProperty(enumKey));
 
-        // Check passed data to final tree node
         expect(result.obj1_key1.obj2_key1).toStrictEqual({
             0: 'obj1_key1',
             1: 'obj2_key1',

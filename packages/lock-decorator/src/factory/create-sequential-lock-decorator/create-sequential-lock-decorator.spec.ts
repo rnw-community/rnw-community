@@ -13,7 +13,6 @@ import type { LockHandleInterface } from '../../interface/lock-handle.interface.
 import type { LockStoreInterface } from '../../interface/lock-store.interface.js';
 import type { LockModeType } from '../../type/lock-mode.type.js';
 
-// --- inline in-memory lock store: test fixture only, not a public API ---
 type SettleFn = (action: 'resolve' | 'reject', value?: unknown) => void;
 
 const buildSettle = (
@@ -191,7 +190,6 @@ const createInMemoryLockStore = (): LockStoreInterface => {
         },
     };
 };
-// --- end inline fixture ---
 
 const store = createInMemoryLockStore();
 const SequentialLock = createSequentialLockDecorator({ store });
@@ -223,7 +221,7 @@ class OrderService {
         return this.inventory.get(productId) ?? 0;
     }
 
-    // @ts-expect-error — sync method intentionally violates the Promise-returning contract; runtime guard catches it
+    // @ts-expect-error sync method violates Promise contract
     @SequentialLock('validate-sku')
     syncValidateSku(sku: string): boolean {
         return this.inventory.has(sku);

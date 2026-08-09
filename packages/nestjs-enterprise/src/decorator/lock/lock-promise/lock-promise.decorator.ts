@@ -5,10 +5,6 @@ import { getRedlockService } from '../util/get-redlock-service.util.js';
 import type { PreDecoratorFunction } from '../../../type/pre-decorator-function.type.js';
 import type { AnyFn, MethodDecoratorType } from '@rnw-community/shared';
 
-/**
- * @deprecated Use `createPromiseLockDecorators` instead. This decorator requires class inheritance from `LockableService`.
- * @see {@link createPromiseLockDecorators} for the DI-based approach.
- */
 export const LockPromise =
     <K extends AnyFn, TArgs extends Parameters<K>>(
         preLock: PreDecoratorFunction<TArgs, string[]> | string[],

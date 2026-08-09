@@ -4,14 +4,11 @@ import { ConstructorError } from '../error/constructor.error.js';
 
 import type { PaymentMethodData } from '../@standard/w3c/payment-method-data.js';
 
-/** @deprecated Move to PaymentRequest */
 export const validatePaymentMethods = (methodData: PaymentMethodData[]): void => {
-    // Check that at least one payment method is passed in
     if (!isNotEmptyArray(methodData)) {
         throw new ConstructorError(`At least one payment method is required`);
     }
 
-    // Check that each payment method has at least one payment method identifier
     methodData.forEach(paymentMethod => {
         if (!isDefined(paymentMethod.supportedMethods)) {
             throw new ConstructorError(`required member supportedMethods is undefined.`);
