@@ -49,6 +49,14 @@ dependencies {
 
 ## Known deviations
 
+- **`canMakePayment()`/`hasEnrolledInstrument()`/`show()` resolve gracefully without Google Play
+  Services.** `GoogleApiAvailability.isGooglePlayServicesAvailable()` is checked before the chained
+  `isReadyToPay()`/`loadPaymentData()` call that actually reaches into Play services —
+  `Wallet.getPaymentsClient(...)` itself never fails on its own. On a device where Play Services is
+  missing or invalid, Play Services would otherwise turn that chained call into a blocking,
+  unrecoverable system dialog over the whole screen instead of failing the promise; the guard
+  reports AndroidPay as unsupported instead, so `canMakePayment()`/`hasEnrolledInstrument()`
+  resolve `false` and `show()` rejects like any other unsupported configuration.
 - **Change events are a no-op.** Google Pay renders its sheet in its own activity and never asks the app for an
   in-sheet update, so `addEventListener` can be called but a registered listener never fires on Android. See
   [guides/change-events.md](../guides/change-events.md).
