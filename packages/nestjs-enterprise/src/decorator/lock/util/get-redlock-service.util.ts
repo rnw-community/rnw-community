@@ -1,8 +1,8 @@
-import { validateRedlock } from './validate-redlock.util.js';
+import { validateRedlock } from './validate-redlock.util';
 
-import type { LockHandle } from '../interface/lock-handle.interface.js';
-import type { LockServiceInterface } from '../interface/lock-service.interface.js';
-import type { LockableService } from '../lockable.service.js';
+import type { LockHandle } from '../interface/lock-handle.interface';
+import type { LockServiceInterface } from '../interface/lock-service.interface';
+import type { LockableService } from '../lockable.service';
 
 /** @deprecated Used by deprecated `LockPromise`/`LockObservable` decorators. */
 export const getRedlockService = (instance: unknown): LockServiceInterface => {

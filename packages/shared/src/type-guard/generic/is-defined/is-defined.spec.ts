@@ -1,6 +1,6 @@
 import { describe, expect, it } from '@jest/globals';
 
-import { isDefined } from './is-defined.js';
+import { isDefined } from './is-defined';
 
 describe('isDefined', () => {
     it('should return true if variable is defined', () => {

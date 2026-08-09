@@ -1,5 +1,5 @@
-import type { AndroidFullAddress } from './android-full-address.js';
-import type { AndroidPaymentMethodData } from './android-payment-method-data.js';
+import type { AndroidFullAddress } from './android-full-address';
+import type { AndroidPaymentMethodData } from './android-payment-method-data';
 
 /*
  * https://developers.google.com/android/reference/com/google/android/gms/wallet/PaymentData

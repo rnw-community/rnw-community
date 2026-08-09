@@ -3,11 +3,11 @@ import { type Observable, catchError, isObservable, tap, throwError } from 'rxjs
 import { createInterceptor } from '@rnw-community/decorators-core';
 import { isError, isNotEmptyString, isPromise, isString } from '@rnw-community/shared';
 
-import type { CreateLogOptionsInterface } from '../interface/create-log-options.interface.js';
-import type { ErrorLogInputType } from '../type/error-log-input.type.js';
-import type { GetResultType } from '../type/get-result.type.js';
-import type { PostLogInputType } from '../type/post-log-input.type.js';
-import type { PreLogInputType } from '../type/pre-log-input.type.js';
+import type { CreateLogOptionsInterface } from '../interface/create-log-options.interface';
+import type { ErrorLogInputType } from '../type/error-log-input.type';
+import type { GetResultType } from '../type/get-result.type';
+import type { PostLogInputType } from '../type/post-log-input.type';
+import type { PreLogInputType } from '../type/pre-log-input.type';
 import type { InterceptorMiddleware } from '@rnw-community/decorators-core';
 import type { AnyFn, MethodDecoratorType } from '@rnw-community/shared';
 

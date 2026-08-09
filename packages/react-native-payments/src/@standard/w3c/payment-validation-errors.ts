@@ -1,5 +1,5 @@
-import type { PaymentAddressFieldEnum } from '../../enum/payment-address-field.enum.js';
-import type { PaymentContactFieldEnum } from '../../enum/payment-contact-field.enum.js';
+import type { PaymentAddressFieldEnum } from '../../enum/payment-address-field.enum';
+import type { PaymentContactFieldEnum } from '../../enum/payment-contact-field.enum';
 
 // https://www.w3.org/TR/payment-request/#dom-paymentvalidationerrors
 export interface PaymentValidationErrors {

@@ -1,7 +1,7 @@
-import type { PaymentShippingTypeEnum } from '../../../enum/payment-shipping-type.enum.js';
-import type { IOSPKContactField } from '../enum/ios-pk-contact-field.enum.js';
-import type { IosPKMerchantCapability } from '../enum/ios-pk-merchant-capability.enum.js';
-import type { IosPKPaymentNetworksEnum } from '../enum/ios-pk-payment-networks.enum.js';
+import type { PaymentShippingTypeEnum } from '../../../enum/payment-shipping-type.enum';
+import type { IOSPKContactField } from '../enum/ios-pk-contact-field.enum';
+import type { IosPKMerchantCapability } from '../enum/ios-pk-merchant-capability.enum';
+import type { IosPKPaymentNetworksEnum } from '../enum/ios-pk-payment-networks.enum';
 
 // https://developer.apple.com/documentation/passkit/pkpaymentrequest?language=objc
 export interface IosPaymentDataRequest {

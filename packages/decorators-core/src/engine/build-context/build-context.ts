@@ -1,6 +1,6 @@
 import { isDefined, isNotEmptyString } from '@rnw-community/shared';
 
-import type { ExecutionContextInterface } from '../../interface/execution-context.interface.js';
+import type { ExecutionContextInterface } from '../../interface/execution-context.interface';
 
 const resolveNameFromFunction = (fn: { readonly name?: string }): string | null =>
     isNotEmptyString(fn.name) ? fn.name : null;

@@ -1,6 +1,6 @@
 // Ambient version: https://webdriver.io/docs/customcommands/#extend-type-definitions
 declare namespace WebdriverIO {
-    import type { SwipeDirectionType } from './type/index.js';
+    import type { SwipeDirectionType } from './type';
     import type { ChainablePromiseArray, ChainablePromiseElement } from 'webdriverio';
 
     interface Element {

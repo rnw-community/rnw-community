@@ -1,6 +1,6 @@
-import { initialLoadingState } from '../interface/loading-state.interface.js';
+import { initialLoadingState } from '../interface/loading-state.interface';
 
-import type { LoadingStateInterface } from '../interface/loading-state.interface.js';
+import type { LoadingStateInterface } from '../interface/loading-state.interface';
 
 /**
  * Reset loading state slice to loading initial state.

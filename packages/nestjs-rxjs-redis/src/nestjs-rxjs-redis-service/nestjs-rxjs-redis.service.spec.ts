@@ -3,7 +3,7 @@ import { of } from 'rxjs';
 
 import { emptyFn, getErrorMessage } from '@rnw-community/shared';
 
-import { NestJSRxJSRedisService } from './nestjs-rxjs-redis.service.js';
+import { NestJSRxJSRedisService } from './nestjs-rxjs-redis.service';
 
 import type { Redis } from 'ioredis';
 

@@ -1,4 +1,4 @@
-import type { LoadingStateSliceSelector } from './loading-state-slice-selector.type.js';
+import type { LoadingStateSliceSelector } from './loading-state-slice-selector.type';
 
 /**
  * Redux selector for loading state

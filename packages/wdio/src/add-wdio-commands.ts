@@ -5,8 +5,8 @@ import {
     slowInputCommand,
     testID$,
     testID$$,
-} from './command/index.js';
-import { swipeCommand } from './command/swipe.command.js';
+} from './command';
+import { swipeCommand } from './command/swipe.command';
 
 import type { Browser } from 'webdriverio';
 

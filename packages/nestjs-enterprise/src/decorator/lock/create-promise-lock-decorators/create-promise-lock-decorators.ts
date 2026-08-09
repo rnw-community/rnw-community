@@ -3,13 +3,13 @@ import { Inject } from '@nestjs/common';
 import { LockBusyError } from '@rnw-community/lock-decorator';
 import { isDefined, isPromise } from '@rnw-community/shared';
 
-import { createLockServiceStore } from '../create-lock-service-store.js';
-import { LOCK_SERVICE_NOT_INJECTED_MESSAGE } from '../lock-service-not-injected-message.const.js';
-import { resolveResources } from '../resolve-resources.js';
-import { RESOURCE_SEPARATOR } from '../resource-separator.const.js';
+import { createLockServiceStore } from '../create-lock-service-store';
+import { LOCK_SERVICE_NOT_INJECTED_MESSAGE } from '../lock-service-not-injected-message.const';
+import { resolveResources } from '../resolve-resources';
+import { RESOURCE_SEPARATOR } from '../resource-separator.const';
 
-import type { PreDecoratorFunction } from '../../../type/pre-decorator-function.type.js';
-import type { LockServiceInterface } from '../interface/lock-service.interface.js';
+import type { PreDecoratorFunction } from '../../../type/pre-decorator-function.type';
+import type { LockServiceInterface } from '../interface/lock-service.interface';
 import type { LockHandleInterface, LockModeType } from '@rnw-community/lock-decorator';
 import type { AbstractConstructor, MethodDecoratorType } from '@rnw-community/shared';
 

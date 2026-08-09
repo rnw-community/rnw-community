@@ -1,4 +1,4 @@
-import { isDefined } from '../../type-guard/generic/is-defined/is-defined.js';
+import { isDefined } from '../../type-guard/generic/is-defined/is-defined';
 
 /**
  * Returns value if defined otherwise returns default value

@@ -1,4 +1,4 @@
-import type { IosPKPaymentMethodType } from '../enum/ios-pk-payment-method-type.enum.js';
+import type { IosPKPaymentMethodType } from '../enum/ios-pk-payment-method-type.enum';
 
 // https://developer.apple.com/documentation/passkit/apple_pay/payment_token_format_reference?language=objc
 export interface IosRawPKToken {

@@ -1,4 +1,4 @@
-import type { Component } from '../component/component.js';
+import type { Component } from '../component/component';
 import type { ChainablePromiseArray, ChainablePromiseElement } from 'webdriverio';
 
 export class SelectorElement {

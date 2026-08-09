@@ -1,7 +1,7 @@
-import { RootedComponentMock } from '../../rooted-component/mocks/rooted-component.mock.js';
-import { getExtendedRootedComponent$ } from '../get-extended-rooted-component$/get-extended-rooted-component$.js';
+import { RootedComponentMock } from '../../rooted-component/mocks/rooted-component.mock';
+import { getExtendedRootedComponent$ } from '../get-extended-rooted-component$/get-extended-rooted-component$';
 
-import { RootedComponent$SelectorsMock } from './rooted-component$-selectors.mock.js';
+import { RootedComponent$SelectorsMock } from './rooted-component$-selectors.mock';
 
 export class RootedMixedComponent$Mock extends getExtendedRootedComponent$(
     RootedComponent$SelectorsMock,

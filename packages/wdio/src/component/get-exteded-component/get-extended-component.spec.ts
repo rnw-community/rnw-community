@@ -1,10 +1,10 @@
 import { describe, expect, it, jest } from '@jest/globals';
 
-import { mockDefaultConfig, mockElement } from '../../element.mock.js';
-import { ComponentSelectorsMock } from '../mocks/component-selectors.mock.js';
-import { ComponentMock } from '../mocks/component.mock.js';
-import { ExtendedComponentMock } from '../mocks/extended-component.mock.js';
-import { ParentComponentSelectorsMock } from '../mocks/parent-component-selectors.mock.js';
+import { mockDefaultConfig, mockElement } from '../../element.mock';
+import { ComponentSelectorsMock } from '../mocks/component-selectors.mock';
+import { ComponentMock } from '../mocks/component.mock';
+import { ExtendedComponentMock } from '../mocks/extended-component.mock';
+import { ParentComponentSelectorsMock } from '../mocks/parent-component-selectors.mock';
 
 describe('getExtendedComponent', () => {
     // TODO: Move to component tests

@@ -1,6 +1,6 @@
 import { RunScriptWebpackPlugin } from 'run-script-webpack-plugin';
 
-import { getNestJSWebpackGenericConfig } from './get-nestjs-webpack-generic.config.js';
+import { getNestJSWebpackGenericConfig } from './get-nestjs-webpack-generic.config';
 
 import type { Configuration, WebpackPluginInstance } from 'webpack';
 import type Webpack from 'webpack';

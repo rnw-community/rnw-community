@@ -1,9 +1,9 @@
-import type { EnvironmentEnum } from '../../../enum/environment.enum.js';
-import type { GenericPaymentMethodDataDataInterface } from '../../../interface/generic-payment-method-data-data.interface.js';
-import type { AndroidAllowedAuthMethodsEnum } from '../enum/android-allowed-auth-methods.enum.js';
-import type { AndroidTokenizationDirectSpecification } from '../request/android-tokenization-direct-specification.js';
-import type { AndroidTokenizationGatewaySpecification } from '../request/android-tokenization-gateway-specification.js';
-import type { AndroidTransactionInfo } from '../request/android-transaction-info.js';
+import type { EnvironmentEnum } from '../../../enum/environment.enum';
+import type { GenericPaymentMethodDataDataInterface } from '../../../interface/generic-payment-method-data-data.interface';
+import type { AndroidAllowedAuthMethodsEnum } from '../enum/android-allowed-auth-methods.enum';
+import type { AndroidTokenizationDirectSpecification } from '../request/android-tokenization-direct-specification';
+import type { AndroidTokenizationGatewaySpecification } from '../request/android-tokenization-gateway-specification';
+import type { AndroidTransactionInfo } from '../request/android-transaction-info';
 
 interface AndroidGenericPaymentMethodDataInterface extends GenericPaymentMethodDataDataInterface {
     // PAN_ONLY and CRYPTOGRAM_3DS by default. https://developers.google.com/pay/api/android/reference/request-objects#CardParameters

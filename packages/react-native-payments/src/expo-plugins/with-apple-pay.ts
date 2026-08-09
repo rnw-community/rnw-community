@@ -2,7 +2,7 @@ import { withEntitlementsPlist } from '@expo/config-plugins';
 
 import { isDefined, isEmptyArray, isNotEmptyString } from '@rnw-community/shared';
 
-import type { ReactNativePaymentsPluginProps } from './plugin.props.js';
+import type { ReactNativePaymentsPluginProps } from './plugin.props';
 import type { ConfigPlugin } from '@expo/config-plugins';
 
 export const withApplePay: ConfigPlugin<ReactNativePaymentsPluginProps> = (initialConfig, { merchantIdentifier }) => {

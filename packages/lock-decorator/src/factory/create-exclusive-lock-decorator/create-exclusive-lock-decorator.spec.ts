@@ -2,16 +2,16 @@ import { describe, expect, it, jest } from '@jest/globals';
 
 import { type EmptyFn, emptyFn, isDefined } from '@rnw-community/shared';
 
-import { LockAcquireTimeoutError } from '../../error/lock-acquire-timeout-error/lock-acquire-timeout.error.js';
-import { LockBusyError } from '../../error/lock-busy-error/lock-busy.error.js';
-import { assertValidTimeoutMs } from '../../util/assert-valid-timeout-ms/assert-valid-timeout-ms.js';
+import { LockAcquireTimeoutError } from '../../error/lock-acquire-timeout-error/lock-acquire-timeout.error';
+import { LockBusyError } from '../../error/lock-busy-error/lock-busy.error';
+import { assertValidTimeoutMs } from '../../util/assert-valid-timeout-ms/assert-valid-timeout-ms';
 
-import { createExclusiveLockDecorator } from './create-exclusive-lock-decorator.js';
+import { createExclusiveLockDecorator } from './create-exclusive-lock-decorator';
 
-import type { AcquireOptionsInterface } from '../../interface/acquire-options.interface.js';
-import type { LockHandleInterface } from '../../interface/lock-handle.interface.js';
-import type { LockStoreInterface } from '../../interface/lock-store.interface.js';
-import type { LockModeType } from '../../type/lock-mode.type.js';
+import type { AcquireOptionsInterface } from '../../interface/acquire-options.interface';
+import type { LockHandleInterface } from '../../interface/lock-handle.interface';
+import type { LockStoreInterface } from '../../interface/lock-store.interface';
+import type { LockModeType } from '../../type/lock-mode.type';
 
 // --- inline in-memory lock store: test fixture only, not a public API ---
 type SettleFn = (action: 'resolve' | 'reject', value?: unknown) => void;
