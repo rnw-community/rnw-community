@@ -1,4 +1,8 @@
-// https://developer.apple.com/documentation/passkit/pkmerchantcapability?language=objc
+/**
+ * The Apple PassKit `PKMerchantCapability` option set.
+ *
+ * @see https://developer.apple.com/documentation/passkit/pkmerchantcapability?language=objc
+ */
 export enum IosPKMerchantCapability {
     PKMerchantCapability3DS = 'PKMerchantCapability3DS',
     PKMerchantCapabilityCredit = 'PKMerchantCapabilityCredit',

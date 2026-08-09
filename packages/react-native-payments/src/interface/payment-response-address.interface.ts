@@ -1,4 +1,3 @@
-// TODO: Validate IOS types
 export interface PaymentResponseAddressInterface {
     address1: string;
     address2: string;

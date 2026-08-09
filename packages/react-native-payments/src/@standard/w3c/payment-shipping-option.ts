@@ -1,6 +1,10 @@
 import type { PaymentCurrencyAmount } from './payment-currency-amount.js';
 
-// https://www.w3.org/TR/payment-request/#paymentshippingoption-dictionary
+/**
+ * The W3C `PaymentShippingOption` dictionary.
+ *
+ * @see https://www.w3.org/TR/payment-request/#paymentshippingoption-dictionary
+ */
 export interface PaymentShippingOption {
     amount: PaymentCurrencyAmount;
     detail?: string;
