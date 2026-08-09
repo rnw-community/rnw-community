@@ -1,8 +1,11 @@
 import type { AndroidPaymentMethodTokenizationType } from '../enum/android-payment-method-tokenization-type.enum.js';
 
-// https://developers.google.com/pay/api/android/reference/response-objects#PaymentMethodTokenizationData
+/**
+ * The Google Pay `PaymentMethodTokenizationData` response shape.
+ *
+ * @see https://developers.google.com/pay/api/android/reference/response-objects#PaymentMethodTokenizationData
+ */
 export interface AndroidPaymentMethodTokenizationData {
-    // AndroidRawPaymentMethodToken is a stringified JSON object
     token?: string;
     type: AndroidPaymentMethodTokenizationType;
 }
