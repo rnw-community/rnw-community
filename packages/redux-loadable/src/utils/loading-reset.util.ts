@@ -2,14 +2,6 @@ import { initialLoadingState } from '../interface/loading-state.interface.js';
 
 import type { LoadingStateInterface } from '../interface/loading-state.interface.js';
 
-/**
- * Reset loading state slice to loading initial state.
- *
- * @template T
- * @param state Redux state slice
- *
- * @return {T} Mutated state
- */
 export const loadingReset = <T extends LoadingStateInterface>(state: T): T => {
     state.isPristine = initialLoadingState.isPristine;
     state.isLoading = initialLoadingState.isLoading;
