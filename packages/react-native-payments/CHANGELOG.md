@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.12.11](https://github.com/rnw-community/rnw-community/compare/v2.12.10...v2.12.11) (2026-08-09)
+
+### Bug Fixes
+
+- **react-native-payments:** resolve canMakePayment without Play Services ([#552](https://github.com/rnw-community/rnw-community/issues/552)) ([fbd8cb6](https://github.com/rnw-community/rnw-community/commit/fbd8cb69ab10d0fb194e17a8b10e16028c14256a))
+
 ## [2.12.10](https://github.com/rnw-community/rnw-community/compare/v2.12.9...v2.12.10) (2026-08-06)
 
 ### Bug Fixes
