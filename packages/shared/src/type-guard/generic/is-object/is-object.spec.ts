@@ -1,6 +1,6 @@
 import { describe, expect, it } from '@jest/globals';
 
-import { isObject } from './is-object.js';
+import { isObject } from './is-object';
 
 describe('isObject', () => {
     it('should return true if variable is object', () => {

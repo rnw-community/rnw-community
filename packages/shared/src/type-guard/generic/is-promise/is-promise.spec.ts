@@ -1,8 +1,8 @@
 import { describe, expect, it } from '@jest/globals';
 
-import { emptyFn } from '../../../util/empty-fn/empty-fn.js';
+import { emptyFn } from '../../../util/empty-fn/empty-fn';
 
-import { isPromise } from './is-promise.js';
+import { isPromise } from './is-promise';
 
 describe('isPromise', () => {
     it('should return true if variable is Promise', () => {

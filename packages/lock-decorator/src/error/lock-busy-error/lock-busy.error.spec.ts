@@ -1,6 +1,6 @@
 import { describe, expect, it } from '@jest/globals';
 
-import { LockBusyError } from './lock-busy.error.js';
+import { LockBusyError } from './lock-busy.error';
 
 describe('LockBusyError', () => {
     it('sets key and name', () => {

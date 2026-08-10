@@ -1,4 +1,4 @@
-import type { LoadingStateSliceSelector } from './loading-state-slice-selector.type.js';
+import type { LoadingStateSliceSelector } from './loading-state-slice-selector.type';
 
 export const loadingStateSelector: LoadingStateSliceSelector<
     [isLoading: boolean, isFailed: boolean, isPristine: boolean, errorText: string]

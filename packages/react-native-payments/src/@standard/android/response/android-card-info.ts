@@ -1,9 +1,9 @@
 import {
     type AndroidAssuranceDetailsSpecifications,
     emptyAndroidAssuranceDetailsSpecifications,
-} from './android-assurance-details-specifications.js';
+} from './android-assurance-details-specifications';
 
-import type { AndroidFullAddress } from './android-full-address.js';
+import type { AndroidFullAddress } from './android-full-address';
 
 /**
  * The Google Pay `CardInfo` response shape.

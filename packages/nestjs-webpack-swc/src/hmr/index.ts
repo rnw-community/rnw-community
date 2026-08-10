@@ -1,2 +1,2 @@
-export type { HmrModuleInterface } from './hmr-module.interface.js';
-export { handleNestJSWebpackHmr } from './handle-nestjs-webpack-hmr.js';
+export type { HmrModuleInterface } from './hmr-module.interface';
+export { handleNestJSWebpackHmr } from './handle-nestjs-webpack-hmr';

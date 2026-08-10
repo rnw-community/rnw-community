@@ -1,4 +1,4 @@
-import type { PaymentResponseAddressInterface } from './payment-response-address.interface.js';
+import type { PaymentResponseAddressInterface } from './payment-response-address.interface';
 
 /**
  * Mirrors the PassKit delegate change callbacks.

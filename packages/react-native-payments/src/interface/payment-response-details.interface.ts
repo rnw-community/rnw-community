@@ -1,6 +1,6 @@
-import type { PaymentResponseAddressInterface } from './payment-response-address.interface.js';
-import type { AndroidPaymentMethodToken } from '../@standard/android/response/android-payment-method-token.js';
-import type { IosPKToken } from '../@standard/ios/response/ios-pk-token.js';
+import type { PaymentResponseAddressInterface } from './payment-response-address.interface';
+import type { AndroidPaymentMethodToken } from '../@standard/android/response/android-payment-method-token';
+import type { IosPKToken } from '../@standard/ios/response/ios-pk-token';
 
 export interface PaymentResponseDetailsInterface {
     androidPayToken: AndroidPaymentMethodToken;

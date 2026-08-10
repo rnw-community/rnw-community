@@ -25,7 +25,7 @@ const loadNativePayments = (): LoadedNativePaymentsInterface => {
     let nativePayments = {} as LoadedNativePaymentsInterface;
 
     jest.isolateModules(() => {
-        // eslint-disable-next-line @typescript-eslint/no-require-imports
+        // eslint-disable-next-line @typescript-eslint/no-require-imports,n/no-missing-require
         nativePayments = (require('./native-payments') as { NativePayments: LoadedNativePaymentsInterface }).NativePayments;
     });
 

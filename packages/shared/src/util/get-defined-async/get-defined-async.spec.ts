@@ -1,6 +1,6 @@
 import { describe, expect, it } from '@jest/globals';
 
-import { getDefinedAsync } from './get-defined-async.js';
+import { getDefinedAsync } from './get-defined-async';
 
 describe('getDefinedAsync', () => {
     it('should return value if defined', async () => {
