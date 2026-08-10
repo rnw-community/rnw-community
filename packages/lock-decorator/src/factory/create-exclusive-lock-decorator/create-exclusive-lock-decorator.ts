@@ -1,9 +1,9 @@
 import { createInterceptor } from '@rnw-community/decorators-core';
 
-import { createLockMiddleware } from '../../util/create-lock-middleware/create-lock-middleware.js';
+import { createLockMiddleware } from '../../util/create-lock-middleware/create-lock-middleware';
 
-import type { CreateLockOptionsInterface } from '../../interface/create-lock-options.interface.js';
-import type { ExclusiveLockArgumentType } from '../../type/exclusive-lock-argument.type.js';
+import type { CreateLockOptionsInterface } from '../../interface/create-lock-options.interface';
+import type { ExclusiveLockArgumentType } from '../../type/exclusive-lock-argument.type';
 import type { MethodDecoratorType } from '@rnw-community/shared';
 
 export const createExclusiveLockDecorator =

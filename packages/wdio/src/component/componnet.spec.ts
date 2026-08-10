@@ -1,9 +1,9 @@
 import { describe, expect, it, jest } from '@jest/globals';
 
-import { mockDefaultConfig } from '../element.mock.js';
+import { mockDefaultConfig } from '../element.mock';
 
-import { Component } from './component.js';
-import { ComponentSelectorsMock } from './mocks/component-selectors.mock.js';
+import { Component } from './component';
+import { ComponentSelectorsMock } from './mocks/component-selectors.mock';
 
 describe('Component', () => {
     it('should return wdio element by selector using getChildEl', () => {

@@ -4,9 +4,6 @@ module.exports = (packageName, preset) => ({
     coverageReporters: ['text-summary', 'lcov'],
     reporters: ['default'],
     coveragePathIgnorePatterns: ['.mock.ts'],
-    moduleNameMapper: {
-        '^(\\.{1,2}/.*)\\.js$': '$1',
-    },
     coverageThreshold: {
         global: {
             statements: 99.9,

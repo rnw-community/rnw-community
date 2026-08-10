@@ -1,5 +1,5 @@
-import type { AndroidCardInfo } from './android-card-info.js';
-import type { AndroidPaymentMethodTokenizationData } from './android-payment-method-tokenization-data.js';
+import type { AndroidCardInfo } from './android-card-info';
+import type { AndroidPaymentMethodTokenizationData } from './android-payment-method-tokenization-data';
 
 /**
  * The Google Pay `PaymentMethodData` response shape.

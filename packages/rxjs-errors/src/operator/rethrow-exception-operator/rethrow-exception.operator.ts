@@ -2,12 +2,12 @@ import { catchError, throwError } from 'rxjs';
 
 import { getErrorMessage } from '@rnw-community/shared';
 
-import { RxJSFilterError } from '../../rxjs-filter-error.js';
-import { defaultCreateError } from '../../type/create-error-fn.type.js';
+import { RxJSFilterError } from '../../rxjs-filter-error';
+import { defaultCreateError } from '../../type/create-error-fn.type';
 
-import type { CreateErrorFn } from '../../type/create-error-fn.type.js';
-import type { ErrorCodeOrMsgFn } from '../../type/error-code-or-msg-fn.type.js';
-import type { ErrorCtor } from '../../type/error-ctor.type.js';
+import type { CreateErrorFn } from '../../type/create-error-fn.type';
+import type { ErrorCodeOrMsgFn } from '../../type/error-code-or-msg-fn.type';
+import type { ErrorCtor } from '../../type/error-ctor.type';
 import type { MonoTypeOperatorFunction } from 'rxjs';
 
 type LogFn = (msg: string) => void;

@@ -1,9 +1,9 @@
-import '../platform/platform.mock.js';
+import '../platform/platform.mock';
 import { describe, expect, it } from '@jest/globals';
 
-import * as constants from '../platform/platform.js';
+import * as constants from '../platform/platform';
 
-import { androidStyles, iosStyles, mobileStyles, webStyles } from './platform-style.js';
+import { androidStyles, iosStyles, mobileStyles, webStyles } from './platform-style';
 
 describe('platform styles', () => {
     const styleObj = { backgroundColor: 'red' };

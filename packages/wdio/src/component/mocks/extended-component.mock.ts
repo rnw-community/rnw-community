@@ -1,3 +1,3 @@
-import { ComponentMock } from './component.mock.js';
+import { ComponentMock } from './component.mock';
 
 export class ExtendedComponentMock extends ComponentMock {}

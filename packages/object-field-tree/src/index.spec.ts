@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, jest } from '@jest/globals';
 
-import { combine } from './index.js';
+import { combine } from './index';
 
 enum TestEnum1 {
     TestEnum1Key1 = 'TestEnum1_Value1',

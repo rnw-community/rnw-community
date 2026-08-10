@@ -1,5 +1,5 @@
-import type { PaymentItem } from './payment-item.js';
-import type { PaymentMethodNameEnum } from '../../enum/payment-method-name.enum.js';
+import type { PaymentItem } from './payment-item';
+import type { PaymentMethodNameEnum } from '../../enum/payment-method-name.enum';
 
 /**
  * The W3C `PaymentDetailsModifier` dictionary.

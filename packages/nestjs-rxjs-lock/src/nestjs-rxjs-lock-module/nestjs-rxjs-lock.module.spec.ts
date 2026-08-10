@@ -1,8 +1,8 @@
 import { describe, expect, it } from '@jest/globals';
 
-import { NestJSRxJSLockService } from '../nestjs-rxjs-lock-service/nestjs-rxjs-lock.service.js';
+import { NestJSRxJSLockService } from '../nestjs-rxjs-lock-service/nestjs-rxjs-lock.service';
 
-import { NestJSRxJSLockModule } from './nestjs-rxjs-lock.module.js';
+import { NestJSRxJSLockModule } from './nestjs-rxjs-lock.module';
 
 describe('NestJSRxJSLockModule', () => {
     it('should registerTypedAsync', () => {

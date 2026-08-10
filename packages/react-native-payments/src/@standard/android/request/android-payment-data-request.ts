@@ -1,10 +1,10 @@
-import { defaultAndroidPaymentMethod } from './android-payment-method.js';
-import { defaultAndroidTransactionInfo } from './android-transaction-info.js';
+import { defaultAndroidPaymentMethod } from './android-payment-method';
+import { defaultAndroidTransactionInfo } from './android-transaction-info';
 
-import type { AndroidMerchantInfo } from './android-merchant-info.js';
-import type { AndroidPaymentMethod } from './android-payment-method.js';
-import type { AndroidShippingAddressParameters } from './android-shipping-address-parameters.js';
-import type { AndroidTransactionInfo } from './android-transaction-info.js';
+import type { AndroidMerchantInfo } from './android-merchant-info';
+import type { AndroidPaymentMethod } from './android-payment-method';
+import type { AndroidShippingAddressParameters } from './android-shipping-address-parameters';
+import type { AndroidTransactionInfo } from './android-transaction-info';
 
 /**
  * The Google Pay `PaymentDataRequest` shape.

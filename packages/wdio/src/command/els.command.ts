@@ -1,5 +1,5 @@
 import { browser } from '@wdio/globals';
 
-import type { ElsSelectorFn } from '../type/index.js';
+import type { ElsSelectorFn } from '../type';
 
 export const els$: ElsSelectorFn = (selector, context = browser) => context.$$(selector);

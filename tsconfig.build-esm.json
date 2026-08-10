@@ -2,8 +2,7 @@
     "extends": "./tsconfig.json",
     "compilerOptions": {
         "target": "es2021",
-        "module": "nodenext",
-        "moduleResolution": "nodenext",
+        "module": "esnext",
         "noEmit": false
     }
 }

@@ -1,5 +1,5 @@
-import type { PaymentResponseAddressInterface } from './payment-response-address.interface.js';
-import type { PaymentResponseDetailsInterface } from './payment-response-details.interface.js';
+import type { PaymentResponseAddressInterface } from './payment-response-address.interface';
+import type { PaymentResponseDetailsInterface } from './payment-response-details.interface';
 import type { Maybe } from '@rnw-community/shared';
 
 export interface PaymentResponseJsonInterface {

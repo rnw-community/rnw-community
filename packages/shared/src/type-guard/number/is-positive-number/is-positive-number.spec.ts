@@ -1,6 +1,6 @@
 import { describe, expect, it } from '@jest/globals';
 
-import { isPositiveNumber } from './is-positive-number.js';
+import { isPositiveNumber } from './is-positive-number';
 
 describe('isPositiveNumber', () => {
     it('should return true if variable is a positive number', () => {
