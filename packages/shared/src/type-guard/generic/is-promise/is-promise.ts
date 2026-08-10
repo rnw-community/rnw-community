@@ -1,4 +1,4 @@
-import { isDefined } from '../is-defined/is-defined.js';
+import { isDefined } from '../is-defined/is-defined';
 
 /**
  * Checks whether a value is a Promise or thenable, per the Promises/A+ resolution procedure.

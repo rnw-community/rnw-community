@@ -1,5 +1,5 @@
-import type { PaymentDetailsBase } from './payment-details-base.js';
-import type { PaymentItem } from './payment-item.js';
+import type { PaymentDetailsBase } from './payment-details-base';
+import type { PaymentItem } from './payment-item';
 
 /**
  * The W3C `PaymentDetailsInit` dictionary.

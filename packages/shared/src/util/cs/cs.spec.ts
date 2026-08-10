@@ -1,6 +1,6 @@
 import { describe, expect, it } from '@jest/globals';
 
-import { cs } from './cs.js';
+import { cs } from './cs';
 
 describe('cs', () => {
     const trueStyle = { backgroundColor: 'green' };

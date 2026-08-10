@@ -1,6 +1,6 @@
-import { getRootedComponent } from '../get-rooted-component/get-rooted-component.js';
+import { getRootedComponent } from '../get-rooted-component/get-rooted-component';
 
-import type { ComponentInputArg, RootedComponentWithSelectors } from '../../type/index.js';
+import type { ComponentInputArg, RootedComponentWithSelectors } from '../../type';
 
 export const createRootedComponent = <T>(
     selectors: T,

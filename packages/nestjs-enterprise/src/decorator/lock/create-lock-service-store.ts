@@ -7,9 +7,9 @@ import {
 } from '@rnw-community/lock-decorator';
 import { isDefined } from '@rnw-community/shared';
 
-import { RESOURCE_SEPARATOR } from './resource-separator.const.js';
+import { RESOURCE_SEPARATOR } from './resource-separator.const';
 
-import type { LockServiceInterface } from './interface/lock-service.interface.js';
+import type { LockServiceInterface } from './interface/lock-service.interface';
 
 export const createLockServiceStore = (lockService: LockServiceInterface, duration: number): LockStoreInterface => ({
     acquire: async (

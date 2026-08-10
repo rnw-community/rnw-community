@@ -40,6 +40,7 @@ const RESOLUTION_ONLY_PACKAGES = [
         pkg: 'eslint-plugin',
         unloadableBecause:
             "requires '../package.json', a file its own build script deletes post-compile (pre-existing, documented in AGENTS.md, unrelated to #531)",
+        hasRealEsmOutput: false,
     },
 ];
 
@@ -65,6 +66,9 @@ function createRelativeSpecifierRegex() {
 }
 
 const ALL_PACKAGE_NAMES = [...EXECUTABLE_PACKAGES.map(entry => entry.pkg), ...RESOLUTION_ONLY_PACKAGES.map(entry => entry.pkg)];
+const ESM_INVARIANT_EXEMPT_PACKAGES = new Set(
+    RESOLUTION_ONLY_PACKAGES.filter(entry => entry.hasRealEsmOutput === false).map(entry => entry.pkg)
+);
 
 const failures = [];
 
@@ -148,7 +152,7 @@ function findSpotCheckableRelativeSpecifier(entryFile) {
     return undefined;
 }
 
-function checkResolutionOnly({ pkg, unloadableBecause }) {
+function checkResolutionOnly({ pkg, unloadableBecause, hasRealEsmOutput = true }) {
     const specifier = `@rnw-community/${pkg}`;
     const pkgDir = path.join(scopeDir, pkg);
     const pkgJson = JSON.parse(fs.readFileSync(path.join(pkgDir, 'package.json'), 'utf8'));
@@ -167,6 +171,12 @@ function checkResolutionOnly({ pkg, unloadableBecause }) {
         log(`  OK   ${pkg} (ESM import.meta.resolve entry)`);
     } catch (error) {
         fail(pkg, `import.meta.resolve('${specifier}') threw: ${error.message.split('\n')[0]}`);
+    }
+
+    if (!hasRealEsmOutput) {
+        log(`  --   ${pkg}: skipping ESM deep-specifier probe — dist/esm is byte-equivalent CommonJS, not real ESM (see AGENTS.md)`);
+
+        return;
     }
 
     const entryRelative = pkgJson.exports['.'].import.default;
@@ -228,6 +238,11 @@ function scanInstalledPackagesForExtensionlessSpecifiers() {
     let totalFound = 0;
 
     for (const pkg of ALL_PACKAGE_NAMES) {
+        if (ESM_INVARIANT_EXEMPT_PACKAGES.has(pkg)) {
+            log(`  --   ${pkg}: skipping extensionless-specifier scan — dist/esm is byte-equivalent CommonJS, not real ESM (see AGENTS.md)`);
+            continue;
+        }
+
         const esmDir = path.join(scopeDir, pkg, 'dist', 'esm');
         if (!fs.existsSync(esmDir)) {
             fail(pkg, `installed package has no dist/esm directory at ${path.relative(scopeDir, esmDir)}`);

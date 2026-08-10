@@ -1,9 +1,9 @@
 import { isDefined } from '@rnw-community/shared';
 
-import type { PaymentDetailsModifier } from '../@standard/w3c/payment-details-modifier.js';
-import type { PaymentItem } from '../@standard/w3c/payment-item.js';
-import type { PaymentMethodNameEnum } from '../enum/payment-method-name.enum.js';
-import type { ResolvedPaymentDetailsInterface } from '../interface/resolved-payment-details.interface.js';
+import type { PaymentDetailsModifier } from '../@standard/w3c/payment-details-modifier';
+import type { PaymentItem } from '../@standard/w3c/payment-item';
+import type { PaymentMethodNameEnum } from '../enum/payment-method-name.enum';
+import type { ResolvedPaymentDetailsInterface } from '../interface/resolved-payment-details.interface';
 
 /**
  * Resolves the active payment details modifier for the platform's supported method into the effective total and display items.

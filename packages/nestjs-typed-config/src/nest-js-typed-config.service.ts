@@ -5,7 +5,7 @@ import { ConfigService } from '@nestjs/config';
 
 import { isNotEmptyString } from '@rnw-community/shared';
 
-import type { EnvType } from './env.type.js';
+import type { EnvType } from './env.type';
 
 @Injectable()
 export class NestJSTypedConfigService<
