@@ -75,6 +75,9 @@ jobs:
         needs: detect
         if: needs.detect.outputs.payments_affected == 'true'
         runs-on: [self-hosted, macOS, ARM64, macos-maestro]
+        # Self-hosted fleet capacity is shared with other repositories, so both the
+        # job and every step below carry an explicit bound. See the step comments
+        # for how each number was sized.
         timeout-minutes: 60
         strategy:
             fail-fast: false
@@ -87,24 +90,30 @@ jobs:
         steps:
             -   name: Checkout repository
                 uses: actions/checkout@v5
+                timeout-minutes: 10
 
             -   name: Setup Node
                 uses: actions/setup-node@v5
+                timeout-minutes: 10
                 with:
                     node-version: 22.x
                     cache: yarn
 
             -   name: Enable corepack
+                timeout-minutes: 5
                 run: corepack enable
 
             -   name: Install dependencies
+                timeout-minutes: 15
                 run: yarn install --immutable
 
             -   name: Verify Xcode toolchain
+                timeout-minutes: 5
                 run: xcodebuild -version
 
             -   name: Restore CocoaPods global cache
                 uses: actions/cache@v4
+                timeout-minutes: 10
                 with:
                     path: |
                         ~/Library/Caches/CocoaPods
@@ -115,6 +124,7 @@ jobs:
 
             -   name: Restore project Pods and DerivedData cache
                 uses: actions/cache@v4
+                timeout-minutes: 10
                 with:
                     path: |
                         ${{ env.APP_DIR }}/ios/Pods
@@ -124,24 +134,32 @@ jobs:
                         pods-project-ios-${{ matrix.target }}-${{ runner.os }}-
 
             -   name: Build workspace JS dependencies
+                timeout-minutes: 10
                 run: yarn build --filter=@rnw-community/react-native-payments
 
             -   name: Generate native project (expo)
                 if: matrix.target == 'expo'
+                timeout-minutes: 10
                 working-directory: ${{ env.EXAMPLE_DIR }}
                 run: yarn prebuild:expo
 
             -   name: Install CocoaPods dependencies (bare)
                 if: matrix.target == 'bare'
+                timeout-minutes: 20
                 working-directory: ${{ env.APP_DIR }}/ios
                 run: pod install --repo-update
 
             -   name: Install CocoaPods dependencies (expo)
                 if: matrix.target == 'expo'
+                timeout-minutes: 20
                 working-directory: ${{ env.APP_DIR }}/ios
                 run: pod install --repo-update
 
             -   name: Boot iOS Simulator
+                id: simulator
+                # Observed 34-39s across recent runs; 10 minutes is generous headroom
+                # for a cold simulator runtime.
+                timeout-minutes: 10
                 shell: bash
                 run: |
                     set -euo pipefail
@@ -151,11 +169,15 @@ jobs:
                     test -n "$device_udid"
                     echo "Booting simulator: $device_line"
                     xcrun simctl boot "$device_udid" || true
-                    xcrun simctl bootstatus "$device_udid" -b
+                    # `bootstatus -b` blocks forever on a wedged simulator, and macOS
+                    # ships no timeout(1), so bound it with a perl alarm (pending
+                    # alarms survive exec, so SIGALRM kills simctl on expiry).
+                    perl -e 'alarm 300; exec @ARGV' xcrun simctl bootstatus "$device_udid" -b
                     echo "SIMULATOR_UDID=$device_udid" >> "$GITHUB_ENV"
 
             -   name: Build app (bare)
                 if: matrix.target == 'bare'
+                timeout-minutes: 45
                 working-directory: ${{ env.APP_DIR }}/ios
                 run: |
                     set -euo pipefail
@@ -172,6 +194,7 @@ jobs:
 
             -   name: Build app (expo)
                 if: matrix.target == 'expo'
+                timeout-minutes: 45
                 working-directory: ${{ env.APP_DIR }}/ios
                 run: |
                     set -euo pipefail
@@ -187,9 +210,11 @@ jobs:
                     echo "APP_PATH=${{ env.APP_DIR }}/ios/build/Build/Products/Release-iphonesimulator/reactnativepaymentsexpoexample.app" >> "$GITHUB_ENV"
 
             -   name: Install app on simulator
+                timeout-minutes: 10
                 run: xcrun simctl install "$SIMULATOR_UDID" "$APP_PATH"
 
             -   name: Install Maestro
+                timeout-minutes: 10
                 run: |
                     maestro_bin="$HOME/.maestro/bin/maestro"
                     if [ ! -x "$maestro_bin" ] || [ "$("$maestro_bin" --version 2>/dev/null | tail -n 1 | tr -d '\r' || true)" != "$MAESTRO_VERSION" ]; then
@@ -198,23 +223,33 @@ jobs:
                     echo "$HOME/.maestro/bin" >> "$GITHUB_PATH"
 
             -   name: Run Maestro suite
+                # The suite itself took ~85s per shard on the Redroid prototype runs;
+                # 25 minutes covers a slow retry loop without holding the fleet.
+                timeout-minutes: 25
                 working-directory: ${{ env.EXAMPLE_DIR }}
                 run: yarn e2e:ios:${{ matrix.target }}
 
             -   name: Capture final simulator state
-                if: failure()
+                # Pointless unless a simulator actually booted: without it
+                # SIMULATOR_UDID is unset and simctl has nothing to talk to.
+                if: failure() && steps.simulator.outcome == 'success'
+                timeout-minutes: 3
                 shell: bash
                 run: |
                     mkdir -p "${{ env.MAESTRO_DEBUG_OUTPUT_DIRECTORY }}"
                     xcrun simctl io "$SIMULATOR_UDID" screenshot "${{ env.MAESTRO_DEBUG_OUTPUT_DIRECTORY }}/final-screen.png" || true
 
             -   name: Shutdown simulator
-                if: always()
+                # always() is right here (the simulator must be released even when the
+                # job is cancelled) but only once a boot actually happened.
+                if: always() && steps.simulator.outcome == 'success'
+                timeout-minutes: 3
                 run: xcrun simctl shutdown "$SIMULATOR_UDID" || true
 
             -   name: Upload Maestro artifacts
-                if: failure()
+                if: failure() && steps.simulator.outcome == 'success'
                 uses: actions/upload-artifact@v4
+                timeout-minutes: 5
                 with:
                     name: maestro-ios-${{ matrix.target }}
                     path: ${{ env.MAESTRO_DEBUG_OUTPUT_DIRECTORY }}/**
