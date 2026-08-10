@@ -1,7 +1,7 @@
 import { isDefined } from '@rnw-community/shared';
 
-import type { ScreenChromeConfigInterface } from '../../interface/screen-chrome-config.interface.js';
-import type { EdgeFadePosition } from '../../type/edge-fade-position.type.js';
+import type { ScreenChromeConfigInterface } from '../../interface/screen-chrome-config.interface';
+import type { EdgeFadePosition } from '../../type/edge-fade-position.type';
 import type { EdgeInsets } from 'react-native-safe-area-context';
 
 interface EdgeFadeBandMetricsInterface {

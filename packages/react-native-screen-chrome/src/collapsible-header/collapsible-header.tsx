@@ -4,10 +4,10 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { CollapsibleHeader as GenericCollapsibleHeader } from '@rnw-community/react-native-collapsible-header';
 
-import { useScreenChrome } from '../hook/use-screen-chrome.hook.js';
-import { getCollapsibleHeaderSlots } from '../utils/get-collapsible-header-slots.util.js';
+import { useScreenChrome } from '../hook/use-screen-chrome.hook';
+import { getCollapsibleHeaderSlots } from '../utils/get-collapsible-header-slots.util';
 
-import { collapsibleHeaderStyles } from './collapsible-header.styles.js';
+import { collapsibleHeaderStyles } from './collapsible-header.styles';
 
 import type { ReactNode } from 'react';
 import type { ViewProps } from 'react-native';

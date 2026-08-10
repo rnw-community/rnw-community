@@ -1,5 +1,5 @@
-import type { EdgeFadeScrollAnimationInterface } from './edge-fade-scroll-animation.interface.js';
-import type { EdgeFadePosition } from '../type/edge-fade-position.type.js';
+import type { EdgeFadeScrollAnimationInterface } from './edge-fade-scroll-animation.interface';
+import type { EdgeFadePosition } from '../type/edge-fade-position.type';
 import type { BlurMethod } from 'expo-blur';
 import type { ViewProps } from 'react-native';
 

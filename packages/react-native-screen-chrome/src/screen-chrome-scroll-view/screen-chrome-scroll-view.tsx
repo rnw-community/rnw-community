@@ -3,8 +3,8 @@ import { ScrollView } from 'react-native';
 import { createAnimatedComponent } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { useScreenChrome } from '../hook/use-screen-chrome.hook.js';
-import { mergeScrollContentInset } from '../utils/merge-scroll-content-inset.util.js';
+import { useScreenChrome } from '../hook/use-screen-chrome.hook';
+import { mergeScrollContentInset } from '../utils/merge-scroll-content-inset.util';
 
 import type { ComponentProps, ReactNode } from 'react';
 

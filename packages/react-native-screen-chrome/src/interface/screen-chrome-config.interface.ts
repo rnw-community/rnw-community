@@ -1,7 +1,7 @@
-import type { ScreenChromeColorSetInterface } from './screen-chrome-color-set.interface.js';
-import type { ScreenChromeMaskStopInterface } from './screen-chrome-mask-stop.interface.js';
-import type { ColorSchemeEnum } from '../enum/color-scheme.enum.js';
-import type { EdgeFadePosition } from '../type/edge-fade-position.type.js';
+import type { ScreenChromeColorSetInterface } from './screen-chrome-color-set.interface';
+import type { ScreenChromeMaskStopInterface } from './screen-chrome-mask-stop.interface';
+import type { ColorSchemeEnum } from '../enum/color-scheme.enum';
+import type { EdgeFadePosition } from '../type/edge-fade-position.type';
 
 /**
  * Configures screen chrome geometry, colors, fade masks, scroll throttling, and collapse thresholds.

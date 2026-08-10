@@ -1,7 +1,7 @@
 import React from 'react';
 import { View } from 'react-native';
 
-import { collapsibleHeaderSlotStyles } from './collapsible-header-slot.styles.js';
+import { collapsibleHeaderSlotStyles } from './collapsible-header-slot.styles';
 
 import type { ReactNode } from 'react';
 

@@ -1,6 +1,6 @@
 import { Extrapolation, interpolate, useAnimatedProps, useAnimatedStyle } from 'react-native-reanimated';
 
-import type { CollapsibleHeaderAnimationConfig } from '../interface/collapsible-header-animation-config.interface.js';
+import type { CollapsibleHeaderAnimationConfig } from '../interface/collapsible-header-animation-config.interface';
 import type { ViewProps } from 'react-native';
 
 const interpolateFadeOut = (value: number, start: number, end: number): number => {

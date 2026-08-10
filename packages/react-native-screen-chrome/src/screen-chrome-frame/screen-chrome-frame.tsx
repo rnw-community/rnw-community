@@ -1,7 +1,7 @@
 import React from 'react';
 import { View } from 'react-native';
 
-import { screenChromeFrameStyles } from './screen-chrome-frame.styles.js';
+import { screenChromeFrameStyles } from './screen-chrome-frame.styles';
 
 import type { ReactNode } from 'react';
 import type { ViewProps } from 'react-native';

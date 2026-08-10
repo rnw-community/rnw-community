@@ -8,15 +8,15 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { isDefined } from '@rnw-community/shared';
 
-import { useScreenChrome } from '../hook/use-screen-chrome.hook.js';
+import { useScreenChrome } from '../hook/use-screen-chrome.hook';
 
-import { edgeFadeStyles } from './edge-fade.styles.js';
-import { useEdgeFadeBlurProps } from './hook/use-edge-fade-blur-props.hook.js';
-import { useEdgeFadeOpacityStyle } from './hook/use-edge-fade-opacity-style.hook.js';
-import { getEdgeFadeBandMetrics } from './utils/edge-fade-get-band-metrics.util.js';
-import { getEdgeFadeVisuals } from './utils/get-edge-fade-visuals/get-edge-fade-visuals.util.js';
+import { edgeFadeStyles } from './edge-fade.styles';
+import { useEdgeFadeBlurProps } from './hook/use-edge-fade-blur-props.hook';
+import { useEdgeFadeOpacityStyle } from './hook/use-edge-fade-opacity-style.hook';
+import { getEdgeFadeBandMetrics } from './utils/edge-fade-get-band-metrics.util';
+import { getEdgeFadeVisuals } from './utils/get-edge-fade-visuals/get-edge-fade-visuals.util';
 
-import type { EdgeFadePropsInterface } from '../interface/edge-fade-props.interface.js';
+import type { EdgeFadePropsInterface } from '../interface/edge-fade-props.interface';
 import type { ReactNode } from 'react';
 
 const AnimatedView = createAnimatedComponent(View);

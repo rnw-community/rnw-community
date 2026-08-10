@@ -1,7 +1,7 @@
 import React from 'react';
 
-import { EdgeFade } from '../edge-fade/edge-fade.js';
-import { useScreenChrome } from '../hook/use-screen-chrome.hook.js';
+import { EdgeFade } from '../edge-fade/edge-fade';
+import { useScreenChrome } from '../hook/use-screen-chrome.hook';
 
 import type { ReactNode } from 'react';
 

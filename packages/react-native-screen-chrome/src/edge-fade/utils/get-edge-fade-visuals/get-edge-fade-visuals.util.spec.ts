@@ -1,9 +1,9 @@
 import { describe, expect, it } from '@jest/globals';
 
-import { SCREEN_CHROME_DEFAULT_CONFIG } from '../../../constant/screen-chrome-default-config.constant.js';
-import { ColorSchemeEnum } from '../../../enum/color-scheme.enum.js';
+import { SCREEN_CHROME_DEFAULT_CONFIG } from '../../../constant/screen-chrome-default-config.constant';
+import { ColorSchemeEnum } from '../../../enum/color-scheme.enum';
 
-import { getEdgeFadeVisuals } from './get-edge-fade-visuals.util.js';
+import { getEdgeFadeVisuals } from './get-edge-fade-visuals.util';
 
 describe('getEdgeFadeVisuals', () => {
     it('builds top visuals for the light iOS scheme', () => {

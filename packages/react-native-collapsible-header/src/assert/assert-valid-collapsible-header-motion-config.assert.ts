@@ -1,9 +1,9 @@
 import { isPositiveNumber } from '@rnw-community/shared';
 
-import { assertCollapsibleHeaderProgress } from './assert-collapsible-header-progress.assert.js';
-import { assertFiniteCollapsibleHeaderMotionValue } from './assert-finite-collapsible-header-motion-value.assert.js';
+import { assertCollapsibleHeaderProgress } from './assert-collapsible-header-progress.assert';
+import { assertFiniteCollapsibleHeaderMotionValue } from './assert-finite-collapsible-header-motion-value.assert';
 
-import type { CollapsibleHeaderMotionConfig } from '../interface/collapsible-header-motion-config.interface.js';
+import type { CollapsibleHeaderMotionConfig } from '../interface/collapsible-header-motion-config.interface';
 
 export const assertValidCollapsibleHeaderMotionConfig = (motion: CollapsibleHeaderMotionConfig) => {
     assertCollapsibleHeaderProgress('expandedOpacityEndProgress', motion.expandedOpacityEndProgress);

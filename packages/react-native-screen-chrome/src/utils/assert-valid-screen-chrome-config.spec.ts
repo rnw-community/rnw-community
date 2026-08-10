@@ -1,11 +1,11 @@
 import { describe, expect, it } from '@jest/globals';
 
-import { SCREEN_CHROME_DEFAULT_CONFIG } from '../constant/screen-chrome-default-config.constant.js';
-import { ColorSchemeEnum } from '../enum/color-scheme.enum.js';
+import { SCREEN_CHROME_DEFAULT_CONFIG } from '../constant/screen-chrome-default-config.constant';
+import { ColorSchemeEnum } from '../enum/color-scheme.enum';
 
-import { assertValidScreenChromeConfig } from './assert-valid-screen-chrome-config.util.js';
+import { assertValidScreenChromeConfig } from './assert-valid-screen-chrome-config.util';
 
-import type { ScreenChromeConfigInterface } from '../interface/screen-chrome-config.interface.js';
+import type { ScreenChromeConfigInterface } from '../interface/screen-chrome-config.interface';
 
 const ZERO = 0;
 const NEGATIVE_ONE = -1;

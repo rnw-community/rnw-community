@@ -21,6 +21,6 @@ yarn test && yarn test:coverage && yarn build && yarn ts && yarn ts:nodenext && 
 - Public content, navigation, typography, theme selection, and actions remain consumer-owned.
 - Native peer dependencies remain external so applications own native versions and linking.
 - Configuration is validated before animated handlers are created.
-- Relative source imports include `.js` extensions and NodeNext validation must pass.
+- Relative source imports stay extensionless; the build's post-compile rewrite/assert pair enforces extensioned specifiers in `dist/esm`, and NodeNext validation must pass.
 - Public exports carry repository-standard scoped TSDoc and package readme links.
 - Tests retain at least 99.9% statements, branches, functions, and lines coverage.

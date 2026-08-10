@@ -6221,7 +6221,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@rnw-community/shared@npm:^2.12.13, @rnw-community/shared@workspace:*, @rnw-community/shared@workspace:^, @rnw-community/shared@workspace:packages/shared":
+"@rnw-community/shared@npm:^2.12.10, @rnw-community/shared@npm:^2.12.13, @rnw-community/shared@workspace:*, @rnw-community/shared@workspace:^, @rnw-community/shared@workspace:packages/shared":
   version: 0.0.0-use.local
   resolution: "@rnw-community/shared@workspace:packages/shared"
   languageName: unknown

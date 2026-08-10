@@ -1,9 +1,9 @@
-import { SCREEN_CHROME_DEFAULT_CONFIG } from '../constant/screen-chrome-default-config.constant.js';
-import { ColorSchemeEnum } from '../enum/color-scheme.enum.js';
+import { SCREEN_CHROME_DEFAULT_CONFIG } from '../constant/screen-chrome-default-config.constant';
+import { ColorSchemeEnum } from '../enum/color-scheme.enum';
 
-import type { ScreenChromeConfigOverridesInterface } from '../interface/screen-chrome-config-overrides.interface.js';
-import type { ScreenChromeConfigInterface } from '../interface/screen-chrome-config.interface.js';
-import type { ScreenChromeMaskStopInterface } from '../interface/screen-chrome-mask-stop.interface.js';
+import type { ScreenChromeConfigOverridesInterface } from '../interface/screen-chrome-config-overrides.interface';
+import type { ScreenChromeConfigInterface } from '../interface/screen-chrome-config.interface';
+import type { ScreenChromeMaskStopInterface } from '../interface/screen-chrome-mask-stop.interface';
 
 const mergeMaskStops = (
     defaults: Readonly<Record<number, ScreenChromeMaskStopInterface>>,

@@ -1,6 +1,6 @@
-import { DefaultCollapsibleHeaderMotionConfig } from './default-collapsible-header-motion.config.js';
+import { DefaultCollapsibleHeaderMotionConfig } from './default-collapsible-header-motion.config';
 
-import type { CollapsibleHeaderMotionConfig } from '../interface/collapsible-header-motion-config.interface.js';
+import type { CollapsibleHeaderMotionConfig } from '../interface/collapsible-header-motion-config.interface';
 
 export const resolveCollapsibleHeaderMotionConfig = (
     motion: Partial<CollapsibleHeaderMotionConfig> | undefined

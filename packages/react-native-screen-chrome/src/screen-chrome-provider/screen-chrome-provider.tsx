@@ -7,13 +7,13 @@ import {
     useScrollViewOffset,
 } from 'react-native-reanimated';
 
-import { MOMENTUM_VELOCITY_EPSILON } from '../constant/momentum-velocity-epsilon.constant.js';
-import { ScreenChromeContext } from '../context/screen-chrome.context.js';
-import { ColorSchemeEnum } from '../enum/color-scheme.enum.js';
-import { assertValidScreenChromeConfig } from '../utils/assert-valid-screen-chrome-config.util.js';
-import { mergeScreenChromeConfig } from '../utils/merge-screen-chrome-config.util.js';
+import { MOMENTUM_VELOCITY_EPSILON } from '../constant/momentum-velocity-epsilon.constant';
+import { ScreenChromeContext } from '../context/screen-chrome.context';
+import { ColorSchemeEnum } from '../enum/color-scheme.enum';
+import { assertValidScreenChromeConfig } from '../utils/assert-valid-screen-chrome-config.util';
+import { mergeScreenChromeConfig } from '../utils/merge-screen-chrome-config.util';
 
-import type { ScreenChromeConfigOverridesInterface } from '../interface/screen-chrome-config-overrides.interface.js';
+import type { ScreenChromeConfigOverridesInterface } from '../interface/screen-chrome-config-overrides.interface';
 import type { ReactNode } from 'react';
 import type { ScrollView } from 'react-native';
 import type { ScrollEvent, ScrollHandlers } from 'react-native-reanimated';

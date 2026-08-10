@@ -1,5 +1,5 @@
-import type { CollapsibleHeaderMotionConfig } from './collapsible-header-motion-config.interface.js';
-import type { CollapsibleHeaderProps } from './collapsible-header-props.interface.js';
+import type { CollapsibleHeaderMotionConfig } from './collapsible-header-motion-config.interface';
+import type { CollapsibleHeaderProps } from './collapsible-header-props.interface';
 
 export interface CollapsibleHeaderAnimationConfig {
     readonly scrollY: CollapsibleHeaderProps['scrollY'];

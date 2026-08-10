@@ -1,6 +1,6 @@
 import { createContext } from 'react';
 
-import type { ScreenChromeContextValueInterface } from '../interface/screen-chrome-context-value.interface.js';
+import type { ScreenChromeContextValueInterface } from '../interface/screen-chrome-context-value.interface';
 
 /**
  * Provides the resolved screen chrome context value to package components and hooks.

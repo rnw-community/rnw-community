@@ -54,5 +54,5 @@ src/
 
 ## Publication
 
-The package publishes dual ESM and CommonJS output. Relative source imports include explicit `.js` extensions, and the
-NodeNext check must pass before publishing.
+The package publishes dual ESM and CommonJS output. Relative source imports stay extensionless; the build's post-compile
+rewrite/assert pair enforces extensioned specifiers in `dist/esm`, and the NodeNext check must pass before publishing.

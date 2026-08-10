@@ -1,6 +1,6 @@
 import { describe, expect, it } from '@jest/globals';
 
-import { buildBackgroundImage } from './build-background-image.util.js';
+import { buildBackgroundImage } from './build-background-image.util';
 
 const COLOR_SET = { solid: 'solid-color', wash: 'wash-color' };
 

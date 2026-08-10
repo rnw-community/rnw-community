@@ -2,10 +2,10 @@ import { Children, isValidElement } from 'react';
 
 import { isDefined } from '@rnw-community/shared';
 
-import { CollapsibleHeaderSlot } from '../collapsible-header-slot/collapsible-header-slot.js';
-import { CollapsibleHeaderTitleSlot } from '../collapsible-header-title-slot/collapsible-header-title-slot.js';
+import { CollapsibleHeaderSlot } from '../collapsible-header-slot/collapsible-header-slot';
+import { CollapsibleHeaderTitleSlot } from '../collapsible-header-title-slot/collapsible-header-title-slot';
 
-import type { CollapsibleHeaderSlotsInterface } from '../interface/collapsible-header-slots.interface.js';
+import type { CollapsibleHeaderSlotsInterface } from '../interface/collapsible-header-slots.interface';
 import type { ReactNode } from 'react';
 
 export const getCollapsibleHeaderSlots = (children: ReactNode): CollapsibleHeaderSlotsInterface => {

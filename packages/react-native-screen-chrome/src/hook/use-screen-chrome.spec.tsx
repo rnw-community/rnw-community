@@ -3,13 +3,13 @@ import { renderHook } from '@testing-library/react-native';
 import React from 'react';
 import { useAnimatedRef, useAnimatedScrollHandler, useSharedValue } from 'react-native-reanimated';
 
-import { SCREEN_CHROME_DEFAULT_CONFIG } from '../constant/screen-chrome-default-config.constant.js';
-import { ScreenChromeContext } from '../context/screen-chrome.context.js';
-import { ColorSchemeEnum } from '../enum/color-scheme.enum.js';
+import { SCREEN_CHROME_DEFAULT_CONFIG } from '../constant/screen-chrome-default-config.constant';
+import { ScreenChromeContext } from '../context/screen-chrome.context';
+import { ColorSchemeEnum } from '../enum/color-scheme.enum';
 
-import { useScreenChrome } from './use-screen-chrome.hook.js';
+import { useScreenChrome } from './use-screen-chrome.hook';
 
-import type { ScreenChromeContextValueInterface } from '../interface/screen-chrome-context-value.interface.js';
+import type { ScreenChromeContextValueInterface } from '../interface/screen-chrome-context-value.interface';
 import type { PropsWithChildren } from 'react';
 import type { ScrollView } from 'react-native';
 

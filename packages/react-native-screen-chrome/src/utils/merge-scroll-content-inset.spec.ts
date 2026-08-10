@@ -1,7 +1,7 @@
 import { describe, expect, it } from '@jest/globals';
 import { StyleSheet } from 'react-native';
 
-import { mergeScrollContentInset } from './merge-scroll-content-inset.util.js';
+import { mergeScrollContentInset } from './merge-scroll-content-inset.util';
 
 import type { EdgeInsets } from 'react-native-safe-area-context';
 

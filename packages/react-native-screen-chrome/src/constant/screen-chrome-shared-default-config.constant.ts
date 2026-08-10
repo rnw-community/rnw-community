@@ -1,6 +1,6 @@
-import { ColorSchemeEnum } from '../enum/color-scheme.enum.js';
+import { ColorSchemeEnum } from '../enum/color-scheme.enum';
 
-import type { ScreenChromeConfigInterface } from '../interface/screen-chrome-config.interface.js';
+import type { ScreenChromeConfigInterface } from '../interface/screen-chrome-config.interface';
 
 /**
  * Defines platform-independent screen chrome defaults shared by native and web.

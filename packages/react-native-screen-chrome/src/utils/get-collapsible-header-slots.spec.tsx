@@ -2,10 +2,10 @@ import { describe, expect, it } from '@jest/globals';
 import React from 'react';
 import { Text } from 'react-native';
 
-import { CollapsibleHeaderSlot } from '../collapsible-header-slot/collapsible-header-slot.js';
-import { CollapsibleHeaderTitleSlot } from '../collapsible-header-title-slot/collapsible-header-title-slot.js';
+import { CollapsibleHeaderSlot } from '../collapsible-header-slot/collapsible-header-slot';
+import { CollapsibleHeaderTitleSlot } from '../collapsible-header-title-slot/collapsible-header-title-slot';
 
-import { getCollapsibleHeaderSlots } from './get-collapsible-header-slots.util.js';
+import { getCollapsibleHeaderSlots } from './get-collapsible-header-slots.util';
 
 const createValidChildren = () => [
     <CollapsibleHeaderSlot key="leading">

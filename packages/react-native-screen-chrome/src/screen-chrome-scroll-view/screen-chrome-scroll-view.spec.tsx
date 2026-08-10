@@ -3,9 +3,9 @@ import { render } from '@testing-library/react-native';
 import React from 'react';
 import { StyleSheet, Text } from 'react-native';
 
-import { SCREEN_CHROME_DEFAULT_CONFIG } from '../constant/screen-chrome-default-config.constant.js';
+import { SCREEN_CHROME_DEFAULT_CONFIG } from '../constant/screen-chrome-default-config.constant';
 
-import { ScreenChromeScrollView } from './screen-chrome-scroll-view.js';
+import { ScreenChromeScrollView } from './screen-chrome-scroll-view';
 
 import type { ScrollView } from 'react-native';
 
@@ -13,7 +13,7 @@ const mockScrollHandler = jest.fn();
 const mockScrollRef = jest.fn<(instance: ScrollView | null) => void>();
 const mockConfig = SCREEN_CHROME_DEFAULT_CONFIG;
 
-jest.mock('../hook/use-screen-chrome.hook.js', () => ({
+jest.mock('../hook/use-screen-chrome.hook', () => ({
     useScreenChrome: () => ({ config: mockConfig, scrollHandler: mockScrollHandler, scrollRef: mockScrollRef }),
 }));
 

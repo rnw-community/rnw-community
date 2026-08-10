@@ -2,7 +2,7 @@ import { Extrapolation, interpolate, useAnimatedProps } from 'react-native-reani
 
 import { isDefined } from '@rnw-community/shared';
 
-import { useScreenChrome } from '../../hook/use-screen-chrome.hook.js';
+import { useScreenChrome } from '../../hook/use-screen-chrome.hook';
 
 const INTENSITY_INPUT_RANGE_FALLBACK: readonly [number, number] = [0, 1];
 

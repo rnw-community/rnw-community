@@ -1,11 +1,11 @@
 import { isDefined, isNotEmptyString, isNumber, isPositiveNumber } from '@rnw-community/shared';
 
-import { ColorSchemeEnum } from '../enum/color-scheme.enum.js';
+import { ColorSchemeEnum } from '../enum/color-scheme.enum';
 
-import type { ScreenChromeColorSetInterface } from '../interface/screen-chrome-color-set.interface.js';
-import type { ScreenChromeConfigInterface } from '../interface/screen-chrome-config.interface.js';
-import type { ScreenChromeMaskStopInterface } from '../interface/screen-chrome-mask-stop.interface.js';
-import type { EdgeFadePosition } from '../type/edge-fade-position.type.js';
+import type { ScreenChromeColorSetInterface } from '../interface/screen-chrome-color-set.interface';
+import type { ScreenChromeConfigInterface } from '../interface/screen-chrome-config.interface';
+import type { ScreenChromeMaskStopInterface } from '../interface/screen-chrome-mask-stop.interface';
+import type { EdgeFadePosition } from '../type/edge-fade-position.type';
 
 const assertNonEmptyString = (property: string, value: unknown): void => {
     if (!isNotEmptyString(value)) {

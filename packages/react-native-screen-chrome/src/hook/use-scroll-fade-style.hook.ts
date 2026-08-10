@@ -1,6 +1,6 @@
 import { Extrapolation, interpolate, useAnimatedStyle } from 'react-native-reanimated';
 
-import { useScreenChrome } from './use-screen-chrome.hook.js';
+import { useScreenChrome } from './use-screen-chrome.hook';
 
 import type { AnimatedStyle } from 'react-native-reanimated';
 

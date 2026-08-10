@@ -1,9 +1,9 @@
 import { describe, expect, it } from '@jest/globals';
 
-import { SCREEN_CHROME_DEFAULT_CONFIG } from '../constant/screen-chrome-default-config.constant.js';
-import { ColorSchemeEnum } from '../enum/color-scheme.enum.js';
+import { SCREEN_CHROME_DEFAULT_CONFIG } from '../constant/screen-chrome-default-config.constant';
+import { ColorSchemeEnum } from '../enum/color-scheme.enum';
 
-import { mergeScreenChromeConfig } from './merge-screen-chrome-config.util.js';
+import { mergeScreenChromeConfig } from './merge-screen-chrome-config.util';
 
 const OVERRIDDEN_HEADER_HEIGHT = 72;
 

@@ -2,7 +2,7 @@ import { describe, expect, it } from '@jest/globals';
 import { render } from '@testing-library/react-native';
 import React from 'react';
 
-import { ScreenChromeFrame } from './screen-chrome-frame.js';
+import { ScreenChromeFrame } from './screen-chrome-frame';
 
 describe('ScreenChromeFrame', () => {
     it('renders a relative full-height frame', () => {

@@ -2,7 +2,7 @@ import { Extrapolation, interpolate, useAnimatedStyle } from 'react-native-reani
 
 import { isDefined } from '@rnw-community/shared';
 
-import { useScreenChrome } from '../../hook/use-screen-chrome.hook.js';
+import { useScreenChrome } from '../../hook/use-screen-chrome.hook';
 
 import type { AnimatedStyle } from 'react-native-reanimated';
 

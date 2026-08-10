@@ -1,8 +1,8 @@
-import type { ScreenChromeColorSetInterface } from './screen-chrome-color-set.interface.js';
-import type { ScreenChromeConfigInterface } from './screen-chrome-config.interface.js';
-import type { ScreenChromeMaskStopInterface } from './screen-chrome-mask-stop.interface.js';
-import type { ColorSchemeEnum } from '../enum/color-scheme.enum.js';
-import type { EdgeFadePosition } from '../type/edge-fade-position.type.js';
+import type { ScreenChromeColorSetInterface } from './screen-chrome-color-set.interface';
+import type { ScreenChromeConfigInterface } from './screen-chrome-config.interface';
+import type { ScreenChromeMaskStopInterface } from './screen-chrome-mask-stop.interface';
+import type { ColorSchemeEnum } from '../enum/color-scheme.enum';
+import type { EdgeFadePosition } from '../type/edge-fade-position.type';
 
 /**
  * Overrides selected screen chrome defaults while preserving nested color schemes and mask-stop records.

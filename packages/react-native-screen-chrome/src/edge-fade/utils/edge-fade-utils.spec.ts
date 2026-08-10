@@ -1,12 +1,12 @@
 import { describe, expect, it } from '@jest/globals';
 
-import { SCREEN_CHROME_DEFAULT_CONFIG } from '../../constant/screen-chrome-default-config.constant.js';
-import { ColorSchemeEnum } from '../../enum/color-scheme.enum.js';
+import { SCREEN_CHROME_DEFAULT_CONFIG } from '../../constant/screen-chrome-default-config.constant';
+import { ColorSchemeEnum } from '../../enum/color-scheme.enum';
 
-import { getEdgeFadeBackdropFilter } from './edge-fade-get-backdrop-filter.util.js';
-import { getEdgeFadeBandMetrics } from './edge-fade-get-band-metrics.util.js';
-import { getEdgeFadeMaskStops } from './edge-fade-get-mask-stops.util.js';
-import { getBlurTint } from './get-blur-tint.util.js';
+import { getEdgeFadeBackdropFilter } from './edge-fade-get-backdrop-filter.util';
+import { getEdgeFadeBandMetrics } from './edge-fade-get-band-metrics.util';
+import { getEdgeFadeMaskStops } from './edge-fade-get-mask-stops.util';
+import { getBlurTint } from './get-blur-tint.util';
 
 const INSETS = { top: 10, right: 20, bottom: 30, left: 40 };
 

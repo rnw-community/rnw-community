@@ -1,11 +1,11 @@
 import { isDefined } from '@rnw-community/shared';
 
-import { getEdgeFadeMaskStops } from '../edge-fade-get-mask-stops.util.js';
-import { getBlurTint } from '../get-blur-tint.util.js';
+import { getEdgeFadeMaskStops } from '../edge-fade-get-mask-stops.util';
+import { getBlurTint } from '../get-blur-tint.util';
 
-import type { ColorSchemeEnum } from '../../../enum/color-scheme.enum.js';
-import type { ScreenChromeConfigInterface } from '../../../interface/screen-chrome-config.interface.js';
-import type { EdgeFadePosition } from '../../../type/edge-fade-position.type.js';
+import type { ColorSchemeEnum } from '../../../enum/color-scheme.enum';
+import type { ScreenChromeConfigInterface } from '../../../interface/screen-chrome-config.interface';
+import type { EdgeFadePosition } from '../../../type/edge-fade-position.type';
 
 const toGradientTuple = <T>(items: readonly T[]): readonly [T, T, ...T[]] => {
     const [first, second, ...remaining] = items;

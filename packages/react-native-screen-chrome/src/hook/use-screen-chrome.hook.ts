@@ -2,9 +2,9 @@ import { use } from 'react';
 
 import { isDefined } from '@rnw-community/shared';
 
-import { ScreenChromeContext } from '../context/screen-chrome.context.js';
+import { ScreenChromeContext } from '../context/screen-chrome.context';
 
-import type { ScreenChromeContextValueInterface } from '../interface/screen-chrome-context-value.interface.js';
+import type { ScreenChromeContextValueInterface } from '../interface/screen-chrome-context-value.interface';
 
 /**
  * Reads the nearest screen chrome context and fails fast when no provider is mounted.

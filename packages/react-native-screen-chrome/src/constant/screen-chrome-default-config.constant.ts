@@ -1,6 +1,6 @@
-import { SCREEN_CHROME_SHARED_DEFAULT_CONFIG } from './screen-chrome-shared-default-config.constant.js';
+import { SCREEN_CHROME_SHARED_DEFAULT_CONFIG } from './screen-chrome-shared-default-config.constant';
 
-import type { ScreenChromeConfigInterface } from '../interface/screen-chrome-config.interface.js';
+import type { ScreenChromeConfigInterface } from '../interface/screen-chrome-config.interface';
 
 /**
  * Defines native screen chrome defaults for fade bands, blur, and header backdrop sizing.

@@ -1,4 +1,4 @@
-import { ColorSchemeEnum } from '../../enum/color-scheme.enum.js';
+import { ColorSchemeEnum } from '../../enum/color-scheme.enum';
 
 import type { BlurTint } from 'expo-blur';
 

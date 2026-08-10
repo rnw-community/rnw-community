@@ -3,13 +3,13 @@ import { render } from '@testing-library/react-native';
 import React, { useEffect } from 'react';
 import * as Reanimated from 'react-native-reanimated';
 
-import { SCREEN_CHROME_DEFAULT_CONFIG } from '../constant/screen-chrome-default-config.constant.js';
-import { ColorSchemeEnum } from '../enum/color-scheme.enum.js';
-import { useScreenChrome } from '../hook/use-screen-chrome.hook.js';
+import { SCREEN_CHROME_DEFAULT_CONFIG } from '../constant/screen-chrome-default-config.constant';
+import { ColorSchemeEnum } from '../enum/color-scheme.enum';
+import { useScreenChrome } from '../hook/use-screen-chrome.hook';
 
-import { ScreenChromeProvider } from './screen-chrome-provider.js';
+import { ScreenChromeProvider } from './screen-chrome-provider';
 
-import type { ScreenChromeContextValueInterface } from '../interface/screen-chrome-context-value.interface.js';
+import type { ScreenChromeContextValueInterface } from '../interface/screen-chrome-context-value.interface';
 import type { ReactNode } from 'react';
 
 jest.mock('react-native-reanimated', () => {

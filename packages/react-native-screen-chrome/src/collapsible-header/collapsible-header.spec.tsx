@@ -6,11 +6,11 @@ import { Text } from 'react-native';
 import { CollapsibleHeader as GenericCollapsibleHeader } from '@rnw-community/react-native-collapsible-header';
 import { isDefined } from '@rnw-community/shared';
 
-import { CollapsibleHeaderSlot } from '../collapsible-header-slot/collapsible-header-slot.js';
-import { CollapsibleHeaderTitleSlot } from '../collapsible-header-title-slot/collapsible-header-title-slot.js';
-import { SCREEN_CHROME_DEFAULT_CONFIG } from '../constant/screen-chrome-default-config.constant.js';
+import { CollapsibleHeaderSlot } from '../collapsible-header-slot/collapsible-header-slot';
+import { CollapsibleHeaderTitleSlot } from '../collapsible-header-title-slot/collapsible-header-title-slot';
+import { SCREEN_CHROME_DEFAULT_CONFIG } from '../constant/screen-chrome-default-config.constant';
 
-import { CollapsibleHeader } from './collapsible-header.js';
+import { CollapsibleHeader } from './collapsible-header';
 
 const mockScrollY = { get: jest.fn(() => 0), set: jest.fn() };
 const mockConfig = SCREEN_CHROME_DEFAULT_CONFIG;
@@ -19,7 +19,7 @@ jest.mock('@rnw-community/react-native-collapsible-header', () => ({ Collapsible
 jest.mock('react-native-safe-area-context', () => ({
     useSafeAreaInsets: () => ({ top: 12, right: 0, bottom: 0, left: 0 }),
 }));
-jest.mock('../hook/use-screen-chrome.hook.js', () => ({
+jest.mock('../hook/use-screen-chrome.hook', () => ({
     useScreenChrome: () => ({ config: mockConfig, scrollY: mockScrollY }),
 }));
 

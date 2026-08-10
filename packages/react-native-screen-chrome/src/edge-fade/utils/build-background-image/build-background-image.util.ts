@@ -1,5 +1,5 @@
-import type { ScreenChromeColorSetInterface } from '../../../interface/screen-chrome-color-set.interface.js';
-import type { EdgeFadePosition } from '../../../type/edge-fade-position.type.js';
+import type { ScreenChromeColorSetInterface } from '../../../interface/screen-chrome-color-set.interface';
+import type { EdgeFadePosition } from '../../../type/edge-fade-position.type';
 
 const PERCENT_MULTIPLIER = 100;
 const WASH_STOP_PERCENT = 72;
