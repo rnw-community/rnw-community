@@ -2922,10 +2922,22 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@eslint/js@npm:9.39.5, @eslint/js@npm:^9.39.5":
+"@eslint/js@npm:9.39.5":
   version: 9.39.5
   resolution: "@eslint/js@npm:9.39.5"
   checksum: 10/042d522f28da10ab205f368a94b620334418eb13a5226e50f7edd03dbe26809eb477d0b7a4dc3968b43a98f6ce594f6c03731214c3e0386fd5bcb74fdb9df64c
+  languageName: node
+  linkType: hard
+
+"@eslint/js@npm:^10.0.1":
+  version: 10.0.1
+  resolution: "@eslint/js@npm:10.0.1"
+  peerDependencies:
+    eslint: ^10.0.0
+  peerDependenciesMeta:
+    eslint:
+      optional: true
+  checksum: 10/27ff77b8f0aab350b2f7a69d974eabb816bb9f4cab986b1538782269d6bfdc29e351803fa7a62c22c0b786341324f1a28b86bc83956ddfa189aa6bead1a87758
   languageName: node
   linkType: hard
 
@@ -19158,7 +19170,7 @@ __metadata:
     "@commitlint/cli": "npm:^20.5.3"
     "@commitlint/config-conventional": "npm:^20.5.3"
     "@commitlint/config-lerna-scopes": "npm:^20.4.3"
-    "@eslint/js": "npm:^9.39.5"
+    "@eslint/js": "npm:^10.0.1"
     "@jest/globals": "npm:^29.7.0"
     "@smarttools/eslint-plugin-rxjs": "npm:^1.0.22"
     "@types/node": "npm:^22.20.1"
