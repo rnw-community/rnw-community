@@ -19182,7 +19182,7 @@ __metadata:
     publint: "npm:^0.3.22"
     reflect-metadata: "npm:^0.2.2"
     rimraf: "npm:^6.1.3"
-    sort-package-json: "npm:^3.7.1"
+    sort-package-json: "npm:^4.0.0"
     turbo: "npm:^2.10.8"
     typescript: "npm:^5.9.3"
     typescript-eslint: "npm:^8.65.0"
@@ -19825,9 +19825,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"sort-package-json@npm:^3.7.1":
-  version: 3.7.1
-  resolution: "sort-package-json@npm:3.7.1"
+"sort-package-json@npm:^4.0.0":
+  version: 4.0.0
+  resolution: "sort-package-json@npm:4.0.0"
   dependencies:
     detect-indent: "npm:^7.0.2"
     detect-newline: "npm:^4.0.1"
@@ -19838,7 +19838,7 @@ __metadata:
     tinyglobby: "npm:^0.2.15"
   bin:
     sort-package-json: cli.js
-  checksum: 10/f7349c02cbf5dee05ad26e6bea1ef9c63a9980007acf809c8d241431751825a7da2ab290618e965fb57798514607dc199e2dd791fb4a0a5003c349144aa36d16
+  checksum: 10/82c1fea3d4cfdc4cbba794fcff189e1f1b969840b4d6fe32b4b6e5442862882227e5ae9e285cc4436b0be5c9ad96c96d79b5c7d8d126eec5860ee9596f585fed
   languageName: node
   linkType: hard
 
