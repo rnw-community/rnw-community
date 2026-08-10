@@ -3,13 +3,6 @@ import { Platform } from '../get-platform/get-platform.util.js';
 
 import type { AndroidTestIDProps, TestIDProps, WebTestIDProps } from '../../interface/index.js';
 
-/**
- * Get WEB, IOS and Android supported object with TestID fields.
- *
- * @param args {...string} Additional TestID modifiers
- *
- * @return {AndroidTestIDProps | TestIDProps | WebTestIDProps} Object with platform TestID fields
- */
 export const setTestID = (...args: (number | string)[]): AndroidTestIDProps | TestIDProps | WebTestIDProps => {
     const testID = args.join('_');
 

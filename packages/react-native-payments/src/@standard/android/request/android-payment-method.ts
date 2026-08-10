@@ -4,7 +4,11 @@ import type { AndroidPaymentMethodCardParameters } from './android-payment-metho
 import type { AndroidTokenizationDirectSpecification } from './android-tokenization-direct-specification.js';
 import type { AndroidTokenizationGatewaySpecification } from './android-tokenization-gateway-specification.js';
 
-// https://developers.google.com/pay/api/android/reference/request-objects#PaymentMethod
+/**
+ * The Google Pay `PaymentMethod` request shape.
+ *
+ * @see https://developers.google.com/pay/api/android/reference/request-objects#PaymentMethod
+ */
 export interface AndroidPaymentMethod {
     parameters: AndroidPaymentMethodCardParameters;
     tokenizationSpecification?: AndroidTokenizationDirectSpecification | AndroidTokenizationGatewaySpecification;

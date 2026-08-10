@@ -11,12 +11,10 @@ import { swipeCommand } from './command/swipe.command.js';
 import type { Browser } from 'webdriverio';
 
 export const addWdioCommands = (context: Browser): void => {
-    // HINT: Browser commands
     context.addCommand('testID$', testID$, false);
     context.addCommand('testID$$', testID$$, false);
     context.addCommand('openDeepLink', openDeepLinkCommand, false);
 
-    // HINT: Element commands
     context.addCommand(
         'testID$',
         function TestID$(this: WebdriverIO.Element, testID: string) {
