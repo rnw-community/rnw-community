@@ -75,9 +75,9 @@ export default defineConfig(
                 'error',
                 ...['ImportDeclaration', 'ExportNamedDeclaration', 'ExportAllDeclaration', 'ImportExpression'].map(
                     nodeType => ({
-                        selector: `${nodeType}[source.value=/^\\.(?!.*\\.(js|jsx|mjs|cjs|json)$)/]`,
+                        selector: `${nodeType}[source.value=/^\\.[^'"]*\\.(js|jsx|mjs|cjs)$/]`,
                         message:
-                            "Relative import/export specifiers must carry an explicit file extension (e.g. '.js', matching the compiled output) — Node's ESM resolver does not append extensions the way bundlers do.",
+                            "Relative import/export specifiers must stay extensionless in source — scripts/rewrite-esm-extensions.mjs adds '.js' to the compiled dist/esm output after the build, and Jest resolves the bare specifier straight to the sibling .ts file with no moduleNameMapper to strip an extension back off.",
                     })
                 ),
             ],

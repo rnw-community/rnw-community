@@ -1,7 +1,7 @@
 import React from 'react';
 import { Switch, Text, View } from 'react-native';
 
-import { demoStyle } from '../constant/demo-style.js';
+import { demoStyle } from '../constant/demo-style';
 
 import type { OnEventFn } from '@rnw-community/shared';
 import type { ReactNode } from 'react';

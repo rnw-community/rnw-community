@@ -1,4 +1,4 @@
-import { formatPaymentsErrorMessage } from '../util/format-payments-error-message.util.js';
+import { formatPaymentsErrorMessage } from '../util/format-payments-error-message.util';
 
 export class ConstructorError extends TypeError {
     constructor(message: string) {

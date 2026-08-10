@@ -1,8 +1,8 @@
 import { isDefined, isNotEmptyArray } from '@rnw-community/shared';
 
-import { ConstructorError } from '../error/constructor.error.js';
+import { ConstructorError } from '../error/constructor.error';
 
-import type { PaymentMethodData } from '../@standard/w3c/payment-method-data.js';
+import type { PaymentMethodData } from '../@standard/w3c/payment-method-data';
 
 export const validatePaymentMethods = (methodData: PaymentMethodData[]): void => {
     if (!isNotEmptyArray(methodData)) {

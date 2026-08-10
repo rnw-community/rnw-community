@@ -1,14 +1,14 @@
 import { describe, expect, it, jest } from '@jest/globals';
 
-import { AndroidPaymentMethodTokenizationType } from '../../@standard/android/enum/android-payment-method-tokenization-type.enum.js';
-import { emptyAndroidIntermediateSigningKey } from '../../@standard/android/response/android-intermediate-signing-key.js';
-import { PaymentMethodNameEnum } from '../../enum/payment-method-name.enum.js';
-import { PaymentsError } from '../../error/payments.error.js';
+import { AndroidPaymentMethodTokenizationType } from '../../@standard/android/enum/android-payment-method-tokenization-type.enum';
+import { emptyAndroidIntermediateSigningKey } from '../../@standard/android/response/android-intermediate-signing-key';
+import { PaymentMethodNameEnum } from '../../enum/payment-method-name.enum';
+import { PaymentsError } from '../../error/payments.error';
 
-import { AndroidPaymentResponse } from './android-payment-response.js';
+import { AndroidPaymentResponse } from './android-payment-response';
 
-import type { AndroidFullAddress } from '../../@standard/android/response/android-full-address.js';
-import type { AndroidPaymentData } from '../../@standard/android/response/android-payment-data.js';
+import type { AndroidFullAddress } from '../../@standard/android/response/android-full-address';
+import type { AndroidPaymentData } from '../../@standard/android/response/android-payment-data';
 
 jest.mock('../native-payments/native-payments', () => ({
     NativePayments: {

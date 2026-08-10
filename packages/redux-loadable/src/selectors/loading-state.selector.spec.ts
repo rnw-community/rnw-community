@@ -1,8 +1,8 @@
 import { describe, expect, it } from '@jest/globals';
 
-import { initialLoadingState } from '../interface/loading-state.interface.js';
+import { initialLoadingState } from '../interface/loading-state.interface';
 
-import { loadingStateSelector } from './loading-state.selector.js';
+import { loadingStateSelector } from './loading-state.selector';
 
 describe('loadingStateSelector', () => {
     it('should return loading state tuple by slice name', () => {

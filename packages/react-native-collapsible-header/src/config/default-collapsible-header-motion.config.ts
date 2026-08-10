@@ -1,4 +1,4 @@
-import type { CollapsibleHeaderMotionConfig } from '../interface/collapsible-header-motion-config.interface.js';
+import type { CollapsibleHeaderMotionConfig } from '../interface/collapsible-header-motion-config.interface';
 
 export const DefaultCollapsibleHeaderMotionConfig: CollapsibleHeaderMotionConfig = {
     expandedOpacityEndProgress: 0.6,

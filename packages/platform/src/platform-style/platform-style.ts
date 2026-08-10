@@ -1,4 +1,4 @@
-import { isAndroid, isIOS, isMobile, isWeb } from '../platform/platform.js';
+import { isAndroid, isIOS, isMobile, isWeb } from '../platform/platform';
 
 import type { CSSProperties } from 'react';
 import type { ImageStyle, TextStyle, ViewStyle } from 'react-native';

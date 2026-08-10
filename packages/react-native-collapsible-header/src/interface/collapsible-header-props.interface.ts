@@ -1,4 +1,4 @@
-import type { CollapsibleHeaderMotionConfig } from './collapsible-header-motion-config.interface.js';
+import type { CollapsibleHeaderMotionConfig } from './collapsible-header-motion-config.interface';
 import type { ReactNode } from 'react';
 import type { StyleProp, ViewProps, ViewStyle } from 'react-native';
 import type { SharedValue } from 'react-native-reanimated';

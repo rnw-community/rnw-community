@@ -1,7 +1,7 @@
 import { useCallback, useState } from 'react';
 
-import type { EventLogEntryInterface } from '../interface/event-log-entry.interface.js';
-import type { EventLogInterface } from '../interface/event-log.interface.js';
+import type { EventLogEntryInterface } from '../interface/event-log-entry.interface';
+import type { EventLogInterface } from '../interface/event-log.interface';
 
 export const useEventLog = (): EventLogInterface => {
     const [entries, setEntries] = useState<EventLogEntryInterface[]>([]);

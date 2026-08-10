@@ -1,9 +1,9 @@
 import { isEmptyString, isString } from '@rnw-community/shared';
 
-import { assertValidTimeoutMs } from '../assert-valid-timeout-ms/assert-valid-timeout-ms.js';
+import { assertValidTimeoutMs } from '../assert-valid-timeout-ms/assert-valid-timeout-ms';
 
-import type { AcquireOptionsInterface } from '../../interface/acquire-options.interface.js';
-import type { LockArgumentType } from '../../type/lock-argument.type.js';
+import type { AcquireOptionsInterface } from '../../interface/acquire-options.interface';
+import type { LockArgumentType } from '../../type/lock-argument.type';
 
 const assertNonEmptyKey = (key: string): string => {
     if (isEmptyString(key)) {

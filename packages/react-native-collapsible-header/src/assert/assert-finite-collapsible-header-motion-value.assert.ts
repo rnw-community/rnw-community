@@ -1,4 +1,4 @@
-import type { CollapsibleHeaderMotionConfig } from '../interface/collapsible-header-motion-config.interface.js';
+import type { CollapsibleHeaderMotionConfig } from '../interface/collapsible-header-motion-config.interface';
 
 export const assertFiniteCollapsibleHeaderMotionValue = (field: keyof CollapsibleHeaderMotionConfig, value: number) => {
     if (!Number.isFinite(value)) {

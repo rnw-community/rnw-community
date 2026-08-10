@@ -1,5 +1,5 @@
-import { getComponent$ } from '../get-component$/get-component$.js';
+import { getComponent$ } from '../get-component$/get-component$';
 
-import { Component$SelectorsMock } from './component$-selectors.mock.js';
+import { Component$SelectorsMock } from './component$-selectors.mock';
 
 export class Component$Mock extends getComponent$(Component$SelectorsMock) {}

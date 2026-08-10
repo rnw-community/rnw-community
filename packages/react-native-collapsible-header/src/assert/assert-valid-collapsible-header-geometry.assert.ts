@@ -1,6 +1,6 @@
 import { isPositiveNumber } from '@rnw-community/shared';
 
-import type { CollapsibleHeaderGeometry } from '../type/collapsible-header-geometry.type.js';
+import type { CollapsibleHeaderGeometry } from '../type/collapsible-header-geometry.type';
 
 export const assertValidCollapsibleHeaderGeometry = (geometry: CollapsibleHeaderGeometry) => {
     if (!Number.isFinite(geometry.expandedHeight) || !isPositiveNumber(geometry.expandedHeight)) {

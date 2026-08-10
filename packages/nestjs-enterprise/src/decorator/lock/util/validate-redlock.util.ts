@@ -1,6 +1,6 @@
 import { isDefined } from '@rnw-community/shared';
 
-import type { LockableService } from '../lockable.service.js';
+import type { LockableService } from '../lockable.service';
 
 export const validateRedlock = (self: LockableService): void => {
     if (!isDefined(self.redlock)) {

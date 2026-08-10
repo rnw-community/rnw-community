@@ -6,10 +6,10 @@ import { useSharedValue } from 'react-native-reanimated';
 
 import { getDefined } from '@rnw-community/shared';
 
-import { CollapsibleHeader } from './collapsible-header.js';
+import { CollapsibleHeader } from './collapsible-header';
 
-import type { CollapsibleHeaderMotionConfig } from '../interface/collapsible-header-motion-config.interface.js';
-import type { CollapsibleHeaderProps } from '../interface/collapsible-header-props.interface.js';
+import type { CollapsibleHeaderMotionConfig } from '../interface/collapsible-header-motion-config.interface';
+import type { CollapsibleHeaderProps } from '../interface/collapsible-header-props.interface';
 import type { StyleProp, ViewProps, ViewStyle } from 'react-native';
 import type { ReactTestInstance } from 'react-test-renderer';
 

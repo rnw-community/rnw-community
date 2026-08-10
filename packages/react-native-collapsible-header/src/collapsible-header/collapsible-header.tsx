@@ -4,12 +4,12 @@ import Animated from 'react-native-reanimated';
 
 import { isDefined } from '@rnw-community/shared';
 
-import { assertValidCollapsibleHeaderConfig } from '../assert/assert-valid-collapsible-header-config.assert.js';
-import { resolveCollapsibleHeaderMotionConfig } from '../config/resolve-collapsible-header-motion.config.js';
+import { assertValidCollapsibleHeaderConfig } from '../assert/assert-valid-collapsible-header-config.assert';
+import { resolveCollapsibleHeaderMotionConfig } from '../config/resolve-collapsible-header-motion.config';
 
-import { useCollapsibleHeaderAnimatedLayers } from './use-collapsible-header-animated-layers.js';
+import { useCollapsibleHeaderAnimatedLayers } from './use-collapsible-header-animated-layers';
 
-import type { CollapsibleHeaderProps } from '../interface/collapsible-header-props.interface.js';
+import type { CollapsibleHeaderProps } from '../interface/collapsible-header-props.interface';
 
 const styles = StyleSheet.create({
     background: { position: 'absolute', top: 0, right: 0, bottom: 0, left: 0 },
