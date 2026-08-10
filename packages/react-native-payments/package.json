@@ -95,7 +95,7 @@
         "ts:nodenext": "run -T tsc --pretty -p tsconfig.nodenext-check.json"
     },
     "dependencies": {
-        "@expo/config-plugins": "^9.1.7",
+        "@expo/config-plugins": "^56.0.14",
         "@rnw-community/shared": "^2.12.13",
         "react-native-uuid": "^2.0.4"
     },
