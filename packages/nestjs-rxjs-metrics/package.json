@@ -1,6 +1,6 @@
 {
     "name": "@rnw-community/nestjs-rxjs-metrics",
-    "version": "2.12.12",
+    "version": "2.12.13",
     "description": "NestJS RxJS logger",
     "keywords": [
         "nestjs",
@@ -48,7 +48,7 @@
         "ts:nodenext": "run -T tsc --pretty -p tsconfig.nodenext-check.json"
     },
     "dependencies": {
-        "@rnw-community/shared": "^2.12.12"
+        "@rnw-community/shared": "^2.12.13"
     },
     "devDependencies": {
         "@nestjs/common": "^11.1.28",
