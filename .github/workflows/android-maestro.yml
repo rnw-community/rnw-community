@@ -75,7 +75,10 @@ jobs:
         needs: detect
         if: needs.detect.outputs.payments_affected == 'true'
         runs-on: [self-hosted, linux-tiered, linux-xl]
-        timeout-minutes: 75
+        # Self-hosted fleet capacity is shared with other repositories, so both the
+        # job and every step below carry an explicit bound. See the step comments
+        # for how each number was sized.
+        timeout-minutes: 65
         strategy:
             fail-fast: false
             matrix:
@@ -87,32 +90,48 @@ jobs:
         steps:
             -   name: Checkout repository
                 uses: actions/checkout@v5
+                timeout-minutes: 10
 
             -   name: Setup Node
                 uses: actions/setup-node@v5
+                timeout-minutes: 10
                 with:
                     node-version: 22.x
                     cache: yarn
 
             -   name: Enable corepack
+                timeout-minutes: 5
                 run: corepack enable
 
             -   name: Install dependencies
+                timeout-minutes: 15
                 run: yarn install --immutable
 
             -   name: Build workspace JS dependencies
+                timeout-minutes: 10
                 run: yarn build --filter=@rnw-community/react-native-payments
 
             -   name: Generate native project (expo)
                 if: matrix.target == 'expo'
+                timeout-minutes: 10
                 working-directory: ${{ env.EXAMPLE_DIR }}
                 run: yarn prebuild:expo
 
             -   name: Set up Android SDK
                 uses: android-actions/setup-android@v3
+                timeout-minutes: 15
+                with:
+                    # The action still defaults to "tools platform-tools", but the
+                    # obsolete "tools" package was withdrawn from the Google SDK
+                    # repository, so sdkmanager exits 1 with "Dependant package with
+                    # key emulator not found!". android-emulator-runner installs the
+                    # emulator and system images it needs by itself, so platform-tools
+                    # is the only package this workflow has to request.
+                    packages: platform-tools
 
             -   name: Restore Gradle cache
                 uses: actions/cache@v4
+                timeout-minutes: 10
                 with:
                     path: |
                         ~/.gradle/caches
@@ -122,6 +141,7 @@ jobs:
                         gradle-${{ matrix.target }}-${{ runner.os }}-
 
             -   name: Install Maestro
+                timeout-minutes: 10
                 run: |
                     maestro_bin="$HOME/.maestro/bin/maestro"
                     if [ ! -x "$maestro_bin" ] || [ "$("$maestro_bin" --version 2>/dev/null | tail -n 1 | tr -d '\r' || true)" != "$MAESTRO_VERSION" ]; then
@@ -130,7 +150,12 @@ jobs:
                     echo "$HOME/.maestro/bin" >> "$GITHUB_PATH"
 
             -   name: Boot emulator, build, install, and test
+                id: emulator
                 uses: reactivecircus/android-emulator-runner@v2.38.0
+                # System image download + AVD creation + cold boot + a cold Gradle
+                # release build + the Maestro suite. 50 minutes leaves the rest of the
+                # job roughly 15 minutes of the 65 minute job budget.
+                timeout-minutes: 50
                 with:
                     api-level: 34
                     target: google_apis
@@ -143,27 +168,37 @@ jobs:
                     script: |
                         set -euo pipefail
                         set -x
-                        adb wait-for-device
+                        timeout 300 adb wait-for-device
                         timeout 180 bash -c 'until [ "$(adb shell getprop sys.boot_completed | tr -d "\r")" = "1" ]; do sleep 2; done'
                         (cd "${{ env.APP_DIR }}/android" && ./gradlew assembleRelease)
                         apk=$(find "${{ env.APP_DIR }}/android/app/build/outputs/apk/release" -name '*.apk' | head -1)
-                        adb install -r "$apk"
+                        timeout 300 adb install -r "$apk"
                         cd "${{ env.EXAMPLE_DIR }}"
                         yarn e2e:android:${{ matrix.target }}
 
             -   name: Capture final device state
-                if: failure()
+                # Only meaningful when the emulator step actually ran and failed. If
+                # Android SDK setup (or anything before it) failed, this step is
+                # skipped instead of talking to an adb server that has no device.
+                if: failure() && steps.emulator.outcome == 'failure'
+                # A diagnostic must never outlive the test it is diagnosing.
+                timeout-minutes: 3
                 shell: bash
                 run: |
                     out="${{ env.MAESTRO_DEBUG_OUTPUT_DIRECTORY }}"
                     mkdir -p "$out"
-                    adb exec-out screencap -p > "$out/final-screen.png" || true
-                    adb logcat -d > "$out/logcat-full.txt" 2>&1 || true
-                    adb logcat -d -b crash > "$out/logcat-crash.txt" 2>&1 || true
+                    if ! timeout 30 adb wait-for-device; then
+                      echo "No device attached after 30s; skipping device state capture."
+                      exit 0
+                    fi
+                    timeout 30 adb exec-out screencap -p > "$out/final-screen.png" || true
+                    timeout 60 adb logcat -d > "$out/logcat-full.txt" 2>&1 || true
+                    timeout 30 adb logcat -d -b crash > "$out/logcat-crash.txt" 2>&1 || true
 
             -   name: Upload Maestro artifacts
-                if: failure()
+                if: failure() && steps.emulator.outcome == 'failure'
                 uses: actions/upload-artifact@v4
+                timeout-minutes: 5
                 with:
                     name: maestro-android-${{ matrix.target }}
                     path: ${{ env.MAESTRO_DEBUG_OUTPUT_DIRECTORY }}/**
