@@ -54,5 +54,6 @@ src/
 
 ## Publication
 
-The package publishes dual ESM and CommonJS output. Relative source imports stay extensionless; the build's post-compile
-rewrite/assert pair enforces extensioned specifiers in `dist/esm`, and the NodeNext check must pass before publishing.
+The package publishes dual ESM and CommonJS output. Relative source imports stay extensionless; the `build` script's
+`scripts/rewrite-esm-extensions.mjs`/`scripts/assert-esm-extensions.mjs` pair adds and verifies `.js` extensions on the
+compiled `dist/esm` output (see root `AGENTS.md`). The NodeNext check must pass before publishing.
