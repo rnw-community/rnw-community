@@ -197,7 +197,7 @@ jobs:
 
             -   name: Upload Maestro artifacts
                 if: failure() && steps.emulator.outcome == 'failure'
-                uses: actions/upload-artifact@v4
+                uses: actions/upload-artifact@v6
                 timeout-minutes: 5
                 with:
                     name: maestro-android-${{ matrix.target }}
