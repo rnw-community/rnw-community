@@ -6115,7 +6115,7 @@ __metadata:
   resolution: "@rnw-community/rxjs-errors@workspace:packages/rxjs-errors"
   dependencies:
     "@rnw-community/shared": "npm:^2.12.13"
-    expect-type: "npm:^0.20.0"
+    expect-type: "npm:^1.4.0"
     rxjs: "npm:^7.8.2"
   peerDependencies:
     rxjs: ^7.8.1
@@ -11243,10 +11243,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"expect-type@npm:^0.20.0":
-  version: 0.20.0
-  resolution: "expect-type@npm:0.20.0"
-  checksum: 10/88686e2bac9471c36c0d3898242ee96530488d4494909d8c39ed337cf5f46da63ee329dc0615b5124bb93039b029d58b7c98e15a69660049941501f75a1f0ca6
+"expect-type@npm:^1.4.0":
+  version: 1.4.0
+  resolution: "expect-type@npm:1.4.0"
+  checksum: 10/bad91f4b7eb807248695ee840a935d12818fe531ad523bc7ac7dcc540a4d86dc566a3ef829f4da6e8b5a458ac84092771739865114c91e7e8a9317302f401f09
   languageName: node
   linkType: hard
 
