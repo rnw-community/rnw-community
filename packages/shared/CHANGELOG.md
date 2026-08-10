@@ -3,6 +3,10 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.12.13](https://github.com/rnw-community/rnw-community/compare/v2.12.12...v2.12.13) (2026-08-10)
+
+**Note:** Version bump only for package @rnw-community/shared
+
 ## [2.12.12](https://github.com/rnw-community/rnw-community/compare/v2.12.11...v2.12.12) (2026-08-09)
 
 **Note:** Version bump only for package @rnw-community/shared
