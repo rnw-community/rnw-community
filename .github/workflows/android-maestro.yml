@@ -37,3 +37,11 @@ jobs:
                 @rnw-community/react-native-payments-example-expo
             build-command: yarn build --filter=@rnw-community/react-native-payments
             repack-on-hit: true
+            # Self-hosted fleet capacity is shared with other repositories, so no job
+            # may run unbounded. A workflow_call job cannot carry timeout-minutes, so
+            # the caps come from the reusable workflow's inputs instead of the caller
+            # job. Build (macOS pool): install + JS build + prebuild + a cold Gradle
+            # release build. Test (Redroid pool): container pull/boot (bounded
+            # upstream at 600s) plus one Maestro shard.
+            build-timeout-minutes: 45
+            test-timeout-minutes: 35
