@@ -1,4 +1,4 @@
-import type { AndroidRawIntermediateSigningKey } from './android-raw-intermediate-signing-key.js';
+import type { AndroidRawIntermediateSigningKey } from './android-raw-intermediate-signing-key';
 
 /**
  * The Google Pay payment method token raw (un-parsed) shape.

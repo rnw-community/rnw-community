@@ -1,6 +1,6 @@
 import pkg from '../package.json';
 
-import { rules } from './rules/index.js';
+import { rules } from './rules';
 
 import type { ESLint } from 'eslint';
 

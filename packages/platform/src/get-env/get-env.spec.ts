@@ -1,6 +1,6 @@
 import { describe, expect, it, jest } from '@jest/globals';
 
-import { getEnv } from './get-env.js';
+import { getEnv } from './get-env';
 
 jest.mock('react-native-config', () => ({ Config: {} }));
 

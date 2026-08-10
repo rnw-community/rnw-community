@@ -1,9 +1,9 @@
 import { describe, expect, it } from '@jest/globals';
 
-import { mockElement } from '../../element.mock.js';
-import { RootedComponentSelectorsMock } from '../../rooted-component/mocks/rooted-component-selectors.mock.js';
+import { mockElement } from '../../element.mock';
+import { RootedComponentSelectorsMock } from '../../rooted-component/mocks/rooted-component-selectors.mock';
 
-import { createRootedComponent$ } from './create-rooted-component$.js';
+import { createRootedComponent$ } from './create-rooted-component$';
 
 describe('createRootedComponent$', () => {
     it('should create RootedComponent instance with selectors and $* selector functions', async () => {

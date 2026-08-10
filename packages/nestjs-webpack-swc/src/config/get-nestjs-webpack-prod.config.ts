@@ -1,6 +1,6 @@
 import TerserPlugin from 'terser-webpack-plugin';
 
-import { getNestJSWebpackGenericConfig } from './get-nestjs-webpack-generic.config.js';
+import { getNestJSWebpackGenericConfig } from './get-nestjs-webpack-generic.config';
 
 import type { Configuration } from 'webpack';
 import type Webpack from 'webpack';

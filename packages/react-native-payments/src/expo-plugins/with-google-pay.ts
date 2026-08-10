@@ -1,9 +1,9 @@
 import { AndroidConfig, withAndroidManifest } from '@expo/config-plugins';
 
-import { validateGooglePayEnvironment } from './validate-google-pay-environment.util.js';
-import { validateSupportedNetworks } from './validate-supported-networks.util.js';
+import { validateGooglePayEnvironment } from './validate-google-pay-environment.util';
+import { validateSupportedNetworks } from './validate-supported-networks.util';
 
-import type { ReactNativePaymentsPluginProps } from './plugin.props.js';
+import type { ReactNativePaymentsPluginProps } from './plugin.props';
 import type { ConfigPlugin } from '@expo/config-plugins';
 
 export const withGooglePay: ConfigPlugin<ReactNativePaymentsPluginProps> = (

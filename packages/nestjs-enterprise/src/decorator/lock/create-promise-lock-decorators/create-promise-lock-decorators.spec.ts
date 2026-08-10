@@ -2,10 +2,10 @@ import { beforeEach, describe, expect, it, jest } from '@jest/globals';
 
 import { LockBusyError } from '@rnw-community/lock-decorator';
 
-import { createPromiseLockDecorators } from './create-promise-lock-decorators.js';
+import { createPromiseLockDecorators } from './create-promise-lock-decorators';
 
-import type { LockHandle } from '../interface/lock-handle.interface.js';
-import type { LockServiceInterface } from '../interface/lock-service.interface.js';
+import type { LockHandle } from '../interface/lock-handle.interface';
+import type { LockServiceInterface } from '../interface/lock-service.interface';
 
 const mockRelease = jest.fn<() => Promise<void>>().mockResolvedValue();
 const mockAcquire = jest

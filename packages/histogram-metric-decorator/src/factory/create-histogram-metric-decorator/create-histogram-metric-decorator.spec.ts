@@ -1,9 +1,9 @@
 import { beforeEach, describe, expect, it, jest } from '@jest/globals';
 import { EMPTY, Observable, lastValueFrom, of, throwError } from 'rxjs';
 
-import { createHistogramMetricDecorator } from '../../index.js';
+import { createHistogramMetricDecorator } from '../../index';
 
-import type { HistogramTransportInterface } from '../../index.js';
+import type { HistogramTransportInterface } from '../../index';
 
 interface Observation {
     readonly name: string;

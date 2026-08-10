@@ -1,8 +1,8 @@
 import { describe, expect, it } from '@jest/globals';
 
-import { EnvironmentEnum } from '../enum/environment.enum.js';
+import { EnvironmentEnum } from '../enum/environment.enum';
 
-import { validateGooglePayEnvironment } from './validate-google-pay-environment.util.js';
+import { validateGooglePayEnvironment } from './validate-google-pay-environment.util';
 
 describe('validateGooglePayEnvironment', () => {
     it('should default to PRODUCTION when undefined', () => {

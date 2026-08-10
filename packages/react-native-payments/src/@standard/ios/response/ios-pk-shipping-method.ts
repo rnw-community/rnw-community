@@ -1,4 +1,4 @@
-import type { PaymentCurrencyAmount } from '../../w3c/payment-currency-amount.js';
+import type { PaymentCurrencyAmount } from '../../w3c/payment-currency-amount';
 
 /**
  * The Apple PassKit `PKShippingMethod` shape.

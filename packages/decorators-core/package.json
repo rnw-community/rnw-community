@@ -19,7 +19,6 @@
     },
     "license": "MIT",
     "sideEffects": false,
-    "type": "module",
     "exports": {
         ".": {
             "import": {
@@ -39,7 +38,7 @@
         "dist/**/*"
     ],
     "scripts": {
-        "build": "yarn build:esm && yarn build:cjs && rm -rf ./dist/*/*.tsbuildinfo && echo '{\"type\":\"module\"}' > dist/esm/package.json && echo '{\"type\":\"commonjs\"}' > dist/cjs/package.json",
+        "build": "yarn build:esm && yarn build:cjs && node ../../scripts/rewrite-esm-extensions.mjs ./dist/esm && node ../../scripts/assert-esm-extensions.mjs ./dist/esm && rm -rf ./dist/*/*.tsbuildinfo && echo '{\"type\":\"module\"}' > dist/esm/package.json && echo '{\"type\":\"commonjs\"}' > dist/cjs/package.json",
         "build:cjs": "run -T tsc --pretty -p tsconfig.build-cjs.json",
         "build:esm": "run -T tsc --pretty -p tsconfig.build-esm.json",
         "clear": "rm -rf coverage && rm -rf dist && rm -f *.tsbuildinfo",

@@ -1,4 +1,4 @@
-import type { PaymentRequestEventListener } from '../type/payment-request-event-listener.type.js';
+import type { PaymentRequestEventListener } from '../type/payment-request-event-listener.type';
 import type { Maybe } from '@rnw-community/shared';
 import type { EmitterSubscription } from 'react-native';
 

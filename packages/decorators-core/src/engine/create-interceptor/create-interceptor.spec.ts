@@ -1,9 +1,9 @@
 import { describe, expect, it, jest } from '@jest/globals';
 import { Observable, Subject, lastValueFrom, of, throwError } from 'rxjs';
 
-import { createInterceptor } from './create-interceptor.js';
+import { createInterceptor } from './create-interceptor';
 
-import type { InterceptorMiddleware } from '../../interface/interceptor-middleware.interface.js';
+import type { InterceptorMiddleware } from '../../interface/interceptor-middleware.interface';
 
 const passthrough: InterceptorMiddleware = (_ctx, next) => next();
 

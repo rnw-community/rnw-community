@@ -1,6 +1,6 @@
 import { describe, expect, it } from '@jest/globals';
 
-import { emptyFn } from './empty-fn.js';
+import { emptyFn } from './empty-fn';
 
 describe('emptyFn', () => {
     it('should not return anything without arguments', () => {

@@ -1,16 +1,16 @@
 import { emptyFn, isDefined, wait } from '@rnw-community/shared';
 
-import { changeEventTimeoutMs } from '../../constant/change-event-timeout-ms.js';
-import { PaymentsErrorEnum } from '../../enum/payments-error.enum.js';
-import { DOMException } from '../../error/dom.exception.js';
-import { warnChangeEventError } from '../../util/warn-change-event-error.util.js';
-import { PaymentMethodChangeEvent } from '../payment-method-change-event/payment-method-change-event.js';
-import { PaymentRequestUpdateEvent } from '../payment-request-update-event/payment-request-update-event.js';
+import { changeEventTimeoutMs } from '../../constant/change-event-timeout-ms';
+import { PaymentsErrorEnum } from '../../enum/payments-error.enum';
+import { DOMException } from '../../error/dom.exception';
+import { warnChangeEventError } from '../../util/warn-change-event-error.util';
+import { PaymentMethodChangeEvent } from '../payment-method-change-event/payment-method-change-event';
+import { PaymentRequestUpdateEvent } from '../payment-request-update-event/payment-request-update-event';
 
-import type { PaymentDetailsUpdate } from '../../@standard/w3c/payment-details-update.js';
-import type { PaymentRequestEventPayloadInterface } from '../../interface/payment-request-event-payload.interface.js';
-import type { PaymentRequestEventListener } from '../../type/payment-request-event-listener.type.js';
-import type { PaymentRequestEventType } from '../../type/payment-request-event.type.js';
+import type { PaymentDetailsUpdate } from '../../@standard/w3c/payment-details-update';
+import type { PaymentRequestEventPayloadInterface } from '../../interface/payment-request-event-payload.interface';
+import type { PaymentRequestEventListener } from '../../type/payment-request-event-listener.type';
+import type { PaymentRequestEventType } from '../../type/payment-request-event.type';
 import type { EmptyFn, Maybe } from '@rnw-community/shared';
 
 export class ChangeEventDispatcher {

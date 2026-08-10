@@ -1,13 +1,13 @@
 import React from 'react';
 import { Text, View } from 'react-native';
 
-import { demoStyle } from '../constant/demo-style.js';
+import { demoStyle } from '../constant/demo-style';
 
-import { SwitchRow } from './switch-row.js';
-import { TextInputRow } from './text-input-row.js';
+import { SwitchRow } from './switch-row';
+import { TextInputRow } from './text-input-row';
 
-import type { RequestOptionsInterface } from '../interface/request-options.interface.js';
-import type { RequestOptionToggleType } from '../type/request-option-toggle.type.js';
+import type { RequestOptionsInterface } from '../interface/request-options.interface';
+import type { RequestOptionToggleType } from '../type/request-option-toggle.type';
 import type { OnEventFn } from '@rnw-community/shared';
 import type { ReactNode } from 'react';
 

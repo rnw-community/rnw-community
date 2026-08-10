@@ -1,11 +1,11 @@
 import { of, throwError } from 'rxjs';
 import { concatMap } from 'rxjs/operators';
 
-import { RxJSFilterError } from '../../rxjs-filter-error.js';
-import { defaultCreateError } from '../../type/create-error-fn.type.js';
+import { RxJSFilterError } from '../../rxjs-filter-error';
+import { defaultCreateError } from '../../type/create-error-fn.type';
 
-import type { CreateErrorFn } from '../../type/create-error-fn.type.js';
-import type { ErrorCodeOrMsgFn } from '../../type/error-code-or-msg-fn.type.js';
+import type { CreateErrorFn } from '../../type/create-error-fn.type';
+import type { ErrorCodeOrMsgFn } from '../../type/error-code-or-msg-fn.type';
 import type { OperatorFunction } from 'rxjs';
 
 type PassingConditionFn<TInput, TOutput extends TInput> = ((val: TInput) => boolean) | ((val: TInput) => val is TOutput);

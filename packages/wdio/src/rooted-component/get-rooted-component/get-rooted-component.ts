@@ -1,13 +1,13 @@
- 
+/* eslint-disable no-implicit-globals */
 import { isDefined } from '@rnw-community/shared';
 
-import { getExtendedRootedComponent } from '../get-extended-rooted-component/get-extended-rooted-component.js';
-import { RootedComponent } from '../rooted-component.js';
+import { getExtendedRootedComponent } from '../get-extended-rooted-component/get-extended-rooted-component';
+import { RootedComponent } from '../rooted-component';
 
 import type {
     RootedComponentCtorWithDefaultRootSelector,
     RootedComponentCtorWithoutDefaultRootSelector,
-} from '../../type/rooted-component-with-selectors-ctor.type.js';
+} from '../../type/rooted-component-with-selectors-ctor.type';
 
 export function getRootedComponent<T>(selectors: T): RootedComponentCtorWithoutDefaultRootSelector<T>;
 export function getRootedComponent<T>(selectors: T, rootSelector: T[keyof T]): RootedComponentCtorWithDefaultRootSelector<T>;

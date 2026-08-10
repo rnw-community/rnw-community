@@ -1,10 +1,10 @@
 import { emptyFn } from '@rnw-community/shared';
 
-import { resolveLockKey } from '../resolve-lock-key/resolve-lock-key.js';
+import { resolveLockKey } from '../resolve-lock-key/resolve-lock-key';
 
-import type { LockStoreInterface } from '../../interface/lock-store.interface.js';
-import type { LockArgumentType } from '../../type/lock-argument.type.js';
-import type { LockModeType } from '../../type/lock-mode.type.js';
+import type { LockStoreInterface } from '../../interface/lock-store.interface';
+import type { LockArgumentType } from '../../type/lock-argument.type';
+import type { LockModeType } from '../../type/lock-mode.type';
 import type { InterceptorMiddleware } from '@rnw-community/decorators-core';
 
 export const createLockMiddleware = <TArgs extends readonly unknown[]>(

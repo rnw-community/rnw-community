@@ -1,6 +1,6 @@
-import type { PaymentDetailsModifier } from './payment-details-modifier.js';
-import type { PaymentItem } from './payment-item.js';
-import type { PaymentShippingOption } from './payment-shipping-option.js';
+import type { PaymentDetailsModifier } from './payment-details-modifier';
+import type { PaymentItem } from './payment-item';
+import type { PaymentShippingOption } from './payment-shipping-option';
 
 /**
  * The W3C `PaymentDetailsBase` dictionary.

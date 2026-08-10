@@ -1,11 +1,11 @@
 import { wait } from '@rnw-community/shared';
 
-import { asyncUpdateLatencyMs } from '../constant/async-update-latency-ms.js';
-import { formatLogMessage } from '../util/format-log-message.js';
+import { asyncUpdateLatencyMs } from '../constant/async-update-latency-ms';
+import { formatLogMessage } from '../util/format-log-message';
 
-import { getDetailsUpdate } from './get-details-update.js';
+import { getDetailsUpdate } from './get-details-update';
 
-import type { RequestOptionsInterface } from '../interface/request-options.interface.js';
+import type { RequestOptionsInterface } from '../interface/request-options.interface';
 import type {
     PaymentDetailsUpdate,
     PaymentRequest,

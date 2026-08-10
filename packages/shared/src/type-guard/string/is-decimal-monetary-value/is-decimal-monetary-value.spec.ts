@@ -1,6 +1,6 @@
 import { describe, expect, it } from '@jest/globals';
 
-import { isDecimalMonetaryValue } from './is-decimal-monetary-value.js';
+import { isDecimalMonetaryValue } from './is-decimal-monetary-value';
 
 describe('isDecimalMonetaryValue', () => {
     it('should return true for integer decimal strings', () => {

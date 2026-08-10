@@ -1,7 +1,7 @@
-import { defaultComponentConfig } from '../../config/default-component.config.js';
-import { Component } from '../component.js';
+import { defaultComponentConfig } from '../../config/default-component.config';
+import { Component } from '../component';
 
-import type { ComponentWithSelectorsCtor } from '../../type/index.js';
+import type { ComponentWithSelectorsCtor } from '../../type';
 import type { ClassType } from '@rnw-community/shared';
 
 export const getExtendedComponent = <T, P extends Component>(

@@ -2,12 +2,12 @@ import { Logger } from '@nestjs/common';
 
 import { isDefined } from '@rnw-community/shared';
 
-import { rxjsOperator } from '../util/rxjs-operator.util.js';
+import { rxjsOperator } from '../util/rxjs-operator.util';
 
-import type { HistogramRecord } from '../type/histogram-record.type.js';
-import type { LabelsConfig } from '../type/labels-config.type.js';
-import type { MetricConfig as MC } from '../type/metrics-config.type.js';
-import type { SummaryRecord } from '../type/summary-record.type.js';
+import type { HistogramRecord } from '../type/histogram-record.type';
+import type { LabelsConfig } from '../type/labels-config.type';
+import type { MetricConfig as MC } from '../type/metrics-config.type';
+import type { SummaryRecord } from '../type/summary-record.type';
 import type { Counter, Gauge, Histogram, LabelValues, Summary } from 'prom-client';
 import type { MonoTypeOperatorFunction } from 'rxjs';
 

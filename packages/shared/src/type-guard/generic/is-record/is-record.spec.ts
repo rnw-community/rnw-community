@@ -1,6 +1,6 @@
 import { describe, expect, it } from '@jest/globals';
 
-import { isRecord } from './is-record.js';
+import { isRecord } from './is-record';
 
 describe('isRecord', () => {
     it('should return true if variable is a record', () => {

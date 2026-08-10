@@ -1,4 +1,4 @@
-import type { AndroidMinAddress } from './android-min-address.js';
+import type { AndroidMinAddress } from './android-min-address';
 
 /**
  * The Google Pay `Address` response shape (full fields).

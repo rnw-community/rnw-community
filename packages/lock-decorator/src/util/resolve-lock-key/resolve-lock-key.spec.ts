@@ -1,6 +1,6 @@
 import { describe, expect, it } from '@jest/globals';
 
-import { resolveLockKey } from './resolve-lock-key.js';
+import { resolveLockKey } from './resolve-lock-key';
 
 describe('resolveLockKey (sequential arg forms)', () => {
     it('returns static string as-is', () => {

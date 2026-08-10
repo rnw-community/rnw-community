@@ -1,9 +1,9 @@
 import { describe, expect, it, jest } from '@jest/globals';
 
-import { mockDefault$Config, mockElement } from '../../element.mock.js';
-import { DefaultRootRootedExtendedComponent$Mock } from '../mocks/default-root-rooted-extended-component$.mock.js';
-import { RootedComponent$SelectorsMock } from '../mocks/rooted-component$-selectors.mock.js';
-import { RootedComponent$Mock } from '../mocks/rooted-component$.mock.js';
+import { mockDefault$Config, mockElement } from '../../element.mock';
+import { DefaultRootRootedExtendedComponent$Mock } from '../mocks/default-root-rooted-extended-component$.mock';
+import { RootedComponent$SelectorsMock } from '../mocks/rooted-component$-selectors.mock';
+import { RootedComponent$Mock } from '../mocks/rooted-component$.mock';
 
 describe('getExtendedRootedComponent$', () => {
     it('should return RootEl using getter', async () => {

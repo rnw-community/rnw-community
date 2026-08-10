@@ -1,6 +1,6 @@
 import { browser } from '@wdio/globals';
 
-import type { SwipeDirectionType } from '../type/index.js';
+import type { SwipeDirectionType } from '../type';
 
 interface Position {
     x: number;

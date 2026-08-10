@@ -1,6 +1,6 @@
-import { emptyAndroidSignedKey } from './android-signed-key.js';
+import { emptyAndroidSignedKey } from './android-signed-key';
 
-import type { AndroidSignedKey } from './android-signed-key.js';
+import type { AndroidSignedKey } from './android-signed-key';
 
 /**
  * The Google Pay `IntermediateSigningKey` shape.

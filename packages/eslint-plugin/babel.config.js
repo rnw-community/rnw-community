@@ -1,1 +1,1 @@
-module.exports = require('../shared/babel.config.cjs');
+module.exports = require('../shared/babel.config');

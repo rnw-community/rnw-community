@@ -1,6 +1,6 @@
-import { Component } from '../../component/component.js';
-import { getExtendedComponent$ } from '../get-exteded-component$/get-extended-component$.js';
+import { Component } from '../../component/component';
+import { getExtendedComponent$ } from '../get-exteded-component$/get-extended-component$';
 
-import type { ComponentWithSelectorsCtor } from '../../type/index.js';
+import type { ComponentWithSelectorsCtor } from '../../type';
 
 export const getComponent$ = <T>(selectors: T): ComponentWithSelectorsCtor<T> => getExtendedComponent$(selectors, Component);

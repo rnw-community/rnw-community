@@ -1,12 +1,12 @@
 import { describe, expect, it, jest } from '@jest/globals';
 
-import { IosPKPaymentMethodType } from '../../@standard/ios/enum/ios-pk-payment-method-type.enum.js';
-import { PaymentMethodNameEnum } from '../../enum/payment-method-name.enum.js';
-import { PaymentsError } from '../../error/payments.error.js';
+import { IosPKPaymentMethodType } from '../../@standard/ios/enum/ios-pk-payment-method-type.enum';
+import { PaymentMethodNameEnum } from '../../enum/payment-method-name.enum';
+import { PaymentsError } from '../../error/payments.error';
 
-import { IosPaymentResponse } from './ios-payment-response.js';
+import { IosPaymentResponse } from './ios-payment-response';
 
-import type { IosPKPayment } from '../../@standard/ios/response/ios-pk-payment.js';
+import type { IosPKPayment } from '../../@standard/ios/response/ios-pk-payment';
 
 jest.mock('../native-payments/native-payments', () => ({
     NativePayments: {

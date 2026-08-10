@@ -1,6 +1,6 @@
 import { describe, expect, it } from '@jest/globals';
 
-import { buildContext } from './build-context.js';
+import { buildContext } from './build-context';
 
 describe('buildContext', () => {
     it('uses fallbackClassName when self is null, undefined, or globalThis', () => {

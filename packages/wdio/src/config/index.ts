@@ -1,1 +1,1 @@
-export { WebSelectorConfig } from './web-selector.config.js';
+export { WebSelectorConfig } from './web-selector.config';

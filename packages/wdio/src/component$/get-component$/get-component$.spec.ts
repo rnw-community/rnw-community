@@ -1,9 +1,9 @@
 import { describe, expect, it } from '@jest/globals';
 
-import { mockDefault$Config, mockElement } from '../../element.mock.js';
-import { Component$SelectorsMock } from '../mocks/component$-selectors.mock.js';
-import { Component$Mock } from '../mocks/component$.mock.js';
-import { ParentComponent$Mock } from '../mocks/parent-component$.mock.js';
+import { mockDefault$Config, mockElement } from '../../element.mock';
+import { Component$SelectorsMock } from '../mocks/component$-selectors.mock';
+import { Component$Mock } from '../mocks/component$.mock';
+import { ParentComponent$Mock } from '../mocks/parent-component$.mock';
 
 const assert$ComponentMethods = async (component: Component$Mock): Promise<void> => {
     await expect(component.Button$.el()).resolves.toStrictEqual(mockElement);

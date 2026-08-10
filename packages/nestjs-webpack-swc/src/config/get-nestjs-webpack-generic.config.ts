@@ -2,7 +2,7 @@ import path from 'path';
 
 import nodeExternals from 'webpack-node-externals';
 
-import { swcConfig } from './swc.config.js';
+import { swcConfig } from './swc.config';
 
 import type { Configuration, ExternalItem } from 'webpack';
 import type webpackNodeExternals from 'webpack-node-externals';

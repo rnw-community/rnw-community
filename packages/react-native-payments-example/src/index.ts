@@ -1,1 +1,1 @@
-export { App } from './component/app.js';
+export { App } from './component/app';

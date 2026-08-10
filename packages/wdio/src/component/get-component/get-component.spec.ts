@@ -1,8 +1,8 @@
 import { describe, expect, it } from '@jest/globals';
 
-import { mockDefaultConfig, mockElement } from '../../element.mock.js';
-import { ComponentSelectorsMock } from '../mocks/component-selectors.mock.js';
-import { GetComponentMock } from '../mocks/get-component.mock.js';
+import { mockDefaultConfig, mockElement } from '../../element.mock';
+import { ComponentSelectorsMock } from '../mocks/component-selectors.mock';
+import { GetComponentMock } from '../mocks/get-component.mock';
 
 describe('getComponent', () => {
     it('should get selector methods from parent class', async () => {

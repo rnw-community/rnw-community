@@ -2,8 +2,8 @@ import { beforeEach, describe, expect, it, jest } from '@jest/globals';
 import { Histogram, register } from 'prom-client';
 import { EMPTY, Observable, lastValueFrom, of } from 'rxjs';
 
-import { histogramMetricTracking } from './histogram-metric-tracking.js';
-import { HistogramMetric } from './histogram-metric.decorator.js';
+import { histogramMetricTracking } from './histogram-metric-tracking';
+import { HistogramMetric } from './histogram-metric.decorator';
 
 const BUCKET_SMALL = 0.01;
 const BUCKET_MEDIUM = 0.1;

@@ -1,9 +1,9 @@
 import { describe, expect, it } from '@jest/globals';
 
-import { mockElement } from '../../element.mock.js';
-import { Component$SelectorsMock } from '../mocks/component$-selectors.mock.js';
+import { mockElement } from '../../element.mock';
+import { Component$SelectorsMock } from '../mocks/component$-selectors.mock';
 
-import { createComponent$ } from './create-component$.js';
+import { createComponent$ } from './create-component$';
 
 describe('create-component$', () => {
     it('should create Component$ instance with selectors and $* selector functions', async () => {

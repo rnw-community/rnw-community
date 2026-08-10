@@ -1,9 +1,9 @@
 import { describe, expect, it, jest } from '@jest/globals';
 
-import { WebSelectorConfig } from '../../config/index.js';
-import { Platform } from '../get-platform/get-platform.util.js';
+import { WebSelectorConfig } from '../../config';
+import { Platform } from '../get-platform/get-platform.util';
 
-import { setPropTestID } from './set-prop-test-id.js';
+import { setPropTestID } from './set-prop-test-id';
 
 jest.mock('../get-platform/get-platform.util', () => ({ Platform: { OS: 'web' } }));
 

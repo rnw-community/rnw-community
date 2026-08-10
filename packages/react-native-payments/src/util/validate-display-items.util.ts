@@ -1,8 +1,8 @@
 import { type ClassType, isDefined } from '@rnw-community/shared';
 
-import { isValidDecimalMonetaryValue } from './is-valid-decimal-monetary-value/is-valid-decimal-monetary-value.util.js';
+import { isValidDecimalMonetaryValue } from './is-valid-decimal-monetary-value/is-valid-decimal-monetary-value.util';
 
-import type { PaymentItem } from '../@standard/w3c/payment-item.js';
+import type { PaymentItem } from '../@standard/w3c/payment-item';
 
 export const validateDisplayItems = (ErrorType: ClassType<Error>, displayItems: PaymentItem[] = []): void => {
     displayItems.forEach(item => {

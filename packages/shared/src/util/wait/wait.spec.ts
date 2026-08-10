@@ -1,6 +1,6 @@
 import { describe, expect, it } from '@jest/globals';
 
-import { wait } from './wait.js';
+import { wait } from './wait';
 
 describe('wait', () => {
     it('resolves to undefined', async () => {

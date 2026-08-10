@@ -1,7 +1,7 @@
-import { WebSelectorConfig } from '../../config/index.js';
-import { Platform } from '../get-platform/get-platform.util.js';
+import { WebSelectorConfig } from '../../config';
+import { Platform } from '../get-platform/get-platform.util';
 
-import type { AndroidTestIDProps, TestIDProps, WebTestIDProps } from '../../interface/index.js';
+import type { AndroidTestIDProps, TestIDProps, WebTestIDProps } from '../../interface';
 
 export const setTestID = (...args: (number | string)[]): AndroidTestIDProps | TestIDProps | WebTestIDProps => {
     const testID = args.join('_');

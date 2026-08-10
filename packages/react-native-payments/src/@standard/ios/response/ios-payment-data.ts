@@ -1,6 +1,6 @@
-import { emptyIosPaymentDataHeader } from './ios-payment-data-header.js';
+import { emptyIosPaymentDataHeader } from './ios-payment-data-header';
 
-import type { IosPaymentDataHeader } from './ios-payment-data-header.js';
+import type { IosPaymentDataHeader } from './ios-payment-data-header';
 
 /**
  * The Apple PassKit `PKPaymentToken.paymentData` shape.

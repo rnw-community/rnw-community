@@ -1,10 +1,10 @@
 import { useCallback, useState } from 'react';
 
-import { defaultRequestOptions } from '../constant/default-request-options.js';
+import { defaultRequestOptions } from '../constant/default-request-options';
 
-import type { RequestOptionsStateInterface } from '../interface/request-options-state.interface.js';
-import type { RequestOptionsInterface } from '../interface/request-options.interface.js';
-import type { RequestOptionToggleType } from '../type/request-option-toggle.type.js';
+import type { RequestOptionsStateInterface } from '../interface/request-options-state.interface';
+import type { RequestOptionsInterface } from '../interface/request-options.interface';
+import type { RequestOptionToggleType } from '../type/request-option-toggle.type';
 
 export const useRequestOptions = (): RequestOptionsStateInterface => {
     const [options, setOptions] = useState<RequestOptionsInterface>(defaultRequestOptions);

@@ -1,1 +1,1 @@
-export { importTypeormWebpackMigrations } from './import-typeorm-webpack-migrations.util.js';
+export { importTypeormWebpackMigrations } from './import-typeorm-webpack-migrations.util';

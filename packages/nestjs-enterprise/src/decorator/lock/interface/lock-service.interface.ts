@@ -1,4 +1,4 @@
-import type { LockHandle } from './lock-handle.interface.js';
+import type { LockHandle } from './lock-handle.interface';
 
 export interface LockServiceInterface {
     acquire(resources: string[], duration: number): Promise<LockHandle>;

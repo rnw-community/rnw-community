@@ -1,5 +1,5 @@
-import { RootedComponentSelectorsMock } from './rooted-component-selectors.mock.js';
-import { RootedComponentMock } from './rooted-component.mock.js';
+import { RootedComponentSelectorsMock } from './rooted-component-selectors.mock';
+import { RootedComponentMock } from './rooted-component.mock';
 
 export class RootedExtendedComponentMock extends RootedComponentMock {
     constructor() {

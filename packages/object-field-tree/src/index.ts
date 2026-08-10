@@ -1,6 +1,6 @@
- 
-import type { DataFn1, DataFn2, DataFn3, DataFn4, DataFn5 } from './type/data-fn.type.js';
-import type { CombineReturn1, CombineReturn2, CombineReturn3, CombineReturn4, CombineReturn5 } from './type/return.type.js';
+/* eslint-disable no-implicit-globals */
+import type { DataFn1, DataFn2, DataFn3, DataFn4, DataFn5 } from './type/data-fn.type';
+import type { CombineReturn1, CombineReturn2, CombineReturn3, CombineReturn4, CombineReturn5 } from './type/return.type';
 import type { Enum } from '@rnw-community/shared';
 
 export function combine<D, T1 extends Enum>(dataFn: DataFn1<D, T1>, collection1: T1): CombineReturn1<T1, D>;
@@ -57,4 +57,4 @@ export function combine(dataFn: (...keys: any) => any, ...objects: any[]): any {
 }
 
 export type { Enum };
-export type { CombineReturn1, CombineReturn2, CombineReturn3, CombineReturn4, CombineReturn5 } from './type/return.type.js';
+export type { CombineReturn1, CombineReturn2, CombineReturn3, CombineReturn4, CombineReturn5 } from './type/return.type';

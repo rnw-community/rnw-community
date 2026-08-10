@@ -1,9 +1,9 @@
-import { type AndroidCardInfo, emptyAndroidCardInfo } from './android-card-info.js';
-import { emptyAndroidIntermediateSigningKey } from './android-intermediate-signing-key.js';
-import { emptyAndroidSignedMessage } from './android-signed-message.js';
+import { type AndroidCardInfo, emptyAndroidCardInfo } from './android-card-info';
+import { emptyAndroidIntermediateSigningKey } from './android-intermediate-signing-key';
+import { emptyAndroidSignedMessage } from './android-signed-message';
 
-import type { AndroidIntermediateSigningKey } from './android-intermediate-signing-key.js';
-import type { AndroidSignedMessage } from './android-signed-message.js';
+import type { AndroidIntermediateSigningKey } from './android-intermediate-signing-key';
+import type { AndroidSignedMessage } from './android-signed-message';
 
 export interface AndroidPaymentMethodToken {
     cardInfo: AndroidCardInfo;

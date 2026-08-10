@@ -3,9 +3,9 @@ import { EMPTY, catchError, concatMap, of, throwError } from 'rxjs';
 
 import { getErrorMessage } from '@rnw-community/shared';
 
-import { RxJSFilterError } from '../../rxjs-filter-error.js';
+import { RxJSFilterError } from '../../rxjs-filter-error';
 
-import { rethrowException } from './rethrow-exception.operator.js';
+import { rethrowException } from './rethrow-exception.operator';
 
 describe('rethrowException', () => {
     it('should throw RxJSFilterError and log error message', async () => {

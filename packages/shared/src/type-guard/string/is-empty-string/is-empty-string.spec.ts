@@ -1,6 +1,6 @@
 import { describe, expect, it } from '@jest/globals';
 
-import { isEmptyString } from './is-empty-string.js';
+import { isEmptyString } from './is-empty-string';
 
 describe('isEmptyString', () => {
     it('should return true if variable is empty string', () => {
