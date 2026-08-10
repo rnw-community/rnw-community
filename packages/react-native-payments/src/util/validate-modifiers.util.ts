@@ -1,9 +1,9 @@
 import { isDefined } from '@rnw-community/shared';
 
-import { validateDisplayItems } from './validate-display-items.util.js';
-import { validateTotal } from './validate-total.util.js';
+import { validateDisplayItems } from './validate-display-items.util';
+import { validateTotal } from './validate-total.util';
 
-import type { PaymentDetailsModifier } from '../@standard/w3c/payment-details-modifier.js';
+import type { PaymentDetailsModifier } from '../@standard/w3c/payment-details-modifier';
 import type { ClassType } from '@rnw-community/shared';
 
 export const validateModifiers = (ErrorType: ClassType<Error>, modifiers: PaymentDetailsModifier[] = []): void => {

@@ -1,6 +1,6 @@
 {
     "name": "@rnw-community/react-native-payments",
-    "version": "2.12.12",
+    "version": "2.12.13",
     "description": "Accept Payments with Apple Pay and Android Pay using the Payment Request API.",
     "keywords": [
         "react",
@@ -31,7 +31,6 @@
     "license": "MIT",
     "author": "Vitalii Yehorov <vitalyiegorov@gmail.com> (https://github.com/rnw-community/rnw-community/packages/react-native-payments)",
     "sideEffects": false,
-    "type": "module",
     "exports": {
         ".": {
             "import": {
@@ -81,7 +80,7 @@
         "!**/.*"
     ],
     "scripts": {
-        "build": "yarn build:esm && yarn build:cjs && rm -rf ./dist/*/*.tsbuildinfo && echo '{\"type\":\"module\"}' > dist/esm/package.json && echo '{\"type\":\"commonjs\"}' > dist/cjs/package.json",
+        "build": "yarn build:esm && yarn build:cjs && node ../../scripts/rewrite-esm-extensions.mjs ./dist/esm && node ../../scripts/assert-esm-extensions.mjs ./dist/esm && rm -rf ./dist/*/*.tsbuildinfo && echo '{\"type\":\"module\"}' > dist/esm/package.json && echo '{\"type\":\"commonjs\"}' > dist/cjs/package.json",
         "build:cjs": "run -T tsc --pretty -p tsconfig.build-cjs.json",
         "build:esm": "run -T tsc --pretty -p tsconfig.build-esm.json",
         "clear": "rm -rf coverage && rm -rf dist && rm -f *.tsbuildinfo",
@@ -97,7 +96,7 @@
     },
     "dependencies": {
         "@expo/config-plugins": "^9.1.7",
-        "@rnw-community/shared": "^2.12.12",
+        "@rnw-community/shared": "^2.12.13",
         "react-native-uuid": "^2.0.4"
     },
     "devDependencies": {

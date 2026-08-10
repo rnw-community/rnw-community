@@ -1,4 +1,4 @@
-import type { AnyFn } from '../any-fn-type/any-fn.type.js';
+import type { AnyFn } from '../any-fn-type/any-fn.type';
 
 export type MethodDecoratorType<K extends AnyFn> = (
     target: object,

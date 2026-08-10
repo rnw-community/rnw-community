@@ -1,6 +1,6 @@
 import { browser } from '@wdio/globals';
 
-import { isAndroidCapability } from '../capability/index.js';
+import { isAndroidCapability } from '../capability';
 
 const DEFAULT_INPUT_DELAY = 300;
 

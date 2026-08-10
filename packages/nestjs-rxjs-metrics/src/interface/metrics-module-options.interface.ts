@@ -1,5 +1,5 @@
-import type { LabelsConfig } from '../type/labels-config.type.js';
-import type { MetricConfig } from '../type/metrics-config.type.js';
+import type { LabelsConfig } from '../type/labels-config.type';
+import type { MetricConfig } from '../type/metrics-config.type';
 import type { PrometheusOptions } from '@willsoto/nestjs-prometheus';
 
 export interface MetricsModuleOptionsInterface<

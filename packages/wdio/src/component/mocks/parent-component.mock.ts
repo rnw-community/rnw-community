@@ -1,7 +1,7 @@
-import { Component } from '../component.js';
-import { getExtendedComponent } from '../get-exteded-component/get-extended-component.js';
+import { Component } from '../component';
+import { getExtendedComponent } from '../get-exteded-component/get-extended-component';
 
-import { ParentComponentSelectorsMock } from './parent-component-selectors.mock.js';
+import { ParentComponentSelectorsMock } from './parent-component-selectors.mock';
 
 export class ParentComponentMock extends getExtendedComponent(ParentComponentSelectorsMock, Component) {
     private parentData = 'parent-initial-data';

@@ -1,4 +1,4 @@
-import type { PaymentCurrencyAmount } from './payment-currency-amount.js';
+import type { PaymentCurrencyAmount } from './payment-currency-amount';
 
 /**
  * The W3C `PaymentItem` dictionary.

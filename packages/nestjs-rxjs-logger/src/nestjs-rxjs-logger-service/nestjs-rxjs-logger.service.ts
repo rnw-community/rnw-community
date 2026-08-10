@@ -1,7 +1,7 @@
 import { Inject, Injectable, Scope } from '@nestjs/common';
 import { catchError, concatMap, of, tap, throwError } from 'rxjs';
 
-import { AppLogLevelEnum } from '../enum/app-log-level.enum.js';
+import { AppLogLevelEnum } from '../enum/app-log-level.enum';
 
 import type { LoggerService } from '@nestjs/common';
 import type { MonoTypeOperatorFunction, Observable } from 'rxjs';

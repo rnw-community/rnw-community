@@ -1,10 +1,10 @@
 import { getErrorMessage } from '@rnw-community/shared';
 
-import { formatLogMessage } from '../util/format-log-message.js';
+import { formatLogMessage } from '../util/format-log-message';
 
-import { createPaymentRequest } from './create-payment-request.js';
+import { createPaymentRequest } from './create-payment-request';
 
-import type { RequestOptionsInterface } from '../interface/request-options.interface.js';
+import type { RequestOptionsInterface } from '../interface/request-options.interface';
 import type { OnEventFn } from '@rnw-community/shared';
 
 export const checkCanMakePayment = async (

@@ -1,8 +1,8 @@
 import { isDefined } from '@rnw-community/shared';
 
-import { EnvironmentEnum } from '../enum/environment.enum.js';
+import { EnvironmentEnum } from '../enum/environment.enum';
 
-import { PLUGIN_DEFAULT_OPTIONS } from './plugin-default-options.constant.js';
+import { PLUGIN_DEFAULT_OPTIONS } from './plugin-default-options.constant';
 
 const validEnvironments: readonly string[] = Object.values(EnvironmentEnum);
 

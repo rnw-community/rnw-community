@@ -1,4 +1,4 @@
-import { isNotEmptyArray } from '../is-not-empty-array/is-not-empty-array.js';
+import { isNotEmptyArray } from '../is-not-empty-array/is-not-empty-array';
 
 export const isNotEmptyArrayOf = <T, S>(
     array: T,
