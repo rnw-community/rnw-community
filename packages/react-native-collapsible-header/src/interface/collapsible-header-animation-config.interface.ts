@@ -1,11 +1,12 @@
 import type { CollapsibleHeaderMotionConfig } from './collapsible-header-motion-config.interface';
-import type { CollapsibleHeaderProps } from './collapsible-header-props.interface';
+import type { SharedValue } from 'react-native-reanimated';
 
 export interface CollapsibleHeaderAnimationConfig {
-    readonly scrollY: CollapsibleHeaderProps['scrollY'];
+    readonly scrollY: SharedValue<number>;
     readonly expandedHeight: number;
     readonly collapsedHeight: number;
     readonly collapseStart: number;
     readonly collapseDistance: number;
     readonly motionConfig: CollapsibleHeaderMotionConfig;
+    readonly stretchOnOverscroll: boolean;
 }

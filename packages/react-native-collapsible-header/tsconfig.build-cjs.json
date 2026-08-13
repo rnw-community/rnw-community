@@ -1,6 +1,7 @@
 {
     "extends": "../../tsconfig.build-cjs.json",
     "compilerOptions": {
+        "jsx": "preserve",
         "outDir": "./dist/cjs"
     },
     "include": [

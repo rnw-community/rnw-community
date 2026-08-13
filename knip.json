@@ -13,6 +13,13 @@
         "packages/log-decorator": {
             "entry": ["src/index.ts"]
         },
+        "packages/react-native-collapsible-header": {
+            "ignoreDependencies": [
+                "react-compiler-runtime",
+                "@babel/plugin-transform-modules-commonjs",
+                "@babel/plugin-transform-react-jsx"
+            ]
+        },
         "packages/react-native-payments": {
             "entry": ["src/index.ts", "src/**/*.web.ts"]
         },
@@ -24,6 +31,7 @@
         ".yarn/**",
         ".agents/**",
         ".claude/**",
+        "scripts/**",
         "packages/nestjs-webpack-swc/src/config/**",
         "packages/react-native-payments/src/@standard/**",
         "packages/react-native-payments/src/app.plugin.ts",

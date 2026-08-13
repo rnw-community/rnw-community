@@ -6075,6 +6075,8 @@ __metadata:
   resolution: "@rnw-community/react-native-collapsible-header@workspace:packages/react-native-collapsible-header"
   dependencies:
     "@babel/core": "npm:^7.29.7"
+    "@babel/plugin-transform-modules-commonjs": "npm:^7.29.7"
+    "@babel/plugin-transform-react-jsx": "npm:^7.29.7"
     "@react-native/babel-preset": "npm:0.86.2"
     "@react-native/jest-preset": "npm:0.86.2"
     "@react-native/metro-config": "npm:0.86.2"
@@ -6082,7 +6084,9 @@ __metadata:
     "@testing-library/react-native": "npm:^13.3.3"
     "@types/react": "npm:^19.2.0"
     "@types/react-test-renderer": "npm:^19.1.0"
+    babel-plugin-react-compiler: "npm:^1.0.0"
     react: "npm:^19.2.3"
+    react-compiler-runtime: "npm:^1.0.0"
     react-native: "npm:0.86.2"
     react-native-reanimated: "npm:4.5.3"
     react-native-worklets: "npm:0.11.3"
@@ -18459,6 +18463,15 @@ __metadata:
     iconv-lite: "npm:~0.4.24"
     unpipe: "npm:~1.0.0"
   checksum: 10/f35759fe5a6548e7c529121ead1de4dd163f899749a5896c42e278479df2d9d7f98b5bb17312737c03617765e5a1433e586f717616e5cfbebc13b4738b820601
+  languageName: node
+  linkType: hard
+
+"react-compiler-runtime@npm:^1.0.0":
+  version: 1.0.0
+  resolution: "react-compiler-runtime@npm:1.0.0"
+  peerDependencies:
+    react: ^17.0.0 || ^18.0.0 || ^19.0.0 || ^0.0.0-experimental
+  checksum: 10/7d85297de255c39f1aca3dd4942fbf59253e127db8abef1ad7fe3eb329e39aab4c30656ff77751165e2b21263d96836f44699777ca40c9a717ffe42c6c355543
   languageName: node
   linkType: hard
 

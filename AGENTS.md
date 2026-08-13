@@ -92,6 +92,8 @@ Suffix patterns:
 - `.interface.ts` for `export interface` entities
 - `.assert.ts` for runtime validation functions under `src/assert/`
 - `.config.ts` for configuration values and resolvers under `src/config/`
+- `.hook.ts` for React hooks under `src/hooks/`
+- `.context.ts` for React contexts under `src/context/`
 - `.ts` for values (functions, constants, classes)
 - `.decorator.ts` / `.util.ts` for kind-specific clarity (legacy packages)
 
@@ -119,8 +121,13 @@ shape, and nothing else may:
   the colocated `<entity>.md` → the package `readme.md` section anchor for that export. Every public export always has
   at least the readme anchor, so the rule is always satisfiable.
 
+**Members of exported interfaces** may additionally carry a one-sentence TSDoc line, plus `@defaultValue` when the
+consuming code applies a default for an omitted member. Readme tables never reach IDE hovers or published `.d.ts`
+readers — the member one-liner is the only documentation surface that does. Same limits as entity-level TSDoc: one
+sentence, no `@example`, no prose paragraphs.
+
 Still forbidden everywhere, including on public API: `@example` (examples live in the docs), narrative/multi-paragraph
-blocks, `@param`/`@returns` prose that restates the types, TSDoc on non-exported or private members, and all other
+blocks, `@param`/`@returns` prose that restates the types, TSDoc on non-exported or private declarations, and all other
 inline comments per the rules above. Rationale: consumers' IDEs and AI agents read the published `.d.ts` — the
 one-liner + `@see` gives them the entry point without duplicating the docs. Enforced by lint (required on exports,
 banned elsewhere) once the public surface is annotated.
@@ -294,56 +301,56 @@ The monorepo uses dual ESM + CJS output. Key decisions:
   same lenient resolution `yarn ts` already validates against, so nothing in the compiler forces an extension. Instead,
   every dual-format package's `build` script chains two scripts against the freshly compiled `dist/esm` directory,
   right after `build:esm`/`build:cjs` and before the `dist/*/package.json` markers are written:
-  - `scripts/rewrite-esm-extensions.mjs ./dist/esm` walks every emitted `.js` and `.d.ts` file and appends `.js` (or
-    `/index.js` for a directory/barrel specifier) to each relative `import`/`export … from`/dynamic `import()`
-    specifier, resolved against the real sibling files on disk (`<spec>.js`/`<spec>.d.ts` for a file, `<spec>/index.js`/
-    `<spec>/index.d.ts` for a directory) — it rewrites declaration files too, because a consumer's own `node16`/`nodenext`
-    type-check walks the published `.d.ts` graph exactly like Node's runtime resolver walks the `.js` graph, and an
-    extensionless specifier there is just as fatal (`TS2835`) as one in the `.js` output is at runtime (`ERR_MODULE_NOT_FOUND`,
-    `#531`'s original defect). `require(...)` calls (e.g. `react-native-payments`'s TurboModule registration require in
-    `native-payments.ts`) are never touched — only `ImportDeclaration`/`ExportNamedDeclaration`/`ExportAllDeclaration`/
-    `ImportExpression` forms, matching the ESLint selector below — nor are bare/scoped package specifiers, since the
-    regex only matches specifiers starting with `./` or `../`.
-  - `scripts/assert-esm-extensions.mjs ./dist/esm` independently re-scans the same tree afterward and fails the build
-    (non-zero exit) if any relative specifier is still extensionless. This is the actual enforcement point — not the
-    compiler, not "the rewrite script ran without crashing." Disabling the rewrite step or hand-breaking one emitted
-    specifier reproduces the exact class of defect `#531` reported, and `yarn build` fails loudly instead of shipping
-    it (verified: see the PR body for a real "broke one specifier, assertion caught it" run).
-  Both scripts share the specifier-matching/extension-classification logic in `scripts/esm-relative-specifier.mjs` so
-  the two definitions of "what counts as a relative specifier" and "what counts as already-extensioned" can't drift
-  apart. `tsconfig.build-cjs.json` keeps `"module": "commonjs"` / `"moduleResolution": "node"` untouched — classic
-  Node resolution has always tolerated an extensionless specifier (it already maps `./x` back to the sibling source),
-  so the CJS build was never affected by `#531` and needs no rewrite step.
-  `"type": "module"` is **not** set on any dual-format package's root `package.json` — it was only ever load-bearing
-  for the compiler-enforcement approach (making `tsc`'s `nodenext` mode see `src/*.ts` as genuine ESM-format so its
-  extension mandate activated). With the compiler out of the loop, nothing reads the package root's `"type"` field to
-  decide the ESM build's format: `dist/esm/package.json` (`{"type":"module"}`) and `dist/cjs/package.json`
-  (`{"type":"commonjs"}`), written by the same `build` script as always, are what Node's real module-kind detection
-  actually consults for the published artifact, and those are unconditional regardless of the package root's own
-  `"type"` field. Evidence: `packages/shared/package.json` never carried a `"type"` field even before `#531` was
-  found, and the CJS side of that same package worked correctly the whole time — the defect was always specifically
-  about missing extensions, never about missing format declarations. Removing `"type": "module"` also means the two
-  Babel/Jest config loaders at each package root never needed the `babel.config.cjs`/`jest.config.cjs` rename in the
-  first place — they're `babel.config.js`/`jest.config.js` again, `module.exports`-based, exactly as before, and the
-  handful of packages whose config delegates to `shared`'s via `require('../shared/babel.config')` (no extension —
-  classic `require()` probes it) are back to that form too.
-  `no-restricted-syntax` selectors in `eslint.config.mjs` now flag the *opposite* shape: any relative
-  `Import`/`Export`/dynamic-`import()` specifier that **does** carry a `.js`/`.jsx`/`.mjs`/`.cjs` extension is a lint
-  error (`.json` stays allowed — `resolveJsonModule` imports like `eslint-plugin`'s `../package.json` need it). This
-  isn't just style: without a `moduleNameMapper` (see next), a stray `.js` in source would make Jest fail to resolve
-  the specifier outright, since Jest resolves relative imports straight against the real `.ts` files on disk. Plain
-  `import/extensions` from `eslint-plugin-import` remains unsuitable for the same reason it was rejected under the old
-  approach — it keys off the *resolved* file's real extension, not the declared one.
-  `get-jest.config.js`'s `moduleNameMapper` (`^(\.{1,2}/.*)\.js$` → `$1`, added to strip the `.js` the old approach put
-  in source before Jest tried to resolve it) is **removed** — there's nothing left to strip. Jest runs directly
-  against `src/*.ts` via `babel-jest` and resolves the bare `./x` specifier straight to `x.ts` the same way it always
-  could before `#532`; the mapper existed purely to paper over the compiler-enforcement approach's own source-level
-  side effect, which no longer exists.
-  `scripts/publint.sh` still does not pass `--ignore-rules internal-resolution-error` to `attw` for any package — the
-  rewrite+assert pair is what keeps that rule green now, in place of the compiler.
-  `yarn smoke:esm` (and the `package-manager-smoke` CI job) is unchanged and still packs and imports every publishable
-  package's tarball under real `node --input-type=module`/`require()`, independently re-validating the same invariant
-  at the installed-package layer, on top of `assert-esm-extensions.mjs`'s per-package check right after `build`.
+    - `scripts/rewrite-esm-extensions.mjs ./dist/esm` walks every emitted `.js` and `.d.ts` file and appends `.js` (or
+      `/index.js` for a directory/barrel specifier) to each relative `import`/`export … from`/dynamic `import()`
+      specifier, resolved against the real sibling files on disk (`<spec>.js`/`<spec>.d.ts` for a file, `<spec>/index.js`/
+      `<spec>/index.d.ts` for a directory) — it rewrites declaration files too, because a consumer's own `node16`/`nodenext`
+      type-check walks the published `.d.ts` graph exactly like Node's runtime resolver walks the `.js` graph, and an
+      extensionless specifier there is just as fatal (`TS2835`) as one in the `.js` output is at runtime (`ERR_MODULE_NOT_FOUND`,
+      `#531`'s original defect). `require(...)` calls (e.g. `react-native-payments`'s TurboModule registration require in
+      `native-payments.ts`) are never touched — only `ImportDeclaration`/`ExportNamedDeclaration`/`ExportAllDeclaration`/
+      `ImportExpression` forms, matching the ESLint selector below — nor are bare/scoped package specifiers, since the
+      regex only matches specifiers starting with `./` or `../`.
+    - `scripts/assert-esm-extensions.mjs ./dist/esm` independently re-scans the same tree afterward and fails the build
+      (non-zero exit) if any relative specifier is still extensionless. This is the actual enforcement point — not the
+      compiler, not "the rewrite script ran without crashing." Disabling the rewrite step or hand-breaking one emitted
+      specifier reproduces the exact class of defect `#531` reported, and `yarn build` fails loudly instead of shipping
+      it (verified: see the PR body for a real "broke one specifier, assertion caught it" run).
+      Both scripts share the specifier-matching/extension-classification logic in `scripts/esm-relative-specifier.mjs` so
+      the two definitions of "what counts as a relative specifier" and "what counts as already-extensioned" can't drift
+      apart. `tsconfig.build-cjs.json` keeps `"module": "commonjs"` / `"moduleResolution": "node"` untouched — classic
+      Node resolution has always tolerated an extensionless specifier (it already maps `./x` back to the sibling source),
+      so the CJS build was never affected by `#531` and needs no rewrite step.
+      `"type": "module"` is **not** set on any dual-format package's root `package.json` — it was only ever load-bearing
+      for the compiler-enforcement approach (making `tsc`'s `nodenext` mode see `src/*.ts` as genuine ESM-format so its
+      extension mandate activated). With the compiler out of the loop, nothing reads the package root's `"type"` field to
+      decide the ESM build's format: `dist/esm/package.json` (`{"type":"module"}`) and `dist/cjs/package.json`
+      (`{"type":"commonjs"}`), written by the same `build` script as always, are what Node's real module-kind detection
+      actually consults for the published artifact, and those are unconditional regardless of the package root's own
+      `"type"` field. Evidence: `packages/shared/package.json` never carried a `"type"` field even before `#531` was
+      found, and the CJS side of that same package worked correctly the whole time — the defect was always specifically
+      about missing extensions, never about missing format declarations. Removing `"type": "module"` also means the two
+      Babel/Jest config loaders at each package root never needed the `babel.config.cjs`/`jest.config.cjs` rename in the
+      first place — they're `babel.config.js`/`jest.config.js` again, `module.exports`-based, exactly as before, and the
+      handful of packages whose config delegates to `shared`'s via `require('../shared/babel.config')` (no extension —
+      classic `require()` probes it) are back to that form too.
+      `no-restricted-syntax` selectors in `eslint.config.mjs` now flag the _opposite_ shape: any relative
+      `Import`/`Export`/dynamic-`import()` specifier that **does** carry a `.js`/`.jsx`/`.mjs`/`.cjs` extension is a lint
+      error (`.json` stays allowed — `resolveJsonModule` imports like `eslint-plugin`'s `../package.json` need it). This
+      isn't just style: without a `moduleNameMapper` (see next), a stray `.js` in source would make Jest fail to resolve
+      the specifier outright, since Jest resolves relative imports straight against the real `.ts` files on disk. Plain
+      `import/extensions` from `eslint-plugin-import` remains unsuitable for the same reason it was rejected under the old
+      approach — it keys off the _resolved_ file's real extension, not the declared one.
+      `get-jest.config.js`'s `moduleNameMapper` (`^(\.{1,2}/.*)\.js$` → `$1`, added to strip the `.js` the old approach put
+      in source before Jest tried to resolve it) is **removed** — there's nothing left to strip. Jest runs directly
+      against `src/*.ts` via `babel-jest` and resolves the bare `./x` specifier straight to `x.ts` the same way it always
+      could before `#532`; the mapper existed purely to paper over the compiler-enforcement approach's own source-level
+      side effect, which no longer exists.
+      `scripts/publint.sh` still does not pass `--ignore-rules internal-resolution-error` to `attw` for any package — the
+      rewrite+assert pair is what keeps that rule green now, in place of the compiler.
+      `yarn smoke:esm` (and the `package-manager-smoke` CI job) is unchanged and still packs and imports every publishable
+      package's tarball under real `node --input-type=module`/`require()`, independently re-validating the same invariant
+      at the installed-package layer, on top of `assert-esm-extensions.mjs`'s per-package check right after `build`.
 - **`yarn ts:nodenext`'s scope changed along with the rest of this invariant, and its original defect class
   (`#536`/`#540`, a `.spec.ts` default-importing a CJS dependency whose `.d.ts` mistypes its default export — `ioredis`'s
   `Redis`, for one) is only partially covered now.** `tsconfig.nodenext-check.json` still sets `"module"`/`"moduleResolution"`
@@ -355,13 +362,13 @@ The monorepo uses dual ESM + CJS output. Key decisions:
   unrelated to extensions, unrelated to `#536`, and it would fail on every single spec file. Turning it off for this
   check-only config restores the ability to type-check ordinary `import`/`export` syntax under `nodenext` resolution.
   The trade-off: `#536`'s specific failure mode (`TS2709`/`TS2351` from `nodenext`'s CJS-interop rules) only fires when
-  the *importing* file is itself resolved as genuine ESM-format, which required the now-removed `"type": "module"` —
+  the _importing_ file is itself resolved as genuine ESM-format, which required the now-removed `"type": "module"` —
   confirmed by deliberately reintroducing the broken `import Redis from 'ioredis'` form into a spec file and rerunning
   `yarn ts:nodenext` with the current (`"type"`-less) configuration: it passes, silently. Making the check itself
   ESM-format again (either via `"type": "module"` on the package root, which reopens the extension mandate this whole
   section exists to avoid, or via a nested `src/package.json` override, which reopens it identically since format
   detection and the extension mandate are the same `nodenext` mechanism) was evaluated and rejected for exactly that
-  reason. Pointing the check at the *compiled* `dist/esm/**/*.d.ts` instead (which does sit under a real
+  reason. Pointing the check at the _compiled_ `dist/esm/**/*.d.ts` instead (which does sit under a real
   `{"type":"module"}` via `dist/esm/package.json`, and empirically does reproduce `TS2709` for a broken import that
   reaches the public declaration surface) was also evaluated and rejected: it requires `skipLibCheck: false` to type-check
   `.d.ts` files at all, which surfaces dozens of unrelated pre-existing conflicts in third-party `.d.ts` files

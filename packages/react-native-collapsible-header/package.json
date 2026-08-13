@@ -7,6 +7,7 @@
         "react-native",
         "react-native-web",
         "reanimated",
+        "react-compiler",
         "collapsible header"
     ],
     "repository": {
@@ -32,10 +33,11 @@
     "module": "dist/esm/index.js",
     "types": "dist/esm/index.d.ts",
     "files": [
-        "dist/**/*"
+        "dist/**/*",
+        "llms.txt"
     ],
     "scripts": {
-        "build": "yarn build:esm && yarn build:cjs && node ../../scripts/rewrite-esm-extensions.mjs ./dist/esm && node ../../scripts/assert-esm-extensions.mjs ./dist/esm && rm -rf ./dist/*/*.tsbuildinfo && echo '{\"type\":\"module\"}' > dist/esm/package.json && echo '{\"type\":\"commonjs\"}' > dist/cjs/package.json",
+        "build": "rm -rf ./dist && yarn build:esm && yarn build:cjs && node ../../scripts/react-compiler-lower-jsx.mjs ./dist/esm esm && node ../../scripts/react-compiler-lower-jsx.mjs ./dist/cjs cjs && node ../../scripts/rewrite-esm-extensions.mjs ./dist/esm && node ../../scripts/assert-esm-extensions.mjs ./dist/esm && rm -rf ./dist/*/*.tsbuildinfo && echo '{\"type\":\"module\"}' > dist/esm/package.json && echo '{\"type\":\"commonjs\"}' > dist/cjs/package.json",
         "build:cjs": "run -T tsc --pretty -p tsconfig.build-cjs.json",
         "build:esm": "run -T tsc --pretty -p tsconfig.build-esm.json",
         "clear": "rm -rf coverage && rm -rf dist && rm -f *.tsbuildinfo",
@@ -49,16 +51,20 @@
         "ts:nodenext": "run -T tsc --pretty -p tsconfig.nodenext-check.json"
     },
     "dependencies": {
-        "@rnw-community/shared": "^2.12.10"
+        "@rnw-community/shared": "^2.12.10",
+        "react-compiler-runtime": "^1.0.0"
     },
     "devDependencies": {
         "@babel/core": "^7.29.7",
+        "@babel/plugin-transform-modules-commonjs": "^7.29.7",
+        "@babel/plugin-transform-react-jsx": "^7.29.7",
         "@react-native/babel-preset": "0.86.2",
         "@react-native/jest-preset": "0.86.2",
         "@react-native/metro-config": "0.86.2",
         "@testing-library/react-native": "^13.3.3",
         "@types/react": "^19.2.0",
         "@types/react-test-renderer": "^19.1.0",
+        "babel-plugin-react-compiler": "^1.0.0",
         "react": "^19.2.3",
         "react-native": "0.86.2",
         "react-native-reanimated": "4.5.3",

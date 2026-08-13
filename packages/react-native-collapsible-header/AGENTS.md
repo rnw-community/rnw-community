@@ -1,6 +1,7 @@
 # @rnw-community/react-native-collapsible-header
 
-Generic slot-based collapsible header animation for React Native Reanimated.
+Generic slot-based collapsible header animation for React Native Reanimated with provider-based scroll wiring,
+snap-to-endpoint, overlay mode, overscroll stretch, and React Compiler precompiled output.
 
 ## Package Commands
 
@@ -19,41 +20,95 @@ src/
     assert-valid-collapsible-header-geometry.assert.ts — header geometry validation
     assert-valid-collapsible-header-motion-config.assert.ts — normalized motion validation
   collapsible-header/
-    collapsible-header.tsx       — public component and layer composition
-    collapsible-header.spec.tsx  — rendering and validation coverage
+    collapsible-header.tsx       — public component, layer composition, scroll-source resolution
+    collapsible-header.spec.tsx  — rendering, a11y, mode, defaults, and validation coverage
     collapsible-header-motion.spec.tsx — animation, clamping, and interaction coverage
-    use-collapsible-header-animated-layers.ts — animated style and interaction orchestration
   config/
-    default-collapsible-header-motion.config.ts — original-compatible motion preset
+    default-collapsible-header-motion.config.ts — public original-compatible motion preset
     resolve-collapsible-header-motion.config.ts — partial motion override resolution
+  context/
+    collapsible-header-progress.context.ts — internal progress context provided by the header
+    collapsible-header-scroll.context.ts — internal scroll wiring context provided by the provider
+  hooks/
+    use-collapsible-header-animated-layers/
+      use-collapsible-header-animated-layers.hook.ts — internal progress-space animated style/props orchestration
+      use-collapsible-header-animated-layers.spec.ts
+    use-collapsible-header-snap-registration.hook.ts — internal snap geometry registration effect
+    use-collapsible-header-progress/
+      use-collapsible-header-progress.hook.ts — public slot-facing collapse progress hook
+      use-collapsible-header-progress.spec.tsx
+    use-collapsible-header-scroll/
+      use-collapsible-header-scroll.hook.ts — public scrollable-facing wiring hook
+      use-collapsible-header-scroll.spec.tsx
   interface/
     collapsible-header-animation-config.interface.ts — internal animation hook input
     collapsible-header-motion-config.interface.ts — public normalized motion contract
-    collapsible-header-props.interface.ts — public slot, geometry, style, motion, and ViewProps contract
+    collapsible-header-props.interface.ts — public slot, geometry, behavior, style, and ViewProps contract
+    collapsible-header-scroll.interface.ts — public scroll wiring contract returned by the scroll hook
+    collapsible-header-scroll-context-value.interface.ts — internal context value (adds snap registry)
+    collapsible-header-snap-config.interface.ts — internal snap geometry shape
+  provider/
+    collapsible-header-provider/
+      collapsible-header-provider.tsx — public provider owning scrollY, scroll handler, ref, snap registry
+      collapsible-header-provider.spec.tsx
   type/
     collapsible-header-geometry.type.ts — normalized geometry validation input
-  index.ts                       — public component and props exports
+    collapsible-header-mode.type.ts — public 'flow' | 'overlay' layout strategy
+  util/
+    create-collapsible-header-scroll-worklets/
+      create-collapsible-header-scroll-worklets.ts — internal scroll/end-drag/momentum worklet factory
+      create-collapsible-header-scroll-worklets.spec.ts
+    get-collapsible-header-content-inset-style/
+      get-collapsible-header-content-inset-style.ts — public overlay-mode content inset helper
+      get-collapsible-header-content-inset-style.spec.ts
+    get-collapsible-header-snap-offset/
+      get-collapsible-header-snap-offset.ts — pure worklet computing the nearest snap endpoint
+      get-collapsible-header-snap-offset.spec.ts
+  index.ts                       — public exports
 ```
 
 ## Invariants
 
-- The consumer owns `scrollY`, both content slots, safe-area handling, typography, colors, and product behavior.
+- The consumer owns both content slots, safe-area handling, typography, colors, and product behavior. Scroll is owned
+  either by the consumer (`scrollY` prop) or by `CollapsibleHeaderProvider`; the prop wins when both exist.
 - The package owns header height, background opacity, expanded opacity/translation/scale, collapsed opacity/translation,
-  clamping, persistent layer placement, and visible-layer pointer events.
-- `persistentContent` mounts once above the expanded and collapsed transition layers and uses `box-none` pointer events.
-- `collapseStart` is optional, non-negative, and defaults to `0`; collapse progress is normalized across
-  `[collapseStart, collapseStart + collapseDistance]`.
-- `motion` is additive and partial. Missing fields resolve against the original-compatible default preset before
-  validation, so omitted options preserve existing behavior.
-- Motion progress values are validated within `[0, 1]`, collapsed opacity cannot start after expanded opacity ends,
-  translations must be finite, and expanded scale must be greater than zero.
+  clamping, persistent layer placement, visible-layer pointer events, and visible-layer accessibility focus (the hidden
+  transition layer is removed from the accessibility tree).
+- All layer animations are expressed in normalized progress space via one `useDerivedValue`; the same progress shared
+  value is provided to slot content through `useCollapsibleHeaderProgress`.
+- `snap` requires the provider (snapping drives the registered scrollable via `scrollTo`); headers register snap
+  geometry into the provider's shared-value registry on mount and clear it on unmount.
+- `collapseDistance` defaults to `expandedHeight - collapsedHeight`; `collapseStart` is optional, non-negative, and
+  defaults to `0`.
+- `motion` is additive and partial; missing fields resolve against `DefaultCollapsibleHeaderMotionConfig` (public)
+  before validation, so omitted options preserve existing behavior.
+- Worklet bodies use plain `=== null` checks — `@rnw-community/shared` guards are not workletized and must not be
+  called on the UI runtime.
 - `react`, `react-native`, and `react-native-reanimated` remain peer dependencies. Never bundle a second Reanimated copy.
-- Runtime animation code uses APIs shared by Reanimated 3.17.2 and 4.x.
-- Public exports carry the repository-standard one-sentence TSDoc and canonical readme `@see` link.
-- Tests must retain at least 99.9% statements, branches, functions, and lines coverage.
+- Runtime animation code uses APIs shared by Reanimated 3.17.2 and 4.x, and only the compiler-safe `.get()`/`.set()`
+  shared-value accessors.
+- Public exports carry the repository-standard one-sentence TSDoc and canonical readme `@see` link; exported interface
+  members carry one-line TSDoc with `@defaultValue` where a default applies.
+- Tests must retain at least 99.9% statements, branches, functions, and lines coverage, and the whole Jest suite runs
+  through `babel-plugin-react-compiler` with `panicThreshold: 'all_errors'` — a Rules-of-React violation anywhere in
+  src (specs included) fails the suite.
 
-## Publication
+## React Compiler publication pipeline
 
-The package publishes dual ESM and CommonJS output. Relative source imports stay extensionless; the `build` script's
-`scripts/rewrite-esm-extensions.mjs`/`scripts/assert-esm-extensions.mjs` pair adds and verifies `.js` extensions on the
-compiled `dist/esm` output (see root `AGENTS.md`). The NodeNext check must pass before publishing.
+Both dist trees ship React Compiler output targeting React 18+ (`react-compiler-runtime` is a runtime dependency).
+The build tsconfigs set `"jsx": "preserve"` so `tsc` emits `.jsx` files for components, then
+`scripts/react-compiler-lower-jsx.mjs` (repo root) lowers them:
+
+- `esm` pass: `babel-plugin-react-compiler` (`panicThreshold: 'all_errors'`, `target: '18'`) + automatic-runtime JSX
+  transform over `dist/esm/**/*.jsx`, writing `.js` in place.
+- `cjs` pass: converts the already-compiled ESM mirror file with `@babel/plugin-transform-modules-commonjs` — the
+  compiler cannot parse tsc's CommonJS hook-call lowering (`(0, react_1.useContext)(...)`), so the CJS tree derives
+  from the compiled ESM output instead. The pass runs before the ESM extension rewrite, so specifiers are still
+  extensionless and match the CJS tree's classic-resolution expectations.
+- The script fails the build when no `.jsx` files are found, when any transform produces no output, or when the
+  compiler memoized fewer files than it lowered.
+
+The standard `rewrite-esm-extensions.mjs`/`assert-esm-extensions.mjs` pair then runs against `dist/esm` as in every
+dual-format package (see root `AGENTS.md`), and the `build` script starts with `rm -rf ./dist` so a failed pass never
+leaves a half-lowered tree behind. The NodeNext check must pass before publishing. `llms.txt` ships in the npm package
+(`files` array) as the agent-facing summary.

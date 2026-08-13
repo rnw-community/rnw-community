@@ -35,7 +35,7 @@ const RESOLUTION_ONLY_PACKAGES = [
     {
         pkg: 'react-native-collapsible-header',
         unloadableBecause: 'imports React Native and Reanimated runtime bindings that require a native or Metro environment',
-        unresolvedPeerPackages: ['react-native-reanimated'],
+        unresolvedExternalPackages: ['react-native-reanimated', 'react-compiler-runtime'],
     },
     {
         pkg: 'react-native-payments',
@@ -157,7 +157,7 @@ function findSpotCheckableRelativeSpecifier(entryFile) {
     return undefined;
 }
 
-function checkResolutionOnly({ pkg, unloadableBecause, hasRealEsmOutput = true, unresolvedPeerPackages = [] }) {
+function checkResolutionOnly({ pkg, unloadableBecause, hasRealEsmOutput = true, unresolvedExternalPackages = [] }) {
     const specifier = `@rnw-community/${pkg}`;
     const pkgDir = path.join(scopeDir, pkg);
     const pkgJson = JSON.parse(fs.readFileSync(path.join(pkgDir, 'package.json'), 'utf8'));
@@ -194,21 +194,21 @@ function checkResolutionOnly({ pkg, unloadableBecause, hasRealEsmOutput = true, 
     }
 
     const resolutionErrorCodesLiteral = JSON.stringify([...MODULE_RESOLUTION_ERROR_CODES]);
-    const unresolvedPeerPackagesLiteral = JSON.stringify(unresolvedPeerPackages);
+    const unresolvedExternalPackagesLiteral = JSON.stringify(unresolvedExternalPackages);
     const probeFile = path.join(path.dirname(entryFile), '.rnw-smoke-deep-specifier-probe.mjs');
     fs.writeFileSync(
         probeFile,
         `
         const resolutionErrorCodes = new Set(${resolutionErrorCodesLiteral});
-        const unresolvedPeerPackages = ${unresolvedPeerPackagesLiteral};
+        const unresolvedExternalPackages = ${unresolvedExternalPackagesLiteral};
         import('${deepSpecifier}').then(
             () => { console.log('imported'); },
             e => {
-                const isAllowedUnresolvedPeer = e.code === 'ERR_MODULE_NOT_FOUND' && unresolvedPeerPackages.some(
-                    peerPackage => e.message.includes("Cannot find package '" + peerPackage + "'")
+                const isAllowedUnresolvedExternal = e.code === 'ERR_MODULE_NOT_FOUND' && unresolvedExternalPackages.some(
+                    externalPackage => e.message.includes("Cannot find package '" + externalPackage + "'")
                 );
-                if (isAllowedUnresolvedPeer) {
-                    console.log('resolved-but-peer-missing ' + e.message.split('\\n')[0]);
+                if (isAllowedUnresolvedExternal) {
+                    console.log('resolved-but-external-missing ' + e.message.split('\\n')[0]);
                     return;
                 }
                 if (resolutionErrorCodes.has(e.code)) {

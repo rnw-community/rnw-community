@@ -1,6 +1,7 @@
 {
     "extends": "../../tsconfig.build-esm.json",
     "compilerOptions": {
+        "jsx": "preserve",
         "outDir": "./dist/esm"
     },
     "include": [

@@ -21,6 +21,9 @@ const PERSISTENT_LAYER = 5;
 const EXPANDED_HEIGHT = 156;
 const COLLAPSED_HEIGHT = 40;
 const COLLAPSE_DISTANCE = 100;
+const DEFAULT_COLLAPSE_DISTANCE = EXPANDED_HEIGHT - COLLAPSED_HEIGHT;
+const NEGATIVE_SCROLL_OFFSET = -20;
+const STRETCHED_HEIGHT = EXPANDED_HEIGHT - NEGATIVE_SCROLL_OFFSET;
 const OUTER_PADDING = 24;
 const INVALID_EXPANDED_HEIGHT = 39;
 const INVALID_LOW_PROGRESS = -0.1;
@@ -34,22 +37,39 @@ const progressFields = [
 ] as const satisfies readonly (keyof CollapsibleHeaderMotionConfig)[];
 
 type SubjectProps = Partial<
-    Pick<CollapsibleHeaderProps, 'expandedHeight' | 'collapsedHeight' | 'collapseDistance' | 'collapseStart' | 'motion'>
+    Pick<
+        CollapsibleHeaderProps,
+        | 'collapseDistance'
+        | 'collapseStart'
+        | 'collapsedHeight'
+        | 'expandedHeight'
+        | 'mode'
+        | 'motion'
+        | 'snap'
+        | 'stretchOnOverscroll'
+    >
 > & {
+    readonly scrollOffset?: number;
     readonly withPersistentContent?: boolean;
 };
 
-type LayerProps = Pick<ViewProps, 'pointerEvents'> & { readonly style: StyleProp<ViewStyle> };
+type LayerProps = Pick<ViewProps, 'accessibilityElementsHidden' | 'importantForAccessibility'> & {
+    readonly style: StyleProp<ViewStyle>;
+};
 
 const Subject = ({
+    scrollOffset = 0,
     expandedHeight = EXPANDED_HEIGHT,
     collapsedHeight = COLLAPSED_HEIGHT,
     collapseDistance = COLLAPSE_DISTANCE,
     collapseStart,
+    mode,
     motion,
+    snap,
+    stretchOnOverscroll,
     withPersistentContent = false,
 }: SubjectProps) => {
-    const scrollY = useSharedValue(0);
+    const scrollY = useSharedValue(scrollOffset);
     const persistentContent = withPersistentContent ? <Text testID="persistent-content">Persistent</Text> : null;
 
     return (
@@ -62,7 +82,10 @@ const Subject = ({
             collapsedHeight={collapsedHeight}
             collapseDistance={collapseDistance}
             collapseStart={collapseStart}
+            mode={mode}
             motion={motion}
+            snap={snap}
+            stretchOnOverscroll={stretchOnOverscroll}
             expandedContent={<Text testID="expanded-content">Expanded</Text>}
             collapsedContent={<Text testID="collapsed-content">Collapsed</Text>}
             persistentContent={persistentContent}
@@ -71,6 +94,37 @@ const Subject = ({
             expandedContentContainerStyle={{ zIndex: EXPANDED_LAYER }}
             collapsedContentContainerStyle={{ zIndex: COLLAPSED_LAYER }}
             persistentContentContainerStyle={{ zIndex: PERSISTENT_LAYER }}
+        />
+    );
+};
+
+const DefaultDistanceSubject = ({ scrollOffset }: { readonly scrollOffset: number }) => {
+    const scrollY = useSharedValue(scrollOffset);
+
+    return (
+        <CollapsibleHeader
+            scrollY={scrollY}
+            expandedHeight={EXPANDED_HEIGHT}
+            collapsedHeight={COLLAPSED_HEIGHT}
+            headerStyle={{ zIndex: HEADER_LAYER }}
+            expandedContent={<Text>Expanded</Text>}
+            collapsedContent={<Text>Collapsed</Text>}
+        />
+    );
+};
+
+const ProviderlessSubject = ({ snap = false }: { readonly snap?: boolean }) => {
+    const scrollY = useSharedValue(0);
+    const scrollYProps = snap ? { scrollY } : {};
+
+    return (
+        <CollapsibleHeader
+            {...scrollYProps}
+            expandedHeight={EXPANDED_HEIGHT}
+            collapsedHeight={COLLAPSED_HEIGHT}
+            snap={snap}
+            expandedContent={<Text>Expanded</Text>}
+            collapsedContent={<Text>Collapsed</Text>}
         />
     );
 };
@@ -91,13 +145,80 @@ describe('CollapsibleHeader rendering', () => {
         const persistentStyle = StyleSheet.flatten(getLayerProps(getLayer(screen, PERSISTENT_LAYER)).style);
 
         expect(screen.getByTestId('expanded-content')).toBeOnTheScreen();
-        expect(screen.getByTestId('collapsed-content')).toBeOnTheScreen();
+        expect(screen.getByTestId('collapsed-content', { includeHiddenElements: true })).toBeOnTheScreen();
         expect(screen.getAllByTestId('persistent-content')).toHaveLength(1);
         expect(persistentStyle).toMatchObject({ zIndex: PERSISTENT_LAYER });
         expect(persistentStyle.zIndex).toBeGreaterThan(EXPANDED_LAYER);
         expect(persistentStyle.zIndex).toBeGreaterThan(COLLAPSED_LAYER);
         expect(screen.getByTestId('collapsible-header')).toHaveProp('accessibilityLabel', 'Account summary');
         expect(screen.getByTestId('collapsible-header')).toHaveStyle({ paddingTop: OUTER_PADDING });
+    });
+
+    it('hides the invisible layer from the accessibility tree at each endpoint', () => {
+        expect.hasAssertions();
+        const expandedScreen = render(<Subject />);
+        const expandedProps = getLayerProps(getLayer(expandedScreen, EXPANDED_LAYER));
+        const collapsedProps = getLayerProps(getLayer(expandedScreen, COLLAPSED_LAYER));
+
+        expect(expandedProps.accessibilityElementsHidden).toBe(false);
+        expect(expandedProps.importantForAccessibility).toBe('auto');
+        expect(collapsedProps.accessibilityElementsHidden).toBe(true);
+        expect(collapsedProps.importantForAccessibility).toBe('no-hide-descendants');
+
+        const collapsedScreen = render(<Subject scrollOffset={COLLAPSE_DISTANCE} />);
+
+        expect(getLayerProps(getLayer(collapsedScreen, EXPANDED_LAYER)).accessibilityElementsHidden).toBe(true);
+        expect(getLayerProps(getLayer(collapsedScreen, COLLAPSED_LAYER)).accessibilityElementsHidden).toBe(false);
+    });
+
+    it('keeps the header in layout flow by default and pins it in overlay mode', () => {
+        expect.hasAssertions();
+        const flowScreen = render(<Subject />);
+        const flowStyle = StyleSheet.flatten(getLayerProps(flowScreen.getByTestId('collapsible-header')).style);
+
+        expect(flowStyle.position).toBeUndefined();
+
+        const overlayScreen = render(<Subject mode="overlay" />);
+        const overlayStyle = StyleSheet.flatten(getLayerProps(overlayScreen.getByTestId('collapsible-header')).style);
+
+        expect(overlayStyle).toMatchObject({ position: 'absolute', top: 0, right: 0, left: 0, paddingTop: OUTER_PADDING });
+    });
+
+    it.each([
+        { name: 'stretches the header on overscroll when enabled', stretchOnOverscroll: true, height: STRETCHED_HEIGHT },
+        { name: 'clamps the header on overscroll by default', stretchOnOverscroll: false, height: EXPANDED_HEIGHT },
+    ])('$name', ({ stretchOnOverscroll, height }) => {
+        expect.hasAssertions();
+        const screen = render(<Subject scrollOffset={NEGATIVE_SCROLL_OFFSET} stretchOnOverscroll={stretchOnOverscroll} />);
+
+        expect(StyleSheet.flatten(getLayerProps(getLayer(screen, HEADER_LAYER)).style)).toMatchObject({ height });
+    });
+
+    it('defaults the collapse distance to the height delta', () => {
+        expect.hasAssertions();
+        const screen = render(<DefaultDistanceSubject scrollOffset={DEFAULT_COLLAPSE_DISTANCE} />);
+
+        expect(StyleSheet.flatten(getLayerProps(getLayer(screen, HEADER_LAYER)).style)).toMatchObject({
+            height: COLLAPSED_HEIGHT,
+        });
+    });
+});
+
+describe('CollapsibleHeader scroll wiring', () => {
+    it('requires a scrollY prop or provider ancestor', () => {
+        expect.hasAssertions();
+
+        expect(() => render(<ProviderlessSubject />)).toThrow(
+            'CollapsibleHeader requires a scrollY prop or a CollapsibleHeaderProvider ancestor'
+        );
+    });
+
+    it('requires a provider ancestor for snapping', () => {
+        expect.hasAssertions();
+
+        expect(() => render(<ProviderlessSubject snap />)).toThrow(
+            'CollapsibleHeader snap requires a CollapsibleHeaderProvider ancestor'
+        );
     });
 });
 

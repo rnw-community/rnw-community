@@ -1,13 +1,15 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { StyleSheet, View } from 'react-native';
 import Animated from 'react-native-reanimated';
 
-import { isDefined } from '@rnw-community/shared';
+import { cs, getDefined, isDefined } from '@rnw-community/shared';
 
 import { assertValidCollapsibleHeaderConfig } from '../assert/assert-valid-collapsible-header-config.assert';
 import { resolveCollapsibleHeaderMotionConfig } from '../config/resolve-collapsible-header-motion.config';
-
-import { useCollapsibleHeaderAnimatedLayers } from './use-collapsible-header-animated-layers';
+import { CollapsibleHeaderProgressContext } from '../context/collapsible-header-progress.context';
+import { CollapsibleHeaderScrollContext } from '../context/collapsible-header-scroll.context';
+import { useCollapsibleHeaderAnimatedLayers } from '../hooks/use-collapsible-header-animated-layers/use-collapsible-header-animated-layers.hook';
+import { useCollapsibleHeaderSnapRegistration } from '../hooks/use-collapsible-header-snap-registration.hook';
 
 import type { CollapsibleHeaderProps } from '../interface/collapsible-header-props.interface';
 
@@ -15,8 +17,8 @@ const styles = StyleSheet.create({
     background: { position: 'absolute', top: 0, right: 0, bottom: 0, left: 0 },
     header: { position: 'relative' },
     content: { position: 'absolute', top: 0, right: 0, bottom: 0, left: 0 },
+    overlayContainer: { position: 'absolute', top: 0, right: 0, left: 0 },
 });
-const AnimatedView = Animated.createAnimatedComponent(View);
 
 /**
  * Renders caller-owned expanded and collapsed content inside an animated header shell.
@@ -32,6 +34,9 @@ export const CollapsibleHeader = (props: CollapsibleHeaderProps) => {
         collapsedHeight,
         collapseDistance,
         collapseStart = 0,
+        mode = 'flow',
+        snap = false,
+        stretchOnOverscroll = false,
         motion,
         headerStyle,
         backgroundStyle,
@@ -41,47 +46,60 @@ export const CollapsibleHeader = (props: CollapsibleHeaderProps) => {
         style,
         ...viewProps
     } = props;
+    const resolvedCollapseDistance = collapseDistance ?? expandedHeight - collapsedHeight;
+    const scrollContext = useContext(CollapsibleHeaderScrollContext);
+    const scrollSource = getDefined(scrollY ?? scrollContext?.scrollY, () => {
+        throw new Error('CollapsibleHeader requires a scrollY prop or a CollapsibleHeaderProvider ancestor');
+    });
+    const snapContext = snap
+        ? getDefined(scrollContext, () => {
+              throw new Error('CollapsibleHeader snap requires a CollapsibleHeaderProvider ancestor');
+          })
+        : scrollContext;
     const motionConfig = resolveCollapsibleHeaderMotionConfig(motion);
 
-    assertValidCollapsibleHeaderConfig({ expandedHeight, collapsedHeight, collapseDistance, collapseStart }, motionConfig);
-    const {
-        expandedAnimatedStyle,
-        collapsedAnimatedStyle,
-        backgroundAnimatedStyle,
-        headerAnimatedStyle,
-        expandedAnimatedProps,
-        collapsedAnimatedProps,
-    } = useCollapsibleHeaderAnimatedLayers({
-        scrollY,
+    assertValidCollapsibleHeaderConfig(
+        { expandedHeight, collapsedHeight, collapseDistance: resolvedCollapseDistance, collapseStart },
+        motionConfig
+    );
+    useCollapsibleHeaderSnapRegistration(snapContext, snap, collapseStart, collapseStart + resolvedCollapseDistance);
+    const { progress, ...layers } = useCollapsibleHeaderAnimatedLayers({
+        scrollY: scrollSource,
         expandedHeight,
         collapsedHeight,
         collapseStart,
-        collapseDistance,
+        collapseDistance: resolvedCollapseDistance,
         motionConfig,
+        stretchOnOverscroll,
     });
 
     return (
-        <View {...viewProps} style={style}>
-            <AnimatedView pointerEvents="none" style={[styles.background, backgroundStyle, backgroundAnimatedStyle]} />
-            <AnimatedView style={[styles.header, headerStyle, headerAnimatedStyle]}>
-                <AnimatedView
-                    animatedProps={collapsedAnimatedProps}
-                    style={[styles.content, collapsedContentContainerStyle, collapsedAnimatedStyle]}
-                >
-                    {collapsedContent}
-                </AnimatedView>
-                <AnimatedView
-                    animatedProps={expandedAnimatedProps}
-                    style={[styles.content, expandedContentContainerStyle, expandedAnimatedStyle]}
-                >
-                    {expandedContent}
-                </AnimatedView>
-                {isDefined(persistentContent) && (
-                    <View pointerEvents="box-none" style={[styles.content, persistentContentContainerStyle]}>
-                        {persistentContent}
-                    </View>
-                )}
-            </AnimatedView>
-        </View>
+        <CollapsibleHeaderProgressContext.Provider value={progress}>
+            <View {...viewProps} style={[cs(mode === 'overlay', styles.overlayContainer), style]}>
+                <Animated.View
+                    pointerEvents="none"
+                    style={[styles.background, backgroundStyle, layers.backgroundAnimatedStyle]}
+                />
+                <Animated.View style={[styles.header, headerStyle, layers.headerAnimatedStyle]}>
+                    <Animated.View
+                        animatedProps={layers.collapsedAnimatedProps}
+                        style={[styles.content, collapsedContentContainerStyle, layers.collapsedAnimatedStyle]}
+                    >
+                        {collapsedContent}
+                    </Animated.View>
+                    <Animated.View
+                        animatedProps={layers.expandedAnimatedProps}
+                        style={[styles.content, expandedContentContainerStyle, layers.expandedAnimatedStyle]}
+                    >
+                        {expandedContent}
+                    </Animated.View>
+                    {isDefined(persistentContent) && (
+                        <View pointerEvents="box-none" style={[styles.content, persistentContentContainerStyle]}>
+                            {persistentContent}
+                        </View>
+                    )}
+                </Animated.View>
+            </View>
+        </CollapsibleHeaderProgressContext.Provider>
     );
 };
