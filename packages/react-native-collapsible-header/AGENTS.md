@@ -112,3 +112,11 @@ The standard `rewrite-esm-extensions.mjs`/`assert-esm-extensions.mjs` pair then 
 dual-format package (see root `AGENTS.md`), and the `build` script starts with `rm -rf ./dist` so a failed pass never
 leaves a half-lowered tree behind. The NodeNext check must pass before publishing. `llms.txt` ships in the npm package
 (`files` array) as the agent-facing summary.
+
+## Example app and E2E
+
+`packages/react-native-collapsible-header-example` (private, mirrors `react-native-payments-example`) carries the
+runnable demo — provider wiring, snap, overscroll stretch, progress-driven slot animation, persistent actions — on
+Expo and bare React Native targets, plus the Maestro suite (`e2e/flows`) and the recording flow
+(`e2e/recording/demo_capture.yaml`) that produces `docs/collapsible-header-demo.gif` embedded in this package's
+readme. The `maestro-e2e` agent skill (`.claude/skills/maestro-e2e`) documents how to drive and extend the suite.

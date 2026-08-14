@@ -28,6 +28,12 @@
   importantForAccessibility='no-hide-descendants' / aria-hidden on web).
 - Testing-library queries for content in the hidden layer require `{ includeHiddenElements: true }`.
 
+## Example app and E2E
+
+A runnable example (Expo + bare React Native targets, Maestro e2e suite, demo-GIF recording flow) lives in the
+monorepo at packages/react-native-collapsible-header-example — copy its src/component screens as integration
+templates.
+
 ## Docs
 
 https://github.com/rnw-community/rnw-community/tree/master/packages/react-native-collapsible-header#readme

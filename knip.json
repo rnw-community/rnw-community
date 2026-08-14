@@ -20,6 +20,25 @@
                 "@babel/plugin-transform-react-jsx"
             ]
         },
+        "packages/react-native-collapsible-header-example/apps/bare": {
+            "ignoreDependencies": [
+                "@rnw-community/react-native-collapsible-header",
+                "react-native-reanimated",
+                "react-native-safe-area-context",
+                "react-native-screens"
+            ]
+        },
+        "packages/react-native-collapsible-header-example/apps/expo": {
+            "ignore": ["metro.config.js"],
+            "ignoreDependencies": [
+                "@rnw-community/react-native-collapsible-header",
+                "expo-updates",
+                "react-native-reanimated",
+                "react-native-safe-area-context",
+                "react-native-screens",
+                "react-native-worklets"
+            ]
+        },
         "packages/react-native-payments": {
             "entry": ["src/index.ts", "src/**/*.web.ts"]
         },

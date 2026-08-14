@@ -9,6 +9,14 @@ automatically through `CollapsibleHeaderProvider`. It works with any vertical sc
 [![coverage](https://img.shields.io/codecov/c/github/rnw-community/rnw-community?flag=react-native-collapsible-header&label=coverage)](https://app.codecov.io/gh/rnw-community/rnw-community)
 [![npm downloads](https://img.shields.io/npm/dm/%40rnw-community%2Freact-native-collapsible-header.svg)](https://www.npmjs.com/package/%40rnw-community%2Freact-native-collapsible-header)
 
+<img src="https://raw.githubusercontent.com/rnw-community/rnw-community/master/packages/react-native-collapsible-header/docs/collapsible-header-demo.gif" alt="Collapsible header demo: crossfade on scroll, snap to endpoint, and overscroll stretch" width="300" />
+
+The demo above is the monorepo's
+[example app](https://github.com/rnw-community/rnw-community/tree/master/packages/react-native-collapsible-header-example)
+(Expo and bare React Native targets) — it exercises provider wiring, snap, overscroll stretch, the progress hook, and
+persistent actions, and carries the [Maestro E2E suite](https://github.com/rnw-community/rnw-community/tree/master/packages/react-native-collapsible-header-example/e2e)
+that validates the header through the accessibility tree.
+
 ## Installation
 
 ```bash

@@ -45,7 +45,8 @@ yarn lint:fix           # Fix lint issues in this package
 - **rxjs-errors** — RxJS error utilities
 - **react-native-payments** — Payment Request API for Apple Pay/Google Pay
 - **react-native-payments-example** — private example package: shared `src/` screens plus `apps/bare` (React Native CLI) and `apps/expo` (Expo) app targets
-- **react-native-collapsible-header** — Generic slot-based Reanimated header transition driven by a caller-owned scroll value
+- **react-native-collapsible-header** — Generic slot-based Reanimated header transition with provider-based scroll wiring, snap, overlay mode, and React Compiler precompiled output
+- **react-native-collapsible-header-example** — private example package: shared `src/` demo screen plus `apps/bare` and `apps/expo` app targets, carries the Maestro e2e suite and readme demo-GIF recording flow
 - **platform, fast-style, redux-loadable** — React Native/Web utilities
 - **object-field-tree** — Object field combination trees
 - **wdio** — WebDriverIO page objects and commands

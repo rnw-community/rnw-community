@@ -1,28 +1,34 @@
 ---
 name: rnw-community
-description: Package under test, run scripts, fleet labels, and artifact locations for this repo
+description: Packages under test, run scripts, fleet labels, and artifact locations for this repo
 metadata:
-  tags: rnw-community, react-native-payments, ci, fleet
+    tags: rnw-community, react-native-payments, react-native-collapsible-header, ci, fleet
 ---
 
-## Package under test
+## Packages under test
 
-`packages/react-native-payments-example` is ONE private package proving
-`@rnw-community/react-native-payments` on two app targets that share a single `src/` screen layer:
+Two private example packages follow the same shape — ONE package proving a library on two app targets that share a
+single `src/` screen layer, with nested Yarn workspaces excluded from Lerna publishing (see each package's `AGENTS.md`):
 
-- `apps/bare` — React Native CLI target, package `@rnw-community/react-native-payments-example-bare`
-- `apps/expo` — Expo target, package `@rnw-community/react-native-payments-example-expo`
-
-Both targets are nested Yarn workspaces excluded from Lerna publishing (see the package's `AGENTS.md`).
+- `packages/react-native-payments-example` proves `@rnw-community/react-native-payments`
+  (`apps/bare` → `@rnw-community/react-native-payments-example-bare`, `apps/expo` →
+  `@rnw-community/react-native-payments-example-expo`)
+- `packages/react-native-collapsible-header-example` proves `@rnw-community/react-native-collapsible-header`
+  (`apps/bare` → `@rnw-community/react-native-collapsible-header-example-bare`, `apps/expo` →
+  `@rnw-community/react-native-collapsible-header-example-expo`); its `e2e/recording/demo_capture.yaml` is a
+  non-assertion flow that records the library readme's demo GIF, and its assertion flows validate visibility through
+  the accessibility tree (the library removes the hidden transition layer from accessibility)
 
 ## App identifiers (`appId` header)
 
-| Target      | Platform | appId                                                    |
-| ----------- | -------- | --------------------------------------------------------- |
-| `apps/bare` | iOS      | `org.reactjs.native.example.ReactNativePaymentsExample`   |
-| `apps/bare` | Android  | `com.reactnativepaymentsexample`                           |
-| `apps/expo` | iOS      | `com.reactnativepaymentsexpoexample`                       |
-| `apps/expo` | Android  | `com.reactnativepaymentsexpoexample`                       |
+| Package            | Target      | Platform    | appId                                                            |
+| ------------------ | ----------- | ----------- | ---------------------------------------------------------------- |
+| payments           | `apps/bare` | iOS         | `org.reactjs.native.example.ReactNativePaymentsExample`          |
+| payments           | `apps/bare` | Android     | `com.reactnativepaymentsexample`                                 |
+| payments           | `apps/expo` | iOS+Android | `com.reactnativepaymentsexpoexample`                             |
+| collapsible-header | `apps/bare` | iOS         | `org.reactjs.native.example.ReactNativeCollapsibleHeaderExample` |
+| collapsible-header | `apps/bare` | Android     | `com.reactnativecollapsibleheaderexample`                        |
+| collapsible-header | `apps/expo` | iOS+Android | `com.reactnativecollapsibleheaderexpoexample`                    |
 
 ## Flow layout
 
@@ -49,6 +55,8 @@ yarn workspace @rnw-community/react-native-payments-example e2e:ios:bare
 yarn workspace @rnw-community/react-native-payments-example e2e:ios:expo
 yarn workspace @rnw-community/react-native-payments-example e2e:android:bare
 yarn workspace @rnw-community/react-native-payments-example e2e:android:expo
+yarn workspace @rnw-community/react-native-collapsible-header-example e2e:ios:expo
+yarn workspace @rnw-community/react-native-collapsible-header-example e2e:ios:bare
 ```
 
 These scripts do not exist yet on this branch — treat the names above as the documented interface

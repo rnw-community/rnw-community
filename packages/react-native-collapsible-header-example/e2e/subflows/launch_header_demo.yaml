@@ -1,0 +1,8 @@
+appId: ${APP_ID}
+---
+- launchApp:
+      clearState: true
+- extendedWaitUntil:
+      visible:
+          id: 'header-demo-expanded-amount'
+      timeout: 15000
