@@ -13,6 +13,25 @@ import { useCollapsibleHeaderSnapRegistration } from '../hooks/use-collapsible-h
 
 import type { CollapsibleHeaderProps } from '../interface/collapsible-header-props.interface';
 
+interface CollapsibleHeaderLayerTestIDs {
+    readonly background?: string;
+    readonly collapsed?: string;
+    readonly expanded?: string;
+    readonly header?: string;
+    readonly persistent?: string;
+}
+
+const getLayerTestIDs = (testID?: string): CollapsibleHeaderLayerTestIDs =>
+    isDefined(testID)
+        ? {
+              background: `${testID}-background`,
+              collapsed: `${testID}-collapsed`,
+              expanded: `${testID}-expanded`,
+              header: `${testID}-header`,
+              persistent: `${testID}-persistent`,
+          }
+        : {};
+
 const styles = StyleSheet.create({
     background: { position: 'absolute', top: 0, right: 0, bottom: 0, left: 0 },
     header: { position: 'relative' },
@@ -47,6 +66,7 @@ export const CollapsibleHeader = (props: CollapsibleHeaderProps) => {
         ...viewProps
     } = props;
     const resolvedCollapseDistance = collapseDistance ?? expandedHeight - collapsedHeight;
+    const layerTestIDs = getLayerTestIDs(viewProps.testID);
     const scrollContext = useContext(CollapsibleHeaderScrollContext);
     const scrollSource = getDefined(scrollY ?? scrollContext?.scrollY, () => {
         throw new Error('CollapsibleHeader requires a scrollY prop or a CollapsibleHeaderProvider ancestor');
@@ -79,22 +99,29 @@ export const CollapsibleHeader = (props: CollapsibleHeaderProps) => {
                 <Animated.View
                     pointerEvents="none"
                     style={[styles.background, backgroundStyle, layers.backgroundAnimatedStyle]}
+                    testID={layerTestIDs.background}
                 />
-                <Animated.View style={[styles.header, headerStyle, layers.headerAnimatedStyle]}>
+                <Animated.View style={[styles.header, headerStyle, layers.headerAnimatedStyle]} testID={layerTestIDs.header}>
                     <Animated.View
                         animatedProps={layers.collapsedAnimatedProps}
                         style={[styles.content, collapsedContentContainerStyle, layers.collapsedAnimatedStyle]}
+                        testID={layerTestIDs.collapsed}
                     >
                         {collapsedContent}
                     </Animated.View>
                     <Animated.View
                         animatedProps={layers.expandedAnimatedProps}
                         style={[styles.content, expandedContentContainerStyle, layers.expandedAnimatedStyle]}
+                        testID={layerTestIDs.expanded}
                     >
                         {expandedContent}
                     </Animated.View>
                     {isDefined(persistentContent) && (
-                        <View pointerEvents="box-none" style={[styles.content, persistentContentContainerStyle]}>
+                        <View
+                            pointerEvents="box-none"
+                            style={[styles.content, persistentContentContainerStyle]}
+                            testID={layerTestIDs.persistent}
+                        >
                             {persistentContent}
                         </View>
                     )}

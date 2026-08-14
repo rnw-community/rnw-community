@@ -87,6 +87,11 @@ src/
 - `react`, `react-native`, and `react-native-reanimated` remain peer dependencies. Never bundle a second Reanimated copy.
 - Runtime animation code uses APIs shared by Reanimated 3.17.2 and 4.x, and only the compiler-safe `.get()`/`.set()`
   shared-value accessors.
+- Modern-React posture: the React Compiler owns memoization (no manual `useMemo`/`useCallback`/`React.memo`), state is
+  derived during render (worklets are pure functions of `scrollY`), and the only `useEffect` syncs the snap registry —
+  an external store, the sanctioned effect use. React 19-only syntax (`use()`, `<Context>` as provider, ref-callback
+  cleanups) is deliberately absent while the peer floor is `react >=18`; React 19 consumers still get the precompiled
+  memoized output.
 - Public exports carry the repository-standard one-sentence TSDoc and canonical readme `@see` link; exported interface
   members carry one-line TSDoc with `@defaultValue` where a default applies.
 - Tests must retain at least 99.9% statements, branches, functions, and lines coverage, and the whole Jest suite runs

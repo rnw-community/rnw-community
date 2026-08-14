@@ -1,23 +1,15 @@
 import { describe, expect, it } from '@jest/globals';
-import { render } from '@testing-library/react-native';
+import { render, screen } from '@testing-library/react-native';
 import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
-import { useSharedValue } from 'react-native-reanimated';
-
-import { getDefined } from '@rnw-community/shared';
+import { StyleSheet, Text } from 'react-native';
+import { getAnimatedStyle, makeMutable, useSharedValue } from 'react-native-reanimated';
 
 import { CollapsibleHeader } from './collapsible-header';
 
 import type { CollapsibleHeaderMotionConfig } from '../interface/collapsible-header-motion-config.interface';
 import type { CollapsibleHeaderProps } from '../interface/collapsible-header-props.interface';
 import type { StyleProp, ViewProps, ViewStyle } from 'react-native';
-import type { ReactTestInstance } from 'react-test-renderer';
 
-const BACKGROUND_LAYER = 1;
-const HEADER_LAYER = 2;
-const EXPANDED_LAYER = 3;
-const COLLAPSED_LAYER = 4;
-const PERSISTENT_LAYER = 5;
 const EXPANDED_HEIGHT = 156;
 const COLLAPSED_HEIGHT = 40;
 const COLLAPSE_DISTANCE = 100;
@@ -53,10 +45,6 @@ type SubjectProps = Partial<
     readonly withPersistentContent?: boolean;
 };
 
-type LayerProps = Pick<ViewProps, 'accessibilityElementsHidden' | 'importantForAccessibility'> & {
-    readonly style: StyleProp<ViewStyle>;
-};
-
 const Subject = ({
     scrollOffset = 0,
     expandedHeight = EXPANDED_HEIGHT,
@@ -75,7 +63,7 @@ const Subject = ({
     return (
         <CollapsibleHeader
             accessibilityLabel="Account summary"
-            testID="collapsible-header"
+            testID="header"
             style={{ paddingTop: OUTER_PADDING }}
             scrollY={scrollY}
             expandedHeight={expandedHeight}
@@ -89,26 +77,6 @@ const Subject = ({
             expandedContent={<Text testID="expanded-content">Expanded</Text>}
             collapsedContent={<Text testID="collapsed-content">Collapsed</Text>}
             persistentContent={persistentContent}
-            backgroundStyle={{ zIndex: BACKGROUND_LAYER }}
-            headerStyle={{ zIndex: HEADER_LAYER }}
-            expandedContentContainerStyle={{ zIndex: EXPANDED_LAYER }}
-            collapsedContentContainerStyle={{ zIndex: COLLAPSED_LAYER }}
-            persistentContentContainerStyle={{ zIndex: PERSISTENT_LAYER }}
-        />
-    );
-};
-
-const DefaultDistanceSubject = ({ scrollOffset }: { readonly scrollOffset: number }) => {
-    const scrollY = useSharedValue(scrollOffset);
-
-    return (
-        <CollapsibleHeader
-            scrollY={scrollY}
-            expandedHeight={EXPANDED_HEIGHT}
-            collapsedHeight={COLLAPSED_HEIGHT}
-            headerStyle={{ zIndex: HEADER_LAYER }}
-            expandedContent={<Text>Expanded</Text>}
-            collapsedContent={<Text>Collapsed</Text>}
         />
     );
 };
@@ -129,59 +97,79 @@ const ProviderlessSubject = ({ snap = false }: { readonly snap?: boolean }) => {
     );
 };
 
-const getLayerProps = (layer: ReactTestInstance): LayerProps => layer.props as LayerProps;
-const getLayer = (screen: ReturnType<typeof render>, marker: number): ReactTestInstance =>
-    getDefined(
-        screen.UNSAFE_getAllByType(View).find(layer => StyleSheet.flatten(getLayerProps(layer).style).zIndex === marker),
-        () => {
-            throw new Error(`Layer ${marker} was not rendered`);
-        }
-    );
+const getLayer = (layer: string) => screen.getByTestId(`header-${layer}`, { includeHiddenElements: true });
+const getLayerA11y = (layer: string): Pick<ViewProps, 'accessibilityElementsHidden' | 'importantForAccessibility'> =>
+    getLayer(layer).props;
 
 describe('CollapsibleHeader rendering', () => {
     it('renders caller-owned persistent content once above transition layers', () => {
         expect.hasAssertions();
-        const screen = render(<Subject withPersistentContent />);
-        const persistentStyle = StyleSheet.flatten(getLayerProps(getLayer(screen, PERSISTENT_LAYER)).style);
+        render(<Subject withPersistentContent />);
 
         expect(screen.getByTestId('expanded-content')).toBeOnTheScreen();
         expect(screen.getByTestId('collapsed-content', { includeHiddenElements: true })).toBeOnTheScreen();
         expect(screen.getAllByTestId('persistent-content')).toHaveLength(1);
-        expect(persistentStyle).toMatchObject({ zIndex: PERSISTENT_LAYER });
-        expect(persistentStyle.zIndex).toBeGreaterThan(EXPANDED_LAYER);
-        expect(persistentStyle.zIndex).toBeGreaterThan(COLLAPSED_LAYER);
-        expect(screen.getByTestId('collapsible-header')).toHaveProp('accessibilityLabel', 'Account summary');
-        expect(screen.getByTestId('collapsible-header')).toHaveStyle({ paddingTop: OUTER_PADDING });
+        expect(getLayer('persistent')).toHaveProp('pointerEvents', 'box-none');
+        expect(screen.getByTestId('header')).toHaveProp('accessibilityLabel', 'Account summary');
+        expect(screen.getByTestId('header')).toHaveStyle({ paddingTop: OUTER_PADDING });
+    });
+
+    it('skips the persistent layer and layer test identifiers when not configured', () => {
+        expect.hasAssertions();
+        render(
+            <CollapsibleHeader
+                scrollY={makeMutable(0)}
+                expandedHeight={EXPANDED_HEIGHT}
+                collapsedHeight={COLLAPSED_HEIGHT}
+                expandedContent={<Text>Expanded</Text>}
+                collapsedContent={<Text testID="collapsed-content">Collapsed</Text>}
+            />
+        );
+
+        expect(screen.queryByTestId('header-persistent', { includeHiddenElements: true })).toBeNull();
+        expect(screen.queryByTestId('header-expanded', { includeHiddenElements: true })).toBeNull();
+        expect(screen.getByTestId('collapsed-content', { includeHiddenElements: true })).toBeOnTheScreen();
     });
 
     it('hides the invisible layer from the accessibility tree at each endpoint', () => {
         expect.hasAssertions();
-        const expandedScreen = render(<Subject />);
-        const expandedProps = getLayerProps(getLayer(expandedScreen, EXPANDED_LAYER));
-        const collapsedProps = getLayerProps(getLayer(expandedScreen, COLLAPSED_LAYER));
+        render(<Subject />);
 
-        expect(expandedProps.accessibilityElementsHidden).toBe(false);
-        expect(expandedProps.importantForAccessibility).toBe('auto');
-        expect(collapsedProps.accessibilityElementsHidden).toBe(true);
-        expect(collapsedProps.importantForAccessibility).toBe('no-hide-descendants');
+        expect(getLayerA11y('expanded').accessibilityElementsHidden).toBe(false);
+        expect(getLayerA11y('expanded').importantForAccessibility).toBe('auto');
+        expect(getLayerA11y('collapsed').accessibilityElementsHidden).toBe(true);
+        expect(getLayerA11y('collapsed').importantForAccessibility).toBe('no-hide-descendants');
 
-        const collapsedScreen = render(<Subject scrollOffset={COLLAPSE_DISTANCE} />);
+        render(<Subject scrollOffset={COLLAPSE_DISTANCE} />);
 
-        expect(getLayerProps(getLayer(collapsedScreen, EXPANDED_LAYER)).accessibilityElementsHidden).toBe(true);
-        expect(getLayerProps(getLayer(collapsedScreen, COLLAPSED_LAYER)).accessibilityElementsHidden).toBe(false);
+        expect(getLayerA11y('expanded').accessibilityElementsHidden).toBe(true);
+        expect(getLayerA11y('collapsed').accessibilityElementsHidden).toBe(false);
     });
 
     it('keeps the header in layout flow by default and pins it in overlay mode', () => {
         expect.hasAssertions();
-        const flowScreen = render(<Subject />);
-        const flowStyle = StyleSheet.flatten(getLayerProps(flowScreen.getByTestId('collapsible-header')).style);
+        render(<Subject />);
+        const getContainerStyle = (): ViewStyle =>
+            StyleSheet.flatten((screen.getByTestId('header').props as { style: StyleProp<ViewStyle> }).style);
 
-        expect(flowStyle.position).toBeUndefined();
+        expect(getContainerStyle().position).toBeUndefined();
 
-        const overlayScreen = render(<Subject mode="overlay" />);
-        const overlayStyle = StyleSheet.flatten(getLayerProps(overlayScreen.getByTestId('collapsible-header')).style);
+        render(<Subject mode="overlay" />);
 
-        expect(overlayStyle).toMatchObject({ position: 'absolute', top: 0, right: 0, left: 0, paddingTop: OUTER_PADDING });
+        expect(getContainerStyle()).toMatchObject({
+            position: 'absolute',
+            top: 0,
+            right: 0,
+            left: 0,
+            paddingTop: OUTER_PADDING,
+        });
+    });
+
+    it('defaults the collapse distance to the height delta', () => {
+        expect.hasAssertions();
+        render(<Subject collapseDistance={DEFAULT_COLLAPSE_DISTANCE} scrollOffset={DEFAULT_COLLAPSE_DISTANCE} />);
+
+        expect(getAnimatedStyle(getLayer('header'))).toMatchObject({ height: COLLAPSED_HEIGHT });
     });
 
     it.each([
@@ -189,18 +177,9 @@ describe('CollapsibleHeader rendering', () => {
         { name: 'clamps the header on overscroll by default', stretchOnOverscroll: false, height: EXPANDED_HEIGHT },
     ])('$name', ({ stretchOnOverscroll, height }) => {
         expect.hasAssertions();
-        const screen = render(<Subject scrollOffset={NEGATIVE_SCROLL_OFFSET} stretchOnOverscroll={stretchOnOverscroll} />);
+        render(<Subject scrollOffset={NEGATIVE_SCROLL_OFFSET} stretchOnOverscroll={stretchOnOverscroll} />);
 
-        expect(StyleSheet.flatten(getLayerProps(getLayer(screen, HEADER_LAYER)).style)).toMatchObject({ height });
-    });
-
-    it('defaults the collapse distance to the height delta', () => {
-        expect.hasAssertions();
-        const screen = render(<DefaultDistanceSubject scrollOffset={DEFAULT_COLLAPSE_DISTANCE} />);
-
-        expect(StyleSheet.flatten(getLayerProps(getLayer(screen, HEADER_LAYER)).style)).toMatchObject({
-            height: COLLAPSED_HEIGHT,
-        });
+        expect(getAnimatedStyle(getLayer('header'))).toMatchObject({ height });
     });
 });
 

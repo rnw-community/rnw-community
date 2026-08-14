@@ -1,8 +1,8 @@
 import { describe, expect, it } from '@jest/globals';
-import { render } from '@testing-library/react-native';
+import { render, screen } from '@testing-library/react-native';
 import React, { useContext, useEffect } from 'react';
 import { Freeze } from 'react-freeze';
-import { StyleSheet, Text, View } from 'react-native';
+import { Text } from 'react-native';
 import { getAnimatedStyle, makeMutable } from 'react-native-reanimated';
 
 import { getDefined } from '@rnw-community/shared';
@@ -14,29 +14,23 @@ import { CollapsibleHeader } from './collapsible-header';
 
 import type { CollapsibleHeaderScrollContextValue } from '../interface/collapsible-header-scroll-context-value.interface';
 import type { Maybe, OnEventFn } from '@rnw-community/shared';
-import type { StyleProp, ViewProps, ViewStyle } from 'react-native';
+import type { ViewProps } from 'react-native';
 import type { SharedValue } from 'react-native-reanimated';
-import type { ReactTestInstance } from 'react-test-renderer';
 
-const EXPANDED_LAYER = 3;
-const COLLAPSED_LAYER = 4;
 const EXPANDED_HEIGHT = 156;
 const COLLAPSED_HEIGHT = 40;
 const COLLAPSE_DISTANCE = 100;
 
-type LayerProps = Pick<ViewProps, 'accessibilityElementsHidden'> & { readonly style: StyleProp<ViewStyle> };
-
 const Subject = ({ frozen, scrollY }: { readonly frozen: boolean; readonly scrollY: SharedValue<number> }) => (
     <Freeze freeze={frozen}>
         <CollapsibleHeader
+            testID="header"
             scrollY={scrollY}
             expandedHeight={EXPANDED_HEIGHT}
             collapsedHeight={COLLAPSED_HEIGHT}
             collapseDistance={COLLAPSE_DISTANCE}
             expandedContent={<Text testID="expanded-content">Expanded</Text>}
             collapsedContent={<Text testID="collapsed-content">Collapsed</Text>}
-            expandedContentContainerStyle={{ zIndex: EXPANDED_LAYER }}
-            collapsedContentContainerStyle={{ zIndex: COLLAPSED_LAYER }}
         />
     </Freeze>
 );
@@ -62,26 +56,19 @@ const SnapSubject = ({ frozen }: { readonly frozen: boolean }) => (
     </Freeze>
 );
 
-const getLayerProps = (layer: ReactTestInstance): LayerProps => layer.props as LayerProps;
+const getLayer = (layer: string) => screen.getByTestId(`header-${layer}`, { includeHiddenElements: true });
 const getCapturedSnapConfig = (captured: { readonly value: Maybe<CollapsibleHeaderScrollContextValue> }) =>
     getDefined(captured.value, () => {
         throw new Error('Scroll context was not provided');
     }).snapConfig.get();
-const getLayer = (screen: ReturnType<typeof render>, marker: number): ReactTestInstance =>
-    getDefined(
-        screen.UNSAFE_getAllByType(View).find(layer => StyleSheet.flatten(getLayerProps(layer).style).zIndex === marker),
-        () => {
-            throw new Error(`Layer ${marker} was not rendered`);
-        }
-    );
 
 describe('CollapsibleHeader under react-freeze', () => {
     it('keeps the collapsed state derived from the scroll value across freeze and unfreeze', () => {
         expect.hasAssertions();
         const scrollY = makeMutable(COLLAPSE_DISTANCE);
-        const screen = render(<Subject frozen={false} scrollY={scrollY} />);
+        render(<Subject frozen={false} scrollY={scrollY} />);
 
-        expect(getAnimatedStyle(getLayer(screen, COLLAPSED_LAYER))).toMatchObject({ opacity: 1, pointerEvents: 'auto' });
+        expect(getAnimatedStyle(getLayer('collapsed'))).toMatchObject({ opacity: 1, pointerEvents: 'auto' });
 
         screen.rerender(<Subject frozen scrollY={scrollY} />);
 
@@ -89,10 +76,10 @@ describe('CollapsibleHeader under react-freeze', () => {
 
         screen.rerender(<Subject frozen={false} scrollY={scrollY} />);
 
-        expect(getAnimatedStyle(getLayer(screen, COLLAPSED_LAYER))).toMatchObject({ opacity: 1, pointerEvents: 'auto' });
-        expect(getAnimatedStyle(getLayer(screen, EXPANDED_LAYER))).toMatchObject({ opacity: 0, pointerEvents: 'none' });
-        expect(getLayerProps(getLayer(screen, EXPANDED_LAYER)).accessibilityElementsHidden).toBe(true);
-        expect(getLayerProps(getLayer(screen, COLLAPSED_LAYER)).accessibilityElementsHidden).toBe(false);
+        expect(getAnimatedStyle(getLayer('collapsed'))).toMatchObject({ opacity: 1, pointerEvents: 'auto' });
+        expect(getAnimatedStyle(getLayer('expanded'))).toMatchObject({ opacity: 0, pointerEvents: 'none' });
+        expect((getLayer('expanded').props as ViewProps).accessibilityElementsHidden).toBe(true);
+        expect((getLayer('collapsed').props as ViewProps).accessibilityElementsHidden).toBe(false);
     });
 
     it('keeps snap geometry registered after a freeze and unfreeze cycle', () => {
@@ -101,7 +88,7 @@ describe('CollapsibleHeader under react-freeze', () => {
         const onCapture = (value: Maybe<CollapsibleHeaderScrollContextValue>): void => {
             captured.value = value;
         };
-        const screen = render(
+        render(
             <CollapsibleHeaderProvider>
                 <SnapSubject frozen={false} />
                 <ContextProbe onCapture={onCapture} />
