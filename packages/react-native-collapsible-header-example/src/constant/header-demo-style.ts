@@ -16,6 +16,7 @@ export const HeaderDemoStyles = StyleSheet.create({
     },
     actionsRow: {
         alignItems: 'flex-start',
+        columnGap: 8,
         flexDirection: 'row',
         justifyContent: 'flex-end',
         padding: 16,

@@ -1,0 +1,28 @@
+appId: ${APP_ID}
+---
+- runFlow: ../subflows/launch_header_demo.yaml
+- tapOn:
+      id: 'header-demo-settings-button'
+- extendedWaitUntil:
+      visible:
+          id: 'settings-demo-large-title'
+      timeout: 5000
+- assertNotVisible:
+      id: 'settings-demo-small-title'
+- assertVisible:
+      id: 'settings-demo-back-button'
+- scroll
+- extendedWaitUntil:
+      visible:
+          id: 'settings-demo-small-title'
+      timeout: 5000
+- assertNotVisible:
+      id: 'settings-demo-large-title'
+- assertVisible:
+      id: 'settings-demo-back-button'
+- tapOn:
+      id: 'settings-demo-back-button'
+- extendedWaitUntil:
+      visible:
+          id: 'header-demo-expanded-amount'
+      timeout: 5000

@@ -9,10 +9,19 @@ import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
 export const HeaderDemoActions = () => {
     const navigation = useNavigation<NativeStackNavigationProp<HeaderDemoStackParamList>>();
+    const onSettingsPress = (): void => void navigation.navigate('Settings');
     const onDetailsPress = (): void => void navigation.navigate('Details');
 
     return (
         <View pointerEvents="box-none" style={styles.actionsRow}>
+            <Pressable
+                accessibilityRole="button"
+                onPress={onSettingsPress}
+                style={styles.actionButton}
+                testID="header-demo-settings-button"
+            >
+                <Text style={styles.actionLabel}>≡</Text>
+            </Pressable>
             <Pressable
                 accessibilityRole="button"
                 onPress={onDetailsPress}

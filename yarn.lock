@@ -6238,6 +6238,7 @@ __metadata:
     "@react-navigation/native": "npm:^7.1.8"
     "@react-navigation/native-stack": "npm:^7.3.16"
     "@rnw-community/react-native-collapsible-header": "workspace:*"
+    "@rnw-community/shared": "workspace:*"
     "@types/react": "npm:^19.2.0"
     react: "npm:19.2.3"
     react-native: "npm:0.86.2"

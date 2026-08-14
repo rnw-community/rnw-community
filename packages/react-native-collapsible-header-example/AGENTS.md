@@ -11,8 +11,13 @@ src/
   component/                     — app.tsx (native stack + enableFreeze), header-demo-home-screen.tsx,
                                    header-demo-details-screen.tsx, header-demo-screen.tsx,
                                    header-demo-expanded-summary.tsx, header-demo-collapsed-summary.tsx,
-                                   header-demo-actions.tsx, header-demo-list.tsx, header-demo-list-item.tsx
-  constant/                      — header-demo-geometry.ts, header-demo-items.ts, header-demo-style.ts
+                                   header-demo-actions.tsx, header-demo-list.tsx, header-demo-list-item.tsx,
+                                   settings-demo-screen.tsx (navigation-chrome case: large title collapses into a
+                                   compact title row between persistent icon buttons), settings-demo-actions.tsx,
+                                   settings-demo-large-title.tsx, settings-demo-small-title.tsx,
+                                   settings-demo-list.tsx, settings-demo-list-item.tsx
+  constant/                      — header-demo-geometry.ts, header-demo-items.ts, header-demo-style.ts,
+                                   settings-demo-items.ts, settings-demo-style.ts
   interface/                     — header-demo-item.interface.ts
   type/                          — header-demo-stack-param-list.type.ts
 apps/
@@ -23,9 +28,11 @@ apps/
     index.js, app.json, babel.config.js, metro.config.js, assets/; ios/ and android/ come from `expo prebuild`
 e2e/
   flows/                         — app_launch, collapse_on_scroll, expand_on_scroll_back, snap_to_nearest_endpoint,
-                                   freeze_preserves_collapsed_state, run by `maestro test`
+                                   freeze_preserves_collapsed_state, settings_header_collapses,
+                                   settings_freeze_preserves_collapsed_state, run by `maestro test`
   subflows/                      — launch_header_demo (shared launch + first-frame wait), included via `runFlow`
-  recording/                     — demo_capture.yaml, produces the readme demo video (not an assertion flow)
+  recording/                     — demo_capture.yaml and settings_capture.yaml, produce the readme demo videos
+                                   (not assertion flows)
   readme.md                      — flow inventory, APP_ID table, and the accessibility-tree visibility semantics
 ```
 
@@ -38,9 +45,11 @@ e2e/
 - `useCollapsibleHeaderProgress` — the expanded badge scales down from the slot-facing progress shared value.
 - Persistent content — the refresh action stays mounted across both transition layers.
 - Accessibility switching — the Maestro suite asserts hidden-layer removal from the accessibility tree.
-- Screen freeze — native-stack navigation with `enableFreeze(true)` + `freezeOnBlur`; returning to the frozen Home
-  screen must keep the header collapsed (state derives purely from the shared scroll value; also covered by
-  `collapsible-header-freeze.spec.tsx` in the library package via react-freeze).
+- Screen freeze — native-stack navigation with `enableFreeze(true)` + `freezeOnBlur`; returning to a frozen screen
+  (Home or Settings) must keep the header collapsed (state derives purely from the shared scroll value; also covered
+  by `collapsible-header-freeze.spec.tsx` in the library package via react-freeze).
+- Navigation chrome — the Settings screen shows the second use case: a large title that collapses into a small
+  centered title between persistent leading/trailing icon buttons, per the settings pages in suuudokuuu and budgie.
 
 ## Commands
 

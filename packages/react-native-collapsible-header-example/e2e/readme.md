@@ -31,6 +31,10 @@ Or directly: `maestro test -e APP_ID=<appId> e2e/flows`.
 - `flows/freeze_preserves_collapsed_state.yaml` — the react-native-screens freeze case: collapse the header, push the
   Details screen (native stack, `freezeOnBlur` + `enableFreeze`), navigate back, and assert the header is still
   collapsed — the frozen screen must not resurrect the expanded state.
+- `flows/settings_header_collapses.yaml` — the navigation-chrome case: the large settings title is visible on entry,
+  collapses into the small centered title between the persistent icon buttons on scroll, and the back button exits.
+- `flows/settings_freeze_preserves_collapsed_state.yaml` — the freeze case on the settings screen: collapse, open an
+  item (Details), return, and assert the small title is still the visible one.
 - `subflows/launch_header_demo.yaml` — shared launch + first-frame wait, included via `runFlow`, never run standalone.
 - `recording/demo_capture.yaml` — not an assertion flow; drives the collapse/expand/overscroll gestures between
   `startRecording`/`stopRecording` to produce the readme demo video (convert with ffmpeg to
