@@ -19,6 +19,15 @@
 - `DefaultCollapsibleHeaderMotionConfig` — baseline motion preset for building custom presets.
 - Types: `CollapsibleHeaderProps`, `CollapsibleHeaderMotionConfig`, `CollapsibleHeaderScroll`, `CollapsibleHeaderMode`.
 
+## Use cases
+
+1. Hero header — a rich summary (balance, profile, hero) in expandedContent crossfades into a compact row in
+   collapsedContent as the list scrolls; persistent actions stay tappable in both states.
+2. Navigation chrome — a large screen title (expandedContent) collapses into a small centered title
+   (collapsedContent) between persistent leading/trailing icon buttons (persistentContent), the iOS large-title
+   pattern. Both are implemented in packages/react-native-collapsible-header-example (header-demo-screen.tsx and
+   settings-demo-screen.tsx) with GIFs in this package's docs/ directory.
+
 ## Behavior contract
 
 - Consumer owns scroll (or delegates to the provider), safe-area, typography, and colors; package owns geometry
@@ -27,6 +36,8 @@
 - The invisible layer is removed from the accessibility tree (accessibilityElementsHidden /
   importantForAccessibility='no-hide-descendants' / aria-hidden on web).
 - Testing-library queries for content in the hidden layer require `{ includeHiddenElements: true }`.
+- When testID is set, layers derive their own: {testID}-background/-header/-expanded/-collapsed/-persistent —
+  usable from RNTL, Maestro, or Detox.
 
 ## Example app and E2E
 

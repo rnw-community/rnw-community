@@ -9,13 +9,19 @@ automatically through `CollapsibleHeaderProvider`. It works with any vertical sc
 [![coverage](https://img.shields.io/codecov/c/github/rnw-community/rnw-community?flag=react-native-collapsible-header&label=coverage)](https://app.codecov.io/gh/rnw-community/rnw-community)
 [![npm downloads](https://img.shields.io/npm/dm/%40rnw-community%2Freact-native-collapsible-header.svg)](https://www.npmjs.com/package/%40rnw-community%2Freact-native-collapsible-header)
 
-<img src="https://raw.githubusercontent.com/rnw-community/rnw-community/master/packages/react-native-collapsible-header/docs/collapsible-header-demo.gif" alt="Collapsible header demo: crossfade on scroll, snap to endpoint, and overscroll stretch" width="300" />
+## Use cases
 
-The demo above is the monorepo's
+| Hero header                                                                                                                                                                                                                                                                             | Navigation chrome                                                                                                                                                                                                                                                                        |
+| --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| <img src="https://raw.githubusercontent.com/rnw-community/rnw-community/master/packages/react-native-collapsible-header/docs/collapsible-header-demo.gif" alt="Hero header: a balance summary crossfades into a compact row on scroll, with snap and overscroll stretch" width="280" /> | <img src="https://raw.githubusercontent.com/rnw-community/rnw-community/master/packages/react-native-collapsible-header/docs/settings-header-demo.gif" alt="Navigation chrome: a large settings title collapses into a compact title row between persistent icon buttons" width="280" /> |
+| A rich summary (balance, profile, hero) crossfades into a compact row as content scrolls. Persistent actions stay tappable in both states.                                                                                                                                              | A large screen title collapses into a small centered title between persistent leading/trailing icons — the iOS large-title pattern, so the header stops distracting from content.                                                                                                        |
+
+Both come from the monorepo's
 [example app](https://github.com/rnw-community/rnw-community/tree/master/packages/react-native-collapsible-header-example)
-(Expo and bare React Native targets) — it exercises provider wiring, snap, overscroll stretch, the progress hook, and
-persistent actions, and carries the [Maestro E2E suite](https://github.com/rnw-community/rnw-community/tree/master/packages/react-native-collapsible-header-example/e2e)
-that validates the header through the accessibility tree.
+(Expo and bare React Native targets, `src/component/header-demo-screen.tsx` and `src/component/settings-demo-screen.tsx`)
+— copy those screens as integration templates. The example also carries the
+[Maestro E2E suite](https://github.com/rnw-community/rnw-community/tree/master/packages/react-native-collapsible-header-example/e2e)
+that validates the header through the accessibility tree, including the react-native-screens `freezeOnBlur` return case.
 
 ## Installation
 
@@ -122,6 +128,11 @@ never announce both layers. Persistent content uses `box-none`.
 
 Content taller than the shrinking header can paint outside it mid-transition; pass
 `headerStyle={{ overflow: 'hidden' }}` to clip (clipping also cuts shadows, which is why it is not the default).
+
+When a `testID` is set, every layer derives its own: `{testID}-background`, `{testID}-header`, `{testID}-expanded`,
+`{testID}-collapsed`, and `{testID}-persistent` (when persistent content exists). Query them in React Native Testing
+Library with `{ includeHiddenElements: true }` — the invisible layer is accessibility-hidden by design — or target them
+directly from Maestro/Detox flows.
 
 ## CollapsibleHeaderProps
 
