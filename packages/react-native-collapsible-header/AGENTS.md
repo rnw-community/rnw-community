@@ -76,8 +76,18 @@ src/
   transition layer is removed from the accessibility tree).
 - All layer animations are expressed in normalized progress space via one `useDerivedValue`; the same progress shared
   value is provided to slot content through `useCollapsibleHeaderProgress`.
+- **One provider per scrollable, mounted inside each screen — never once around a navigator.** A provider owns exactly
+  one `scrollY`, scroll handler, scroll ref, and snap slot, so that is its unit of identity. Per-screen providers keep
+  sibling screens independent (pinned by `collapsible-header-provider-isolation.spec.tsx` and by the example's two
+  Maestro freeze flows); a provider shared across screens makes the last-scrolled screen drive every header. Several
+  headers within one screen may share a provider — they animate from one offset by design.
 - `snap` requires the provider (snapping drives the registered scrollable via `scrollTo`); headers register snap
-  geometry into the provider's shared-value registry on mount and clear it on unmount.
+  geometry into the provider's shared-value registry on mount and clear it on unmount, but only when the slot still
+  holds the config that header wrote, so unmounting one header never disables a still-mounted one. Snapping is a
+  property of the scrollable, not the header: `assertVacantCollapsibleHeaderSnapSlot` throws when a second snapping
+  header claims the slot with different geometry, and `assertSnappableCollapsibleHeaderScroll` throws when `snap` is
+  combined with a caller-owned `scrollY` prop (the two sources could disagree). A keyed registry with a min/max union
+  policy is the escape hatch if multi-header snapping ever becomes a real requirement — deliberately not built.
 - `collapseDistance` defaults to `expandedHeight - collapsedHeight`; `collapseStart` is optional, non-negative, and
   defaults to `0`.
 - `motion` is additive and partial; missing fields resolve against `DefaultCollapsibleHeaderMotionConfig` (public)

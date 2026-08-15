@@ -119,6 +119,19 @@ describe('CollapsibleHeaderProvider', () => {
         expect(scrollContext.snapConfig.get()).toBeNull();
     });
 
+    it('rejects a second snapping header claiming the same scrollable with different geometry', () => {
+        expect.hasAssertions();
+
+        expect(() =>
+            render(
+                <CollapsibleHeaderProvider>
+                    <Header snap />
+                    <Header snap collapseDistance={SECOND_COLLAPSE_DISTANCE} />
+                </CollapsibleHeaderProvider>
+            )
+        ).toThrow('CollapsibleHeader snap is already registered with different geometry');
+    });
+
     it('keeps the surviving header snap geometry when another snapping header unmounts', () => {
         expect.hasAssertions();
         const captured: { value: Maybe<CollapsibleHeaderScrollContextValue> } = { value: null };
@@ -126,23 +139,23 @@ describe('CollapsibleHeaderProvider', () => {
         const screen = render(
             <CollapsibleHeaderProvider>
                 <Header snap />
-                <Header snap collapseDistance={SECOND_COLLAPSE_DISTANCE} />
+                <Header snap />
                 <ContextProbe onCapture={onCapture} />
             </CollapsibleHeaderProvider>
         );
         const scrollContext = getCapturedContext(captured);
-        const secondSnapConfig = { snapStart: COLLAPSE_START, snapEnd: COLLAPSE_START + SECOND_COLLAPSE_DISTANCE };
+        const sharedSnapConfig = { snapStart: COLLAPSE_START, snapEnd: COLLAPSE_START + COLLAPSE_DISTANCE };
 
-        expect(scrollContext.snapConfig.get()).toStrictEqual(secondSnapConfig);
+        expect(scrollContext.snapConfig.get()).toStrictEqual(sharedSnapConfig);
 
         screen.rerender(
             <CollapsibleHeaderProvider>
-                <Header snap collapseDistance={SECOND_COLLAPSE_DISTANCE} />
+                <Header snap />
                 <ContextProbe onCapture={onCapture} />
             </CollapsibleHeaderProvider>
         );
 
-        expect(scrollContext.snapConfig.get()).toStrictEqual(secondSnapConfig);
+        expect(scrollContext.snapConfig.get()).toStrictEqual(sharedSnapConfig);
     });
 
     it('keeps snap geometry unregistered for non-snapping headers', () => {

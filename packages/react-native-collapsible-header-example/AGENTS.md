@@ -39,7 +39,9 @@ e2e/
 ## What the demo exercises
 
 - `CollapsibleHeaderProvider` + `useCollapsibleHeaderScroll` — zero manual `scrollY` plumbing between the header and
-  the `Animated.ScrollView`.
+  the `Animated.ScrollView`. Each screen mounts its OWN provider (`header-demo-home-screen.tsx` and
+  `settings-demo-screen.tsx`); `app.tsx` deliberately mounts none, because one provider around the navigator would make
+  the last-scrolled screen drive every header. Follow that shape when adding screens.
 - `snap` — provider-driven snap to the nearest endpoint after partial scrolls.
 - `stretchOnOverscroll` — header grows during negative overscroll.
 - `useCollapsibleHeaderProgress` — the expanded badge scales down from the slot-facing progress shared value.

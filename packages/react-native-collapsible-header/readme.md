@@ -164,6 +164,23 @@ Owns the scroll wiring — a `scrollY` shared value, a Reanimated scroll handler
 it through context. Descendant headers fall back to the provider's `scrollY` when the prop is omitted, and `snap`
 requires the provider because snapping drives the registered scrollable via `scrollTo`.
 
+### One provider per scrollable
+
+**Mount a provider per screen, inside the screen — never once around a navigator.** A provider holds exactly one
+`scrollY`, one scroll handler, one scroll ref, and one snap slot, so its unit of identity is a single scrollable:
+
+- **Correct**: each screen mounts its own provider. Sibling screens then have fully independent scroll state, so
+  scrolling one never moves another's header — including when a screen is frozen by react-native-screens
+  `freezeOnBlur` and returned to later.
+- **Wrong**: one provider wrapping several screens. They share one `scrollY`, so whichever screen scrolls last drives
+  every header, and both screens' snapping headers compete for the same slot.
+
+Several headers **in one screen** may share a provider — they animate from the same offset, which is exactly what you
+want for, say, a hero header plus a sticky sub-header. Only one of them may set `snap`: snapping is a property of the
+scrollable, not of the header, and a second snapping header registering different geometry throws rather than silently
+overriding the first. Passing a `scrollY` prop together with `snap` also throws, because the two scroll sources could
+disagree and snap the list without moving the header.
+
 ## useCollapsibleHeaderScroll
 
 Returns the provider-owned wiring for attaching a scrollable: `{ scrollY, onScroll, scrollRef }`. Attach `onScroll`

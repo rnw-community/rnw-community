@@ -28,6 +28,15 @@
    pattern. Both are implemented in packages/react-native-collapsible-header-example (header-demo-screen.tsx and
    settings-demo-screen.tsx) with GIFs in this package's docs/ directory.
 
+## Provider scope (common mistake)
+
+One CollapsibleHeaderProvider per scrollable, mounted INSIDE each screen — never once around a navigator. A provider
+holds one scrollY, one scroll handler, one scroll ref, and one snap slot. Per-screen providers give sibling screens
+independent scroll state (safe with react-native-screens freezeOnBlur); one provider shared across screens makes the
+last-scrolled screen drive every header. Multiple headers in ONE screen may share a provider (same offset, e.g. hero
+plus sticky sub-header), but only one may set snap: a second snapping header with different geometry throws, and
+combining snap with a scrollY prop throws.
+
 ## Behavior contract
 
 - Consumer owns scroll (or delegates to the provider), safe-area, typography, and colors; package owns geometry
