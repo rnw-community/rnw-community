@@ -22,8 +22,8 @@ src/
   type/                          — header-demo-stack-param-list.type.ts
 apps/
   bare/                          — @rnw-community/react-native-collapsible-header-example-bare (React Native CLI)
-    index.js, app.json, babel.config.js (with react-native-worklets/plugin), metro.config.js; ios/ and android/
-    are gitignored and generated locally
+    index.js, app.json, babel.config.js (with react-native-worklets/plugin), metro.config.js (single-instance
+    module resolution — see CI coverage), ios/ and android/ committed like the payments example
   expo/                          — @rnw-community/react-native-collapsible-header-example-expo (Expo)
     index.js, app.json, babel.config.js, metro.config.js, assets/; ios/ and android/ come from `expo prebuild`
 e2e/
@@ -62,14 +62,17 @@ The `expo` target is wired for both platforms. Like the payments example, the `b
 the expo target generates its own with `expo prebuild`), and the bare `MainActivity` drops Android state restoration
 (`super.onCreate(null)`), which react-native-screens requires for the native stack.
 
-**The bare leg is unregistered in the matrix and not yet working.** Current status: pods install, the iOS Release build
-succeeds, the JS bundle is produced and starts (the log reaches `Running "ReactNativeCollapsibleHeaderExample"`), then
-the app aborts with SIGABRT from a JS exception raised on the worklets runtime — the crashing frames end in
-`worklets::AroundLock` → `HermesRuntimeImpl::throwPendingError`. Payments is no guide here because its app uses neither
-reanimated, worklets, nor screens. Next step is to surface that worklet exception message (a Debug build against Metro
-shows the redbox text the Release build swallows) and to confirm the worklets babel plugin transforms the library's
-precompiled `dist` inside Metro. Register the target in `.github/scripts/maestro-matrix.mjs` once the seven flows pass
-locally against the bare binary.
+**Single-instance module resolution is load-bearing for the bare target.** Yarn duplicates peer-dependent packages
+per consumer instead of hoisting one copy, so the monorepo root, this package, and the library each carry their own
+`react-native`, `react-native-reanimated`, and `react-native-worklets`. `apps/bare/metro.config.js` blocks every copy
+except this package's and redirects those specifiers to it, because `pod install` compiled the native side against this
+package's copies (`ios/Podfile.lock` records `:path: "../../../node_modules/react-native/"`) and the bundled JS has to
+match the JS its native code was built against. Two instances fail at runtime, not at build time, each with its own
+misleading symptom: two Reanimated copies abort with `[Worklets] Tried to synchronously call a Remote Function. Called
+"value" on the UI Runtime`, two react-native copies report `HMRClient has not been registered as callable`, and a second
+`react` copy (the library once resolved its own through a caret range) throws
+`TypeError: Cannot read property 'useMemoCache' of null` from the React Compiler runtime. A Release build swallows all
+three as a bare SIGABRT — build the Debug variant against Metro to read the actual redbox.
 
 ## Commands
 

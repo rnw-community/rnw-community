@@ -35,10 +35,14 @@ const EXAMPLES = [
         exampleDir: 'packages/react-native-collapsible-header-example',
         buildFilter: '@rnw-community/react-native-collapsible-header',
         targets: {
-            // The bare target's ios/ + android/ projects are committed and build, but the
-            // app aborts at launch with a JS error raised on the worklets runtime, so the
-            // leg stays unregistered until that is diagnosed. The expo target covers the
-            // library end to end in the meantime.
+            bare: {
+                iosScheme: 'ReactNativeCollapsibleHeaderExample',
+                members: [
+                    '@rnw-community/react-native-collapsible-header',
+                    '@rnw-community/react-native-collapsible-header-example',
+                    '@rnw-community/react-native-collapsible-header-example-bare',
+                ],
+            },
             expo: {
                 iosScheme: 'reactnativecollapsibleheaderexpoexample',
                 members: [
