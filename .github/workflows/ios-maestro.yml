@@ -124,7 +124,11 @@ jobs:
 
             -   name: Restore project Pods and DerivedData cache
                 uses: actions/cache@v4
-                timeout-minutes: 10
+                # The bound covers the implicit post-job save too, and a full
+                # DerivedData tree for a React Native app regularly needs more than
+                # ten minutes to upload from the self-hosted fleet — which failed the
+                # job after the Maestro suite had already passed.
+                timeout-minutes: 25
                 with:
                     path: |
                         ${{ env.APP_DIR }}/ios/Pods

@@ -86,6 +86,11 @@ jobs:
         env:
             APP_DIR: packages/react-native-payments-example/apps/${{ matrix.target }}
             MAESTRO_DEBUG_OUTPUT_DIRECTORY: ${{ github.workspace }}/packages/react-native-payments-example/artifacts/maestro-android-${{ matrix.target }}
+            # Both matrix legs can land on the same self-hosted host, so the
+            # container name, adb port, and data directory are all per-leg.
+            ADB_PORT: ${{ matrix.target == 'bare' && '5565' || '5575' }}
+            REDROID_CONTAINER: redroid-${{ matrix.target }}-${{ github.run_id }}
+            REDROID_DATA_DIR: ${{ runner.temp }}/redroid-${{ matrix.target }}-${{ github.run_id }}
 
         steps:
             -   name: Checkout repository
@@ -124,10 +129,58 @@ jobs:
                     # The action still defaults to "tools platform-tools", but the
                     # obsolete "tools" package was withdrawn from the Google SDK
                     # repository, so sdkmanager exits 1 with "Dependant package with
-                    # key emulator not found!". android-emulator-runner installs the
-                    # emulator and system images it needs by itself, so platform-tools
-                    # is the only package this workflow has to request.
+                    # key emulator not found!". Gradle resolves the build tools and
+                    # platform it needs on its own, so platform-tools is the only
+                    # package this workflow has to request.
                     packages: platform-tools
+
+            -   name: Provide a host-architecture adb
+                # Google ships platform-tools for linux-x86_64 only. On the arm64
+                # fleet its adb cannot exec at all — the shell falls back to parsing
+                # the ELF as a script and reports "Syntax error: word unexpected" —
+                # so the distro adb replaces it for every consumer (Gradle, Maestro,
+                # the steps below) through the path the SDK already exports.
+                timeout-minutes: 10
+                run: |
+                    set -euo pipefail
+                    if ! dpkg -s adb >/dev/null 2>&1; then
+                      sudo apt-get update -y
+                      sudo apt-get install -y adb
+                    fi
+                    sudo ln -sf /usr/bin/adb "$ANDROID_HOME/platform-tools/adb"
+                    adb version
+
+            -   name: Start redroid container
+                id: redroid
+                # redroid runs Android on the host kernel instead of emulating a
+                # foreign architecture, so it needs neither KVM nor an x86_64 host —
+                # the two things this arm64 fleet cannot offer. The image is
+                # multi-arch, so the arm64 host pulls an arm64 Android whose ABI
+                # matches the arm64-v8a slice of the release APK.
+                timeout-minutes: 15
+                run: |
+                    set -euo pipefail
+                    if [ ! -d /dev/binderfs ] && ! lsmod | grep -q '^binder_linux'; then
+                      echo "::error::redroid needs binder on the host. Load it on the runner: sudo modprobe binder_linux devices=binder,hwbinder,vndbinder"
+                      exit 1
+                    fi
+                    docker rm -f "$REDROID_CONTAINER" >/dev/null 2>&1 || true
+                    rm -rf "$REDROID_DATA_DIR"
+                    mkdir -p "$REDROID_DATA_DIR"
+                    docker run -d --privileged \
+                      --name "$REDROID_CONTAINER" \
+                      -p "$ADB_PORT:5555" \
+                      -v "$REDROID_DATA_DIR:/data" \
+                      redroid/redroid:14.0.0-latest \
+                      androidboot.redroid_width=1080 \
+                      androidboot.redroid_height=2340 \
+                      androidboot.redroid_dpi=440 \
+                      androidboot.redroid_gpu_mode=guest
+                    adb start-server
+                    timeout 180 bash -c 'until adb connect "127.0.0.1:$ADB_PORT" | grep -q connected; do sleep 3; done'
+                    timeout 300 adb -s "127.0.0.1:$ADB_PORT" wait-for-device
+                    timeout 300 bash -c 'until [ "$(adb -s "127.0.0.1:$ADB_PORT" shell getprop sys.boot_completed | tr -d "\r")" = "1" ]; do sleep 3; done'
+                    adb devices -l
 
             -   name: Restore Gradle cache
                 uses: actions/cache@v4
@@ -149,51 +202,53 @@ jobs:
                     fi
                     echo "$HOME/.maestro/bin" >> "$GITHUB_PATH"
 
-            -   name: Boot emulator, build, install, and test
+            -   name: Build, install, and test
                 id: emulator
-                uses: reactivecircus/android-emulator-runner@v2.38.0
-                # System image download + AVD creation + cold boot + a cold Gradle
-                # release build + the Maestro suite. 50 minutes leaves the rest of the
-                # job roughly 15 minutes of the 65 minute job budget.
-                timeout-minutes: 50
-                with:
-                    api-level: 34
-                    target: google_apis
-                    arch: x86_64
-                    profile: pixel_6
-                    disable-animations: true
-                    disable-spellchecker: true
-                    force-avd-creation: false
-                    emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
-                    script: |
-                        set -euo pipefail
-                        set -x
-                        timeout 300 adb wait-for-device
-                        timeout 180 bash -c 'until [ "$(adb shell getprop sys.boot_completed | tr -d "\r")" = "1" ]; do sleep 2; done'
-                        (cd "${{ env.APP_DIR }}/android" && ./gradlew assembleRelease)
-                        apk=$(find "${{ env.APP_DIR }}/android/app/build/outputs/apk/release" -name '*.apk' | head -1)
-                        timeout 300 adb install -r "$apk"
-                        cd "${{ env.EXAMPLE_DIR }}"
-                        yarn e2e:android:${{ matrix.target }}
+                # A cold Gradle release build plus the Maestro suite. redroid is
+                # already booted by the previous step, so this budget is build and
+                # test only, leaving the rest of the 65 minute job budget for setup.
+                timeout-minutes: 45
+                shell: bash
+                run: |
+                    set -euo pipefail
+                    set -x
+                    (cd "${{ env.APP_DIR }}/android" && ./gradlew assembleRelease)
+                    apk=$(find "${{ env.APP_DIR }}/android/app/build/outputs/apk/release" -name '*.apk' | head -1)
+                    timeout 300 adb -s "127.0.0.1:$ADB_PORT" install -r "$apk"
+                    cd "${{ env.EXAMPLE_DIR }}"
+                    yarn e2e:android:${{ matrix.target }}
 
             -   name: Capture final device state
-                # Only meaningful when the emulator step actually ran and failed. If
-                # Android SDK setup (or anything before it) failed, this step is
-                # skipped instead of talking to an adb server that has no device.
-                if: failure() && steps.emulator.outcome == 'failure'
+                # Only meaningful when the redroid container booted and the test step
+                # then failed. If setup failed earlier, this is skipped instead of
+                # talking to an adb server that has no device.
+                if: failure() && (steps.emulator.outcome == 'failure' || steps.redroid.outcome == 'failure')
                 # A diagnostic must never outlive the test it is diagnosing.
                 timeout-minutes: 3
                 shell: bash
                 run: |
                     out="${{ env.MAESTRO_DEBUG_OUTPUT_DIRECTORY }}"
                     mkdir -p "$out"
-                    if ! timeout 30 adb wait-for-device; then
+                    docker logs "$REDROID_CONTAINER" > "$out/redroid-container.log" 2>&1 || true
+                    if ! timeout 30 adb -s "127.0.0.1:$ADB_PORT" wait-for-device; then
                       echo "No device attached after 30s; skipping device state capture."
                       exit 0
                     fi
-                    timeout 30 adb exec-out screencap -p > "$out/final-screen.png" || true
-                    timeout 60 adb logcat -d > "$out/logcat-full.txt" 2>&1 || true
-                    timeout 30 adb logcat -d -b crash > "$out/logcat-crash.txt" 2>&1 || true
+                    device="127.0.0.1:$ADB_PORT"
+                    timeout 30 adb -s "$device" exec-out screencap -p > "$out/final-screen.png" || true
+                    timeout 60 adb -s "$device" logcat -d > "$out/logcat-full.txt" 2>&1 || true
+                    timeout 30 adb -s "$device" logcat -d -b crash > "$out/logcat-crash.txt" 2>&1 || true
+
+            -   name: Stop redroid container
+                # The fleet is shared, so a leaked privileged container (and its data
+                # directory) must never outlive the job that started it.
+                if: always()
+                timeout-minutes: 5
+                shell: bash
+                run: |
+                    adb disconnect "127.0.0.1:$ADB_PORT" || true
+                    docker rm -f "$REDROID_CONTAINER" || true
+                    rm -rf "$REDROID_DATA_DIR" || true
 
             -   name: Upload Maestro artifacts
                 if: failure() && steps.emulator.outcome == 'failure'
