@@ -258,14 +258,20 @@ function scanInstalledPackagesForExtensionlessSpecifiers() {
         }
 
         const pkgJson = JSON.parse(fs.readFileSync(path.join(scopeDir, pkg, 'package.json'), 'utf8'));
-        const esmEntry = pkgJson.exports?.['.']?.import?.default ?? './dist/esm/index.js';
-        const esmDir = path.dirname(path.join(scopeDir, pkg, esmEntry));
-        if (!fs.existsSync(esmDir)) {
-            fail(pkg, `installed package has no ESM directory at ${path.relative(scopeDir, esmDir)}`);
+        const importCondition = pkgJson.exports?.['.']?.import;
+        const scannedEntries = [importCondition?.default ?? './dist/esm/index.js', importCondition?.types].filter(
+            entry => entry != null
+        );
+        const scannedDirs = [
+            ...new Set(scannedEntries.map(entry => path.dirname(path.join(scopeDir, pkg, entry)))),
+        ];
+        const missingDir = scannedDirs.find(dir => !fs.existsSync(dir));
+        if (missingDir) {
+            fail(pkg, `installed package has no ESM directory at ${path.relative(scopeDir, missingDir)}`);
             continue;
         }
 
-        for (const file of collectJsAndDtsFiles(esmDir)) {
+        for (const file of scannedDirs.flatMap(dir => collectJsAndDtsFiles(dir))) {
             const content = fs.readFileSync(file, 'utf8');
             const specRe = createRelativeSpecifierRegex();
             let match;

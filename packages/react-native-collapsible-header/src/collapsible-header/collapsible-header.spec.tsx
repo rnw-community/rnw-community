@@ -81,21 +81,14 @@ const Subject = ({
     );
 };
 
-const ProviderlessSubject = ({ snap = false }: { readonly snap?: boolean }) => {
-    const scrollY = useSharedValue(0);
-    const scrollYProps = snap ? { scrollY } : {};
-
-    return (
-        <CollapsibleHeader
-            {...scrollYProps}
-            expandedHeight={EXPANDED_HEIGHT}
-            collapsedHeight={COLLAPSED_HEIGHT}
-            snap={snap}
-            expandedContent={<Text>Expanded</Text>}
-            collapsedContent={<Text>Collapsed</Text>}
-        />
-    );
-};
+const ProviderlessSubject = () => (
+    <CollapsibleHeader
+        expandedHeight={EXPANDED_HEIGHT}
+        collapsedHeight={COLLAPSED_HEIGHT}
+        expandedContent={<Text>Expanded</Text>}
+        collapsedContent={<Text>Collapsed</Text>}
+    />
+);
 
 const getLayer = (layer: string) => screen.getByTestId(`header-${layer}`, { includeHiddenElements: true });
 const getLayerA11y = (layer: string): Pick<ViewProps, 'accessibilityElementsHidden' | 'importantForAccessibility'> =>
@@ -192,11 +185,11 @@ describe('CollapsibleHeader scroll wiring', () => {
         );
     });
 
-    it('requires a provider ancestor for snapping', () => {
+    it('rejects snapping combined with a caller-owned scrollY prop', () => {
         expect.hasAssertions();
 
-        expect(() => render(<ProviderlessSubject snap />)).toThrow(
-            'CollapsibleHeader snap requires a CollapsibleHeaderProvider ancestor'
+        expect(() => render(<Subject snap />)).toThrow(
+            'CollapsibleHeader snap scrolls the CollapsibleHeaderProvider scrollable, so it cannot combine with a scrollY prop'
         );
     });
 });

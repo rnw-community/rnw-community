@@ -4,6 +4,7 @@ import Animated from 'react-native-reanimated';
 
 import { cs, getDefined, isDefined } from '@rnw-community/shared';
 
+import { assertSnappableCollapsibleHeaderScroll } from '../assert/assert-snappable-collapsible-header-scroll.assert';
 import { assertValidCollapsibleHeaderConfig } from '../assert/assert-valid-collapsible-header-config.assert';
 import { resolveCollapsibleHeaderMotionConfig } from '../config/resolve-collapsible-header-motion.config';
 import { CollapsibleHeaderProgressContext } from '../context/collapsible-header-progress.context';
@@ -71,18 +72,14 @@ export const CollapsibleHeader = (props: CollapsibleHeaderProps) => {
     const scrollSource = getDefined(scrollY ?? scrollContext?.scrollY, () => {
         throw new Error('CollapsibleHeader requires a scrollY prop or a CollapsibleHeaderProvider ancestor');
     });
-    const snapContext = snap
-        ? getDefined(scrollContext, () => {
-              throw new Error('CollapsibleHeader snap requires a CollapsibleHeaderProvider ancestor');
-          })
-        : scrollContext;
+    assertSnappableCollapsibleHeaderScroll(snap, scrollY);
     const motionConfig = resolveCollapsibleHeaderMotionConfig(motion);
 
     assertValidCollapsibleHeaderConfig(
         { expandedHeight, collapsedHeight, collapseDistance: resolvedCollapseDistance, collapseStart },
         motionConfig
     );
-    useCollapsibleHeaderSnapRegistration(snapContext, snap, collapseStart, collapseStart + resolvedCollapseDistance);
+    useCollapsibleHeaderSnapRegistration(scrollContext, snap, collapseStart, collapseStart + resolvedCollapseDistance);
     const { progress, ...layers } = useCollapsibleHeaderAnimatedLayers({
         scrollY: scrollSource,
         expandedHeight,

@@ -19,6 +19,7 @@ const COLLAPSED_HEIGHT = 40;
 const COLLAPSE_START = 20;
 const COLLAPSE_DISTANCE = 80;
 const SCROLLED_OFFSET = 64;
+const SECOND_COLLAPSE_DISTANCE = 40;
 
 const ContextProbe = ({ onCapture }: { readonly onCapture: OnEventFn<Maybe<CollapsibleHeaderScrollContextValue>> }) => {
     const scrollContext = useContext(CollapsibleHeaderScrollContext);
@@ -44,13 +45,29 @@ const ScrollableProbe = () => {
     );
 };
 
-const Header = ({ snap = false }: { readonly snap?: boolean }) => (
+const captureContext =
+    (captured: { value: Maybe<CollapsibleHeaderScrollContextValue> }) =>
+    (value: Maybe<CollapsibleHeaderScrollContextValue>): void => {
+        captured.value = value;
+    };
+const getCapturedContext = (captured: { readonly value: Maybe<CollapsibleHeaderScrollContextValue> }) =>
+    getDefined(captured.value, () => {
+        throw new Error('Scroll context was not provided');
+    });
+
+const Header = ({
+    snap = false,
+    collapseDistance = COLLAPSE_DISTANCE,
+}: {
+    readonly snap?: boolean;
+    readonly collapseDistance?: number;
+}) => (
     <CollapsibleHeader
         snap={snap}
         expandedHeight={EXPANDED_HEIGHT}
         collapsedHeight={COLLAPSED_HEIGHT}
         collapseStart={COLLAPSE_START}
-        collapseDistance={COLLAPSE_DISTANCE}
+        collapseDistance={collapseDistance}
         expandedContent={<Text>Expanded</Text>}
         collapsedContent={<Text>Collapsed</Text>}
     />
@@ -63,17 +80,11 @@ describe('CollapsibleHeaderProvider', () => {
         const screen = render(
             <CollapsibleHeaderProvider>
                 <Header />
-                <ContextProbe
-                    onCapture={value => {
-                        captured.value = value;
-                    }}
-                />
+                <ContextProbe onCapture={captureContext(captured)} />
                 <ScrollableProbe />
             </CollapsibleHeaderProvider>
         );
-        const scrollContext = getDefined(captured.value, () => {
-            throw new Error('Scroll context was not provided');
-        });
+        const scrollContext = getCapturedContext(captured);
 
         expect(scrollContext.scrollY.get()).toBe(0);
 
@@ -85,18 +96,14 @@ describe('CollapsibleHeaderProvider', () => {
     it('registers snap geometry while a snapping header is mounted', () => {
         expect.hasAssertions();
         const captured: { value: Maybe<CollapsibleHeaderScrollContextValue> } = { value: null };
-        const onCapture = (value: Maybe<CollapsibleHeaderScrollContextValue>): void => {
-            captured.value = value;
-        };
+        const onCapture = captureContext(captured);
         const screen = render(
             <CollapsibleHeaderProvider>
                 <Header snap />
                 <ContextProbe onCapture={onCapture} />
             </CollapsibleHeaderProvider>
         );
-        const scrollContext = getDefined(captured.value, () => {
-            throw new Error('Scroll context was not provided');
-        });
+        const scrollContext = getCapturedContext(captured);
 
         expect(scrollContext.snapConfig.get()).toStrictEqual({
             snapStart: COLLAPSE_START,
@@ -112,24 +119,42 @@ describe('CollapsibleHeaderProvider', () => {
         expect(scrollContext.snapConfig.get()).toBeNull();
     });
 
+    it('keeps the surviving header snap geometry when another snapping header unmounts', () => {
+        expect.hasAssertions();
+        const captured: { value: Maybe<CollapsibleHeaderScrollContextValue> } = { value: null };
+        const onCapture = captureContext(captured);
+        const screen = render(
+            <CollapsibleHeaderProvider>
+                <Header snap />
+                <Header snap collapseDistance={SECOND_COLLAPSE_DISTANCE} />
+                <ContextProbe onCapture={onCapture} />
+            </CollapsibleHeaderProvider>
+        );
+        const scrollContext = getCapturedContext(captured);
+        const secondSnapConfig = { snapStart: COLLAPSE_START, snapEnd: COLLAPSE_START + SECOND_COLLAPSE_DISTANCE };
+
+        expect(scrollContext.snapConfig.get()).toStrictEqual(secondSnapConfig);
+
+        screen.rerender(
+            <CollapsibleHeaderProvider>
+                <Header snap collapseDistance={SECOND_COLLAPSE_DISTANCE} />
+                <ContextProbe onCapture={onCapture} />
+            </CollapsibleHeaderProvider>
+        );
+
+        expect(scrollContext.snapConfig.get()).toStrictEqual(secondSnapConfig);
+    });
+
     it('keeps snap geometry unregistered for non-snapping headers', () => {
         expect.hasAssertions();
         const captured: { value: Maybe<CollapsibleHeaderScrollContextValue> } = { value: null };
         render(
             <CollapsibleHeaderProvider>
                 <Header />
-                <ContextProbe
-                    onCapture={value => {
-                        captured.value = value;
-                    }}
-                />
+                <ContextProbe onCapture={captureContext(captured)} />
             </CollapsibleHeaderProvider>
         );
 
-        expect(
-            getDefined(captured.value, () => {
-                throw new Error('Scroll context was not provided');
-            }).snapConfig.get()
-        ).toBeNull();
+        expect(getCapturedContext(captured).snapConfig.get()).toBeNull();
     });
 });

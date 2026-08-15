@@ -15,8 +15,13 @@ export const useCollapsibleHeaderSnapRegistration = (
         if (!snap || !isDefined(scrollContext)) {
             return emptyFn;
         }
-        scrollContext.snapConfig.set({ snapEnd, snapStart });
+        const ownedSnapConfig = { snapEnd, snapStart };
+        scrollContext.snapConfig.set(ownedSnapConfig);
 
-        return () => void scrollContext.snapConfig.set(null);
+        return () => {
+            if (scrollContext.snapConfig.get() === ownedSnapConfig) {
+                scrollContext.snapConfig.set(null);
+            }
+        };
     }, [scrollContext, snap, snapStart, snapEnd]);
 };

@@ -190,8 +190,10 @@ const Avatar = () => {
 
 Builds the content-container inset for `overlay` mode: `getCollapsibleHeaderContentInsetStyle(156)` returns
 `{ paddingTop: 156 }`. Apply it to the scrollable's `contentContainerStyle` so content starts below the pinned header.
-In overlay mode the default `collapseDistance` (`expandedHeight - collapsedHeight`) keeps the content edge exactly
-aligned with the shrinking header.
+With the default `collapseStart` of `0` and the default `collapseDistance` (`expandedHeight - collapsedHeight`), the
+content edge stays exactly aligned with the shrinking header. A positive `collapseStart` breaks that alignment — content
+scrolls up while the header still sits at its expanded height, so it slides under the header by `collapseStart` points.
+Pass `getCollapsibleHeaderContentInsetStyle(expandedHeight + collapseStart)` when delaying the collapse.
 
 ## DefaultCollapsibleHeaderMotionConfig
 
