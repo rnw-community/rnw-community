@@ -57,8 +57,10 @@ e2e/
 
 Both Maestro workflows (`.github/workflows/ios-maestro.yml`, `android-maestro.yml`) run this package's suite. The
 package/target matrix lives in `.github/scripts/maestro-matrix.mjs` — register new example packages and targets there.
-Only the `expo` target is wired today: the `bare` target has no committed `ios/`/`android/` projects (payments commits
-its own), so wiring it needs those generated and committed first.
+Both targets are wired. Like the payments example, the `bare` target commits its own `ios/` and `android/` projects
+(the expo target generates its own with `expo prebuild`), and `apps/bare/.gitignore` keeps only build output out. The
+bare `MainActivity` drops Android state restoration (`super.onCreate(null)`), which react-native-screens requires for
+the native stack.
 
 ## Commands
 

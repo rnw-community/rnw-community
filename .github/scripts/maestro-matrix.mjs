@@ -35,8 +35,14 @@ const EXAMPLES = [
         exampleDir: 'packages/react-native-collapsible-header-example',
         buildFilter: '@rnw-community/react-native-collapsible-header',
         targets: {
-            // The bare target is unregistered until its ios/ + android/ projects are
-            // generated and committed, the way the payments example commits its own.
+            bare: {
+                iosScheme: 'ReactNativeCollapsibleHeaderExample',
+                members: [
+                    '@rnw-community/react-native-collapsible-header',
+                    '@rnw-community/react-native-collapsible-header-example',
+                    '@rnw-community/react-native-collapsible-header-example-bare',
+                ],
+            },
             expo: {
                 iosScheme: 'reactnativecollapsibleheaderexpoexample',
                 members: [

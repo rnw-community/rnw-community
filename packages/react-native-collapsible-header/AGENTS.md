@@ -95,6 +95,10 @@ src/
 - Worklet bodies use plain `=== null` checks — `@rnw-community/shared` guards are not workletized and must not be
   called on the UI runtime.
 - `react`, `react-native`, and `react-native-reanimated` remain peer dependencies. Never bundle a second Reanimated copy.
+- The `react` and `react-test-renderer` devDependencies are pinned to the exact version the example apps use. A caret
+  range resolves to a newer patch and gives this package its own `node_modules/react`; `react-compiler-runtime` then
+  imports that second copy, whose dispatcher is null during the app's render, and every compiled component throws
+  `TypeError: Cannot read property 'useMemoCache' of null` at runtime while unit tests stay green.
 - Runtime animation code uses APIs shared by Reanimated 3.17.2 and 4.x, and only the compiler-safe `.get()`/`.set()`
   shared-value accessors.
 - Modern-React posture: the React Compiler owns memoization (no manual `useMemo`/`useCallback`/`React.memo`), state is
