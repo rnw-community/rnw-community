@@ -1,9 +1,9 @@
 name: iOS Maestro E2E
 
-# Draft workflow for issue #395 (react-native-payments revival, epic #372). The
-# self-hosted macOS fleet is not registered yet (blocked on #396), so runs
-# simply queue until that lands. workflow_dispatch + path filters + a nightly
-# schedule keep this safe to land ahead of the fleet.
+# Runs the Maestro suite of every example package that carries one, on the
+# self-hosted macOS fleet (issue #395, epic #372). The package/target matrix comes
+# from .github/scripts/maestro-matrix.mjs, which also decides which suites a pull
+# request actually needs; add new example packages there, not here.
 on:
     workflow_dispatch:
     pull_request:
@@ -12,6 +12,9 @@ on:
         paths:
             - packages/react-native-payments/**
             - packages/react-native-payments-example/**
+            - packages/react-native-collapsible-header/**
+            - packages/react-native-collapsible-header-example/**
+            - .github/scripts/maestro-matrix.mjs
             - .github/workflows/ios-maestro.yml
     schedule:
         - cron: '17 3 * * *'
@@ -28,14 +31,14 @@ env:
     MAESTRO_CLI_NO_ANALYTICS: true
     MAESTRO_CLI_ANALYSIS_NOTIFICATION_DISABLED: true
     YARN_ENABLE_IMMUTABLE_INSTALLS: true
-    EXAMPLE_DIR: packages/react-native-payments-example
 
 jobs:
     detect:
         name: Detect affected packages
         runs-on: ubuntu-latest
         outputs:
-            payments_affected: ${{ steps.affected.outputs.payments_affected }}
+            matrix: ${{ steps.affected.outputs.matrix }}
+            any: ${{ steps.affected.outputs.any }}
         steps:
             - uses: actions/checkout@v5
               with:
@@ -44,36 +47,23 @@ jobs:
             - uses: actions/setup-node@v5
               with:
                   node-version: 22.x
-            - name: Compute affected packages
+            - name: Compute affected example packages
               id: affected
               env:
                   TURBO_SCM_BASE: ${{ github.event.pull_request.base.sha }}
+                  EVENT_NAME: ${{ github.event_name }}
               run: |
-                  if [ "${{ github.event_name }}" != "pull_request" ]; then
-                    echo "payments_affected=true" >> "$GITHUB_OUTPUT"
-                    echo "Non-PR event: payments pipeline always runs."
-                    exit 0
+                  set -euo pipefail
+                  # An empty file means "not a pull request", where every suite runs.
+                  : > affected.json
+                  if [ "$EVENT_NAME" = "pull_request" ]; then
+                    npx -y turbo@2.10.8 ls --affected --output=json > affected.json
                   fi
-                  affected=$(npx -y turbo@2.10.8 ls --affected --output=json | node -e '
-                    let raw = "";
-                    process.stdin.on("data", chunk => (raw += chunk));
-                    process.stdin.on("end", () => {
-                      const names = (JSON.parse(raw).packages?.items ?? []).map(item => item.name);
-                      const targets = [
-                        "@rnw-community/react-native-payments",
-                        "@rnw-community/react-native-payments-example",
-                        "@rnw-community/react-native-payments-example-bare",
-                        "@rnw-community/react-native-payments-example-expo",
-                      ];
-                      process.stdout.write(String(names.some(name => targets.includes(name))));
-                    });
-                  ')
-                  echo "payments_affected=${affected}" >> "$GITHUB_OUTPUT"
-                  echo "payments_affected=${affected}"
+                  node .github/scripts/maestro-matrix.mjs affected.json | tee -a "$GITHUB_OUTPUT"
     maestro:
-        name: Maestro (${{ matrix.target }})
+        name: Maestro (${{ matrix.package }}, ${{ matrix.target }})
         needs: detect
-        if: needs.detect.outputs.payments_affected == 'true'
+        if: needs.detect.outputs.any == 'true'
         runs-on: [self-hosted, macOS, ARM64, macos-maestro]
         # Self-hosted fleet capacity is shared with other repositories, so both the
         # job and every step below carry an explicit bound. See the step comments
@@ -82,10 +72,10 @@ jobs:
         strategy:
             fail-fast: false
             matrix:
-                target: [bare, expo]
+                include: ${{ fromJSON(needs.detect.outputs.matrix) }}
         env:
-            APP_DIR: packages/react-native-payments-example/apps/${{ matrix.target }}
-            MAESTRO_DEBUG_OUTPUT_DIRECTORY: ${{ github.workspace }}/packages/react-native-payments-example/artifacts/maestro-ios-${{ matrix.target }}
+            APP_DIR: ${{ matrix.example_dir }}/apps/${{ matrix.target }}
+            MAESTRO_DEBUG_OUTPUT_DIRECTORY: ${{ github.workspace }}/${{ matrix.example_dir }}/artifacts/maestro-ios-${{ matrix.package }}-${{ matrix.target }}
 
         steps:
             -   name: Checkout repository
@@ -133,28 +123,21 @@ jobs:
                     path: |
                         ${{ env.APP_DIR }}/ios/Pods
                         ${{ env.APP_DIR }}/ios/build
-                    key: pods-project-ios-${{ matrix.target }}-${{ runner.os }}-${{ hashFiles(format('{0}/ios/Podfile.lock', env.APP_DIR), format('{0}/package.json', env.APP_DIR), format('{0}/app.json', env.APP_DIR), 'yarn.lock') }}
+                    key: pods-project-ios-${{ matrix.package }}-${{ matrix.target }}-${{ runner.os }}-${{ hashFiles(format('{0}/ios/Podfile.lock', env.APP_DIR), format('{0}/package.json', env.APP_DIR), format('{0}/app.json', env.APP_DIR), 'yarn.lock') }}
                     restore-keys: |
-                        pods-project-ios-${{ matrix.target }}-${{ runner.os }}-
+                        pods-project-ios-${{ matrix.package }}-${{ matrix.target }}-${{ runner.os }}-
 
             -   name: Build workspace JS dependencies
                 timeout-minutes: 10
-                run: yarn build --filter=@rnw-community/react-native-payments
+                run: yarn build --filter=${{ matrix.build_filter }}
 
             -   name: Generate native project (expo)
                 if: matrix.target == 'expo'
                 timeout-minutes: 10
-                working-directory: ${{ env.EXAMPLE_DIR }}
+                working-directory: ${{ matrix.example_dir }}
                 run: yarn prebuild:expo
 
-            -   name: Install CocoaPods dependencies (bare)
-                if: matrix.target == 'bare'
-                timeout-minutes: 20
-                working-directory: ${{ env.APP_DIR }}/ios
-                run: pod install --repo-update
-
-            -   name: Install CocoaPods dependencies (expo)
-                if: matrix.target == 'expo'
+            -   name: Install CocoaPods dependencies
                 timeout-minutes: 20
                 working-directory: ${{ env.APP_DIR }}/ios
                 run: pod install --repo-update
@@ -179,39 +162,24 @@ jobs:
                     perl -e 'alarm 300; exec @ARGV' xcrun simctl bootstatus "$device_udid" -b
                     echo "SIMULATOR_UDID=$device_udid" >> "$GITHUB_ENV"
 
-            -   name: Build app (bare)
-                if: matrix.target == 'bare'
+            -   name: Build app
+                # The workspace and scheme are the same name for both target kinds:
+                # the bare template names them after app.json, and expo prebuild
+                # derives them from the slug. The matrix carries that name.
                 timeout-minutes: 45
                 working-directory: ${{ env.APP_DIR }}/ios
                 run: |
                     set -euo pipefail
                     xcodebuild \
-                        -workspace ReactNativePaymentsExample.xcworkspace \
-                        -scheme ReactNativePaymentsExample \
+                        -workspace ${{ matrix.ios_scheme }}.xcworkspace \
+                        -scheme ${{ matrix.ios_scheme }} \
                         -configuration Release \
                         -sdk iphonesimulator \
                         -destination 'generic/platform=iOS Simulator' \
                         -derivedDataPath build \
                         CODE_SIGNING_ALLOWED=NO \
                         build
-                    echo "APP_PATH=${{ env.APP_DIR }}/ios/build/Build/Products/Release-iphonesimulator/ReactNativePaymentsExample.app" >> "$GITHUB_ENV"
-
-            -   name: Build app (expo)
-                if: matrix.target == 'expo'
-                timeout-minutes: 45
-                working-directory: ${{ env.APP_DIR }}/ios
-                run: |
-                    set -euo pipefail
-                    xcodebuild \
-                        -workspace reactnativepaymentsexpoexample.xcworkspace \
-                        -scheme reactnativepaymentsexpoexample \
-                        -configuration Release \
-                        -sdk iphonesimulator \
-                        -destination 'generic/platform=iOS Simulator' \
-                        -derivedDataPath build \
-                        CODE_SIGNING_ALLOWED=NO \
-                        build
-                    echo "APP_PATH=${{ env.APP_DIR }}/ios/build/Build/Products/Release-iphonesimulator/reactnativepaymentsexpoexample.app" >> "$GITHUB_ENV"
+                    echo "APP_PATH=${{ env.APP_DIR }}/ios/build/Build/Products/Release-iphonesimulator/${{ matrix.ios_scheme }}.app" >> "$GITHUB_ENV"
 
             -   name: Install app on simulator
                 timeout-minutes: 10
@@ -230,7 +198,7 @@ jobs:
                 # The suite itself took ~85s per shard on the Redroid prototype runs;
                 # 25 minutes covers a slow retry loop without holding the fleet.
                 timeout-minutes: 25
-                working-directory: ${{ env.EXAMPLE_DIR }}
+                working-directory: ${{ matrix.example_dir }}
                 run: yarn e2e:ios:${{ matrix.target }}
 
             -   name: Capture final simulator state
@@ -255,7 +223,7 @@ jobs:
                 uses: actions/upload-artifact@v4
                 timeout-minutes: 5
                 with:
-                    name: maestro-ios-${{ matrix.target }}
+                    name: maestro-ios-${{ matrix.package }}-${{ matrix.target }}
                     path: ${{ env.MAESTRO_DEBUG_OUTPUT_DIRECTORY }}/**
                     if-no-files-found: warn
                     retention-days: 7
@@ -272,8 +240,8 @@ jobs:
                     echo "Detection job did not succeed."
                     exit 1
                   fi
-                  if [ "${{ needs.detect.outputs.payments_affected }}" != "true" ]; then
-                    echo "Skipped: payments dependency tree untouched."
+                  if [ "${{ needs.detect.outputs.any }}" != "true" ]; then
+                    echo "Skipped: no example package dependency tree was touched."
                     exit 0
                   fi
                   if [ "${{ needs.maestro.result }}" != "success" ]; then

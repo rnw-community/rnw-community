@@ -53,6 +53,13 @@ e2e/
 - Navigation chrome — the Settings screen shows the second use case: a large title that collapses into a small
   centered title between persistent leading/trailing icon buttons, per the settings pages in suuudokuuu and budgie.
 
+## CI coverage
+
+Both Maestro workflows (`.github/workflows/ios-maestro.yml`, `android-maestro.yml`) run this package's suite. The
+package/target matrix lives in `.github/scripts/maestro-matrix.mjs` — register new example packages and targets there.
+Only the `expo` target is wired today: the `bare` target has no committed `ios/`/`android/` projects (payments commits
+its own), so wiring it needs those generated and committed first.
+
 ## Commands
 
 Target scripts live on this package and delegate to the nested workspaces: `ios:bare`, `android:bare`, `start:bare`,
