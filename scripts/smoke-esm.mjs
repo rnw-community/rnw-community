@@ -257,9 +257,11 @@ function scanInstalledPackagesForExtensionlessSpecifiers() {
             continue;
         }
 
-        const esmDir = path.join(scopeDir, pkg, 'dist', 'esm');
+        const pkgJson = JSON.parse(fs.readFileSync(path.join(scopeDir, pkg, 'package.json'), 'utf8'));
+        const esmEntry = pkgJson.exports?.['.']?.import?.default ?? './dist/esm/index.js';
+        const esmDir = path.dirname(path.join(scopeDir, pkg, esmEntry));
         if (!fs.existsSync(esmDir)) {
-            fail(pkg, `installed package has no dist/esm directory at ${path.relative(scopeDir, esmDir)}`);
+            fail(pkg, `installed package has no ESM directory at ${path.relative(scopeDir, esmDir)}`);
             continue;
         }
 

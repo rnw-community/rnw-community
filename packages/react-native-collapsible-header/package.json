@@ -20,26 +20,24 @@
     "exports": {
         ".": {
             "import": {
-                "types": "./dist/esm/index.d.ts",
-                "default": "./dist/esm/index.js"
+                "types": "./dist/typescript/module/index.d.ts",
+                "default": "./dist/module/index.js"
             },
             "require": {
-                "types": "./dist/cjs/index.d.ts",
-                "default": "./dist/cjs/index.js"
+                "types": "./dist/typescript/commonjs/index.d.ts",
+                "default": "./dist/commonjs/index.js"
             }
         }
     },
-    "main": "dist/cjs/index.js",
-    "module": "dist/esm/index.js",
-    "types": "dist/esm/index.d.ts",
+    "main": "dist/commonjs/index.js",
+    "module": "dist/module/index.js",
+    "types": "dist/typescript/module/index.d.ts",
     "files": [
         "dist/**/*",
         "llms.txt"
     ],
     "scripts": {
-        "build": "rm -rf ./dist && yarn build:esm && yarn build:cjs && node ../../scripts/react-compiler-lower-jsx.mjs ./dist/esm esm && node ../../scripts/react-compiler-lower-jsx.mjs ./dist/cjs cjs && node ../../scripts/rewrite-esm-extensions.mjs ./dist/esm && node ../../scripts/assert-esm-extensions.mjs ./dist/esm && rm -rf ./dist/*/*.tsbuildinfo && echo '{\"type\":\"module\"}' > dist/esm/package.json && echo '{\"type\":\"commonjs\"}' > dist/cjs/package.json",
-        "build:cjs": "run -T tsc --pretty -p tsconfig.build-cjs.json",
-        "build:esm": "run -T tsc --pretty -p tsconfig.build-esm.json",
+        "build": "rm -rf ./dist && bob build && node ../../scripts/assert-esm-extensions.mjs ./dist/module && node ../../scripts/assert-react-compiler-output.mjs ./dist/module ./dist/commonjs",
         "clear": "rm -rf coverage && rm -rf dist && rm -f *.tsbuildinfo",
         "clear:deps": "rm -rf ./node_modules && rm -rf ./dist",
         "format": "run -T prettier --write \"./src/**/*.{ts,tsx}\"",
@@ -56,8 +54,6 @@
     },
     "devDependencies": {
         "@babel/core": "^7.29.7",
-        "@babel/plugin-transform-modules-commonjs": "^7.29.7",
-        "@babel/plugin-transform-react-jsx": "^7.29.7",
         "@react-native/babel-preset": "0.86.2",
         "@react-native/jest-preset": "0.86.2",
         "@react-native/metro-config": "0.86.2",
@@ -68,6 +64,7 @@
         "react": "^19.2.3",
         "react-freeze": "^1.0.3",
         "react-native": "0.86.2",
+        "react-native-builder-bob": "^0.43.0",
         "react-native-reanimated": "4.5.3",
         "react-native-worklets": "0.11.3",
         "react-test-renderer": "^19.2.3"
@@ -82,5 +79,31 @@
     },
     "publishConfig": {
         "access": "public"
+    },
+    "react-native-builder-bob": {
+        "source": "src",
+        "output": "dist",
+        "targets": [
+            [
+                "module",
+                {
+                    "esm": true,
+                    "configFile": "./babel.config.bob.js"
+                }
+            ],
+            [
+                "commonjs",
+                {
+                    "esm": true,
+                    "configFile": "./babel.config.bob.js"
+                }
+            ],
+            [
+                "typescript",
+                {
+                    "project": "tsconfig.build.json"
+                }
+            ]
+        ]
     }
 }

@@ -98,25 +98,27 @@ src/
   through `babel-plugin-react-compiler` with `panicThreshold: 'all_errors'` — a Rules-of-React violation anywhere in
   src (specs included) fails the suite.
 
-## React Compiler publication pipeline
+## Publication pipeline (react-native-builder-bob)
 
-Both dist trees ship React Compiler output targeting React 18+ (`react-compiler-runtime` is a runtime dependency).
-The build tsconfigs set `"jsx": "preserve"` so `tsc` emits `.jsx` files for components, then
-`scripts/react-compiler-lower-jsx.mjs` (repo root) lowers them:
+The package builds with `react-native-builder-bob` — the React Native library standard — configured in
+`package.json` under `react-native-builder-bob`:
 
-- `esm` pass: `babel-plugin-react-compiler` (`panicThreshold: 'all_errors'`, `target: '18'`) + automatic-runtime JSX
-  transform over `dist/esm/**/*.jsx`, writing `.js` in place.
-- `cjs` pass: converts the already-compiled ESM mirror file with `@babel/plugin-transform-modules-commonjs` — the
-  compiler cannot parse tsc's CommonJS hook-call lowering (`(0, react_1.useContext)(...)`), so the CJS tree derives
-  from the compiled ESM output instead. The pass runs before the ESM extension rewrite, so specifiers are still
-  extensionless and match the CJS tree's classic-resolution expectations.
-- The script fails the build when no `.jsx` files are found, when any transform produces no output, or when the
-  compiler memoized fewer files than it lowered.
+- targets: `["module", { esm: true }]` → `dist/module` (real ESM: bob rewrites relative specifiers with `.js`
+  extensions and writes the `{"type":"module"}` marker), `["commonjs", { esm: true }]` → `dist/commonjs` (with the
+  `{"type":"commonjs"}` marker), and `typescript` → `dist/typescript/module` + `dist/typescript/commonjs` declaration
+  trees (from `tsconfig.build.json`, which excludes specs).
+- React Compiler ships in both dist trees via `babel.config.bob.js` (bob's babel preset plus
+  `babel-plugin-react-compiler` with `panicThreshold: 'all_errors'` and `target: '18'`); `react-compiler-runtime`
+  is a runtime dependency. Every module — components and hooks — is memoized, and
+  `scripts/assert-react-compiler-output.mjs` fails the build if either tree lacks compiler output.
+- `'worklet'` directives pass through untouched (bob never minifies); the consumer app's worklets plugin compiles
+  them, exactly as with hand-written Reanimated libraries.
+- `scripts/assert-esm-extensions.mjs` still enforces the extension invariant on `dist/module`, and the `build`
+  script starts with `rm -rf ./dist` so a failed pass never leaves a stale tree behind.
 
-The standard `rewrite-esm-extensions.mjs`/`assert-esm-extensions.mjs` pair then runs against `dist/esm` as in every
-dual-format package (see root `AGENTS.md`), and the `build` script starts with `rm -rf ./dist` so a failed pass never
-leaves a half-lowered tree behind. The NodeNext check must pass before publishing. `llms.txt` ships in the npm package
-(`files` array) as the agent-facing summary.
+`exports` points `import` at `dist/module` (+ `dist/typescript/module` types) and `require` at `dist/commonjs`
+(+ `dist/typescript/commonjs` types), types-first in each condition. The NodeNext check must pass before publishing.
+`llms.txt` ships in the npm package (`files` array) as the agent-facing summary.
 
 ## Example app and E2E
 

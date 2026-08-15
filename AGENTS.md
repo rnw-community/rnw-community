@@ -273,6 +273,19 @@ Rationale:
 
 Always write plans to `.plans/` as `.md` files before executing multi-step changes. Plans are gitignored and serve as working documents for complex tasks.
 
+## React Native library builds — react-native-builder-bob
+
+**Every publishable React Native library package MUST build with `react-native-builder-bob`** (targets
+`["module", { esm: true }]` + `["commonjs", { esm: true }]` + `typescript`, output `dist`), not the hand-rolled tsc
+dual-build described below. Bob owns what the tsc pipeline reimplements by hand — ESM extension rewriting, per-tree
+`package.json` markers, and split declaration trees — and, being Babel-based, it takes `babel-plugin-react-compiler`
+(target `'18'`, `panicThreshold: 'all_errors'`) through a `babel.config.bob.js` so published dist ships precompiled
+React Compiler output (`react-compiler-runtime` as a runtime dependency). `'worklet'` directives pass through for the
+consumer app's worklets plugin. The enforcement gates stay identical: `assert-esm-extensions.mjs` on `dist/module`,
+`assert-react-compiler-output.mjs` on both trees, publint + attw, and `smoke:esm`.
+`react-native-collapsible-header` is the reference implementation. Node/NestJS packages (no JSX, no compiler) keep the
+tsc pipeline below.
+
 ## ESM Modernization Status
 
 The monorepo uses dual ESM + CJS output. Key decisions:

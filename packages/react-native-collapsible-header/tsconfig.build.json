@@ -1,8 +1,7 @@
 {
-    "extends": "../../tsconfig.build-esm.json",
+    "extends": "./tsconfig.json",
     "compilerOptions": {
-        "jsx": "preserve",
-        "outDir": "./dist/esm"
+        "tsBuildInfoFile": "./dist/.tsbuildinfo"
     },
     "include": [
         "./src"

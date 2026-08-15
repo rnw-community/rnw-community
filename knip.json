@@ -14,11 +14,8 @@
             "entry": ["src/index.ts"]
         },
         "packages/react-native-collapsible-header": {
-            "ignoreDependencies": [
-                "react-compiler-runtime",
-                "@babel/plugin-transform-modules-commonjs",
-                "@babel/plugin-transform-react-jsx"
-            ]
+            "ignore": ["babel.config.bob.js"],
+            "ignoreDependencies": ["react-compiler-runtime"]
         },
         "packages/react-native-collapsible-header-example/apps/bare": {
             "ignoreDependencies": [

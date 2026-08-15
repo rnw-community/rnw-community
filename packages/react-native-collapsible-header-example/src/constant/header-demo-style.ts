@@ -34,9 +34,9 @@ export const HeaderDemoStyles = StyleSheet.create({
     },
     collapsedRow: {
         alignItems: 'center',
+        columnGap: 12,
         flex: 1,
         flexDirection: 'row',
-        justifyContent: 'space-between',
         paddingLeft: 20,
         paddingRight: 64,
     },
