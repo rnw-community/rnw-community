@@ -77,10 +77,10 @@ jobs:
             APP_DIR: ${{ matrix.example_dir }}/apps/${{ matrix.target }}
             MAESTRO_DEBUG_OUTPUT_DIRECTORY: ${{ github.workspace }}/${{ matrix.example_dir }}/artifacts/maestro-android-${{ matrix.package }}-${{ matrix.target }}
             # Several legs can land on the same self-hosted host, so the container
-            # name and data directory are per-leg; the adb port is assigned by docker
-            # and exported by the redroid step.
+            # name is per-leg. The data directory and adb port are derived inside the
+            # redroid step: job-level env cannot read the runner context, and docker
+            # assigns the port.
             REDROID_CONTAINER: redroid-${{ matrix.package }}-${{ matrix.target }}-${{ github.run_id }}
-            REDROID_DATA_DIR: ${{ runner.temp }}/redroid-${{ matrix.package }}-${{ matrix.target }}-${{ github.run_id }}
 
         steps:
             -   name: Checkout repository
@@ -155,6 +155,8 @@ jobs:
                       exit 1
                     fi
                     docker rm -f "$REDROID_CONTAINER" >/dev/null 2>&1 || true
+                    REDROID_DATA_DIR="$RUNNER_TEMP/$REDROID_CONTAINER"
+                    echo "REDROID_DATA_DIR=$REDROID_DATA_DIR" >> "$GITHUB_ENV"
                     rm -rf "$REDROID_DATA_DIR"
                     mkdir -p "$REDROID_DATA_DIR"
                     docker run -d --privileged \
@@ -241,7 +243,7 @@ jobs:
                 run: |
                     adb disconnect "127.0.0.1:${ADB_PORT:-0}" || true
                     docker rm -f "$REDROID_CONTAINER" || true
-                    rm -rf "$REDROID_DATA_DIR" || true
+                    if [ -n "${REDROID_DATA_DIR:-}" ]; then rm -rf "$REDROID_DATA_DIR" || true; fi
 
             -   name: Upload Maestro artifacts
                 if: failure() && steps.emulator.outcome == 'failure'
