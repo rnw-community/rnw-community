@@ -57,10 +57,19 @@ e2e/
 
 Both Maestro workflows (`.github/workflows/ios-maestro.yml`, `android-maestro.yml`) run this package's suite. The
 package/target matrix lives in `.github/scripts/maestro-matrix.mjs` — register new example packages and targets there.
-Both targets are wired. Like the payments example, the `bare` target commits its own `ios/` and `android/` projects
-(the expo target generates its own with `expo prebuild`), and `apps/bare/.gitignore` keeps only build output out. The
-bare `MainActivity` drops Android state restoration (`super.onCreate(null)`), which react-native-screens requires for
-the native stack.
+The `expo` target is wired for both platforms. Like the payments example, the `bare` target commits its own `ios/` and
+`android/` projects (copied from the payments example with the product, bundle, and Kotlin package identifiers renamed;
+the expo target generates its own with `expo prebuild`), and the bare `MainActivity` drops Android state restoration
+(`super.onCreate(null)`), which react-native-screens requires for the native stack.
+
+**The bare leg is unregistered in the matrix and not yet working.** Current status: pods install, the iOS Release build
+succeeds, the JS bundle is produced and starts (the log reaches `Running "ReactNativeCollapsibleHeaderExample"`), then
+the app aborts with SIGABRT from a JS exception raised on the worklets runtime — the crashing frames end in
+`worklets::AroundLock` → `HermesRuntimeImpl::throwPendingError`. Payments is no guide here because its app uses neither
+reanimated, worklets, nor screens. Next step is to surface that worklet exception message (a Debug build against Metro
+shows the redbox text the Release build swallows) and to confirm the worklets babel plugin transforms the library's
+precompiled `dist` inside Metro. Register the target in `.github/scripts/maestro-matrix.mjs` once the seven flows pass
+locally against the bare binary.
 
 ## Commands
 
