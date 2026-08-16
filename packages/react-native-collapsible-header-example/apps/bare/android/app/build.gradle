@@ -9,7 +9,14 @@ apply plugin: "com.facebook.react"
 react {
     /* Folders */
     //   The root of your project, i.e. where "package.json" lives. Default is '../..'
-    // root = file("../../")
+    //   (this app's own directory), which is wrong in this yarn-workspaces
+    //   monorepo: hoisted deps such as hermes-compiler live at the true repo
+    //   root instead. reactNativeDir/codegenDir/cliFile below were already
+    //   corrected for the same depth; root was not, and hermesc resolution
+    //   (detectOSAwareHermesCommand) is relative to root, not reactNativeDir,
+    //   so "Couldn't determine Hermesc location" happened despite those three
+    //   being right.
+    root = file("../../../../../../")
     //   The folder where the react-native NPM package is. Default is ../../node_modules/react-native
     reactNativeDir = file("../../../../../../node_modules/react-native")
     //   The folder where the react-native Codegen package is. Default is ../../node_modules/@react-native/codegen
