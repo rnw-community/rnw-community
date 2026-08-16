@@ -8,20 +8,25 @@ apply plugin: "com.facebook.react"
  */
 react {
     /* Folders */
-    //   The root of your project, i.e. where "package.json" lives. Default is '../..'
-    //   (this app's own directory), which is wrong in this yarn-workspaces
-    //   monorepo: hoisted deps such as hermes-compiler live at the true repo
-    //   root instead. reactNativeDir/codegenDir/cliFile below were already
-    //   corrected for the same depth; root was not, and hermesc resolution
-    //   (detectOSAwareHermesCommand) is relative to root, not reactNativeDir,
-    //   so "Couldn't determine Hermesc location" happened despite those three
-    //   being right.
-    root = file("../../../../../../")
-    //   entryFile defaults to <root>/index.js, so correcting root above moved
-    //   its search away from this app's own index.js (which lives two levels
-    //   up from android/app/, at the app root — the *old* default root).
-    //   Point it back explicitly rather than leave that default broken.
-    entryFile = file("../../index.js")
+    //   The root of your project, i.e. where "package.json" lives. Default is '../../'
+    //   Left at the default deliberately: react.root also doubles as the cwd
+    //   for the CLI's `bundle` command (BundleHermesCTask) and the base for
+    //   entryFile's default, and changing it to the true yarn-workspaces repo
+    //   root here broke both ("unknown command 'bundle'" — its plugin
+    //   auto-detection needs cwd = this app's own directory — and a stale
+    //   entryFile default), confirmed live across two failed runs. hermesc
+    //   below is fixed without touching root at all, the same way this repo's
+    //   own Expo prebuild template already does it (checked via a local
+    //   `expo prebuild`): Node's require.resolve walks up node_modules on its
+    //   own, so it finds a hoisted package regardless of directory depth —
+    //   no relative-path counting needed.
+    // root = file("../../")
+    //   hermes-compiler is a separate npm package (not a react-native/sdks
+    //   subpath) as of this react-native version, and the gradle plugin's
+    //   default hermesc lookup is relative to root — which points at this
+    //   app's own directory, where nothing is hoisted to. require.resolve
+    //   finds the real, hoisted location regardless.
+    hermesCommand = new File(["node", "--print", "require.resolve('hermes-compiler/package.json', { paths: [require.resolve('react-native/package.json')] })"].execute(null, rootDir).text.trim()).getParentFile().getAbsolutePath() + "/hermesc/%OS-BIN%/hermesc"
     //   The folder where the react-native NPM package is. Default is ../../node_modules/react-native
     reactNativeDir = file("../../../../../../node_modules/react-native")
     //   The folder where the react-native Codegen package is. Default is ../../node_modules/@react-native/codegen
