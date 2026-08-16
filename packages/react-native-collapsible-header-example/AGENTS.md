@@ -53,6 +53,25 @@ e2e/
 - Navigation chrome — the Settings screen shows the second use case: a large title that collapses into a small
   centered title between persistent leading/trailing icon buttons, per the settings pages in suuudokuuu and budgie.
 
+## Android CI runs redroid, and an unbounded container kills the runner
+
+The Android legs boot Android in a `--privileged` redroid container on the arm64 fleet (no KVM, no x86_64, so no
+emulator). Two constraints are earned, not stylistic:
+
+- **The container is resource-capped.** With no `--cpus`/`--memory`, all four legs ended as `The self-hosted runner
+lost communication with the server`: `redroid_gpu_mode=guest` is software rendering, the boot is pure CPU, and it
+  starved the runner agent that has to keep reporting to GitHub. The screen is small and the fps capped for the same
+  reason; every gesture in the suite is expressed in percentages, so nothing depends on the pixel count.
+- **A killed runner uploads no log.** Fetching those jobs' logs returns `BlobNotFound`, and the run archive holds only
+  the detect/status jobs — so an `ERR` trap, a capture step, and an artifact upload are all worthless for this failure
+  mode, because they die with the runner. That is why the boot loop narrates load average and boot properties into the
+  live stream as it goes. Diagnose starvation by preventing it, not by recording it.
+
+Also note `adb`: Google ships platform-tools for linux-x86_64 only, so the distro `adb` is symlinked over the SDK's,
+and the container's docker-assigned port must be **exported** — the wait loops run in a child `bash -c` whose single
+quotes defer expansion to that child, and `$GITHUB_ENV` reaches only later steps. Unexported it polled a portless
+`127.0.0.1:` for the full timeout and reported a boot failure that had not happened.
+
 ## CI coverage
 
 Both Maestro workflows (`.github/workflows/ios-maestro.yml`, `android-maestro.yml`) run this package's suite. The

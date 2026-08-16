@@ -173,14 +173,25 @@ jobs:
                     echo "REDROID_DATA_DIR=$REDROID_DATA_DIR" >> "$GITHUB_ENV"
                     rm -rf "$REDROID_DATA_DIR"
                     mkdir -p "$REDROID_DATA_DIR"
+                    # An unbounded container took every runner down with "the self-hosted
+                    # runner lost communication with the server" — the runner agent has to
+                    # keep reporting while Android boots, and in guest GPU mode that boot
+                    # is pure CPU work, so the container is held to all but two cores and
+                    # a memory ceiling. The pixel count is cut for the same reason: nothing
+                    # in the suite depends on it, every gesture is expressed in percentages.
+                    container_cpus=$(( $(nproc) > 3 ? $(nproc) - 2 : 1 ))
+                    echo "host cores: $(nproc); container limited to ${container_cpus}"
                     docker run -d --privileged \
                       --name "$REDROID_CONTAINER" \
+                      --cpus "$container_cpus" \
+                      --memory 6g \
                       -p 127.0.0.1::5555 \
                       -v "$REDROID_DATA_DIR:/data" \
                       redroid/redroid:14.0.0-latest \
-                      androidboot.redroid_width=1080 \
-                      androidboot.redroid_height=2340 \
-                      androidboot.redroid_dpi=440 \
+                      androidboot.redroid_width=720 \
+                      androidboot.redroid_height=1600 \
+                      androidboot.redroid_dpi=320 \
+                      androidboot.redroid_fps=30 \
                       androidboot.redroid_gpu_mode=guest
                     # The export is load-bearing: the wait loops below run in a child
                     # `bash -c`, whose single quotes defer expansion to that child, and
@@ -194,7 +205,15 @@ jobs:
                     adb start-server
                     timeout 180 bash -c 'until adb connect "127.0.0.1:$ADB_PORT" | grep -q connected; do sleep 3; done'
                     timeout 300 adb -s "127.0.0.1:$ADB_PORT" wait-for-device
-                    timeout 300 bash -c 'until [ "$(adb -s "127.0.0.1:$ADB_PORT" shell getprop sys.boot_completed | tr -d "\r")" = "1" ]; do sleep 3; done'
+                    # A killed runner uploads no log at all, so the boot narrates itself
+                    # into the live stream as it goes: load average beside the boot
+                    # properties is what separates "starved" from "stuck".
+                    device="127.0.0.1:$ADB_PORT"
+                    export device
+                    timeout 300 bash -c 'until [ "$(adb -s "$device" shell getprop sys.boot_completed | tr -d "\r")" = "1" ]; do
+                      echo "booting: bootanim=$(adb -s "$device" shell getprop init.svc.bootanim | tr -d "\r") load=$(cut -d" " -f1-3 /proc/loadavg)"
+                      sleep 10
+                    done'
                     adb devices -l
 
             -   name: Restore Gradle cache
