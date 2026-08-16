@@ -212,7 +212,13 @@ jobs:
                       PREWARM_DATA_DIR=$(grep -o '"dataDir"[[:space:]]*:[[:space:]]*"[^"]*"' "$REDROID_PREWARM_MANIFEST" | sed -E 's/.*:[[:space:]]*"([^"]*)"/\1/')
                       if [ -n "$PREWARM_DATA_DIR" ] && [ -d "$PREWARM_DATA_DIR" ]; then
                         echo "Seeding redroid /data from the prewarmed volume at $PREWARM_DATA_DIR (manifest: $REDROID_PREWARM_MANIFEST)."
-                        cp -a "$PREWARM_DATA_DIR/." "$REDROID_DATA_DIR/"
+                        # The prewarmed tree is root-owned (redroid writes it as root
+                        # inside a --privileged container), so a plain cp as the
+                        # unprivileged runner user fails "Permission denied" on most
+                        # of /data. mobile-ci's run-maestro-android-redroid action hits
+                        # the same requirement and also shells out through sudo, for
+                        # both the seed (here) and the teardown rm below.
+                        sudo cp -a "$PREWARM_DATA_DIR/." "$REDROID_DATA_DIR/"
                       else
                         echo "::warning::Prewarm manifest $REDROID_PREWARM_MANIFEST does not name a usable dataDir ($PREWARM_DATA_DIR); falling back to a cold pull and cold boot."
                         docker pull "$REDROID_IMAGE"
@@ -347,7 +353,9 @@ jobs:
                 run: |
                     adb disconnect "127.0.0.1:${ADB_PORT:-0}" || true
                     docker rm -f "$REDROID_CONTAINER" || true
-                    if [ -n "${REDROID_DATA_DIR:-}" ]; then rm -rf "$REDROID_DATA_DIR" || true; fi
+                    # sudo: seeding from the prewarmed volume (above) leaves this tree
+                    # root-owned, same as mobile-ci's run-maestro-android-redroid.
+                    if [ -n "${REDROID_DATA_DIR:-}" ]; then sudo rm -rf "$REDROID_DATA_DIR" || true; fi
 
             -   name: Upload Maestro artifacts
                 # Matches the capture step's condition — gating this on the test step
