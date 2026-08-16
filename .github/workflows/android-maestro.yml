@@ -215,7 +215,13 @@ jobs:
                     # runners that have been prewarmed.
                     REDROID_PREWARM_MANIFEST="$HOME/.sudoku-ci/android-emulator.json"
                     if [ -f "$REDROID_PREWARM_MANIFEST" ]; then
-                      PREWARM_DATA_DIR=$(grep -o '"dataDir"[[:space:]]*:[[:space:]]*"[^"]*"' "$REDROID_PREWARM_MANIFEST" | sed -E 's/.*:[[:space:]]*"([^"]*)"/\1/')
+                      # `|| true`: under pipefail, a manifest with no "dataDir" key
+                      # makes grep exit 1 with no output, and that failure propagates
+                      # through the pipe even though sed exits 0 — which would abort
+                      # the whole step here instead of reaching the unusable-manifest
+                      # fallback below. An empty PREWARM_DATA_DIR is exactly what that
+                      # fallback branch is for.
+                      PREWARM_DATA_DIR=$(grep -o '"dataDir"[[:space:]]*:[[:space:]]*"[^"]*"' "$REDROID_PREWARM_MANIFEST" | sed -E 's/.*:[[:space:]]*"([^"]*)"/\1/' || true)
                       if [ -n "$PREWARM_DATA_DIR" ] && [ -d "$PREWARM_DATA_DIR" ]; then
                         echo "Seeding redroid /data from the prewarmed volume at $PREWARM_DATA_DIR (manifest: $REDROID_PREWARM_MANIFEST)."
                         # The prewarmed tree is root-owned (redroid writes it as root
@@ -312,6 +318,33 @@ jobs:
                     fi
                     curl -fsSL https://get.maestro.mobile.dev | env MAESTRO_VERSION="$MAESTRO_VERSION" bash
                     echo "$HOME/.maestro/bin" >> "$GITHUB_PATH"
+
+            -   name: Provide an arm64-native cmake for AGP
+                # The Android SDK's own cmake packages (every version through at
+                # least 4.1.2, checked against dl.google.com's repository manifest)
+                # ship a single generic "linux" archive per version — there is no
+                # linux_aarch64 host entry, and that archive is x86_64-only. On this
+                # arm64 host the shell falls back to interpreting the ELF as a
+                # script, so CMake configure fails with `Syntax error: ")"
+                # unexpected` the moment AGP invokes the SDK-downloaded cmake — this
+                # step never ran before the redroid fix above, so it was undiscovered
+                # until the first live validation reached it. apt ships a native
+                # arm64 build of both cmake and ninja-build well above the >=3.13
+                # react-native's CMakeLists.txt requires, so AGP is pointed at that
+                # install via `cmake.dir` in local.properties instead of letting it
+                # download its own — workflow-only, never committed (this repo does
+                # not track local.properties for any example app).
+                timeout-minutes: 10
+                run: |
+                    set -euo pipefail
+                    if ! dpkg -s cmake >/dev/null 2>&1 || ! dpkg -s ninja-build >/dev/null 2>&1; then
+                      sudo apt-get update -y
+                      sudo apt-get install -y cmake ninja-build
+                    fi
+                    command -v cmake >/dev/null && command -v ninja >/dev/null
+                    cmake --version | head -1
+                    ninja --version
+                    echo "cmake.dir=/usr" >> "${{ env.APP_DIR }}/android/local.properties"
 
             -   name: Build, install, and test
                 id: emulator
