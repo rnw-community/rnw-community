@@ -166,8 +166,13 @@ jobs:
                 timeout-minutes: 15
                 run: |
                     set -euo pipefail
+                    REDROID_IMAGE='redroid/redroid:15.0.0_64only-latest'
                     if [ ! -d /dev/binderfs ] && ! lsmod | grep -q '^binder_linux'; then
-                      echo "::error::redroid needs binder on the host. Load it on the runner: sudo modprobe binder_linux devices=binder,hwbinder,vndbinder"
+                      echo "binder_linux is not loaded; loading it now: modprobe binder_linux devices=binder,hwbinder,vndbinder"
+                      sudo modprobe binder_linux devices=binder,hwbinder,vndbinder || true
+                    fi
+                    if [ ! -d /dev/binderfs ] && ! lsmod | grep -q '^binder_linux'; then
+                      echo "::error::redroid needs a functional binder on the host and modprobe binder_linux devices=binder,hwbinder,vndbinder did not bring it up. Failing closed instead of booting redroid without binder — that false-positive precondition is what took eight runners down."
                       exit 1
                     fi
                     # Every wait below can only fail as a timeout, which says nothing
@@ -184,7 +189,7 @@ jobs:
                       # than treated as fatal. Neighbouring containers matter too — a
                       # second redroid booting on this kernel destabilizes both.
                       lsmod | grep -E '^(binder_linux|ashmem_linux)' || echo "no binder/ashmem module rows"
-                      docker ps --filter 'ancestor=redroid/redroid:14.0.0-latest' --format 'neighbour: {{.Names}} {{.Status}}' || true
+                      docker ps --filter "ancestor=$REDROID_IMAGE" --format 'neighbour: {{.Names}} {{.Status}}' || true
                       docker ps -a --filter "name=$REDROID_CONTAINER" --format '{{.Names}}: {{.Status}}' || true
                       docker logs --tail 200 "$REDROID_CONTAINER" 2>&1 || true
                       echo "::endgroup::"
@@ -195,25 +200,48 @@ jobs:
                     echo "REDROID_DATA_DIR=$REDROID_DATA_DIR" >> "$GITHUB_ENV"
                     rm -rf "$REDROID_DATA_DIR"
                     mkdir -p "$REDROID_DATA_DIR"
+                    # Seed /data from the fleet's prewarmed volume the same way
+                    # vitalyiegorov/suuudokuuu does (prewarm-redroid-linux.sh): a
+                    # first-boot-completed, animations-off /data cuts boot from
+                    # minutes to seconds. Cold-pulling and cold-booting redroid is
+                    # exactly the path three independent sources tie to the guest
+                    # kernel hard-locking on this fleet, so this is not optional on
+                    # runners that have been prewarmed.
+                    REDROID_PREWARM_MANIFEST="$HOME/.sudoku-ci/android-emulator.json"
+                    if [ -f "$REDROID_PREWARM_MANIFEST" ]; then
+                      PREWARM_DATA_DIR=$(grep -o '"dataDir"[[:space:]]*:[[:space:]]*"[^"]*"' "$REDROID_PREWARM_MANIFEST" | sed -E 's/.*:[[:space:]]*"([^"]*)"/\1/')
+                      if [ -n "$PREWARM_DATA_DIR" ] && [ -d "$PREWARM_DATA_DIR" ]; then
+                        echo "Seeding redroid /data from the prewarmed volume at $PREWARM_DATA_DIR (manifest: $REDROID_PREWARM_MANIFEST)."
+                        cp -a "$PREWARM_DATA_DIR/." "$REDROID_DATA_DIR/"
+                      else
+                        echo "::warning::Prewarm manifest $REDROID_PREWARM_MANIFEST does not name a usable dataDir ($PREWARM_DATA_DIR); falling back to a cold pull and cold boot."
+                        docker pull "$REDROID_IMAGE"
+                      fi
+                    else
+                      echo "::warning::No prewarm manifest at $REDROID_PREWARM_MANIFEST; this runner was not prewarmed by the fleet, so redroid will cold-pull and cold-boot instead of seeding /data from a prewarmed volume."
+                      docker pull "$REDROID_IMAGE"
+                    fi
                     # An unbounded container took every runner down with "the self-hosted
                     # runner lost communication with the server" — the runner agent has to
                     # keep reporting while Android boots, and in guest GPU mode that boot
                     # is pure CPU work, so the container is held to all but two cores and
-                    # a memory ceiling. The pixel count is cut for the same reason: nothing
-                    # in the suite depends on it, every gesture is expressed in percentages.
+                    # a memory ceiling. --memory-swap matches --memory (Docker otherwise
+                    # allows 2x swap) so a bloated redroid cannot page out the runner
+                    # agent instead of being OOM-killed itself. The display flags are
+                    # dropped: the prewarmed /data volume was created at redroid's
+                    # defaults, and booting it under a different display config is
+                    # untested; nothing in the suite depends on the pixel count anyway,
+                    # every gesture is expressed in percentages.
                     container_cpus=$(( $(nproc) > 3 ? $(nproc) - 2 : 1 ))
                     echo "host cores: $(nproc); container limited to ${container_cpus}"
                     docker run -d --privileged \
                       --name "$REDROID_CONTAINER" \
                       --cpus "$container_cpus" \
                       --memory 6g \
+                      --memory-swap 6g \
                       -p 127.0.0.1::5555 \
                       -v "$REDROID_DATA_DIR:/data" \
-                      redroid/redroid:14.0.0-latest \
-                      androidboot.redroid_width=720 \
-                      androidboot.redroid_height=1600 \
-                      androidboot.redroid_dpi=320 \
-                      androidboot.redroid_fps=30 \
+                      "$REDROID_IMAGE" \
                       androidboot.redroid_gpu_mode=guest
                     # The export is load-bearing: the wait loops below run in a child
                     # `bash -c`, whose single quotes defer expansion to that child, and
