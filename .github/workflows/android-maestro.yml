@@ -167,12 +167,18 @@ jobs:
                 run: |
                     set -euo pipefail
                     REDROID_IMAGE='redroid/redroid:15.0.0_64only-latest'
-                    if [ ! -d /dev/binderfs ] && ! lsmod | grep -q '^binder_linux'; then
-                      echo "binder_linux is not loaded; loading it now: modprobe binder_linux devices=binder,hwbinder,vndbinder"
-                      sudo modprobe binder_linux devices=binder,hwbinder,vndbinder || true
-                    fi
-                    if [ ! -d /dev/binderfs ] && ! lsmod | grep -q '^binder_linux'; then
-                      echo "::error::redroid needs a functional binder on the host and modprobe binder_linux devices=binder,hwbinder,vndbinder did not bring it up. Failing closed instead of booting redroid without binder — that false-positive precondition is what took eight runners down."
+                    # binder_linux must load on every boot. /dev/binder* is not a
+                    # reliable presence signal: on 6.x binderfs kernels no
+                    # /dev/binder, /dev/hwbinder, or /dev/vndbinder node ever appears
+                    # on the host at all — the privileged container mounts binderfs
+                    # and creates its own — so /sys/module/binder_linux is the only
+                    # portable check, and it is checked only after modprobe rather
+                    # than instead of it. A precondition that only checks and never
+                    # loads is a false positive on exactly the hosts redroid needs it
+                    # most on, and that false positive is what let eight runners die.
+                    sudo modprobe binder_linux devices=binder,hwbinder,vndbinder 2>&1 || true
+                    if [ ! -d /sys/module/binder_linux ]; then
+                      echo "::error::binder_linux is not loaded on this host after modprobe. Redroid cannot run without it, and that is host-kernel provisioning a workflow run cannot self-heal safely."
                       exit 1
                     fi
                     # Every wait below can only fail as a timeout, which says nothing
@@ -351,7 +357,11 @@ jobs:
                 timeout-minutes: 5
                 shell: bash
                 run: |
-                    adb disconnect "127.0.0.1:${ADB_PORT:-0}" || true
+                    # ADB_PORT is only set once the container is up and docker has
+                    # assigned it a host port; a redroid step that failed before that
+                    # point leaves it unset, and "127.0.0.1:0" is not a parseable adb
+                    # target, so this is skipped rather than logging a spurious error.
+                    if [ -n "${ADB_PORT:-}" ]; then adb disconnect "127.0.0.1:$ADB_PORT" || true; fi
                     docker rm -f "$REDROID_CONTAINER" || true
                     # sudo: seeding from the prewarmed volume (above) leaves this tree
                     # root-owned, same as mobile-ci's run-maestro-android-redroid.
