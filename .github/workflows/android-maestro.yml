@@ -153,6 +153,32 @@ jobs:
                     restore-keys: |
                         gradle-${{ matrix.package }}-${{ matrix.target }}-${{ runner.os }}-
 
+            -   name: Ensure the Hermes compiler binary is executable
+                # .yarnrc.yml sets enableScripts: false repo-wide (deliberate
+                # supply-chain hardening — see the sec/public-repo-hardening
+                # history), which also skips whatever lifecycle script would
+                # otherwise mark react-native's bundled hermesc executable after
+                # extraction. This app has never built on any CI in this repo's
+                # history, so this was undiscovered until this run failed with
+                # "Couldn't determine Hermesc location" (a literal unsubstituted
+                # "%OS-BIN%" in the error). Logs the directory contents either way
+                # so a wrong guess here is visible in the same run rather than
+                # silent; chmod, not re-enabling scripts, keeps the hardening intact.
+                timeout-minutes: 5
+                run: |
+                    set -euo pipefail
+                    hermesc_root="node_modules/react-native/sdks/hermesc"
+                    echo "::group::hermesc directory"
+                    find "$hermesc_root" -maxdepth 2 -exec ls -la {} \; 2>&1 || echo "$hermesc_root not found"
+                    echo "::endgroup::"
+                    hermesc_dir=$(find "$hermesc_root" -maxdepth 1 -type d -name '*64-bin' 2>/dev/null | head -1)
+                    if [ -n "$hermesc_dir" ] && [ -f "$hermesc_dir/hermesc" ]; then
+                      chmod +x "$hermesc_dir/hermesc"
+                      "$hermesc_dir/hermesc" --version || true
+                    else
+                      echo "::warning::No hermesc binary found under $hermesc_root; the Gradle build below will report the real cause."
+                    fi
+
             -   name: Build release APK
                 # release, not debug: both example apps sign release with the
                 # checked-in debug keystore (see app/build.gradle,
