@@ -204,6 +204,11 @@ describe('CollapsibleHeader geometry', () => {
         ['collapseDistance', { collapseDistance: Infinity }, 'collapseDistance must be a finite number greater than zero'],
         ['collapseStart', { collapseStart: -1 }, 'collapseStart must be a finite number greater than or equal to zero'],
         [
+            'collapseStart',
+            { collapseStart: Infinity },
+            'collapseStart must be a finite number greater than or equal to zero',
+        ],
+        [
             'height order',
             { expandedHeight: INVALID_EXPANDED_HEIGHT, collapsedHeight: COLLAPSED_HEIGHT },
             'expandedHeight must be greater than or equal to collapsedHeight',
@@ -220,6 +225,7 @@ describe('CollapsibleHeader motion config', () => {
         progressFields.flatMap(field => [
             { field, value: INVALID_LOW_PROGRESS },
             { field, value: INVALID_HIGH_PROGRESS },
+            { field, value: Infinity },
         ])
     )('rejects invalid $field progress $value', ({ field, value }) => {
         expect.hasAssertions();

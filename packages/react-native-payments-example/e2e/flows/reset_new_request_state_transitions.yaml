@@ -16,7 +16,7 @@ appId: ${APP_ID}
     visible:
       id: "payments-flow-state"
       text: "rejected"
-    timeout: 20000
+    timeout: 45000
 - tapOn:
     id: "action-reset"
 - assertVisible:

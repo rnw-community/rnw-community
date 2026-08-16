@@ -54,10 +54,18 @@ jobs:
                   EVENT_NAME: ${{ github.event_name }}
               run: |
                   set -euo pipefail
-                  # An empty file means "not a pull request", where every suite runs.
+                  # An empty file means "run every suite", which is the right answer both
+                  # off pull requests and when the suites' own CI plumbing changed: turbo
+                  # maps those files to no package, so package-based detection alone would
+                  # skip every leg on exactly the changes that need testing most.
                   : > affected.json
                   if [ "$EVENT_NAME" = "pull_request" ]; then
-                    npx -y turbo@2.10.8 ls --affected --output=json > affected.json
+                    if git diff --name-only "$TURBO_SCM_BASE" HEAD \
+                      | grep -qE '^\.github/(workflows/(ios|android)-maestro\.yml|scripts/maestro-matrix\.mjs)$'; then
+                      echo "Maestro CI plumbing changed; every suite runs."
+                    else
+                      npx -y turbo@2.10.8 ls --affected --output=json > affected.json
+                    fi
                   fi
                   node .github/scripts/maestro-matrix.mjs affected.json | tee -a "$GITHUB_OUTPUT"
     maestro:
@@ -255,8 +263,11 @@ jobs:
                     # already-provisioned maestro is used as it is (version logged, and
                     # left on the PATH the runner already exports).
                     if command -v maestro >/dev/null 2>&1; then
-                      echo "Using the maestro already provisioned on this host:"
-                      maestro --version
+                      host_version=$(maestro --version 2>/dev/null | tail -n 1 | tr -d '\r' || true)
+                      if [ "$host_version" != "$MAESTRO_VERSION" ]; then
+                        echo "::warning::Using host maestro $host_version; this workflow pins $MAESTRO_VERSION."
+                      fi
+                      echo "Using the maestro already provisioned on this host: $host_version"
                       exit 0
                     fi
                     curl -fsSL https://get.maestro.mobile.dev | env MAESTRO_VERSION="$MAESTRO_VERSION" bash

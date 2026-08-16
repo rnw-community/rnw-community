@@ -15,36 +15,38 @@ Monorepo for useful NestJS, React Native and React Native Web packages and nativ
 ## Packages
 
 ### ReactNative native libs:
--   [react-native-payments](https://github.com/rnw-community/rnw-community/tree/master/packages/react-native-payments) [![npm version](https://badge.fury.io/js/%40rnw-community%2Freact-native-payments.svg)](https://badge.fury.io/js/%40rnw-community%2Freact-native-payments)
+
+- [react-native-payments](https://github.com/rnw-community/rnw-community/tree/master/packages/react-native-payments) [![npm version](https://badge.fury.io/js/%40rnw-community%2Freact-native-payments.svg)](https://badge.fury.io/js/%40rnw-community%2Freact-native-payments)
 
 ### React Native utilities
 
--   [react-native-collapsible-header](https://github.com/rnw-community/rnw-community/tree/master/packages/react-native-collapsible-header) [![npm version](https://badge.fury.io/js/%40rnw-community%2Freact-native-collapsible-header.svg)](https://badge.fury.io/js/%40rnw-community%2Freact-native-collapsible-header)
+- [react-native-collapsible-header](https://github.com/rnw-community/rnw-community/tree/master/packages/react-native-collapsible-header) [![npm version](https://badge.fury.io/js/%40rnw-community%2Freact-native-collapsible-header.svg)](https://badge.fury.io/js/%40rnw-community%2Freact-native-collapsible-header)
 
 ### General
 
--   [Object field tree](https://github.com/rnw-community/rnw-community/tree/master/packages/object-field-tree) [![npm version](https://badge.fury.io/js/%40rnw-community%2Fobject-field-tree.svg)](https://badge.fury.io/js/%40rnw-community%2Fobject-field-tree)
--   [Shared](https://github.com/rnw-community/rnw-community/tree/master/packages/shared) [![npm version](https://badge.fury.io/js/%40rnw-community%2Fshared.svg)](https://badge.fury.io/js/%40rnw-community%2Fshared)
--   [Fast style](https://github.com/rnw-community/rnw-community/tree/master/packages/fast-style) [![npm version](https://badge.fury.io/js/%40rnw-community%2Ffast-style.svg)](https://badge.fury.io/js/%40rnw-community%2Ffast-style)
--   [Platform](https://github.com/rnw-community/rnw-community/tree/master/packages/platform) [![npm version](https://badge.fury.io/js/%40rnw-community%2Fplatform.svg)](https://badge.fury.io/js/%40rnw-community%2Fplatform)
--   [redux-loadable](https://github.com/rnw-community/rnw-community/tree/master/packages/redux-loadable) [![npm version](https://badge.fury.io/js/%40rnw-community%2Fredux-loadable.svg)](https://badge.fury.io/js/%40rnw-community%2Fredux-loadable)
+- [Object field tree](https://github.com/rnw-community/rnw-community/tree/master/packages/object-field-tree) [![npm version](https://badge.fury.io/js/%40rnw-community%2Fobject-field-tree.svg)](https://badge.fury.io/js/%40rnw-community%2Fobject-field-tree)
+- [Shared](https://github.com/rnw-community/rnw-community/tree/master/packages/shared) [![npm version](https://badge.fury.io/js/%40rnw-community%2Fshared.svg)](https://badge.fury.io/js/%40rnw-community%2Fshared)
+- [Fast style](https://github.com/rnw-community/rnw-community/tree/master/packages/fast-style) [![npm version](https://badge.fury.io/js/%40rnw-community%2Ffast-style.svg)](https://badge.fury.io/js/%40rnw-community%2Ffast-style)
+- [Platform](https://github.com/rnw-community/rnw-community/tree/master/packages/platform) [![npm version](https://badge.fury.io/js/%40rnw-community%2Fplatform.svg)](https://badge.fury.io/js/%40rnw-community%2Fplatform)
+- [redux-loadable](https://github.com/rnw-community/rnw-community/tree/master/packages/redux-loadable) [![npm version](https://badge.fury.io/js/%40rnw-community%2Fredux-loadable.svg)](https://badge.fury.io/js/%40rnw-community%2Fredux-loadable)
 
 ### NestJS
 
--   [RxJS Errors](https://github.com/rnw-community/rnw-community/tree/master/packages/rxjs-errors) [![npm version](https://badge.fury.io/js/%40rnw-community%2Frxjs-errors.svg)](https://badge.fury.io/js/%40rnw-community%2Frxjs-errors)
--   [NestJS RxJS Logger](https://github.com/rnw-community/rnw-community/tree/master/packages/nestjs-rxjs-logger) [![npm version](https://badge.fury.io/js/%40rnw-community%2Fnestjs-rxjs-logger.svg)](https://badge.fury.io/js/%40rnw-community%2Fnestjs-rxjs-logger)
--   [NestJS RxJS Redis](https://github.com/rnw-community/rnw-community/tree/master/packages/nestjs-rxjs-logger) [![npm version](https://badge.fury.io/js/%40rnw-community%2Fnestjs-rxjs-redis.svg)](https://badge.fury.io/js/%40rnw-community%2Fnestjs-rxjs-redis)
--   [NestJS RxJS Metrics](https://github.com/rnw-community/rnw-community/tree/master/packages/nestjs-rxjs-metrics) [![npm version](https://badge.fury.io/js/%40rnw-community%2Fnestjs-rxjs-redis.svg)](https://badge.fury.io/js/%40rnw-community%2Fnestjs-rxjs-metrics)
--   [NestJS RxJS Lock](https://github.com/rnw-community/rnw-community/tree/master/packages/nestjs-rxjs-lock) [![npm version](https://badge.fury.io/js/%40rnw-community%2Fnestjs-rxjs-lock.svg)](https://badge.fury.io/js/%40rnw-community%2Fnestjs-rxjs-lock)
--   [NestJS Typed Config](https://github.com/rnw-community/rnw-community/tree/master/packages/nestjs-typed-config) [![npm version](https://badge.fury.io/js/%40rnw-community%2Fnestjs-typed-config.svg)](https://badge.fury.io/js/%40rnw-community%2Fnestjs-typed-config)
--   [NestJS Webpack + SWC](https://github.com/rnw-community/rnw-community/tree/master/packages/nestjs-webpack-swc) [![npm version](https://badge.fury.io/js/%40rnw-community%2Fnestjs-webpack-swc.svg)](https://badge.fury.io/js/%40rnw-community%2Fnestjs-webpack-swc)
--   [NestJS Enterprise](https://github.com/rnw-community/rnw-community/tree/master/packages/nestjs-enterprise) [![npm version](https://badge.fury.io/js/%40rnw-community%2Fnestjs-enterprise.svg)](https://badge.fury.io/js/%40rnw-community%2Fnestjs-enterprise)
+- [RxJS Errors](https://github.com/rnw-community/rnw-community/tree/master/packages/rxjs-errors) [![npm version](https://badge.fury.io/js/%40rnw-community%2Frxjs-errors.svg)](https://badge.fury.io/js/%40rnw-community%2Frxjs-errors)
+- [NestJS RxJS Logger](https://github.com/rnw-community/rnw-community/tree/master/packages/nestjs-rxjs-logger) [![npm version](https://badge.fury.io/js/%40rnw-community%2Fnestjs-rxjs-logger.svg)](https://badge.fury.io/js/%40rnw-community%2Fnestjs-rxjs-logger)
+- [NestJS RxJS Redis](https://github.com/rnw-community/rnw-community/tree/master/packages/nestjs-rxjs-redis) [![npm version](https://badge.fury.io/js/%40rnw-community%2Fnestjs-rxjs-redis.svg)](https://badge.fury.io/js/%40rnw-community%2Fnestjs-rxjs-redis)
+- [NestJS RxJS Metrics](https://github.com/rnw-community/rnw-community/tree/master/packages/nestjs-rxjs-metrics) [![npm version](https://badge.fury.io/js/%40rnw-community%2Fnestjs-rxjs-metrics.svg)](https://badge.fury.io/js/%40rnw-community%2Fnestjs-rxjs-metrics)
+- [NestJS RxJS Lock](https://github.com/rnw-community/rnw-community/tree/master/packages/nestjs-rxjs-lock) [![npm version](https://badge.fury.io/js/%40rnw-community%2Fnestjs-rxjs-lock.svg)](https://badge.fury.io/js/%40rnw-community%2Fnestjs-rxjs-lock)
+- [NestJS Typed Config](https://github.com/rnw-community/rnw-community/tree/master/packages/nestjs-typed-config) [![npm version](https://badge.fury.io/js/%40rnw-community%2Fnestjs-typed-config.svg)](https://badge.fury.io/js/%40rnw-community%2Fnestjs-typed-config)
+- [NestJS Webpack + SWC](https://github.com/rnw-community/rnw-community/tree/master/packages/nestjs-webpack-swc) [![npm version](https://badge.fury.io/js/%40rnw-community%2Fnestjs-webpack-swc.svg)](https://badge.fury.io/js/%40rnw-community%2Fnestjs-webpack-swc)
+- [NestJS Enterprise](https://github.com/rnw-community/rnw-community/tree/master/packages/nestjs-enterprise) [![npm version](https://badge.fury.io/js/%40rnw-community%2Fnestjs-enterprise.svg)](https://badge.fury.io/js/%40rnw-community%2Fnestjs-enterprise)
 
 ### End-to-end tests
 
--   [WDIO](https://github.com/rnw-community/rnw-community/tree/master/packages/wdio) [![npm version](https://badge.fury.io/js/%40rnw-community%2Fwdio.svg)](https://badge.fury.io/js/%40rnw-community%2wdio)
+- [WDIO](https://github.com/rnw-community/rnw-community/tree/master/packages/wdio) [![npm version](https://badge.fury.io/js/%40rnw-community%2Fwdio.svg)](https://badge.fury.io/js/%40rnw-community%2Fwdio)
 
 ### ESLint
+
 - [RWN ESLint plugin](https://github.com/rnw-community/rnw-community/tree/master/packages/eslint-plugin) [![npm version](https://badge.fury.io/js/%40rnw-community%2Feslint-plugin.svg)](https://badge.fury.io/js/%40rnw-community%2Feslint-plugin)
 
 ## License
