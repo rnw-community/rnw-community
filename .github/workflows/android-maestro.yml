@@ -1,9 +1,25 @@
 name: Android Maestro E2E
 
-# Runs the Maestro suite of every example package that carries one, on the
-# self-hosted Linux fleet (issue #395, epic #372). The package/target matrix comes
-# from .github/scripts/maestro-matrix.mjs, which also decides which suites a pull
-# request actually needs; add new example packages there, not here.
+# Runs the Maestro suite of every example package that carries one. Building the
+# APK and running it against Redroid happen on two different runner pools, and
+# that split is load-bearing, not stylistic:
+#
+# - build-apk runs on a free GitHub-hosted ubuntu-24.04 (x86_64) runner. Native
+#   Android builds need the NDK's host clang, and Google publishes
+#   linux-x86_64 prebuilts only — no NDK release has ever shipped a
+#   linux-aarch64 host toolchain — so a Gradle build that touches native code
+#   cannot succeed on this repo's arm64 self-hosted fleet at all (confirmed
+#   live: "C compiler identification is unknown",
+#   toolchains/llvm/prebuilt/linux-x86_64/bin/clang missing). This repo is
+#   public, so the GitHub-hosted runner costs nothing.
+# - maestro runs on the self-hosted Linux fleet (issue #395, epic #372) purely
+#   to install the prebuilt APK into Redroid (Android-in-a-privileged-container,
+#   the fleet's only arm64-native way to run Android at all) and drive Maestro.
+#   No Gradle, SDK, or NDK step belongs in this job.
+#
+# The package/target matrix comes from .github/scripts/maestro-matrix.mjs,
+# which also decides which suites a pull request actually needs; add new
+# example packages there, not here.
 on:
     workflow_dispatch:
     pull_request:
@@ -68,36 +84,21 @@ jobs:
                     fi
                   fi
                   node .github/scripts/maestro-matrix.mjs affected.json | tee -a "$GITHUB_OUTPUT"
-    maestro:
-        name: Maestro (${{ matrix.package }}, ${{ matrix.target }})
+
+    build-apk:
+        name: Build APK (${{ matrix.package }}, ${{ matrix.target }})
         needs: detect
         if: needs.detect.outputs.any == 'true'
-        runs-on: [self-hosted, linux-tiered, linux-xl]
-        # Self-hosted fleet capacity is shared with other repositories, so both the
-        # job and every step below carry an explicit bound. See the step comments
-        # for how each number was sized.
-        timeout-minutes: 65
+        # x86_64: the NDK's host clang has no arm64-Linux build, so this cannot
+        # run on the self-hosted fleet. See the top-of-file note.
+        runs-on: ubuntu-24.04
+        timeout-minutes: 30
         strategy:
             fail-fast: false
-            # One redroid at a time. Every leg that has ever died mid-boot overlapped
-            # another leg, and upstream reports that a second instance booting on the
-            # same host makes adb unresponsive on both (redroid-doc#904): privileged
-            # containers share the host kernel's binder devices, so the contention is
-            # across runners and no per-container limit can bound it. The legs are
-            # already serialized by fleet capacity most of the time; this makes it a
-            # property of the workflow rather than a coincidence of scheduling.
-            max-parallel: 1
             matrix:
                 include: ${{ fromJSON(needs.detect.outputs.matrix) }}
         env:
             APP_DIR: ${{ matrix.example_dir }}/apps/${{ matrix.target }}
-            MAESTRO_DEBUG_OUTPUT_DIRECTORY: ${{ github.workspace }}/${{ matrix.example_dir }}/artifacts/maestro-android-${{ matrix.package }}-${{ matrix.target }}
-            # Several legs can land on the same self-hosted host, so the container
-            # name is per-leg. The data directory and adb port are derived inside the
-            # redroid step: job-level env cannot read the runner context, and docker
-            # assigns the port.
-            REDROID_CONTAINER: redroid-${{ matrix.package }}-${{ matrix.target }}-${{ github.run_id }}
-
         steps:
             -   name: Checkout repository
                 uses: actions/checkout@v5
@@ -135,17 +136,113 @@ jobs:
                     # The action still defaults to "tools platform-tools", but the
                     # obsolete "tools" package was withdrawn from the Google SDK
                     # repository, so sdkmanager exits 1 with "Dependant package with
-                    # key emulator not found!". Gradle resolves the build tools and
-                    # platform it needs on its own, so platform-tools is the only
-                    # package this workflow has to request.
+                    # key emulator not found!". Gradle resolves the build tools,
+                    # platform, and NDK/cmake it needs on its own on this
+                    # x86_64 host, so platform-tools is the only package this
+                    # workflow has to request.
                     packages: platform-tools
 
-            -   name: Provide a host-architecture adb
-                # Google ships platform-tools for linux-x86_64 only. On the arm64
-                # fleet its adb cannot exec at all — the shell falls back to parsing
-                # the ELF as a script and reports "Syntax error: word unexpected" —
-                # so the distro adb replaces it for every consumer (Gradle, Maestro,
-                # the steps below) through the path the SDK already exports.
+            -   name: Restore Gradle cache
+                uses: actions/cache@v4
+                timeout-minutes: 10
+                with:
+                    path: |
+                        ~/.gradle/caches
+                        ~/.gradle/wrapper
+                    key: gradle-${{ matrix.package }}-${{ matrix.target }}-${{ runner.os }}-${{ hashFiles(format('{0}/android/gradle/wrapper/gradle-wrapper.properties', env.APP_DIR), format('{0}/android/**/*.gradle*', env.APP_DIR), format('{0}/package.json', env.APP_DIR), format('{0}/app.json', env.APP_DIR), 'yarn.lock') }}
+                    restore-keys: |
+                        gradle-${{ matrix.package }}-${{ matrix.target }}-${{ runner.os }}-
+
+            -   name: Build release APK
+                # release, not debug: both example apps sign release with the
+                # checked-in debug keystore (see app/build.gradle,
+                # "Caution! In production, you need to generate your own keystore
+                # file."), so no signing secret is needed here.
+                timeout-minutes: 20
+                shell: bash
+                run: |
+                    set -euo pipefail
+                    set -x
+                    (cd "${{ env.APP_DIR }}/android" && ./gradlew assembleRelease)
+
+            -   name: Upload APK artifact
+                uses: actions/upload-artifact@v4
+                timeout-minutes: 5
+                with:
+                    name: apk-${{ matrix.package }}-${{ matrix.target }}
+                    path: ${{ env.APP_DIR }}/android/app/build/outputs/apk/release/*.apk
+                    if-no-files-found: error
+                    retention-days: 1
+
+    maestro:
+        name: Maestro (${{ matrix.package }}, ${{ matrix.target }})
+        needs: [detect, build-apk]
+        if: needs.detect.outputs.any == 'true'
+        runs-on: [self-hosted, linux-tiered, linux-xl]
+        # Self-hosted fleet capacity is shared with other repositories, so both the
+        # job and every step below carry an explicit bound. See the step comments
+        # for how each number was sized. No Gradle/SDK/NDK step runs here anymore
+        # (see build-apk), so this budget is boot + install + test only.
+        timeout-minutes: 30
+        strategy:
+            fail-fast: false
+            # One redroid at a time. Every leg that has ever died mid-boot overlapped
+            # another leg, and upstream reports that a second instance booting on the
+            # same host makes adb unresponsive on both (redroid-doc#904): privileged
+            # containers share the host kernel's binder devices, so the contention is
+            # across runners and no per-container limit can bound it. The legs are
+            # already serialized by fleet capacity most of the time; this makes it a
+            # property of the workflow rather than a coincidence of scheduling.
+            max-parallel: 1
+            matrix:
+                include: ${{ fromJSON(needs.detect.outputs.matrix) }}
+        env:
+            MAESTRO_DEBUG_OUTPUT_DIRECTORY: ${{ github.workspace }}/${{ matrix.example_dir }}/artifacts/maestro-android-${{ matrix.package }}-${{ matrix.target }}
+            # Several legs can land on the same self-hosted host, so the container
+            # name is per-leg. The data directory and adb port are derived inside the
+            # redroid step: job-level env cannot read the runner context, and docker
+            # assigns the port.
+            REDROID_CONTAINER: redroid-${{ matrix.package }}-${{ matrix.target }}-${{ github.run_id }}
+
+        steps:
+            -   name: Checkout repository
+                uses: actions/checkout@v5
+                timeout-minutes: 10
+
+            -   name: Setup Node
+                uses: actions/setup-node@v5
+                timeout-minutes: 10
+                with:
+                    node-version: 22.x
+                    cache: yarn
+
+            -   name: Enable corepack
+                timeout-minutes: 5
+                run: corepack enable
+
+            -   name: Install dependencies
+                # Needed only so `yarn e2e:android:<target>` (a thin wrapper around
+                # `maestro test`, see the last step) can resolve at all under Yarn
+                # Berry; nothing here builds or bundles JS for the app itself — that
+                # already happened, if at all, in build-apk.
+                timeout-minutes: 15
+                run: yarn install --immutable
+
+            -   name: Download APK artifact
+                uses: actions/download-artifact@v8
+                timeout-minutes: 10
+                with:
+                    name: apk-${{ matrix.package }}-${{ matrix.target }}
+                    path: .ci-artifacts/apk
+
+            -   name: Install adb
+                # Google ships platform-tools for linux-x86_64 only. On this arm64
+                # fleet that adb cannot exec at all — the shell falls back to parsing
+                # the ELF as a script and reports "Syntax error: word unexpected".
+                # Gradle/SDK/NDK provisioning (and that whole problem) moved to
+                # build-apk's x86_64 runner; this job only needs a working adb to
+                # install the prebuilt APK and drive Maestro, so the distro package
+                # is enough on its own — no Android SDK setup at all here.
                 timeout-minutes: 10
                 run: |
                     set -euo pipefail
@@ -153,7 +250,6 @@ jobs:
                       sudo apt-get update -y
                       sudo apt-get install -y adb
                     fi
-                    sudo ln -sf /usr/bin/adb "$ANDROID_HOME/platform-tools/adb"
                     adb version
 
             -   name: Start redroid container
@@ -284,17 +380,6 @@ jobs:
                     done'
                     adb devices -l
 
-            -   name: Restore Gradle cache
-                uses: actions/cache@v4
-                timeout-minutes: 10
-                with:
-                    path: |
-                        ~/.gradle/caches
-                        ~/.gradle/wrapper
-                    key: gradle-${{ matrix.package }}-${{ matrix.target }}-${{ runner.os }}-${{ hashFiles(format('{0}/android/gradle/wrapper/gradle-wrapper.properties', env.APP_DIR), format('{0}/android/**/*.gradle*', env.APP_DIR), format('{0}/package.json', env.APP_DIR), format('{0}/app.json', env.APP_DIR), 'yarn.lock') }}
-                    restore-keys: |
-                        gradle-${{ matrix.package }}-${{ matrix.target }}-${{ runner.os }}-
-
             -   name: Install Maestro
                 timeout-minutes: 10
                 run: |
@@ -319,45 +404,19 @@ jobs:
                     curl -fsSL https://get.maestro.mobile.dev | env MAESTRO_VERSION="$MAESTRO_VERSION" bash
                     echo "$HOME/.maestro/bin" >> "$GITHUB_PATH"
 
-            -   name: Provide an arm64-native cmake for AGP
-                # The Android SDK's own cmake packages (every version through at
-                # least 4.1.2, checked against dl.google.com's repository manifest)
-                # ship a single generic "linux" archive per version — there is no
-                # linux_aarch64 host entry, and that archive is x86_64-only. On this
-                # arm64 host the shell falls back to interpreting the ELF as a
-                # script, so CMake configure fails with `Syntax error: ")"
-                # unexpected` the moment AGP invokes the SDK-downloaded cmake — this
-                # step never ran before the redroid fix above, so it was undiscovered
-                # until the first live validation reached it. apt ships a native
-                # arm64 build of both cmake and ninja-build well above the >=3.13
-                # react-native's CMakeLists.txt requires, so AGP is pointed at that
-                # install via `cmake.dir` in local.properties instead of letting it
-                # download its own — workflow-only, never committed (this repo does
-                # not track local.properties for any example app).
-                timeout-minutes: 10
-                run: |
-                    set -euo pipefail
-                    if ! dpkg -s cmake >/dev/null 2>&1 || ! dpkg -s ninja-build >/dev/null 2>&1; then
-                      sudo apt-get update -y
-                      sudo apt-get install -y cmake ninja-build
-                    fi
-                    command -v cmake >/dev/null && command -v ninja >/dev/null
-                    cmake --version | head -1
-                    ninja --version
-                    echo "cmake.dir=/usr" >> "${{ env.APP_DIR }}/android/local.properties"
-
-            -   name: Build, install, and test
+            -   name: Install APK and run Maestro tests
                 id: emulator
-                # A cold Gradle release build plus the Maestro suite. redroid is
-                # already booted by the previous step, so this budget is build and
-                # test only, leaving the rest of the 65 minute job budget for setup.
-                timeout-minutes: 45
+                # redroid is already booted (previous step) and the APK is already
+                # built (build-apk, a GitHub-hosted x86_64 runner — see the
+                # top-of-file note on why native builds can't run here). This step
+                # is install + test only.
+                timeout-minutes: 20
                 shell: bash
                 run: |
                     set -euo pipefail
                     set -x
-                    (cd "${{ env.APP_DIR }}/android" && ./gradlew assembleRelease)
-                    apk=$(find "${{ env.APP_DIR }}/android/app/build/outputs/apk/release" -name '*.apk' | head -1)
+                    apk=$(find .ci-artifacts/apk -name '*.apk' | head -1)
+                    test -n "$apk"
                     timeout 300 adb -s "127.0.0.1:$ADB_PORT" install -r "$apk"
                     cd "${{ matrix.example_dir }}"
                     yarn e2e:android:${{ matrix.target }}
@@ -414,7 +473,7 @@ jobs:
 
     status:
         name: Android Maestro E2E result
-        needs: [detect, maestro]
+        needs: [detect, build-apk, maestro]
         if: always()
         runs-on: ubuntu-latest
         steps:
@@ -427,6 +486,10 @@ jobs:
                   if [ "${{ needs.detect.outputs.any }}" != "true" ]; then
                     echo "Skipped: no example package dependency tree was touched."
                     exit 0
+                  fi
+                  if [ "${{ needs.build-apk.result }}" != "success" ]; then
+                    echo "APK build failed."
+                    exit 1
                   fi
                   if [ "${{ needs.maestro.result }}" != "success" ]; then
                     echo "Maestro suite failed."
