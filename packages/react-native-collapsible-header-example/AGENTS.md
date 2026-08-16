@@ -22,8 +22,8 @@ src/
   type/                          — header-demo-stack-param-list.type.ts
 apps/
   bare/                          — @rnw-community/react-native-collapsible-header-example-bare (React Native CLI)
-    index.js, app.json, babel.config.js (with react-native-worklets/plugin), metro.config.js (single-instance
-    module resolution — see CI coverage), ios/ and android/ committed like the payments example
+    index.js, app.json, babel.config.js (with react-native-worklets/plugin), metro.config.js, ios/ and android/
+    committed like the payments example
   expo/                          — @rnw-community/react-native-collapsible-header-example-expo (Expo)
     index.js, app.json, babel.config.js, metro.config.js, assets/; ios/ and android/ come from `expo prebuild`
 e2e/
@@ -62,17 +62,17 @@ The `expo` target is wired for both platforms. Like the payments example, the `b
 the expo target generates its own with `expo prebuild`), and the bare `MainActivity` drops Android state restoration
 (`super.onCreate(null)`), which react-native-screens requires for the native stack.
 
-**Single-instance module resolution is load-bearing for the bare target.** Yarn duplicates peer-dependent packages
-per consumer instead of hoisting one copy, so the monorepo root, this package, and the library each carry their own
-`react-native`, `react-native-reanimated`, and `react-native-worklets`. `apps/bare/metro.config.js` blocks every copy
-except this package's and redirects those specifiers to it, because `pod install` compiled the native side against this
-package's copies (`ios/Podfile.lock` records `:path: "../../../node_modules/react-native/"`) and the bundled JS has to
-match the JS its native code was built against. Two instances fail at runtime, not at build time, each with its own
-misleading symptom: two Reanimated copies abort with `[Worklets] Tried to synchronously call a Remote Function. Called
-"value" on the UI Runtime`, two react-native copies report `HMRClient has not been registered as callable`, and a second
-`react` copy (the library once resolved its own through a caret range) throws
-`TypeError: Cannot read property 'useMemoCache' of null` from the React Compiler runtime. A Release build swallows all
-three as a bare SIGABRT — build the Debug variant against Metro to read the actual redbox.
+**One exact version of every React and React Native dependency, repo-wide.** Every manifest pins `react`,
+`react-native`, `react-native-reanimated`, `react-native-worklets`, `react-native-screens`,
+`react-native-safe-area-context`, and the React type packages to an exact version, and the root `resolutions` block
+repeats the core ones so a transitive dependency cannot reintroduce a second version. Yarn keeps a separate physical
+copy per distinct version descriptor, so a single stray range (`^19.2.3` resolving to 19.2.8, `~5.7.0` beside `5.7.0`)
+splits a package into two module instances that only fail at runtime, in the bare app, with symptoms naming something
+else: two Reanimated copies abort with `[Worklets] Tried to synchronously call a Remote Function. Called "value" on the
+UI Runtime`, two react-native copies report `HMRClient has not been registered as callable`, and a second `react` copy
+throws `TypeError: Cannot read property 'useMemoCache' of null` from the React Compiler runtime. The Release build
+swallows all three as a bare SIGABRT — build the Debug variant against Metro to read the actual redbox. Keep the pins
+exact and identical when bumping, and bump every manifest in the same commit.
 
 ## Commands
 

@@ -95,9 +95,10 @@ src/
 - Worklet bodies use plain `=== null` checks — `@rnw-community/shared` guards are not workletized and must not be
   called on the UI runtime.
 - `react`, `react-native`, and `react-native-reanimated` remain peer dependencies. Never bundle a second Reanimated copy.
-- The `react` and `react-test-renderer` devDependencies are pinned to the exact version the example apps use. A caret
-  range resolves to a newer patch and gives this package its own `node_modules/react`; `react-compiler-runtime` then
-  imports that second copy, whose dispatcher is null during the app's render, and every compiled component throws
+- Every React and React Native devDependency is pinned to an exact version, identical across the whole monorepo (the
+  root `resolutions` block repeats the core ones). Yarn keeps a separate physical copy per version descriptor, so one
+  stray range gives this package its own `node_modules/react`; `react-compiler-runtime` then imports that second copy,
+  whose dispatcher is null during the host render, and every compiled component throws
   `TypeError: Cannot read property 'useMemoCache' of null` at runtime while unit tests stay green.
 - Runtime animation code uses APIs shared by Reanimated 3.17.2 and 4.x, and only the compiler-safe `.get()`/`.set()`
   shared-value accessors.
