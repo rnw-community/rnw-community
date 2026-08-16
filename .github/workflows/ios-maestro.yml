@@ -193,6 +193,26 @@ jobs:
                 timeout-minutes: 10
                 run: xcrun simctl install "$SIMULATOR_UDID" "$APP_PATH"
 
+            -   name: Warm the freshly installed app
+                # Whichever flow Maestro happens to run first pays for the very first
+                # launch of a just-installed app — dyld work, first-run caches, and on
+                # this fleet the first PassKit presentation — and that flow is the one
+                # that keeps failing, in both suites, on whatever it waits for first.
+                # Absorbing that cost once here makes every flow the warm case, instead
+                # of raising another timeout for whichever flow drew the short straw.
+                timeout-minutes: 5
+                shell: bash
+                run: |
+                    set -euo pipefail
+                    bundle_id=$(plutil -extract CFBundleIdentifier raw "$APP_PATH/Info.plist")
+                    test -n "$bundle_id"
+                    xcrun simctl launch "$SIMULATOR_UDID" "$bundle_id"
+                    # Long enough for the first frame and the app's own startup probes;
+                    # the suite relaunches with clearState anyway, so nothing is carried
+                    # over except the caches this exists to populate.
+                    sleep 20
+                    xcrun simctl terminate "$SIMULATOR_UDID" "$bundle_id" || true
+
             -   name: Install Maestro
                 timeout-minutes: 10
                 run: |
