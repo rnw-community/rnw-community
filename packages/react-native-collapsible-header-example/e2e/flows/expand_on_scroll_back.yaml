@@ -5,7 +5,7 @@ appId: ${APP_ID}
 - extendedWaitUntil:
       visible:
           id: 'header-demo-collapsed-amount'
-      timeout: 5000
+      timeout: 15000
 - repeat:
       times: 3
       commands:
@@ -15,6 +15,6 @@ appId: ${APP_ID}
 - extendedWaitUntil:
       visible:
           id: 'header-demo-expanded-amount'
-      timeout: 5000
+      timeout: 15000
 - assertNotVisible:
       id: 'header-demo-collapsed-amount'

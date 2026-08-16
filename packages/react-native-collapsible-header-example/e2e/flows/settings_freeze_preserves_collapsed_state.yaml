@@ -6,12 +6,12 @@ appId: ${APP_ID}
 - extendedWaitUntil:
       visible:
           id: 'settings-demo-large-title'
-      timeout: 5000
+      timeout: 15000
 - scroll
 - extendedWaitUntil:
       visible:
           id: 'settings-demo-small-title'
-      timeout: 5000
+      timeout: 15000
 - waitForAnimationToEnd:
       timeout: 3000
 - tapOn:
@@ -19,12 +19,12 @@ appId: ${APP_ID}
 - extendedWaitUntil:
       visible:
           id: 'header-demo-details-title'
-      timeout: 5000
+      timeout: 15000
 - tapOn:
       id: 'header-demo-details-back-button'
 - extendedWaitUntil:
       visible:
           id: 'settings-demo-small-title'
-      timeout: 5000
+      timeout: 15000
 - assertNotVisible:
       id: 'settings-demo-large-title'

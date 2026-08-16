@@ -40,6 +40,15 @@ Or directly: `maestro test -e APP_ID=<appId> e2e/flows`.
   `startRecording`/`stopRecording` to produce the readme demo video (convert with ffmpeg to
   `packages/react-native-collapsible-header/docs/collapsible-header-demo.gif`).
 
+## Waits are liveness bounds, not performance budgets
+
+Every `extendedWaitUntil` is sized for the slowest host the suite runs on, not for the transition it waits on. The
+header settles in well under a second; on the shared self-hosted fleet a cold release-build launch has been observed
+taking ~13s to its first frame, which then leaves the JS thread busy for the first gesture after it. A tight timeout
+turns that contention into a red flow that names the header (`header-demo-collapsed-amount is visible`) while the
+header is not what broke. So the launch subflow allows 60s and post-gesture waits 15s: a generous ceiling costs nothing
+when the assertion holds, and only the flow's own failure message is worth reading when it does not.
+
 ## Visibility semantics
 
 The suite deliberately asserts through the accessibility tree: the package removes the hidden transition layer from

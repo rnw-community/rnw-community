@@ -6,7 +6,7 @@ appId: ${APP_ID}
 - extendedWaitUntil:
       visible:
           id: 'settings-demo-large-title'
-      timeout: 5000
+      timeout: 15000
 - assertNotVisible:
       id: 'settings-demo-small-title'
 - assertVisible:
@@ -15,7 +15,7 @@ appId: ${APP_ID}
 - extendedWaitUntil:
       visible:
           id: 'settings-demo-small-title'
-      timeout: 5000
+      timeout: 15000
 - assertNotVisible:
       id: 'settings-demo-large-title'
 - assertVisible:
@@ -25,4 +25,4 @@ appId: ${APP_ID}
 - extendedWaitUntil:
       visible:
           id: 'header-demo-expanded-amount'
-      timeout: 5000
+      timeout: 15000

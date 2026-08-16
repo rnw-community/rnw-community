@@ -1,8 +1,10 @@
 appId: ${APP_ID}
 ---
+# A liveness bound, not a startup budget: a cold release build on a shared
+# self-hosted host has been observed taking ~13s to its first frame.
 - launchApp:
       clearState: true
 - extendedWaitUntil:
       visible:
           id: 'header-demo-expanded-amount'
-      timeout: 15000
+      timeout: 60000

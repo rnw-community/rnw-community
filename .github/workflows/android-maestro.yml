@@ -154,6 +154,20 @@ jobs:
                       echo "::error::redroid needs binder on the host. Load it on the runner: sudo modprobe binder_linux devices=binder,hwbinder,vndbinder"
                       exit 1
                     fi
+                    # Every wait below can only fail as a timeout, which says nothing
+                    # about why Android did not come up. The container's own log does,
+                    # and so does whether this host's docker is rootless — under
+                    # rootless docker `--privileged` grants nothing, redroid cannot
+                    # mount binderfs, and the container stays up while adbd never
+                    # listens, which looks exactly like a slow boot.
+                    dump_redroid_state() {
+                      echo "::group::redroid diagnostics"
+                      docker info --format 'security options: {{.SecurityOptions}}' || true
+                      docker ps -a --filter "name=$REDROID_CONTAINER" --format '{{.Names}}: {{.Status}}' || true
+                      docker logs --tail 200 "$REDROID_CONTAINER" 2>&1 || true
+                      echo "::endgroup::"
+                    }
+                    trap dump_redroid_state ERR
                     docker rm -f "$REDROID_CONTAINER" >/dev/null 2>&1 || true
                     REDROID_DATA_DIR="$RUNNER_TEMP/$REDROID_CONTAINER"
                     echo "REDROID_DATA_DIR=$REDROID_DATA_DIR" >> "$GITHUB_ENV"
@@ -168,6 +182,12 @@ jobs:
                       androidboot.redroid_height=2340 \
                       androidboot.redroid_dpi=440 \
                       androidboot.redroid_gpu_mode=guest
+                    # The export is load-bearing: the wait loops below run in a child
+                    # `bash -c`, whose single quotes defer expansion to that child, and
+                    # $GITHUB_ENV only reaches later steps. Unexported, the child saw an
+                    # empty port and polled `adb connect 127.0.0.1:` until the timeout —
+                    # a 124 that read as "redroid never booted" while it had booted fine.
+                    export ADB_PORT
                     ADB_PORT=$(docker port "$REDROID_CONTAINER" 5555/tcp | head -1 | sed 's/.*://')
                     test -n "$ADB_PORT"
                     echo "ADB_PORT=$ADB_PORT" >> "$GITHUB_ENV"
@@ -192,9 +212,21 @@ jobs:
                 timeout-minutes: 10
                 run: |
                     maestro_bin="$HOME/.maestro/bin/maestro"
-                    if [ ! -x "$maestro_bin" ] || [ "$("$maestro_bin" --version 2>/dev/null | tail -n 1 | tr -d '\r' || true)" != "$MAESTRO_VERSION" ]; then
-                      curl -fsSL https://get.maestro.mobile.dev | env MAESTRO_VERSION="$MAESTRO_VERSION" bash
+                    if [ -x "$maestro_bin" ] && [ "$("$maestro_bin" --version 2>/dev/null | tail -n 1 | tr -d '\r' || true)" = "$MAESTRO_VERSION" ]; then
+                      echo "$HOME/.maestro/bin" >> "$GITHUB_PATH"
+                      exit 0
                     fi
+                    # Some hosts in the self-hosted fleet carry a package-manager-managed
+                    # maestro. get.maestro.mobile.dev refuses to install beside one and
+                    # exits 1, which failed the job before a single flow ran, so an
+                    # already-provisioned maestro is used as it is (version logged, and
+                    # left on the PATH the runner already exports).
+                    if command -v maestro >/dev/null 2>&1; then
+                      echo "Using the maestro already provisioned on this host:"
+                      maestro --version
+                      exit 0
+                    fi
+                    curl -fsSL https://get.maestro.mobile.dev | env MAESTRO_VERSION="$MAESTRO_VERSION" bash
                     echo "$HOME/.maestro/bin" >> "$GITHUB_PATH"
 
             -   name: Build, install, and test
@@ -246,7 +278,9 @@ jobs:
                     if [ -n "${REDROID_DATA_DIR:-}" ]; then rm -rf "$REDROID_DATA_DIR" || true; fi
 
             -   name: Upload Maestro artifacts
-                if: failure() && steps.emulator.outcome == 'failure'
+                # Matches the capture step's condition — gating this on the test step
+                # alone discarded the container log whenever setup was what failed.
+                if: failure() && (steps.emulator.outcome == 'failure' || steps.redroid.outcome == 'failure')
                 uses: actions/upload-artifact@v4
                 timeout-minutes: 5
                 with:

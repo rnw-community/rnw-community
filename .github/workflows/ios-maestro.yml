@@ -189,9 +189,21 @@ jobs:
                 timeout-minutes: 10
                 run: |
                     maestro_bin="$HOME/.maestro/bin/maestro"
-                    if [ ! -x "$maestro_bin" ] || [ "$("$maestro_bin" --version 2>/dev/null | tail -n 1 | tr -d '\r' || true)" != "$MAESTRO_VERSION" ]; then
-                      curl -fsSL https://get.maestro.mobile.dev | env MAESTRO_VERSION="$MAESTRO_VERSION" bash
+                    if [ -x "$maestro_bin" ] && [ "$("$maestro_bin" --version 2>/dev/null | tail -n 1 | tr -d '\r' || true)" = "$MAESTRO_VERSION" ]; then
+                      echo "$HOME/.maestro/bin" >> "$GITHUB_PATH"
+                      exit 0
                     fi
+                    # Some hosts in the self-hosted fleet carry a Homebrew-managed
+                    # maestro. get.maestro.mobile.dev refuses to install beside one and
+                    # exits 1, which failed the job before a single flow ran, so an
+                    # already-provisioned maestro is used as it is (version logged, and
+                    # left on the PATH the runner already exports).
+                    if command -v maestro >/dev/null 2>&1; then
+                      echo "Using the maestro already provisioned on this host:"
+                      maestro --version
+                      exit 0
+                    fi
+                    curl -fsSL https://get.maestro.mobile.dev | env MAESTRO_VERSION="$MAESTRO_VERSION" bash
                     echo "$HOME/.maestro/bin" >> "$GITHUB_PATH"
 
             -   name: Run Maestro suite
