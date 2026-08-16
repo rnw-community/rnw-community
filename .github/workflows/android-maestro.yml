@@ -71,6 +71,14 @@ jobs:
         timeout-minutes: 65
         strategy:
             fail-fast: false
+            # One redroid at a time. Every leg that has ever died mid-boot overlapped
+            # another leg, and upstream reports that a second instance booting on the
+            # same host makes adb unresponsive on both (redroid-doc#904): privileged
+            # containers share the host kernel's binder devices, so the contention is
+            # across runners and no per-container limit can bound it. The legs are
+            # already serialized by fleet capacity most of the time; this makes it a
+            # property of the workflow rather than a coincidence of scheduling.
+            max-parallel: 1
             matrix:
                 include: ${{ fromJSON(needs.detect.outputs.matrix) }}
         env:
@@ -163,6 +171,12 @@ jobs:
                     dump_redroid_state() {
                       echo "::group::redroid diagnostics"
                       docker info --format 'security options: {{.SecurityOptions}}' || true
+                      # Upstream wants binder_linux and ashmem_linux; Android 12+ uses
+                      # memfd instead of ashmem, so a missing ashmem is reported rather
+                      # than treated as fatal. Neighbouring containers matter too — a
+                      # second redroid booting on this kernel destabilizes both.
+                      lsmod | grep -E '^(binder_linux|ashmem_linux)' || echo "no binder/ashmem module rows"
+                      docker ps --filter 'ancestor=redroid/redroid:14.0.0-latest' --format 'neighbour: {{.Names}} {{.Status}}' || true
                       docker ps -a --filter "name=$REDROID_CONTAINER" --format '{{.Names}}: {{.Status}}' || true
                       docker logs --tail 200 "$REDROID_CONTAINER" 2>&1 || true
                       echo "::endgroup::"
