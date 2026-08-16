@@ -7,11 +7,10 @@ appId: ${APP_ID}
       visible:
           id: 'settings-demo-large-title'
       timeout: 15000
-- scroll
-- extendedWaitUntil:
-      visible:
-          id: 'settings-demo-small-title'
-      timeout: 15000
+- runFlow:
+      file: ../subflows/collapse_header.yaml
+      env:
+          COLLAPSED_ID: settings-demo-small-title
 - waitForAnimationToEnd:
       timeout: 3000
 - tapOn:

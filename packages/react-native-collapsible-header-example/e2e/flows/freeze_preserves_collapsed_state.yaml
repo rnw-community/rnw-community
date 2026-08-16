@@ -1,11 +1,10 @@
 appId: ${APP_ID}
 ---
 - runFlow: ../subflows/launch_header_demo.yaml
-- scroll
-- extendedWaitUntil:
-      visible:
-          id: 'header-demo-collapsed-amount'
-      timeout: 15000
+- runFlow:
+      file: ../subflows/collapse_header.yaml
+      env:
+          COLLAPSED_ID: header-demo-collapsed-amount
 - waitForAnimationToEnd:
       timeout: 3000
 - tapOn:

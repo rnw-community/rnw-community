@@ -11,11 +11,10 @@ appId: ${APP_ID}
       id: 'settings-demo-small-title'
 - assertVisible:
       id: 'settings-demo-back-button'
-- scroll
-- extendedWaitUntil:
-      visible:
-          id: 'settings-demo-small-title'
-      timeout: 15000
+- runFlow:
+      file: ../subflows/collapse_header.yaml
+      env:
+          COLLAPSED_ID: settings-demo-small-title
 - assertNotVisible:
       id: 'settings-demo-large-title'
 - assertVisible:

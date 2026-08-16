@@ -36,6 +36,8 @@ Or directly: `maestro test -e APP_ID=<appId> e2e/flows`.
 - `flows/settings_freeze_preserves_collapsed_state.yaml` — the freeze case on the settings screen: collapse, open an
   item (Details), return, and assert the small title is still the visible one.
 - `subflows/launch_header_demo.yaml` — shared launch + first-frame wait, included via `runFlow`, never run standalone.
+- `subflows/collapse_header.yaml` — shared "drive this screen to the collapsed endpoint", parameterized by the
+  `COLLAPSED_ID` the caller waits for, so both the amount header and the settings header reuse one gesture.
 - `recording/demo_capture.yaml` — not an assertion flow; drives the collapse/expand/overscroll gestures between
   `startRecording`/`stopRecording` to produce the readme demo video (convert with ffmpeg to
   `packages/react-native-collapsible-header/docs/collapsible-header-demo.gif`).

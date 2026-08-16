@@ -9,9 +9,14 @@ appId: ${APP_ID}
       - tapOn:
           text: "OK"
           optional: true
-- assertVisible:
-    id: "payments-flow-state"
-    text: "idle"
+# A bare assertVisible here only allowed Maestro's short implicit retry, so a cold
+# release launch on a loaded host reported the flow state as missing when it was
+# merely not rendered yet. The bound is for the slowest host, not for startup.
+- extendedWaitUntil:
+    visible:
+      id: "payments-flow-state"
+      text: "idle"
+    timeout: 60000
 - assertVisible:
     id: "action-show"
 - extendedWaitUntil:
