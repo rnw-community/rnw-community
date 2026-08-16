@@ -92,7 +92,13 @@ jobs:
         # x86_64: the NDK's host clang has no arm64-Linux build, so this cannot
         # run on the self-hosted fleet. See the top-of-file note.
         runs-on: ubuntu-24.04
-        timeout-minutes: 30
+        # collapsible-header/expo's native build (react-native-reanimated,
+        # 4-ABI CMake) measured at ~18 minutes on a clean run and blew the old
+        # 20-minute step timeout on a slower one (share-hosted infra varies) —
+        # confirmed live, not theoretical. Setup steps before the build measure
+        # under 2 minutes, so this still has real margin against the step
+        # timeout below.
+        timeout-minutes: 35
         strategy:
             fail-fast: false
             matrix:
@@ -158,7 +164,11 @@ jobs:
                 # checked-in debug keystore (see app/build.gradle,
                 # "Caution! In production, you need to generate your own keystore
                 # file."), so no signing secret is needed here.
-                timeout-minutes: 20
+                # 28, not 20: collapsible-header/expo's native build (4-ABI
+                # CMake for react-native-reanimated) measured ~18 minutes on
+                # one run and blew a 20-minute budget outright on the next —
+                # confirmed live, not a guess.
+                timeout-minutes: 28
                 shell: bash
                 run: |
                     set -euo pipefail
