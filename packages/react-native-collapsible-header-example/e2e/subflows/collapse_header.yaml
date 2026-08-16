@@ -5,12 +5,17 @@ appId: ${APP_ID}
 # that never collapsed. A bare `scroll` whose gesture registers as a slow drag
 # can land under the midpoint, so the distance is spelled out instead. The snap
 # decision itself is covered by snap_to_nearest_endpoint, which drags on purpose.
+#
+# The drags are deliberately slower than Maestro's 400ms default: this subflow
+# wants a scroll position, not a fling, and a list still decelerating when the
+# next command runs moves the header's own controls out from under the tap.
 - repeat:
       times: 2
       commands:
           - swipe:
                 start: 50%, 80%
                 end: 50%, 30%
+                duration: 900
 - waitForAnimationToEnd:
       timeout: 5000
 - extendedWaitUntil:
