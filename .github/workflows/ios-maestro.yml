@@ -60,8 +60,12 @@ jobs:
                   # skip every leg on exactly the changes that need testing most.
                   : > affected.json
                   if [ "$EVENT_NAME" = "pull_request" ]; then
+                    # grep without -q: under pipefail, -q exits at the first match
+                    # and a still-writing git diff then dies of SIGPIPE (status
+                    # 141), which flips a real plumbing match into the turbo
+                    # branch on diffs large enough to fill the pipe buffer.
                     if git diff --name-only "$TURBO_SCM_BASE" HEAD \
-                      | grep -qE '^\.github/(workflows/(ios|android)-maestro\.yml|scripts/maestro-matrix\.mjs)$'; then
+                      | grep -E '^\.github/(workflows/(ios|android)-maestro\.yml|scripts/maestro-matrix\.mjs)$'; then
                       echo "Maestro CI plumbing changed; every suite runs."
                     else
                       npx -y turbo@2.10.8 ls --affected --output=json > affected.json
@@ -270,6 +274,17 @@ jobs:
                         fi
                         if version_matches; then
                           break
+                        fi
+                        # A winner hard-killed before its EXIT trap runs (runner
+                        # reboot, forced shutdown mid-install) leaves lock_dir
+                        # behind with nobody left to remove it. A live owner is
+                        # bounded by this step's 10-minute timeout, so a lock
+                        # directory older than 15 minutes provably has no owner;
+                        # reclaiming it keeps one crashed install from wedging
+                        # every later job on this host.
+                        if [ -n "$(find "$lock_dir" -maxdepth 0 -mmin +15 2>/dev/null)" ]; then
+                          echo "Removing stale Maestro install lock '$lock_dir' left by a crashed installer."
+                          rmdir "$lock_dir" 2>/dev/null || true
                         fi
                         if [ "$SECONDS" -ge "$lock_deadline" ]; then
                           echo "::error::Timed out waiting for the Maestro install lock '$lock_dir'; a concurrent install on this host may be stuck."
