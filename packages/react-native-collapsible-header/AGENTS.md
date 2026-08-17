@@ -56,7 +56,11 @@ src/
     collapsible-header-mode.type.ts — public 'flow' | 'overlay' layout strategy
   util/
     create-collapsible-header-scroll-worklets/
-      create-collapsible-header-scroll-worklets.ts — internal scroll/end-drag/momentum worklet factory
+      create-collapsible-header-scroll-worklets.ts — internal scroll/drag worklet factory; snap runs once the
+                                                     released scroll holds still for three frames (a rAF watch on the
+                                                     UI runtime), never from momentum events — Android only emits
+                                                     those when a plain JS momentum prop sets `sendMomentumEvents`,
+                                                     which a worklet-only `onScroll` handler never does
       create-collapsible-header-scroll-worklets.spec.ts
     get-collapsible-header-content-inset-style/
       get-collapsible-header-content-inset-style.ts — public overlay-mode content inset helper

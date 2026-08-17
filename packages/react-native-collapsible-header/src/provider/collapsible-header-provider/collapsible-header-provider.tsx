@@ -17,7 +17,10 @@ export const CollapsibleHeaderProvider = ({ children }: PropsWithChildren): Reac
     const scrollY = useSharedValue(0);
     const scrollRef = useAnimatedRef<Animated.ScrollView>();
     const snapConfig = useSharedValue<Maybe<CollapsibleHeaderSnapConfig>>(null);
-    const onScroll = useAnimatedScrollHandler(createCollapsibleHeaderScrollWorklets(scrollY, scrollRef, snapConfig));
+    const snapSettleGeneration = useSharedValue(0);
+    const onScroll = useAnimatedScrollHandler(
+        createCollapsibleHeaderScrollWorklets(scrollY, scrollRef, snapConfig, snapSettleGeneration)
+    );
 
     return (
         <CollapsibleHeaderScrollContext.Provider value={{ onScroll, scrollRef, scrollY, snapConfig }}>

@@ -8,12 +8,13 @@ import type { NativeScrollEvent } from 'react-native';
 import type Animated from 'react-native-reanimated';
 import type { AnimatedRef, SharedValue } from 'react-native-reanimated';
 
-const SNAP_DRAG_VELOCITY_EPSILON = 0.05;
+const SNAP_SETTLE_FRAME_COUNT = 3;
 
 export const createCollapsibleHeaderScrollWorklets = (
     scrollY: SharedValue<number>,
     scrollRef: AnimatedRef<Animated.ScrollView>,
-    snapConfig: SharedValue<Maybe<CollapsibleHeaderSnapConfig>>
+    snapConfig: SharedValue<Maybe<CollapsibleHeaderSnapConfig>>,
+    snapSettleGeneration: SharedValue<number>
 ) => {
     const snapToNearestEndpoint = (offsetY: number): void => {
         'worklet';
@@ -24,23 +25,50 @@ export const createCollapsibleHeaderScrollWorklets = (
         }
     };
 
+    const watchForSettledScroll = (generation: number, releaseOffsetY: number): void => {
+        'worklet';
+
+        let settledOffsetY = releaseOffsetY;
+        let stableFrameCount = 0;
+        const checkFrame = (): void => {
+            if (snapSettleGeneration.get() !== generation) {
+                return;
+            }
+            if (scrollY.get() !== settledOffsetY) {
+                settledOffsetY = scrollY.get();
+                stableFrameCount = 0;
+                requestAnimationFrame(checkFrame);
+
+                return;
+            }
+            stableFrameCount += 1;
+            if (stableFrameCount < SNAP_SETTLE_FRAME_COUNT) {
+                requestAnimationFrame(checkFrame);
+
+                return;
+            }
+            snapToNearestEndpoint(settledOffsetY);
+        };
+        requestAnimationFrame(checkFrame);
+    };
+
     return {
         onScroll: (event: NativeScrollEvent): void => {
             'worklet';
 
             scrollY.set(event.contentOffset.y);
         },
+        onBeginDrag: (): void => {
+            'worklet';
+
+            snapSettleGeneration.set(snapSettleGeneration.get() + 1);
+        },
         onEndDrag: (event: NativeScrollEvent): void => {
             'worklet';
 
-            if (Math.abs(event.velocity?.y ?? 0) <= SNAP_DRAG_VELOCITY_EPSILON) {
-                snapToNearestEndpoint(event.contentOffset.y);
-            }
-        },
-        onMomentumEnd: (event: NativeScrollEvent): void => {
-            'worklet';
-
-            snapToNearestEndpoint(event.contentOffset.y);
+            const generation = snapSettleGeneration.get() + 1;
+            snapSettleGeneration.set(generation);
+            watchForSettledScroll(generation, event.contentOffset.y);
         },
     };
 };
