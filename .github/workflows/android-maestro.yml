@@ -1,9 +1,25 @@
 name: Android Maestro E2E
 
-# Runs the Maestro suite of every example package that carries one, on the
-# self-hosted Linux fleet (issue #395, epic #372). The package/target matrix comes
-# from .github/scripts/maestro-matrix.mjs, which also decides which suites a pull
-# request actually needs; add new example packages there, not here.
+# Runs the Maestro suite of every example package that carries one. Building the
+# APK and running it against Redroid happen on two different runner pools, and
+# that split is load-bearing, not stylistic:
+#
+# - build-apk runs on a free GitHub-hosted ubuntu-24.04 (x86_64) runner. Native
+#   Android builds need the NDK's host clang, and Google publishes
+#   linux-x86_64 prebuilts only — no NDK release has ever shipped a
+#   linux-aarch64 host toolchain — so a Gradle build that touches native code
+#   cannot succeed on this repo's arm64 self-hosted fleet at all (confirmed
+#   live: "C compiler identification is unknown",
+#   toolchains/llvm/prebuilt/linux-x86_64/bin/clang missing). This repo is
+#   public, so the GitHub-hosted runner costs nothing.
+# - maestro runs on the self-hosted Linux fleet (issue #395, epic #372) purely
+#   to install the prebuilt APK into Redroid (Android-in-a-privileged-container,
+#   the fleet's only arm64-native way to run Android at all) and drive Maestro.
+#   No Gradle, SDK, or NDK step belongs in this job.
+#
+# The package/target matrix comes from .github/scripts/maestro-matrix.mjs,
+# which also decides which suites a pull request actually needs; add new
+# example packages there, not here.
 on:
     workflow_dispatch:
     pull_request:
@@ -68,36 +84,27 @@ jobs:
                     fi
                   fi
                   node .github/scripts/maestro-matrix.mjs affected.json | tee -a "$GITHUB_OUTPUT"
-    maestro:
-        name: Maestro (${{ matrix.package }}, ${{ matrix.target }})
+
+    build-apk:
+        name: Build APK (${{ matrix.package }}, ${{ matrix.target }})
         needs: detect
         if: needs.detect.outputs.any == 'true'
-        runs-on: [self-hosted, linux-tiered, linux-xl]
-        # Self-hosted fleet capacity is shared with other repositories, so both the
-        # job and every step below carry an explicit bound. See the step comments
-        # for how each number was sized.
-        timeout-minutes: 65
+        # x86_64: the NDK's host clang has no arm64-Linux build, so this cannot
+        # run on the self-hosted fleet. See the top-of-file note.
+        runs-on: ubuntu-24.04
+        # collapsible-header/expo's native build (react-native-reanimated,
+        # 4-ABI CMake) measured at ~18 minutes on a clean run and blew the old
+        # 20-minute step timeout on a slower one (share-hosted infra varies) —
+        # confirmed live, not theoretical. Setup steps before the build measure
+        # under 2 minutes, so this still has real margin against the step
+        # timeout below.
+        timeout-minutes: 35
         strategy:
             fail-fast: false
-            # One redroid at a time. Every leg that has ever died mid-boot overlapped
-            # another leg, and upstream reports that a second instance booting on the
-            # same host makes adb unresponsive on both (redroid-doc#904): privileged
-            # containers share the host kernel's binder devices, so the contention is
-            # across runners and no per-container limit can bound it. The legs are
-            # already serialized by fleet capacity most of the time; this makes it a
-            # property of the workflow rather than a coincidence of scheduling.
-            max-parallel: 1
             matrix:
                 include: ${{ fromJSON(needs.detect.outputs.matrix) }}
         env:
             APP_DIR: ${{ matrix.example_dir }}/apps/${{ matrix.target }}
-            MAESTRO_DEBUG_OUTPUT_DIRECTORY: ${{ github.workspace }}/${{ matrix.example_dir }}/artifacts/maestro-android-${{ matrix.package }}-${{ matrix.target }}
-            # Several legs can land on the same self-hosted host, so the container
-            # name is per-leg. The data directory and adb port are derived inside the
-            # redroid step: job-level env cannot read the runner context, and docker
-            # assigns the port.
-            REDROID_CONTAINER: redroid-${{ matrix.package }}-${{ matrix.target }}-${{ github.run_id }}
-
         steps:
             -   name: Checkout repository
                 uses: actions/checkout@v5
@@ -135,17 +142,117 @@ jobs:
                     # The action still defaults to "tools platform-tools", but the
                     # obsolete "tools" package was withdrawn from the Google SDK
                     # repository, so sdkmanager exits 1 with "Dependant package with
-                    # key emulator not found!". Gradle resolves the build tools and
-                    # platform it needs on its own, so platform-tools is the only
-                    # package this workflow has to request.
+                    # key emulator not found!". Gradle resolves the build tools,
+                    # platform, and NDK/cmake it needs on its own on this
+                    # x86_64 host, so platform-tools is the only package this
+                    # workflow has to request.
                     packages: platform-tools
 
-            -   name: Provide a host-architecture adb
-                # Google ships platform-tools for linux-x86_64 only. On the arm64
-                # fleet its adb cannot exec at all — the shell falls back to parsing
-                # the ELF as a script and reports "Syntax error: word unexpected" —
-                # so the distro adb replaces it for every consumer (Gradle, Maestro,
-                # the steps below) through the path the SDK already exports.
+            -   name: Restore Gradle cache
+                uses: actions/cache@v4
+                timeout-minutes: 10
+                with:
+                    path: |
+                        ~/.gradle/caches
+                        ~/.gradle/wrapper
+                    key: gradle-${{ matrix.package }}-${{ matrix.target }}-${{ runner.os }}-${{ hashFiles(format('{0}/android/gradle/wrapper/gradle-wrapper.properties', env.APP_DIR), format('{0}/android/**/*.gradle*', env.APP_DIR), format('{0}/package.json', env.APP_DIR), format('{0}/app.json', env.APP_DIR), 'yarn.lock') }}
+                    restore-keys: |
+                        gradle-${{ matrix.package }}-${{ matrix.target }}-${{ runner.os }}-
+
+            -   name: Build release APK
+                # release, not debug: both example apps sign release with the
+                # checked-in debug keystore (see app/build.gradle,
+                # "Caution! In production, you need to generate your own keystore
+                # file."), so no signing secret is needed here.
+                # 28, not 20: collapsible-header/expo's native build (4-ABI
+                # CMake for react-native-reanimated) measured ~18 minutes on
+                # one run and blew a 20-minute budget outright on the next —
+                # confirmed live, not a guess.
+                timeout-minutes: 28
+                shell: bash
+                run: |
+                    set -euo pipefail
+                    set -x
+                    (cd "${{ env.APP_DIR }}/android" && ./gradlew assembleRelease)
+
+            -   name: Upload APK artifact
+                uses: actions/upload-artifact@v4
+                timeout-minutes: 5
+                with:
+                    name: apk-${{ matrix.package }}-${{ matrix.target }}
+                    path: ${{ env.APP_DIR }}/android/app/build/outputs/apk/release/*.apk
+                    if-no-files-found: error
+                    retention-days: 1
+
+    maestro:
+        name: Maestro (${{ matrix.package }}, ${{ matrix.target }})
+        needs: [detect, build-apk]
+        if: needs.detect.outputs.any == 'true'
+        runs-on: [self-hosted, linux-tiered, linux-xl]
+        # Self-hosted fleet capacity is shared with other repositories, so both the
+        # job and every step below carry an explicit bound. See the step comments
+        # for how each number was sized. No Gradle/SDK/NDK step runs here anymore
+        # (see build-apk), so this budget is boot + install + test only.
+        timeout-minutes: 30
+        strategy:
+            fail-fast: false
+            # One redroid at a time. Every leg that has ever died mid-boot overlapped
+            # another leg, and upstream reports that a second instance booting on the
+            # same host makes adb unresponsive on both (redroid-doc#904): privileged
+            # containers share the host kernel's binder devices, so the contention is
+            # across runners and no per-container limit can bound it. The legs are
+            # already serialized by fleet capacity most of the time; this makes it a
+            # property of the workflow rather than a coincidence of scheduling.
+            max-parallel: 1
+            matrix:
+                include: ${{ fromJSON(needs.detect.outputs.matrix) }}
+        env:
+            MAESTRO_DEBUG_OUTPUT_DIRECTORY: ${{ github.workspace }}/${{ matrix.example_dir }}/artifacts/maestro-android-${{ matrix.package }}-${{ matrix.target }}
+            # Several legs can land on the same self-hosted host, so the container
+            # name is per-leg. The data directory and adb port are derived inside the
+            # redroid step: job-level env cannot read the runner context, and docker
+            # assigns the port.
+            REDROID_CONTAINER: redroid-${{ matrix.package }}-${{ matrix.target }}-${{ github.run_id }}
+
+        steps:
+            -   name: Checkout repository
+                uses: actions/checkout@v5
+                timeout-minutes: 10
+
+            -   name: Setup Node
+                uses: actions/setup-node@v5
+                timeout-minutes: 10
+                with:
+                    node-version: 22.x
+                    cache: yarn
+
+            -   name: Enable corepack
+                timeout-minutes: 5
+                run: corepack enable
+
+            -   name: Install dependencies
+                # Needed only so `yarn e2e:android:<target>` (a thin wrapper around
+                # `maestro test`, see the last step) can resolve at all under Yarn
+                # Berry; nothing here builds or bundles JS for the app itself — that
+                # already happened, if at all, in build-apk.
+                timeout-minutes: 15
+                run: yarn install --immutable
+
+            -   name: Download APK artifact
+                uses: actions/download-artifact@v8
+                timeout-minutes: 10
+                with:
+                    name: apk-${{ matrix.package }}-${{ matrix.target }}
+                    path: .ci-artifacts/apk
+
+            -   name: Install adb
+                # Google ships platform-tools for linux-x86_64 only. On this arm64
+                # fleet that adb cannot exec at all — the shell falls back to parsing
+                # the ELF as a script and reports "Syntax error: word unexpected".
+                # Gradle/SDK/NDK provisioning (and that whole problem) moved to
+                # build-apk's x86_64 runner; this job only needs a working adb to
+                # install the prebuilt APK and drive Maestro, so the distro package
+                # is enough on its own — no Android SDK setup at all here.
                 timeout-minutes: 10
                 run: |
                     set -euo pipefail
@@ -153,7 +260,6 @@ jobs:
                       sudo apt-get update -y
                       sudo apt-get install -y adb
                     fi
-                    sudo ln -sf /usr/bin/adb "$ANDROID_HOME/platform-tools/adb"
                     adb version
 
             -   name: Start redroid container
@@ -166,8 +272,19 @@ jobs:
                 timeout-minutes: 15
                 run: |
                     set -euo pipefail
-                    if [ ! -d /dev/binderfs ] && ! lsmod | grep -q '^binder_linux'; then
-                      echo "::error::redroid needs binder on the host. Load it on the runner: sudo modprobe binder_linux devices=binder,hwbinder,vndbinder"
+                    REDROID_IMAGE='redroid/redroid:15.0.0_64only-latest'
+                    # binder_linux must load on every boot. /dev/binder* is not a
+                    # reliable presence signal: on 6.x binderfs kernels no
+                    # /dev/binder, /dev/hwbinder, or /dev/vndbinder node ever appears
+                    # on the host at all — the privileged container mounts binderfs
+                    # and creates its own — so /sys/module/binder_linux is the only
+                    # portable check, and it is checked only after modprobe rather
+                    # than instead of it. A precondition that only checks and never
+                    # loads is a false positive on exactly the hosts redroid needs it
+                    # most on, and that false positive is what let eight runners die.
+                    sudo modprobe binder_linux devices=binder,hwbinder,vndbinder 2>&1 || true
+                    if [ ! -d /sys/module/binder_linux ]; then
+                      echo "::error::binder_linux is not loaded on this host after modprobe. Redroid cannot run without it, and that is host-kernel provisioning a workflow run cannot self-heal safely."
                       exit 1
                     fi
                     # Every wait below can only fail as a timeout, which says nothing
@@ -184,7 +301,7 @@ jobs:
                       # than treated as fatal. Neighbouring containers matter too — a
                       # second redroid booting on this kernel destabilizes both.
                       lsmod | grep -E '^(binder_linux|ashmem_linux)' || echo "no binder/ashmem module rows"
-                      docker ps --filter 'ancestor=redroid/redroid:14.0.0-latest' --format 'neighbour: {{.Names}} {{.Status}}' || true
+                      docker ps --filter "ancestor=$REDROID_IMAGE" --format 'neighbour: {{.Names}} {{.Status}}' || true
                       docker ps -a --filter "name=$REDROID_CONTAINER" --format '{{.Names}}: {{.Status}}' || true
                       docker logs --tail 200 "$REDROID_CONTAINER" 2>&1 || true
                       echo "::endgroup::"
@@ -195,25 +312,60 @@ jobs:
                     echo "REDROID_DATA_DIR=$REDROID_DATA_DIR" >> "$GITHUB_ENV"
                     rm -rf "$REDROID_DATA_DIR"
                     mkdir -p "$REDROID_DATA_DIR"
+                    # Seed /data from the fleet's prewarmed volume the same way
+                    # vitalyiegorov/suuudokuuu does (prewarm-redroid-linux.sh): a
+                    # first-boot-completed, animations-off /data cuts boot from
+                    # minutes to seconds. Cold-pulling and cold-booting redroid is
+                    # exactly the path three independent sources tie to the guest
+                    # kernel hard-locking on this fleet, so this is not optional on
+                    # runners that have been prewarmed.
+                    REDROID_PREWARM_MANIFEST="$HOME/.sudoku-ci/android-emulator.json"
+                    if [ -f "$REDROID_PREWARM_MANIFEST" ]; then
+                      # `|| true`: under pipefail, a manifest with no "dataDir" key
+                      # makes grep exit 1 with no output, and that failure propagates
+                      # through the pipe even though sed exits 0 — which would abort
+                      # the whole step here instead of reaching the unusable-manifest
+                      # fallback below. An empty PREWARM_DATA_DIR is exactly what that
+                      # fallback branch is for.
+                      PREWARM_DATA_DIR=$(grep -o '"dataDir"[[:space:]]*:[[:space:]]*"[^"]*"' "$REDROID_PREWARM_MANIFEST" | sed -E 's/.*:[[:space:]]*"([^"]*)"/\1/' || true)
+                      if [ -n "$PREWARM_DATA_DIR" ] && [ -d "$PREWARM_DATA_DIR" ]; then
+                        echo "Seeding redroid /data from the prewarmed volume at $PREWARM_DATA_DIR (manifest: $REDROID_PREWARM_MANIFEST)."
+                        # The prewarmed tree is root-owned (redroid writes it as root
+                        # inside a --privileged container), so a plain cp as the
+                        # unprivileged runner user fails "Permission denied" on most
+                        # of /data. mobile-ci's run-maestro-android-redroid action hits
+                        # the same requirement and also shells out through sudo, for
+                        # both the seed (here) and the teardown rm below.
+                        sudo cp -a "$PREWARM_DATA_DIR/." "$REDROID_DATA_DIR/"
+                      else
+                        echo "::warning::Prewarm manifest $REDROID_PREWARM_MANIFEST does not name a usable dataDir ($PREWARM_DATA_DIR); falling back to a cold pull and cold boot."
+                        docker pull "$REDROID_IMAGE"
+                      fi
+                    else
+                      echo "::warning::No prewarm manifest at $REDROID_PREWARM_MANIFEST; this runner was not prewarmed by the fleet, so redroid will cold-pull and cold-boot instead of seeding /data from a prewarmed volume."
+                      docker pull "$REDROID_IMAGE"
+                    fi
                     # An unbounded container took every runner down with "the self-hosted
                     # runner lost communication with the server" — the runner agent has to
                     # keep reporting while Android boots, and in guest GPU mode that boot
                     # is pure CPU work, so the container is held to all but two cores and
-                    # a memory ceiling. The pixel count is cut for the same reason: nothing
-                    # in the suite depends on it, every gesture is expressed in percentages.
+                    # a memory ceiling. --memory-swap matches --memory (Docker otherwise
+                    # allows 2x swap) so a bloated redroid cannot page out the runner
+                    # agent instead of being OOM-killed itself. The display flags are
+                    # dropped: the prewarmed /data volume was created at redroid's
+                    # defaults, and booting it under a different display config is
+                    # untested; nothing in the suite depends on the pixel count anyway,
+                    # every gesture is expressed in percentages.
                     container_cpus=$(( $(nproc) > 3 ? $(nproc) - 2 : 1 ))
                     echo "host cores: $(nproc); container limited to ${container_cpus}"
                     docker run -d --privileged \
                       --name "$REDROID_CONTAINER" \
                       --cpus "$container_cpus" \
                       --memory 6g \
+                      --memory-swap 6g \
                       -p 127.0.0.1::5555 \
                       -v "$REDROID_DATA_DIR:/data" \
-                      redroid/redroid:14.0.0-latest \
-                      androidboot.redroid_width=720 \
-                      androidboot.redroid_height=1600 \
-                      androidboot.redroid_dpi=320 \
-                      androidboot.redroid_fps=30 \
+                      "$REDROID_IMAGE" \
                       androidboot.redroid_gpu_mode=guest
                     # The export is load-bearing: the wait loops below run in a child
                     # `bash -c`, whose single quotes defer expansion to that child, and
@@ -237,17 +389,6 @@ jobs:
                       sleep 10
                     done'
                     adb devices -l
-
-            -   name: Restore Gradle cache
-                uses: actions/cache@v4
-                timeout-minutes: 10
-                with:
-                    path: |
-                        ~/.gradle/caches
-                        ~/.gradle/wrapper
-                    key: gradle-${{ matrix.package }}-${{ matrix.target }}-${{ runner.os }}-${{ hashFiles(format('{0}/android/gradle/wrapper/gradle-wrapper.properties', env.APP_DIR), format('{0}/android/**/*.gradle*', env.APP_DIR), format('{0}/package.json', env.APP_DIR), format('{0}/app.json', env.APP_DIR), 'yarn.lock') }}
-                    restore-keys: |
-                        gradle-${{ matrix.package }}-${{ matrix.target }}-${{ runner.os }}-
 
             -   name: Install Maestro
                 timeout-minutes: 10
@@ -273,18 +414,19 @@ jobs:
                     curl -fsSL https://get.maestro.mobile.dev | env MAESTRO_VERSION="$MAESTRO_VERSION" bash
                     echo "$HOME/.maestro/bin" >> "$GITHUB_PATH"
 
-            -   name: Build, install, and test
+            -   name: Install APK and run Maestro tests
                 id: emulator
-                # A cold Gradle release build plus the Maestro suite. redroid is
-                # already booted by the previous step, so this budget is build and
-                # test only, leaving the rest of the 65 minute job budget for setup.
-                timeout-minutes: 45
+                # redroid is already booted (previous step) and the APK is already
+                # built (build-apk, a GitHub-hosted x86_64 runner — see the
+                # top-of-file note on why native builds can't run here). This step
+                # is install + test only.
+                timeout-minutes: 20
                 shell: bash
                 run: |
                     set -euo pipefail
                     set -x
-                    (cd "${{ env.APP_DIR }}/android" && ./gradlew assembleRelease)
-                    apk=$(find "${{ env.APP_DIR }}/android/app/build/outputs/apk/release" -name '*.apk' | head -1)
+                    apk=$(find .ci-artifacts/apk -name '*.apk' | head -1)
+                    test -n "$apk"
                     timeout 300 adb -s "127.0.0.1:$ADB_PORT" install -r "$apk"
                     cd "${{ matrix.example_dir }}"
                     yarn e2e:android:${{ matrix.target }}
@@ -317,9 +459,15 @@ jobs:
                 timeout-minutes: 5
                 shell: bash
                 run: |
-                    adb disconnect "127.0.0.1:${ADB_PORT:-0}" || true
+                    # ADB_PORT is only set once the container is up and docker has
+                    # assigned it a host port; a redroid step that failed before that
+                    # point leaves it unset, and "127.0.0.1:0" is not a parseable adb
+                    # target, so this is skipped rather than logging a spurious error.
+                    if [ -n "${ADB_PORT:-}" ]; then adb disconnect "127.0.0.1:$ADB_PORT" || true; fi
                     docker rm -f "$REDROID_CONTAINER" || true
-                    if [ -n "${REDROID_DATA_DIR:-}" ]; then rm -rf "$REDROID_DATA_DIR" || true; fi
+                    # sudo: seeding from the prewarmed volume (above) leaves this tree
+                    # root-owned, same as mobile-ci's run-maestro-android-redroid.
+                    if [ -n "${REDROID_DATA_DIR:-}" ]; then sudo rm -rf "$REDROID_DATA_DIR" || true; fi
 
             -   name: Upload Maestro artifacts
                 # Matches the capture step's condition — gating this on the test step
@@ -335,7 +483,7 @@ jobs:
 
     status:
         name: Android Maestro E2E result
-        needs: [detect, maestro]
+        needs: [detect, build-apk, maestro]
         if: always()
         runs-on: ubuntu-latest
         steps:
@@ -348,6 +496,10 @@ jobs:
                   if [ "${{ needs.detect.outputs.any }}" != "true" ]; then
                     echo "Skipped: no example package dependency tree was touched."
                     exit 0
+                  fi
+                  if [ "${{ needs.build-apk.result }}" != "success" ]; then
+                    echo "APK build failed."
+                    exit 1
                   fi
                   if [ "${{ needs.maestro.result }}" != "success" ]; then
                     echo "Maestro suite failed."
