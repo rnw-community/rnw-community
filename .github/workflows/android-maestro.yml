@@ -267,12 +267,26 @@ jobs:
                 # redroid runs Android on the host kernel instead of emulating a
                 # foreign architecture, so it needs neither KVM nor an x86_64 host —
                 # the two things this arm64 fleet cannot offer. The image is
-                # multi-arch, so the arm64 host pulls an arm64 Android whose ABI
-                # matches the arm64-v8a slice of the release APK.
-                timeout-minutes: 15
+                # arm64-native, so its ABI matches the arm64-v8a slice of the release
+                # APK.
+                #
+                # 20 minutes, not 15: a host whose prewarm manifest names a different
+                # image cold-pulls ~1.1 GB and pays Android's first boot plus GMS
+                # first-run initialization in this step.
+                timeout-minutes: 20
                 run: |
                     set -euo pipefail
-                    REDROID_IMAGE='redroid/redroid:15.0.0_64only-latest'
+                    # darknightlab/redroid-gms overlays MindTheGapps onto the stock
+                    # redroid/redroid:14.0.0_64only-latest base this fleet already
+                    # knows how to run (same binder_linux, privileged-container, and
+                    # GPU-mode requirements). Stock redroid ships no Google Play
+                    # services at all, which made every PaymentRequest show()-path flow
+                    # fail deterministically with "Google Play services is invalid.
+                    # Cannot recover." in logcat. Android 14 instead of 15: no
+                    # maintained prebuilt GMS image for 15 exists, and the fleet
+                    # cannot build one. Pinned by digest because the tag is mutable
+                    # and the publisher is a community account.
+                    REDROID_IMAGE='darknightlab/redroid-gms:14.0.0_64only-latest@sha256:849bb5ec8d14e9409535ff1a2ca6c2c603555aeb4e36a47b6f984524095e6f0a'
                     # binder_linux must load on every boot. /dev/binder* is not a
                     # reliable presence signal: on 6.x binderfs kernels no
                     # /dev/binder, /dev/hwbinder, or /dev/vndbinder node ever appears
@@ -321,13 +335,26 @@ jobs:
                     # runners that have been prewarmed.
                     REDROID_PREWARM_MANIFEST="$HOME/.sudoku-ci/android-emulator.json"
                     if [ -f "$REDROID_PREWARM_MANIFEST" ]; then
-                      # `|| true`: under pipefail, a manifest with no "dataDir" key
-                      # makes grep exit 1 with no output, and that failure propagates
-                      # through the pipe even though sed exits 0 — which would abort
-                      # the whole step here instead of reaching the unusable-manifest
-                      # fallback below. An empty PREWARM_DATA_DIR is exactly what that
-                      # fallback branch is for.
+                      # `|| true`: under pipefail, a manifest with no "dataDir"/"image"
+                      # key makes grep exit 1 with no output, and that failure
+                      # propagates through the pipe even though sed exits 0 — which
+                      # would abort the whole step here instead of reaching the
+                      # unusable-manifest fallback below. An empty PREWARM_DATA_DIR is
+                      # exactly what that fallback branch is for.
                       PREWARM_DATA_DIR=$(grep -o '"dataDir"[[:space:]]*:[[:space:]]*"[^"]*"' "$REDROID_PREWARM_MANIFEST" | sed -E 's/.*:[[:space:]]*"([^"]*)"/\1/' || true)
+                      PREWARM_IMAGE=$(grep -o '"image"[[:space:]]*:[[:space:]]*"[^"]*"' "$REDROID_PREWARM_MANIFEST" | sed -E 's/.*:[[:space:]]*"([^"]*)"/\1/' || true)
+                      # A /data volume is only reusable by the exact image that booted
+                      # it: seeding the GMS image from a tree first-booted by a
+                      # different Android build (the fleet's manifests still name
+                      # stock redroid/redroid:15.0.0_64only-latest until they are
+                      # re-prewarmed) would boot Android 14 GMS on Android 15
+                      # first-boot state. That mismatch cold-pulls instead, which is
+                      # slower but correct, and is also what makes the first run after
+                      # this image bump possible before any host has been re-prewarmed.
+                      if [ "$PREWARM_IMAGE" != "$REDROID_IMAGE" ]; then
+                        echo "::warning::Prewarm manifest $REDROID_PREWARM_MANIFEST was built for image '$PREWARM_IMAGE', not '$REDROID_IMAGE'; ignoring its dataDir and falling back to a cold pull and cold boot until the host is re-prewarmed."
+                        PREWARM_DATA_DIR=''
+                      fi
                       if [ -n "$PREWARM_DATA_DIR" ] && [ -d "$PREWARM_DATA_DIR" ]; then
                         echo "Seeding redroid /data from the prewarmed volume at $PREWARM_DATA_DIR (manifest: $REDROID_PREWARM_MANIFEST)."
                         # The prewarmed tree is root-owned (redroid writes it as root
@@ -338,7 +365,12 @@ jobs:
                         # both the seed (here) and the teardown rm below.
                         sudo cp -a "$PREWARM_DATA_DIR/." "$REDROID_DATA_DIR/"
                       else
-                        echo "::warning::Prewarm manifest $REDROID_PREWARM_MANIFEST does not name a usable dataDir ($PREWARM_DATA_DIR); falling back to a cold pull and cold boot."
+                        # The image-mismatch branch above already explained itself; a
+                        # second warning here would misattribute the fallback to a
+                        # broken manifest.
+                        if [ "$PREWARM_IMAGE" = "$REDROID_IMAGE" ]; then
+                          echo "::warning::Prewarm manifest $REDROID_PREWARM_MANIFEST does not name a usable dataDir ($PREWARM_DATA_DIR); falling back to a cold pull and cold boot."
+                        fi
                         docker pull "$REDROID_IMAGE"
                       fi
                     else
@@ -358,11 +390,15 @@ jobs:
                     # every gesture is expressed in percentages.
                     container_cpus=$(( $(nproc) > 3 ? $(nproc) - 2 : 1 ))
                     echo "host cores: $(nproc); container limited to ${container_cpus}"
+                    # 8g, not 6g: GMS adds its own service constellation on top of
+                    # stock Android, and a first boot additionally pays GMS
+                    # initialization; the ceiling still exists so a bloated redroid is
+                    # OOM-killed instead of paging out the runner agent.
                     docker run -d --privileged \
                       --name "$REDROID_CONTAINER" \
                       --cpus "$container_cpus" \
-                      --memory 6g \
-                      --memory-swap 6g \
+                      --memory 8g \
+                      --memory-swap 8g \
                       -p 127.0.0.1::5555 \
                       -v "$REDROID_DATA_DIR:/data" \
                       "$REDROID_IMAGE" \
@@ -384,7 +420,11 @@ jobs:
                     # properties is what separates "starved" from "stuck".
                     device="127.0.0.1:$ADB_PORT"
                     export device
-                    timeout 300 bash -c 'until [ "$(adb -s "$device" shell getprop sys.boot_completed | tr -d "\r")" = "1" ]; do
+                    # 600, not 300: a cold first boot of the GMS image also runs GMS
+                    # first-run initialization before sys.boot_completed flips, and
+                    # that is the guaranteed path on every host until its prewarm
+                    # manifest is rebuilt for this image.
+                    timeout 600 bash -c 'until [ "$(adb -s "$device" shell getprop sys.boot_completed | tr -d "\r")" = "1" ]; do
                       echo "booting: bootanim=$(adb -s "$device" shell getprop init.svc.bootanim | tr -d "\r") load=$(cut -d" " -f1-3 /proc/loadavg)"
                       sleep 10
                     done'
