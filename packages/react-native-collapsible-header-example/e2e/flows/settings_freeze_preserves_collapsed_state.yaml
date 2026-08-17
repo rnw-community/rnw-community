@@ -13,12 +13,18 @@ appId: ${APP_ID}
           COLLAPSED_ID: settings-demo-small-title
 - waitForAnimationToEnd:
       timeout: 3000
-- tapOn:
-      id: 'settings-demo-item-8'
-- extendedWaitUntil:
-      visible:
-          id: 'header-demo-details-title'
-      timeout: 15000
+# Retried for the same reason as the details flow: a loaded simulator host
+# can swallow the injected navigation tap; the freeze assertions below are
+# unaffected by the retry.
+- retry:
+      maxRetries: 2
+      commands:
+          - tapOn:
+                id: 'settings-demo-item-8'
+          - extendedWaitUntil:
+                visible:
+                    id: 'header-demo-details-title'
+                timeout: 15000
 - tapOn:
       id: 'header-demo-details-back-button'
 - extendedWaitUntil:
