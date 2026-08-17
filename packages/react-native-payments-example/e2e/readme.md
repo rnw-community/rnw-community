@@ -56,16 +56,31 @@ exists and what it proves instead of a real payment authorization outcome.
 | ------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `app_launch.yaml`                          | The app launches, the four sections render, and the `canMakePayment` probe leaves `checking`.                                                                                                                                                                                                                                                                                                                                                                         |
 | `can_make_payment_probe.yaml`              | iOS: `canMakePayment` resolves `available`. Android: it resolves to a terminal, non-crashing value.                                                                                                                                                                                                                                                                                                                                                                   |
-| `sheet_opens_on_show.yaml`                 | Tapping `action-show` presents the sheet (iOS: PassKit; Android: the Google Pay stub, which has no configured account on the emulator). Both platforms log `show called`, settle `payments-flow-state` to `rejected`, log `show rejected`, and re-show `action-reset` — iOS reaches that point via `dismiss_ios_sheet.yaml`, Android via the emulator's own no-account rejection.                                                                                     |
+| `sheet_opens_on_show.yaml`                 | Tapping `action-show` hands the request to the platform's payment surface (iOS: PassKit; Android: Google Pay). Both platforms log `show called`, settle `payments-flow-state` to `rejected`, log `show rejected`, and re-show `action-reset` — iOS reaches the settlement via `dismiss_ios_sheet.yaml`; Android forces it with `action-abort`, because on a GMS device the outcome of `loadPaymentData` belongs to Google Pay, not the app (see the GMS section below). |
 | `dismiss_abort_reject_state.yaml`          | Android: tapping `action-abort` while the sheet is interactive logs `abort called` and settles `payments-flow-state` to `rejected`. iOS: the sheet is dismissed first (`dismiss_ios_sheet.yaml`, since the interactive app isn't reachable to tap `action-abort` at that point), then `action-abort` is tapped on the now-settled request — still logging `abort called`, proving the button degrades safely (an already-non-interactive abort) rather than crashing. |
 | `shipping_listener_wiring_enabled.yaml`    | With `requestShipping` on (the default), `show` attaches `paymentmethodchange`, `shippingaddresschange`, and `shippingoptionchange` listeners — the JS-observable half of the shipping-change round trip, read from the log after the iOS sheet dismisses.                                                                                                                                                                                                            |
 | `shipping_listener_wiring_disabled.yaml`   | Toggling `requestShipping` off before `show` attaches only `paymentmethodchange`, proving the round trip from builder toggle to request wiring, read from the log after the iOS sheet dismisses.                                                                                                                                                                                                                                                                      |
 | `async_update_toggle_state.yaml`           | Toggling async `updateWith` on does not change request construction or prevent `show` from attaching listeners — the JS-observable half of the async round trip (see the documented gap below for the half this suite cannot reach), read from the log after the iOS sheet dismisses.                                                                                                                                                                                 |
 | `reset_new_request_state_transitions.yaml` | The full state machine: `idle` → interactive → `rejected` (Android: `action-abort`; iOS: sheet dismissal) → `idle` (reset, logs `request reset`) → interactive again (iOS: the sheet re-presents, proving `action-reset` really rebuilds a fresh request rather than reusing a closed one).                                                                                                                                                                           |
 
-## Redroid has no Google Play Services (Android)
+## Google Play Services on Redroid (Android)
 
-Redroid images are plain AOSP with no Google Play Services at all, unlike an AVD's `google_apis`
+CI now boots a GMS-enabled Redroid image (`darknightlab/redroid-gms`, see
+`.github/workflows/android-maestro.yml`), so on CI the availability guard described below no
+longer fires: `isGooglePlayServicesAvailable()` succeeds and the launch probe resolves
+`canMakePayment` to `available`. That device is still uncertified and has no Google account or
+provisioned card, which changes `show`'s semantics rather than restoring real payments: once
+`loadPaymentData` is dispatched, its outcome belongs to Google Pay — observed on CI, the app stays
+on-screen and interactive afterwards, and the task may reject on its own or stay pending
+indefinitely; which of the two happens is Google's decision, not the app's. Flows therefore never
+assert that `show` settles on its own on Android. They force the settlement by tapping
+`action-abort`: `PaymentRequest.abort()` rejects the pending `show()` promise with `AbortError`
+from the JS side whatever the native task does, and if Google Pay happened to reject first, the
+state is already `rejected` and the abort degrades into the already-closed no-op the
+`dismiss_abort_reject_state.yaml` iOS branch documents. The guard below remains load-bearing for
+genuinely GMS-less devices (stock Redroid, or any Android without Play Services).
+
+Historical context — stock Redroid images are plain AOSP with no Google Play Services at all, unlike an AVD's `google_apis`
 system image. Before `PaymentsModule` guarded against this, any GMS-dependent call — the
 mount-time `canMakePayment` probe `usePaymentDemo`'s `useEffect` fires on every launch, and
 `action-show`'s `loadPaymentData` — logged `GoogleApiAvailability: Google Play services is
@@ -93,7 +108,11 @@ asserted `event-log-count` the same way. Both ids sit below the fold on Redroid'
 so neither is actually on-screen without scrolling first. The shared subflow's assertion was
 dropped (redundant — flows that need `event-log`'s content already scroll to it themselves, e.g.
 `app_launch.yaml`), and `can_make_payment_probe.yaml` gained a `scrollUntilVisible` ahead of its
-own `event-log-count` assertion.
+own `event-log-count` assertion. The Actions buttons straddle the same fold (`action-abort`
+partially visible, `action-reset` fully below it), so flows scroll to them instead of asserting or
+tapping them in place, and scroll back up (`direction: UP`) before re-reading
+`payments-flow-state` — a bare `extendedWaitUntil`/`assertVisible` never scrolls, and after a
+downward scroll the status section is above the viewport.
 
 ## Documented gap: the PassKit sheet sandboxes the app's accessibility tree (iOS)
 

@@ -3,8 +3,17 @@ appId: ${APP_ID}
 - runFlow: ../subflows/launch_and_wait_for_probe.yaml
 - runFlow: ../subflows/show_request.yaml
 - runFlow: ../subflows/dismiss_ios_sheet.yaml
+# On the CI device profile action-abort straddles the fold; the passing tap on
+# its partially-visible bounds was one density change away from missing.
+- scrollUntilVisible:
+    element:
+      id: "action-abort"
 - tapOn:
     id: "action-abort"
+- scrollUntilVisible:
+    element:
+      id: "payments-flow-state"
+    direction: UP
 - extendedWaitUntil:
     visible:
       id: "payments-flow-state"

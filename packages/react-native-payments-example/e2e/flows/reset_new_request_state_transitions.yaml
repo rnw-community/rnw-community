@@ -10,15 +10,33 @@ appId: ${APP_ID}
     when:
       platform: Android
     commands:
+      # On the CI device profile action-abort straddles the fold, so it is
+      # scrolled fully on-screen before the tap.
+      - scrollUntilVisible:
+          element:
+            id: "action-abort"
       - tapOn:
           id: "action-abort"
+# The abort scroll may have moved the status section above the viewport; the
+# scroll is a no-op when the state label is already on-screen (iOS path).
+- scrollUntilVisible:
+    element:
+      id: "payments-flow-state"
+    direction: UP
 - extendedWaitUntil:
     visible:
       id: "payments-flow-state"
       text: "rejected"
     timeout: 45000
+- scrollUntilVisible:
+    element:
+      id: "action-reset"
 - tapOn:
     id: "action-reset"
+- scrollUntilVisible:
+    element:
+      id: "payments-flow-state"
+    direction: UP
 - assertVisible:
     id: "payments-flow-state"
     text: "idle"
