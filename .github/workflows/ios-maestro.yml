@@ -215,27 +215,140 @@ jobs:
 
             -   name: Install Maestro
                 timeout-minutes: 10
+                shell: bash
+                # A maestro already on PATH (Homebrew or any other host provisioning)
+                # is only trusted when it reports exactly the pinned version: accepting
+                # a mismatched host binary with a warning made the same flow pass on
+                # the leg that fresh-installed the pin and fail on the leg that ran the
+                # host's stale CLI. Any other version is shadowed by installing the
+                # pinned GitHub release into a private prefix that is prepended to
+                # PATH, which also sidesteps get.maestro.mobile.dev's refusal to
+                # install beside a package-manager-managed maestro. Every failure mode
+                # of the download, checksum, extraction, or version probe fails the
+                # step — the suite never runs against an unverified CLI.
                 run: |
-                    maestro_bin="$HOME/.maestro/bin/maestro"
-                    if [ -x "$maestro_bin" ] && [ "$("$maestro_bin" --version 2>/dev/null | tail -n 1 | tr -d '\r' || true)" = "$MAESTRO_VERSION" ]; then
-                      echo "$HOME/.maestro/bin" >> "$GITHUB_PATH"
-                      exit 0
+                    set -euo pipefail
+                    if ! printf '%s' "$MAESTRO_VERSION" | grep -qE '^[0-9]+\.[0-9]+\.[0-9]+$'; then
+                      echo "::error::MAESTRO_VERSION '$MAESTRO_VERSION' must be a plain X.Y.Z version (digits and dots only) to be used safely in a local path and release URL."
+                      exit 1
                     fi
-                    # Some hosts in the self-hosted fleet carry a Homebrew-managed
-                    # maestro. get.maestro.mobile.dev refuses to install beside one and
-                    # exits 1, which failed the job before a single flow ran, so an
-                    # already-provisioned maestro is used as it is (version logged, and
-                    # left on the PATH the runner already exports).
-                    if command -v maestro >/dev/null 2>&1; then
-                      host_version=$(maestro --version 2>/dev/null | tail -n 1 | tr -d '\r' || true)
-                      if [ "$host_version" != "$MAESTRO_VERSION" ]; then
-                        echo "::warning::Using host maestro $host_version; this workflow pins $MAESTRO_VERSION."
+                    existing_bin="$(command -v maestro || true)"
+                    if [ -n "$existing_bin" ]; then
+                      existing_version="$("$existing_bin" --version 2>/dev/null | tail -n 1 | tr -d '\r' || true)"
+                      if [ "$existing_version" = "$MAESTRO_VERSION" ]; then
+                        echo "Using existing maestro $MAESTRO_VERSION already on PATH: $existing_bin"
+                        exit 0
                       fi
-                      echo "Using the maestro already provisioned on this host: $host_version"
-                      exit 0
+                      echo "Host maestro at $existing_bin reports '$existing_version', not the pinned $MAESTRO_VERSION; installing the pinned release into a private prefix."
                     fi
-                    curl -fsSL https://get.maestro.mobile.dev | env MAESTRO_VERSION="$MAESTRO_VERSION" bash
-                    echo "$HOME/.maestro/bin" >> "$GITHUB_PATH"
+                    command -v unzip >/dev/null 2>&1 || { echo "::error::'unzip' is required to install the pinned Maestro release but is not on PATH."; exit 1; }
+
+                    pinned_root="$HOME/.maestro-pinned"
+                    pinned_dir="$pinned_root/$MAESTRO_VERSION"
+                    pinned_bin="$pinned_dir/maestro/bin/maestro"
+                    lock_dir="$pinned_root/.lock-$MAESTRO_VERSION"
+                    mkdir -p "$pinned_root"
+
+                    version_matches() {
+                      [ -x "$pinned_bin" ] && [ "$("$pinned_bin" --version 2>/dev/null | tail -n 1 | tr -d '\r' || true)" = "$MAESTRO_VERSION" ]
+                    }
+
+                    if ! version_matches; then
+                      # Concurrent legs on the same self-hosted host share $HOME, so two
+                      # jobs installing the same not-yet-cached MAESTRO_VERSION could
+                      # otherwise race rm -rf/unzip against each other or against a
+                      # sibling's in-flight `maestro` invocation. A per-version
+                      # mkdir-as-mutex lock serializes that; a losing waiter re-checks
+                      # version_matches so it can skip straight past once the winner
+                      # finishes instead of installing a second time.
+                      lock_acquired=''
+                      lock_deadline=$((SECONDS + 300))
+                      while :; do
+                        if mkdir "$lock_dir" 2>/dev/null; then
+                          lock_acquired=1
+                          break
+                        fi
+                        if version_matches; then
+                          break
+                        fi
+                        if [ "$SECONDS" -ge "$lock_deadline" ]; then
+                          echo "::error::Timed out waiting for the Maestro install lock '$lock_dir'; a concurrent install on this host may be stuck."
+                          exit 1
+                        fi
+                        sleep 2
+                      done
+
+                      if [ -n "$lock_acquired" ]; then
+                        cleanup() {
+                          [ -n "${scratch_dir:-}" ] && rm -rf "$scratch_dir"
+                          [ -n "${staging_dir:-}" ] && rm -rf "$staging_dir"
+                          rmdir "$lock_dir" 2>/dev/null || true
+                        }
+                        trap cleanup EXIT
+
+                        if ! version_matches; then
+                          download_url="https://github.com/mobile-dev-inc/Maestro/releases/download/cli-${MAESTRO_VERSION}/maestro.zip"
+                          checksum_url="https://github.com/mobile-dev-inc/Maestro/releases/download/cli-${MAESTRO_VERSION}/checksums_sha256.txt"
+                          scratch_dir="$(mktemp -d)"
+                          zip_path="$scratch_dir/maestro.zip"
+
+                          curl_exit=0
+                          http_status="$(curl -sSL --retry 3 --retry-connrefused --max-time 300 -w '%{http_code}' -o "$zip_path" "$download_url")" || curl_exit=$?
+                          if [ "$curl_exit" -ne 0 ] || [ "$http_status" != "200" ]; then
+                            echo "::error::Download of MAESTRO_VERSION '$MAESTRO_VERSION' from '$download_url' failed (curl exit $curl_exit, HTTP status '$http_status'). Confirm a 'cli-$MAESTRO_VERSION' release publishing a maestro.zip asset exists at https://github.com/mobile-dev-inc/Maestro/releases."
+                            exit 1
+                          fi
+
+                          checksum_curl_exit=0
+                          checksum_status="$(curl -sSL --retry 3 --retry-connrefused --max-time 60 -w '%{http_code}' -o "$scratch_dir/checksums_sha256.txt" "$checksum_url")" || checksum_curl_exit=$?
+                          if [ "$checksum_curl_exit" -eq 0 ] && [ "$checksum_status" = "200" ]; then
+                            expected_sha="$(awk '$2 == "maestro.zip" { print $1 }' "$scratch_dir/checksums_sha256.txt")"
+                            if [ -z "$expected_sha" ]; then
+                              echo "::error::checksums_sha256.txt for cli-$MAESTRO_VERSION has no maestro.zip entry; refusing to install an unverifiable download."
+                              exit 1
+                            fi
+                            if command -v sha256sum >/dev/null 2>&1; then
+                              actual_sha="$(sha256sum "$zip_path" | awk '{print $1}')"
+                            else
+                              actual_sha="$(shasum -a 256 "$zip_path" | awk '{print $1}')"
+                            fi
+                            if [ "$actual_sha" != "$expected_sha" ]; then
+                              echo "::error::maestro.zip checksum mismatch for cli-$MAESTRO_VERSION: expected $expected_sha, got $actual_sha."
+                              exit 1
+                            fi
+                          elif [ "$checksum_status" = "404" ]; then
+                            echo "::warning::mobile-dev-inc/Maestro cli-$MAESTRO_VERSION did not publish checksums_sha256.txt (404); proceeding on the TLS-verified download from the official GitHub release only."
+                          else
+                            echo "::error::Failed to retrieve checksums_sha256.txt for cli-$MAESTRO_VERSION from '$checksum_url' (curl exit $checksum_curl_exit, HTTP status '$checksum_status'). Refusing to install an unverifiable download."
+                            exit 1
+                          fi
+
+                          staging_dir="$(mktemp -d "$pinned_root/.staging-XXXXXX")"
+                          unzip -q "$zip_path" -d "$staging_dir"
+                          chmod +x "$staging_dir/maestro/bin/maestro" 2>/dev/null || true
+                          staged_version="$("$staging_dir/maestro/bin/maestro" --version 2>/dev/null | tail -n 1 | tr -d '\r' || true)"
+                          if [ "$staged_version" != "$MAESTRO_VERSION" ]; then
+                            echo "::error::Extracted maestro from cli-$MAESTRO_VERSION's maestro.zip reports version '$staged_version', not the pinned $MAESTRO_VERSION; the release archive layout may have changed."
+                            exit 1
+                          fi
+                          rm -rf "$pinned_dir"
+                          mkdir -p "$pinned_dir"
+                          mv "$staging_dir/maestro" "$pinned_dir/maestro"
+                        fi
+                      fi
+                    fi
+
+                    if [ ! -x "$pinned_bin" ]; then
+                      echo "::error::Expected a maestro binary at '$pinned_bin' after installing cli-$MAESTRO_VERSION; the install may have failed or been interrupted."
+                      exit 1
+                    fi
+                    resolved_version="$("$pinned_bin" --version 2>/dev/null | tail -n 1 | tr -d '\r' || true)"
+                    if [ "$resolved_version" != "$MAESTRO_VERSION" ]; then
+                      echo "::error::maestro at '$pinned_bin' reports version '$resolved_version', not the pinned $MAESTRO_VERSION."
+                      exit 1
+                    fi
+                    echo "$pinned_dir/maestro/bin" >> "$GITHUB_PATH"
+                    echo "Installed and using maestro $MAESTRO_VERSION at $pinned_bin"
 
             -   name: Run Maestro suite
                 # The suite itself took ~85s per shard on the Redroid prototype runs;
