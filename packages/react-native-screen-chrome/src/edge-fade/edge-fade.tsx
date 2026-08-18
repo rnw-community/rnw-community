@@ -41,7 +41,7 @@ export const EdgeFade = ({
     const { config, colorScheme } = useScreenChrome();
     const insets = useSafeAreaInsets();
     const resolvedBlurMethod = getDefined(blurMethod, () => (isDefined(blurTarget) ? 'dimezisBlurView' : 'none'));
-    const resolvedIntensity = isDefined(intensity) ? intensity : config.intensity;
+    const resolvedIntensity = getDefined(intensity, () => config.intensity);
     const { washColors, maskColors, maskLocations, tint } = getEdgeFadeVisuals(
         position,
         colorScheme,

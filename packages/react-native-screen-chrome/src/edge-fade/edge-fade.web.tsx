@@ -3,7 +3,7 @@ import { View } from 'react-native';
 import { createAnimatedComponent } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { isDefined } from '@rnw-community/shared';
+import { getDefined } from '@rnw-community/shared';
 
 import { useScreenChrome } from '../hooks/use-screen-chrome/use-screen-chrome.hook';
 
@@ -20,10 +20,10 @@ const AnimatedView = createAnimatedComponent(View);
 const PERCENT_MULTIPLIER = 100;
 
 const buildMaskImage = (maskStops: Readonly<Record<number, { readonly color: string }>>): string => {
-    const sortedStops = Object.entries(maskStops)
-        .map(([offset, { color }]): readonly [number, string] => [Number(offset), color])
-        .sort(([firstOffset], [secondOffset]) => firstOffset - secondOffset);
-    const stopsCss = sortedStops.map(([offset, color]) => `${color} ${offset * PERCENT_MULTIPLIER}%`).join(', ');
+    const stopsCss = Object.entries(maskStops)
+        .sort(([firstOffset], [secondOffset]) => Number(firstOffset) - Number(secondOffset))
+        .map(([offset, { color }]) => `${color} ${Number(offset) * PERCENT_MULTIPLIER}%`)
+        .join(', ');
 
     return `linear-gradient(to bottom, ${stopsCss})`;
 };
@@ -44,7 +44,7 @@ export const EdgeFade = ({
 }: EdgeFadePropsInterface): ReactNode => {
     const { config, colorScheme } = useScreenChrome();
     const insets = useSafeAreaInsets();
-    const resolvedIntensity = isDefined(intensity) ? intensity : config.intensity;
+    const resolvedIntensity = getDefined(intensity, () => config.intensity);
     const colorSet = config.colors[colorScheme];
     const backdropFilter = getEdgeFadeBackdropFilter(resolvedIntensity);
     const animatedStyle = useEdgeFadeOpacityStyle(scrollAnimation?.opacityInputRange);

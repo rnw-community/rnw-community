@@ -29,7 +29,6 @@ export const CollapsibleHeader = ({ children, style, ...viewProps }: Props): Rea
     const persistentContent = (
         <View style={collapsibleHeaderStyles.persistentRow} pointerEvents="box-none">
             {leading}
-            <View style={collapsibleHeaderStyles.titleSpacer} pointerEvents="none" />
             {trailing}
         </View>
     );
