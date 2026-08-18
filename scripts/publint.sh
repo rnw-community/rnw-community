@@ -17,6 +17,7 @@ packages=(
     nestjs-webpack-swc
     object-field-tree
     platform
+    react-native-collapsible-header
     react-native-payments
     redux-loadable
     rxjs-errors

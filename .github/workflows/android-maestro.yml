@@ -1,9 +1,25 @@
 name: Android Maestro E2E
 
-# Draft workflow for issue #395 (react-native-payments revival, epic #372). The
-# self-hosted Linux fleet is not registered yet (blocked on #396), so runs
-# simply queue until that lands. workflow_dispatch + path filters + a nightly
-# schedule keep this safe to land ahead of the fleet.
+# Runs the Maestro suite of every example package that carries one. Building the
+# APK and running it against Redroid happen on two different runner pools, and
+# that split is load-bearing, not stylistic:
+#
+# - build-apk runs on a free GitHub-hosted ubuntu-24.04 (x86_64) runner. Native
+#   Android builds need the NDK's host clang, and Google publishes
+#   linux-x86_64 prebuilts only — no NDK release has ever shipped a
+#   linux-aarch64 host toolchain — so a Gradle build that touches native code
+#   cannot succeed on this repo's arm64 self-hosted fleet at all (confirmed
+#   live: "C compiler identification is unknown",
+#   toolchains/llvm/prebuilt/linux-x86_64/bin/clang missing). This repo is
+#   public, so the GitHub-hosted runner costs nothing.
+# - maestro runs on the self-hosted Linux fleet (issue #395, epic #372) purely
+#   to install the prebuilt APK into Redroid (Android-in-a-privileged-container,
+#   the fleet's only arm64-native way to run Android at all) and drive Maestro.
+#   No Gradle, SDK, or NDK step belongs in this job.
+#
+# The package/target matrix comes from .github/scripts/maestro-matrix.mjs,
+# which also decides which suites a pull request actually needs; add new
+# example packages there, not here.
 on:
     workflow_dispatch:
     pull_request:
@@ -12,6 +28,9 @@ on:
         paths:
             - packages/react-native-payments/**
             - packages/react-native-payments-example/**
+            - packages/react-native-collapsible-header/**
+            - packages/react-native-collapsible-header-example/**
+            - .github/scripts/maestro-matrix.mjs
             - .github/workflows/android-maestro.yml
     schedule:
         - cron: '47 3 * * *'
@@ -28,14 +47,14 @@ env:
     MAESTRO_CLI_NO_ANALYTICS: true
     MAESTRO_CLI_ANALYSIS_NOTIFICATION_DISABLED: true
     YARN_ENABLE_IMMUTABLE_INSTALLS: true
-    EXAMPLE_DIR: packages/react-native-payments-example
 
 jobs:
     detect:
         name: Detect affected packages
         runs-on: ubuntu-latest
         outputs:
-            payments_affected: ${{ steps.affected.outputs.payments_affected }}
+            matrix: ${{ steps.affected.outputs.matrix }}
+            any: ${{ steps.affected.outputs.any }}
         steps:
             - uses: actions/checkout@v5
               with:
@@ -44,49 +63,52 @@ jobs:
             - uses: actions/setup-node@v5
               with:
                   node-version: 22.x
-            - name: Compute affected packages
+            - name: Compute affected example packages
               id: affected
               env:
                   TURBO_SCM_BASE: ${{ github.event.pull_request.base.sha }}
+                  EVENT_NAME: ${{ github.event_name }}
               run: |
-                  if [ "${{ github.event_name }}" != "pull_request" ]; then
-                    echo "payments_affected=true" >> "$GITHUB_OUTPUT"
-                    echo "Non-PR event: payments pipeline always runs."
-                    exit 0
+                  set -euo pipefail
+                  # An empty file means "run every suite", which is the right answer both
+                  # off pull requests and when the suites' own CI plumbing changed: turbo
+                  # maps those files to no package, so package-based detection alone would
+                  # skip every leg on exactly the changes that need testing most.
+                  : > affected.json
+                  if [ "$EVENT_NAME" = "pull_request" ]; then
+                    # grep without -q: under pipefail, -q exits at the first match
+                    # and a still-writing git diff then dies of SIGPIPE (status
+                    # 141), which flips a real plumbing match into the turbo
+                    # branch on diffs large enough to fill the pipe buffer.
+                    if git diff --name-only "$TURBO_SCM_BASE" HEAD \
+                      | grep -E '^\.github/(workflows/(ios|android)-maestro\.yml|scripts/maestro-matrix\.mjs)$'; then
+                      echo "Maestro CI plumbing changed; every suite runs."
+                    else
+                      npx -y turbo@2.10.8 ls --affected --output=json > affected.json
+                    fi
                   fi
-                  affected=$(npx -y turbo@2.10.8 ls --affected --output=json | node -e '
-                    let raw = "";
-                    process.stdin.on("data", chunk => (raw += chunk));
-                    process.stdin.on("end", () => {
-                      const names = (JSON.parse(raw).packages?.items ?? []).map(item => item.name);
-                      const targets = [
-                        "@rnw-community/react-native-payments",
-                        "@rnw-community/react-native-payments-example",
-                        "@rnw-community/react-native-payments-example-bare",
-                        "@rnw-community/react-native-payments-example-expo",
-                      ];
-                      process.stdout.write(String(names.some(name => targets.includes(name))));
-                    });
-                  ')
-                  echo "payments_affected=${affected}" >> "$GITHUB_OUTPUT"
-                  echo "payments_affected=${affected}"
-    maestro:
-        name: Maestro (${{ matrix.target }})
+                  node .github/scripts/maestro-matrix.mjs affected.json | tee -a "$GITHUB_OUTPUT"
+
+    build-apk:
+        name: Build APK (${{ matrix.package }}, ${{ matrix.target }})
         needs: detect
-        if: needs.detect.outputs.payments_affected == 'true'
-        runs-on: [self-hosted, linux-tiered, linux-xl]
-        # Self-hosted fleet capacity is shared with other repositories, so both the
-        # job and every step below carry an explicit bound. See the step comments
-        # for how each number was sized.
-        timeout-minutes: 65
+        if: needs.detect.outputs.any == 'true'
+        # x86_64: the NDK's host clang has no arm64-Linux build, so this cannot
+        # run on the self-hosted fleet. See the top-of-file note.
+        runs-on: ubuntu-24.04
+        # collapsible-header/expo's native build (react-native-reanimated,
+        # 4-ABI CMake) measured at ~18 minutes on a clean run and blew the old
+        # 20-minute step timeout on a slower one (share-hosted infra varies) —
+        # confirmed live, not theoretical. Setup steps before the build measure
+        # under 2 minutes, so this still has real margin against the step
+        # timeout below.
+        timeout-minutes: 35
         strategy:
             fail-fast: false
             matrix:
-                target: [bare, expo]
+                include: ${{ fromJSON(needs.detect.outputs.matrix) }}
         env:
-            APP_DIR: packages/react-native-payments-example/apps/${{ matrix.target }}
-            MAESTRO_DEBUG_OUTPUT_DIRECTORY: ${{ github.workspace }}/packages/react-native-payments-example/artifacts/maestro-android-${{ matrix.target }}
-
+            APP_DIR: ${{ matrix.example_dir }}/apps/${{ matrix.target }}
         steps:
             -   name: Checkout repository
                 uses: actions/checkout@v5
@@ -109,12 +131,12 @@ jobs:
 
             -   name: Build workspace JS dependencies
                 timeout-minutes: 10
-                run: yarn build --filter=@rnw-community/react-native-payments
+                run: yarn build --filter=${{ matrix.build_filter }}
 
             -   name: Generate native project (expo)
                 if: matrix.target == 'expo'
                 timeout-minutes: 10
-                working-directory: ${{ env.EXAMPLE_DIR }}
+                working-directory: ${{ matrix.example_dir }}
                 run: yarn prebuild:expo
 
             -   name: Set up Android SDK
@@ -124,9 +146,10 @@ jobs:
                     # The action still defaults to "tools platform-tools", but the
                     # obsolete "tools" package was withdrawn from the Google SDK
                     # repository, so sdkmanager exits 1 with "Dependant package with
-                    # key emulator not found!". android-emulator-runner installs the
-                    # emulator and system images it needs by itself, so platform-tools
-                    # is the only package this workflow has to request.
+                    # key emulator not found!". Gradle resolves the build tools,
+                    # platform, and NDK/cmake it needs on its own on this
+                    # x86_64 host, so platform-tools is the only package this
+                    # workflow has to request.
                     packages: platform-tools
 
             -   name: Restore Gradle cache
@@ -136,78 +159,499 @@ jobs:
                     path: |
                         ~/.gradle/caches
                         ~/.gradle/wrapper
-                    key: gradle-${{ matrix.target }}-${{ runner.os }}-${{ hashFiles(format('{0}/android/gradle/wrapper/gradle-wrapper.properties', env.APP_DIR), format('{0}/android/**/*.gradle*', env.APP_DIR), format('{0}/package.json', env.APP_DIR), format('{0}/app.json', env.APP_DIR), 'yarn.lock') }}
+                    key: gradle-${{ matrix.package }}-${{ matrix.target }}-${{ runner.os }}-${{ hashFiles(format('{0}/android/gradle/wrapper/gradle-wrapper.properties', env.APP_DIR), format('{0}/android/**/*.gradle*', env.APP_DIR), format('{0}/package.json', env.APP_DIR), format('{0}/app.json', env.APP_DIR), 'yarn.lock') }}
                     restore-keys: |
-                        gradle-${{ matrix.target }}-${{ runner.os }}-
+                        gradle-${{ matrix.package }}-${{ matrix.target }}-${{ runner.os }}-
+
+            -   name: Build release APK
+                # release, not debug: both example apps sign release with the
+                # checked-in debug keystore (see app/build.gradle,
+                # "Caution! In production, you need to generate your own keystore
+                # file."), so no signing secret is needed here.
+                # 28, not 20: collapsible-header/expo's native build (4-ABI
+                # CMake for react-native-reanimated) measured ~18 minutes on
+                # one run and blew a 20-minute budget outright on the next —
+                # confirmed live, not a guess.
+                timeout-minutes: 28
+                shell: bash
+                run: |
+                    set -euo pipefail
+                    set -x
+                    (cd "${{ env.APP_DIR }}/android" && ./gradlew assembleRelease)
+
+            -   name: Upload APK artifact
+                uses: actions/upload-artifact@v4
+                timeout-minutes: 5
+                with:
+                    name: apk-${{ matrix.package }}-${{ matrix.target }}
+                    path: ${{ env.APP_DIR }}/android/app/build/outputs/apk/release/*.apk
+                    if-no-files-found: error
+                    retention-days: 1
+
+    maestro:
+        name: Maestro (${{ matrix.package }}, ${{ matrix.target }})
+        needs: [detect, build-apk]
+        if: needs.detect.outputs.any == 'true'
+        runs-on: [self-hosted, linux-tiered, linux-xl]
+        # Self-hosted fleet capacity is shared with other repositories, so both the
+        # job and every step below carry an explicit bound. See the step comments
+        # for how each number was sized. No Gradle/SDK/NDK step runs here anymore
+        # (see build-apk), so this budget is boot + install + test only.
+        timeout-minutes: 30
+        strategy:
+            fail-fast: false
+            # One redroid at a time. Every leg that has ever died mid-boot overlapped
+            # another leg, and upstream reports that a second instance booting on the
+            # same host makes adb unresponsive on both (redroid-doc#904): privileged
+            # containers share the host kernel's binder devices, so the contention is
+            # across runners and no per-container limit can bound it. The legs are
+            # already serialized by fleet capacity most of the time; this makes it a
+            # property of the workflow rather than a coincidence of scheduling.
+            max-parallel: 1
+            matrix:
+                include: ${{ fromJSON(needs.detect.outputs.matrix) }}
+        env:
+            MAESTRO_DEBUG_OUTPUT_DIRECTORY: ${{ github.workspace }}/${{ matrix.example_dir }}/artifacts/maestro-android-${{ matrix.package }}-${{ matrix.target }}
+            # Several legs can land on the same self-hosted host, so the container
+            # name is per-leg. The data directory and adb port are derived inside the
+            # redroid step: job-level env cannot read the runner context, and docker
+            # assigns the port.
+            REDROID_CONTAINER: redroid-${{ matrix.package }}-${{ matrix.target }}-${{ github.run_id }}
+
+        steps:
+            -   name: Checkout repository
+                uses: actions/checkout@v5
+                timeout-minutes: 10
+
+            -   name: Setup Node
+                uses: actions/setup-node@v5
+                timeout-minutes: 10
+                with:
+                    node-version: 22.x
+                    cache: yarn
+
+            -   name: Enable corepack
+                timeout-minutes: 5
+                run: corepack enable
+
+            -   name: Install dependencies
+                # Needed only so `yarn e2e:android:<target>` (a thin wrapper around
+                # `maestro test`, see the last step) can resolve at all under Yarn
+                # Berry; nothing here builds or bundles JS for the app itself — that
+                # already happened, if at all, in build-apk.
+                timeout-minutes: 15
+                run: yarn install --immutable
+
+            -   name: Download APK artifact
+                uses: actions/download-artifact@v8
+                timeout-minutes: 10
+                with:
+                    name: apk-${{ matrix.package }}-${{ matrix.target }}
+                    path: .ci-artifacts/apk
+
+            -   name: Install adb
+                # Google ships platform-tools for linux-x86_64 only. On this arm64
+                # fleet that adb cannot exec at all — the shell falls back to parsing
+                # the ELF as a script and reports "Syntax error: word unexpected".
+                # Gradle/SDK/NDK provisioning (and that whole problem) moved to
+                # build-apk's x86_64 runner; this job only needs a working adb to
+                # install the prebuilt APK and drive Maestro, so the distro package
+                # is enough on its own — no Android SDK setup at all here.
+                timeout-minutes: 10
+                run: |
+                    set -euo pipefail
+                    if ! dpkg -s adb >/dev/null 2>&1; then
+                      sudo apt-get update -y
+                      sudo apt-get install -y adb
+                    fi
+                    adb version
+
+            -   name: Start redroid container
+                id: redroid
+                # redroid runs Android on the host kernel instead of emulating a
+                # foreign architecture, so it needs neither KVM nor an x86_64 host —
+                # the two things this arm64 fleet cannot offer. The image is
+                # arm64-native, so its ABI matches the arm64-v8a slice of the release
+                # APK.
+                #
+                # 20 minutes, not 15: a host whose prewarm manifest names a different
+                # image cold-pulls ~1.1 GB and pays Android's first boot plus GMS
+                # first-run initialization in this step.
+                timeout-minutes: 20
+                run: |
+                    set -euo pipefail
+                    # darknightlab/redroid-gms overlays MindTheGapps onto the stock
+                    # redroid/redroid:14.0.0_64only-latest base this fleet already
+                    # knows how to run (same binder_linux, privileged-container, and
+                    # GPU-mode requirements). Stock redroid ships no Google Play
+                    # services at all, which made every PaymentRequest show()-path flow
+                    # fail deterministically with "Google Play services is invalid.
+                    # Cannot recover." in logcat. Android 14 instead of 15: no
+                    # maintained prebuilt GMS image for 15 exists, and the fleet
+                    # cannot build one. Pinned by digest because the tag is mutable
+                    # and the publisher is a community account.
+                    REDROID_IMAGE='darknightlab/redroid-gms:14.0.0_64only-latest@sha256:849bb5ec8d14e9409535ff1a2ca6c2c603555aeb4e36a47b6f984524095e6f0a'
+                    # binder_linux must load on every boot. /dev/binder* is not a
+                    # reliable presence signal: on 6.x binderfs kernels no
+                    # /dev/binder, /dev/hwbinder, or /dev/vndbinder node ever appears
+                    # on the host at all — the privileged container mounts binderfs
+                    # and creates its own — so /sys/module/binder_linux is the only
+                    # portable check, and it is checked only after modprobe rather
+                    # than instead of it. A precondition that only checks and never
+                    # loads is a false positive on exactly the hosts redroid needs it
+                    # most on, and that false positive is what let eight runners die.
+                    sudo modprobe binder_linux devices=binder,hwbinder,vndbinder 2>&1 || true
+                    if [ ! -d /sys/module/binder_linux ]; then
+                      echo "::error::binder_linux is not loaded on this host after modprobe. Redroid cannot run without it, and that is host-kernel provisioning a workflow run cannot self-heal safely."
+                      exit 1
+                    fi
+                    # Every wait below can only fail as a timeout, which says nothing
+                    # about why Android did not come up. The container's own log does,
+                    # and so does whether this host's docker is rootless — under
+                    # rootless docker `--privileged` grants nothing, redroid cannot
+                    # mount binderfs, and the container stays up while adbd never
+                    # listens, which looks exactly like a slow boot.
+                    dump_redroid_state() {
+                      echo "::group::redroid diagnostics"
+                      docker info --format 'security options: {{.SecurityOptions}}' || true
+                      # Upstream wants binder_linux and ashmem_linux; Android 12+ uses
+                      # memfd instead of ashmem, so a missing ashmem is reported rather
+                      # than treated as fatal. Neighbouring containers matter too — a
+                      # second redroid booting on this kernel destabilizes both.
+                      lsmod | grep -E '^(binder_linux|ashmem_linux)' || echo "no binder/ashmem module rows"
+                      docker ps --filter "ancestor=$REDROID_IMAGE" --format 'neighbour: {{.Names}} {{.Status}}' || true
+                      docker ps -a --filter "name=$REDROID_CONTAINER" --format '{{.Names}}: {{.Status}}' || true
+                      docker logs --tail 200 "$REDROID_CONTAINER" 2>&1 || true
+                      echo "::endgroup::"
+                    }
+                    trap dump_redroid_state ERR
+                    docker rm -f "$REDROID_CONTAINER" >/dev/null 2>&1 || true
+                    REDROID_DATA_DIR="$RUNNER_TEMP/$REDROID_CONTAINER"
+                    echo "REDROID_DATA_DIR=$REDROID_DATA_DIR" >> "$GITHUB_ENV"
+                    rm -rf "$REDROID_DATA_DIR"
+                    mkdir -p "$REDROID_DATA_DIR"
+                    # Seed /data from the fleet's prewarmed volume the same way
+                    # vitalyiegorov/suuudokuuu does (prewarm-redroid-linux.sh): a
+                    # first-boot-completed, animations-off /data cuts boot from
+                    # minutes to seconds. Cold-pulling and cold-booting redroid is
+                    # exactly the path three independent sources tie to the guest
+                    # kernel hard-locking on this fleet, so this is not optional on
+                    # runners that have been prewarmed.
+                    REDROID_PREWARM_MANIFEST="$HOME/.sudoku-ci/android-emulator.json"
+                    if [ -f "$REDROID_PREWARM_MANIFEST" ]; then
+                      # `|| true`: under pipefail, a manifest with no "dataDir"/"image"
+                      # key makes grep exit 1 with no output, and that failure
+                      # propagates through the pipe even though sed exits 0 — which
+                      # would abort the whole step here instead of reaching the
+                      # unusable-manifest fallback below. An empty PREWARM_DATA_DIR is
+                      # exactly what that fallback branch is for.
+                      PREWARM_DATA_DIR=$(grep -o '"dataDir"[[:space:]]*:[[:space:]]*"[^"]*"' "$REDROID_PREWARM_MANIFEST" | sed -E 's/.*:[[:space:]]*"([^"]*)"/\1/' || true)
+                      PREWARM_IMAGE=$(grep -o '"image"[[:space:]]*:[[:space:]]*"[^"]*"' "$REDROID_PREWARM_MANIFEST" | sed -E 's/.*:[[:space:]]*"([^"]*)"/\1/' || true)
+                      # A /data volume is only reusable by the exact image that booted
+                      # it: seeding the GMS image from a tree first-booted by a
+                      # different Android build (the fleet's manifests still name
+                      # stock redroid/redroid:15.0.0_64only-latest until they are
+                      # re-prewarmed) would boot Android 14 GMS on Android 15
+                      # first-boot state. That mismatch cold-pulls instead, which is
+                      # slower but correct, and is also what makes the first run after
+                      # this image bump possible before any host has been re-prewarmed.
+                      if [ "$PREWARM_IMAGE" != "$REDROID_IMAGE" ]; then
+                        echo "::warning::Prewarm manifest $REDROID_PREWARM_MANIFEST was built for image '$PREWARM_IMAGE', not '$REDROID_IMAGE'; ignoring its dataDir and falling back to a cold pull and cold boot until the host is re-prewarmed."
+                        PREWARM_DATA_DIR=''
+                      fi
+                      if [ -n "$PREWARM_DATA_DIR" ] && [ -d "$PREWARM_DATA_DIR" ]; then
+                        echo "Seeding redroid /data from the prewarmed volume at $PREWARM_DATA_DIR (manifest: $REDROID_PREWARM_MANIFEST)."
+                        # The prewarmed tree is root-owned (redroid writes it as root
+                        # inside a --privileged container), so a plain cp as the
+                        # unprivileged runner user fails "Permission denied" on most
+                        # of /data. mobile-ci's run-maestro-android-redroid action hits
+                        # the same requirement and also shells out through sudo, for
+                        # both the seed (here) and the teardown rm below.
+                        sudo cp -a "$PREWARM_DATA_DIR/." "$REDROID_DATA_DIR/"
+                      else
+                        # The image-mismatch branch above already explained itself; a
+                        # second warning here would misattribute the fallback to a
+                        # broken manifest.
+                        if [ "$PREWARM_IMAGE" = "$REDROID_IMAGE" ]; then
+                          echo "::warning::Prewarm manifest $REDROID_PREWARM_MANIFEST does not name a usable dataDir ($PREWARM_DATA_DIR); falling back to a cold pull and cold boot."
+                        fi
+                        docker pull "$REDROID_IMAGE"
+                      fi
+                    else
+                      echo "::warning::No prewarm manifest at $REDROID_PREWARM_MANIFEST; this runner was not prewarmed by the fleet, so redroid will cold-pull and cold-boot instead of seeding /data from a prewarmed volume."
+                      docker pull "$REDROID_IMAGE"
+                    fi
+                    # An unbounded container took every runner down with "the self-hosted
+                    # runner lost communication with the server" — the runner agent has to
+                    # keep reporting while Android boots, and in guest GPU mode that boot
+                    # is pure CPU work, so the container is held to all but two cores and
+                    # a memory ceiling. --memory-swap matches --memory (Docker otherwise
+                    # allows 2x swap) so a bloated redroid cannot page out the runner
+                    # agent instead of being OOM-killed itself. The display flags are
+                    # dropped: the prewarmed /data volume was created at redroid's
+                    # defaults, and booting it under a different display config is
+                    # untested; nothing in the suite depends on the pixel count anyway,
+                    # every gesture is expressed in percentages.
+                    container_cpus=$(( $(nproc) > 3 ? $(nproc) - 2 : 1 ))
+                    echo "host cores: $(nproc); container limited to ${container_cpus}"
+                    # 8g, not 6g: GMS adds its own service constellation on top of
+                    # stock Android, and a first boot additionally pays GMS
+                    # initialization; the ceiling still exists so a bloated redroid is
+                    # OOM-killed instead of paging out the runner agent.
+                    docker run -d --privileged \
+                      --name "$REDROID_CONTAINER" \
+                      --cpus "$container_cpus" \
+                      --memory 8g \
+                      --memory-swap 8g \
+                      -p 127.0.0.1::5555 \
+                      -v "$REDROID_DATA_DIR:/data" \
+                      "$REDROID_IMAGE" \
+                      androidboot.redroid_gpu_mode=guest
+                    # The export is load-bearing: the wait loops below run in a child
+                    # `bash -c`, whose single quotes defer expansion to that child, and
+                    # $GITHUB_ENV only reaches later steps. Unexported, the child saw an
+                    # empty port and polled `adb connect 127.0.0.1:` until the timeout —
+                    # a 124 that read as "redroid never booted" while it had booted fine.
+                    export ADB_PORT
+                    ADB_PORT=$(docker port "$REDROID_CONTAINER" 5555/tcp | head -1 | sed 's/.*://')
+                    test -n "$ADB_PORT"
+                    echo "ADB_PORT=$ADB_PORT" >> "$GITHUB_ENV"
+                    adb start-server
+                    timeout 180 bash -c 'until adb connect "127.0.0.1:$ADB_PORT" | grep -q connected; do sleep 3; done'
+                    timeout 300 adb -s "127.0.0.1:$ADB_PORT" wait-for-device
+                    # A killed runner uploads no log at all, so the boot narrates itself
+                    # into the live stream as it goes: load average beside the boot
+                    # properties is what separates "starved" from "stuck".
+                    device="127.0.0.1:$ADB_PORT"
+                    export device
+                    # 600, not 300: a cold first boot of the GMS image also runs GMS
+                    # first-run initialization before sys.boot_completed flips, and
+                    # that is the guaranteed path on every host until its prewarm
+                    # manifest is rebuilt for this image.
+                    timeout 600 bash -c 'until [ "$(adb -s "$device" shell getprop sys.boot_completed | tr -d "\r")" = "1" ]; do
+                      echo "booting: bootanim=$(adb -s "$device" shell getprop init.svc.bootanim | tr -d "\r") load=$(cut -d" " -f1-3 /proc/loadavg)"
+                      sleep 10
+                    done'
+                    adb devices -l
 
             -   name: Install Maestro
                 timeout-minutes: 10
+                shell: bash
+                # A maestro already on PATH (package-manager-managed or any other host
+                # provisioning) is only trusted when it reports exactly the pinned
+                # version: accepting a mismatched host binary with a warning made the
+                # same flow pass on the leg that fresh-installed the pin and fail on
+                # the leg that ran the host's stale CLI. Any other version is shadowed
+                # by installing the pinned GitHub release into a private prefix that is
+                # prepended to PATH, which also sidesteps get.maestro.mobile.dev's
+                # refusal to install beside a package-manager-managed maestro. Every
+                # failure mode of the download, checksum, extraction, or version probe
+                # fails the step — the suite never runs against an unverified CLI.
                 run: |
-                    maestro_bin="$HOME/.maestro/bin/maestro"
-                    if [ ! -x "$maestro_bin" ] || [ "$("$maestro_bin" --version 2>/dev/null | tail -n 1 | tr -d '\r' || true)" != "$MAESTRO_VERSION" ]; then
-                      curl -fsSL https://get.maestro.mobile.dev | env MAESTRO_VERSION="$MAESTRO_VERSION" bash
+                    set -euo pipefail
+                    if ! printf '%s' "$MAESTRO_VERSION" | grep -qE '^[0-9]+\.[0-9]+\.[0-9]+$'; then
+                      echo "::error::MAESTRO_VERSION '$MAESTRO_VERSION' must be a plain X.Y.Z version (digits and dots only) to be used safely in a local path and release URL."
+                      exit 1
                     fi
-                    echo "$HOME/.maestro/bin" >> "$GITHUB_PATH"
+                    existing_bin="$(command -v maestro || true)"
+                    if [ -n "$existing_bin" ]; then
+                      existing_version="$("$existing_bin" --version 2>/dev/null | tail -n 1 | tr -d '\r' || true)"
+                      if [ "$existing_version" = "$MAESTRO_VERSION" ]; then
+                        echo "Using existing maestro $MAESTRO_VERSION already on PATH: $existing_bin"
+                        exit 0
+                      fi
+                      echo "Host maestro at $existing_bin reports '$existing_version', not the pinned $MAESTRO_VERSION; installing the pinned release into a private prefix."
+                    fi
+                    command -v unzip >/dev/null 2>&1 || { echo "::error::'unzip' is required to install the pinned Maestro release but is not on PATH."; exit 1; }
 
-            -   name: Boot emulator, build, install, and test
+                    pinned_root="$HOME/.maestro-pinned"
+                    pinned_dir="$pinned_root/$MAESTRO_VERSION"
+                    pinned_bin="$pinned_dir/maestro/bin/maestro"
+                    lock_dir="$pinned_root/.lock-$MAESTRO_VERSION"
+                    mkdir -p "$pinned_root"
+
+                    version_matches() {
+                      [ -x "$pinned_bin" ] && [ "$("$pinned_bin" --version 2>/dev/null | tail -n 1 | tr -d '\r' || true)" = "$MAESTRO_VERSION" ]
+                    }
+
+                    if ! version_matches; then
+                      # Concurrent legs on the same self-hosted host share $HOME, so two
+                      # jobs installing the same not-yet-cached MAESTRO_VERSION could
+                      # otherwise race rm -rf/unzip against each other or against a
+                      # sibling's in-flight `maestro` invocation. A per-version
+                      # mkdir-as-mutex lock serializes that; a losing waiter re-checks
+                      # version_matches so it can skip straight past once the winner
+                      # finishes instead of installing a second time.
+                      lock_acquired=''
+                      lock_deadline=$((SECONDS + 300))
+                      while :; do
+                        if mkdir "$lock_dir" 2>/dev/null; then
+                          lock_acquired=1
+                          break
+                        fi
+                        if version_matches; then
+                          break
+                        fi
+                        # A winner hard-killed before its EXIT trap runs (runner
+                        # reboot, forced shutdown mid-install) leaves lock_dir
+                        # behind with nobody left to remove it. A live owner is
+                        # bounded by this step's 10-minute timeout, so a lock
+                        # directory older than 15 minutes provably has no owner;
+                        # reclaiming it keeps one crashed install from wedging
+                        # every later job on this host.
+                        if [ -n "$(find "$lock_dir" -maxdepth 0 -mmin +15 2>/dev/null)" ]; then
+                          echo "Removing stale Maestro install lock '$lock_dir' left by a crashed installer."
+                          rmdir "$lock_dir" 2>/dev/null || true
+                        fi
+                        if [ "$SECONDS" -ge "$lock_deadline" ]; then
+                          echo "::error::Timed out waiting for the Maestro install lock '$lock_dir'; a concurrent install on this host may be stuck."
+                          exit 1
+                        fi
+                        sleep 2
+                      done
+
+                      if [ -n "$lock_acquired" ]; then
+                        cleanup() {
+                          [ -n "${scratch_dir:-}" ] && rm -rf "$scratch_dir"
+                          [ -n "${staging_dir:-}" ] && rm -rf "$staging_dir"
+                          rmdir "$lock_dir" 2>/dev/null || true
+                        }
+                        trap cleanup EXIT
+
+                        if ! version_matches; then
+                          download_url="https://github.com/mobile-dev-inc/Maestro/releases/download/cli-${MAESTRO_VERSION}/maestro.zip"
+                          checksum_url="https://github.com/mobile-dev-inc/Maestro/releases/download/cli-${MAESTRO_VERSION}/checksums_sha256.txt"
+                          scratch_dir="$(mktemp -d)"
+                          zip_path="$scratch_dir/maestro.zip"
+
+                          curl_exit=0
+                          http_status="$(curl -sSL --retry 3 --retry-connrefused --max-time 300 -w '%{http_code}' -o "$zip_path" "$download_url")" || curl_exit=$?
+                          if [ "$curl_exit" -ne 0 ] || [ "$http_status" != "200" ]; then
+                            echo "::error::Download of MAESTRO_VERSION '$MAESTRO_VERSION' from '$download_url' failed (curl exit $curl_exit, HTTP status '$http_status'). Confirm a 'cli-$MAESTRO_VERSION' release publishing a maestro.zip asset exists at https://github.com/mobile-dev-inc/Maestro/releases."
+                            exit 1
+                          fi
+
+                          checksum_curl_exit=0
+                          checksum_status="$(curl -sSL --retry 3 --retry-connrefused --max-time 60 -w '%{http_code}' -o "$scratch_dir/checksums_sha256.txt" "$checksum_url")" || checksum_curl_exit=$?
+                          if [ "$checksum_curl_exit" -eq 0 ] && [ "$checksum_status" = "200" ]; then
+                            expected_sha="$(awk '$2 == "maestro.zip" { print $1 }' "$scratch_dir/checksums_sha256.txt")"
+                            if [ -z "$expected_sha" ]; then
+                              echo "::error::checksums_sha256.txt for cli-$MAESTRO_VERSION has no maestro.zip entry; refusing to install an unverifiable download."
+                              exit 1
+                            fi
+                            if command -v sha256sum >/dev/null 2>&1; then
+                              actual_sha="$(sha256sum "$zip_path" | awk '{print $1}')"
+                            else
+                              actual_sha="$(shasum -a 256 "$zip_path" | awk '{print $1}')"
+                            fi
+                            if [ "$actual_sha" != "$expected_sha" ]; then
+                              echo "::error::maestro.zip checksum mismatch for cli-$MAESTRO_VERSION: expected $expected_sha, got $actual_sha."
+                              exit 1
+                            fi
+                          elif [ "$checksum_status" = "404" ]; then
+                            echo "::warning::mobile-dev-inc/Maestro cli-$MAESTRO_VERSION did not publish checksums_sha256.txt (404); proceeding on the TLS-verified download from the official GitHub release only."
+                          else
+                            echo "::error::Failed to retrieve checksums_sha256.txt for cli-$MAESTRO_VERSION from '$checksum_url' (curl exit $checksum_curl_exit, HTTP status '$checksum_status'). Refusing to install an unverifiable download."
+                            exit 1
+                          fi
+
+                          staging_dir="$(mktemp -d "$pinned_root/.staging-XXXXXX")"
+                          unzip -q "$zip_path" -d "$staging_dir"
+                          chmod +x "$staging_dir/maestro/bin/maestro" 2>/dev/null || true
+                          staged_version="$("$staging_dir/maestro/bin/maestro" --version 2>/dev/null | tail -n 1 | tr -d '\r' || true)"
+                          if [ "$staged_version" != "$MAESTRO_VERSION" ]; then
+                            echo "::error::Extracted maestro from cli-$MAESTRO_VERSION's maestro.zip reports version '$staged_version', not the pinned $MAESTRO_VERSION; the release archive layout may have changed."
+                            exit 1
+                          fi
+                          rm -rf "$pinned_dir"
+                          mkdir -p "$pinned_dir"
+                          mv "$staging_dir/maestro" "$pinned_dir/maestro"
+                        fi
+                      fi
+                    fi
+
+                    if [ ! -x "$pinned_bin" ]; then
+                      echo "::error::Expected a maestro binary at '$pinned_bin' after installing cli-$MAESTRO_VERSION; the install may have failed or been interrupted."
+                      exit 1
+                    fi
+                    resolved_version="$("$pinned_bin" --version 2>/dev/null | tail -n 1 | tr -d '\r' || true)"
+                    if [ "$resolved_version" != "$MAESTRO_VERSION" ]; then
+                      echo "::error::maestro at '$pinned_bin' reports version '$resolved_version', not the pinned $MAESTRO_VERSION."
+                      exit 1
+                    fi
+                    echo "$pinned_dir/maestro/bin" >> "$GITHUB_PATH"
+                    echo "Installed and using maestro $MAESTRO_VERSION at $pinned_bin"
+
+            -   name: Install APK and run Maestro tests
                 id: emulator
-                uses: reactivecircus/android-emulator-runner@v2.38.0
-                # System image download + AVD creation + cold boot + a cold Gradle
-                # release build + the Maestro suite. 50 minutes leaves the rest of the
-                # job roughly 15 minutes of the 65 minute job budget.
-                timeout-minutes: 50
-                with:
-                    api-level: 34
-                    target: google_apis
-                    arch: x86_64
-                    profile: pixel_6
-                    disable-animations: true
-                    disable-spellchecker: true
-                    force-avd-creation: false
-                    emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
-                    script: |
-                        set -euo pipefail
-                        set -x
-                        timeout 300 adb wait-for-device
-                        timeout 180 bash -c 'until [ "$(adb shell getprop sys.boot_completed | tr -d "\r")" = "1" ]; do sleep 2; done'
-                        (cd "${{ env.APP_DIR }}/android" && ./gradlew assembleRelease)
-                        apk=$(find "${{ env.APP_DIR }}/android/app/build/outputs/apk/release" -name '*.apk' | head -1)
-                        timeout 300 adb install -r "$apk"
-                        cd "${{ env.EXAMPLE_DIR }}"
-                        yarn e2e:android:${{ matrix.target }}
+                # redroid is already booted (previous step) and the APK is already
+                # built (build-apk, a GitHub-hosted x86_64 runner — see the
+                # top-of-file note on why native builds can't run here). This step
+                # is install + test only.
+                timeout-minutes: 20
+                shell: bash
+                run: |
+                    set -euo pipefail
+                    set -x
+                    apk=$(find .ci-artifacts/apk -name '*.apk' | head -1)
+                    test -n "$apk"
+                    timeout 300 adb -s "127.0.0.1:$ADB_PORT" install -r "$apk"
+                    cd "${{ matrix.example_dir }}"
+                    yarn e2e:android:${{ matrix.target }}
 
             -   name: Capture final device state
-                # Only meaningful when the emulator step actually ran and failed. If
-                # Android SDK setup (or anything before it) failed, this step is
-                # skipped instead of talking to an adb server that has no device.
-                if: failure() && steps.emulator.outcome == 'failure'
+                # Only meaningful when the redroid container booted and the test step
+                # then failed. If setup failed earlier, this is skipped instead of
+                # talking to an adb server that has no device.
+                if: failure() && (steps.emulator.outcome == 'failure' || steps.redroid.outcome == 'failure')
                 # A diagnostic must never outlive the test it is diagnosing.
                 timeout-minutes: 3
                 shell: bash
                 run: |
                     out="${{ env.MAESTRO_DEBUG_OUTPUT_DIRECTORY }}"
                     mkdir -p "$out"
-                    if ! timeout 30 adb wait-for-device; then
+                    docker logs "$REDROID_CONTAINER" > "$out/redroid-container.log" 2>&1 || true
+                    if ! timeout 30 adb -s "127.0.0.1:$ADB_PORT" wait-for-device; then
                       echo "No device attached after 30s; skipping device state capture."
                       exit 0
                     fi
-                    timeout 30 adb exec-out screencap -p > "$out/final-screen.png" || true
-                    timeout 60 adb logcat -d > "$out/logcat-full.txt" 2>&1 || true
-                    timeout 30 adb logcat -d -b crash > "$out/logcat-crash.txt" 2>&1 || true
+                    device="127.0.0.1:$ADB_PORT"
+                    timeout 30 adb -s "$device" exec-out screencap -p > "$out/final-screen.png" || true
+                    timeout 60 adb -s "$device" logcat -d > "$out/logcat-full.txt" 2>&1 || true
+                    timeout 30 adb -s "$device" logcat -d -b crash > "$out/logcat-crash.txt" 2>&1 || true
+
+            -   name: Stop redroid container
+                # The fleet is shared, so a leaked privileged container (and its data
+                # directory) must never outlive the job that started it.
+                if: always()
+                timeout-minutes: 5
+                shell: bash
+                run: |
+                    # ADB_PORT is only set once the container is up and docker has
+                    # assigned it a host port; a redroid step that failed before that
+                    # point leaves it unset, and "127.0.0.1:0" is not a parseable adb
+                    # target, so this is skipped rather than logging a spurious error.
+                    if [ -n "${ADB_PORT:-}" ]; then adb disconnect "127.0.0.1:$ADB_PORT" || true; fi
+                    docker rm -f "$REDROID_CONTAINER" || true
+                    # sudo: seeding from the prewarmed volume (above) leaves this tree
+                    # root-owned, same as mobile-ci's run-maestro-android-redroid.
+                    if [ -n "${REDROID_DATA_DIR:-}" ]; then sudo rm -rf "$REDROID_DATA_DIR" || true; fi
 
             -   name: Upload Maestro artifacts
-                if: failure() && steps.emulator.outcome == 'failure'
+                # Matches the capture step's condition — gating this on the test step
+                # alone discarded the container log whenever setup was what failed.
+                if: failure() && (steps.emulator.outcome == 'failure' || steps.redroid.outcome == 'failure')
                 uses: actions/upload-artifact@v4
                 timeout-minutes: 5
                 with:
-                    name: maestro-android-${{ matrix.target }}
+                    name: maestro-android-${{ matrix.package }}-${{ matrix.target }}
                     path: ${{ env.MAESTRO_DEBUG_OUTPUT_DIRECTORY }}/**
                     if-no-files-found: warn
                     retention-days: 7
 
     status:
         name: Android Maestro E2E result
-        needs: [detect, maestro]
+        needs: [detect, build-apk, maestro]
         if: always()
         runs-on: ubuntu-latest
         steps:
@@ -217,9 +661,13 @@ jobs:
                     echo "Detection job did not succeed."
                     exit 1
                   fi
-                  if [ "${{ needs.detect.outputs.payments_affected }}" != "true" ]; then
-                    echo "Skipped: payments dependency tree untouched."
+                  if [ "${{ needs.detect.outputs.any }}" != "true" ]; then
+                    echo "Skipped: no example package dependency tree was touched."
                     exit 0
+                  fi
+                  if [ "${{ needs.build-apk.result }}" != "success" ]; then
+                    echo "APK build failed."
+                    exit 1
                   fi
                   if [ "${{ needs.maestro.result }}" != "success" ]; then
                     echo "Maestro suite failed."

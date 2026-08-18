@@ -1,0 +1,17 @@
+export const SettingsDemoItems: readonly { readonly id: number; readonly label: string; readonly value: string }[] = [
+    { id: 1, label: 'Language', value: 'English' },
+    { id: 2, label: 'Theme', value: 'System' },
+    { id: 3, label: 'Font size', value: 'Medium' },
+    { id: 4, label: 'Cell spacing', value: 'Compact' },
+    { id: 5, label: 'Haptics', value: 'On' },
+    { id: 6, label: 'Sound', value: 'Off' },
+    { id: 7, label: 'Notifications', value: 'Daily' },
+    { id: 8, label: 'Highlight errors', value: 'On' },
+    { id: 9, label: 'Auto-check', value: 'Off' },
+    { id: 10, label: 'Timer', value: 'Visible' },
+    { id: 11, label: 'Statistics', value: 'Synced' },
+    { id: 12, label: 'Backup', value: 'Weekly' },
+    { id: 13, label: 'Analytics', value: 'Off' },
+    { id: 14, label: 'Beta features', value: 'Off' },
+    { id: 15, label: 'App icon', value: 'Classic' },
+];

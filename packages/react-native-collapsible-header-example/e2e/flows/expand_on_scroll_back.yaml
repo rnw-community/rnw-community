@@ -1,0 +1,19 @@
+appId: ${APP_ID}
+---
+- runFlow: ../subflows/launch_header_demo.yaml
+- runFlow:
+      file: ../subflows/collapse_header.yaml
+      env:
+          COLLAPSED_ID: header-demo-collapsed-amount
+- repeat:
+      times: 3
+      commands:
+          - swipe:
+                start: 50%, 40%
+                end: 50%, 80%
+- extendedWaitUntil:
+      visible:
+          id: 'header-demo-expanded-amount'
+      timeout: 15000
+- assertNotVisible:
+      id: 'header-demo-collapsed-amount'

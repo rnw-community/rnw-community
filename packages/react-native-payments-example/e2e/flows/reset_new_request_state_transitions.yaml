@@ -10,15 +10,39 @@ appId: ${APP_ID}
     when:
       platform: Android
     commands:
+      # Centered rather than merely on-screen: the expo app renders
+      # edge-to-edge on Android, so an element that just cleared the fold can
+      # still have its tap point under the opaque navigation bar, which
+      # swallows the tap.
+      - scrollUntilVisible:
+          element:
+            id: "action-abort"
+          centerElement: true
       - tapOn:
           id: "action-abort"
+# The abort scroll may have moved the status section above the viewport; the
+# scroll is a no-op when the state label is already on-screen (iOS path).
+- scrollUntilVisible:
+    element:
+      id: "payments-flow-state"
+    direction: UP
 - extendedWaitUntil:
     visible:
       id: "payments-flow-state"
       text: "rejected"
-    timeout: 20000
+    timeout: 45000
+# Centered for the same reason as action-abort above: on the edge-to-edge
+# Android build a tap point at the fold lands on the navigation bar.
+- scrollUntilVisible:
+    element:
+      id: "action-reset"
+    centerElement: true
 - tapOn:
     id: "action-reset"
+- scrollUntilVisible:
+    element:
+      id: "payments-flow-state"
+    direction: UP
 - assertVisible:
     id: "payments-flow-state"
     text: "idle"

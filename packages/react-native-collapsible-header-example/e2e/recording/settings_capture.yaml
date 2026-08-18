@@ -1,0 +1,28 @@
+appId: ${APP_ID}
+---
+- launchApp:
+      clearState: true
+- extendedWaitUntil:
+      visible:
+          id: 'header-demo-settings-button'
+      timeout: 15000
+- tapOn:
+      id: 'header-demo-settings-button'
+- extendedWaitUntil:
+      visible:
+          id: 'settings-demo-large-title'
+      timeout: 5000
+- startRecording: settings-header-demo
+- swipe:
+      start: 50%, 60%
+      end: 50%, 38%
+      duration: 900
+- swipe:
+      start: 50%, 38%
+      end: 50%, 65%
+      duration: 900
+- swipe:
+      start: 50%, 60%
+      end: 50%, 45%
+      duration: 1200
+- stopRecording

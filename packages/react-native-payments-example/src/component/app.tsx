@@ -18,7 +18,7 @@ export const App = (): React.JSX.Element => {
 
     return (
         <SafeAreaView style={demoStyle.screen}>
-            <ScrollView>
+            <ScrollView contentContainerStyle={demoStyle.scrollContent}>
                 <DemoStatus canMakePaymentStatus={canMakePaymentStatus} flowState={flowState} />
                 <RequestBuilderForm onOptionToggle={toggleOption} onTotalChange={setTotalValue} options={options} />
                 <DemoActions onAbort={abortRequest} onReset={resetRequest} onShow={showRequest} />

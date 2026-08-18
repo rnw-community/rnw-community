@@ -1,1 +1,1 @@
-module.exports = require('../../get-jest.config.js')('platform', 'react-native');
+module.exports = require('../../get-jest.config.js')('platform', '@react-native/jest-preset');

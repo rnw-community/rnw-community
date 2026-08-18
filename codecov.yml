@@ -81,6 +81,11 @@ coverage:
           - platform
         target: *target-default
         threshold: *threshold-project-default
+      react-native-collapsible-header:
+        flags:
+          - react-native-collapsible-header
+        target: *target-default
+        threshold: *threshold-project-default
       react-native-payments:
         flags:
           - react-native-payments
@@ -178,6 +183,11 @@ coverage:
           - platform
         target: *target-default
         threshold: *threshold-patch-default
+      react-native-collapsible-header:
+        flags:
+          - react-native-collapsible-header
+        target: *target-default
+        threshold: *threshold-patch-default
       react-native-payments:
         flags:
           - react-native-payments
@@ -261,6 +271,10 @@ flags:
     carryforward: true
     paths:
       - packages/platform/
+  react-native-collapsible-header:
+    carryforward: true
+    paths:
+      - packages/react-native-collapsible-header/
   react-native-payments:
     carryforward: true
     paths:
