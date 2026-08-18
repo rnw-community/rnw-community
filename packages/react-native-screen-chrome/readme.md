@@ -87,13 +87,206 @@ Render content first, decorative `EdgeFade` and `CollapsibleHeaderBackdrop` laye
 layers. `ScreenChromeScrollView` adds safe-area padding and caller-provided content insets; explicit consumer padding in
 `contentContainerStyle` remains last and wins.
 
-## Compound header
+## CollapsibleHeader
+
+Composes the persistent leading/trailing controls and the expanded/collapsed title layers of its three compound
+children into the generic `@rnw-community/react-native-collapsible-header` primitive, reading geometry and thresholds
+from `useScreenChrome`.
+
+```tsx
+<CollapsibleHeader>
+    <CollapsibleHeaderSlot>{/* leading control */}</CollapsibleHeaderSlot>
+    <CollapsibleHeaderTitleSlot>
+        {/* expanded title */}
+        {/* collapsed title */}
+    </CollapsibleHeaderTitleSlot>
+    <CollapsibleHeaderSlot>{/* trailing control */}</CollapsibleHeaderSlot>
+</CollapsibleHeader>
+```
+
+## Compound header contract
 
 `CollapsibleHeaderSlot`, `CollapsibleHeaderTitleSlot`, and a second `CollapsibleHeaderSlot` must be direct children of
 `CollapsibleHeader` in that order. The title slot must directly contain the expanded title followed by the collapsed
 title. Fragments and extra wrapper components are rejected so slot discovery stays deterministic.
-Leading and trailing controls are mounted once in a persistent layer while title opacity and pointer-event handoff are
-delegated to `@rnw-community/react-native-collapsible-header`.
+
+The shape above is a compound-component contract that TypeScript's type system cannot express: JSX children are
+`ReactNode`, so nothing in the type checker distinguishes three correctly ordered slots from an arbitrary fragment tree
+at compile time. `CollapsibleHeader` therefore validates its children at render time and throws a `TypeError` naming the
+violated rule (missing slot, wrong slot type, wrong title-layer count) instead of silently mounting a broken layout —
+a mispositioned or dropped slot without this check degrades into leading controls rendering as the title, or a header
+that mounts with no crash and no visible content. Four spec cases pin the accepted shape and every rejected one.
+
+## CollapsibleHeaderSlot
+
+Renders one persistent leading or trailing control slot in a collapsible header, mounted once above both title
+transition layers.
+
+```tsx
+<CollapsibleHeaderSlot>
+    <Pressable accessibilityRole="button">
+        <Text>Back</Text>
+    </Pressable>
+</CollapsibleHeaderSlot>
+```
+
+## CollapsibleHeaderTitleSlot
+
+Groups the direct expanded and collapsed title layers of a compound collapsible header; title opacity and pointer-event
+handoff between them are delegated to `@rnw-community/react-native-collapsible-header`.
+
+```tsx
+<CollapsibleHeaderTitleSlot>
+    <Text>Accounts</Text>
+    <Text>Accounts</Text>
+</CollapsibleHeaderTitleSlot>
+```
+
+## CollapsibleHeaderBackdrop
+
+Renders a top `EdgeFade` sized to `headerBackdropHeight` and aligned with the configured title-collapse thresholds, so
+native blur samples the content scrolling beneath the header.
+
+```tsx
+<CollapsibleHeaderBackdrop />
+```
+
+## Edge fades
+
+Native edge fades use Masked View, Expo Linear Gradient, and Expo Blur. They ignore pointer events and accessibility
+traversal. Web edge fades use CSS mask images and backdrop filtering; scroll animation changes opacity while blur stays
+static. Native defaults use 150-point top and bottom bands, while web defaults use 76-pixel bands.
+
+## EdgeFade
+
+Renders a decorative top or bottom blur-and-wash band, scroll-animatable through `scrollAnimation`.
+
+```tsx
+<EdgeFade position="bottom" height={96} scrollAnimation={{ opacityInputRange: [0, 80] }} />
+```
+
+## EdgeFadePropsInterface
+
+| Prop              | Type                               | Description                                                       |
+| ----------------- | ---------------------------------- | ----------------------------------------------------------------- |
+| `position`        | `EdgeFadePosition`                 | Screen edge the band renders at.                                  |
+| `height`          | `number`                           | Band height; defaults to the provider config's fade height.       |
+| `intensity`       | `number`                           | Static blur intensity; ignored while `scrollAnimation` drives it. |
+| `scrollAnimation` | `EdgeFadeScrollAnimationInterface` | Optional scroll-driven opacity and blur intensity ranges.         |
+| `blurMethod`      | `BlurMethod`                       | Native-only Expo Blur rendering method.                           |
+
+## EdgeFadeScrollAnimationInterface
+
+Configures scroll-driven edge-fade opacity and blur intensity.
+
+```ts
+const scrollAnimation: EdgeFadeScrollAnimationInterface = {
+    opacityInputRange: [0, 80],
+    intensityInputRange: [0, 80],
+    maxIntensity: 60,
+};
+```
+
+## EdgeFadePosition
+
+Identifies the screen edge where a fade band is rendered: `'top' | 'bottom'`.
+
+## ScreenChromeFrame
+
+Provides the relative full-screen layout root for content, fades, and header chrome.
+
+```tsx
+<ScreenChromeFrame>{children}</ScreenChromeFrame>
+```
+
+## ScreenChromeProvider
+
+Provides validated configuration and color scheme to screen chrome components around one scrollable.
+
+```tsx
+<ScreenChromeProvider colorScheme="dark" config={{ snapToCollapse: true }}>
+    {children}
+</ScreenChromeProvider>
+```
+
+## ScreenChromeScrollView
+
+Connects an animated scroll view to the collapsible-header scroll wiring and safe-area content padding.
+
+```tsx
+<ScreenChromeScrollView contentInsetTop={96} contentInsetBottom={48}>
+    <Text>Consumer-owned content</Text>
+</ScreenChromeScrollView>
+```
+
+## ScreenChromeContext
+
+The React context that carries the resolved screen chrome value to package components and hooks; consumers read it
+through `useScreenChrome` rather than `useContext(ScreenChromeContext)` directly.
+
+## useScreenChrome
+
+Reads the nearest `ScreenChromeContext` value and throws when no `ScreenChromeProvider` is mounted.
+
+```tsx
+const { colorScheme, config } = useScreenChrome();
+```
+
+## useScrollFadeStyle
+
+Creates a clamped opacity style from the collapsible-header provider scroll value and therefore requires a
+`ScreenChromeProvider` ancestor.
+
+```tsx
+const style = useScrollFadeStyle([0, 80], [1, 0]);
+```
+
+## ScreenChromeColorScheme
+
+Selects the light or dark chrome palette for edge fades and backdrop blur tinting: `'light' | 'dark'`. Being a plain
+union rather than a string enum, React Native's `useColorScheme()` result assigns to it directly — no cast, no mapping
+layer between the platform API and the provider prop.
+
+```tsx
+const colorScheme: ScreenChromeColorScheme = useColorScheme() ?? 'light';
+
+<ScreenChromeProvider colorScheme={colorScheme}>{children}</ScreenChromeProvider>;
+```
+
+## ScreenChromeColorSetInterface
+
+Defines the solid and translucent wash colors used by a chrome color scheme.
+
+```ts
+const lightColors: ScreenChromeColorSetInterface = { solid: 'rgba(255,255,255,0.42)', wash: 'rgba(255,255,255,0.08)' };
+```
+
+## ScreenChromeConfigInterface
+
+Configures screen chrome geometry, colors, fade masks, scroll throttling, and collapse thresholds. See
+[Configuration and snapping](#configuration-and-snapping) for the threshold ordering rule and
+[`ScreenChromeDefaultConfig`](#screenchromedefaultconfig) for the full default shape.
+
+## ScreenChromeConfigOverridesInterface
+
+Overrides selected screen chrome defaults while preserving nested color schemes and mask-stop records; the shape
+`ScreenChromeProvider`'s `config` prop accepts.
+
+```tsx
+<ScreenChromeProvider config={{ headerHeight: 72, colors: { dark: { solid: 'black' } } }}>{children}</ScreenChromeProvider>
+```
+
+## ScreenChromeContextValueInterface
+
+The `{ colorScheme, config }` shape returned by `useScreenChrome`.
+
+## ScreenChromeMaskStopInterface
+
+Defines one color stop in an edge-fade mask.
+
+```ts
+const stop: ScreenChromeMaskStopInterface = { color: 'rgba(0,0,0,0.99)' };
+```
 
 ## Configuration and snapping
 
@@ -110,11 +303,55 @@ worklet-only scroll handler never receives them on Android. Snapping therefore r
 the header registers the snap geometry with the provider, so a screen that enables `snapToCollapse` without rendering
 `CollapsibleHeader` scrolls freely. Snap animation currently ignores the reduced-motion setting.
 
-## Edge fades
+## ScreenChromeDefaultConfig
 
-Native edge fades use Masked View, Expo Linear Gradient, and Expo Blur. They ignore pointer events and accessibility
-traversal. Web edge fades use CSS mask images and backdrop filtering; scroll animation changes opacity while blur stays
-static. Native defaults use 150-point top and bottom bands, while web defaults use 76-pixel bands.
+The platform default `ScreenChromeConfigInterface`: native (`ScreenChromeDefaultConfig.ts`) uses 150-point top and
+bottom fade bands and a 220-point header backdrop; web (`ScreenChromeDefaultConfig.web.ts`) uses 76-pixel bands and a
+108-pixel backdrop. `mergeScreenChromeConfig` starts from this value.
+
+## ScreenChromeSharedDefaultConfig
+
+The platform-independent subset of the default configuration — geometry, colors, mask stops, and throttling shared by
+the native and web `ScreenChromeDefaultConfig` variants.
+
+## assertValidScreenChromeConfig
+
+Throws a property-specific error when a screen chrome config cannot drive stable scroll animations — non-finite or
+negative geometry, an invalid threshold order, a missing color scheme, or an out-of-range mask stop.
+
+```ts
+assertValidScreenChromeConfig(mergeScreenChromeConfig({ headerHeight: -1 })); // throws: headerHeight must be a positive finite number
+```
+
+`ScreenChromeProvider` calls it before rendering children, so a misconfigured screen fails fast at mount instead of
+producing NaN-driven animation glitches once the user starts scrolling.
+
+## mergeScreenChromeConfig
+
+Resolves partial screen chrome overrides into a complete immutable configuration object, deep-merging `colors` and
+`maskStops` instead of replacing them wholesale.
+
+```ts
+const config = mergeScreenChromeConfig({ colors: { dark: { solid: 'black' } } });
+// config.colors.dark.wash and config.colors.light stay at their defaults
+```
+
+A naive object spread (`{ ...defaults, ...overrides }`) replaces `colors` and `maskStops` outright when either key is
+present in `overrides`, because spread only merges at the top level: overriding one color scheme's `solid` value would
+silently delete the untouched scheme along with every other field of the touched one, and overriding one mask edge's
+stops would delete the untouched edge entirely. `mergeScreenChromeConfig` merges `colors.light`, `colors.dark`,
+`maskStops.top`, and `maskStops.bottom` independently so a caller can override exactly one nested field without
+having to restate everything else. Six spec cases pin this: scalar overrides, per-scheme color merges that preserve the
+sibling scheme, per-edge mask-stop merges that preserve the sibling edge, immutability of the source defaults and the
+caller's own overrides object, and non-sharing of nested mask-stop objects between the merged result and its inputs.
+
+## mergeScrollContentInset
+
+Prepends safe-area and chrome content padding while preserving consumer styles after generated padding.
+
+```ts
+const contentContainerStyle = mergeScrollContentInset(insets, 96, 48, { paddingHorizontal: 16 });
+```
 
 ## Public utilities
 
