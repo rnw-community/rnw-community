@@ -7,7 +7,14 @@ import { SCREEN_CHROME_DEFAULT_CONFIG } from '../constant/screen-chrome-default-
 
 import { ScreenChromeScrollView } from './screen-chrome-scroll-view';
 
+import type { ComponentProps } from 'react';
 import type { ScrollView } from 'react-native';
+
+type ScreenChromeScrollViewProps = ComponentProps<typeof ScreenChromeScrollView>;
+type PackageOwnedScrollProp<Prop extends string> = Prop extends keyof ScreenChromeScrollViewProps ? never : true;
+
+const ON_SCROLL_IS_PACKAGE_OWNED: PackageOwnedScrollProp<'onScroll'> = true;
+const SCROLL_EVENT_THROTTLE_IS_PACKAGE_OWNED: PackageOwnedScrollProp<'scrollEventThrottle'> = true;
 
 const mockScrollHandler = jest.fn();
 const mockScrollRef = jest.fn<(instance: ScrollView | null) => void>();
@@ -83,17 +90,13 @@ describe('ScreenChromeScrollView', () => {
         expect.hasAssertions();
 
         const consumerScrollHandler = jest.fn();
-        const screen = render(
-            <ScreenChromeScrollView
-                testID="scroll"
-                // @ts-expect-error onScroll is package-owned and omitted from the public props
-                onScroll={consumerScrollHandler}
-            />
-        );
+        const forcedProps = { onScroll: consumerScrollHandler } as unknown as ScreenChromeScrollViewProps;
+        const screen = render(<ScreenChromeScrollView testID="scroll" {...forcedProps} />);
         const scrollView = screen.getByTestId('scroll');
 
         fireEvent.scroll(scrollView, SCROLL_EVENT);
 
+        expect(ON_SCROLL_IS_PACKAGE_OWNED).toBe(true);
         expect(mockScrollHandler).toHaveBeenCalledWith(SCROLL_EVENT);
         expect(consumerScrollHandler).not.toHaveBeenCalled();
     });
@@ -101,11 +104,12 @@ describe('ScreenChromeScrollView', () => {
     it('keeps the configured scroll event throttle when a consumer forces its own', () => {
         expect.hasAssertions();
 
-        const screen = render(
-            // @ts-expect-error scrollEventThrottle comes from the provider config, not from the caller
-            <ScreenChromeScrollView testID="scroll" scrollEventThrottle={CONSUMER_SCROLL_EVENT_THROTTLE} />
-        );
+        const forcedProps = {
+            scrollEventThrottle: CONSUMER_SCROLL_EVENT_THROTTLE,
+        } as unknown as ScreenChromeScrollViewProps;
+        const screen = render(<ScreenChromeScrollView testID="scroll" {...forcedProps} />);
 
+        expect(SCROLL_EVENT_THROTTLE_IS_PACKAGE_OWNED).toBe(true);
         expect(screen.getByTestId('scroll')).toHaveProp(
             'scrollEventThrottle',
             SCREEN_CHROME_DEFAULT_CONFIG.scrollEventThrottle
