@@ -56,11 +56,11 @@ jobs:
             matrix: ${{ steps.affected.outputs.matrix }}
             any: ${{ steps.affected.outputs.any }}
         steps:
-            - uses: actions/checkout@v5
+            - uses: actions/checkout@v7
               with:
                   fetch-depth: 0
                   persist-credentials: false
-            - uses: actions/setup-node@v5
+            - uses: actions/setup-node@v7
               with:
                   node-version: 22.x
             - name: Compute affected example packages
@@ -111,11 +111,11 @@ jobs:
             APP_DIR: ${{ matrix.example_dir }}/apps/${{ matrix.target }}
         steps:
             -   name: Checkout repository
-                uses: actions/checkout@v5
+                uses: actions/checkout@v7
                 timeout-minutes: 10
 
             -   name: Setup Node
-                uses: actions/setup-node@v5
+                uses: actions/setup-node@v7
                 timeout-minutes: 10
                 with:
                     node-version: 22.x
@@ -153,7 +153,7 @@ jobs:
                     packages: platform-tools
 
             -   name: Restore Gradle cache
-                uses: actions/cache@v4
+                uses: actions/cache@v5
                 timeout-minutes: 10
                 with:
                     path: |
@@ -180,7 +180,7 @@ jobs:
                     (cd "${{ env.APP_DIR }}/android" && ./gradlew assembleRelease)
 
             -   name: Upload APK artifact
-                uses: actions/upload-artifact@v4
+                uses: actions/upload-artifact@v6
                 timeout-minutes: 5
                 with:
                     name: apk-${{ matrix.package }}-${{ matrix.target }}
@@ -220,11 +220,11 @@ jobs:
 
         steps:
             -   name: Checkout repository
-                uses: actions/checkout@v5
+                uses: actions/checkout@v7
                 timeout-minutes: 10
 
             -   name: Setup Node
-                uses: actions/setup-node@v5
+                uses: actions/setup-node@v7
                 timeout-minutes: 10
                 with:
                     node-version: 22.x
@@ -641,7 +641,7 @@ jobs:
                 # Matches the capture step's condition — gating this on the test step
                 # alone discarded the container log whenever setup was what failed.
                 if: failure() && (steps.emulator.outcome == 'failure' || steps.redroid.outcome == 'failure')
-                uses: actions/upload-artifact@v4
+                uses: actions/upload-artifact@v6
                 timeout-minutes: 5
                 with:
                     name: maestro-android-${{ matrix.package }}-${{ matrix.target }}
