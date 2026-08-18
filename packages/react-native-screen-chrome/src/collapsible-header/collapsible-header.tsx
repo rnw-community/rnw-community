@@ -25,6 +25,7 @@ export const CollapsibleHeader = ({ children, style, ...viewProps }: Props): Rea
     const { config } = useScreenChrome();
     const insets = useSafeAreaInsets();
     const { leading, expandedTitle, collapsedTitle, trailing } = getCollapsibleHeaderSlots(children);
+    const containerHeight = insets.top + config.headerHeight;
     const persistentContent = (
         <View style={collapsibleHeaderStyles.persistentRow} pointerEvents="box-none">
             {leading}
@@ -40,8 +41,8 @@ export const CollapsibleHeader = ({ children, style, ...viewProps }: Props): Rea
             style={[collapsibleHeaderStyles.container, style]}
             mode="overlay"
             snap={config.snapToCollapse}
-            expandedHeight={config.headerHeight}
-            collapsedHeight={config.headerHeight}
+            expandedHeight={containerHeight}
+            collapsedHeight={containerHeight}
             collapseStart={config.collapseStart}
             collapseDistance={config.collapseEnd - config.collapseStart}
             expandedContent={expandedTitle}
