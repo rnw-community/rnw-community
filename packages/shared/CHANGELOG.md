@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [2.13.0](https://github.com/rnw-community/rnw-community/compare/v2.12.13...v2.13.0) (2026-08-18)
+
+### Features
+
+- **react-native-collapsible-header:** add composable animated header ([#545](https://github.com/rnw-community/rnw-community/issues/545)) ([8890ae3](https://github.com/rnw-community/rnw-community/commit/8890ae3c45fe492f93e0779d1cf62a83ba8a34f9)), closes [#579](https://github.com/rnw-community/rnw-community/issues/579) [vitalyiegorov/tart-runner-fleet#236](https://github.com/vitalyiegorov/tart-runner-fleet/issues/236) [rnw-community#579](https://github.com/rnw-community/issues/579)
+
 ## [2.12.13](https://github.com/rnw-community/rnw-community/compare/v2.12.12...v2.12.13) (2026-08-10)
 
 **Note:** Version bump only for package @rnw-community/shared
