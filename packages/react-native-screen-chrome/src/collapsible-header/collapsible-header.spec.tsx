@@ -58,6 +58,7 @@ describe('CollapsibleHeader', () => {
                 collapsedHeight: mockConfig.headerHeight,
                 collapseStart: mockConfig.collapseStart,
                 collapseDistance: mockConfig.collapseEnd - mockConfig.collapseStart,
+                headerStyle: { paddingTop: 12 },
                 motion: {
                     expandedOpacityEndProgress: 0.75,
                     collapsedOpacityStartProgress: 0.5,
