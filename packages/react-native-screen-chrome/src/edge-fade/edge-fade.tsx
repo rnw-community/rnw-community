@@ -1,4 +1,4 @@
-import MaskedViewModule from '@react-native-masked-view/masked-view';
+import MaskedView from '@react-native-masked-view/masked-view';
 import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
 import React from 'react';
@@ -21,11 +21,8 @@ import type { ReactNode } from 'react';
 
 const AnimatedView = createAnimatedComponent(View);
 const AnimatedBlurView = createAnimatedComponent(BlurView);
-const MaskedView = MaskedViewModule;
 const GRADIENT_START = { x: 0, y: 0 };
 const GRADIENT_END = { x: 0, y: 1 };
-const TARGETED_BLUR_METHOD = 'dimezisBlurView';
-const UNTARGETED_BLUR_METHOD = 'none';
 
 /**
  * Renders a decorative native blur and color wash at one screen edge.
@@ -43,9 +40,7 @@ export const EdgeFade = ({
 }: EdgeFadePropsInterface): ReactNode => {
     const { config, colorScheme } = useScreenChrome();
     const insets = useSafeAreaInsets();
-    const resolvedBlurMethod = getDefined(blurMethod, () =>
-        isDefined(blurTarget) ? TARGETED_BLUR_METHOD : UNTARGETED_BLUR_METHOD
-    );
+    const resolvedBlurMethod = getDefined(blurMethod, () => (isDefined(blurTarget) ? 'dimezisBlurView' : 'none'));
     const resolvedIntensity = isDefined(intensity) ? intensity : config.intensity;
     const { washColors, maskColors, maskLocations, tint } = getEdgeFadeVisuals(
         position,
@@ -53,12 +48,13 @@ export const EdgeFade = ({
         config,
         Platform.OS === 'ios'
     );
-    const opacityInputRange = scrollAnimation?.opacityInputRange;
-    const intensityInputRange = scrollAnimation?.intensityInputRange;
-    const scrollMaxIntensity = scrollAnimation?.maxIntensity;
-    const resolvedMaxIntensity = isDefined(scrollMaxIntensity) ? scrollMaxIntensity : config.maxBlurIntensity;
-    const containerAnimatedStyle = useEdgeFadeOpacityStyle(opacityInputRange);
-    const animatedBlurProps = useEdgeFadeBlurProps(intensityInputRange, resolvedMaxIntensity, resolvedIntensity);
+    const resolvedMaxIntensity = getDefined(scrollAnimation?.maxIntensity, () => config.maxBlurIntensity);
+    const containerAnimatedStyle = useEdgeFadeOpacityStyle(scrollAnimation?.opacityInputRange);
+    const animatedBlurProps = useEdgeFadeBlurProps(
+        scrollAnimation?.intensityInputRange,
+        resolvedMaxIntensity,
+        resolvedIntensity
+    );
     const positionalStyle = getEdgeFadeBandMetrics(position, height, config, insets);
 
     return (

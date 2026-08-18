@@ -1,6 +1,7 @@
+import { easeGradient } from 'react-native-easing-gradient';
+
 import { isDefined } from '@rnw-community/shared';
 
-import { getEdgeFadeMaskStops } from '../edge-fade-get-mask-stops/edge-fade-get-mask-stops.util';
 import { getBlurTint } from '../get-blur-tint/get-blur-tint.util';
 
 import type { ScreenChromeConfigInterface } from '../../../interface/screen-chrome-config.interface';
@@ -24,11 +25,9 @@ export const getEdgeFadeVisuals = (
     isIos: boolean
 ) => {
     const colorSet = config.colors[colorScheme];
-    const washColors =
-        position === 'top'
-            ? toGradientTuple([colorSet.solid, colorSet.wash])
-            : toGradientTuple([colorSet.wash, colorSet.solid]);
-    const maskGradient = getEdgeFadeMaskStops(config.maskStops, position);
+    const washColors: readonly [string, string] =
+        position === 'top' ? [colorSet.solid, colorSet.wash] : [colorSet.wash, colorSet.solid];
+    const maskGradient = easeGradient({ colorStops: config.maskStops[position] });
 
     return {
         washColors,

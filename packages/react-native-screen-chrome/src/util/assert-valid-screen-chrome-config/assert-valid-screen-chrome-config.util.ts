@@ -1,4 +1,4 @@
-import { isDefined, isNotEmptyString, isNumber, isPositiveNumber } from '@rnw-community/shared';
+import { isDefined, isEmptyArray, isNotEmptyString, isNumber, isPositiveNumber } from '@rnw-community/shared';
 
 import type { EdgeFadePosition } from '../../edge-fade/edge-fade-position.type';
 import type { ScreenChromeMaskStopInterface } from '../../edge-fade/screen-chrome-mask-stop.interface';
@@ -72,13 +72,9 @@ const assertMaskStops = (
     position: EdgeFadePosition,
     stops: Readonly<Record<number, ScreenChromeMaskStopInterface>> | undefined
 ): void => {
-    if (!isDefined(stops)) {
-        throw new Error(`maskStops.${position} must contain at least one stop`);
-    }
+    const entries = isDefined(stops) ? Object.entries(stops) : [];
 
-    const entries = Object.entries(stops);
-
-    if (entries.length === 0) {
+    if (isEmptyArray(entries)) {
         throw new Error(`maskStops.${position} must contain at least one stop`);
     }
 
