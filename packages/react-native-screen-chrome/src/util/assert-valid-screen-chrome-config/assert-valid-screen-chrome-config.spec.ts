@@ -39,18 +39,24 @@ const buildConfig = (overrides: Partial<ScreenChromeConfigInterface> = {}): Scre
 
 describe('assertValidScreenChromeConfig', () => {
     it('accepts the default config', () => {
+        expect.hasAssertions();
+
         expect(() => {
             assertValidScreenChromeConfig(SCREEN_CHROME_DEFAULT_CONFIG);
         }).not.toThrow();
     });
 
     it.each(invalidNumericCases)('rejects invalid numeric property %s', (property, value, message) => {
+        expect.hasAssertions();
+
         expect(() => {
             assertValidScreenChromeConfig(buildConfig({ [property]: value }));
         }).toThrow(message);
     });
 
     it('rejects invalid threshold ordering', () => {
+        expect.hasAssertions();
+
         expect(() => {
             assertValidScreenChromeConfig(buildConfig({ smallTitleStart: INVALID_SMALL_TITLE_START }));
         }).toThrow(
@@ -59,6 +65,8 @@ describe('assertValidScreenChromeConfig', () => {
     });
 
     it('rejects a zero-length collapse interval', () => {
+        expect.hasAssertions();
+
         expect(() => {
             assertValidScreenChromeConfig(
                 buildConfig({
@@ -71,6 +79,8 @@ describe('assertValidScreenChromeConfig', () => {
     });
 
     it('rejects missing color strings', () => {
+        expect.hasAssertions();
+
         expect(() => {
             assertValidScreenChromeConfig(
                 buildConfig({
@@ -87,6 +97,8 @@ describe('assertValidScreenChromeConfig', () => {
     });
 
     it('rejects missing color scheme records with a property-specific error', () => {
+        expect.hasAssertions();
+
         const config = structuredClone(SCREEN_CHROME_DEFAULT_CONFIG);
 
         Reflect.deleteProperty(config.colors, 'light');
@@ -97,6 +109,8 @@ describe('assertValidScreenChromeConfig', () => {
     });
 
     it('rejects empty mask records', () => {
+        expect.hasAssertions();
+
         expect(() => {
             assertValidScreenChromeConfig(
                 buildConfig({
@@ -110,6 +124,8 @@ describe('assertValidScreenChromeConfig', () => {
     });
 
     it('rejects missing mask records with a property-specific error', () => {
+        expect.hasAssertions();
+
         const config = structuredClone(SCREEN_CHROME_DEFAULT_CONFIG);
 
         Reflect.deleteProperty(config.maskStops, 'top');
@@ -120,6 +136,8 @@ describe('assertValidScreenChromeConfig', () => {
     });
 
     it('rejects mask stop positions outside range', () => {
+        expect.hasAssertions();
+
         expect(() => {
             assertValidScreenChromeConfig(
                 buildConfig({
@@ -136,6 +154,8 @@ describe('assertValidScreenChromeConfig', () => {
     });
 
     it('rejects empty mask stop colors', () => {
+        expect.hasAssertions();
+
         expect(() => {
             assertValidScreenChromeConfig(
                 buildConfig({

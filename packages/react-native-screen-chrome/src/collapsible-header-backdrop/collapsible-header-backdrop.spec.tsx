@@ -16,6 +16,8 @@ jest.mock('../hooks/use-screen-chrome/use-screen-chrome.hook', () => ({
 
 describe('CollapsibleHeaderBackdrop', () => {
     it('maps header collapse thresholds to a top edge fade', () => {
+        expect.hasAssertions();
+
         render(<CollapsibleHeaderBackdrop />);
 
         expect(jest.mocked(EdgeFade).mock.calls[0][0]).toEqual({

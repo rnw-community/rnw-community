@@ -22,6 +22,8 @@ jest.mock('@rnw-community/react-native-collapsible-header', () => ({
 
 describe('EdgeFade web', () => {
     it('renders the web defaults with ordered CSS masks and a static top blur', () => {
+        expect.hasAssertions();
+
         const screen = render(<EdgeFade testID="top-fade" position="top" />);
         const fade = screen.getByTestId('top-fade', { includeHiddenElements: true });
 
@@ -44,6 +46,8 @@ describe('EdgeFade web', () => {
     });
 
     it('animates only bottom opacity while preserving explicit zero blur and consumer styles', () => {
+        expect.hasAssertions();
+
         mockScrollY.get.mockReturnValue(10);
 
         const screen = render(

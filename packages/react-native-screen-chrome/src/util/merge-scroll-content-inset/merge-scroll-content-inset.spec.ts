@@ -18,6 +18,8 @@ const CONSUMER_PADDING_BOTTOM = 101;
 
 describe('mergeScrollContentInset', () => {
     it('adds safe-area edges and custom top and bottom insets', () => {
+        expect.hasAssertions();
+
         const style = mergeScrollContentInset(INSETS, CONTENT_INSET_TOP, CONTENT_INSET_BOTTOM, null);
 
         expect(StyleSheet.flatten(style)).toEqual({
@@ -29,6 +31,8 @@ describe('mergeScrollContentInset', () => {
     });
 
     it('keeps consumer styles after generated padding so explicit padding wins', () => {
+        expect.hasAssertions();
+
         const style = mergeScrollContentInset(INSETS, CONTENT_INSET_TOP, CONTENT_INSET_BOTTOM, {
             paddingTop: CONSUMER_PADDING_TOP,
             paddingBottom: CONSUMER_PADDING_BOTTOM,
@@ -41,6 +45,8 @@ describe('mergeScrollContentInset', () => {
     });
 
     it('preserves arrays of consumer styles after generated padding', () => {
+        expect.hasAssertions();
+
         const style = mergeScrollContentInset(INSETS, CONTENT_INSET_TOP, CONTENT_INSET_BOTTOM, [
             { gap: 4 },
             { paddingTop: CONSUMER_PADDING_TOP },

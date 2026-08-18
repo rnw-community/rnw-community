@@ -49,6 +49,8 @@ beforeEach(() => {
 
 describe('EdgeFade native', () => {
     it('renders an inert top safe-area band', () => {
+        expect.hasAssertions();
+
         const screen = render(<EdgeFade testID="top-fade" position="top" intensity={0} blurMethod="none" />);
         const fade = screen.getByTestId('top-fade', { includeHiddenElements: true });
 
@@ -60,6 +62,8 @@ describe('EdgeFade native', () => {
     });
 
     it('renders the top mask, wash, and explicit zero blur intensity', () => {
+        expect.hasAssertions();
+
         render(<EdgeFade position="top" intensity={0} blurMethod="none" />);
         const [[maskGradientProps], [washGradientProps]] = jest.mocked(LinearGradient).mock.calls;
         const [[blurProps]] = jest.mocked(BlurView).mock.calls;
@@ -76,6 +80,8 @@ describe('EdgeFade native', () => {
     });
 
     it('drives bottom opacity and blur intensity from scroll animation ranges', () => {
+        expect.hasAssertions();
+
         mockColorScheme = 'dark';
         mockScrollY.get.mockReturnValue(40);
 

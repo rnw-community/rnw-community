@@ -8,10 +8,14 @@ const OVERRIDDEN_HEADER_HEIGHT = 72;
 
 describe('mergeScreenChromeConfig', () => {
     it('uses defaults when overrides are omitted', () => {
+        expect.hasAssertions();
+
         expect(mergeScreenChromeConfig()).toEqual(SCREEN_CHROME_DEFAULT_CONFIG);
     });
 
     it('replaces scalar defaults', () => {
+        expect.hasAssertions();
+
         const config = mergeScreenChromeConfig({
             headerHeight: OVERRIDDEN_HEADER_HEIGHT,
             snapToCollapse: true,
@@ -23,6 +27,8 @@ describe('mergeScreenChromeConfig', () => {
     });
 
     it('deep merges colors without deleting sibling schemes or values', () => {
+        expect.hasAssertions();
+
         const config = mergeScreenChromeConfig({
             colors: {
                 dark: {
@@ -39,6 +45,8 @@ describe('mergeScreenChromeConfig', () => {
     });
 
     it('deep merges mask stops without deleting sibling positions or stops', () => {
+        expect.hasAssertions();
+
         const config = mergeScreenChromeConfig({
             maskStops: {
                 top: {
@@ -55,6 +63,8 @@ describe('mergeScreenChromeConfig', () => {
     });
 
     it('does not mutate source defaults or overrides', () => {
+        expect.hasAssertions();
+
         const overrides = {
             colors: {
                 light: {
@@ -78,6 +88,8 @@ describe('mergeScreenChromeConfig', () => {
     });
 
     it('does not share nested mask stop objects with defaults or overrides', () => {
+        expect.hasAssertions();
+
         const overrideStop = { color: 'gray' };
         const config = mergeScreenChromeConfig({
             maskStops: {

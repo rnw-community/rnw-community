@@ -8,6 +8,8 @@ jest.mock('expo-linear-gradient', () => ({ LinearGradient: jest.fn(() => null) }
 
 describe('public API', () => {
     it('exports the documented generic screen chrome surface', () => {
+        expect.hasAssertions();
+
         expect(screenChrome).toEqual(
             expect.objectContaining({
                 CollapsibleHeader: expect.any(Function),
