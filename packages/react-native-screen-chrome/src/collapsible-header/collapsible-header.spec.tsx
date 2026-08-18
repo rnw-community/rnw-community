@@ -23,6 +23,31 @@ jest.mock('../hooks/use-screen-chrome/use-screen-chrome.hook', () => ({
     useScreenChrome: () => ({ config: mockConfig }),
 }));
 
+const renderDelegatedProps = () => {
+    render(
+        <CollapsibleHeader testID="chrome-header">
+            <CollapsibleHeaderSlot>
+                <Text>Back</Text>
+            </CollapsibleHeaderSlot>
+            <CollapsibleHeaderTitleSlot>
+                <Text>Large</Text>
+                <Text>Small</Text>
+            </CollapsibleHeaderTitleSlot>
+            <CollapsibleHeaderSlot>
+                <Text>Menu</Text>
+            </CollapsibleHeaderSlot>
+        </CollapsibleHeader>
+    );
+
+    const [props] = jest.mocked(GenericCollapsibleHeader).mock.calls[0] ?? [];
+
+    if (!isDefined(props)) {
+        throw new Error('Generic collapsible header was not rendered');
+    }
+
+    return props;
+};
+
 describe('CollapsibleHeader', () => {
     beforeEach(() => {
         jest.mocked(GenericCollapsibleHeader).mockClear();
@@ -31,33 +56,14 @@ describe('CollapsibleHeader', () => {
     it('delegates geometry, title layers, and one persistent control row', () => {
         expect.hasAssertions();
 
-        render(
-            <CollapsibleHeader testID="chrome-header">
-                <CollapsibleHeaderSlot>
-                    <Text>Back</Text>
-                </CollapsibleHeaderSlot>
-                <CollapsibleHeaderTitleSlot>
-                    <Text>Large</Text>
-                    <Text>Small</Text>
-                </CollapsibleHeaderTitleSlot>
-                <CollapsibleHeaderSlot>
-                    <Text>Menu</Text>
-                </CollapsibleHeaderSlot>
-            </CollapsibleHeader>
-        );
-
-        const [props] = jest.mocked(GenericCollapsibleHeader).mock.calls[0] ?? [];
-
-        if (!isDefined(props)) {
-            throw new Error('Generic collapsible header was not rendered');
-        }
-
+        const props = renderDelegatedProps();
         const controls = render(<>{props.persistentContent}</>);
 
         expect(GenericCollapsibleHeader).toHaveBeenCalledTimes(1);
         expect(props).not.toHaveProperty('scrollY');
         expect(props).toEqual(
             expect.objectContaining({
+                testID: 'chrome-header',
                 mode: 'overlay',
                 snap: true,
                 expandedHeight: mockTopInset + mockConfig.headerHeight,
@@ -78,6 +84,17 @@ describe('CollapsibleHeader', () => {
         );
         expect(controls.getAllByText('Back')).toHaveLength(1);
         expect(controls.getAllByText('Menu')).toHaveLength(1);
+    });
+
+    it('reserves the configured content height above the safe-area top inset', () => {
+        expect.hasAssertions();
+
+        const props = renderDelegatedProps();
+        const headerPaddingTop = Number(StyleSheet.flatten(props.headerStyle).paddingTop);
+
+        expect(headerPaddingTop).toBe(mockTopInset);
+        expect(props.expandedHeight - headerPaddingTop).toBe(mockConfig.headerHeight);
+        expect(props.collapsedHeight - headerPaddingTop).toBe(mockConfig.headerHeight);
     });
 
     it('renders the public slot components', () => {
@@ -102,42 +119,5 @@ describe('CollapsibleHeader', () => {
         expect(markers.getByText('Expanded')).toBeTruthy();
         expect(markers.getByText('Collapsed')).toBeTruthy();
         expect(markers.getByText('Trailing')).toBeTruthy();
-    });
-});
-
-describe('CollapsibleHeader geometry', () => {
-    beforeEach(() => {
-        jest.mocked(GenericCollapsibleHeader).mockClear();
-    });
-
-    it('reserves the configured content height above the safe-area top inset', () => {
-        expect.hasAssertions();
-
-        render(
-            <CollapsibleHeader>
-                <CollapsibleHeaderSlot>
-                    <Text>Back</Text>
-                </CollapsibleHeaderSlot>
-                <CollapsibleHeaderTitleSlot>
-                    <Text>Large</Text>
-                    <Text>Small</Text>
-                </CollapsibleHeaderTitleSlot>
-                <CollapsibleHeaderSlot>
-                    <Text>Menu</Text>
-                </CollapsibleHeaderSlot>
-            </CollapsibleHeader>
-        );
-
-        const [props] = jest.mocked(GenericCollapsibleHeader).mock.calls[0] ?? [];
-
-        if (!isDefined(props)) {
-            throw new Error('Generic collapsible header was not rendered');
-        }
-
-        const headerPaddingTop = Number(StyleSheet.flatten(props.headerStyle).paddingTop);
-
-        expect(headerPaddingTop).toBe(mockTopInset);
-        expect(props.expandedHeight - headerPaddingTop).toBe(mockConfig.headerHeight);
-        expect(props.collapsedHeight - headerPaddingTop).toBe(mockConfig.headerHeight);
     });
 });

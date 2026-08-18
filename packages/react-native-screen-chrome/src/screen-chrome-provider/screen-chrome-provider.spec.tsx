@@ -12,7 +12,6 @@ import { ScreenChromeProvider } from './screen-chrome-provider';
 import type { ScreenChromeContextValueInterface } from '../interface/screen-chrome-context-value.interface';
 import type { ScreenChromeColorScheme } from '../type/screen-chrome-color-scheme.type';
 import type { CollapsibleHeaderScroll } from '@rnw-community/react-native-collapsible-header';
-import type { ReactNode } from 'react';
 
 const OVERRIDDEN_HEADER_HEIGHT = 72;
 const CUSTOM_MASK_STOP_POSITION = 0.25;
@@ -26,8 +25,7 @@ interface ScrollConsumerProps {
     readonly onScrollValue: (value: CollapsibleHeaderScroll) => void;
 }
 
-interface SubjectProps {
-    readonly children?: ReactNode;
+interface ProviderProps {
     readonly colorScheme?: ScreenChromeColorScheme;
     readonly config?: Parameters<typeof ScreenChromeProvider>[0]['config'];
 }
@@ -52,23 +50,17 @@ const ScrollConsumer = ({ onScrollValue }: ScrollConsumerProps) => {
     return null;
 };
 
-const Subject = ({ children, colorScheme, config }: SubjectProps) => (
-    <ScreenChromeProvider colorScheme={colorScheme} config={config}>
-        {children}
-    </ScreenChromeProvider>
-);
-
-const captureContext = (props: Omit<SubjectProps, 'children'> = {}): ScreenChromeContextValueInterface => {
+const captureContext = (props: ProviderProps = {}): ScreenChromeContextValueInterface => {
     const values: ScreenChromeContextValueInterface[] = [];
 
     render(
-        <Subject {...props}>
+        <ScreenChromeProvider {...props}>
             <Consumer
                 onValue={value => {
                     values.push(value);
                 }}
             />
-        </Subject>
+        </ScreenChromeProvider>
     );
 
     return values[0];
@@ -128,13 +120,13 @@ describe('ScreenChromeProvider context', () => {
         const scrollValues: CollapsibleHeaderScroll[] = [];
 
         render(
-            <Subject>
+            <ScreenChromeProvider>
                 <ScrollConsumer
                     onScrollValue={value => {
                         scrollValues.push(value);
                     }}
                 />
-            </Subject>
+            </ScreenChromeProvider>
         );
         const [scroll] = scrollValues;
 
@@ -153,12 +145,12 @@ describe('ScreenChromeProvider context', () => {
 
         render(
             <>
-                <Subject>
+                <ScreenChromeProvider>
                     <ScrollConsumer onScrollValue={onScrollValue} />
-                </Subject>
-                <Subject>
+                </ScreenChromeProvider>
+                <ScreenChromeProvider>
                     <ScrollConsumer onScrollValue={onScrollValue} />
-                </Subject>
+                </ScreenChromeProvider>
             </>
         );
 
