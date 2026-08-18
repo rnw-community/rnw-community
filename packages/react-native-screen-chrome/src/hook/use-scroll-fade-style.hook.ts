@@ -1,6 +1,6 @@
 import { Extrapolation, interpolate, useAnimatedStyle } from 'react-native-reanimated';
 
-import { useScreenChrome } from './use-screen-chrome.hook';
+import { useCollapsibleHeaderScroll } from '@rnw-community/react-native-collapsible-header';
 
 import type { AnimatedStyle } from 'react-native-reanimated';
 
@@ -12,7 +12,7 @@ export const useScrollFadeStyle = (
     inputRange: readonly [number, number],
     outputRange: readonly [number, number]
 ): AnimatedStyle<{ opacity: number }> => {
-    const { scrollY } = useScreenChrome();
+    const { scrollY } = useCollapsibleHeaderScroll();
 
     return useAnimatedStyle(() => ({
         opacity: interpolate(scrollY.get(), inputRange, outputRange, Extrapolation.CLAMP),

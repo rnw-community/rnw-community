@@ -12,8 +12,8 @@ jest.mock('react-native-reanimated', () => {
 
     return { ...actual, useAnimatedStyle: jest.fn(invokeUpdater) };
 });
-jest.mock('./use-screen-chrome.hook', () => ({
-    useScreenChrome: () => ({ scrollY: mockScrollY }),
+jest.mock('@rnw-community/react-native-collapsible-header', () => ({
+    useCollapsibleHeaderScroll: () => ({ scrollY: mockScrollY }),
 }));
 
 describe('useScrollFadeStyle', () => {
@@ -22,6 +22,8 @@ describe('useScrollFadeStyle', () => {
         [15, 0.5],
         [40, 0],
     ])('clamps scroll offset %s to opacity %s', (scrollOffset, expectedOpacity) => {
+        expect.hasAssertions();
+
         mockScrollY.get.mockReturnValue(scrollOffset);
 
         const { result } = renderHook(() => useScrollFadeStyle([10, 20], [1, 0]));

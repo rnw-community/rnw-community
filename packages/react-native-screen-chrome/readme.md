@@ -1,8 +1,10 @@
 # React Native Screen Chrome
 
-Composable, safe-area-aware screen chrome for React Native and React Native Web. It coordinates one scroll value across
-collapsible titles, persistent navigation controls, progressive edge fades, content insets, and optional collapse
-snapping while leaving all visible content and product behavior to the consumer.
+Composable, safe-area-aware screen chrome for React Native and React Native Web. It paints collapsible titles,
+persistent navigation controls, progressive edge fades, and content insets around one scrollable, while all motion,
+scroll wiring, and collapse snapping are delegated to
+[`@rnw-community/react-native-collapsible-header`](../react-native-collapsible-header/readme.md) and all visible
+content and product behavior stay consumer-owned.
 
 [![npm version](https://badge.fury.io/js/%40rnw-community%2Freact-native-screen-chrome.svg)](https://badge.fury.io/js/%40rnw-community%2Freact-native-screen-chrome)
 [![coverage](https://img.shields.io/codecov/c/github/rnw-community/rnw-community?flag=react-native-screen-chrome&label=coverage)](https://app.codecov.io/gh/rnw-community/rnw-community)
@@ -17,8 +19,10 @@ yarn add @rnw-community/react-native-screen-chrome \
     react-native-reanimated react-native-safe-area-context
 ```
 
-The native libraries are peer dependencies and must be configured by the host application. Reanimated 4 applications
-also install `react-native-worklets` and configure `react-native-worklets/plugin`.
+The native libraries and `@rnw-community/react-native-collapsible-header` are peer dependencies and must be installed
+by the host application: the application must resolve exactly one copy of the collapsible header, otherwise its scroll
+context has two identities and the chrome components fail to find their provider. Reanimated 4 applications also
+install `react-native-worklets` and configure `react-native-worklets/plugin`.
 
 ## Complete example
 
@@ -47,14 +51,18 @@ export const AccountsScreen = () => (
             <EdgeFade position="bottom" />
             <CollapsibleHeader>
                 <CollapsibleHeaderSlot>
-                    <Pressable accessibilityRole="button"><Text>Back</Text></Pressable>
+                    <Pressable accessibilityRole="button">
+                        <Text>Back</Text>
+                    </Pressable>
                 </CollapsibleHeaderSlot>
                 <CollapsibleHeaderTitleSlot>
                     <Text>Accounts</Text>
                     <Text>Accounts</Text>
                 </CollapsibleHeaderTitleSlot>
                 <CollapsibleHeaderSlot>
-                    <Pressable accessibilityRole="button"><Text>Menu</Text></Pressable>
+                    <Pressable accessibilityRole="button">
+                        <Text>Menu</Text>
+                    </Pressable>
                 </CollapsibleHeaderSlot>
             </CollapsibleHeader>
         </ScreenChromeFrame>
@@ -64,9 +72,15 @@ export const AccountsScreen = () => (
 
 ## Structure and paint order
 
-`ScreenChromeProvider` owns the animated scroll ref, shared offset, merged configuration, color scheme, reduced-motion
-state, and collapse-snap handler. `ScreenChromeScrollView` connects that state automatically; custom animated scroll
-views can read `scrollHandler`, `scrollRef`, and `scrollY` from `useScreenChrome` directly.
+`ScreenChromeProvider` owns the merged and validated configuration plus the color scheme, and mounts a
+`CollapsibleHeaderProvider` that owns the scroll offset, scroll handler, animated scroll ref, and snap registry.
+`ScreenChromeScrollView` connects that wiring automatically; custom animated scrollables read `onScroll`, `scrollRef`,
+and `scrollY` from `useCollapsibleHeaderScroll` (exported by `@rnw-community/react-native-collapsible-header`), while
+`useScreenChrome` returns only `{ colorScheme, config }`.
+
+Mount one `ScreenChromeProvider` per scrollable, inside each screen, and never once around a navigator: a provider owns
+exactly one scroll offset and one snap slot, so a shared provider makes the last-scrolled screen drive every header.
+Several chrome components within one screen share one provider by design.
 
 Render content first, decorative `EdgeFade` and `CollapsibleHeaderBackdrop` layers second, and interactive
 `CollapsibleHeader` chrome last. Native blur then samples the content beneath it while controls remain above decorative
@@ -87,8 +101,14 @@ Provider overrides deep-merge light/dark colors and top/bottom mask stops. Geome
 positions, colors, and transition ordering are validated. The required threshold order is
 `collapseStart <= smallTitleStart <= largeTitleEnd <= collapseEnd` with a non-zero collapse interval.
 
-When `snapToCollapse` is enabled, drag end snaps offsets strictly inside the interval toward the nearest endpoint.
-Residual momentum defers the decision to momentum end, and reduced-motion users receive an immediate adjustment.
+Thresholds are mapped to normalized collapse progress and handed to the generic header as its `motion` config, so
+`smallTitleStart` and `largeTitleEnd` keep their meaning while the transition itself is owned upstream.
+
+`snapToCollapse` is forwarded to the generic header's `snap` prop, which snaps the scrollable toward the nearest
+endpoint once a released scroll holds still for three frames — momentum events are never relied on, because a
+worklet-only scroll handler never receives them on Android. Snapping therefore requires a mounted `CollapsibleHeader`:
+the header registers the snap geometry with the provider, so a screen that enables `snapToCollapse` without rendering
+`CollapsibleHeader` scrolls freely. Snap animation currently ignores the reduced-motion setting.
 
 ## Edge fades
 
@@ -99,7 +119,8 @@ static. Native defaults use 150-point top and bottom bands, while web defaults u
 ## Public utilities
 
 `mergeScrollContentInset` composes safe-area and caller chrome padding while retaining consumer styles last.
-`useScrollFadeStyle` creates a clamped opacity style from the provider scroll value.
+`useScrollFadeStyle` creates a clamped opacity style from the collapsible-header provider scroll value and therefore
+requires a `ScreenChromeProvider` ancestor.
 
 ## License
 

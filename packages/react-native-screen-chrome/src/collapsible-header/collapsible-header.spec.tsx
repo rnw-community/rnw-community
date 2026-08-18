@@ -12,15 +12,14 @@ import { SCREEN_CHROME_DEFAULT_CONFIG } from '../constant/screen-chrome-default-
 
 import { CollapsibleHeader } from './collapsible-header';
 
-const mockScrollY = { get: jest.fn(() => 0), set: jest.fn() };
-const mockConfig = SCREEN_CHROME_DEFAULT_CONFIG;
+const mockConfig = { ...SCREEN_CHROME_DEFAULT_CONFIG, snapToCollapse: true };
 
 jest.mock('@rnw-community/react-native-collapsible-header', () => ({ CollapsibleHeader: jest.fn(() => null) }));
 jest.mock('react-native-safe-area-context', () => ({
     useSafeAreaInsets: () => ({ top: 12, right: 0, bottom: 0, left: 0 }),
 }));
 jest.mock('../hook/use-screen-chrome.hook', () => ({
-    useScreenChrome: () => ({ config: mockConfig, scrollY: mockScrollY }),
+    useScreenChrome: () => ({ config: mockConfig }),
 }));
 
 describe('CollapsibleHeader', () => {
@@ -51,9 +50,11 @@ describe('CollapsibleHeader', () => {
         const controls = render(<>{props.persistentContent}</>);
 
         expect(GenericCollapsibleHeader).toHaveBeenCalledTimes(1);
+        expect(props).not.toHaveProperty('scrollY');
         expect(props).toEqual(
             expect.objectContaining({
-                scrollY: mockScrollY,
+                mode: 'overlay',
+                snap: true,
                 expandedHeight: mockConfig.headerHeight,
                 collapsedHeight: mockConfig.headerHeight,
                 collapseStart: mockConfig.collapseStart,

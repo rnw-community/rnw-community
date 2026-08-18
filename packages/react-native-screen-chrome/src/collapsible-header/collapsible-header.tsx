@@ -5,6 +5,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { CollapsibleHeader as GenericCollapsibleHeader } from '@rnw-community/react-native-collapsible-header';
 
 import { useScreenChrome } from '../hook/use-screen-chrome.hook';
+import { getCollapsibleHeaderMotion } from '../utils/get-collapsible-header-motion.util';
 import { getCollapsibleHeaderSlots } from '../utils/get-collapsible-header-slots.util';
 
 import { collapsibleHeaderStyles } from './collapsible-header.styles';
@@ -21,19 +22,9 @@ interface Props extends Omit<ViewProps, 'children'> {
  * @see https://github.com/rnw-community/rnw-community/tree/master/packages/react-native-screen-chrome#collapsibleheader
  */
 export const CollapsibleHeader = ({ children, style, ...viewProps }: Props): ReactNode => {
-    const { config, scrollY } = useScreenChrome();
+    const { config } = useScreenChrome();
     const insets = useSafeAreaInsets();
     const { leading, expandedTitle, collapsedTitle, trailing } = getCollapsibleHeaderSlots(children);
-    const collapseDistance = config.collapseEnd - config.collapseStart;
-    const motion = {
-        expandedOpacityEndProgress: (config.largeTitleEnd - config.collapseStart) / collapseDistance,
-        collapsedOpacityStartProgress: (config.smallTitleStart - config.collapseStart) / collapseDistance,
-        backgroundOpacityStartProgress: 1,
-        pointerEventsSwitchProgress: 0.5,
-        expandedTranslateY: 0,
-        expandedScale: 1,
-        collapsedTranslateY: 0,
-    };
     const persistentContent = (
         <View style={collapsibleHeaderStyles.persistentRow} pointerEvents="box-none">
             {leading}
@@ -47,15 +38,16 @@ export const CollapsibleHeader = ({ children, style, ...viewProps }: Props): Rea
             {...viewProps}
             pointerEvents="box-none"
             style={[collapsibleHeaderStyles.container, style]}
-            scrollY={scrollY}
+            mode="overlay"
+            snap={config.snapToCollapse}
             expandedHeight={config.headerHeight}
             collapsedHeight={config.headerHeight}
             collapseStart={config.collapseStart}
-            collapseDistance={collapseDistance}
+            collapseDistance={config.collapseEnd - config.collapseStart}
             expandedContent={expandedTitle}
             collapsedContent={collapsedTitle}
             persistentContent={persistentContent}
-            motion={motion}
+            motion={getCollapsibleHeaderMotion(config)}
             headerStyle={{ paddingTop: insets.top }}
             expandedContentContainerStyle={collapsibleHeaderStyles.titleLayer}
             collapsedContentContainerStyle={collapsibleHeaderStyles.titleLayer}

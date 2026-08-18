@@ -34,8 +34,10 @@ jest.mock('../hook/use-screen-chrome.hook', () => ({
     useScreenChrome: () => ({
         colorScheme: mockColorScheme,
         config: mockConfig,
-        scrollY: mockScrollY,
     }),
+}));
+jest.mock('@rnw-community/react-native-collapsible-header', () => ({
+    useCollapsibleHeaderScroll: () => ({ scrollY: mockScrollY }),
 }));
 
 beforeEach(() => {

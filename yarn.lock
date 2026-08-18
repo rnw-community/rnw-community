@@ -5914,7 +5914,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@rnw-community/react-native-collapsible-header@npm:^2.12.10, @rnw-community/react-native-collapsible-header@workspace:*, @rnw-community/react-native-collapsible-header@workspace:packages/react-native-collapsible-header":
+"@rnw-community/react-native-collapsible-header@workspace:*, @rnw-community/react-native-collapsible-header@workspace:^, @rnw-community/react-native-collapsible-header@workspace:packages/react-native-collapsible-header":
   version: 0.0.0-use.local
   resolution: "@rnw-community/react-native-collapsible-header@workspace:packages/react-native-collapsible-header"
   dependencies:
@@ -6016,7 +6016,7 @@ __metadata:
     "@react-native/babel-preset": "npm:0.86.2"
     "@react-native/jest-preset": "npm:0.86.2"
     "@react-native/metro-config": "npm:0.86.2"
-    "@rnw-community/react-native-collapsible-header": "npm:^2.12.10"
+    "@rnw-community/react-native-collapsible-header": "workspace:^"
     "@rnw-community/shared": "npm:^2.12.10"
     "@testing-library/react-native": "npm:^13.3.3"
     "@types/react": "npm:19.2.18"
@@ -6032,10 +6032,11 @@ __metadata:
     react-test-renderer: "npm:19.2.3"
   peerDependencies:
     "@react-native-masked-view/masked-view": ">=0.3.2 <1"
+    "@rnw-community/react-native-collapsible-header": ">=2.13.0 <3"
     expo-blur: ">=15 <58"
     expo-linear-gradient: ">=14 <58"
-    react: ">=19"
-    react-native: ">=0.78"
+    react: ">=18"
+    react-native: ">=0.72"
     react-native-reanimated: ">=3.17.2 <5"
     react-native-safe-area-context: ">=4 <6"
   languageName: unknown

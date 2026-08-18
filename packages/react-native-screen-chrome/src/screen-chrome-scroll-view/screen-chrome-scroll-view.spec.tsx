@@ -14,7 +14,10 @@ const mockScrollRef = jest.fn<(instance: ScrollView | null) => void>();
 const mockConfig = SCREEN_CHROME_DEFAULT_CONFIG;
 
 jest.mock('../hook/use-screen-chrome.hook', () => ({
-    useScreenChrome: () => ({ config: mockConfig, scrollHandler: mockScrollHandler, scrollRef: mockScrollRef }),
+    useScreenChrome: () => ({ config: mockConfig }),
+}));
+jest.mock('@rnw-community/react-native-collapsible-header', () => ({
+    useCollapsibleHeaderScroll: () => ({ onScroll: mockScrollHandler, scrollRef: mockScrollRef }),
 }));
 
 jest.mock('react-native-safe-area-context', () => ({
@@ -47,6 +50,8 @@ describe('ScreenChromeScrollView', () => {
     });
 
     it('forwards scroll props and connects provider scroll state', () => {
+        expect.hasAssertions();
+
         const screen = render(
             <ScreenChromeScrollView
                 testID="scroll"

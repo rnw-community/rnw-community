@@ -11,13 +11,15 @@ const mockScrollY = { get: jest.fn(() => 0) };
 const mockContext = {
     colorScheme: ColorSchemeEnum.LIGHT,
     config: SCREEN_CHROME_DEFAULT_CONFIG,
-    scrollY: mockScrollY,
 };
 
 jest.mock('react-native-safe-area-context', () => ({
     useSafeAreaInsets: () => ({ top: 10, right: 20, bottom: 30, left: 40 }),
 }));
 jest.mock('../hook/use-screen-chrome.hook', () => ({ useScreenChrome: () => mockContext }));
+jest.mock('@rnw-community/react-native-collapsible-header', () => ({
+    useCollapsibleHeaderScroll: () => ({ scrollY: mockScrollY }),
+}));
 
 describe('EdgeFade web', () => {
     it('renders the web defaults with ordered CSS masks and a static top blur', () => {

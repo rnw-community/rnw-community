@@ -3,6 +3,8 @@ import { ScrollView } from 'react-native';
 import { createAnimatedComponent } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { useCollapsibleHeaderScroll } from '@rnw-community/react-native-collapsible-header';
+
 import { useScreenChrome } from '../hook/use-screen-chrome.hook';
 import { mergeScrollContentInset } from '../utils/merge-scroll-content-inset.util';
 
@@ -17,7 +19,7 @@ interface Props extends Omit<ComponentProps<typeof ScrollView>, 'ref'> {
 }
 
 /**
- * Connects an animated scroll view to the provider-owned scroll state and safe-area content padding.
+ * Connects an animated scroll view to the collapsible-header scroll wiring and safe-area content padding.
  * @see https://github.com/rnw-community/rnw-community/tree/master/packages/react-native-screen-chrome#screenchromescrollview
  */
 export const ScreenChromeScrollView = ({
@@ -26,7 +28,8 @@ export const ScreenChromeScrollView = ({
     contentContainerStyle,
     ...scrollViewProps
 }: Props): ReactNode => {
-    const { config, scrollHandler, scrollRef } = useScreenChrome();
+    const { config } = useScreenChrome();
+    const { onScroll, scrollRef } = useCollapsibleHeaderScroll();
     const insets = useSafeAreaInsets();
     const mergedContentContainerStyle = useMemo(
         () => mergeScrollContentInset(insets, contentInsetTop, contentInsetBottom, contentContainerStyle),
@@ -38,7 +41,7 @@ export const ScreenChromeScrollView = ({
             {...scrollViewProps}
             ref={scrollRef}
             contentContainerStyle={mergedContentContainerStyle}
-            onScroll={scrollHandler}
+            onScroll={onScroll}
             scrollEventThrottle={config.scrollEventThrottle}
         />
     );
