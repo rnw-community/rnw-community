@@ -46,14 +46,18 @@ src/
     collapsible-header-props.interface.ts — public slot, geometry, behavior, style, and ViewProps contract
     collapsible-header-scroll.interface.ts — public scroll wiring contract returned by the scroll hook
     collapsible-header-scroll-context-value.interface.ts — internal context value (adds snap registry)
+    collapsible-header-scroll-worklets-config.interface.ts — internal scroll worklet factory input
     collapsible-header-snap-config.interface.ts — internal snap geometry shape
   provider/
     collapsible-header-provider/
       collapsible-header-provider.tsx — public provider owning scrollY, scroll handler, ref, snap registry
       collapsible-header-provider.spec.tsx
+      collapsible-header-provider-reduced-motion.spec.tsx — animated/instant snap per system motion setting
+      collapsible-header-provider-scrollables.spec.tsx — snap wiring across every supported scrollable shape
   type/
     collapsible-header-geometry.type.ts — normalized geometry validation input
     collapsible-header-mode.type.ts — public 'flow' | 'overlay' layout strategy
+    collapsible-header-scroll-ref.type.ts — public animated scroll ref attachable to any scrollable
   util/
     create-collapsible-header-scroll-worklets/
       create-collapsible-header-scroll-worklets.ts — internal scroll/drag worklet factory; snap runs once the
@@ -85,13 +89,27 @@ src/
   sibling screens independent (pinned by `collapsible-header-provider-isolation.spec.tsx` and by the example's two
   Maestro freeze flows); a provider shared across screens makes the last-scrolled screen drive every header. Several
   headers within one screen may share a provider — they animate from one offset by design.
-- `snap` requires the provider (snapping drives the registered scrollable via `scrollTo`); headers register snap
-  geometry into the provider's shared-value registry on mount and clear it on unmount, but only when the slot still
+- `snap` requires the provider **and** a mounted `CollapsibleHeader` — the provider owns the slot, the header fills it,
+  so a provider whose snapping header is unmounted (tab switch, `freezeOnBlur`) simply stops snapping until it returns.
+  Snapping drives the registered scrollable via `scrollTo`; headers register snap geometry
+  into the provider's shared-value registry on mount and clear it on unmount, but only when the slot still
   holds the config that header wrote, so unmounting one header never disables a still-mounted one. Snapping is a
   property of the scrollable, not the header: `assertVacantCollapsibleHeaderSnapSlot` throws when a second snapping
   header claims the slot with different geometry, and `assertSnappableCollapsibleHeaderScroll` throws when `snap` is
   combined with a caller-owned `scrollY` prop (the two sources could disagree). A keyed registry with a min/max union
   policy is the escape hatch if multi-header snapping ever becomes a real requirement — deliberately not built.
+- Snapping is animated only while the system allows motion: the provider reads `useReducedMotion()` and passes
+  `snapAnimated` into the worklet factory, which forwards it as `scrollTo`'s `animated` argument. Not configurable —
+  an animated snap is motion the user never initiated, so it follows the platform setting rather than a prop.
+- `CollapsibleHeaderScrollRef` (the type of the provider's `scrollRef`) is `AnimatedRef<Component>` intersected with a
+  `(instance: never) => void` call signature. `useAnimatedRef<Component>()` satisfies it with no cast (return-type-void
+  assignability), and the extra signature makes it assignable to `React.Ref<T>` for every `T` through `RefCallback`'s
+  bivariant parameter — instance refs (`Animated.FlatList`), `createAnimatedComponent` wrappers, and imperative handle
+  refs (FlashList, LegendList) alike. A generic type parameter was rejected: Reanimated 3.17 constrains
+  `AnimatedRef<T extends Component>`, which handle-shaped refs cannot satisfy. Plain `AnimatedRef<Component>` was
+  rejected too: under `@types/react` 19 its call signature returns `ShadowNodeWrapper | HTMLElement`, which no
+  `RefCallback` accepts. FlashList and LegendList stay out of `package.json` — the contract is structural, so support is
+  type-level plus readme recipes, and specs use locally declared handle-shaped stubs.
 - `collapseDistance` defaults to `expandedHeight - collapsedHeight`; `collapseStart` is optional, non-negative, and
   defaults to `0`.
 - `motion` is additive and partial; missing fields resolve against `DefaultCollapsibleHeaderMotionConfig` (public)

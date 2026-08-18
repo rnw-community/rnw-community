@@ -1,5 +1,5 @@
-import type Animated from 'react-native-reanimated';
-import type { AnimatedRef, ScrollHandlerProcessed, SharedValue } from 'react-native-reanimated';
+import type { CollapsibleHeaderScrollRef } from '../type/collapsible-header-scroll-ref.type';
+import type { ScrollHandlerProcessed, SharedValue } from 'react-native-reanimated';
 
 /**
  * Exposes the provider-owned scroll wiring for attaching a scrollable to a collapsible header.
@@ -11,5 +11,5 @@ export interface CollapsibleHeaderScroll {
     /** Scroll handler to attach to the scrollable's `onScroll`. */
     readonly onScroll: ScrollHandlerProcessed;
     /** Animated ref to attach to the scrollable so snapping can drive it. */
-    readonly scrollRef: AnimatedRef<Animated.ScrollView>;
+    readonly scrollRef: CollapsibleHeaderScrollRef;
 }
