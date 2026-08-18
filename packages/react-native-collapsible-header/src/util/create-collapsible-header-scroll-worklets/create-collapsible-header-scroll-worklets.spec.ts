@@ -4,10 +4,9 @@ import { makeMutable, scrollTo } from 'react-native-reanimated';
 import { createCollapsibleHeaderScrollWorklets } from './create-collapsible-header-scroll-worklets';
 
 import type { CollapsibleHeaderSnapConfig } from '../../interface/collapsible-header-snap-config.interface';
+import type { CollapsibleHeaderScrollRef } from '../../type/collapsible-header-scroll-ref.type';
 import type { Maybe } from '@rnw-community/shared';
 import type { NativeScrollEvent } from 'react-native';
-import type Animated from 'react-native-reanimated';
-import type { AnimatedRef } from 'react-native-reanimated';
 
 jest.mock('react-native-reanimated', () => ({
     ...jest.requireActual<Record<string, unknown>>('react-native-reanimated'),
@@ -17,7 +16,7 @@ jest.mock('react-native-reanimated', () => ({
 type FrameCallback = (time: number) => void;
 
 const SNAP_CONFIG: CollapsibleHeaderSnapConfig = { snapStart: 20, snapEnd: 100 };
-const SCROLL_REF = {} as AnimatedRef<Animated.ScrollView>;
+const SCROLL_REF = {} as CollapsibleHeaderScrollRef;
 const SETTLE_FRAME_COUNT = 3;
 const BELOW_MIDPOINT_OFFSET = 40;
 const MID_FLING_OFFSET = 70;
@@ -38,7 +37,7 @@ const runFrames = (count: number): void => {
     Array.from({ length: count }).forEach(() => void runFrame());
 };
 
-const buildSubject = (snapConfigValue: Maybe<CollapsibleHeaderSnapConfig>) => {
+const buildSubject = (snapConfigValue: Maybe<CollapsibleHeaderSnapConfig>, snapAnimated = true) => {
     const scrollY = makeMutable(0);
     const snapConfig = makeMutable<Maybe<CollapsibleHeaderSnapConfig>>(snapConfigValue);
     const snapSettleGeneration = makeMutable(0);
@@ -47,7 +46,13 @@ const buildSubject = (snapConfigValue: Maybe<CollapsibleHeaderSnapConfig>) => {
     return {
         scrollY,
         snapSettleGeneration,
-        worklets: createCollapsibleHeaderScrollWorklets(scrollY, SCROLL_REF, snapConfig, snapSettleGeneration),
+        worklets: createCollapsibleHeaderScrollWorklets({
+            scrollY,
+            scrollRef: SCROLL_REF,
+            snapConfig,
+            snapSettleGeneration,
+            snapAnimated,
+        }),
     };
 };
 
@@ -101,6 +106,17 @@ describe('createCollapsibleHeaderScrollWorklets', () => {
         runFrame();
 
         expect(jest.mocked(scrollTo)).toHaveBeenCalledWith(SCROLL_REF, 0, snapped, true);
+    });
+
+    it('snaps without animation when the system reduces motion', () => {
+        expect.hasAssertions();
+        const { scrollY, worklets } = buildSubject(SNAP_CONFIG, false);
+
+        scrollY.set(BELOW_MIDPOINT_OFFSET);
+        worklets.onEndDrag(buildScrollEvent(BELOW_MIDPOINT_OFFSET));
+        runFrames(SETTLE_FRAME_COUNT);
+
+        expect(jest.mocked(scrollTo)).toHaveBeenCalledWith(SCROLL_REF, 0, SNAP_CONFIG.snapStart, false);
     });
 
     it('snaps from the settled offset instead of the release offset after a fling', () => {
