@@ -8,11 +8,3 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 ### Features
 
 - **react-native-collapsible-header:** add composable animated header ([#545](https://github.com/rnw-community/rnw-community/issues/545)) ([8890ae3](https://github.com/rnw-community/rnw-community/commit/8890ae3c45fe492f93e0779d1cf62a83ba8a34f9)), closes [#579](https://github.com/rnw-community/rnw-community/issues/579) [vitalyiegorov/tart-runner-fleet#236](https://github.com/vitalyiegorov/tart-runner-fleet/issues/236) [rnw-community#579](https://github.com/rnw-community/issues/579)
-
-## Unreleased
-
-### Features
-
-- add a generic Reanimated collapsible header with caller-owned content slots
-- add persistent header content, non-zero collapse starts, and normalized motion configuration
-- validate geometry and motion options while preserving the original animation defaults when optional props are omitted
