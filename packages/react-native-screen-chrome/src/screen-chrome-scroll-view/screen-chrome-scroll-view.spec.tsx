@@ -1,5 +1,5 @@
 import { describe, expect, it, jest } from '@jest/globals';
-import { render } from '@testing-library/react-native';
+import { fireEvent, render } from '@testing-library/react-native';
 import React from 'react';
 import { StyleSheet, Text } from 'react-native';
 
@@ -32,6 +32,8 @@ jest.mock('react-native-safe-area-context', () => ({
 const CONTENT_INSET_TOP = 5;
 const CONTENT_INSET_BOTTOM = 7;
 const CONSUMER_PADDING_TOP = 99;
+const CONSUMER_SCROLL_EVENT_THROTTLE = 1;
+const SCROLL_EVENT = { nativeEvent: { contentOffset: { y: 24, x: 0 } } };
 
 describe('ScreenChromeScrollView', () => {
     it('uses zero chrome insets when custom values are omitted', () => {
@@ -75,5 +77,38 @@ describe('ScreenChromeScrollView', () => {
             paddingBottom: 37,
             paddingLeft: 40,
         });
+    });
+
+    it('keeps the provider scroll handler when a consumer forces its own onScroll', () => {
+        expect.hasAssertions();
+
+        const consumerScrollHandler = jest.fn();
+        const screen = render(
+            <ScreenChromeScrollView
+                testID="scroll"
+                // @ts-expect-error onScroll is package-owned and omitted from the public props
+                onScroll={consumerScrollHandler}
+            />
+        );
+        const scrollView = screen.getByTestId('scroll');
+
+        fireEvent.scroll(scrollView, SCROLL_EVENT);
+
+        expect(mockScrollHandler).toHaveBeenCalledWith(SCROLL_EVENT);
+        expect(consumerScrollHandler).not.toHaveBeenCalled();
+    });
+
+    it('keeps the configured scroll event throttle when a consumer forces its own', () => {
+        expect.hasAssertions();
+
+        const screen = render(
+            // @ts-expect-error scrollEventThrottle comes from the provider config, not from the caller
+            <ScreenChromeScrollView testID="scroll" scrollEventThrottle={CONSUMER_SCROLL_EVENT_THROTTLE} />
+        );
+
+        expect(screen.getByTestId('scroll')).toHaveProp(
+            'scrollEventThrottle',
+            SCREEN_CHROME_DEFAULT_CONFIG.scrollEventThrottle
+        );
     });
 });

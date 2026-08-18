@@ -13,7 +13,9 @@ yarn test && yarn test:coverage && yarn build && yarn ts && yarn ts:nodenext && 
 - `ScreenChromeProvider` owns validated configuration and color scheme only, and mounts a `CollapsibleHeaderProvider`
   that owns `scrollY`, the scroll handler, the animated scroll ref, and the snap registry.
 - `ScreenChromeFrame` and `ScreenChromeScrollView` own paint order and safe-area composition; the scroll view takes its
-  `onScroll` and `scrollRef` from `useCollapsibleHeaderScroll`.
+  `onScroll` and `scrollRef` from `useCollapsibleHeaderScroll` and its `scrollEventThrottle` from the provider config.
+  Those three props are omitted from its public props so a caller-supplied value fails to compile instead of being
+  silently overwritten by the spread order.
 - `EdgeFade` has explicit native and web implementations with shared metrics and animation hooks.
 - The compound header validates direct slots and delegates all transitions to `react-native-collapsible-header`; it
   renders in `mode="overlay"`, forwards `config.snapToCollapse` as `snap`, and maps config thresholds to normalized

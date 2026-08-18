@@ -219,6 +219,28 @@ Connects an animated scroll view to the collapsible-header scroll wiring and saf
 </ScreenChromeScrollView>
 ```
 
+Scroll is package-owned: `ref`, `onScroll`, and `scrollEventThrottle` come from the provider
+(`useCollapsibleHeaderScroll` and `config.scrollEventThrottle`) and are omitted from the props, so passing them is a
+type error instead of a silently discarded value. Change the event rate through
+`<ScreenChromeProvider config={{ scrollEventThrottle: 8 }}>`. The provider's `onScroll` is one processed Reanimated
+handler that also carries drag and snap events, so it is attached whole rather than wrapped — read the scroll position
+from the shared `scrollY` instead:
+
+```tsx
+const { scrollY } = useCollapsibleHeaderScroll();
+
+useAnimatedReaction(
+    () => scrollY.get(),
+    offsetY => {
+        runOnJS(onOffsetChange)(offsetY);
+    }
+);
+```
+
+Every other `ScrollView` prop passes through untouched, including the scroll callbacks the package does not own
+(`onMomentumScrollEnd`, `onContentSizeChange`, …) and `contentContainerStyle` — consumer padding is applied after the
+safe-area padding and wins.
+
 ## ScreenChromeContext
 
 The React context that carries the resolved screen chrome value to package components and hooks; consumers read it

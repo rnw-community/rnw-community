@@ -13,7 +13,7 @@ import type { ComponentProps, ReactNode } from 'react';
 const DEFAULT_CONTENT_INSET = 0;
 const AnimatedScrollView = createAnimatedComponent(ScrollView);
 
-interface Props extends Omit<ComponentProps<typeof ScrollView>, 'ref'> {
+interface Props extends Omit<ComponentProps<typeof ScrollView>, 'onScroll' | 'ref' | 'scrollEventThrottle'> {
     readonly contentInsetTop?: number;
     readonly contentInsetBottom?: number;
 }
