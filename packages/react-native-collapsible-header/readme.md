@@ -3,7 +3,8 @@
 A generic, slot-based collapsible header powered by React Native Reanimated. The package animates header geometry and
 crossfades caller-owned expanded and collapsed content from a scroll offset it either receives as a prop or wires
 automatically through `CollapsibleHeaderProvider`. It works with any vertical scrollable — `ScrollView`, `FlatList`,
-`SectionList`, or FlashList — because the only integration contract is a Reanimated `SharedValue` scroll offset.
+`SectionList`, FlashList, or LegendList — because the only integration contract is a Reanimated `SharedValue` scroll
+offset.
 
 [![npm version](https://badge.fury.io/js/%40rnw-community%2Freact-native-collapsible-header.svg)](https://badge.fury.io/js/%40rnw-community%2Freact-native-collapsible-header)
 [![coverage](https://img.shields.io/codecov/c/github/rnw-community/rnw-community?flag=react-native-collapsible-header&label=coverage)](https://app.codecov.io/gh/rnw-community/rnw-community)
@@ -164,6 +165,19 @@ Owns the scroll wiring — a `scrollY` shared value, a Reanimated scroll handler
 it through context. Descendant headers fall back to the provider's `scrollY` when the prop is omitted, and `snap`
 requires the provider because snapping drives the registered scrollable via `scrollTo`.
 
+The provider also reads Reanimated's `useReducedMotion()` and snaps instantly instead of animating whenever the system
+"reduce motion" accessibility setting is on. Nothing is configurable here on purpose: an animated snap is an unrequested
+motion the user did not initiate, so it follows the platform setting.
+
+### Snap requires a mounted CollapsibleHeader
+
+The provider owns the snap slot, but a `CollapsibleHeader` fills it: a header rendered with `snap` registers its
+geometry (`collapseStart` and `collapseStart + collapseDistance`) into the provider's registry on mount and clears it on
+unmount. A provider with no mounted snapping header therefore never snaps — scrolling settles wherever it lands. This is
+deliberate: snap endpoints are header geometry, so there is nothing to snap to without a header. Conditionally
+unmounting the header (a tab switch, a `freezeOnBlur` screen) turns snapping off for as long as it is gone, and
+remounting restores it.
+
 ### One provider per scrollable
 
 **Mount a provider per screen, inside the screen — never once around a navigator.** A provider holds exactly one
@@ -184,8 +198,33 @@ disagree and snap the list without moving the header.
 ## useCollapsibleHeaderScroll
 
 Returns the provider-owned wiring for attaching a scrollable: `{ scrollY, onScroll, scrollRef }`. Attach `onScroll`
-(and `scrollRef` when snapping) to any Reanimated-animated scrollable — `Animated.ScrollView`, `Animated.FlatList`, or
-an animated FlashList. Throws when no `CollapsibleHeaderProvider` ancestor exists.
+(and `scrollRef` when snapping) to any Reanimated-animated scrollable — `Animated.ScrollView`, `Animated.FlatList`, an
+animated `SectionList`, FlashList, or LegendList. Throws when no `CollapsibleHeaderProvider` ancestor exists. See the
+[recipes](#recipes) for the per-list wiring.
+
+## CollapsibleHeaderScrollRef
+
+The type of `scrollRef`. It is an `AnimatedRef` that additionally satisfies React's `Ref<T>` for every `T`, so the same
+ref attaches to lists whose `ref` prop is a component instance (`Animated.FlatList` → `Ref<FlatList>`), a
+`createAnimatedComponent` wrapper, or an imperative handle object (FlashList's `FlashListRef`, LegendList's
+`LegendListRef`) — with no cast at the call site. Name it when the scrollable lives in a child component and the ref
+travels as a prop:
+
+```tsx
+interface TransactionListProps {
+    readonly scrollRef: CollapsibleHeaderScrollRef;
+    readonly onScroll: ScrollHandlerProcessed;
+}
+
+const TransactionList = ({ scrollRef, onScroll }: TransactionListProps) => (
+    <AnimatedFlashList ref={scrollRef} onScroll={onScroll} data={transactions} renderItem={renderItem} />
+);
+```
+
+Snapping resolves the underlying native scrollable from whatever instance the list hands the ref: Reanimated reads
+`getScrollableNode()` / `getNativeScrollRef()` when the instance exposes them, which is how handle-based lists stay
+snappable. When a list exposes its inner animated `ScrollView` ref separately (LegendList's `refScrollView`), prefer that
+prop — it is the most direct target for `scrollTo`.
 
 ## useCollapsibleHeaderProgress
 
@@ -249,9 +288,9 @@ out the whole screen.
 
 ## Recipes
 
-### FlatList / SectionList / FlashList
+### FlatList
 
-The header is list-agnostic — attach the provider wiring to any Reanimated-animated list:
+`Animated.FlatList` ships with Reanimated — attach the wiring directly:
 
 ```tsx
 const TransactionList = () => {
@@ -269,7 +308,85 @@ const TransactionList = () => {
 };
 ```
 
-For FlashList, wrap it once with `Animated.createAnimatedComponent(FlashList)` and use the same props.
+### SectionList
+
+Reanimated has no built-in animated `SectionList`; wrap it once at module scope so the component identity is stable:
+
+```tsx
+const AnimatedSectionList = Animated.createAnimatedComponent(SectionList<Transaction>);
+
+const TransactionSections = () => {
+    const { onScroll, scrollRef } = useCollapsibleHeaderScroll();
+
+    return (
+        <AnimatedSectionList
+            ref={scrollRef}
+            sections={sections}
+            renderItem={renderItem}
+            onScroll={onScroll}
+            scrollEventThrottle={16}
+        />
+    );
+};
+```
+
+Replace any JS-thread `onScroll` on the list with this worklet handler — running the header off a JS-thread callback
+reintroduces the frame drops the package exists to avoid.
+
+### FlashList
+
+Wrap `FlashList` the same way. Its ref is an imperative handle rather than a component instance, which the ref contract
+accepts; snapping still reaches the native scrollable through the handle's `getScrollableNode()`.
+
+```tsx
+const AnimatedFlashList = Animated.createAnimatedComponent(FlashList<Transaction>);
+
+const TransactionList = () => {
+    const { onScroll, scrollRef } = useCollapsibleHeaderScroll();
+
+    return (
+        <AnimatedFlashList
+            ref={scrollRef}
+            data={transactions}
+            renderItem={renderItem}
+            onScroll={onScroll}
+            scrollEventThrottle={16}
+        />
+    );
+};
+```
+
+### LegendList
+
+`@legendapp/list` publishes its own Reanimated build. Pass the ref through `refScrollView` — it targets the inner
+animated `ScrollView`, the exact view `scrollTo` drives — and keep the list's own `ref` free for imperative calls:
+
+```tsx
+import { AnimatedLegendList } from '@legendapp/list/reanimated';
+
+const TransactionList = () => {
+    const { onScroll, scrollRef } = useCollapsibleHeaderScroll();
+
+    return (
+        <AnimatedLegendList
+            refScrollView={scrollRef}
+            data={transactions}
+            renderItem={renderItem}
+            onScroll={onScroll}
+            scrollEventThrottle={16}
+        />
+    );
+};
+```
+
+FlashList and LegendList are not dependencies of this package — the ref contract is structural, so nothing needs to be
+installed for the types above to line up.
+
+### Any other scrollable
+
+For a list that neither exposes a scrollable-resolving ref nor an inner ScrollView ref, render the animated ScrollView
+yourself through `renderScrollComponent` (both FlashList and LegendList support it) and attach `scrollRef` there — or
+drop `scrollRef` entirely and keep only `onScroll`, which animates the header while leaving snap off.
 
 ### react-native-web
 

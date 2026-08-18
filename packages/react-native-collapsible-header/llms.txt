@@ -2,7 +2,7 @@
 
 > Generic slot-based collapsible header for React Native and react-native-web, driven by a Reanimated shared scroll
 > value. Ships ESM + CJS, precompiled with the React Compiler (React 18+), peer-depends on react-native-reanimated
-> >=3.17.2 <5. Works with ScrollView, FlatList, SectionList, and FlashList.
+> >=3.17.2 <5. Works with ScrollView, FlatList, SectionList, FlashList, and LegendList.
 
 ## Exports
 
@@ -12,12 +12,15 @@
 - `CollapsibleHeaderProvider` — context provider owning scrollY, onScroll handler, and animated scroll ref; enables
   prop-less header wiring and snap-to-endpoint.
 - `useCollapsibleHeaderScroll()` — returns `{ scrollY, onScroll, scrollRef }` for attaching a scrollable; throws
-  without a provider ancestor.
+  without a provider ancestor. `scrollRef` (type `CollapsibleHeaderScrollRef`) attaches to any list ref shape —
+  component instances (Animated.FlatList), createAnimatedComponent wrappers, or imperative handles (FlashList,
+  LegendList) — with no cast; LegendList takes it through `refScrollView`.
 - `useCollapsibleHeaderProgress()` — returns collapse progress SharedValue (0 expanded → 1 collapsed) inside header
   slots for custom slot animations; throws without a header ancestor.
 - `getCollapsibleHeaderContentInsetStyle(expandedHeight)` — `{ paddingTop }` style for overlay-mode scroll content.
 - `DefaultCollapsibleHeaderMotionConfig` — baseline motion preset for building custom presets.
-- Types: `CollapsibleHeaderProps`, `CollapsibleHeaderMotionConfig`, `CollapsibleHeaderScroll`, `CollapsibleHeaderMode`.
+- Types: `CollapsibleHeaderProps`, `CollapsibleHeaderMotionConfig`, `CollapsibleHeaderScroll`, `CollapsibleHeaderMode`,
+  `CollapsibleHeaderScrollRef`.
 
 ## Use cases
 
@@ -35,7 +38,9 @@ holds one scrollY, one scroll handler, one scroll ref, and one snap slot. Per-sc
 independent scroll state (safe with react-native-screens freezeOnBlur); one provider shared across screens makes the
 last-scrolled screen drive every header. Multiple headers in ONE screen may share a provider (same offset, e.g. hero
 plus sticky sub-header), but only one may set snap: a second snapping header with different geometry throws, and
-combining snap with a scrollY prop throws.
+combining snap with a scrollY prop throws. Snap also needs a mounted CollapsibleHeader — the provider owns the snap
+slot, the header registers the geometry that fills it, so a provider alone never snaps. Snapping follows the system
+reduce-motion setting: instant instead of animated when it is on.
 
 ## Behavior contract
 

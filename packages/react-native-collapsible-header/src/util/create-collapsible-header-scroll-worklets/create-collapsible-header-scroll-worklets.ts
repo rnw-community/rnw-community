@@ -2,26 +2,24 @@ import { scrollTo } from 'react-native-reanimated';
 
 import { getCollapsibleHeaderSnapOffset } from '../get-collapsible-header-snap-offset/get-collapsible-header-snap-offset';
 
-import type { CollapsibleHeaderSnapConfig } from '../../interface/collapsible-header-snap-config.interface';
-import type { Maybe } from '@rnw-community/shared';
+import type { CollapsibleHeaderScrollWorkletsConfig } from '../../interface/collapsible-header-scroll-worklets-config.interface';
 import type { NativeScrollEvent } from 'react-native';
-import type Animated from 'react-native-reanimated';
-import type { AnimatedRef, SharedValue } from 'react-native-reanimated';
 
 const SNAP_SETTLE_FRAME_COUNT = 3;
 
-export const createCollapsibleHeaderScrollWorklets = (
-    scrollY: SharedValue<number>,
-    scrollRef: AnimatedRef<Animated.ScrollView>,
-    snapConfig: SharedValue<Maybe<CollapsibleHeaderSnapConfig>>,
-    snapSettleGeneration: SharedValue<number>
-) => {
+export const createCollapsibleHeaderScrollWorklets = ({
+    scrollY,
+    scrollRef,
+    snapConfig,
+    snapSettleGeneration,
+    snapAnimated,
+}: CollapsibleHeaderScrollWorkletsConfig) => {
     const snapToNearestEndpoint = (offsetY: number): void => {
         'worklet';
 
         const snapOffset = getCollapsibleHeaderSnapOffset(offsetY, snapConfig.get());
         if (snapOffset !== null) {
-            scrollTo(scrollRef, 0, snapOffset, true);
+            scrollTo(scrollRef, 0, snapOffset, snapAnimated);
         }
     };
 
