@@ -1,13 +1,14 @@
 {
-    "extends": "../../tsconfig.json",
+    "extends": "./tsconfig.json",
     "compilerOptions": {
-        "tsBuildInfoFile": "./node_modules/.cache/tsbuildinfo.json"
+        "tsBuildInfoFile": "./dist/.tsbuildinfo"
     },
     "include": [
         "./src"
     ],
     "exclude": [
         "node_modules",
-        "dist"
+        "dist",
+        "**/*.spec.*"
     ]
 }

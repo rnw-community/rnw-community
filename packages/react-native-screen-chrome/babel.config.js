@@ -1,4 +1,7 @@
 module.exports = {
     presets: ['module:@react-native/babel-preset'],
-    plugins: ['react-native-worklets/plugin'],
+    plugins: [
+        ['babel-plugin-react-compiler', { panicThreshold: 'all_errors', target: '18' }],
+        'react-native-worklets/plugin',
+    ],
 };

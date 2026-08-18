@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React from 'react';
 import { ScrollView } from 'react-native';
 import { createAnimatedComponent } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -31,9 +31,11 @@ export const ScreenChromeScrollView = ({
     const { config } = useScreenChrome();
     const { onScroll, scrollRef } = useCollapsibleHeaderScroll();
     const insets = useSafeAreaInsets();
-    const mergedContentContainerStyle = useMemo(
-        () => mergeScrollContentInset(insets, contentInsetTop, contentInsetBottom, contentContainerStyle),
-        [contentContainerStyle, contentInsetBottom, contentInsetTop, insets]
+    const mergedContentContainerStyle = mergeScrollContentInset(
+        insets,
+        contentInsetTop,
+        contentInsetBottom,
+        contentContainerStyle
     );
 
     return (

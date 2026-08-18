@@ -1,5 +1,5 @@
 {
-    "extends": "./tsconfig.build-esm.json",
+    "extends": "./tsconfig.json",
     "compilerOptions": {
         "noEmit": true,
         "tsBuildInfoFile": "./node_modules/.cache/tsbuildinfo-nodenext.json",
