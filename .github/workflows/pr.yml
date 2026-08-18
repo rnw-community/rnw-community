@@ -353,14 +353,6 @@ jobs:
                         "@react-native/metro-config": "0.85.3",
                         "@types/react": "^19.2.0",
                         "typescript": "^5.9.3"
-                      },
-                      "resolutions": {
-                        "@rnw-community/react-native-collapsible-header": "file:$(ls "$RUNNER_TEMP"/tarballs/rnw-community-react-native-collapsible-header-*.tgz)"
-                      },
-                      "pnpm": {
-                        "overrides": {
-                          "@rnw-community/react-native-collapsible-header": "file:$(ls "$RUNNER_TEMP"/tarballs/rnw-community-react-native-collapsible-header-*.tgz)"
-                        }
                       }
                     }
                     JSON

@@ -1,0 +1,59 @@
+# @rnw-community/react-native-collapsible-header
+
+> Generic slot-based collapsible header for React Native and react-native-web, driven by a Reanimated shared scroll
+> value. Ships ESM + CJS, precompiled with the React Compiler (React 18+), peer-depends on react-native-reanimated
+> >=3.17.2 <5. Works with ScrollView, FlatList, SectionList, and FlashList.
+
+## Exports
+
+- `CollapsibleHeader` — component rendering expanded/collapsed/persistent slots in animated layers; props: scrollY?,
+  expandedHeight, collapsedHeight, collapseDistance? (default expandedHeight - collapsedHeight), collapseStart? (0),
+  mode? ('flow' | 'overlay'), snap? (false), stretchOnOverscroll? (false), motion?, per-layer styles, plus ViewProps.
+- `CollapsibleHeaderProvider` — context provider owning scrollY, onScroll handler, and animated scroll ref; enables
+  prop-less header wiring and snap-to-endpoint.
+- `useCollapsibleHeaderScroll()` — returns `{ scrollY, onScroll, scrollRef }` for attaching a scrollable; throws
+  without a provider ancestor.
+- `useCollapsibleHeaderProgress()` — returns collapse progress SharedValue (0 expanded → 1 collapsed) inside header
+  slots for custom slot animations; throws without a header ancestor.
+- `getCollapsibleHeaderContentInsetStyle(expandedHeight)` — `{ paddingTop }` style for overlay-mode scroll content.
+- `DefaultCollapsibleHeaderMotionConfig` — baseline motion preset for building custom presets.
+- Types: `CollapsibleHeaderProps`, `CollapsibleHeaderMotionConfig`, `CollapsibleHeaderScroll`, `CollapsibleHeaderMode`.
+
+## Use cases
+
+1. Hero header — a rich summary (balance, profile, hero) in expandedContent crossfades into a compact row in
+   collapsedContent as the list scrolls; persistent actions stay tappable in both states.
+2. Navigation chrome — a large screen title (expandedContent) collapses into a small centered title
+   (collapsedContent) between persistent leading/trailing icon buttons (persistentContent), the iOS large-title
+   pattern. Both are implemented in packages/react-native-collapsible-header-example (header-demo-screen.tsx and
+   settings-demo-screen.tsx) with GIFs in this package's docs/ directory.
+
+## Provider scope (common mistake)
+
+One CollapsibleHeaderProvider per scrollable, mounted INSIDE each screen — never once around a navigator. A provider
+holds one scrollY, one scroll handler, one scroll ref, and one snap slot. Per-screen providers give sibling screens
+independent scroll state (safe with react-native-screens freezeOnBlur); one provider shared across screens makes the
+last-scrolled screen drive every header. Multiple headers in ONE screen may share a provider (same offset, e.g. hero
+plus sticky sub-header), but only one may set snap: a second snapping header with different geometry throws, and
+combining snap with a scrollY prop throws.
+
+## Behavior contract
+
+- Consumer owns scroll (or delegates to the provider), safe-area, typography, and colors; package owns geometry
+  animation, crossfade, pointer-event and accessibility switching between layers, and clamping.
+- Motion thresholds are normalized progress values in [0, 1] over [collapseStart, collapseStart + collapseDistance].
+- The invisible layer is removed from the accessibility tree (accessibilityElementsHidden /
+  importantForAccessibility='no-hide-descendants' / aria-hidden on web).
+- Testing-library queries for content in the hidden layer require `{ includeHiddenElements: true }`.
+- When testID is set, layers derive their own: {testID}-background/-header/-expanded/-collapsed/-persistent —
+  usable from RNTL, Maestro, or Detox.
+
+## Example app and E2E
+
+A runnable example (Expo + bare React Native targets, Maestro e2e suite, demo-GIF recording flow) lives in the
+monorepo at packages/react-native-collapsible-header-example — copy its src/component screens as integration
+templates.
+
+## Docs
+
+https://github.com/rnw-community/rnw-community/tree/master/packages/react-native-collapsible-header#readme

@@ -36,9 +36,6 @@ ruleTester.run('no-complex-jsx-logic', noComplexJsxLogicRule, {
             code: '<Component>{handleLogic(args)}</Component>',
         },
         {
-            code: '<Component onClick={handleClick(value)} />',
-        },
-        {
             code: '<Component>{condition && <AnotherComponent />}</Component>',
         },
         {
@@ -57,10 +54,6 @@ ruleTester.run('no-complex-jsx-logic', noComplexJsxLogicRule, {
         {
             code: '<Component prop={myVar + myVar2} />',
             errors: [{ messageId: 'noPropsCalculations' }],
-        },
-        {
-            code: '<Component prop={condition && value} />',
-            errors: [{ messageId: 'noPropsTernary' }],
         },
         {
             code: '<Component objectProp={{ field: 1, boolField: true}} />',

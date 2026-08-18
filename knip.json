@@ -2,46 +2,92 @@
     "$schema": "https://unpkg.com/knip@5/schema.json",
     "workspaces": {
         "packages/decorators-core": {
-            "entry": ["src/index.ts"]
+            "entry": [
+                "src/index.ts"
+            ]
         },
         "packages/histogram-metric-decorator": {
-            "entry": ["src/index.ts"]
+            "entry": [
+                "src/index.ts"
+            ]
         },
         "packages/lock-decorator": {
-            "entry": ["src/index.ts"]
+            "entry": [
+                "src/index.ts"
+            ]
         },
         "packages/log-decorator": {
-            "entry": ["src/index.ts"]
+            "entry": [
+                "src/index.ts"
+            ]
         },
-        "packages/react-native-payments": {
-            "entry": ["src/index.ts", "src/**/*.web.ts"]
+        "packages/react-native-collapsible-header": {
+            "ignore": [
+                "babel.config.bob.js"
+            ],
+            "ignoreDependencies": [
+                "react-compiler-runtime"
+            ]
+        },
+        "packages/react-native-collapsible-header-example/apps/bare": {
+            "ignoreDependencies": [
+                "@rnw-community/react-native-collapsible-header",
+                "react-native-reanimated",
+                "react-native-safe-area-context",
+                "react-native-screens"
+            ]
+        },
+        "packages/react-native-collapsible-header-example/apps/expo": {
+            "ignore": [
+                "metro.config.js"
+            ],
+            "ignoreDependencies": [
+                "@rnw-community/react-native-collapsible-header",
+                "expo-updates",
+                "react-native-reanimated",
+                "react-native-safe-area-context",
+                "react-native-screens",
+                "react-native-worklets"
+            ]
         },
         "packages/react-native-screen-chrome": {
-            "entry": ["src/index.ts", "src/**/*.web.ts", "src/**/*.web.tsx"],
-            "ignoreDependencies": ["@react-native-masked-view/masked-view"]
+            "entry": [
+                "src/index.ts",
+                "src/**/*.web.ts",
+                "src/**/*.web.tsx"
+            ],
+            "ignoreDependencies": [
+                "@react-native-masked-view/masked-view"
+            ]
         },
-        "packages/react-native-payments-example/apps/expo": {
-            "ignoreBinaries": ["expo"],
-            "ignoreDependencies": ["react-native-web"]
+        "packages/react-native-payments": {
+            "entry": [
+                "src/index.ts",
+                "src/**/*.web.ts"
+            ]
         },
         "packages/react-native-payments-example/apps/bare": {
-            "ignoreDependencies": ["@rnw-community/react-native-payments"]
+            "ignoreDependencies": [
+                "@rnw-community/react-native-payments"
+            ]
         }
     },
     "ignore": [
-        ".yarn/**",
         ".agents/**",
         ".claude/**",
+        ".github/scripts/**",
+        ".yarn/**",
+        "packages/fast-style/src/enum/**",
         "packages/nestjs-webpack-swc/src/config/**",
+        "packages/react-native-payments-example/apps/*/app.json",
+        "packages/react-native-payments-example/apps/*/metro.config.js",
         "packages/react-native-payments/src/@standard/**",
         "packages/react-native-payments/src/app.plugin.ts",
         "packages/react-native-payments/src/expo-plugins/**",
-        "packages/react-native-payments-example/apps/*/app.json",
-        "packages/react-native-payments-example/apps/*/metro.config.js",
-        "packages/wdio/src/util/get-platform/**",
-        "packages/fast-style/src/enum/**",
         "packages/wdio/src/component/mocks/**",
-        "packages/wdio/src/rooted-component/mocks/**"
+        "packages/wdio/src/rooted-component/mocks/**",
+        "packages/wdio/src/util/get-platform/**",
+        "scripts/**"
     ],
     "ignoreBinaries": [
         "maestro",

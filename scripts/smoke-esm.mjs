@@ -35,12 +35,12 @@ const RESOLUTION_ONLY_PACKAGES = [
     {
         pkg: 'react-native-collapsible-header',
         unloadableBecause: 'imports React Native and Reanimated runtime bindings that require a native or Metro environment',
-        unresolvedPeerPackages: ['react-native-reanimated'],
+        unresolvedExternalPackages: ['react-native-reanimated', 'react-compiler-runtime'],
     },
     {
         pkg: 'react-native-screen-chrome',
         unloadableBecause: 'imports React Native, Reanimated, and native blur bindings that require a native or Metro environment',
-        unresolvedPeerPackages: [
+        unresolvedExternalPackages: [
             '@react-native-masked-view/masked-view',
             'expo-blur',
             'expo-linear-gradient',
@@ -168,7 +168,7 @@ function findSpotCheckableRelativeSpecifier(entryFile) {
     return undefined;
 }
 
-function checkResolutionOnly({ pkg, unloadableBecause, unresolvedPeerPackages = [], hasRealEsmOutput = true }) {
+function checkResolutionOnly({ pkg, unloadableBecause, hasRealEsmOutput = true, unresolvedExternalPackages = [] }) {
     const specifier = `@rnw-community/${pkg}`;
     const pkgDir = path.join(scopeDir, pkg);
     const pkgJson = JSON.parse(fs.readFileSync(path.join(pkgDir, 'package.json'), 'utf8'));
@@ -205,21 +205,21 @@ function checkResolutionOnly({ pkg, unloadableBecause, unresolvedPeerPackages = 
     }
 
     const resolutionErrorCodesLiteral = JSON.stringify([...MODULE_RESOLUTION_ERROR_CODES]);
-    const unresolvedPeerPackagesLiteral = JSON.stringify(unresolvedPeerPackages);
+    const unresolvedExternalPackagesLiteral = JSON.stringify(unresolvedExternalPackages);
     const probeFile = path.join(path.dirname(entryFile), '.rnw-smoke-deep-specifier-probe.mjs');
     fs.writeFileSync(
         probeFile,
         `
         const resolutionErrorCodes = new Set(${resolutionErrorCodesLiteral});
-        const unresolvedPeerPackages = ${unresolvedPeerPackagesLiteral};
+        const unresolvedExternalPackages = ${unresolvedExternalPackagesLiteral};
         import('${deepSpecifier}').then(
             () => { console.log('imported'); },
             e => {
-                const isAllowedUnresolvedPeer = e.code === 'ERR_MODULE_NOT_FOUND' && unresolvedPeerPackages.some(
-                    peerPackage => e.message.includes("Cannot find package '" + peerPackage + "'")
+                const isAllowedUnresolvedExternal = e.code === 'ERR_MODULE_NOT_FOUND' && unresolvedExternalPackages.some(
+                    externalPackage => e.message.includes("Cannot find package '" + externalPackage + "'")
                 );
-                if (isAllowedUnresolvedPeer) {
-                    console.log('resolved-but-peer-missing ' + e.message.split('\\n')[0]);
+                if (isAllowedUnresolvedExternal) {
+                    console.log('resolved-but-external-missing ' + e.message.split('\\n')[0]);
                     return;
                 }
                 if (resolutionErrorCodes.has(e.code)) {
@@ -268,13 +268,21 @@ function scanInstalledPackagesForExtensionlessSpecifiers() {
             continue;
         }
 
-        const esmDir = path.join(scopeDir, pkg, 'dist', 'esm');
-        if (!fs.existsSync(esmDir)) {
-            fail(pkg, `installed package has no dist/esm directory at ${path.relative(scopeDir, esmDir)}`);
+        const pkgJson = JSON.parse(fs.readFileSync(path.join(scopeDir, pkg, 'package.json'), 'utf8'));
+        const importCondition = pkgJson.exports?.['.']?.import;
+        const scannedEntries = [importCondition?.default ?? './dist/esm/index.js', importCondition?.types].filter(
+            entry => entry != null
+        );
+        const scannedDirs = [
+            ...new Set(scannedEntries.map(entry => path.dirname(path.join(scopeDir, pkg, entry)))),
+        ];
+        const missingDir = scannedDirs.find(dir => !fs.existsSync(dir));
+        if (missingDir) {
+            fail(pkg, `installed package has no ESM directory at ${path.relative(scopeDir, missingDir)}`);
             continue;
         }
 
-        for (const file of collectJsAndDtsFiles(esmDir)) {
+        for (const file of scannedDirs.flatMap(dir => collectJsAndDtsFiles(dir))) {
             const content = fs.readFileSync(file, 'utf8');
             const specRe = createRelativeSpecifierRegex();
             let match;

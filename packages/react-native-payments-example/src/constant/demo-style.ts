@@ -29,6 +29,12 @@ export const demoStyle = StyleSheet.create({
         backgroundColor: '#FFFFFF',
         flex: 1,
     },
+    // The expo app renders edge-to-edge on Android, so without this inset the
+    // last section sits under the opaque navigation bar at max scroll — the
+    // system bar occludes it for both users and the accessibility tree.
+    scrollContent: {
+        paddingBottom: 64,
+    },
     section: {
         borderBottomColor: '#E0E0E0',
         borderBottomWidth: 1,

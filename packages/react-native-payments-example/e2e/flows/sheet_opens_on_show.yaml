@@ -12,16 +12,36 @@ appId: ${APP_ID}
     when:
       platform: Android
     commands:
+      # On a GMS device the show() outcome belongs to Google Pay, not the app:
+      # an uncertified, account-less device may reject loadPaymentData or leave
+      # it pending indefinitely, so the only settlement this flow can assert
+      # deterministically is the AbortError that abort() forces from the JS
+      # side — which also covers the already-rejected case, where abort simply
+      # finds the request closed and the state is rejected before the tap.
+      - scrollUntilVisible:
+          element:
+            id: "action-abort"
+          direction: UP
+      - tapOn:
+          id: "action-abort"
+      - scrollUntilVisible:
+          element:
+            id: "payments-flow-state"
+          direction: UP
       - extendedWaitUntil:
           visible:
             id: "payments-flow-state"
             text: "rejected"
-          timeout: 20000
+          timeout: 45000
       - scrollUntilVisible:
           element:
             text: ".*show rejected.*"
       - assertVisible:
           text: ".*show rejected.*"
+      - scrollUntilVisible:
+          element:
+            id: "action-reset"
+          direction: UP
       - assertVisible:
           id: "action-reset"
 - runFlow:

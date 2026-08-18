@@ -8,8 +8,17 @@ appId: ${APP_ID}
     id: "builder-shipping-toggle"
 - assertVisible:
     id: "builder-async-update-toggle"
+# On the CI device profile the Actions section straddles the fold: action-abort
+# is only partially on-screen and action-reset is fully below it, so both are
+# scrolled to instead of asserted in place.
+- scrollUntilVisible:
+    element:
+      id: "action-abort"
 - assertVisible:
     id: "action-abort"
+- scrollUntilVisible:
+    element:
+      id: "action-reset"
 - assertVisible:
     id: "action-reset"
 - scrollUntilVisible:
