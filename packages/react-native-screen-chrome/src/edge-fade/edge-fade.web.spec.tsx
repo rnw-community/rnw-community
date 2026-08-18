@@ -3,20 +3,19 @@ import { render } from '@testing-library/react-native';
 import React from 'react';
 
 import { SCREEN_CHROME_DEFAULT_CONFIG } from '../constant/screen-chrome-default-config.constant.web';
-import { ColorSchemeEnum } from '../enum/color-scheme.enum';
 
 import { EdgeFade } from './edge-fade.web';
 
 const mockScrollY = { get: jest.fn(() => 0) };
 const mockContext = {
-    colorScheme: ColorSchemeEnum.LIGHT,
+    colorScheme: 'light' as const,
     config: SCREEN_CHROME_DEFAULT_CONFIG,
 };
 
 jest.mock('react-native-safe-area-context', () => ({
     useSafeAreaInsets: () => ({ top: 10, right: 20, bottom: 30, left: 40 }),
 }));
-jest.mock('../hook/use-screen-chrome.hook', () => ({ useScreenChrome: () => mockContext }));
+jest.mock('../hooks/use-screen-chrome/use-screen-chrome.hook', () => ({ useScreenChrome: () => mockContext }));
 jest.mock('@rnw-community/react-native-collapsible-header', () => ({
     useCollapsibleHeaderScroll: () => ({ scrollY: mockScrollY }),
 }));

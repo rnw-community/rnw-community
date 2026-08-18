@@ -13,7 +13,7 @@ const mockScrollHandler = jest.fn();
 const mockScrollRef = jest.fn<(instance: ScrollView | null) => void>();
 const mockConfig = SCREEN_CHROME_DEFAULT_CONFIG;
 
-jest.mock('../hook/use-screen-chrome.hook', () => ({
+jest.mock('../hooks/use-screen-chrome/use-screen-chrome.hook', () => ({
     useScreenChrome: () => ({ config: mockConfig }),
 }));
 jest.mock('@rnw-community/react-native-collapsible-header', () => ({

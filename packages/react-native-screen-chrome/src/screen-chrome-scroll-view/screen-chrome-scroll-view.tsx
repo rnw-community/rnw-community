@@ -5,8 +5,8 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useCollapsibleHeaderScroll } from '@rnw-community/react-native-collapsible-header';
 
-import { useScreenChrome } from '../hook/use-screen-chrome.hook';
-import { mergeScrollContentInset } from '../utils/merge-scroll-content-inset.util';
+import { useScreenChrome } from '../hooks/use-screen-chrome/use-screen-chrome.hook';
+import { mergeScrollContentInset } from '../util/merge-scroll-content-inset/merge-scroll-content-inset.util';
 
 import type { ComponentProps, ReactNode } from 'react';
 

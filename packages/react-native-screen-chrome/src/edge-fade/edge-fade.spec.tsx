@@ -5,15 +5,15 @@ import { LinearGradient } from 'expo-linear-gradient';
 import React from 'react';
 
 import { SCREEN_CHROME_DEFAULT_CONFIG } from '../constant/screen-chrome-default-config.constant';
-import { ColorSchemeEnum } from '../enum/color-scheme.enum';
 
 import { EdgeFade } from './edge-fade';
 
+import type { ScreenChromeColorScheme } from '../type/screen-chrome-color-scheme.type';
 import type { ReactNode } from 'react';
 
 const mockScrollY = { get: jest.fn(() => 0) };
 const mockConfig = SCREEN_CHROME_DEFAULT_CONFIG;
-let mockColorScheme = ColorSchemeEnum.LIGHT;
+let mockColorScheme: ScreenChromeColorScheme = 'light';
 
 jest.mock('@react-native-masked-view/masked-view', () => {
     const ReactModule = jest.requireActual<typeof import('react')>('react');
@@ -30,7 +30,7 @@ jest.mock('expo-linear-gradient', () => ({ LinearGradient: jest.fn(() => null) }
 jest.mock('react-native-safe-area-context', () => ({
     useSafeAreaInsets: () => ({ top: 10, right: 20, bottom: 30, left: 40 }),
 }));
-jest.mock('../hook/use-screen-chrome.hook', () => ({
+jest.mock('../hooks/use-screen-chrome/use-screen-chrome.hook', () => ({
     useScreenChrome: () => ({
         colorScheme: mockColorScheme,
         config: mockConfig,
@@ -43,7 +43,7 @@ jest.mock('@rnw-community/react-native-collapsible-header', () => ({
 beforeEach(() => {
     jest.mocked(BlurView).mockClear();
     jest.mocked(LinearGradient).mockClear();
-    mockColorScheme = ColorSchemeEnum.LIGHT;
+    mockColorScheme = 'light';
     mockScrollY.get.mockReturnValue(0);
 });
 
@@ -76,7 +76,7 @@ describe('EdgeFade native', () => {
     });
 
     it('drives bottom opacity and blur intensity from scroll animation ranges', () => {
-        mockColorScheme = ColorSchemeEnum.DARK;
+        mockColorScheme = 'dark';
         mockScrollY.get.mockReturnValue(40);
 
         const screen = render(

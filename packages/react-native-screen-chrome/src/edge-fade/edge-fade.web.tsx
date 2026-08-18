@@ -5,15 +5,15 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { isDefined } from '@rnw-community/shared';
 
-import { useScreenChrome } from '../hook/use-screen-chrome.hook';
+import { useScreenChrome } from '../hooks/use-screen-chrome/use-screen-chrome.hook';
 
-import { useEdgeFadeOpacityStyle } from './hook/use-edge-fade-opacity-style.hook';
-import { buildBackgroundImage } from './utils/build-background-image/build-background-image.util';
-import { getEdgeFadeBackdropFilter } from './utils/edge-fade-get-backdrop-filter.util';
-import { getEdgeFadeBandMetrics } from './utils/edge-fade-get-band-metrics.util';
+import { useEdgeFadeOpacityStyle } from './hooks/use-edge-fade-opacity-style.hook';
+import { buildBackgroundImage } from './util/build-background-image/build-background-image.util';
+import { getEdgeFadeBackdropFilter } from './util/edge-fade-get-backdrop-filter/edge-fade-get-backdrop-filter.util';
+import { getEdgeFadeBandMetrics } from './util/edge-fade-get-band-metrics/edge-fade-get-band-metrics.util';
 
-import type { EdgeFadePropsInterface } from '../interface/edge-fade-props.interface';
-import type { WebEdgeFadeStyleInterface } from '../interface/web-edge-fade-style.interface';
+import type { EdgeFadePropsInterface } from './edge-fade-props.interface';
+import type { WebEdgeFadeStyleInterface } from './web-edge-fade-style.interface';
 import type { ReactNode } from 'react';
 
 const AnimatedView = createAnimatedComponent(View);

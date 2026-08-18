@@ -10,7 +10,7 @@ import { CollapsibleHeaderBackdrop } from './collapsible-header-backdrop';
 const mockConfig = SCREEN_CHROME_DEFAULT_CONFIG;
 
 jest.mock('../edge-fade/edge-fade', () => ({ EdgeFade: jest.fn(() => null) }));
-jest.mock('../hook/use-screen-chrome.hook', () => ({
+jest.mock('../hooks/use-screen-chrome/use-screen-chrome.hook', () => ({
     useScreenChrome: () => ({ config: mockConfig }),
 }));
 

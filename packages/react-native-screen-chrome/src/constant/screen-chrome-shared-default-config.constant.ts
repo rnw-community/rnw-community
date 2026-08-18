@@ -1,5 +1,3 @@
-import { ColorSchemeEnum } from '../enum/color-scheme.enum';
-
 import type { ScreenChromeConfigInterface } from '../interface/screen-chrome-config.interface';
 
 /**
@@ -20,8 +18,8 @@ export const SCREEN_CHROME_SHARED_DEFAULT_CONFIG: Omit<
     scrollEventThrottle: 16,
     snapToCollapse: false,
     colors: {
-        [ColorSchemeEnum.LIGHT]: { solid: 'rgba(255,255,255,0.42)', wash: 'rgba(255,255,255,0.08)' },
-        [ColorSchemeEnum.DARK]: { solid: 'rgba(0,0,0,0.48)', wash: 'rgba(0,0,0,0.12)' },
+        light: { solid: 'rgba(255,255,255,0.42)', wash: 'rgba(255,255,255,0.08)' },
+        dark: { solid: 'rgba(0,0,0,0.48)', wash: 'rgba(0,0,0,0.12)' },
     },
     maskStops: {
         top: {

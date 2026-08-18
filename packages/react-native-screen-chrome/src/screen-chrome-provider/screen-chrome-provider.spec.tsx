@@ -5,12 +5,12 @@ import React, { useEffect } from 'react';
 import { useCollapsibleHeaderScroll } from '@rnw-community/react-native-collapsible-header';
 
 import { SCREEN_CHROME_DEFAULT_CONFIG } from '../constant/screen-chrome-default-config.constant';
-import { ColorSchemeEnum } from '../enum/color-scheme.enum';
-import { useScreenChrome } from '../hook/use-screen-chrome.hook';
+import { useScreenChrome } from '../hooks/use-screen-chrome/use-screen-chrome.hook';
 
 import { ScreenChromeProvider } from './screen-chrome-provider';
 
 import type { ScreenChromeContextValueInterface } from '../interface/screen-chrome-context-value.interface';
+import type { ScreenChromeColorScheme } from '../type/screen-chrome-color-scheme.type';
 import type { CollapsibleHeaderScroll } from '@rnw-community/react-native-collapsible-header';
 import type { ReactNode } from 'react';
 
@@ -28,7 +28,7 @@ interface ScrollConsumerProps {
 
 interface SubjectProps {
     readonly children?: ReactNode;
-    readonly colorScheme?: ColorSchemeEnum;
+    readonly colorScheme?: ScreenChromeColorScheme;
     readonly config?: Parameters<typeof ScreenChromeProvider>[0]['config'];
 }
 
@@ -80,7 +80,7 @@ describe('ScreenChromeProvider context', () => {
 
         const context = captureContext();
 
-        expect(context.colorScheme).toBe(ColorSchemeEnum.LIGHT);
+        expect(context.colorScheme).toBe('light');
         expect(context.config).toEqual(SCREEN_CHROME_DEFAULT_CONFIG);
     });
 
@@ -88,11 +88,11 @@ describe('ScreenChromeProvider context', () => {
         expect.hasAssertions();
 
         const context = captureContext({
-            colorScheme: ColorSchemeEnum.DARK,
+            colorScheme: 'dark',
             config: {
                 headerHeight: OVERRIDDEN_HEADER_HEIGHT,
                 colors: {
-                    [ColorSchemeEnum.DARK]: {
+                    dark: {
                         solid: 'black',
                     },
                 },
@@ -104,10 +104,10 @@ describe('ScreenChromeProvider context', () => {
             },
         });
 
-        expect(context.colorScheme).toBe(ColorSchemeEnum.DARK);
+        expect(context.colorScheme).toBe('dark');
         expect(context.config.headerHeight).toBe(OVERRIDDEN_HEADER_HEIGHT);
-        expect(context.config.colors[ColorSchemeEnum.DARK]).toEqual({
-            ...SCREEN_CHROME_DEFAULT_CONFIG.colors[ColorSchemeEnum.DARK],
+        expect(context.config.colors.dark).toEqual({
+            ...SCREEN_CHROME_DEFAULT_CONFIG.colors.dark,
             solid: 'black',
         });
         expect(context.config.maskStops.top[CUSTOM_MASK_STOP_POSITION]).toEqual({ color: 'rgba(0,0,0,0.25)' });

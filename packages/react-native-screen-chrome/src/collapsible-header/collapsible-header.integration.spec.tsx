@@ -16,7 +16,7 @@ const mockConfig = { ...SCREEN_CHROME_DEFAULT_CONFIG, snapToCollapse: true };
 jest.mock('react-native-safe-area-context', () => ({
     useSafeAreaInsets: () => ({ top: 12, right: 0, bottom: 0, left: 0 }),
 }));
-jest.mock('../hook/use-screen-chrome.hook', () => ({
+jest.mock('../hooks/use-screen-chrome/use-screen-chrome.hook', () => ({
     useScreenChrome: () => ({ config: mockConfig }),
 }));
 

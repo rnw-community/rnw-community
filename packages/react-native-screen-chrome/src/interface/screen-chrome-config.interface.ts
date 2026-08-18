@@ -1,7 +1,7 @@
 import type { ScreenChromeColorSetInterface } from './screen-chrome-color-set.interface';
-import type { ScreenChromeMaskStopInterface } from './screen-chrome-mask-stop.interface';
-import type { ColorSchemeEnum } from '../enum/color-scheme.enum';
-import type { EdgeFadePosition } from '../type/edge-fade-position.type';
+import type { EdgeFadePosition } from '../edge-fade/edge-fade-position.type';
+import type { ScreenChromeMaskStopInterface } from '../edge-fade/screen-chrome-mask-stop.interface';
+import type { ScreenChromeColorScheme } from '../type/screen-chrome-color-scheme.type';
 
 /**
  * Configures screen chrome geometry, colors, fade masks, scroll throttling, and collapse thresholds.
@@ -20,6 +20,6 @@ export interface ScreenChromeConfigInterface {
     readonly collapseEnd: number;
     readonly scrollEventThrottle: number;
     readonly snapToCollapse: boolean;
-    readonly colors: Readonly<Record<ColorSchemeEnum, ScreenChromeColorSetInterface>>;
+    readonly colors: Readonly<Record<ScreenChromeColorScheme, ScreenChromeColorSetInterface>>;
     readonly maskStops: Readonly<Record<EdgeFadePosition, Readonly<Record<number, ScreenChromeMaskStopInterface>>>>;
 }
