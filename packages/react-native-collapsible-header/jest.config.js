@@ -1,8 +1,0 @@
-module.exports = {
-    ...require('../../get-jest.config.js')('react-native-collapsible-header', '@react-native/jest-preset'),
-    resolver: 'react-native-worklets/jest/resolver',
-    setupFilesAfterEnv: ['<rootDir>/jest-setup.js'],
-    transformIgnorePatterns: [
-        'node_modules/(?!((jest-)?react-native|@react-native(-community)?|react-native-reanimated|react-native-worklets)/)',
-    ],
-};
