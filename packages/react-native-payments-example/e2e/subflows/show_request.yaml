@@ -1,5 +1,12 @@
 appId: ${APP_ID}
 ---
+# The scroll is a no-op right after launch (the button is on-screen), but a
+# flow that re-shows after reading the event log arrives with the Actions
+# section scrolled above the viewport.
+- scrollUntilVisible:
+    element:
+      id: "action-show"
+    direction: UP
 - tapOn:
     id: "action-show"
 - runFlow:

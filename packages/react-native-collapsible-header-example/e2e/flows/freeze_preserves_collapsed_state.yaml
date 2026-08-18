@@ -1,0 +1,31 @@
+appId: ${APP_ID}
+---
+- runFlow: ../subflows/launch_header_demo.yaml
+- runFlow:
+      file: ../subflows/collapse_header.yaml
+      env:
+          COLLAPSED_ID: header-demo-collapsed-amount
+- waitForAnimationToEnd:
+      timeout: 3000
+# The navigation tap is retried because a loaded simulator host can swallow
+# the injected touch: the identical tap-and-navigate mechanics pass in the
+# settings variant of this flow, so a missing details screen after a found,
+# tapped button is input loss, not a navigation regression. The freeze
+# assertions below are unaffected by the retry.
+- retry:
+      maxRetries: 2
+      commands:
+          - tapOn:
+                id: 'header-demo-details-button'
+          - extendedWaitUntil:
+                visible:
+                    id: 'header-demo-details-title'
+                timeout: 15000
+- tapOn:
+      id: 'header-demo-details-back-button'
+- extendedWaitUntil:
+      visible:
+          id: 'header-demo-collapsed-amount'
+      timeout: 15000
+- assertNotVisible:
+      id: 'header-demo-expanded-amount'

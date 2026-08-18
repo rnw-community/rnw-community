@@ -42,7 +42,7 @@
         "react-native": "0.86.2"
     },
     "devDependencies": {
-        "@types/react": "^19.2.0"
+        "@types/react": "19.2.18"
     },
     "engines": {
         "node": ">=22.0.0"

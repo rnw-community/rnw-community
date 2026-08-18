@@ -1,0 +1,35 @@
+appId: ${APP_ID}
+---
+- runFlow: ../subflows/launch_header_demo.yaml
+# The release point must land between the snap midpoint (78dp) and the snap
+# end (156dp) so the settle watch has real work to do: finish the collapse
+# from a partially-collapsed release. Finger travel converts to content
+# offset at roughly 1:2 here, not 1:1 — in flow mode the scroll container
+# itself rises while the header collapses, so half of the drag is consumed
+# by the layout shift.
+#
+# The platforms need different gestures for the same release offset:
+# Android's injected swipe ends with no fling (offset = travel/2, measured
+# reproducible to ±1dp on the CI device profile with a slow drag), while
+# iOS's ends with momentum that carries the shorter drag past the midpoint.
+- runFlow:
+      when:
+          platform: Android
+      commands:
+          - swipe:
+                start: 50%, 75%
+                end: 50%, 37%
+                duration: 900
+- runFlow:
+      when:
+          platform: iOS
+      commands:
+          - swipe:
+                start: 50%, 70%
+                end: 50%, 55%
+- extendedWaitUntil:
+      visible:
+          id: 'header-demo-collapsed-amount'
+      timeout: 15000
+- assertNotVisible:
+      id: 'header-demo-expanded-amount'

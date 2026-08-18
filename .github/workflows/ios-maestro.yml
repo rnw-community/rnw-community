@@ -1,9 +1,9 @@
 name: iOS Maestro E2E
 
-# Draft workflow for issue #395 (react-native-payments revival, epic #372). The
-# self-hosted macOS fleet is not registered yet (blocked on #396), so runs
-# simply queue until that lands. workflow_dispatch + path filters + a nightly
-# schedule keep this safe to land ahead of the fleet.
+# Runs the Maestro suite of every example package that carries one, on the
+# self-hosted macOS fleet (issue #395, epic #372). The package/target matrix comes
+# from .github/scripts/maestro-matrix.mjs, which also decides which suites a pull
+# request actually needs; add new example packages there, not here.
 on:
     workflow_dispatch:
     pull_request:
@@ -12,6 +12,9 @@ on:
         paths:
             - packages/react-native-payments/**
             - packages/react-native-payments-example/**
+            - packages/react-native-collapsible-header/**
+            - packages/react-native-collapsible-header-example/**
+            - .github/scripts/maestro-matrix.mjs
             - .github/workflows/ios-maestro.yml
     schedule:
         - cron: '17 3 * * *'
@@ -28,14 +31,14 @@ env:
     MAESTRO_CLI_NO_ANALYTICS: true
     MAESTRO_CLI_ANALYSIS_NOTIFICATION_DISABLED: true
     YARN_ENABLE_IMMUTABLE_INSTALLS: true
-    EXAMPLE_DIR: packages/react-native-payments-example
 
 jobs:
     detect:
         name: Detect affected packages
         runs-on: ubuntu-latest
         outputs:
-            payments_affected: ${{ steps.affected.outputs.payments_affected }}
+            matrix: ${{ steps.affected.outputs.matrix }}
+            any: ${{ steps.affected.outputs.any }}
         steps:
             - uses: actions/checkout@v5
               with:
@@ -44,36 +47,35 @@ jobs:
             - uses: actions/setup-node@v5
               with:
                   node-version: 22.x
-            - name: Compute affected packages
+            - name: Compute affected example packages
               id: affected
               env:
                   TURBO_SCM_BASE: ${{ github.event.pull_request.base.sha }}
+                  EVENT_NAME: ${{ github.event_name }}
               run: |
-                  if [ "${{ github.event_name }}" != "pull_request" ]; then
-                    echo "payments_affected=true" >> "$GITHUB_OUTPUT"
-                    echo "Non-PR event: payments pipeline always runs."
-                    exit 0
+                  set -euo pipefail
+                  # An empty file means "run every suite", which is the right answer both
+                  # off pull requests and when the suites' own CI plumbing changed: turbo
+                  # maps those files to no package, so package-based detection alone would
+                  # skip every leg on exactly the changes that need testing most.
+                  : > affected.json
+                  if [ "$EVENT_NAME" = "pull_request" ]; then
+                    # grep without -q: under pipefail, -q exits at the first match
+                    # and a still-writing git diff then dies of SIGPIPE (status
+                    # 141), which flips a real plumbing match into the turbo
+                    # branch on diffs large enough to fill the pipe buffer.
+                    if git diff --name-only "$TURBO_SCM_BASE" HEAD \
+                      | grep -E '^\.github/(workflows/(ios|android)-maestro\.yml|scripts/maestro-matrix\.mjs)$'; then
+                      echo "Maestro CI plumbing changed; every suite runs."
+                    else
+                      npx -y turbo@2.10.8 ls --affected --output=json > affected.json
+                    fi
                   fi
-                  affected=$(npx -y turbo@2.10.8 ls --affected --output=json | node -e '
-                    let raw = "";
-                    process.stdin.on("data", chunk => (raw += chunk));
-                    process.stdin.on("end", () => {
-                      const names = (JSON.parse(raw).packages?.items ?? []).map(item => item.name);
-                      const targets = [
-                        "@rnw-community/react-native-payments",
-                        "@rnw-community/react-native-payments-example",
-                        "@rnw-community/react-native-payments-example-bare",
-                        "@rnw-community/react-native-payments-example-expo",
-                      ];
-                      process.stdout.write(String(names.some(name => targets.includes(name))));
-                    });
-                  ')
-                  echo "payments_affected=${affected}" >> "$GITHUB_OUTPUT"
-                  echo "payments_affected=${affected}"
+                  node .github/scripts/maestro-matrix.mjs affected.json | tee -a "$GITHUB_OUTPUT"
     maestro:
-        name: Maestro (${{ matrix.target }})
+        name: Maestro (${{ matrix.package }}, ${{ matrix.target }})
         needs: detect
-        if: needs.detect.outputs.payments_affected == 'true'
+        if: needs.detect.outputs.any == 'true'
         runs-on: [self-hosted, macOS, ARM64, macos-maestro]
         # Self-hosted fleet capacity is shared with other repositories, so both the
         # job and every step below carry an explicit bound. See the step comments
@@ -82,10 +84,10 @@ jobs:
         strategy:
             fail-fast: false
             matrix:
-                target: [bare, expo]
+                include: ${{ fromJSON(needs.detect.outputs.matrix) }}
         env:
-            APP_DIR: packages/react-native-payments-example/apps/${{ matrix.target }}
-            MAESTRO_DEBUG_OUTPUT_DIRECTORY: ${{ github.workspace }}/packages/react-native-payments-example/artifacts/maestro-ios-${{ matrix.target }}
+            APP_DIR: ${{ matrix.example_dir }}/apps/${{ matrix.target }}
+            MAESTRO_DEBUG_OUTPUT_DIRECTORY: ${{ github.workspace }}/${{ matrix.example_dir }}/artifacts/maestro-ios-${{ matrix.package }}-${{ matrix.target }}
 
         steps:
             -   name: Checkout repository
@@ -124,33 +126,30 @@ jobs:
 
             -   name: Restore project Pods and DerivedData cache
                 uses: actions/cache@v4
-                timeout-minutes: 10
+                # The bound covers the implicit post-job save too, and a full
+                # DerivedData tree for a React Native app regularly needs more than
+                # ten minutes to upload from the self-hosted fleet — which failed the
+                # job after the Maestro suite had already passed.
+                timeout-minutes: 25
                 with:
                     path: |
                         ${{ env.APP_DIR }}/ios/Pods
                         ${{ env.APP_DIR }}/ios/build
-                    key: pods-project-ios-${{ matrix.target }}-${{ runner.os }}-${{ hashFiles(format('{0}/ios/Podfile.lock', env.APP_DIR), format('{0}/package.json', env.APP_DIR), format('{0}/app.json', env.APP_DIR), 'yarn.lock') }}
+                    key: pods-project-ios-${{ matrix.package }}-${{ matrix.target }}-${{ runner.os }}-${{ hashFiles(format('{0}/ios/Podfile.lock', env.APP_DIR), format('{0}/package.json', env.APP_DIR), format('{0}/app.json', env.APP_DIR), 'yarn.lock') }}
                     restore-keys: |
-                        pods-project-ios-${{ matrix.target }}-${{ runner.os }}-
+                        pods-project-ios-${{ matrix.package }}-${{ matrix.target }}-${{ runner.os }}-
 
             -   name: Build workspace JS dependencies
                 timeout-minutes: 10
-                run: yarn build --filter=@rnw-community/react-native-payments
+                run: yarn build --filter=${{ matrix.build_filter }}
 
             -   name: Generate native project (expo)
                 if: matrix.target == 'expo'
                 timeout-minutes: 10
-                working-directory: ${{ env.EXAMPLE_DIR }}
+                working-directory: ${{ matrix.example_dir }}
                 run: yarn prebuild:expo
 
-            -   name: Install CocoaPods dependencies (bare)
-                if: matrix.target == 'bare'
-                timeout-minutes: 20
-                working-directory: ${{ env.APP_DIR }}/ios
-                run: pod install --repo-update
-
-            -   name: Install CocoaPods dependencies (expo)
-                if: matrix.target == 'expo'
+            -   name: Install CocoaPods dependencies
                 timeout-minutes: 20
                 working-directory: ${{ env.APP_DIR }}/ios
                 run: pod install --repo-update
@@ -175,58 +174,202 @@ jobs:
                     perl -e 'alarm 300; exec @ARGV' xcrun simctl bootstatus "$device_udid" -b
                     echo "SIMULATOR_UDID=$device_udid" >> "$GITHUB_ENV"
 
-            -   name: Build app (bare)
-                if: matrix.target == 'bare'
+            -   name: Build app
+                # The workspace and scheme are the same name for both target kinds:
+                # the bare template names them after app.json, and expo prebuild
+                # derives them from the slug. The matrix carries that name.
                 timeout-minutes: 45
                 working-directory: ${{ env.APP_DIR }}/ios
                 run: |
                     set -euo pipefail
                     xcodebuild \
-                        -workspace ReactNativePaymentsExample.xcworkspace \
-                        -scheme ReactNativePaymentsExample \
+                        -workspace ${{ matrix.ios_scheme }}.xcworkspace \
+                        -scheme ${{ matrix.ios_scheme }} \
                         -configuration Release \
                         -sdk iphonesimulator \
                         -destination 'generic/platform=iOS Simulator' \
                         -derivedDataPath build \
                         CODE_SIGNING_ALLOWED=NO \
                         build
-                    echo "APP_PATH=${{ env.APP_DIR }}/ios/build/Build/Products/Release-iphonesimulator/ReactNativePaymentsExample.app" >> "$GITHUB_ENV"
-
-            -   name: Build app (expo)
-                if: matrix.target == 'expo'
-                timeout-minutes: 45
-                working-directory: ${{ env.APP_DIR }}/ios
-                run: |
-                    set -euo pipefail
-                    xcodebuild \
-                        -workspace reactnativepaymentsexpoexample.xcworkspace \
-                        -scheme reactnativepaymentsexpoexample \
-                        -configuration Release \
-                        -sdk iphonesimulator \
-                        -destination 'generic/platform=iOS Simulator' \
-                        -derivedDataPath build \
-                        CODE_SIGNING_ALLOWED=NO \
-                        build
-                    echo "APP_PATH=${{ env.APP_DIR }}/ios/build/Build/Products/Release-iphonesimulator/reactnativepaymentsexpoexample.app" >> "$GITHUB_ENV"
+                    echo "APP_PATH=${{ env.APP_DIR }}/ios/build/Build/Products/Release-iphonesimulator/${{ matrix.ios_scheme }}.app" >> "$GITHUB_ENV"
 
             -   name: Install app on simulator
                 timeout-minutes: 10
                 run: xcrun simctl install "$SIMULATOR_UDID" "$APP_PATH"
 
+            -   name: Warm the freshly installed app
+                # Whichever flow Maestro happens to run first pays for the very first
+                # launch of a just-installed app — dyld work, first-run caches, and on
+                # this fleet the first PassKit presentation — and that flow is the one
+                # that keeps failing, in both suites, on whatever it waits for first.
+                # Absorbing that cost once here makes every flow the warm case, instead
+                # of raising another timeout for whichever flow drew the short straw.
+                timeout-minutes: 5
+                shell: bash
+                run: |
+                    set -euo pipefail
+                    bundle_id=$(plutil -extract CFBundleIdentifier raw "$APP_PATH/Info.plist")
+                    test -n "$bundle_id"
+                    xcrun simctl launch "$SIMULATOR_UDID" "$bundle_id"
+                    # Long enough for the first frame and the app's own startup probes;
+                    # the suite relaunches with clearState anyway, so nothing is carried
+                    # over except the caches this exists to populate.
+                    sleep 20
+                    xcrun simctl terminate "$SIMULATOR_UDID" "$bundle_id" || true
+
             -   name: Install Maestro
                 timeout-minutes: 10
+                shell: bash
+                # A maestro already on PATH (Homebrew or any other host provisioning)
+                # is only trusted when it reports exactly the pinned version: accepting
+                # a mismatched host binary with a warning made the same flow pass on
+                # the leg that fresh-installed the pin and fail on the leg that ran the
+                # host's stale CLI. Any other version is shadowed by installing the
+                # pinned GitHub release into a private prefix that is prepended to
+                # PATH, which also sidesteps get.maestro.mobile.dev's refusal to
+                # install beside a package-manager-managed maestro. Every failure mode
+                # of the download, checksum, extraction, or version probe fails the
+                # step — the suite never runs against an unverified CLI.
                 run: |
-                    maestro_bin="$HOME/.maestro/bin/maestro"
-                    if [ ! -x "$maestro_bin" ] || [ "$("$maestro_bin" --version 2>/dev/null | tail -n 1 | tr -d '\r' || true)" != "$MAESTRO_VERSION" ]; then
-                      curl -fsSL https://get.maestro.mobile.dev | env MAESTRO_VERSION="$MAESTRO_VERSION" bash
+                    set -euo pipefail
+                    if ! printf '%s' "$MAESTRO_VERSION" | grep -qE '^[0-9]+\.[0-9]+\.[0-9]+$'; then
+                      echo "::error::MAESTRO_VERSION '$MAESTRO_VERSION' must be a plain X.Y.Z version (digits and dots only) to be used safely in a local path and release URL."
+                      exit 1
                     fi
-                    echo "$HOME/.maestro/bin" >> "$GITHUB_PATH"
+                    existing_bin="$(command -v maestro || true)"
+                    if [ -n "$existing_bin" ]; then
+                      existing_version="$("$existing_bin" --version 2>/dev/null | tail -n 1 | tr -d '\r' || true)"
+                      if [ "$existing_version" = "$MAESTRO_VERSION" ]; then
+                        echo "Using existing maestro $MAESTRO_VERSION already on PATH: $existing_bin"
+                        exit 0
+                      fi
+                      echo "Host maestro at $existing_bin reports '$existing_version', not the pinned $MAESTRO_VERSION; installing the pinned release into a private prefix."
+                    fi
+                    command -v unzip >/dev/null 2>&1 || { echo "::error::'unzip' is required to install the pinned Maestro release but is not on PATH."; exit 1; }
+
+                    pinned_root="$HOME/.maestro-pinned"
+                    pinned_dir="$pinned_root/$MAESTRO_VERSION"
+                    pinned_bin="$pinned_dir/maestro/bin/maestro"
+                    lock_dir="$pinned_root/.lock-$MAESTRO_VERSION"
+                    mkdir -p "$pinned_root"
+
+                    version_matches() {
+                      [ -x "$pinned_bin" ] && [ "$("$pinned_bin" --version 2>/dev/null | tail -n 1 | tr -d '\r' || true)" = "$MAESTRO_VERSION" ]
+                    }
+
+                    if ! version_matches; then
+                      # Concurrent legs on the same self-hosted host share $HOME, so two
+                      # jobs installing the same not-yet-cached MAESTRO_VERSION could
+                      # otherwise race rm -rf/unzip against each other or against a
+                      # sibling's in-flight `maestro` invocation. A per-version
+                      # mkdir-as-mutex lock serializes that; a losing waiter re-checks
+                      # version_matches so it can skip straight past once the winner
+                      # finishes instead of installing a second time.
+                      lock_acquired=''
+                      lock_deadline=$((SECONDS + 300))
+                      while :; do
+                        if mkdir "$lock_dir" 2>/dev/null; then
+                          lock_acquired=1
+                          break
+                        fi
+                        if version_matches; then
+                          break
+                        fi
+                        # A winner hard-killed before its EXIT trap runs (runner
+                        # reboot, forced shutdown mid-install) leaves lock_dir
+                        # behind with nobody left to remove it. A live owner is
+                        # bounded by this step's 10-minute timeout, so a lock
+                        # directory older than 15 minutes provably has no owner;
+                        # reclaiming it keeps one crashed install from wedging
+                        # every later job on this host.
+                        if [ -n "$(find "$lock_dir" -maxdepth 0 -mmin +15 2>/dev/null)" ]; then
+                          echo "Removing stale Maestro install lock '$lock_dir' left by a crashed installer."
+                          rmdir "$lock_dir" 2>/dev/null || true
+                        fi
+                        if [ "$SECONDS" -ge "$lock_deadline" ]; then
+                          echo "::error::Timed out waiting for the Maestro install lock '$lock_dir'; a concurrent install on this host may be stuck."
+                          exit 1
+                        fi
+                        sleep 2
+                      done
+
+                      if [ -n "$lock_acquired" ]; then
+                        cleanup() {
+                          [ -n "${scratch_dir:-}" ] && rm -rf "$scratch_dir"
+                          [ -n "${staging_dir:-}" ] && rm -rf "$staging_dir"
+                          rmdir "$lock_dir" 2>/dev/null || true
+                        }
+                        trap cleanup EXIT
+
+                        if ! version_matches; then
+                          download_url="https://github.com/mobile-dev-inc/Maestro/releases/download/cli-${MAESTRO_VERSION}/maestro.zip"
+                          checksum_url="https://github.com/mobile-dev-inc/Maestro/releases/download/cli-${MAESTRO_VERSION}/checksums_sha256.txt"
+                          scratch_dir="$(mktemp -d)"
+                          zip_path="$scratch_dir/maestro.zip"
+
+                          curl_exit=0
+                          http_status="$(curl -sSL --retry 3 --retry-connrefused --max-time 300 -w '%{http_code}' -o "$zip_path" "$download_url")" || curl_exit=$?
+                          if [ "$curl_exit" -ne 0 ] || [ "$http_status" != "200" ]; then
+                            echo "::error::Download of MAESTRO_VERSION '$MAESTRO_VERSION' from '$download_url' failed (curl exit $curl_exit, HTTP status '$http_status'). Confirm a 'cli-$MAESTRO_VERSION' release publishing a maestro.zip asset exists at https://github.com/mobile-dev-inc/Maestro/releases."
+                            exit 1
+                          fi
+
+                          checksum_curl_exit=0
+                          checksum_status="$(curl -sSL --retry 3 --retry-connrefused --max-time 60 -w '%{http_code}' -o "$scratch_dir/checksums_sha256.txt" "$checksum_url")" || checksum_curl_exit=$?
+                          if [ "$checksum_curl_exit" -eq 0 ] && [ "$checksum_status" = "200" ]; then
+                            expected_sha="$(awk '$2 == "maestro.zip" { print $1 }' "$scratch_dir/checksums_sha256.txt")"
+                            if [ -z "$expected_sha" ]; then
+                              echo "::error::checksums_sha256.txt for cli-$MAESTRO_VERSION has no maestro.zip entry; refusing to install an unverifiable download."
+                              exit 1
+                            fi
+                            if command -v sha256sum >/dev/null 2>&1; then
+                              actual_sha="$(sha256sum "$zip_path" | awk '{print $1}')"
+                            else
+                              actual_sha="$(shasum -a 256 "$zip_path" | awk '{print $1}')"
+                            fi
+                            if [ "$actual_sha" != "$expected_sha" ]; then
+                              echo "::error::maestro.zip checksum mismatch for cli-$MAESTRO_VERSION: expected $expected_sha, got $actual_sha."
+                              exit 1
+                            fi
+                          elif [ "$checksum_status" = "404" ]; then
+                            echo "::warning::mobile-dev-inc/Maestro cli-$MAESTRO_VERSION did not publish checksums_sha256.txt (404); proceeding on the TLS-verified download from the official GitHub release only."
+                          else
+                            echo "::error::Failed to retrieve checksums_sha256.txt for cli-$MAESTRO_VERSION from '$checksum_url' (curl exit $checksum_curl_exit, HTTP status '$checksum_status'). Refusing to install an unverifiable download."
+                            exit 1
+                          fi
+
+                          staging_dir="$(mktemp -d "$pinned_root/.staging-XXXXXX")"
+                          unzip -q "$zip_path" -d "$staging_dir"
+                          chmod +x "$staging_dir/maestro/bin/maestro" 2>/dev/null || true
+                          staged_version="$("$staging_dir/maestro/bin/maestro" --version 2>/dev/null | tail -n 1 | tr -d '\r' || true)"
+                          if [ "$staged_version" != "$MAESTRO_VERSION" ]; then
+                            echo "::error::Extracted maestro from cli-$MAESTRO_VERSION's maestro.zip reports version '$staged_version', not the pinned $MAESTRO_VERSION; the release archive layout may have changed."
+                            exit 1
+                          fi
+                          rm -rf "$pinned_dir"
+                          mkdir -p "$pinned_dir"
+                          mv "$staging_dir/maestro" "$pinned_dir/maestro"
+                        fi
+                      fi
+                    fi
+
+                    if [ ! -x "$pinned_bin" ]; then
+                      echo "::error::Expected a maestro binary at '$pinned_bin' after installing cli-$MAESTRO_VERSION; the install may have failed or been interrupted."
+                      exit 1
+                    fi
+                    resolved_version="$("$pinned_bin" --version 2>/dev/null | tail -n 1 | tr -d '\r' || true)"
+                    if [ "$resolved_version" != "$MAESTRO_VERSION" ]; then
+                      echo "::error::maestro at '$pinned_bin' reports version '$resolved_version', not the pinned $MAESTRO_VERSION."
+                      exit 1
+                    fi
+                    echo "$pinned_dir/maestro/bin" >> "$GITHUB_PATH"
+                    echo "Installed and using maestro $MAESTRO_VERSION at $pinned_bin"
 
             -   name: Run Maestro suite
                 # The suite itself took ~85s per shard on the Redroid prototype runs;
                 # 25 minutes covers a slow retry loop without holding the fleet.
                 timeout-minutes: 25
-                working-directory: ${{ env.EXAMPLE_DIR }}
+                working-directory: ${{ matrix.example_dir }}
                 run: yarn e2e:ios:${{ matrix.target }}
 
             -   name: Capture final simulator state
@@ -251,7 +394,7 @@ jobs:
                 uses: actions/upload-artifact@v4
                 timeout-minutes: 5
                 with:
-                    name: maestro-ios-${{ matrix.target }}
+                    name: maestro-ios-${{ matrix.package }}-${{ matrix.target }}
                     path: ${{ env.MAESTRO_DEBUG_OUTPUT_DIRECTORY }}/**
                     if-no-files-found: warn
                     retention-days: 7
@@ -268,8 +411,8 @@ jobs:
                     echo "Detection job did not succeed."
                     exit 1
                   fi
-                  if [ "${{ needs.detect.outputs.payments_affected }}" != "true" ]; then
-                    echo "Skipped: payments dependency tree untouched."
+                  if [ "${{ needs.detect.outputs.any }}" != "true" ]; then
+                    echo "Skipped: no example package dependency tree was touched."
                     exit 0
                   fi
                   if [ "${{ needs.maestro.result }}" != "success" ]; then
