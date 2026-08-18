@@ -1,4 +1,4 @@
-import { describe, expect, it, jest } from '@jest/globals';
+import { beforeEach, describe, expect, it, jest } from '@jest/globals';
 import { render } from '@testing-library/react-native';
 import React from 'react';
 
@@ -20,13 +20,19 @@ jest.mock('@rnw-community/react-native-collapsible-header', () => ({
     useCollapsibleHeaderScroll: () => ({ scrollY: mockScrollY }),
 }));
 
+beforeEach(() => {
+    mockScrollY.get.mockReturnValue(0);
+});
+
 describe('EdgeFade web', () => {
     it('renders the web defaults with ordered CSS masks and a static top blur', () => {
         expect.hasAssertions();
 
-        const screen = render(<EdgeFade testID="top-fade" position="top" />);
+        const screen = render(<EdgeFade testID="top-fade" position="top" blurMethod="dimezisBlurView" />);
         const fade = screen.getByTestId('top-fade', { includeHiddenElements: true });
 
+        expect(fade.props).not.toHaveProperty('blurMethod');
+        expect(fade.props).not.toHaveProperty('blurTarget');
         expect(fade).toHaveProp('pointerEvents', 'none');
         expect(fade).toHaveProp('aria-hidden', true);
         expect(fade).toHaveStyle({ height: 86, top: -10 });

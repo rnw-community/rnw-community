@@ -9,12 +9,12 @@ export const useEdgeFadeBlurProps = (
     intensityInputRange: readonly [number, number] | undefined,
     maxIntensity: number,
     resolvedIntensity: number
-) => {
+): Partial<{ intensity: number }> => {
     const { scrollY } = useCollapsibleHeaderScroll();
     const hasIntensityRange = isDefined(intensityInputRange);
     const resolvedIntensityRange = hasIntensityRange ? intensityInputRange : INTENSITY_INPUT_RANGE_FALLBACK;
 
-    return useAnimatedProps<{ intensity: number | undefined }>(() => ({
+    return useAnimatedProps<{ intensity: number }>(() => ({
         intensity: hasIntensityRange
             ? interpolate(scrollY.get(), resolvedIntensityRange, [0, maxIntensity], Extrapolation.CLAMP)
             : resolvedIntensity,

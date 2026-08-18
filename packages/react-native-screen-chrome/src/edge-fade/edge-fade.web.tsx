@@ -37,6 +37,8 @@ export const EdgeFade = ({
     height,
     intensity,
     scrollAnimation,
+    blurMethod: _blurMethod,
+    blurTarget: _blurTarget,
     style,
     ...viewProps
 }: EdgeFadePropsInterface): ReactNode => {

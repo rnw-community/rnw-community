@@ -10,6 +10,7 @@ import { EdgeFade } from './edge-fade';
 
 import type { ScreenChromeColorScheme } from '../type/screen-chrome-color-scheme.type';
 import type { ReactNode } from 'react';
+import type { View } from 'react-native';
 
 const mockScrollY = { get: jest.fn(() => 0) };
 const mockConfig = SCREEN_CHROME_DEFAULT_CONFIG;
@@ -99,7 +100,30 @@ describe('EdgeFade native', () => {
         expect(fade).toHaveStyle({ height: 180, bottom: -30, opacity: 0.5 });
         expect(washGradientProps).toEqual(expect.objectContaining({ colors: ['rgba(0,0,0,0.12)', 'rgba(0,0,0,0.48)'] }));
         expect(blurProps).toEqual(
-            expect.objectContaining({ intensity: 30, tint: 'systemThinMaterialDark', blurMethod: 'dimezisBlurView' })
+            expect.objectContaining({ intensity: 30, tint: 'systemThinMaterialDark', blurMethod: 'none' })
         );
+    });
+
+    it('opts into the Android blur method only once a blur target is supplied', () => {
+        expect.hasAssertions();
+
+        const blurTarget = React.createRef<View>();
+
+        render(<EdgeFade position="top" blurTarget={blurTarget} />);
+
+        const [[blurProps]] = jest.mocked(BlurView).mock.calls;
+
+        expect(blurProps).toEqual(expect.objectContaining({ blurMethod: 'dimezisBlurView', blurTarget }));
+    });
+
+    it('keeps an explicit blur method when no blur target is supplied', () => {
+        expect.hasAssertions();
+
+        render(<EdgeFade position="top" blurMethod="dimezisBlurViewSdk31Plus" />);
+
+        const [[blurProps]] = jest.mocked(BlurView).mock.calls;
+
+        expect(blurProps).toEqual(expect.objectContaining({ blurMethod: 'dimezisBlurViewSdk31Plus' }));
+        expect(blurProps.blurTarget).toBeUndefined();
     });
 });

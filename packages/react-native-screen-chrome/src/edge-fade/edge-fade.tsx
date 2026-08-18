@@ -6,7 +6,7 @@ import { Platform, StyleSheet, View } from 'react-native';
 import { createAnimatedComponent } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { isDefined } from '@rnw-community/shared';
+import { getDefined, isDefined } from '@rnw-community/shared';
 
 import { useScreenChrome } from '../hooks/use-screen-chrome/use-screen-chrome.hook';
 
@@ -24,6 +24,8 @@ const AnimatedBlurView = createAnimatedComponent(BlurView);
 const MaskedView = MaskedViewModule;
 const GRADIENT_START = { x: 0, y: 0 };
 const GRADIENT_END = { x: 0, y: 1 };
+const TARGETED_BLUR_METHOD = 'dimezisBlurView';
+const UNTARGETED_BLUR_METHOD = 'none';
 
 /**
  * Renders a decorative native blur and color wash at one screen edge.
@@ -34,12 +36,16 @@ export const EdgeFade = ({
     height,
     intensity,
     scrollAnimation,
-    blurMethod = 'dimezisBlurView',
+    blurMethod,
+    blurTarget,
     style,
     ...viewProps
 }: EdgeFadePropsInterface): ReactNode => {
     const { config, colorScheme } = useScreenChrome();
     const insets = useSafeAreaInsets();
+    const resolvedBlurMethod = getDefined(blurMethod, () =>
+        isDefined(blurTarget) ? TARGETED_BLUR_METHOD : UNTARGETED_BLUR_METHOD
+    );
     const resolvedIntensity = isDefined(intensity) ? intensity : config.intensity;
     const { washColors, maskColors, maskLocations, tint } = getEdgeFadeVisuals(
         position,
@@ -80,7 +86,8 @@ export const EdgeFade = ({
                 <AnimatedBlurView
                     style={StyleSheet.absoluteFill}
                     tint={tint}
-                    blurMethod={blurMethod}
+                    blurMethod={resolvedBlurMethod}
+                    blurTarget={blurTarget}
                     {...(isDefined(scrollAnimation)
                         ? { animatedProps: animatedBlurProps }
                         : { intensity: resolvedIntensity })}
