@@ -35,8 +35,15 @@ yarn test && yarn test:coverage && yarn build && yarn ts && yarn ts:nodenext && 
 - `snapToCollapse` only takes effect while a `CollapsibleHeader` is mounted: the header registers the snap geometry
   with the provider. Reduced-motion-aware snapping is upstream scope, not a local reimplementation.
 - Native peer dependencies remain external so applications own native versions and linking.
+- `CollapsibleHeader` sizes the generic header container to `safeAreaInsets.top + config.headerHeight` and reserves the
+  inset as `paddingTop`. The generic primitive positions its content layers inside that padding, so leaving the inset
+  out of `expandedHeight`/`collapsedHeight` compresses the title and controls to whatever the notch does not consume.
+  It is the same composition `mergeScrollContentInset` applies, which keeps overlay content padding aligned.
+- The `expo-blur` peer floor is `>=55`: `blurMethod` and the `BlurMethod` type only exist from that release (it renamed
+  `experimentalBlurMethod`), and the same release made `dimezisBlurView` require a `BlurTargetView`. `EdgeFade`
+  therefore defaults `blurMethod` from `blurTarget` presence rather than hard-coding a targeted method.
 - Configuration is validated during provider render, before any chrome component reads it.
-- React 19-only syntax (`use()`) stays absent while the react peer floor is `>=18`.
+- React 19-only syntax (`use()`) stays absent while the `react` peer floor is `>=18`.
 - Relative source imports stay extensionless; the build's post-compile rewrite/assert pair enforces extensioned specifiers in `dist/module` and `dist/typescript/module`, and NodeNext validation must pass.
 - No manual `useMemo`, `useCallback`, or `React.memo` in `src` — React Compiler owns memoization and `panicThreshold: 'all_errors'` fails the build on anything it cannot compile.
 - `@react-native-masked-view/masked-view` is consumed through its own published types; the former

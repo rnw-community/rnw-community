@@ -24,6 +24,9 @@ by the host application: the application must resolve exactly one copy of the co
 context has two identities and the chrome components fail to find their provider. Reanimated 4 applications also
 install `react-native-worklets` and configure `react-native-worklets/plugin`.
 
+`expo-blur` must be `>=55`: the `blurMethod` prop and the `BlurMethod` type this package passes and re-exports in
+`EdgeFadePropsInterface` only exist from that release, which renamed `experimentalBlurMethod` to `blurMethod`.
+
 ## Complete example
 
 ```tsx
@@ -41,8 +44,10 @@ import {
     ScreenChromeScrollView,
 } from '@rnw-community/react-native-screen-chrome';
 
+const SCREEN_CHROME_CONFIG = { snapToCollapse: true };
+
 export const AccountsScreen = () => (
-    <ScreenChromeProvider config={{ snapToCollapse: true }}>
+    <ScreenChromeProvider config={SCREEN_CHROME_CONFIG}>
         <ScreenChromeFrame>
             <ScreenChromeScrollView contentInsetTop={96} contentInsetBottom={48}>
                 <Text>Consumer-owned content</Text>
@@ -103,6 +108,11 @@ from `useScreenChrome`.
     <CollapsibleHeaderSlot>{/* trailing control */}</CollapsibleHeaderSlot>
 </CollapsibleHeader>
 ```
+
+The header container is sized to `safeAreaInsets.top + config.headerHeight` and reserves the top inset as padding, so
+`config.headerHeight` is always the usable content height regardless of notch or dynamic-island depth. It is the same
+composition `ScreenChromeScrollView` applies to `contentInsetTop`, so passing `contentInsetTop={config.headerHeight}`
+clears the overlay header exactly.
 
 ## Compound header contract
 
@@ -165,15 +175,32 @@ Renders a decorative top or bottom blur-and-wash band, scroll-animatable through
 <EdgeFade position="bottom" height={96} scrollAnimation={{ opacityInputRange: [0, 80] }} />
 ```
 
+On web only `scrollAnimation.opacityInputRange` animates: the band's `backdrop-filter` is a static blur derived from
+`intensity`, so `intensityInputRange` and `maxIntensity` have no effect there. Animated web blur is tracked in
+[#591](https://github.com/rnw-community/rnw-community/issues/591).
+
+Android blur is opt-in through `blurTarget`. Since `expo-blur@55` the `dimezisBlurView` methods only blur the
+background of a `BlurTargetView`, so `blurMethod` defaults to `'dimezisBlurView'` when a `blurTarget` ref is supplied
+and to `'none'` otherwise — expo-blur itself falls back to `'none'` with a console warning when a targeted method has
+no target, and that fallback is what the default avoids:
+
+```tsx
+const blurTarget = useRef<View>(null);
+
+<BlurTargetView ref={blurTarget}>{content}</BlurTargetView>
+<EdgeFade position="top" blurTarget={blurTarget} />;
+```
+
 ## EdgeFadePropsInterface
 
-| Prop              | Type                               | Description                                                       |
-| ----------------- | ---------------------------------- | ----------------------------------------------------------------- |
-| `position`        | `EdgeFadePosition`                 | Screen edge the band renders at.                                  |
-| `height`          | `number`                           | Band height; defaults to the provider config's fade height.       |
-| `intensity`       | `number`                           | Static blur intensity; ignored while `scrollAnimation` drives it. |
-| `scrollAnimation` | `EdgeFadeScrollAnimationInterface` | Optional scroll-driven opacity and blur intensity ranges.         |
-| `blurMethod`      | `BlurMethod`                       | Native-only Expo Blur rendering method.                           |
+| Prop              | Type                               | Description                                                                         |
+| ----------------- | ---------------------------------- | ----------------------------------------------------------------------------------- |
+| `position`        | `EdgeFadePosition`                 | Screen edge the band renders at.                                                    |
+| `height`          | `number`                           | Band height; defaults to the provider config's fade height.                         |
+| `intensity`       | `number`                           | Static blur intensity; ignored while `scrollAnimation` drives it.                   |
+| `scrollAnimation` | `EdgeFadeScrollAnimationInterface` | Optional scroll-driven opacity and blur intensity ranges.                           |
+| `blurMethod`      | `BlurMethod`                       | Android Expo Blur rendering method; defaults from `blurTarget`.                     |
+| `blurTarget`      | `RefObject<View \| null>`          | Android `BlurTargetView` ref the band blurs; required by `dimezisBlurView` methods. |
 
 ## EdgeFadeScrollAnimationInterface
 
@@ -207,6 +234,16 @@ Provides validated configuration and color scheme to screen chrome components ar
 <ScreenChromeProvider colorScheme="dark" config={{ snapToCollapse: true }}>
     {children}
 </ScreenChromeProvider>
+```
+
+Pass a stable `config` reference — a module-scope constant, or one owned by state — rather than the inline literal above.
+React Compiler memoizes the merge, validation, and context value on the identity of that prop, so a fresh literal on
+every parent render re-merges, re-validates, and re-broadcasts the context to every chrome consumer:
+
+```tsx
+const SCREEN_CHROME_CONFIG = { snapToCollapse: true };
+
+export const AccountsScreen = () => <ScreenChromeProvider config={SCREEN_CHROME_CONFIG}>{children}</ScreenChromeProvider>;
 ```
 
 ## ScreenChromeScrollView
