@@ -50,6 +50,19 @@
                 "react-native-worklets"
             ]
         },
+        "packages/react-native-screen-chrome": {
+            "entry": [
+                "src/index.ts",
+                "src/**/*.web.ts",
+                "src/**/*.web.tsx"
+            ],
+            "ignore": [
+                "babel.config.bob.js"
+            ],
+            "ignoreDependencies": [
+                "react-compiler-runtime"
+            ]
+        },
         "packages/react-native-payments": {
             "entry": [
                 "src/index.ts",
