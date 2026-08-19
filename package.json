@@ -102,11 +102,5 @@
   "packageManager": "yarn@4.18.0",
   "engines": {
     "node": ">=22.0.0"
-  },
-  "devEngines": {
-    "packageManager": {
-      "name": "yarn",
-      "version": "4.18.0"
-    }
   }
 }
