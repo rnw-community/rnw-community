@@ -49,7 +49,7 @@
         "@rnw-community/shared": "^2.13.0"
     },
     "devDependencies": {
-        "expect-type": "^0.20.0",
+        "expect-type": "^1.4.0",
         "rxjs": "^7.8.2"
     },
     "peerDependencies": {
