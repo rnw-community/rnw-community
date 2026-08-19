@@ -13,7 +13,7 @@ packages:
   - "packages/*"
 ```
 
-### npm/yarn/bun
+### npm/yarn/bun/nub
 
 ```json
 // package.json
@@ -21,6 +21,17 @@ packages:
   "workspaces": ["apps/*", "packages/*"]
 }
 ```
+
+nub follows the repo's existing lockfile: with a pnpm-format lockfile (`pnpm-lock.yaml` or nub's `lock.yaml`) it reads `pnpm-workspace.yaml` when that file exists, otherwise `package.json` workspaces.
+
+### aube
+
+aube uses `aube-workspace.yaml` (same `packages:` format as pnpm), falling back to `pnpm-workspace.yaml` or `package.json` workspaces.
+
+### Polyglot workspaces (experimental)
+
+- `futureFlags.experimentalCargoWorkspaces` - Treat Cargo workspace crates as Turborepo packages
+- `futureFlags.experimentalPythonWorkspaces` - Treat uv workspace members as Turborepo packages
 
 ## Root package.json
 
@@ -95,11 +106,38 @@ Package tasks enable Turborepo to:
 
 ```json
 {
-  "$schema": "https://turborepo.dev/schema.v2.json",
+  "$schema": "https://v2-10-11.turborepo.dev/schema.json",
   "tasks": {
     "build": {
       "dependsOn": ["^build"],
-      "outputs": ["dist/**", ".next/**", "!.next/cache/**"]
+      "outputs": ["dist/**", ".next/**", "!.next/cache/**", "!.next/dev/**"]
+    },
+    "lint": {},
+    "test": {
+      "dependsOn": ["build"]
+    },
+    "dev": {
+      "cache": false,
+      "persistent": true
+    }
+  }
+}
+```
+
+With `futureFlags.globalConfiguration`, global settings move under a `global` key:
+
+```json
+{
+  "$schema": "https://v2-10-11.turborepo.dev/schema.json",
+  "futureFlags": { "globalConfiguration": true },
+  "global": {
+    "inputs": ["tsconfig.json"],
+    "env": ["CI"]
+  },
+  "tasks": {
+    "build": {
+      "dependsOn": ["^build"],
+      "outputs": ["dist/**", ".next/**", "!.next/cache/**", "!.next/dev/**"]
     },
     "lint": {},
     "test": {
@@ -124,8 +162,8 @@ You can group packages by adding more workspace paths:
 packages:
   - "apps/*"
   - "packages/*"
-  - "packages/config/*"    # Grouped configs
-  - "packages/features/*"  # Feature packages
+  - "packages/config/*" # Grouped configs
+  - "packages/features/*" # Feature packages
 ```
 
 This allows:
@@ -148,7 +186,7 @@ packages/
 ```yaml
 # BAD: Nested wildcards cause ambiguous behavior
 packages:
-  - "packages/**"  # Don't do this!
+  - "packages/**" # Don't do this!
 ```
 
 ## Package Anatomy
@@ -167,10 +205,11 @@ packages/ui/
 
 ```json
 {
-  "name": "@repo/ui",           // Unique, namespaced name
-  "version": "0.0.0",           // Version (can be 0.0.0 for internal)
-  "private": true,              // Prevents accidental publishing
-  "exports": {                  // Entry points
+  "name": "@repo/ui", // Unique, namespaced name
+  "version": "0.0.0", // Version (can be 0.0.0 for internal)
+  "private": true, // Prevents accidental publishing
+  "exports": {
+    // Entry points
     "./button": "./src/button.tsx"
   }
 }
@@ -234,28 +273,34 @@ packages/
     ├── package.json
     ├── base.js
     ├── next.js
-    └── library.js
+    └── react-internal.js
 ```
 
 ```json
 // packages/eslint-config/package.json
 {
   "name": "@repo/eslint-config",
+  "type": "module",
   "exports": {
     "./base": "./base.js",
-    "./next": "./next.js",
-    "./library": "./library.js"
+    "./next-js": "./next.js",
+    "./react-internal": "./react-internal.js"
+  },
+  "devDependencies": {
+    "eslint": "^9.39.1"
   }
 }
 ```
 
 ### Using in Packages
 
+ESLint 9 flat config:
+
 ```js
-// apps/web/.eslintrc.js
-module.exports = {
-  extends: ["@repo/eslint-config/next"],
-};
+// apps/web/eslint.config.js
+import { nextJsConfig } from "@repo/eslint-config/next-js";
+
+export default nextJsConfig;
 ```
 
 ## Lockfile
