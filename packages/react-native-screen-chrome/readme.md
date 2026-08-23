@@ -114,6 +114,14 @@ The header container is sized to `safeAreaInsets.top + config.headerHeight` and 
 composition `ScreenChromeScrollView` applies to `contentInsetTop`, so passing `contentInsetTop={config.headerHeight}`
 clears the overlay header exactly.
 
+Pass `motion` to override individual per-layer animation windows or transforms derived from config — any key you set
+wins, the rest stay config-driven. This covers app-specific motion (for example an earlier background fade start, or
+expanded-layer scale) without widening the config surface:
+
+```tsx
+<CollapsibleHeader motion={{ backgroundOpacityStartProgress: 0.7, expandedScale: 0.9 }}>{/* slots */}</CollapsibleHeader>
+```
+
 ## Compound header contract
 
 `CollapsibleHeaderSlot`, `CollapsibleHeaderTitleSlot`, and a second `CollapsibleHeaderSlot` must be direct children of

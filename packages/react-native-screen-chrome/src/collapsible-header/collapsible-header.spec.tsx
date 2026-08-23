@@ -23,9 +23,12 @@ jest.mock('../hooks/use-screen-chrome/use-screen-chrome.hook', () => ({
     useScreenChrome: () => ({ config: mockConfig }),
 }));
 
-const renderDelegatedProps = () => {
+const renderDelegatedProps = (motion?: {
+    readonly backgroundOpacityStartProgress: number;
+    readonly expandedScale: number;
+}) => {
     render(
-        <CollapsibleHeader testID="chrome-header">
+        <CollapsibleHeader testID="chrome-header" motion={motion}>
             <CollapsibleHeaderSlot>
                 <Text>Back</Text>
             </CollapsibleHeaderSlot>
@@ -95,6 +98,22 @@ describe('CollapsibleHeader', () => {
         expect(headerPaddingTop).toBe(mockTopInset);
         expect(props.expandedHeight - headerPaddingTop).toBe(mockConfig.headerHeight);
         expect(props.collapsedHeight - headerPaddingTop).toBe(mockConfig.headerHeight);
+    });
+
+    it('lets the motion override win over derived windows while the rest stays config-driven', () => {
+        expect.hasAssertions();
+
+        const props = renderDelegatedProps({ backgroundOpacityStartProgress: 0.7, expandedScale: 0.9 });
+
+        expect(props.motion).toEqual({
+            expandedOpacityEndProgress: 0.75,
+            collapsedOpacityStartProgress: 0.5,
+            backgroundOpacityStartProgress: 0.7,
+            pointerEventsSwitchProgress: 0.5,
+            expandedTranslateY: 0,
+            expandedScale: 0.9,
+            collapsedTranslateY: 0,
+        });
     });
 
     it('renders the public slot components', () => {

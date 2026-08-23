@@ -7,14 +7,15 @@ import type { ReactNode } from 'react';
 
 interface Props {
     readonly children: ReactNode;
+    readonly testID?: string;
 }
 
 /**
  * Groups the direct large and small title layers of a compound collapsible header.
  * @see https://github.com/rnw-community/rnw-community/tree/master/packages/react-native-screen-chrome#collapsibleheadertitleslot
  */
-export const CollapsibleHeaderTitleSlot = ({ children }: Props): ReactNode => (
-    <View style={collapsibleHeaderTitleSlotStyles.slot} pointerEvents="box-none">
+export const CollapsibleHeaderTitleSlot = ({ children, testID }: Props): ReactNode => (
+    <View style={collapsibleHeaderTitleSlotStyles.slot} pointerEvents="box-none" testID={testID}>
         {children}
     </View>
 );
