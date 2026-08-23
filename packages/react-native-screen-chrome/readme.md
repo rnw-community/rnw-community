@@ -226,6 +226,20 @@ Provides the relative full-screen layout root for content, fades, and header chr
 <ScreenChromeFrame>{children}</ScreenChromeFrame>
 ```
 
+## ScreenChromeHeader
+
+Renders a static, non-collapsible header row with the same safe-area and paint-order contract as the collapsible one:
+absolute at the top, `zIndex: 3`, `box-none`, sized to `insets.top + topInset + headerHeight` so
+`getScreenChromeHeaderMetrics` predicts its footprint exactly. `topInset` adds app-owned padding beyond the safe area
+for screens that nest under an already-padded container. Requires a `ScreenChromeProvider` ancestor.
+
+```tsx
+<ScreenChromeHeader testID="header" topInset={10} style={styles.headerBackground}>
+    <Button onPress={goBack} title="Back" />
+    <Text>{title}</Text>
+</ScreenChromeHeader>
+```
+
 ## ScreenChromeProvider
 
 Provides validated configuration and color scheme to screen chrome components around one scrollable.
@@ -298,6 +312,36 @@ Creates a clamped opacity style from the collapsible-header provider scroll valu
 
 ```tsx
 const style = useScrollFadeStyle([0, 80], [1, 0]);
+```
+
+## getScreenChromeHeaderMetrics
+
+Computes the header footprint from a header height, the device top inset, and an optional extra header top inset,
+matching the height the `CollapsibleHeader` and `ScreenChromeHeader` containers render. Pure and React-independent,
+so it works in non-component code and tests.
+
+```ts
+const metrics = getScreenChromeHeaderMetrics(config.headerHeight, insets.top, topInset);
+```
+
+## useScreenChromeHeaderMetrics
+
+Returns `getScreenChromeHeaderMetrics` for the live provider config and device insets (no extra top inset — the
+collapsible container owns none), so screens offset their content from the rendered header without re-merging
+`SCREEN_CHROME_DEFAULT_CONFIG`. Requires a `ScreenChromeProvider` ancestor.
+
+```tsx
+const { headerTotalHeight, recommendedContentTopGap } = useScreenChromeHeaderMetrics();
+```
+
+## ScreenChromeHeaderMetricsInterface
+
+Describes the rendered header footprint: `headerTotalHeight` is the full header height including the device top inset
+and any explicit header top inset, and `recommendedContentTopGap` is the top gap to give scroll content so it starts
+below the header.
+
+```ts
+const metrics: ScreenChromeHeaderMetricsInterface = { headerTotalHeight: 74, recommendedContentTopGap: 74 };
 ```
 
 ## ScreenChromeColorScheme

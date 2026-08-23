@@ -11,8 +11,10 @@ export type { EdgeFadeScrollAnimationInterface } from './edge-fade/edge-fade-scr
 export type { ScreenChromeMaskStopInterface } from './edge-fade/screen-chrome-mask-stop.interface';
 export type { EdgeFadePosition } from './edge-fade/edge-fade-position.type';
 export { useScreenChrome } from './hooks/use-screen-chrome/use-screen-chrome.hook';
+export { useScreenChromeHeaderMetrics } from './hooks/use-screen-chrome-header-metrics/use-screen-chrome-header-metrics.hook';
 export { useScrollFadeStyle } from './hooks/use-scroll-fade-style/use-scroll-fade-style.hook';
 export { ScreenChromeFrame } from './screen-chrome-frame/screen-chrome-frame';
+export { ScreenChromeHeader } from './screen-chrome-header/screen-chrome-header';
 export { ScreenChromeProvider } from './screen-chrome-provider/screen-chrome-provider';
 export { ScreenChromeScrollView } from './screen-chrome-scroll-view/screen-chrome-scroll-view';
 export type { ScreenChromeColorScheme } from './type/screen-chrome-color-scheme.type';
@@ -20,6 +22,8 @@ export type { ScreenChromeColorSetInterface } from './interface/screen-chrome-co
 export type { ScreenChromeConfigInterface } from './interface/screen-chrome-config.interface';
 export type { ScreenChromeConfigOverridesInterface } from './interface/screen-chrome-config-overrides.interface';
 export type { ScreenChromeContextValueInterface } from './interface/screen-chrome-context-value.interface';
+export type { ScreenChromeHeaderMetricsInterface } from './interface/screen-chrome-header-metrics.interface';
+export { getScreenChromeHeaderMetrics } from './util/get-screen-chrome-header-metrics/get-screen-chrome-header-metrics.util';
 export { assertValidScreenChromeConfig } from './util/assert-valid-screen-chrome-config/assert-valid-screen-chrome-config.util';
 export { mergeScrollContentInset } from './util/merge-scroll-content-inset/merge-scroll-content-inset.util';
 export { mergeScreenChromeConfig } from './util/merge-screen-chrome-config/merge-screen-chrome-config.util';
