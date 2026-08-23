@@ -17,8 +17,8 @@
         "src/**/*"
     ],
     "scripts": {
-        "android:bare": "yarn workspace @rnw-community/react-native-payments-example-bare android",
-        "android:expo": "yarn workspace @rnw-community/react-native-payments-example-expo android",
+        "android:bare": "pnpm --filter @rnw-community/react-native-payments-example-bare android",
+        "android:expo": "pnpm --filter @rnw-community/react-native-payments-example-expo android",
         "clear": "rm -rf coverage && rm -rf dist && rm -f *.tsbuildinfo",
         "clear:deps": "rm -rf ./node_modules && rm -rf ./dist",
         "e2e:android:bare": "maestro test -e APP_ID=com.reactnativepaymentsexample e2e/flows",
@@ -26,13 +26,13 @@
         "e2e:ios:bare": "maestro test -e APP_ID=org.reactjs.native.example.ReactNativePaymentsExample e2e/flows",
         "e2e:ios:expo": "maestro test -e APP_ID=com.reactnativepaymentsexpoexample e2e/flows",
         "format": "run -T prettier --write \"./src/**/*.{ts,tsx}\"",
-        "ios:bare": "yarn workspace @rnw-community/react-native-payments-example-bare ios",
-        "ios:expo": "yarn workspace @rnw-community/react-native-payments-example-expo ios",
+        "ios:bare": "pnpm --filter @rnw-community/react-native-payments-example-bare ios",
+        "ios:expo": "pnpm --filter @rnw-community/react-native-payments-example-expo ios",
         "lint": "run -T eslint src",
         "lint:fix": "run -T eslint --fix src",
-        "prebuild:expo": "yarn workspace @rnw-community/react-native-payments-example-expo prebuild",
-        "start:bare": "yarn workspace @rnw-community/react-native-payments-example-bare start",
-        "start:expo": "yarn workspace @rnw-community/react-native-payments-example-expo start",
+        "prebuild:expo": "pnpm --filter @rnw-community/react-native-payments-example-expo prebuild",
+        "start:bare": "pnpm --filter @rnw-community/react-native-payments-example-bare start",
+        "start:expo": "pnpm --filter @rnw-community/react-native-payments-example-expo start",
         "ts": "run -T tsc --pretty -p tsconfig.json"
     },
     "dependencies": {
