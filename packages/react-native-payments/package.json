@@ -81,18 +81,18 @@
     ],
     "scripts": {
         "build": "pnpm run build:esm && pnpm run build:cjs && node ../../scripts/rewrite-esm-extensions.mjs ./dist/esm && node ../../scripts/assert-esm-extensions.mjs ./dist/esm && rm -rf ./dist/*/*.tsbuildinfo && echo '{\"type\":\"module\"}' > dist/esm/package.json && echo '{\"type\":\"commonjs\"}' > dist/cjs/package.json",
-        "build:cjs": "run -T tsc --pretty -p tsconfig.build-cjs.json",
-        "build:esm": "run -T tsc --pretty -p tsconfig.build-esm.json",
+        "build:cjs": "tsc --pretty -p tsconfig.build-cjs.json",
+        "build:esm": "tsc --pretty -p tsconfig.build-esm.json",
         "clear": "rm -rf coverage && rm -rf dist && rm -f *.tsbuildinfo",
         "clear:deps": "rm -rf ./node_modules && rm -rf ./dist",
         "example": "pnpm -C example",
-        "format": "run -T prettier --write \"./src/**/*.{ts,tsx}\"",
-        "lint": "run -T eslint src",
-        "lint:fix": "run -T eslint --fix src",
-        "test": "run -T jest",
-        "test:coverage": "run -T jest --coverage",
-        "ts": "run -T tsc --pretty -p tsconfig.json",
-        "ts:nodenext": "run -T tsc --pretty -p tsconfig.nodenext-check.json"
+        "format": "prettier --write \"./src/**/*.{ts,tsx}\"",
+        "lint": "eslint src",
+        "lint:fix": "eslint --fix src",
+        "test": "jest",
+        "test:coverage": "jest --coverage",
+        "ts": "tsc --pretty -p tsconfig.json",
+        "ts:nodenext": "tsc --pretty -p tsconfig.nodenext-check.json"
     },
     "dependencies": {
         "@expo/config-plugins": "^9.1.7",

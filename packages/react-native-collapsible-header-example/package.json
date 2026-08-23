@@ -25,15 +25,15 @@
         "e2e:android:expo": "maestro test -e APP_ID=com.reactnativecollapsibleheaderexpoexample e2e/flows",
         "e2e:ios:bare": "maestro test -e APP_ID=org.reactjs.native.example.ReactNativeCollapsibleHeaderExample e2e/flows",
         "e2e:ios:expo": "maestro test -e APP_ID=com.reactnativecollapsibleheaderexpoexample e2e/flows",
-        "format": "run -T prettier --write \"./src/**/*.{ts,tsx}\"",
+        "format": "prettier --write \"./src/**/*.{ts,tsx}\"",
         "ios:bare": "pnpm --filter @rnw-community/react-native-collapsible-header-example-bare ios",
         "ios:expo": "pnpm --filter @rnw-community/react-native-collapsible-header-example-expo ios",
-        "lint": "run -T eslint src",
-        "lint:fix": "run -T eslint --fix src",
+        "lint": "eslint src",
+        "lint:fix": "eslint --fix src",
         "prebuild:expo": "pnpm --filter @rnw-community/react-native-collapsible-header-example-expo prebuild",
         "start:bare": "pnpm --filter @rnw-community/react-native-collapsible-header-example-bare start",
         "start:expo": "pnpm --filter @rnw-community/react-native-collapsible-header-example-expo start",
-        "ts": "run -T tsc --pretty -p tsconfig.json"
+        "ts": "tsc --pretty -p tsconfig.json"
     },
     "dependencies": {
         "@react-navigation/native": "^7.1.8",
