@@ -24,7 +24,7 @@ by the host application: the application must resolve exactly one copy of the co
 context has two identities and the chrome components fail to find their provider. Reanimated 4 applications also
 install `react-native-worklets` and configure `react-native-worklets/plugin`.
 
-`expo-blur` must be `>=55`: the `blurMethod` prop and the `BlurMethod` type this package passes and re-exports in
+`expo-blur` must be `>=55 <58`: the `blurMethod` prop and the `BlurMethod` type this package passes and re-exports in
 `EdgeFadePropsInterface` only exist from that release, which renamed `experimentalBlurMethod` to `blurMethod`.
 
 ## Complete example

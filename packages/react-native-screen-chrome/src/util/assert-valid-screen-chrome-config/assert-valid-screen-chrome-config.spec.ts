@@ -120,7 +120,22 @@ describe('assertValidScreenChromeConfig', () => {
                     },
                 })
             );
-        }).toThrow('maskStops.top must contain at least one stop');
+        }).toThrow('maskStops.top must contain at least two stops');
+    });
+
+    it('rejects single-stop mask records because easeGradient cannot interpolate a transition', () => {
+        expect.hasAssertions();
+
+        expect(() => {
+            assertValidScreenChromeConfig(
+                buildConfig({
+                    maskStops: {
+                        ...SCREEN_CHROME_DEFAULT_CONFIG.maskStops,
+                        top: { 0: SCREEN_CHROME_DEFAULT_CONFIG.maskStops.top[0] },
+                    },
+                })
+            );
+        }).toThrow('maskStops.top must contain at least two stops');
     });
 
     it('rejects missing mask records with a property-specific error', () => {
@@ -132,7 +147,7 @@ describe('assertValidScreenChromeConfig', () => {
 
         expect(() => {
             assertValidScreenChromeConfig(config);
-        }).toThrow('maskStops.top must contain at least one stop');
+        }).toThrow('maskStops.top must contain at least two stops');
     });
 
     it('rejects mask stop positions outside range', () => {
