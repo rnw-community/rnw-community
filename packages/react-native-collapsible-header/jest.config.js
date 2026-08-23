@@ -4,6 +4,7 @@ module.exports = {
     resolver: 'react-native-worklets/jest/resolver',
     setupFilesAfterEnv: ['<rootDir>/jest-setup.js'],
     transformIgnorePatterns: [
-        'node_modules/(?!((jest-)?react-native|@react-native(-community)?|react-native-reanimated|react-native-worklets)/)',
+        'node_modules/(?!\\.pnpm|((jest-)?react-native|@react-native(-community)?|react-native-reanimated|react-native-worklets)/)',
+        'node_modules/\\.pnpm/[^/]+/node_modules/(?!((jest-)?react-native|@react-native(-community)?|react-native-reanimated|react-native-worklets)/)',
     ],
 };
