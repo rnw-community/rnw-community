@@ -53,6 +53,12 @@
         "@wdio/protocols": "^9.30.0",
         "webdriverio": "^9.30.0"
     },
+    "devDependencies": {
+        "react-native": "0.86.2"
+    },
+    "peerDependencies": {
+        "react-native": ">=0.72"
+    },
     "engines": {
         "node": ">=22.0.0"
     },
