@@ -44,8 +44,11 @@
         },
         "packages/react-native-screen-chrome-example/apps/bare": {
             "ignoreDependencies": [
+                "@react-native-masked-view/masked-view",
                 "@rnw-community/react-native-collapsible-header",
                 "@rnw-community/react-native-screen-chrome",
+                "expo-blur",
+                "expo-linear-gradient",
                 "react-native-reanimated",
                 "react-native-safe-area-context",
                 "react-native-screens"
@@ -69,8 +72,11 @@
                 "metro.config.js"
             ],
             "ignoreDependencies": [
+                "@react-native-masked-view/masked-view",
                 "@rnw-community/react-native-collapsible-header",
                 "@rnw-community/react-native-screen-chrome",
+                "expo-blur",
+                "expo-linear-gradient",
                 "expo-updates",
                 "react-native-reanimated",
                 "react-native-safe-area-context",
