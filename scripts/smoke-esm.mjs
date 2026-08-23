@@ -92,7 +92,20 @@ function packAllInto(destinationScopeDir) {
     fs.mkdirSync(destinationScopeDir, { recursive: true });
     fs.writeFileSync(
         path.join(projectDir, 'package.json'),
-        JSON.stringify({ name: 'smoke-esm-scratch', private: true, version: '1.0.0' }, null, 4)
+        JSON.stringify(
+            { name: 'smoke-esm-scratch', private: true, version: '1.0.0', dependencies: collectExternalRuntimeDependencies() },
+            null,
+            4
+        )
+    );
+
+    execFileSync(
+        'npm',
+        ['install', '--legacy-peer-deps', '--no-audit', '--no-fund', '--no-package-lock', '--loglevel=error'],
+        {
+            cwd: projectDir,
+            stdio: 'inherit',
+        }
     );
 
     for (const pkg of ALL_PACKAGE_NAMES) {
@@ -108,6 +121,22 @@ function packAllInto(destinationScopeDir) {
         execFileSync('tar', ['-xzf', tarball, '-C', dest, '--strip-components=1']);
         log(`packed+extracted @rnw-community/${pkg}`);
     }
+}
+
+function collectExternalRuntimeDependencies() {
+    const merged = {};
+    for (const pkg of ALL_PACKAGE_NAMES) {
+        const pkgJson = JSON.parse(fs.readFileSync(path.join(repoRoot, 'packages', pkg, 'package.json'), 'utf8'));
+        for (const dependencySection of ['dependencies', 'peerDependencies']) {
+            for (const [name, version] of Object.entries(pkgJson[dependencySection] ?? {})) {
+                if (!name.startsWith('@rnw-community/')) {
+                    merged[name] = version;
+                }
+            }
+        }
+    }
+
+    return merged;
 }
 
 function runNode(args, cwd) {
@@ -290,7 +319,7 @@ function scanInstalledPackagesForExtensionlessSpecifiers() {
 }
 
 log('Building publishable packages...');
-execFileSync('yarn', ['turbo', 'run', 'build', ...ALL_PACKAGE_NAMES.map(pkg => `--filter=@rnw-community/${pkg}`)], {
+execFileSync('pnpm', ['turbo', 'run', 'build', ...ALL_PACKAGE_NAMES.map(pkg => `--filter=@rnw-community/${pkg}`)], {
     cwd: repoRoot,
     stdio: 'inherit',
 });
