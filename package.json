@@ -6,11 +6,6 @@
     "type": "git",
     "url": "https://github.com/rnw-community/rnw-community.git"
   },
-  "workspaces": [
-    "packages/*",
-    "packages/react-native-collapsible-header-example/apps/*",
-    "packages/react-native-payments-example/apps/*"
-  ],
   "scripts": {
     "build": "turbo run build",
     "build:force": "turbo run build --force",
@@ -18,7 +13,7 @@
     "cpd": "jscpd packages",
     "deadcode": "pnpm knip",
     "deps:check": "pnpm dlx check-dependency-version-consistency .",
-    "deps:clear": "turbo run clear:deps && yarn deps:clear:root",
+    "deps:clear": "turbo run clear:deps && pnpm deps:clear:root",
     "deps:clear:root": "rm -rf ./node_modules",
     "format": "turbo run format",
     "lint": "turbo run lint",
