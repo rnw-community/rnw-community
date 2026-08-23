@@ -1,6 +1,3 @@
-diff --git a/CHANGELOG.md b/CHANGELOG.md
-deleted file mode 100644
-index 355af4f48f0e0b0deae4ca0600963392d5a25e5b..0000000000000000000000000000000000000000
 diff --git a/package.json b/package.json
 index 3b07915e04f902d86ea556d364ce4967d479d3dc..705f80a6335af4a71e97479b05409eef7e44a691 100644
 --- a/package.json
