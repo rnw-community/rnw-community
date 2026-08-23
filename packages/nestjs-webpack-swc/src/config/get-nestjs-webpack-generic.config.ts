@@ -13,12 +13,12 @@ export const getNestJSWebpackGenericConfig = (
     allowList: webpackNodeExternals.Options['allowlist'] = []
 ): Configuration => ({
     ...options,
-        externals: [
-            nodeExternals({
-                modulesFromFile: true,
-                allowlist: ['webpack/hot/poll?100', ...(Array.isArray(allowList) ? allowList : [allowList])],
-            }),
-        ],
+    externals: [
+        nodeExternals({
+            modulesFromFile: true,
+            allowlist: ['webpack/hot/poll?100', ...(Array.isArray(allowList) ? allowList : [allowList])],
+        }),
+    ],
     externalsPresets: { node: true },
     cache: {
         type: 'filesystem',
