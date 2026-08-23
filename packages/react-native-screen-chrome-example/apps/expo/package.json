@@ -12,10 +12,13 @@
     },
     "dependencies": {
         "@expo/metro-runtime": "~57.0.8",
+        "@react-native-masked-view/masked-view": "^0.3.2",
         "@rnw-community/react-native-collapsible-header": "workspace:*",
         "@rnw-community/react-native-screen-chrome": "workspace:*",
         "@rnw-community/react-native-screen-chrome-example": "workspace:*",
         "expo": "~57.0.9",
+        "expo-blur": "~56.0.3",
+        "expo-linear-gradient": "~56.0.4",
         "react": "19.2.3",
         "react-dom": "19.2.3",
         "react-native": "0.86.2",
