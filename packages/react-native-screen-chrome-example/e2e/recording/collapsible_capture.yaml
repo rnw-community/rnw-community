@@ -1,0 +1,20 @@
+appId: ${APP_ID}
+---
+# Recording-only flow for the readme demo GIF: collapse and re-expand the
+# collapsible header while the list scrolls. Not part of the assertion suite.
+- runFlow: ../subflows/launch_collapsible_demo.yaml
+- repeat:
+      times: 2
+      commands:
+          - swipe:
+                start: 50%, 80%
+                end: 50%, 30%
+                duration: 900
+- waitForAnimationToEnd:
+      timeout: 5000
+- swipe:
+      start: 50%, 30%
+      end: 50%, 85%
+      duration: 900
+- waitForAnimationToEnd:
+      timeout: 5000

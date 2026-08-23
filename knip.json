@@ -37,12 +37,40 @@
                 "react-native-screens"
             ]
         },
+        "packages/react-native-screen-chrome-example": {
+            "ignoreDependencies": [
+                "react-native-worklets"
+            ]
+        },
+        "packages/react-native-screen-chrome-example/apps/bare": {
+            "ignoreDependencies": [
+                "@rnw-community/react-native-collapsible-header",
+                "@rnw-community/react-native-screen-chrome",
+                "react-native-reanimated",
+                "react-native-safe-area-context",
+                "react-native-screens"
+            ]
+        },
         "packages/react-native-collapsible-header-example/apps/expo": {
             "ignore": [
                 "metro.config.js"
             ],
             "ignoreDependencies": [
                 "@rnw-community/react-native-collapsible-header",
+                "expo-updates",
+                "react-native-reanimated",
+                "react-native-safe-area-context",
+                "react-native-screens",
+                "react-native-worklets"
+            ]
+        },
+        "packages/react-native-screen-chrome-example/apps/expo": {
+            "ignore": [
+                "metro.config.js"
+            ],
+            "ignoreDependencies": [
+                "@rnw-community/react-native-collapsible-header",
+                "@rnw-community/react-native-screen-chrome",
                 "expo-updates",
                 "react-native-reanimated",
                 "react-native-safe-area-context",

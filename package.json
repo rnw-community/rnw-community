@@ -9,7 +9,8 @@
   "workspaces": [
     "packages/*",
     "packages/react-native-collapsible-header-example/apps/*",
-    "packages/react-native-payments-example/apps/*"
+    "packages/react-native-payments-example/apps/*",
+    "packages/react-native-screen-chrome-example/apps/*"
   ],
   "scripts": {
     "build": "turbo run build",

@@ -1,0 +1,26 @@
+appId: ${APP_ID}
+---
+# The sticky footer band and its bottom fade stay mounted above the scrolling
+# content, and scrolling does not move the header either.
+- runFlow: ../subflows/launch_home.yaml
+- tapOn:
+      id: 'home-open-footer'
+- extendedWaitUntil:
+      visible:
+          id: 'footer-demo-total'
+      timeout: 15000
+- repeat:
+      times: 2
+      commands:
+          - swipe:
+                start: 50%, 60%
+                end: 50%, 20%
+                duration: 900
+- waitForAnimationToEnd:
+      timeout: 5000
+- assertVisible:
+      id: 'footer-demo-band'
+- assertVisible:
+      id: 'footer-demo-total'
+- assertVisible:
+      id: 'footer-demo-header'

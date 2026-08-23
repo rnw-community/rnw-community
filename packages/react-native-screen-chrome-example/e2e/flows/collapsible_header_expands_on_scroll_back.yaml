@@ -1,0 +1,26 @@
+appId: ${APP_ID}
+---
+# Two slow full drags reach the collapsed endpoint unambiguously; a second drag back
+# up must bring the expanded title layer back.
+- runFlow: ../subflows/launch_collapsible_demo.yaml
+- repeat:
+      times: 2
+      commands:
+          - swipe:
+                start: 50%, 80%
+                end: 50%, 30%
+                duration: 900
+- waitForAnimationToEnd:
+      timeout: 5000
+- extendedWaitUntil:
+      visible:
+          id: 'collapsible-demo-collapsed-title'
+      timeout: 15000
+- swipe:
+      start: 50%, 30%
+      end: 50%, 85%
+      duration: 900
+- extendedWaitUntil:
+      visible:
+          id: 'collapsible-demo-expanded-title'
+      timeout: 15000
