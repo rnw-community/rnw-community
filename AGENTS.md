@@ -283,9 +283,12 @@ dual-build described below. Bob owns what the tsc pipeline reimplements by hand 
 (target `'18'`, `panicThreshold: 'all_errors'`) through a `babel.config.bob.js` so published dist ships precompiled
 React Compiler output (`react-compiler-runtime` as a runtime dependency). `'worklet'` directives pass through for the
 consumer app's worklets plugin. The enforcement gates stay identical: `assert-esm-extensions.mjs` on `dist/module`,
-`assert-react-compiler-output.mjs` on both trees, publint + attw, and `smoke:esm`.
-`react-native-collapsible-header` is the reference implementation. Node/NestJS packages (no JSX, no compiler) keep the
-tsc pipeline below.
+publint + attw, and `smoke:esm` — plus `assert-react-compiler-output.mjs` on both trees for packages that ship
+compiler output.
+`react-native-collapsible-header` is the reference implementation. **Exception — `react-native-screen-chrome` ships
+without compiler output**: its compiler-transformed code corrupts the Hermes heap at runtime on the current
+RN 0.86 / iOS 26 stack (bisect and evidence in #601); re-add the plugin there only after #601 resolves.
+Node/NestJS packages (no JSX, no compiler) keep the tsc pipeline below.
 
 ## ESM Modernization Status
 

@@ -7,7 +7,6 @@
         "react-native",
         "react-native-web",
         "reanimated",
-        "react-compiler",
         "screen chrome",
         "collapsible header"
     ],
@@ -43,7 +42,7 @@
         "dist/**/*"
     ],
     "scripts": {
-        "build": "rm -rf ./dist && bob build && yarn build:esm-extensions && node ../../scripts/assert-react-compiler-output.mjs ./dist/module ./dist/commonjs",
+        "build": "rm -rf ./dist && bob build && yarn build:esm-extensions",
         "build:esm-extensions": "node ../../scripts/rewrite-esm-extensions.mjs ./dist/module && node ../../scripts/rewrite-esm-extensions.mjs ./dist/typescript/module && node ../../scripts/assert-esm-extensions.mjs ./dist/module && node ../../scripts/assert-esm-extensions.mjs ./dist/typescript/module",
         "clear": "rm -rf coverage && rm -rf dist && rm -f *.tsbuildinfo",
         "clear:deps": "rm -rf ./node_modules && rm -rf ./dist",
@@ -56,8 +55,7 @@
         "ts:nodenext": "run -T tsc --pretty -p tsconfig.nodenext-check.json"
     },
     "dependencies": {
-        "@rnw-community/shared": "^2.12.10",
-        "react-compiler-runtime": "^1.0.0"
+        "@rnw-community/shared": "^2.12.10"
     },
     "devDependencies": {
         "@babel/core": "^7.29.7",
@@ -68,7 +66,6 @@
         "@testing-library/react-native": "^13.3.3",
         "@types/react": "19.2.18",
         "@types/react-test-renderer": "19.1.0",
-        "babel-plugin-react-compiler": "^1.0.0",
         "expo-blur": "~57.0.0",
         "react": "19.2.3",
         "react-native": "0.86.2",

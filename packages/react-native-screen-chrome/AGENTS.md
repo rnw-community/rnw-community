@@ -60,10 +60,10 @@ The package builds with `react-native-builder-bob`, configured in `package.json`
 - targets: `["module", { esm: true }]` → `dist/module`, `["commonjs", { esm: true }]` → `dist/commonjs`, and
   `typescript` → `dist/typescript/module` + `dist/typescript/commonjs` declaration trees (from `tsconfig.build.json`,
   which excludes specs).
-- React Compiler ships in both dist trees via `babel.config.bob.js` (bob's babel preset plus
-  `babel-plugin-react-compiler` with `panicThreshold: 'all_errors'` and `target: '18'`); `react-compiler-runtime` is a
-  runtime dependency, and `scripts/assert-react-compiler-output.mjs` fails the build if either tree lacks compiler
-  output. The same plugin runs in `babel.config.js` so the test run compiles through it too.
+- **React Compiler precompiled output is deliberately absent**: the compiler-transformed code corrupts the Hermes heap
+  at runtime on the current RN 0.86 / iOS 26 stack (crash bisect in #601 — the identical demo flow passes with the
+  plain bob build and crashes with compiler output). Do not re-add `babel-plugin-react-compiler` to the bob or jest
+  babel configs until #601 is resolved upstream.
 - `'worklet'` directives pass through untouched; the consumer app's worklets plugin compiles them.
 - Platform splits (`edge-fade.web.tsx`, `screen-chrome-default-config.constant.web.ts`) compile into every dist tree,
   and the four `browser` field keys map the native emitted file to its `.web.js` sibling in `dist/commonjs` and
