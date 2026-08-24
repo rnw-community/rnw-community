@@ -8,7 +8,7 @@ This file provides guidance to AI coding agents when working with code in this r
 
 ## Project Overview
 
-TypeScript monorepo with 22 packages providing NestJS, React, React Native, and React Native Web utilities. Uses Yarn Workspaces (v4), Turbo for task orchestration, and Lerna for publishing.
+TypeScript monorepo with 22 packages providing NestJS, React, React Native, and React Native Web utilities. Uses pnpm workspaces (pnpm v11), Turbo for task orchestration, and Lerna for publishing.
 
 ## Common Commands
 

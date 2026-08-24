@@ -8,7 +8,7 @@ metadata:
 ## Packages under test
 
 Two private example packages follow the same shape — ONE package proving a library on two app targets that share a
-single `src/` screen layer, with nested Yarn workspaces excluded from Lerna publishing (see each package's `AGENTS.md`):
+single `src/` screen layer, with nested pnpm workspaces excluded from Lerna publishing (see each package's `AGENTS.md`):
 
 - `packages/react-native-payments-example` proves `@rnw-community/react-native-payments`
   (`apps/bare` → `@rnw-community/react-native-payments-example-bare`, `apps/expo` →

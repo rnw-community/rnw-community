@@ -28,7 +28,7 @@ for architecture and contributor conventions.
 ## Install
 
 ```bash
-yarn add @rnw-community/react-native-payments
+npm install @rnw-community/react-native-payments
 ```
 
 Autolinking picks up the TurboModule on both architectures — no manual `react-native link` step. Complete the
@@ -131,7 +131,7 @@ This library is licensed under The [MIT License](LICENSE.md).
 Install the package with your package manager, e.g.:
 
 ```bash
-yarn add @rnw-community/react-native-payments
+npm install @rnw-community/react-native-payments
 ```
 
 Autolinking picks up the TurboModule on both architectures — no manual `react-native link` step.
@@ -225,7 +225,7 @@ npx expo prebuild --clean
 
 Building the package before prebuild is required for local/monorepo consumers: `expo prebuild` resolves
 `@rnw-community/react-native-payments/app.plugin` through the package's `exports` map, which only points at
-`dist` — run `yarn build` (or your workspace's build step) for this package before `expo prebuild` if you are
+`dist` — run `pnpm build` (or your workspace's build step) for this package before `expo prebuild` if you are
 linking it locally rather than installing it from npm.
 
 See [Platforms — Expo](docs/platforms/expo.md#plugin-options-reference) for every plugin option
@@ -478,7 +478,7 @@ package root — see [api/supported-network-enum.md](docs/api/supported-network-
 
 Building the package before prebuild is required for local/monorepo consumers: `expo prebuild` resolves
 `@rnw-community/react-native-payments/app.plugin` through the package's `exports` map, which only points at
-`dist` — run `yarn build` (or your workspace's build step) for this package before `expo prebuild` if you are
+`dist` — run `pnpm build` (or your workspace's build step) for this package before `expo prebuild` if you are
 linking it locally rather than installing it from npm.
 
 ## Example
@@ -2607,7 +2607,7 @@ the concrete API surface so an existing integration can be ported.
 
 | Upstream (`react-native-payments`) | This package (`@rnw-community/react-native-payments`) | Notes |
 | --- | --- | --- |
-| `npm install react-native-payments` + `react-native link` | `yarn add @rnw-community/react-native-payments` | Autolinked TurboModule — no manual linking step. See [getting-started/install.md](docs/getting-started/install.md). |
+| `npm install react-native-payments` + `react-native link` | `npm install @rnw-community/react-native-payments` | Autolinked TurboModule — no manual linking step. See [getting-started/install.md](docs/getting-started/install.md). |
 | `global.PaymentRequest = require('react-native-payments').PaymentRequest;` | `import { PaymentRequest } from '@rnw-community/react-native-payments';` | No global polyfill; import the class where you use it. |
 | `supportedMethods: ['apple-pay']` / `['android-pay']` (string) | `supportedMethods: PaymentMethodNameEnum.ApplePay` / `PaymentMethodNameEnum.AndroidPay` (enum) | Same runtime values, typed. |
 | `new PaymentRequest(methodData, details, options)` — 3rd arg `options.requestPayerName` etc. | `new PaymentRequest(methodData, details)` — payer/shipping flags live on each entry's `methodData.data` | No top-level `options` object. See [api/payment-request.md](docs/api/payment-request.md). |

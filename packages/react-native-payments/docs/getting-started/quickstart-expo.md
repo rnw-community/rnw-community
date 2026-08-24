@@ -10,12 +10,11 @@ options reference.
 ```js
 export default {
     plugins: [
-        ...
-        [
-            "@rnw-community/react-native-payments/app.plugin",
+        ...[
+            '@rnw-community/react-native-payments/app.plugin',
             {
-                "merchantIdentifier": "merchant.react-native-payments"
-            }
+                merchantIdentifier: 'merchant.react-native-payments',
+            },
         ],
     ],
 };
@@ -29,7 +28,7 @@ npx expo prebuild --clean
 
 Building the package before prebuild is required for local/monorepo consumers: `expo prebuild` resolves
 `@rnw-community/react-native-payments/app.plugin` through the package's `exports` map, which only points at
-`dist` — run `yarn build` (or your workspace's build step) for this package before `expo prebuild` if you are
+`dist` — run `pnpm build` (or your workspace's build step) for this package before `expo prebuild` if you are
 linking it locally rather than installing it from npm.
 
 See [Platforms — Expo](../platforms/expo.md#plugin-options-reference) for every plugin option

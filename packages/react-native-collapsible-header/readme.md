@@ -27,7 +27,7 @@ that validates the header through the accessibility tree, including the react-na
 ## Installation
 
 ```bash
-yarn add @rnw-community/react-native-collapsible-header react-native-reanimated
+npm install @rnw-community/react-native-collapsible-header react-native-reanimated
 ```
 
 React Native Reanimated is a peer dependency and must be installed by the host application. Follow the

@@ -41,8 +41,9 @@ e2e/
                                    simulator/emulator)
 ```
 
-`apps/bare` and `apps/expo` are nested Yarn workspaces (root glob `packages/react-native-payments-example/apps/*`). They are
-excluded from Lerna (`lerna.json` keeps `packages/*`), so they are never versioned or published.
+`apps/bare` and `apps/expo` are nested pnpm workspaces (root glob `packages/react-native-payments-example/apps/*` in
+`pnpm-workspace.yaml`). They are excluded from Lerna (`lerna.json` keeps `packages/*`), so they are never versioned or
+published.
 
 ## Key patterns
 
