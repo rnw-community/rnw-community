@@ -11,7 +11,7 @@ react {
     //   The root of your project, i.e. where "package.json" lives. Default is '../../'
     //   Left at the default deliberately: react.root also doubles as the cwd
     //   for the CLI's `bundle` command (BundleHermesCTask) and the base for
-    //   entryFile's default, and changing it to the true yarn-workspaces repo
+    //   entryFile's default, and changing it to the true monorepo
     //   root here broke both ("unknown command 'bundle'" — its plugin
     //   auto-detection needs cwd = this app's own directory — and a stale
     //   entryFile default), confirmed live across two failed runs. hermesc
