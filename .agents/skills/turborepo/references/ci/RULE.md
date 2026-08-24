@@ -49,7 +49,7 @@ This requires Git history to compute what changed.
 # GitHub Actions
 - uses: actions/checkout@v4
   with:
-    fetch-depth: 2  # Minimum for --affected
+    fetch-depth: 2 # Minimum for --affected
     # Use 0 for full history if merge base is far
 ```
 
@@ -60,17 +60,17 @@ Turborepo compares the current HEAD to the merge base with `main`. If that commi
 For PRs with many commits, consider:
 
 ```yaml
-fetch-depth: 0  # Full history
+fetch-depth: 0 # Full history
 ```
 
 ## Environment Variables Reference
 
-| Variable            | Purpose                              |
-| ------------------- | ------------------------------------ |
-| `TURBO_TOKEN`       | Vercel access token for remote cache |
-| `TURBO_TEAM`        | Your Vercel team slug                |
-| `TURBO_REMOTE_ONLY` | Skip local cache, use remote only    |
-| `TURBO_LOG_ORDER`   | Set to `grouped` for cleaner CI logs |
+| Variable          | Purpose                                                                    |
+| ----------------- | -------------------------------------------------------------------------- |
+| `TURBO_TOKEN`     | Vercel access token for remote cache                                       |
+| `TURBO_TEAM`      | Your Vercel team slug                                                      |
+| `TURBO_CACHE`     | Set to `remote:rw` to skip local cache (`TURBO_REMOTE_ONLY` is deprecated) |
+| `TURBO_LOG_ORDER` | Set to `grouped` for cleaner CI logs                                       |
 
 ## See Also
 
