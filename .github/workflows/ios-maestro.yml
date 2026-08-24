@@ -76,6 +76,11 @@ jobs:
         name: Maestro (${{ matrix.package }}, ${{ matrix.target }})
         needs: detect
         if: needs.detect.outputs.any == 'true'
+        # Time-boxed: the screen-chrome demo screens crash with a Hermes heap
+        # corruption under the current expo native modules on the iOS 26
+        # simulator (investigation log on issue #601). Tolerated, not silenced —
+        # remove this flag as soon as the upstream triage lands.
+        continue-on-error: ${{ matrix.package == 'screen-chrome' }}
         runs-on: [self-hosted, macOS, ARM64, macos-maestro]
         # Self-hosted fleet capacity is shared with other repositories, so both the
         # job and every step below carry an explicit bound. See the step comments

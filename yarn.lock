@@ -5242,16 +5242,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@react-native-masked-view/masked-view@npm:^0.3.2":
-  version: 0.3.2
-  resolution: "@react-native-masked-view/masked-view@npm:0.3.2"
-  peerDependencies:
-    react: ">=16"
-    react-native: ">=0.57"
-  checksum: 10/04ffbc01083aa563ca1e2d7ef6759e7b326b8129f5bb1aa5f3142348adab06d5e321a400cf70a5434324dfa906add383f8214640697c48c9e5311b30bfea03d9
-  languageName: node
-  linkType: hard
-
 "@react-native/assets-registry@npm:0.86.2":
   version: 0.86.2
   resolution: "@react-native/assets-registry@npm:0.86.2"
@@ -6014,15 +6004,14 @@ __metadata:
     "@react-native-community/cli": "npm:20.1.0"
     "@react-native-community/cli-platform-android": "npm:20.1.0"
     "@react-native-community/cli-platform-ios": "npm:20.1.0"
-    "@react-native-masked-view/masked-view": "npm:^0.3.2"
     "@react-native/babel-preset": "npm:0.86.2"
     "@react-native/metro-config": "npm:0.86.2"
     "@react-native/typescript-config": "npm:0.86.2"
     "@rnw-community/react-native-collapsible-header": "workspace:*"
     "@rnw-community/react-native-screen-chrome": "workspace:*"
     "@rnw-community/react-native-screen-chrome-example": "workspace:*"
-    expo-blur: "npm:~56.0.3"
-    expo-linear-gradient: "npm:~56.0.4"
+    expo-blur: "npm:~57.0.0"
+    expo-linear-gradient: "npm:~57.0.0"
     react: "npm:19.2.3"
     react-native: "npm:0.86.2"
     react-native-reanimated: "npm:4.5.3"
@@ -6037,14 +6026,13 @@ __metadata:
   resolution: "@rnw-community/react-native-screen-chrome-example-expo@workspace:packages/react-native-screen-chrome-example/apps/expo"
   dependencies:
     "@expo/metro-runtime": "npm:~57.0.8"
-    "@react-native-masked-view/masked-view": "npm:^0.3.2"
     "@rnw-community/react-native-collapsible-header": "workspace:*"
     "@rnw-community/react-native-screen-chrome": "workspace:*"
     "@rnw-community/react-native-screen-chrome-example": "workspace:*"
     babel-preset-expo: "npm:~57.0.5"
     expo: "npm:~57.0.9"
-    expo-blur: "npm:~56.0.3"
-    expo-linear-gradient: "npm:~56.0.4"
+    expo-blur: "npm:~57.0.0"
+    expo-linear-gradient: "npm:~57.0.0"
     react: "npm:19.2.3"
     react-dom: "npm:19.2.3"
     react-native: "npm:0.86.2"
@@ -6079,7 +6067,6 @@ __metadata:
   resolution: "@rnw-community/react-native-screen-chrome@workspace:packages/react-native-screen-chrome"
   dependencies:
     "@babel/core": "npm:^7.29.7"
-    "@react-native-masked-view/masked-view": "npm:^0.3.2"
     "@react-native/babel-preset": "npm:0.86.2"
     "@react-native/jest-preset": "npm:0.86.2"
     "@react-native/metro-config": "npm:0.86.2"
@@ -6089,19 +6076,17 @@ __metadata:
     "@types/react": "npm:19.2.18"
     "@types/react-test-renderer": "npm:19.1.0"
     babel-plugin-react-compiler: "npm:^1.0.0"
-    expo-blur: "npm:~56.0.3"
-    expo-linear-gradient: "npm:~56.0.4"
+    expo-blur: "npm:~57.0.0"
+    expo-linear-gradient: "npm:~57.0.0"
     react: "npm:19.2.3"
     react-compiler-runtime: "npm:^1.0.0"
     react-native: "npm:0.86.2"
     react-native-builder-bob: "npm:^0.43.0"
-    react-native-easing-gradient: "npm:^1.1.1"
     react-native-reanimated: "npm:4.5.3"
     react-native-safe-area-context: "npm:~5.7.0"
     react-native-worklets: "npm:0.11.3"
     react-test-renderer: "npm:19.2.3"
   peerDependencies:
-    "@react-native-masked-view/masked-view": ">=0.3.2 <1"
     "@rnw-community/react-native-collapsible-header": ">=2.13.0 <3"
     expo-blur: ">=55 <58"
     expo-linear-gradient: ">=14 <58"
@@ -11398,14 +11383,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"expo-blur@npm:~56.0.3":
-  version: 56.0.4
-  resolution: "expo-blur@npm:56.0.4"
+"expo-blur@npm:~57.0.0":
+  version: 57.0.2
+  resolution: "expo-blur@npm:57.0.2"
   peerDependencies:
     expo: "*"
     react: "*"
     react-native: "*"
-  checksum: 10/0d8372477ff7996e6272fd530d1726839ce9a9885e19e2ee3e2bd31af8aea968a090ca0cf52695fd9290606be276cf9022025fc4c1ca6938b85ed633fc9d8460
+  checksum: 10/7cac48c62f49a17d66204ef88a8fd3bf363c948e219b29da01add754d46bf970128105d2e3606536eb17479685b0074ddb6ecea7d5083091dfa7f0eabe03c836
   languageName: node
   linkType: hard
 
@@ -11454,14 +11439,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"expo-linear-gradient@npm:~56.0.4":
-  version: 56.0.4
-  resolution: "expo-linear-gradient@npm:56.0.4"
+"expo-linear-gradient@npm:~57.0.0":
+  version: 57.0.1
+  resolution: "expo-linear-gradient@npm:57.0.1"
   peerDependencies:
     expo: "*"
     react: "*"
     react-native: "*"
-  checksum: 10/72386b28e4cf01edbb5834cc6a19c860af32520fc25bc77d698becd1a667a9e502a90f3a260b5d9daab4ee5fe789179a4cafea17b740b3c58ef09d962e655ac8
+  checksum: 10/188d6772749be2535e2fe2a91b2066d829bd960fb0a0da76828ea0519b0516ef6f6fd015640d3959a017b61721d65681f2e93ab487533c6e865d8e86668a554f
   languageName: node
   linkType: hard
 
@@ -18279,16 +18264,6 @@ __metadata:
     react-native-windows:
       optional: true
   checksum: 10/22ab54833f1066c361d0baa52bebbd29f43d5b5ace45cbd3b4dd191220556f5d031284a39734bb1b12475a4365b50bd24d7ac9b304472e2aa24fa714f4bd12af
-  languageName: node
-  linkType: hard
-
-"react-native-easing-gradient@npm:^1.1.1":
-  version: 1.1.1
-  resolution: "react-native-easing-gradient@npm:1.1.1"
-  peerDependencies:
-    react: "*"
-    react-native: "*"
-  checksum: 10/70a27503402a9a9e9103bc913ea34226e5a95b2000704c63d46dc6e6138ed9d6dbb19650846263dc3a3bb9e999ff1823f581956d6325faf9b0d9386102822600
   languageName: node
   linkType: hard
 

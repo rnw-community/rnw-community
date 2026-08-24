@@ -9,23 +9,12 @@ import { SCREEN_CHROME_DEFAULT_CONFIG } from '../constant/screen-chrome-default-
 import { EdgeFade } from './edge-fade';
 
 import type { ScreenChromeColorScheme } from '../type/screen-chrome-color-scheme.type';
-import type { ReactNode } from 'react';
 import type { View } from 'react-native';
 
 const mockScrollY = { get: jest.fn(() => 0) };
 const mockConfig = SCREEN_CHROME_DEFAULT_CONFIG;
 let mockColorScheme: ScreenChromeColorScheme = 'light';
 
-jest.mock('@react-native-masked-view/masked-view', () => {
-    const ReactModule = jest.requireActual<typeof import('react')>('react');
-
-    return {
-        __esModule: true,
-        default: jest.fn(({ children, maskElement }: { readonly children?: ReactNode; readonly maskElement?: ReactNode }) =>
-            ReactModule.createElement(ReactModule.Fragment, {}, maskElement, children)
-        ),
-    };
-});
 jest.mock('expo-blur', () => ({ BlurView: jest.fn(() => null) }));
 jest.mock('expo-linear-gradient', () => ({ LinearGradient: jest.fn(() => null) }));
 jest.mock('react-native-safe-area-context', () => ({
@@ -66,14 +55,14 @@ describe('EdgeFade native', () => {
         expect.hasAssertions();
 
         render(<EdgeFade position="top" intensity={0} blurMethod="none" />);
-        const [[maskGradientProps], [washGradientProps]] = jest.mocked(LinearGradient).mock.calls;
+        const [[washGradientProps]] = jest.mocked(LinearGradient).mock.calls;
         const [[blurProps]] = jest.mocked(BlurView).mock.calls;
 
-        expect(maskGradientProps.colors).toHaveLength(maskGradientProps.locations?.length ?? 0);
-        expect(maskGradientProps.locations?.at(0)).toBe(0);
-        expect(maskGradientProps.locations?.at(-1)).toBe(1);
         expect(washGradientProps).toEqual(
-            expect.objectContaining({ colors: ['rgba(255,255,255,0.42)', 'rgba(255,255,255,0.08)'] })
+            expect.objectContaining({
+                colors: ['rgba(255,255,255,0.42)', 'rgba(255,255,255,0.08)', 'transparent'],
+                locations: [0, 0.5, 1],
+            })
         );
         expect(blurProps).toEqual(
             expect.objectContaining({ intensity: 0, tint: 'systemChromeMaterialLight', blurMethod: 'none' })
@@ -94,11 +83,13 @@ describe('EdgeFade native', () => {
             />
         );
         const fade = screen.getByTestId('bottom-fade', { includeHiddenElements: true });
-        const [, [washGradientProps]] = jest.mocked(LinearGradient).mock.calls;
+        const [[washGradientProps]] = jest.mocked(LinearGradient).mock.calls;
         const [[blurProps]] = jest.mocked(BlurView).mock.calls;
 
         expect(fade).toHaveStyle({ height: 180, bottom: -30, opacity: 0.5 });
-        expect(washGradientProps).toEqual(expect.objectContaining({ colors: ['rgba(0,0,0,0.12)', 'rgba(0,0,0,0.48)'] }));
+        expect(washGradientProps).toEqual(
+            expect.objectContaining({ colors: ['rgba(0,0,0,0.12)', 'rgba(0,0,0,0.48)', 'transparent'] })
+        );
         expect(blurProps).toEqual(
             expect.objectContaining({ intensity: 30, tint: 'systemThinMaterialDark', blurMethod: 'none' })
         );

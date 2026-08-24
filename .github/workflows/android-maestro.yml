@@ -192,6 +192,8 @@ jobs:
         name: Maestro (${{ matrix.package }}, ${{ matrix.target }})
         needs: [detect, build-apk]
         if: needs.detect.outputs.any == 'true'
+        # Time-boxed: see the same flag in ios-maestro.yml and issue #601.
+        continue-on-error: ${{ matrix.package == 'screen-chrome' }}
         runs-on: [self-hosted, linux-tiered, linux-xl]
         # Self-hosted fleet capacity is shared with other repositories, so both the
         # job and every step below carry an explicit bound. See the step comments

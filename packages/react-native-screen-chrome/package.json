@@ -57,12 +57,10 @@
     },
     "dependencies": {
         "@rnw-community/shared": "^2.12.10",
-        "react-compiler-runtime": "^1.0.0",
-        "react-native-easing-gradient": "^1.1.1"
+        "react-compiler-runtime": "^1.0.0"
     },
     "devDependencies": {
         "@babel/core": "^7.29.7",
-        "@react-native-masked-view/masked-view": "^0.3.2",
         "@react-native/babel-preset": "0.86.2",
         "@react-native/jest-preset": "0.86.2",
         "@react-native/metro-config": "0.86.2",
@@ -71,8 +69,8 @@
         "@types/react": "19.2.18",
         "@types/react-test-renderer": "19.1.0",
         "babel-plugin-react-compiler": "^1.0.0",
-        "expo-blur": "~56.0.3",
-        "expo-linear-gradient": "~56.0.4",
+        "expo-blur": "~57.0.0",
+        "expo-linear-gradient": "~57.0.0",
         "react": "19.2.3",
         "react-native": "0.86.2",
         "react-native-builder-bob": "^0.43.0",
@@ -82,7 +80,6 @@
         "react-test-renderer": "19.2.3"
     },
     "peerDependencies": {
-        "@react-native-masked-view/masked-view": ">=0.3.2 <1",
         "@rnw-community/react-native-collapsible-header": ">=2.13.0 <3",
         "expo-blur": ">=55 <58",
         "expo-linear-gradient": ">=14 <58",

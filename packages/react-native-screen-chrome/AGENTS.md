@@ -46,9 +46,10 @@ yarn test && yarn test:coverage && yarn build && yarn ts && yarn ts:nodenext && 
 - React 19-only syntax (`use()`) stays absent while the `react` peer floor is `>=18`.
 - Relative source imports stay extensionless; the build's post-compile rewrite/assert pair enforces extensioned specifiers in `dist/module` and `dist/typescript/module`, and NodeNext validation must pass.
 - No manual `useMemo`, `useCallback`, or `React.memo` in `src` — React Compiler owns memoization and `panicThreshold: 'all_errors'` fails the build on anything it cannot compile.
-- `@react-native-masked-view/masked-view` is consumed through its own published types; the former
-  `src/type/masked-view-module.type.d.ts` `paths` shim is deleted because those types now type-check under strict mode,
-  NodeNext resolution, and bob's declaration build, and no local shim may be reintroduced for it.
+- `EdgeFade` composes the blur band and an eased wash gradient directly — `@react-native-masked-view/masked-view` is
+  banned: rendering a `LinearGradient` inside `MaskedView` corrupts the Hermes heap on the current
+  RN 0.86 / iOS 26 stack (masked-view 0.3.2 is unmaintained, no upstream fix), and the wash gradient alone achieves the
+  same fade without a second native dependency.
 - Public exports carry repository-standard scoped TSDoc and package readme links.
 - Tests retain at least 99.9% statements, branches, functions, and lines coverage.
 

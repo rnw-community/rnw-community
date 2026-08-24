@@ -14,7 +14,6 @@ content and product behavior stay consumer-owned.
 ```bash
 yarn add @rnw-community/react-native-screen-chrome \
     @rnw-community/react-native-collapsible-header \
-    @react-native-masked-view/masked-view \
     expo-blur expo-linear-gradient \
     react-native-reanimated react-native-safe-area-context
 ```
