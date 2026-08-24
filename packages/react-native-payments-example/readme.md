@@ -19,10 +19,10 @@ Both app targets depend on the shared `src` through the package name
 Run from the repository root:
 
 ```bash
-yarn workspace @rnw-community/react-native-payments-example ios:bare
-yarn workspace @rnw-community/react-native-payments-example android:bare
-yarn workspace @rnw-community/react-native-payments-example ios:expo
-yarn workspace @rnw-community/react-native-payments-example android:expo
+pnpm --filter @rnw-community/react-native-payments-example ios:bare
+pnpm --filter @rnw-community/react-native-payments-example android:bare
+pnpm --filter @rnw-community/react-native-payments-example ios:expo
+pnpm --filter @rnw-community/react-native-payments-example android:expo
 ```
 
 Metro can be started separately with `start:bare` / `start:expo`. The Expo native projects are regenerated on demand with
@@ -116,7 +116,7 @@ The end-to-end suites drive the screen through these identifiers:
 | `event-log-count`                | number of logged rows                               |
 | `event-log-row-<index>`          | one log row, zero based and append-only             |
 
-The Expo target also runs on the web (`yarn workspace @rnw-community/react-native-payments-example-expo web`), where the
+The Expo target also runs on the web (`pnpm --filter @rnw-community/react-native-payments-example-expo web`), where the
 library falls back to the W3C Payment Request API.
 
 ## iOS notes

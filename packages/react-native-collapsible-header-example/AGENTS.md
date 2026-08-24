@@ -112,7 +112,7 @@ one coherent, locally-proven set. Two failure modes forced this, both observed o
   compiled against a specific `ExpoModulesCore` ABI, and Expo's `~57.0.x` ranges let sibling modules drift apart.
 
 Keep the set moving together: bump every pin to the same contemporaneous patch line, then
-`rm -rf apps/expo/ios && yarn prebuild:expo` and rebuild.
+`rm -rf apps/expo/ios && pnpm prebuild:expo` and rebuild.
 
 ## Dependencies
 

@@ -5,7 +5,7 @@ Framework-agnostic interceptor primitive: wraps a decorated method's descriptor 
 ## Package Commands
 
 ```bash
-yarn test && yarn test:coverage && yarn build && yarn ts && yarn lint:fix
+pnpm test && pnpm test:coverage && pnpm build && pnpm ts && pnpm lint:fix
 ```
 
 ## Architecture

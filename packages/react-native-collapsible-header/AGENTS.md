@@ -6,7 +6,7 @@ snap-to-endpoint, overlay mode, overscroll stretch, and React Compiler precompil
 ## Package Commands
 
 ```bash
-yarn test && yarn test:coverage && yarn build && yarn ts && yarn ts:nodenext && yarn lint
+pnpm test && pnpm test:coverage && pnpm build && pnpm ts && pnpm ts:nodenext && pnpm lint
 ```
 
 ## Architecture

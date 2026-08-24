@@ -14,24 +14,24 @@ TypeScript monorepo with 22 packages providing NestJS, React, React Native, and 
 
 ```bash
 # Root-level (runs across all packages via Turbo)
-yarn build              # Build all packages (dual ESM + CJS output to dist/)
-yarn ts                 # Type check all packages
-yarn lint               # ESLint all packages
-yarn lint:fix           # Auto-fix lint issues
-yarn test               # Run all tests
-yarn test:coverage      # Run tests with coverage
-yarn format             # Prettier format all
-yarn cpd                # Copy-paste detection
-yarn deadcode           # Find unused code (knip)
+pnpm build              # Build all packages (dual ESM + CJS output to dist/)
+pnpm ts                 # Type check all packages
+pnpm lint               # ESLint all packages
+pnpm lint:fix           # Auto-fix lint issues
+pnpm test               # Run all tests
+pnpm test:coverage      # Run tests with coverage
+pnpm format             # Prettier format all
+pnpm cpd                # Copy-paste detection
+pnpm deadcode           # Find unused code (knip)
 
 # Single package (cd into package first)
 cd packages/shared
-yarn test               # Run tests for this package only
-yarn test --watch       # Watch mode
-yarn test:coverage      # Tests with coverage
-yarn build              # Build this package only
-yarn ts                 # Type check this package only
-yarn lint:fix           # Fix lint issues in this package
+pnpm test               # Run tests for this package only
+pnpm test --watch       # Watch mode
+pnpm test:coverage      # Tests with coverage
+pnpm build              # Build this package only
+pnpm ts                 # Type check this package only
+pnpm lint:fix           # Fix lint issues in this package
 ```
 
 ## Architecture
@@ -300,19 +300,19 @@ The monorepo uses dual ESM + CJS output. Key decisions:
   `build` script of every dual-format package so Node's own module-kind detection matches each directory's real output
   instead of falling through to the CJS default for the ESM build. `eslint-plugin` is the one exception — see below
 - `moduleResolution: "bundler"` in the root type-check tsconfig (matches Metro's actual runtime resolution, so
-  `yarn ts` validates against the same leniency real consumers get); `"esnext"`/inherited `"bundler"` in the ESM build
+  `pnpm ts` validates against the same leniency real consumers get); `"esnext"`/inherited `"bundler"` in the ESM build
   tsconfig (source stays extensionless — see the invariant below); `"node"` in the CJS build tsconfig
 - `verbatimModuleSyntax: true` enforces explicit `import type` for type-only imports
 - `lib: ["es2021"]` matches the build target
 - Build scripts correctly reference their tsconfig files (`build:esm` → `tsconfig.build-esm.json`)
-- **`node10` module resolution is not a supported target.** `yarn publint`'s `attw` step runs with `--profile node16`,
+- **`node10` module resolution is not a supported target.** `pnpm publint`'s `attw` step runs with `--profile node16`,
   which scopes checks to `node16`/`nodenext` (both `require` and `import`) and `bundler` — the resolution modes real
   consumers use (Metro included). Packages declare their actual supported Node floor via `engines.node` instead of
   chasing the legacy pre-`exports` resolution algorithm
 - **Invariant: zero extensionless relative specifiers in any published output — enforced on the emitted artifact, not
   in source.** Source stays exactly as it reads: `import { x } from './x'`, no `.js`, no `/index.js`. `tsc` compiles
   `tsconfig.build-esm.json` with plain `"module": "esnext"` (inheriting the root's `moduleResolution: "bundler"`), the
-  same lenient resolution `yarn ts` already validates against, so nothing in the compiler forces an extension. Instead,
+  same lenient resolution `pnpm ts` already validates against, so nothing in the compiler forces an extension. Instead,
   every dual-format package's `build` script chains two scripts against the freshly compiled `dist/esm` directory,
   right after `build:esm`/`build:cjs` and before the `dist/*/package.json` markers are written:
     - `scripts/rewrite-esm-extensions.mjs ./dist/esm` walks every emitted `.js` and `.d.ts` file and appends `.js` (or
@@ -328,7 +328,7 @@ The monorepo uses dual ESM + CJS output. Key decisions:
     - `scripts/assert-esm-extensions.mjs ./dist/esm` independently re-scans the same tree afterward and fails the build
       (non-zero exit) if any relative specifier is still extensionless. This is the actual enforcement point — not the
       compiler, not "the rewrite script ran without crashing." Disabling the rewrite step or hand-breaking one emitted
-      specifier reproduces the exact class of defect `#531` reported, and `yarn build` fails loudly instead of shipping
+      specifier reproduces the exact class of defect `#531` reported, and `pnpm build` fails loudly instead of shipping
       it (verified: see the PR body for a real "broke one specifier, assertion caught it" run).
       Both scripts share the specifier-matching/extension-classification logic in `scripts/esm-relative-specifier.mjs` so
       the two definitions of "what counts as a relative specifier" and "what counts as already-extensioned" can't drift
@@ -362,10 +362,10 @@ The monorepo uses dual ESM + CJS output. Key decisions:
       side effect, which no longer exists.
       `scripts/publint.sh` still does not pass `--ignore-rules internal-resolution-error` to `attw` for any package — the
       rewrite+assert pair is what keeps that rule green now, in place of the compiler.
-      `yarn smoke:esm` (and the `package-manager-smoke` CI job) is unchanged and still packs and imports every publishable
+      `pnpm smoke:esm` (and the `package-manager-smoke` CI job) is unchanged and still packs and imports every publishable
       package's tarball under real `node --input-type=module`/`require()`, independently re-validating the same invariant
       at the installed-package layer, on top of `assert-esm-extensions.mjs`'s per-package check right after `build`.
-- **`yarn ts:nodenext`'s scope changed along with the rest of this invariant, and its original defect class
+- **`pnpm ts:nodenext`'s scope changed along with the rest of this invariant, and its original defect class
   (`#536`/`#540`, a `.spec.ts` default-importing a CJS dependency whose `.d.ts` mistypes its default export — `ioredis`'s
   `Redis`, for one) is only partially covered now.** `tsconfig.nodenext-check.json` still sets `"module"`/`"moduleResolution"`
   to `"nodenext"` directly (it can no longer inherit the mode from `tsconfig.build-esm.json`, which reverted to
@@ -378,7 +378,7 @@ The monorepo uses dual ESM + CJS output. Key decisions:
   The trade-off: `#536`'s specific failure mode (`TS2709`/`TS2351` from `nodenext`'s CJS-interop rules) only fires when
   the _importing_ file is itself resolved as genuine ESM-format, which required the now-removed `"type": "module"` —
   confirmed by deliberately reintroducing the broken `import Redis from 'ioredis'` form into a spec file and rerunning
-  `yarn ts:nodenext` with the current (`"type"`-less) configuration: it passes, silently. Making the check itself
+  `pnpm ts:nodenext` with the current (`"type"`-less) configuration: it passes, silently. Making the check itself
   ESM-format again (either via `"type": "module"` on the package root, which reopens the extension mandate this whole
   section exists to avoid, or via a nested `src/package.json` override, which reopens it identically since format
   detection and the extension mandate are the same `nodenext` mechanism) was evaluated and rejected for exactly that
@@ -388,7 +388,7 @@ The monorepo uses dual ESM + CJS output. Key decisions:
   `.d.ts` files at all, which surfaces dozens of unrelated pre-existing conflicts in third-party `.d.ts` files
   (`react-native`'s bundled DOM globals vs. `lib.dom.d.ts`, `@expo/config-plugins`, `@types/node`) on every heavier
   package — a materially larger, noisier undertaking than this adaptation warrants, and it still would not cover specs
-  at all (they're excluded from every build). `yarn ts:nodenext` therefore still catches ordinary `nodenext`-resolution
+  at all (they're excluded from every build). `pnpm ts:nodenext` therefore still catches ordinary `nodenext`-resolution
   defects (wrong `exports`-map subpath, a resolution failure `bundler` mode would silently paper over) but not this one
   specific CJS-default-import shape inside a spec file. The residual risk is bounded: specs never ship, so a regression
   of this exact shape has zero runtime blast radius on any consumer, and production code's already-correct import form
@@ -402,7 +402,7 @@ The monorepo uses dual ESM + CJS output. Key decisions:
   `tsconfig.build-esm.json` targets `NodeNext` against a `type`-less source tree so `tsc` compiles it as CommonJS
   even under `dist/esm/` — both dist trees are byte-equivalent CJS. The package.json reflects this honestly instead of
   papering over it: root-level `"type": "commonjs"` (not per-directory markers, since neither directory is ESM), no
-  `"module"` field (there is no real ESM entry to advertise to bundlers), and `yarn publint`'s `attw` invocation for
+  `"module"` field (there is no real ESM entry to advertise to bundlers), and `pnpm publint`'s `attw` invocation for
   this package alone adds `--ignore-rules named-exports` — `attw`'s "TypeScript allows ESM named imports that will
   crash at runtime" finding is exactly the CJS-via-`import`-statement default-interop pattern this package's own
   readme documents as its supported usage (`import rnwcPlugin from '@rnw-community/eslint-plugin'`), never named
@@ -431,7 +431,7 @@ whatever the current review tooling is) and run this loop for each — it is man
 **IMPORTANT: Always run all checks before committing and pushing:**
 
 ```bash
-yarn ts && yarn lint && yarn test
+pnpm ts && pnpm lint && pnpm test
 ```
 
 All three must pass before creating a commit. Do not skip any of these checks.
