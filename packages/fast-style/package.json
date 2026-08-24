@@ -59,7 +59,7 @@
     },
     "peerDependencies": {
         "react": ">=18",
-        "react-native": ">=0.64"
+        "react-native": ">=0.72"
     },
     "engines": {
         "node": ">=22.0.0"

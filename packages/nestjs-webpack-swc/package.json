@@ -78,7 +78,7 @@
         "webpack-node-externals": "^3.0.0"
     },
     "peerDependencies": {
-        "@nestjs/common": "^11.0.0",
+        "@nestjs/common": "^11.1.28",
         "@swc/cli": "^0.1.57",
         "@swc/core": "^1.2.239",
         "@swc/helpers": "^0.4.7",

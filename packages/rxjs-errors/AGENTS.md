@@ -48,7 +48,7 @@ src/
 ### Dependencies
 
 - `@rnw-community/shared` — `getErrorMessage` extracts a safe `.message` string inside `rethrowException`'s log line
-- Peer: `rxjs` (^7.8.1)
+- Peer: `rxjs` (^7.8.2)
 - DevDependency `expect-type` is used only in `filter-with-exception.operator.spec.ts` to assert compile-time type
   narrowing on the type-guard overload
 

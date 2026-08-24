@@ -105,8 +105,8 @@
     },
     "peerDependencies": {
         "expo": "*",
-        "react": ">=17",
-        "react-native": ">=0.64"
+        "react": ">=18",
+        "react-native": ">=0.72"
     },
     "peerDependenciesMeta": {
         "expo": {

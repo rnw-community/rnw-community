@@ -132,47 +132,23 @@ function packAllInto(destinationScopeDir) {
     }
 }
 
-const EXACT_SPECIFIER_PATTERN = /^\d/;
-
 function collectExternalRuntimeDependencies() {
-    const merged = {};
-    for (const pkg of ALL_PACKAGE_NAMES) {
+    return ALL_PACKAGE_NAMES.reduce((merged, pkg) => {
         const pkgJson = JSON.parse(fs.readFileSync(path.join(repoRoot, 'packages', pkg, 'package.json'), 'utf8'));
         for (const dependencySection of ['dependencies', 'peerDependencies']) {
             for (const [name, version] of Object.entries(pkgJson[dependencySection] ?? {})) {
-                if (!name.startsWith('@rnw-community/')) {
-                    merged[name] = merged[name] === undefined ? version : preferPinnedSpecifier(merged[name], version);
+                if (name.startsWith('@rnw-community/')) {
+                    continue;
                 }
+                if (name in merged && merged[name] !== version) {
+                    throw new Error(`Conflicting '${name}' specifiers: '${merged[name]}' vs '${version}'`);
+                }
+                merged[name] = version;
             }
         }
-    }
 
-    return merged;
-}
-
-function preferPinnedSpecifier(incumbentSpecifier, incomingSpecifier) {
-    const incumbentIsExact = EXACT_SPECIFIER_PATTERN.test(incumbentSpecifier);
-    const incomingIsExact = EXACT_SPECIFIER_PATTERN.test(incomingSpecifier);
-    if (incumbentIsExact !== incomingIsExact) {
-        return incumbentIsExact ? incumbentSpecifier : incomingSpecifier;
-    }
-    if (!incomingIsExact) {
-        return incomingSpecifier > incumbentSpecifier ? incomingSpecifier : incumbentSpecifier;
-    }
-
-    return isHigherExactSemver(incomingSpecifier, incumbentSpecifier) ? incomingSpecifier : incumbentSpecifier;
-}
-
-function isHigherExactSemver(incomingSpecifier, incumbentSpecifier) {
-    const semverDiff = (incoming, incumbent) => (Number.parseInt(incoming, 10) || 0) - (Number.parseInt(incumbent, 10) || 0);
-    const incomingParts = incomingSpecifier.split('.');
-    const incumbentParts = incumbentSpecifier.split('.');
-
-    return (
-        (semverDiff(incomingParts[0], incumbentParts[0]) ||
-            semverDiff(incomingParts[1], incumbentParts[1]) ||
-            semverDiff(incomingParts[2], incumbentParts[2])) > 0
-    );
+        return merged;
+    }, {});
 }
 
 function runNode(args, cwd) {

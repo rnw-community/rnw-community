@@ -122,11 +122,11 @@
         "rxjs": "^7.8.2"
     },
     "peerDependencies": {
-        "@nestjs/common": "^11.0.0",
-        "ioredis": "^5.4.1",
+        "@nestjs/common": "^11.1.28",
+        "ioredis": "^5.11.1",
         "prom-client": "^15.1.2",
-        "redlock": "^5.0.0-beta.2",
-        "rxjs": "^7.8.1"
+        "redlock": "5.0.0-beta2",
+        "rxjs": "^7.8.2"
     },
     "peerDependenciesMeta": {
         "ioredis": {
