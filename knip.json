@@ -90,6 +90,11 @@
             "ignoreDependencies": [
                 "@rnw-community/react-native-payments"
             ]
+        },
+        "packages/react-native-screen-chrome": {
+            "ignore": [
+                "babel.config.bob.js"
+            ]
         }
     },
     "ignore": [
