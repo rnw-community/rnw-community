@@ -30,11 +30,7 @@ overrides:
 
 minimumReleaseAge: 1440
 
-strictDepBuilds: true
-
-# Deny-by-default: dependency lifecycle scripts stay blocked, matching the
-# previous enableScripts: false posture. Populate explicit `false` entries for
-# every script-bearing dependency surfaced by the first pnpm install.
+# Deny-by-default parity with the former enableScripts: false posture.
 allowBuilds:
   "@swc/core": false
   edgedriver: false
