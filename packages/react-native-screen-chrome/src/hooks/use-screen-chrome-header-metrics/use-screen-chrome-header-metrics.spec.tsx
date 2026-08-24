@@ -1,49 +1,35 @@
-import { describe, expect, it } from '@jest/globals';
-import { render } from '@testing-library/react-native';
+import { describe, expect, it, jest } from '@jest/globals';
+import { renderHook } from '@testing-library/react-native';
 import React from 'react';
-import { Text } from 'react-native';
-import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import { SCREEN_CHROME_DEFAULT_CONFIG } from '../../constant/screen-chrome-default-config.constant';
-import { ScreenChromeProvider } from '../../screen-chrome-provider/screen-chrome-provider';
+import { ScreenChromeContext } from '../../context/screen-chrome.context';
 
 import { useScreenChromeHeaderMetrics } from './use-screen-chrome-header-metrics.hook';
 
-import type { ScreenChromeHeaderMetricsInterface } from '../../interface/screen-chrome-header-metrics.interface';
-import type { Metrics } from 'react-native-safe-area-context';
+import type { ScreenChromeContextValueInterface } from '../../interface/screen-chrome-context-value.interface';
+import type { PropsWithChildren } from 'react';
 
-const INSETS: Metrics = {
-    insets: { top: 59, bottom: 34, left: 0, right: 0 },
-    frame: { x: 0, y: 0, width: 390, height: 844 },
-};
+const INSETS_TOP = 59;
 
-const Probe = ({ onMetrics }: { readonly onMetrics: (metrics: ScreenChromeHeaderMetricsInterface) => null }) => {
-    onMetrics(useScreenChromeHeaderMetrics());
-
-    return <Text>probe</Text>;
-};
+jest.mock('react-native-safe-area-context', () => ({
+    useSafeAreaInsets: () => ({ top: INSETS_TOP, right: 0, bottom: 0, left: 0 }),
+}));
 
 describe('useScreenChromeHeaderMetrics', () => {
     it('derives the header footprint from the live config and device insets', () => {
         expect.hasAssertions();
 
-        let metrics: ScreenChromeHeaderMetricsInterface | undefined;
-
-        render(
-            <SafeAreaProvider initialMetrics={INSETS}>
-                <ScreenChromeProvider>
-                    <Probe
-                        onMetrics={value => {
-                            metrics = value;
-
-                            return null;
-                        }}
-                    />
-                </ScreenChromeProvider>
-            </SafeAreaProvider>
+        const value: ScreenChromeContextValueInterface = {
+            colorScheme: 'light',
+            config: SCREEN_CHROME_DEFAULT_CONFIG,
+        };
+        const Wrapper = ({ children }: PropsWithChildren) => (
+            <ScreenChromeContext.Provider value={value}>{children}</ScreenChromeContext.Provider>
         );
 
-        expect(metrics?.headerTotalHeight).toBe(INSETS.insets.top + SCREEN_CHROME_DEFAULT_CONFIG.headerHeight);
-        expect(metrics?.recommendedContentTopGap).toBe(metrics?.headerTotalHeight);
+        const { result } = renderHook(() => useScreenChromeHeaderMetrics(), { wrapper: Wrapper });
+
+        expect(result.current).toBe(INSETS_TOP + SCREEN_CHROME_DEFAULT_CONFIG.headerHeight);
     });
 });

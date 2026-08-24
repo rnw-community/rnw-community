@@ -323,12 +323,13 @@ const style = useScrollFadeStyle([0, 80], [1, 0]);
 
 ## getScreenChromeHeaderMetrics
 
-Computes the header footprint from a header height, the device top inset, and an optional extra header top inset,
-matching the height the `CollapsibleHeader` and `ScreenChromeHeader` containers render. Pure and React-independent,
-so it works in non-component code and tests.
+Computes the rendered header footprint from a header height, the device top inset, and an optional extra header top
+inset, matching the height the `CollapsibleHeader` and `ScreenChromeHeader` containers render. Pure and
+React-independent, so it works in non-component code and tests. Use the returned number as the scroll content's top
+inset so content starts below the header.
 
 ```ts
-const metrics = getScreenChromeHeaderMetrics(config.headerHeight, insets.top, topInset);
+const headerTotalHeight = getScreenChromeHeaderMetrics(config.headerHeight, insets.top, topInset);
 ```
 
 ## useScreenChromeHeaderMetrics
@@ -338,17 +339,7 @@ collapsible container owns none), so screens offset their content from the rende
 `SCREEN_CHROME_DEFAULT_CONFIG`. Requires a `ScreenChromeProvider` ancestor.
 
 ```tsx
-const { headerTotalHeight, recommendedContentTopGap } = useScreenChromeHeaderMetrics();
-```
-
-## ScreenChromeHeaderMetricsInterface
-
-Describes the rendered header footprint: `headerTotalHeight` is the full header height including the device top inset
-and any explicit header top inset, and `recommendedContentTopGap` is the top gap to give scroll content so it starts
-below the header.
-
-```ts
-const metrics: ScreenChromeHeaderMetricsInterface = { headerTotalHeight: 74, recommendedContentTopGap: 74 };
+const headerTotalHeight = useScreenChromeHeaderMetrics();
 ```
 
 ## ScreenChromeColorScheme

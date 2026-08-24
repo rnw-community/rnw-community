@@ -25,10 +25,10 @@ const StaticDemoHeader = () => (
 );
 
 const StaticDemoContent = () => {
-    const { recommendedContentTopGap } = useScreenChromeHeaderMetrics();
+    const headerTotalHeight = useScreenChromeHeaderMetrics();
 
     // The metrics API replaces the app-side default-config re-merge: the gap equals the rendered header height.
-    return <ChromeDemoList contentInsetTop={recommendedContentTopGap} testID="static-demo-scroll" />;
+    return <ChromeDemoList contentInsetTop={headerTotalHeight} testID="static-demo-scroll" />;
 };
 
 export const StaticHeaderDemoScreen = () => (

@@ -43,11 +43,11 @@ const FooterBand = () => {
 };
 
 const FooterDemoContent = () => {
-    const { recommendedContentTopGap } = useScreenChromeHeaderMetrics();
+    const headerTotalHeight = useScreenChromeHeaderMetrics();
 
     return (
         <>
-            <ChromeDemoList contentInsetBottom={96} contentInsetTop={recommendedContentTopGap} testID="footer-demo-scroll" />
+            <ChromeDemoList contentInsetBottom={96} contentInsetTop={headerTotalHeight} testID="footer-demo-scroll" />
             <FooterBand />
         </>
     );

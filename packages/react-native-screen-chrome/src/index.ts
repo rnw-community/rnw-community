@@ -22,7 +22,6 @@ export type { ScreenChromeColorSetInterface } from './interface/screen-chrome-co
 export type { ScreenChromeConfigInterface } from './interface/screen-chrome-config.interface';
 export type { ScreenChromeConfigOverridesInterface } from './interface/screen-chrome-config-overrides.interface';
 export type { ScreenChromeContextValueInterface } from './interface/screen-chrome-context-value.interface';
-export type { ScreenChromeHeaderMetricsInterface } from './interface/screen-chrome-header-metrics.interface';
 export { getScreenChromeHeaderMetrics } from './util/get-screen-chrome-header-metrics/get-screen-chrome-header-metrics.util';
 export { assertValidScreenChromeConfig } from './util/assert-valid-screen-chrome-config/assert-valid-screen-chrome-config.util';
 export { mergeScrollContentInset } from './util/merge-scroll-content-inset/merge-scroll-content-inset.util';

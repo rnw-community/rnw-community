@@ -85,8 +85,6 @@ describe('ScreenChromeHeader', () => {
             EXTRA_TOP_INSET
         );
 
-        expect(expected.headerTotalHeight).toBe(
-            INSETS.insets.top + EXTRA_TOP_INSET + SCREEN_CHROME_DEFAULT_CONFIG.headerHeight
-        );
+        expect(expected).toBe(INSETS.insets.top + EXTRA_TOP_INSET + SCREEN_CHROME_DEFAULT_CONFIG.headerHeight);
     });
 });
