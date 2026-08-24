@@ -136,7 +136,7 @@ importers:
         specifier: ^3.7.1
         version: 3.7.1
       turbo:
-        specifier: ^2.10.8
+        specifier: ^2.10.10
         version: 2.10.11
       typescript:
         specifier: ^5.9.3
