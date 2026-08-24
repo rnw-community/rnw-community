@@ -70,7 +70,6 @@
         "@types/react-test-renderer": "19.1.0",
         "babel-plugin-react-compiler": "^1.0.0",
         "expo-blur": "~57.0.0",
-        "expo-linear-gradient": "~57.0.0",
         "react": "19.2.3",
         "react-native": "0.86.2",
         "react-native-builder-bob": "^0.43.0",
@@ -82,7 +81,6 @@
     "peerDependencies": {
         "@rnw-community/react-native-collapsible-header": ">=2.13.0 <3",
         "expo-blur": ">=55 <58",
-        "expo-linear-gradient": ">=14 <58",
         "react": ">=18",
         "react-native": ">=0.72",
         "react-native-reanimated": ">=3.17.2 <5",

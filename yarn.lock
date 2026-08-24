@@ -6011,7 +6011,6 @@ __metadata:
     "@rnw-community/react-native-screen-chrome": "workspace:*"
     "@rnw-community/react-native-screen-chrome-example": "workspace:*"
     expo-blur: "npm:~57.0.0"
-    expo-linear-gradient: "npm:~57.0.0"
     react: "npm:19.2.3"
     react-native: "npm:0.86.2"
     react-native-reanimated: "npm:4.5.3"
@@ -6032,7 +6031,6 @@ __metadata:
     babel-preset-expo: "npm:~57.0.5"
     expo: "npm:~57.0.9"
     expo-blur: "npm:~57.0.0"
-    expo-linear-gradient: "npm:~57.0.0"
     react: "npm:19.2.3"
     react-dom: "npm:19.2.3"
     react-native: "npm:0.86.2"
@@ -6077,7 +6075,6 @@ __metadata:
     "@types/react-test-renderer": "npm:19.1.0"
     babel-plugin-react-compiler: "npm:^1.0.0"
     expo-blur: "npm:~57.0.0"
-    expo-linear-gradient: "npm:~57.0.0"
     react: "npm:19.2.3"
     react-compiler-runtime: "npm:^1.0.0"
     react-native: "npm:0.86.2"
@@ -6089,7 +6086,6 @@ __metadata:
   peerDependencies:
     "@rnw-community/react-native-collapsible-header": ">=2.13.0 <3"
     expo-blur: ">=55 <58"
-    expo-linear-gradient: ">=14 <58"
     react: ">=18"
     react-native: ">=0.72"
     react-native-reanimated: ">=3.17.2 <5"
@@ -11436,17 +11432,6 @@ __metadata:
     expo: "*"
     react: "*"
   checksum: 10/af6df6ad2f8c2bd440ca80e5787b534d3756572d510ec983659a37f463715d17776505f256c8e716f82b00e5855b75b2e49971a80611e62663b1b14b3fb06657
-  languageName: node
-  linkType: hard
-
-"expo-linear-gradient@npm:~57.0.0":
-  version: 57.0.1
-  resolution: "expo-linear-gradient@npm:57.0.1"
-  peerDependencies:
-    expo: "*"
-    react: "*"
-    react-native: "*"
-  checksum: 10/188d6772749be2535e2fe2a91b2066d829bd960fb0a0da76828ea0519b0516ef6f6fd015640d3959a017b61721d65681f2e93ab487533c6e865d8e86668a554f
   languageName: node
   linkType: hard
 

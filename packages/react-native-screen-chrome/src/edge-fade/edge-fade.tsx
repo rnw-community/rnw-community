@@ -1,7 +1,6 @@
 import { BlurView } from 'expo-blur';
-import { LinearGradient } from 'expo-linear-gradient';
 import React from 'react';
-import { Platform, StyleSheet, View } from 'react-native';
+import { Platform } from 'react-native';
 import { createAnimatedComponent } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -18,16 +17,10 @@ import { getEdgeFadeVisuals } from './util/get-edge-fade-visuals/get-edge-fade-v
 import type { EdgeFadePropsInterface } from './edge-fade-props.interface';
 import type { ReactNode } from 'react';
 
-const AnimatedView = createAnimatedComponent(View);
 const AnimatedBlurView = createAnimatedComponent(BlurView);
-const GRADIENT_START = { x: 0, y: 0 };
-const GRADIENT_END = { x: 0, y: 1 };
-const WASH_MID_LOCATION = 0.5;
-const WASH_END_LOCATION = 1;
-const WASH_LOCATIONS: readonly [number, number, ...number[]] = [0, WASH_MID_LOCATION, WASH_END_LOCATION];
 
 /**
- * Renders a decorative native blur and color wash at one screen edge.
+ * Renders a decorative native blur band at one screen edge.
  * @see https://github.com/rnw-community/rnw-community/tree/master/packages/react-native-screen-chrome#edgefade
  */
 export const EdgeFade = ({
@@ -44,7 +37,7 @@ export const EdgeFade = ({
     const insets = useSafeAreaInsets();
     const resolvedBlurMethod = getDefined(blurMethod, () => (isDefined(blurTarget) ? 'dimezisBlurView' : 'none'));
     const resolvedIntensity = getDefined(intensity, () => config.intensity);
-    const { washColors, tint } = getEdgeFadeVisuals(position, colorScheme, config, Platform.OS === 'ios');
+    const { tint } = getEdgeFadeVisuals(position, colorScheme, config, Platform.OS === 'ios');
     const resolvedMaxIntensity = getDefined(scrollAnimation?.maxIntensity, () => config.maxBlurIntensity);
     const containerAnimatedStyle = useEdgeFadeOpacityStyle(scrollAnimation?.opacityInputRange);
     const animatedBlurProps = useEdgeFadeBlurProps(
@@ -55,28 +48,17 @@ export const EdgeFade = ({
     const positionalStyle = getEdgeFadeBandMetrics(position, height, config, insets);
 
     return (
-        <AnimatedView
+        <AnimatedBlurView
             {...viewProps}
             pointerEvents="none"
             accessible={false}
             accessibilityElementsHidden
             importantForAccessibility="no-hide-descendants"
             style={[edgeFadeStyles.band, positionalStyle, containerAnimatedStyle, style]}
-        >
-            <AnimatedBlurView
-                style={StyleSheet.absoluteFill}
-                tint={tint}
-                blurMethod={resolvedBlurMethod}
-                {...(isDefined(blurTarget) ? { blurTarget } : {})}
-                {...(isDefined(scrollAnimation) ? { animatedProps: animatedBlurProps } : { intensity: resolvedIntensity })}
-            />
-            <LinearGradient
-                colors={[...washColors, 'transparent']}
-                locations={WASH_LOCATIONS}
-                start={GRADIENT_START}
-                end={GRADIENT_END}
-                style={StyleSheet.absoluteFill}
-            />
-        </AnimatedView>
+            tint={tint}
+            blurMethod={resolvedBlurMethod}
+            {...(isDefined(blurTarget) ? { blurTarget } : {})}
+            {...(isDefined(scrollAnimation) ? { animatedProps: animatedBlurProps } : { intensity: resolvedIntensity })}
+        />
     );
 };

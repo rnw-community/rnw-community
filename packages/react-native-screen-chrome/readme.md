@@ -14,7 +14,7 @@ content and product behavior stay consumer-owned.
 ```bash
 yarn add @rnw-community/react-native-screen-chrome \
     @rnw-community/react-native-collapsible-header \
-    expo-blur expo-linear-gradient \
+    expo-blur \
     react-native-reanimated react-native-safe-area-context
 ```
 
@@ -176,7 +176,7 @@ static. Native defaults use 150-point top and bottom bands, while web defaults u
 
 ## EdgeFade
 
-Renders a decorative top or bottom blur-and-wash band, scroll-animatable through `scrollAnimation`.
+Renders a decorative top or bottom blur band, scroll-animatable through `scrollAnimation`.
 
 ```tsx
 <EdgeFade position="bottom" height={96} scrollAnimation={{ opacityInputRange: [0, 80] }} />
