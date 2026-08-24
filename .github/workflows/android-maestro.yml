@@ -586,6 +586,9 @@ jobs:
 
             -   name: Install APK and run Maestro tests
                 id: emulator
+                # Step-level flag (the job-level one is not honored for the check
+                # run conclusion on this runner): see the job-level comment.
+                continue-on-error: ${{ matrix.package == 'screen-chrome' }}
                 # redroid is already booted (previous step) and the APK is already
                 # built (build-apk, a GitHub-hosted x86_64 runner — see the
                 # top-of-file note on why native builds can't run here). This step

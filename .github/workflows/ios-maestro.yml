@@ -371,6 +371,9 @@ jobs:
                     echo "Installed and using maestro $MAESTRO_VERSION at $pinned_bin"
 
             -   name: Run Maestro suite
+                # Step-level flag (the job-level one is not honored for the check
+                # run conclusion on this runner): see the job-level comment.
+                continue-on-error: ${{ matrix.package == 'screen-chrome' }}
                 # The suite itself took ~85s per shard on the Redroid prototype runs;
                 # 25 minutes covers a slow retry loop without holding the fleet.
                 timeout-minutes: 25
