@@ -12,7 +12,7 @@ content and product behavior stay consumer-owned.
 ## Installation
 
 ```bash
-yarn add @rnw-community/react-native-screen-chrome \
+npm install @rnw-community/react-native-screen-chrome \
     @rnw-community/react-native-collapsible-header \
     expo-blur \
     react-native-reanimated react-native-safe-area-context

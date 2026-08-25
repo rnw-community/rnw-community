@@ -5,7 +5,7 @@ NestJS module for distributed locking via Redis (ioredis) and Redlock, with an R
 ## Package Commands
 
 ```bash
-yarn test && yarn test:coverage && yarn build && yarn ts && yarn lint:fix
+pnpm test && pnpm test:coverage && pnpm build && pnpm ts && pnpm lint:fix
 ```
 
 ## Architecture
@@ -26,7 +26,7 @@ src/
 ### Key Patterns
 
 - `NestJSRxJSLockModule.registerTypedAsync<E = string>(options?)` declares an anonymous `@Injectable()` `LockService
-  extends NestJSRxJSLockService<E>` inline, merges `{ ...defaultNestJSRxJSLockModuleOptions, ...options }` in its
+extends NestJSRxJSLockService<E>` inline, merges `{ ...defaultNestJSRxJSLockModuleOptions, ...options }` in its
   constructor, and returns `[DynamicModule, Type<NestJSRxJSLockService<E>>]` (imports `RedisModule` from
   `@nestjs-modules/ioredis`) — the same tuple pattern used by the other NestJS packages in this repo
 - `NestJSRxJSLockService` constructor splits `options` into `{ defaultExpireMs, ...redlockOptions }`: `defaultExpireMs`
@@ -49,7 +49,7 @@ src/
 ### Dependencies
 
 `@nestjs-modules/ioredis`, `@nestjs/common`, `@nestjs/core`, `@rnw-community/shared` (`isNotEmptyString`), `ioredis`,
-`redlock` (patched via yarn — `redlock@npm:5.0.0-beta2` with a local patch), `rxjs`. No `peerDependencies` — all of these
+`redlock` (patched via pnpm — `redlock@npm:5.0.0-beta2` with a local patch), `rxjs`. No `peerDependencies` — all of these
 ship as direct `dependencies`.
 
 ### Coverage

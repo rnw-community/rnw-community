@@ -5,7 +5,7 @@ Pre-configured Webpack + SWC build configs for NestJS — dev (HMR) and prod (Te
 ## Package Commands
 
 ```bash
-yarn build && yarn ts && yarn lint:fix
+pnpm build && pnpm ts && pnpm lint:fix
 ```
 
 This package has **no `test` or `test:coverage` script** in `package.json` — only `ts`, `build:esm`, `build:cjs`,

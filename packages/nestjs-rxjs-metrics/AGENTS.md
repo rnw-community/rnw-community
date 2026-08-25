@@ -5,7 +5,7 @@ Prometheus metrics as RxJS pipeable operators for NestJS. Counters, gauges, hist
 ## Package Commands
 
 ```bash
-yarn test && yarn test:coverage && yarn build && yarn ts && yarn lint:fix
+pnpm test && pnpm test:coverage && pnpm build && pnpm ts && pnpm lint:fix
 ```
 
 ## Architecture
@@ -32,8 +32,8 @@ src/
 
 - `NestJSRxJSMetricsModule.create<C,G,H,S,HL,SL>(options)` destructures `options` into the four `*Metrics` /
   `*Labels` config objects plus the remaining `nestjsPrometheusOptions`, declares an inline `class MetricsService
-  extends NestJSRxJSMetricsService<...>` whose constructor calls `createMetricsRecord('Counter'|'Gauge'|'Histogram'|
-  'Summary', ...)` for each kind, imports `PrometheusModule.register(nestjsPrometheusOptions)`, and returns
+extends NestJSRxJSMetricsService<...>` whose constructor calls `createMetricsRecord('Counter'|'Gauge'|'Histogram'|
+'Summary', ...)` for each kind, imports `PrometheusModule.register(nestjsPrometheusOptions)`, and returns
   `[DynamicModule, Type<NestJSRxJSMetricsService<C,G,H,S,HL,SL>>]`
 - `MetricConfig = Record<string, string>` — keys are metric names, values are the Prometheus `help` text
 - `createMetricsRecord` calls `getOrCreateMetric` from `@willsoto/nestjs-prometheus` per metric key, passing

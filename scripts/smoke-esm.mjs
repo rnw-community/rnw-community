@@ -50,7 +50,8 @@ const RESOLUTION_ONLY_PACKAGES = [
     },
     {
         pkg: 'react-native-payments',
-        unloadableBecause: "imports value bindings ('Platform', 'NativeModules', 'TurboModuleRegistry', 'NativeEventEmitter') from 'react-native', untranspiled Flow/JSX",
+        unloadableBecause:
+            "imports value bindings ('Platform', 'NativeModules', 'TurboModuleRegistry', 'NativeEventEmitter') from 'react-native', untranspiled Flow/JSX",
     },
     {
         pkg: 'eslint-plugin',
@@ -81,7 +82,10 @@ function createRelativeSpecifierRegex() {
     return /(?:from\s*|import\s*\(\s*|require\s*\(\s*|import\s+)(['"])(\.[^'"]*)\1/g;
 }
 
-const ALL_PACKAGE_NAMES = [...EXECUTABLE_PACKAGES.map(entry => entry.pkg), ...RESOLUTION_ONLY_PACKAGES.map(entry => entry.pkg)];
+const ALL_PACKAGE_NAMES = [
+    ...EXECUTABLE_PACKAGES.map(entry => entry.pkg),
+    ...RESOLUTION_ONLY_PACKAGES.map(entry => entry.pkg),
+];
 const ESM_INVARIANT_EXEMPT_PACKAGES = new Set(
     RESOLUTION_ONLY_PACKAGES.filter(entry => entry.hasRealEsmOutput === false).map(entry => entry.pkg)
 );
@@ -103,7 +107,25 @@ function packAllInto(destinationScopeDir) {
     fs.mkdirSync(destinationScopeDir, { recursive: true });
     fs.writeFileSync(
         path.join(projectDir, 'package.json'),
-        JSON.stringify({ name: 'smoke-esm-scratch', private: true, version: '1.0.0' }, null, 4)
+        JSON.stringify(
+            {
+                name: 'smoke-esm-scratch',
+                private: true,
+                version: '1.0.0',
+                dependencies: collectExternalRuntimeDependencies(),
+            },
+            null,
+            4
+        )
+    );
+
+    execFileSync(
+        'npm',
+        ['install', '--legacy-peer-deps', '--no-audit', '--no-fund', '--no-package-lock', '--loglevel=error'],
+        {
+            cwd: projectDir,
+            stdio: 'inherit',
+        }
     );
 
     for (const pkg of ALL_PACKAGE_NAMES) {
@@ -121,6 +143,25 @@ function packAllInto(destinationScopeDir) {
     }
 }
 
+function collectExternalRuntimeDependencies() {
+    return ALL_PACKAGE_NAMES.reduce((merged, pkg) => {
+        const pkgJson = JSON.parse(fs.readFileSync(path.join(repoRoot, 'packages', pkg, 'package.json'), 'utf8'));
+        for (const dependencySection of ['dependencies', 'peerDependencies']) {
+            for (const [name, version] of Object.entries(pkgJson[dependencySection] ?? {})) {
+                if (name.startsWith('@rnw-community/')) {
+                    continue;
+                }
+                if (name in merged && merged[name] !== version) {
+                    throw new Error(`Conflicting '${name}' specifiers: '${merged[name]}' vs '${version}'`);
+                }
+                merged[name] = version;
+            }
+        }
+
+        return merged;
+    }, {});
+}
+
 function runNode(args, cwd) {
     return execFileSync('node', args, { cwd, encoding: 'utf8' });
 }
@@ -130,7 +171,10 @@ function checkExecutable({ pkg, exportName }) {
 
     try {
         const out = runNode(
-            ['-e', `const m = require('${specifier}'); console.log(typeof m['${exportName}'] !== 'undefined' ? 'OK' : 'MISSING');`],
+            [
+                '-e',
+                `const m = require('${specifier}'); console.log(typeof m['${exportName}'] !== 'undefined' ? 'OK' : 'MISSING');`,
+            ],
             projectDir
         ).trim();
         if (out !== 'OK') {
@@ -190,7 +234,9 @@ function checkResolutionOnly({ pkg, unloadableBecause, hasRealEsmOutput = true, 
     }
 
     if (!hasRealEsmOutput) {
-        log(`  --   ${pkg}: skipping ESM deep-specifier probe — dist/esm is byte-equivalent CommonJS, not real ESM (see AGENTS.md)`);
+        log(
+            `  --   ${pkg}: skipping ESM deep-specifier probe — dist/esm is byte-equivalent CommonJS, not real ESM (see AGENTS.md)`
+        );
 
         return;
     }
@@ -233,7 +279,9 @@ function checkResolutionOnly({ pkg, unloadableBecause, hasRealEsmOutput = true, 
     );
     try {
         const out = runNode([probeFile], projectDir).trim();
-        log(`  OK   ${pkg} (ESM deep specifier '${deepSpecifier}', resolved from a probe placed next to the real entry: ${out})`);
+        log(
+            `  OK   ${pkg} (ESM deep specifier '${deepSpecifier}', resolved from a probe placed next to the real entry: ${out})`
+        );
     } catch (error) {
         fail(pkg, `import('${deepSpecifier}') relative to ${entryRelative} threw: ${error.message.split('\n')[0]}`);
     } finally {
@@ -264,7 +312,9 @@ function scanInstalledPackagesForExtensionlessSpecifiers() {
 
     for (const pkg of ALL_PACKAGE_NAMES) {
         if (ESM_INVARIANT_EXEMPT_PACKAGES.has(pkg)) {
-            log(`  --   ${pkg}: skipping extensionless-specifier scan — dist/esm is byte-equivalent CommonJS, not real ESM (see AGENTS.md)`);
+            log(
+                `  --   ${pkg}: skipping extensionless-specifier scan — dist/esm is byte-equivalent CommonJS, not real ESM (see AGENTS.md)`
+            );
             continue;
         }
 
@@ -273,9 +323,7 @@ function scanInstalledPackagesForExtensionlessSpecifiers() {
         const scannedEntries = [importCondition?.default ?? './dist/esm/index.js', importCondition?.types].filter(
             entry => entry != null
         );
-        const scannedDirs = [
-            ...new Set(scannedEntries.map(entry => path.dirname(path.join(scopeDir, pkg, entry)))),
-        ];
+        const scannedDirs = [...new Set(scannedEntries.map(entry => path.dirname(path.join(scopeDir, pkg, entry))))];
         const missingDir = scannedDirs.find(dir => !fs.existsSync(dir));
         if (missingDir) {
             fail(pkg, `installed package has no ESM directory at ${path.relative(scopeDir, missingDir)}`);
@@ -288,9 +336,13 @@ function scanInstalledPackagesForExtensionlessSpecifiers() {
             let match;
             while ((match = specRe.exec(content))) {
                 const spec = match[2];
-                const isExemptRuntimeRequire = spec === nativePaymentsNativeModuleRequireSpecifier && isRuntimeRequireCall(match[0]);
+                const isExemptRuntimeRequire =
+                    spec === nativePaymentsNativeModuleRequireSpecifier && isRuntimeRequireCall(match[0]);
                 if (!isExemptRuntimeRequire && !/\.(js|mjs|cjs|json)$/.test(spec)) {
-                    fail(pkg, `installed dist/esm has an extensionless relative specifier '${spec}' in ${path.relative(scopeDir, file)}`);
+                    fail(
+                        pkg,
+                        `installed dist/esm has an extensionless relative specifier '${spec}' in ${path.relative(scopeDir, file)}`
+                    );
                     totalFound++;
                 }
             }
@@ -301,7 +353,7 @@ function scanInstalledPackagesForExtensionlessSpecifiers() {
 }
 
 log('Building publishable packages...');
-execFileSync('yarn', ['turbo', 'run', 'build', ...ALL_PACKAGE_NAMES.map(pkg => `--filter=@rnw-community/${pkg}`)], {
+execFileSync('pnpm', ['turbo', 'run', 'build', ...ALL_PACKAGE_NAMES.map(pkg => `--filter=@rnw-community/${pkg}`)], {
     cwd: repoRoot,
     stdio: 'inherit',
 });

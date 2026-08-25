@@ -5,7 +5,6 @@ env:
     TURBO_TEAM: ${{ secrets.TURBO_TEAM }}
     PR_NUMBER: ${{ github.event.pull_request.number }}
     PR_TITLE: ${{ github.event.pull_request.title }}
-    YARN_ENABLE_IMMUTABLE_INSTALLS: true
 
 concurrency:
     group: pr-${{ github.event.pull_request.number }}
@@ -40,44 +39,44 @@ jobs:
                 if: matrix.node-version == '22.x'
                 uses: actions/stale@4391f3da665fdf50b6810c1a66712fb9ba21aa93 # v11.0.0
 
+            -   name: Setup pnpm
+                uses: pnpm/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1 # v4
+
             -   name: Setup Node
                 uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
                 with:
                     node-version: ${{ matrix.node-version }}
-                    cache: yarn
-
-            -   name: Enable corepack
-                run: corepack enable
+                    cache: pnpm
 
             -   name: Install dependencies
-                run: yarn install --immutable
+                run: pnpm install --frozen-lockfile
 
             -   name: Lint the PR Title
                 run: echo "${{ env.PR_TITLE }}" | node_modules/.bin/commitlint
 
             -   name: Build packages
-                run: yarn turbo run build --affected
+                run: pnpm exec turbo run build --affected
 
             -   name: Typescript checks
-                run: yarn turbo run ts --affected
+                run: pnpm exec turbo run ts --affected
 
             -   name: Typescript checks (spec files, nodenext resolution)
-                run: yarn turbo run ts:nodenext --affected
+                run: pnpm exec turbo run ts:nodenext --affected
 
             -   name: ESLint checks
-                run: yarn turbo run lint --affected
+                run: pnpm exec turbo run lint --affected
 
             -   name: Publish hygiene checks (publint, attw)
-                run: yarn publint
+                run: pnpm publint
 
             -   name: Find dead code
-                run: yarn deadcode
+                run: pnpm deadcode
 
             -   name: Find copy-paste
-                run: yarn cpd
+                run: pnpm cpd
 
             -   name: Unit tests
-                run: yarn turbo run test:coverage --affected
+                run: pnpm exec turbo run test:coverage --affected
 
             -   name: Upload coverage - decorators-core
                 if: hashFiles('packages/decorators-core/coverage/lcov.info') != ''
@@ -306,20 +305,20 @@ jobs:
                 with:
                     persist-credentials: false
 
+            -   name: Setup pnpm
+                uses: pnpm/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1 # v4
+
             -   name: Setup Node
                 uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
                 with:
                     node-version: 22.x
-                    cache: yarn
-
-            -   name: Enable corepack
-                run: corepack enable
+                    cache: pnpm
 
             -   name: Install dependencies
-                run: yarn install --immutable
+                run: pnpm install --frozen-lockfile
 
             -   name: Build smoke packages
-                run: yarn turbo run build --filter=@rnw-community/shared --filter=@rnw-community/react-native-collapsible-header --filter=@rnw-community/react-native-screen-chrome --filter=@rnw-community/react-native-payments
+                run: pnpm exec turbo run build --filter=@rnw-community/shared --filter=@rnw-community/react-native-collapsible-header --filter=@rnw-community/react-native-screen-chrome --filter=@rnw-community/react-native-payments
 
             -   name: Pack tarballs
                 run: |
@@ -379,8 +378,6 @@ jobs:
             -   name: Set up pnpm
                 if: matrix.package-manager == 'pnpm'
                 uses: pnpm/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1 # v4
-                with:
-                    version: 9
 
             -   name: Set up bun
                 if: matrix.package-manager == 'bun'
@@ -420,7 +417,7 @@ jobs:
 
             -   name: Comprehensive ESM/CJS require()/import() smoke (every publishable package, npm leg only)
                 if: matrix.package-manager == 'npm'
-                run: yarn smoke:esm
+                run: pnpm smoke:esm
 
     required-checks:
         name: Required checks

@@ -5,12 +5,13 @@ import process from 'node:process';
 // native projects exist in the repository. `bare` targets need a committed
 // ios/ + android/ project; expo targets generate theirs with `expo prebuild`.
 // Members are per target, so a change confined to one app target does not run the
-// other target's suite.
+// other target's suite. The last member is the app workspace itself, and the
+// emitted build filter is `...<app workspace>` so Turbo builds every workspace
+// package the app's Metro bundle imports, not just the library under test.
 const EXAMPLES = [
     {
         package: 'payments',
         exampleDir: 'packages/react-native-payments-example',
-        buildFilter: '@rnw-community/react-native-payments',
         targets: {
             bare: {
                 iosScheme: 'ReactNativePaymentsExample',
@@ -33,7 +34,6 @@ const EXAMPLES = [
     {
         package: 'collapsible-header',
         exampleDir: 'packages/react-native-collapsible-header-example',
-        buildFilter: '@rnw-community/react-native-collapsible-header',
         targets: {
             bare: {
                 iosScheme: 'ReactNativeCollapsibleHeaderExample',
@@ -88,11 +88,11 @@ const isAffected = members => affectedNames === null || members.some(name => aff
 const include = EXAMPLES.flatMap(example =>
     Object.entries(example.targets)
         .filter(([, { members }]) => isAffected(members))
-        .map(([target, { iosScheme }]) => ({
+        .map(([target, { iosScheme, members }]) => ({
             package: example.package,
             target,
             example_dir: example.exampleDir,
-            build_filter: example.buildFilter,
+            build_filter: `...${members[members.length - 1]}`,
             ios_scheme: iosScheme,
         }))
 );

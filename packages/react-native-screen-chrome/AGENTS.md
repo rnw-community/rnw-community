@@ -5,7 +5,7 @@ Composable screen chrome for React Native and React Native Web.
 ## Package commands
 
 ```bash
-yarn test && yarn test:coverage && yarn build && yarn ts && yarn ts:nodenext && yarn lint
+pnpm test && pnpm test:coverage && pnpm build && pnpm ts && pnpm ts:nodenext && pnpm lint
 ```
 
 ## Architecture

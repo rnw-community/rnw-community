@@ -40,13 +40,13 @@
         "build": "rm -rf ./dist && bob build && node ../../scripts/assert-esm-extensions.mjs ./dist/module && node ../../scripts/assert-react-compiler-output.mjs ./dist/module ./dist/commonjs",
         "clear": "rm -rf coverage && rm -rf dist && rm -f *.tsbuildinfo",
         "clear:deps": "rm -rf ./node_modules && rm -rf ./dist",
-        "format": "run -T prettier --write \"./src/**/*.{ts,tsx}\"",
-        "lint": "run -T eslint src",
-        "lint:fix": "run -T eslint --fix src",
-        "test": "run -T jest",
-        "test:coverage": "run -T jest --coverage",
-        "ts": "run -T tsc --pretty -p tsconfig.json",
-        "ts:nodenext": "run -T tsc --pretty -p tsconfig.nodenext-check.json"
+        "format": "prettier --write \"./src/**/*.{ts,tsx}\"",
+        "lint": "eslint src",
+        "lint:fix": "eslint --fix src",
+        "test": "jest",
+        "test:coverage": "jest --coverage",
+        "ts": "tsc --pretty -p tsconfig.json",
+        "ts:nodenext": "tsc --pretty -p tsconfig.nodenext-check.json"
     },
     "dependencies": {
         "@rnw-community/shared": "^2.13.0",

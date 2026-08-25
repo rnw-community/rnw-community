@@ -83,10 +83,12 @@ the expo target generates its own with `expo prebuild`), and the bare `MainActiv
 
 **One exact version of every React and React Native dependency, repo-wide.** Every manifest pins `react`,
 `react-native`, `react-native-reanimated`, `react-native-worklets`, `react-native-screens`,
-`react-native-safe-area-context`, and the React type packages to an exact version, and the root `resolutions` block
-repeats the core ones so a transitive dependency cannot reintroduce a second version. Yarn keeps a separate physical
-copy per distinct version descriptor, so a single stray range (`^19.2.3` resolving to 19.2.8, `~5.7.0` beside `5.7.0`)
-splits a package into two module instances that only fail at runtime, in the bare app, with symptoms naming something
+`react-native-safe-area-context`, and the React type packages to an exact version, and the `overrides:` block in the
+root `pnpm-workspace.yaml` repeats the core ones (`react`, `react-dom`, `react-native`, `@types/react`) so a transitive
+dependency cannot reintroduce a second version. pnpm resolves each version descriptor on its own and hard-links every
+resolved version into its own virtual-store directory, so a single stray range (`^19.2.3` resolving to 19.2.8, `~5.7.0`
+beside `5.7.0`) splits a package into two module instances that only fail at runtime, in the bare app, with symptoms
+naming something
 else: two Reanimated copies abort with `[Worklets] Tried to synchronously call a Remote Function. Called "value" on the
 UI Runtime`, two react-native copies report `HMRClient has not been registered as callable`, and a second `react` copy
 throws `TypeError: Cannot read property 'useMemoCache' of null` from the React Compiler runtime. The Release build
@@ -101,9 +103,9 @@ Target scripts live on this package and delegate to the nested workspaces: `ios:
 e2e/flows` against whichever simulator/emulator is currently booted — the app under test must already be built and
 installed (`ios:bare`/`android:bare`/`ios:expo`/`android:expo`, or `prebuild:expo` first for the Expo native projects).
 
-## Expo version pins (root `resolutions`)
+## Expo version pins (root `overrides`)
 
-The root `package.json` pins the expo family (`expo` 57.0.4, `expo-modules-core` 57.0.3, `expo-modules-jsi` 57.0.1,
+The `overrides:` block in the root `pnpm-workspace.yaml` pins the expo family (`expo` 57.0.4, `expo-modules-core` 57.0.3, `expo-modules-jsi` 57.0.1,
 `expo-asset`/`expo-constants`/`expo-file-system`/`expo-font`/`expo-keep-awake`, `@expo/cli`, `@expo/metro-runtime`) to
 one coherent, locally-proven set. Two failure modes forced this, both observed on Xcode 26.x:
 
@@ -112,7 +114,7 @@ one coherent, locally-proven set. Two failure modes forced this, both observed o
   compiled against a specific `ExpoModulesCore` ABI, and Expo's `~57.0.x` ranges let sibling modules drift apart.
 
 Keep the set moving together: bump every pin to the same contemporaneous patch line, then
-`rm -rf apps/expo/ios && yarn prebuild:expo` and rebuild.
+`rm -rf apps/expo/ios && pnpm prebuild:expo` and rebuild.
 
 ## Dependencies
 

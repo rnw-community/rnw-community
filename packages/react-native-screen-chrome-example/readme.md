@@ -20,12 +20,12 @@ Each screen mounts its own `ScreenChromeProvider`; the navigator mounts none.
 ## Commands
 
 ```bash
-yarn start:bare            # metro for the bare shell
-yarn start:expo            # expo dev server
-yarn ios:bare / android:bare
-yarn ios:expo / android:expo
-yarn e2e:ios:bare          # maestro suite against a booted simulator (app installed)
-yarn e2e:android:expo      # ... etc, one script per platform × target
+pnpm start:bare            # metro for the bare shell
+pnpm start:expo            # expo dev server
+pnpm ios:bare / android:bare
+pnpm ios:expo / android:expo
+pnpm e2e:ios:bare          # maestro suite against a booted simulator (app installed)
+pnpm e2e:android:expo      # ... etc, one script per platform × target
 ```
 
 See `e2e/readme.md` for the flow inventory, appId table, and what each demo documents.

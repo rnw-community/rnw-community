@@ -8,8 +8,7 @@ allure-*
 .idea
 node_modules
 npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
+pnpm-debug.log*
 allure-results
 lerna-debug.log*
 .env*
@@ -36,18 +35,8 @@ coverage
 .smoke-esm
 .scratch
 
-# YARN BERRY
-.yarn/*
-.yarn/cache/*darwin-arm64*
-.yarn/cache/*linux-64*
-.yarn/cache/*linux-x64*
-.yarn/cache/fsevents-patch*
-!.yarn/cache
-!.yarn/patches
-!.yarn/plugins
-!.yarn/releases
-!.yarn/sdks
-!.yarn/versions
+# PNPM
+.pnpm-store/
 .superpowers
 /docs/superpowers/
 .claude/worktrees

@@ -8,7 +8,7 @@ metadata:
 ## Packages under test
 
 Two private example packages follow the same shape — ONE package proving a library on two app targets that share a
-single `src/` screen layer, with nested Yarn workspaces excluded from Lerna publishing (see each package's `AGENTS.md`):
+single `src/` screen layer, with nested pnpm workspaces excluded from Lerna publishing (see each package's `AGENTS.md`):
 
 - `packages/react-native-payments-example` proves `@rnw-community/react-native-payments`
   (`apps/bare` → `@rnw-community/react-native-payments-example-bare`, `apps/expo` →
@@ -51,12 +51,12 @@ following the existing `<action>:<target>` naming already used for `ios:bare` / 
 `ios:expo` / `android:expo` (see the package's `AGENTS.md`):
 
 ```bash
-yarn workspace @rnw-community/react-native-payments-example e2e:ios:bare
-yarn workspace @rnw-community/react-native-payments-example e2e:ios:expo
-yarn workspace @rnw-community/react-native-payments-example e2e:android:bare
-yarn workspace @rnw-community/react-native-payments-example e2e:android:expo
-yarn workspace @rnw-community/react-native-collapsible-header-example e2e:ios:expo
-yarn workspace @rnw-community/react-native-collapsible-header-example e2e:ios:bare
+pnpm --filter @rnw-community/react-native-payments-example e2e:ios:bare
+pnpm --filter @rnw-community/react-native-payments-example e2e:ios:expo
+pnpm --filter @rnw-community/react-native-payments-example e2e:android:bare
+pnpm --filter @rnw-community/react-native-payments-example e2e:android:expo
+pnpm --filter @rnw-community/react-native-collapsible-header-example e2e:ios:expo
+pnpm --filter @rnw-community/react-native-collapsible-header-example e2e:ios:bare
 ```
 
 These scripts do not exist yet on this branch — treat the names above as the documented interface

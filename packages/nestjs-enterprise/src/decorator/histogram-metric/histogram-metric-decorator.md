@@ -4,12 +4,12 @@ Method decorator that records call duration into a [`prom-client`](https://githu
 
 ## When the observation fires
 
-| Return | When |
-|---|---|
-| `T` (sync) | on return |
-| `Promise<T>` | on resolve |
-| `Promise<T>` that rejects | on reject (duration still emitted; error propagates) |
-| `Observable<T>` | on stream `complete` |
+| Return                      | When                                                       |
+| --------------------------- | ---------------------------------------------------------- |
+| `T` (sync)                  | on return                                                  |
+| `Promise<T>`                | on resolve                                                 |
+| `Promise<T>` that rejects   | on reject (duration still emitted; error propagates)       |
+| `Observable<T>`             | on stream `complete`                                       |
 | `Observable<T>` that errors | on stream error (duration still emitted; error propagates) |
 
 Observable support uses `completionObservableStrategy` from [`@rnw-community/decorators-core`](../../../../../decorators-core); wired by default. `rxjs` is required when methods return `Observable`.
@@ -19,7 +19,7 @@ Observable support uses `completionObservableStrategy` from [`@rnw-community/dec
 Only `prom-client` is required. Nothing else:
 
 ```bash
-yarn add prom-client
+npm install prom-client
 ```
 
 No `nestjs-prometheus` or other wrapper — `@HistogramMetric` uses `prom-client` directly and resolves histograms via the global registry (or a custom `configuration.registers`).
@@ -31,7 +31,9 @@ import { HistogramMetric } from '@rnw-community/nestjs-enterprise';
 
 class CatsService {
     @HistogramMetric('cats_find_all_duration', { buckets: [0.01, 0.1, 0.5, 1, 5] })
-    async findAll(): Promise<Cat[]> { /* ... */ }
+    async findAll(): Promise<Cat[]> {
+        /* ... */
+    }
 }
 ```
 

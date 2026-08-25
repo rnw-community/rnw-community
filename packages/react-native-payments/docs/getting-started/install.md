@@ -3,7 +3,7 @@
 Install the package with your package manager, e.g.:
 
 ```bash
-yarn add @rnw-community/react-native-payments
+npm install @rnw-community/react-native-payments
 ```
 
 Autolinking picks up the TurboModule on both architectures — no manual `react-native link` step.
