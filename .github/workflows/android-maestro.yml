@@ -130,7 +130,7 @@ jobs:
 
             -   name: Build workspace JS dependencies
                 timeout-minutes: 10
-                run: pnpm build --filter=${{ matrix.build_filter }}
+                run: pnpm build --filter="${{ matrix.build_filter }}"
 
             -   name: Generate native project (expo)
                 if: matrix.target == 'expo'
