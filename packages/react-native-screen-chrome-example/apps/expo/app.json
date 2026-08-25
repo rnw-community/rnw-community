@@ -1,0 +1,32 @@
+{
+    "expo": {
+        "name": "react-native-screen-chrome-expo-example",
+        "slug": "react-native-screen-chrome-expo-example",
+        "version": "1.0.0",
+        "orientation": "portrait",
+        "icon": "./assets/images/icon.png",
+        "scheme": "rnscreenchromeexpoexample",
+        "newArchEnabled": true,
+        "ios": {
+            "supportsTablet": true,
+            "bundleIdentifier": "com.reactnativescreenchromeexpoexample"
+        },
+        "android": {
+            "adaptiveIcon": {
+                "foregroundImage": "./assets/images/adaptive-icon.png",
+                "backgroundColor": "#ffffff"
+            },
+            "package": "com.reactnativescreenchromeexpoexample"
+        },
+        "web": {
+            "bundler": "metro",
+            "output": "single",
+            "favicon": "./assets/images/favicon.png"
+        },
+        "splash": {
+            "image": "./assets/images/splash-icon.png",
+            "resizeMode": "contain",
+            "backgroundColor": "#ffffff"
+        }
+    }
+}

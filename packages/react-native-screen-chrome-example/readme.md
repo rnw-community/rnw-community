@@ -1,0 +1,31 @@
+# @rnw-community/react-native-screen-chrome example
+
+Private. Single example package for the screen chrome library: one shared demo layer (`src/`) mounted by two app
+targets (`apps/bare` React Native CLI with committed native projects, `apps/expo` prebuilt by Expo). Mirrors
+`react-native-collapsible-header-example`.
+
+## Demos
+
+![Collapsible header demo — large title collapsing into the small title row while the list scrolls](docs/collapsible-header.gif)
+
+- **Collapsible header** — compound slot grammar, provider-owned scroll wiring, snap, per-layer `motion` override,
+  top edge fade (above).
+- **Static header** — fixed header row plus the `useScreenChromeHeaderMetrics` API driving `contentInsetTop`.
+- **Header and footer** — static header with a sticky footer band recipe (absolute container + bottom `EdgeFade` +
+  safe-area padding), `contentInsetBottom` reserving space for the bar. GIF pending #601 (this screen carries two
+  blur bands and trips the native crash most reliably).
+
+Each screen mounts its own `ScreenChromeProvider`; the navigator mounts none.
+
+## Commands
+
+```bash
+pnpm start:bare            # metro for the bare shell
+pnpm start:expo            # expo dev server
+pnpm ios:bare / android:bare
+pnpm ios:expo / android:expo
+pnpm e2e:ios:bare          # maestro suite against a booted simulator (app installed)
+pnpm e2e:android:expo      # ... etc, one script per platform × target
+```
+
+See `e2e/readme.md` for the flow inventory, appId table, and what each demo documents.

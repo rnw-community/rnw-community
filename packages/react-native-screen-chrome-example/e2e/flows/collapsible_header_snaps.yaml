@@ -1,0 +1,26 @@
+appId: ${APP_ID}
+---
+# A deliberate slow drag to a mid-collapse release point, mirroring the collapsible-header
+# example's snap flow: the release must land between the title cross-fade endpoints so
+# snapping has real work to do. Android's injected swipe ends without fling; iOS carries
+# momentum, so iOS uses a shorter travel.
+- runFlow: ../subflows/launch_collapsible_demo.yaml
+- runFlow:
+      when:
+          platform: Android
+      commands:
+          - swipe:
+                start: 50%, 75%
+                end: 50%, 37%
+                duration: 900
+- runFlow:
+      when:
+          platform: iOS
+      commands:
+          - swipe:
+                start: 50%, 70%
+                end: 50%, 55%
+- extendedWaitUntil:
+      visible:
+          id: 'collapsible-demo-collapsed-title'
+      timeout: 15000

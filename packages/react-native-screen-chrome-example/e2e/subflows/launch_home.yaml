@@ -1,0 +1,12 @@
+appId: ${APP_ID}
+---
+- launchApp:
+      clearState: true
+- extendedWaitUntil:
+      visible:
+          id: 'home-open-collapsible'
+      timeout: 60000
+- assertVisible:
+      id: 'home-open-static-header'
+- assertVisible:
+      id: 'home-open-footer'

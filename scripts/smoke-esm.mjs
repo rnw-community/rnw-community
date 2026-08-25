@@ -38,6 +38,17 @@ const RESOLUTION_ONLY_PACKAGES = [
         unresolvedExternalPackages: ['react-native-reanimated', 'react-compiler-runtime'],
     },
     {
+        pkg: 'react-native-screen-chrome',
+        unloadableBecause: 'imports React Native, Reanimated, and native blur bindings that require a native or Metro environment',
+        unresolvedExternalPackages: [
+            '@react-native-masked-view/masked-view',
+            'expo-blur',
+            'expo-linear-gradient',
+            'react-native-reanimated',
+            'react-native-safe-area-context',
+        ],
+    },
+    {
         pkg: 'react-native-payments',
         unloadableBecause:
             "imports value bindings ('Platform', 'NativeModules', 'TurboModuleRegistry', 'NativeEventEmitter') from 'react-native', untranspiled Flow/JSX",

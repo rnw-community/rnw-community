@@ -1,0 +1,17 @@
+appId: ${APP_ID}
+---
+# Recording-only flow for the readme demo GIF: static header and footer band
+# over a scroll. Not part of the assertion suite.
+- runFlow: ../subflows/launch_home.yaml
+- tapOn:
+      id: 'home-open-footer'
+- extendedWaitUntil:
+      visible:
+          id: 'footer-demo-total'
+      timeout: 15000
+- swipe:
+      start: 50%, 60%
+      end: 50%, 20%
+      duration: 900
+- waitForAnimationToEnd:
+      timeout: 5000

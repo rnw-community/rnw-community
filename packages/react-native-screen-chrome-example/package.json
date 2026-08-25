@@ -1,0 +1,56 @@
+{
+    "name": "@rnw-community/react-native-screen-chrome-example",
+    "version": "2.14.0",
+    "private": true,
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/rnw-community/rnw-community.git",
+        "directory": "packages/react-native-screen-chrome-example"
+    },
+    "license": "MIT",
+    "sideEffects": false,
+    "main": "src/index.ts",
+    "module": "src/index.ts",
+    "react-native": "src/index.ts",
+    "types": "src/index.ts",
+    "files": [
+        "src/**/*"
+    ],
+    "scripts": {
+        "android:bare": "pnpm --filter @rnw-community/react-native-screen-chrome-example-bare android",
+        "android:expo": "pnpm --filter @rnw-community/react-native-screen-chrome-example-expo android",
+        "clear": "rm -rf coverage && rm -rf dist && rm -f *.tsbuildinfo",
+        "clear:deps": "rm -rf ./node_modules && rm -rf ./dist",
+        "e2e:android:bare": "maestro test -e APP_ID=com.reactnativescreenchromeexample e2e/flows",
+        "e2e:android:expo": "maestro test -e APP_ID=com.reactnativescreenchromeexpoexample e2e/flows",
+        "e2e:ios:bare": "maestro test -e APP_ID=org.reactjs.native.example.ReactNativeScreenChromeExample e2e/flows",
+        "e2e:ios:expo": "maestro test -e APP_ID=com.reactnativescreenchromeexpoexample e2e/flows",
+        "format": "prettier --write \"./src/**/*.{ts,tsx}\"",
+        "ios:bare": "pnpm --filter @rnw-community/react-native-screen-chrome-example-bare ios",
+        "ios:expo": "pnpm --filter @rnw-community/react-native-screen-chrome-example-expo ios",
+        "lint": "eslint src",
+        "lint:fix": "eslint --fix src",
+        "prebuild:expo": "pnpm --filter @rnw-community/react-native-screen-chrome-example-expo prebuild",
+        "start:bare": "pnpm --filter @rnw-community/react-native-screen-chrome-example-bare start",
+        "start:expo": "pnpm --filter @rnw-community/react-native-screen-chrome-example-expo start",
+        "ts": "tsc --pretty -p tsconfig.json"
+    },
+    "dependencies": {
+        "@react-navigation/native": "^7.1.8",
+        "@react-navigation/native-stack": "^7.3.16",
+        "@rnw-community/react-native-collapsible-header": "workspace:*",
+        "@rnw-community/react-native-screen-chrome": "workspace:*",
+        "react": "19.2.3",
+        "react-native": "0.86.2",
+        "react-native-reanimated": "4.5.3",
+        "react-native-safe-area-context": "5.7.0",
+        "react-native-screens": "4.25.2",
+        "react-native-worklets": "0.11.3"
+    },
+    "devDependencies": {
+        "@types/react": "19.2.18"
+    },
+    "engines": {
+        "node": ">=22.0.0"
+    }
+}

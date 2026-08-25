@@ -720,6 +720,199 @@ importers:
         specifier: ~57.0.5
         version: 57.0.7(@babel/core@7.29.7(supports-color@8.1.1))(@babel/runtime@7.29.7)(expo@57.0.4)(react-refresh@0.14.2)(supports-color@8.1.1)
 
+  packages/react-native-screen-chrome:
+    dependencies:
+      '@rnw-community/shared':
+        specifier: ^2.12.10
+        version: 2.13.0
+    devDependencies:
+      '@babel/core':
+        specifier: ^7.29.7
+        version: 7.29.7(supports-color@8.1.1)
+      '@react-native/babel-preset':
+        specifier: 0.86.2
+        version: 0.86.2(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1)
+      '@react-native/jest-preset':
+        specifier: 0.86.2
+        version: 0.86.2(@babel/core@7.29.7(supports-color@8.1.1))(react@19.2.3)(supports-color@8.1.1)
+      '@react-native/metro-config':
+        specifier: 0.86.2
+        version: 0.86.2(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1)
+      '@rnw-community/react-native-collapsible-header':
+        specifier: workspace:^
+        version: link:../react-native-collapsible-header
+      '@testing-library/react-native':
+        specifier: ^13.3.3
+        version: 13.3.3(jest@29.7.0(@types/node@22.20.1)(supports-color@8.1.1))(react-native@0.86.2(@babel/core@7.29.7(supports-color@8.1.1))(@react-native-community/cli@20.1.0(supports-color@8.1.1)(typescript@5.9.3))(@react-native/jest-preset@0.86.2(@babel/core@7.29.7(supports-color@8.1.1))(react@19.2.3)(supports-color@8.1.1))(@react-native/metro-config@0.86.2(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.2.18)(react@19.2.3)(supports-color@8.1.1))(react-test-renderer@19.2.3(react@19.2.3))(react@19.2.3)
+      '@types/react':
+        specifier: 19.2.18
+        version: 19.2.18
+      '@types/react-test-renderer':
+        specifier: 19.1.0
+        version: 19.1.0
+      expo-blur:
+        specifier: ~57.0.0
+        version: 57.0.2(expo@57.0.4)(react-native@0.86.2(@babel/core@7.29.7(supports-color@8.1.1))(@react-native-community/cli@20.1.0(supports-color@8.1.1)(typescript@5.9.3))(@react-native/jest-preset@0.86.2(@babel/core@7.29.7(supports-color@8.1.1))(react@19.2.3)(supports-color@8.1.1))(@react-native/metro-config@0.86.2(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.2.18)(react@19.2.3)(supports-color@8.1.1))(react@19.2.3)
+      react:
+        specifier: 19.2.3
+        version: 19.2.3
+      react-native:
+        specifier: 0.86.2
+        version: 0.86.2(@babel/core@7.29.7(supports-color@8.1.1))(@react-native-community/cli@20.1.0(supports-color@8.1.1)(typescript@5.9.3))(@react-native/jest-preset@0.86.2(@babel/core@7.29.7(supports-color@8.1.1))(react@19.2.3)(supports-color@8.1.1))(@react-native/metro-config@0.86.2(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.2.18)(react@19.2.3)(supports-color@8.1.1)
+      react-native-builder-bob:
+        specifier: ^0.43.0
+        version: 0.43.0(supports-color@8.1.1)
+      react-native-reanimated:
+        specifier: 4.5.3
+        version: 4.5.3(bb139be3db644edb0604ca59c4fcc9d2)
+      react-native-safe-area-context:
+        specifier: ~5.7.0
+        version: 5.7.0(react-native@0.86.2(@babel/core@7.29.7(supports-color@8.1.1))(@react-native-community/cli@20.1.0(supports-color@8.1.1)(typescript@5.9.3))(@react-native/jest-preset@0.86.2(@babel/core@7.29.7(supports-color@8.1.1))(react@19.2.3)(supports-color@8.1.1))(@react-native/metro-config@0.86.2(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.2.18)(react@19.2.3)(supports-color@8.1.1))(react@19.2.3)
+      react-native-worklets:
+        specifier: 0.11.3
+        version: 0.11.3(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.86.2(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(react-native@0.86.2(@babel/core@7.29.7(supports-color@8.1.1))(@react-native-community/cli@20.1.0(supports-color@8.1.1)(typescript@5.9.3))(@react-native/jest-preset@0.86.2(@babel/core@7.29.7(supports-color@8.1.1))(react@19.2.3)(supports-color@8.1.1))(@react-native/metro-config@0.86.2(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.2.18)(react@19.2.3)(supports-color@8.1.1))(react@19.2.3)(supports-color@8.1.1)
+      react-test-renderer:
+        specifier: 19.2.3
+        version: 19.2.3(react@19.2.3)
+
+  packages/react-native-screen-chrome-example:
+    dependencies:
+      '@react-navigation/native':
+        specifier: ^7.1.8
+        version: 7.3.17(react-native@0.86.2(@babel/core@7.29.7(supports-color@8.1.1))(@react-native-community/cli@20.1.0(supports-color@8.1.1)(typescript@5.9.3))(@react-native/jest-preset@0.86.2(@babel/core@7.29.7(supports-color@8.1.1))(react@19.2.3)(supports-color@8.1.1))(@react-native/metro-config@0.86.2(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.2.18)(react@19.2.3)(supports-color@8.1.1))(react@19.2.3)
+      '@react-navigation/native-stack':
+        specifier: ^7.3.16
+        version: 7.18.9(3f9bb9aa1ea9aa38007ed1f9c0fbc178)
+      '@rnw-community/react-native-collapsible-header':
+        specifier: workspace:*
+        version: link:../react-native-collapsible-header
+      '@rnw-community/react-native-screen-chrome':
+        specifier: workspace:*
+        version: link:../react-native-screen-chrome
+      react:
+        specifier: 19.2.3
+        version: 19.2.3
+      react-native:
+        specifier: 0.86.2
+        version: 0.86.2(@babel/core@7.29.7(supports-color@8.1.1))(@react-native-community/cli@20.1.0(supports-color@8.1.1)(typescript@5.9.3))(@react-native/jest-preset@0.86.2(@babel/core@7.29.7(supports-color@8.1.1))(react@19.2.3)(supports-color@8.1.1))(@react-native/metro-config@0.86.2(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.2.18)(react@19.2.3)(supports-color@8.1.1)
+      react-native-reanimated:
+        specifier: 4.5.3
+        version: 4.5.3(bb139be3db644edb0604ca59c4fcc9d2)
+      react-native-safe-area-context:
+        specifier: 5.7.0
+        version: 5.7.0(react-native@0.86.2(@babel/core@7.29.7(supports-color@8.1.1))(@react-native-community/cli@20.1.0(supports-color@8.1.1)(typescript@5.9.3))(@react-native/jest-preset@0.86.2(@babel/core@7.29.7(supports-color@8.1.1))(react@19.2.3)(supports-color@8.1.1))(@react-native/metro-config@0.86.2(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.2.18)(react@19.2.3)(supports-color@8.1.1))(react@19.2.3)
+      react-native-screens:
+        specifier: 4.25.2
+        version: 4.25.2(react-native@0.86.2(@babel/core@7.29.7(supports-color@8.1.1))(@react-native-community/cli@20.1.0(supports-color@8.1.1)(typescript@5.9.3))(@react-native/jest-preset@0.86.2(@babel/core@7.29.7(supports-color@8.1.1))(react@19.2.3)(supports-color@8.1.1))(@react-native/metro-config@0.86.2(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.2.18)(react@19.2.3)(supports-color@8.1.1))(react@19.2.3)
+      react-native-worklets:
+        specifier: 0.11.3
+        version: 0.11.3(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.86.2(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(react-native@0.86.2(@babel/core@7.29.7(supports-color@8.1.1))(@react-native-community/cli@20.1.0(supports-color@8.1.1)(typescript@5.9.3))(@react-native/jest-preset@0.86.2(@babel/core@7.29.7(supports-color@8.1.1))(react@19.2.3)(supports-color@8.1.1))(@react-native/metro-config@0.86.2(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.2.18)(react@19.2.3)(supports-color@8.1.1))(react@19.2.3)(supports-color@8.1.1)
+    devDependencies:
+      '@types/react':
+        specifier: 19.2.18
+        version: 19.2.18
+
+  packages/react-native-screen-chrome-example/apps/bare:
+    dependencies:
+      '@rnw-community/react-native-collapsible-header':
+        specifier: workspace:*
+        version: link:../../../react-native-collapsible-header
+      '@rnw-community/react-native-screen-chrome':
+        specifier: workspace:*
+        version: link:../../../react-native-screen-chrome
+      '@rnw-community/react-native-screen-chrome-example':
+        specifier: workspace:*
+        version: link:../..
+      expo-blur:
+        specifier: ~57.0.0
+        version: 57.0.2(expo@57.0.4)(react-native@0.86.2(@babel/core@7.29.7(supports-color@8.1.1))(@react-native-community/cli@20.1.0(supports-color@8.1.1)(typescript@5.9.3))(@react-native/jest-preset@0.86.2(@babel/core@7.29.7(supports-color@8.1.1))(react@19.2.3)(supports-color@8.1.1))(@react-native/metro-config@0.86.2(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.2.18)(react@19.2.3)(supports-color@8.1.1))(react@19.2.3)
+      react:
+        specifier: 19.2.3
+        version: 19.2.3
+      react-native:
+        specifier: 0.86.2
+        version: 0.86.2(@babel/core@7.29.7(supports-color@8.1.1))(@react-native-community/cli@20.1.0(supports-color@8.1.1)(typescript@5.9.3))(@react-native/jest-preset@0.86.2(@babel/core@7.29.7(supports-color@8.1.1))(react@19.2.3)(supports-color@8.1.1))(@react-native/metro-config@0.86.2(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.2.18)(react@19.2.3)(supports-color@8.1.1)
+      react-native-reanimated:
+        specifier: 4.5.3
+        version: 4.5.3(bb139be3db644edb0604ca59c4fcc9d2)
+      react-native-safe-area-context:
+        specifier: 5.7.0
+        version: 5.7.0(react-native@0.86.2(@babel/core@7.29.7(supports-color@8.1.1))(@react-native-community/cli@20.1.0(supports-color@8.1.1)(typescript@5.9.3))(@react-native/jest-preset@0.86.2(@babel/core@7.29.7(supports-color@8.1.1))(react@19.2.3)(supports-color@8.1.1))(@react-native/metro-config@0.86.2(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.2.18)(react@19.2.3)(supports-color@8.1.1))(react@19.2.3)
+      react-native-screens:
+        specifier: 4.25.2
+        version: 4.25.2(react-native@0.86.2(@babel/core@7.29.7(supports-color@8.1.1))(@react-native-community/cli@20.1.0(supports-color@8.1.1)(typescript@5.9.3))(@react-native/jest-preset@0.86.2(@babel/core@7.29.7(supports-color@8.1.1))(react@19.2.3)(supports-color@8.1.1))(@react-native/metro-config@0.86.2(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.2.18)(react@19.2.3)(supports-color@8.1.1))(react@19.2.3)
+      react-native-worklets:
+        specifier: 0.11.3
+        version: 0.11.3(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.86.2(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(react-native@0.86.2(@babel/core@7.29.7(supports-color@8.1.1))(@react-native-community/cli@20.1.0(supports-color@8.1.1)(typescript@5.9.3))(@react-native/jest-preset@0.86.2(@babel/core@7.29.7(supports-color@8.1.1))(react@19.2.3)(supports-color@8.1.1))(@react-native/metro-config@0.86.2(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.2.18)(react@19.2.3)(supports-color@8.1.1))(react@19.2.3)(supports-color@8.1.1)
+    devDependencies:
+      '@react-native-community/cli':
+        specifier: 20.1.0
+        version: 20.1.0(supports-color@8.1.1)(typescript@5.9.3)
+      '@react-native-community/cli-platform-android':
+        specifier: 20.1.0
+        version: 20.1.0
+      '@react-native-community/cli-platform-ios':
+        specifier: 20.1.0
+        version: 20.1.0
+      '@react-native/babel-preset':
+        specifier: 0.86.2
+        version: 0.86.2(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1)
+      '@react-native/metro-config':
+        specifier: 0.86.2
+        version: 0.86.2(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1)
+      '@react-native/typescript-config':
+        specifier: 0.86.2
+        version: 0.86.2
+
+  packages/react-native-screen-chrome-example/apps/expo:
+    dependencies:
+      '@expo/metro-runtime':
+        specifier: 57.0.3
+        version: 57.0.3(@expo/log-box@57.0.3)(expo@57.0.4)(react-dom@19.2.3(react@19.2.3))(react-native@0.86.2(@babel/core@7.29.7(supports-color@8.1.1))(@react-native-community/cli@20.1.0(supports-color@8.1.1)(typescript@5.9.3))(@react-native/jest-preset@0.86.2(@babel/core@7.29.7(supports-color@8.1.1))(react@19.2.3)(supports-color@8.1.1))(@react-native/metro-config@0.86.2(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.2.18)(react@19.2.3)(supports-color@8.1.1))(react@19.2.3)
+      '@rnw-community/react-native-collapsible-header':
+        specifier: workspace:*
+        version: link:../../../react-native-collapsible-header
+      '@rnw-community/react-native-screen-chrome':
+        specifier: workspace:*
+        version: link:../../../react-native-screen-chrome
+      '@rnw-community/react-native-screen-chrome-example':
+        specifier: workspace:*
+        version: link:../..
+      expo:
+        specifier: 57.0.4
+        version: 57.0.4(70c94e2f0f8f3342f4491993ce70adc1)
+      expo-blur:
+        specifier: ~57.0.0
+        version: 57.0.2(expo@57.0.4)(react-native@0.86.2(@babel/core@7.29.7(supports-color@8.1.1))(@react-native-community/cli@20.1.0(supports-color@8.1.1)(typescript@5.9.3))(@react-native/jest-preset@0.86.2(@babel/core@7.29.7(supports-color@8.1.1))(react@19.2.3)(supports-color@8.1.1))(@react-native/metro-config@0.86.2(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.2.18)(react@19.2.3)(supports-color@8.1.1))(react@19.2.3)
+      react:
+        specifier: 19.2.3
+        version: 19.2.3
+      react-dom:
+        specifier: 19.2.3
+        version: 19.2.3(react@19.2.3)
+      react-native:
+        specifier: 0.86.2
+        version: 0.86.2(@babel/core@7.29.7(supports-color@8.1.1))(@react-native-community/cli@20.1.0(supports-color@8.1.1)(typescript@5.9.3))(@react-native/jest-preset@0.86.2(@babel/core@7.29.7(supports-color@8.1.1))(react@19.2.3)(supports-color@8.1.1))(@react-native/metro-config@0.86.2(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.2.18)(react@19.2.3)(supports-color@8.1.1)
+      react-native-reanimated:
+        specifier: 4.5.3
+        version: 4.5.3(bb139be3db644edb0604ca59c4fcc9d2)
+      react-native-safe-area-context:
+        specifier: 5.7.0
+        version: 5.7.0(react-native@0.86.2(@babel/core@7.29.7(supports-color@8.1.1))(@react-native-community/cli@20.1.0(supports-color@8.1.1)(typescript@5.9.3))(@react-native/jest-preset@0.86.2(@babel/core@7.29.7(supports-color@8.1.1))(react@19.2.3)(supports-color@8.1.1))(@react-native/metro-config@0.86.2(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.2.18)(react@19.2.3)(supports-color@8.1.1))(react@19.2.3)
+      react-native-screens:
+        specifier: 4.25.2
+        version: 4.25.2(react-native@0.86.2(@babel/core@7.29.7(supports-color@8.1.1))(@react-native-community/cli@20.1.0(supports-color@8.1.1)(typescript@5.9.3))(@react-native/jest-preset@0.86.2(@babel/core@7.29.7(supports-color@8.1.1))(react@19.2.3)(supports-color@8.1.1))(@react-native/metro-config@0.86.2(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.2.18)(react@19.2.3)(supports-color@8.1.1))(react@19.2.3)
+      react-native-web:
+        specifier: 0.21.2
+        version: 0.21.2(encoding@0.1.13)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
+      react-native-worklets:
+        specifier: 0.11.3
+        version: 0.11.3(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.86.2(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(react-native@0.86.2(@babel/core@7.29.7(supports-color@8.1.1))(@react-native-community/cli@20.1.0(supports-color@8.1.1)(typescript@5.9.3))(@react-native/jest-preset@0.86.2(@babel/core@7.29.7(supports-color@8.1.1))(react@19.2.3)(supports-color@8.1.1))(@react-native/metro-config@0.86.2(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.2.18)(react@19.2.3)(supports-color@8.1.1))(react@19.2.3)(supports-color@8.1.1)
+    devDependencies:
+      babel-preset-expo:
+        specifier: ~57.0.5
+        version: 57.0.7(@babel/core@7.29.7(supports-color@8.1.1))(@babel/runtime@7.29.7)(expo@57.0.4)(react-refresh@0.14.2)(supports-color@8.1.1)
+
   packages/redux-loadable: {}
 
   packages/rxjs-errors:
@@ -4877,6 +5070,13 @@ packages:
 
   expo-asset@57.0.3:
     resolution: {integrity: sha512-6E08JDuYrktY5pKNn2WiFBPBfj6bvFb++ccuBTijK8BUk/afSoy6n35h583LmC2YHgHTepWHHWNfr61nYcMd8Q==}
+    peerDependencies:
+      expo: 57.0.4
+      react: 19.2.3
+      react-native: 0.86.2
+
+  expo-blur@57.0.2:
+    resolution: {integrity: sha512-Aoud8H8lmlNkbRufyvRLefmGFELdBf1n5Te/Xm+Zx8ORINH+aXL+gKb5mbftFSha860+I7pMArz77TBYz8HDVg==}
     peerDependencies:
       expo: 57.0.4
       react: 19.2.3
@@ -15266,6 +15466,12 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
       - typescript
+
+  expo-blur@57.0.2(expo@57.0.4)(react-native@0.86.2(@babel/core@7.29.7(supports-color@8.1.1))(@react-native-community/cli@20.1.0(supports-color@8.1.1)(typescript@5.9.3))(@react-native/jest-preset@0.86.2(@babel/core@7.29.7(supports-color@8.1.1))(react@19.2.3)(supports-color@8.1.1))(@react-native/metro-config@0.86.2(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.2.18)(react@19.2.3)(supports-color@8.1.1))(react@19.2.3):
+    dependencies:
+      expo: 57.0.4(70c94e2f0f8f3342f4491993ce70adc1)
+      react: 19.2.3
+      react-native: 0.86.2(@babel/core@7.29.7(supports-color@8.1.1))(@react-native-community/cli@20.1.0(supports-color@8.1.1)(typescript@5.9.3))(@react-native/jest-preset@0.86.2(@babel/core@7.29.7(supports-color@8.1.1))(react@19.2.3)(supports-color@8.1.1))(@react-native/metro-config@0.86.2(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.2.18)(react@19.2.3)(supports-color@8.1.1)
 
   expo-constants@57.0.3(expo@57.0.4)(react-native@0.86.2(@babel/core@7.29.7(supports-color@8.1.1))(@react-native-community/cli@20.1.0(supports-color@8.1.1)(typescript@5.9.3))(@react-native/jest-preset@0.86.2(@babel/core@7.29.7(supports-color@8.1.1))(react@19.2.3)(supports-color@8.1.1))(@react-native/metro-config@0.86.2(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.2.18)(react@19.2.3)(supports-color@8.1.1))(supports-color@8.1.1):
     dependencies:
