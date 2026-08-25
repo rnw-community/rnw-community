@@ -608,7 +608,7 @@ jobs:
                 # Only meaningful when the redroid container booted and the test step
                 # then failed. If setup failed earlier, this is skipped instead of
                 # talking to an adb server that has no device.
-                if: failure() && (steps.emulator.outcome == 'failure' || steps.redroid.outcome == 'failure')
+                if: failure() || steps.emulator.outcome == 'failure' || steps.redroid.outcome == 'failure'
                 # A diagnostic must never outlive the test it is diagnosing.
                 timeout-minutes: 3
                 shell: bash
@@ -645,7 +645,7 @@ jobs:
             -   name: Upload Maestro artifacts
                 # Matches the capture step's condition — gating this on the test step
                 # alone discarded the container log whenever setup was what failed.
-                if: failure() && (steps.emulator.outcome == 'failure' || steps.redroid.outcome == 'failure')
+                if: failure() || steps.emulator.outcome == 'failure' || steps.redroid.outcome == 'failure'
                 uses: actions/upload-artifact@v4
                 timeout-minutes: 5
                 with:

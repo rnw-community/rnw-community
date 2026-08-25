@@ -383,7 +383,7 @@ jobs:
             -   name: Capture final simulator state
                 # Pointless unless a simulator actually booted: without it
                 # SIMULATOR_UDID is unset and simctl has nothing to talk to.
-                if: failure() && steps.simulator.outcome == 'success'
+                if: failure() || (steps.maestro.outcome == 'failure' && steps.simulator.outcome == 'success')
                 timeout-minutes: 3
                 shell: bash
                 run: |
@@ -398,7 +398,7 @@ jobs:
                 run: xcrun simctl shutdown "$SIMULATOR_UDID" || true
 
             -   name: Upload Maestro artifacts
-                if: failure() && steps.simulator.outcome == 'success'
+                if: failure() || (steps.maestro.outcome == 'failure' && steps.simulator.outcome == 'success')
                 uses: actions/upload-artifact@v4
                 timeout-minutes: 5
                 with:
