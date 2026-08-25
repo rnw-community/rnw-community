@@ -3,5 +3,9 @@ self-hosted-runner:
         - macOS
         - ARM64
         - macos-maestro
+        # linux-tiered/linux-xl are the arm64 Redroid path the Android suite
+        # used to run on. Kept so a revert of the amd64 move still lints.
         - linux-tiered
         - linux-xl
+        - trf-linux-amd64-4x8
+        - trf-rnw-linux-amd64-4x8

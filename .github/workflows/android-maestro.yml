@@ -1,21 +1,34 @@
 name: Android Maestro E2E
 
 # Runs the Maestro suite of every example package that carries one. Building the
-# APK and running it against Redroid happen on two different runner pools, and
+# APK and running it against a device happen on two different runner pools, and
 # that split is load-bearing, not stylistic:
 #
 # - build-apk runs on a free GitHub-hosted ubuntu-24.04 (x86_64) runner. Native
 #   Android builds need the NDK's host clang, and Google publishes
 #   linux-x86_64 prebuilts only — no NDK release has ever shipped a
-#   linux-aarch64 host toolchain — so a Gradle build that touches native code
-#   cannot succeed on this repo's arm64 self-hosted fleet at all (confirmed
-#   live: "C compiler identification is unknown",
-#   toolchains/llvm/prebuilt/linux-x86_64/bin/clang missing). This repo is
-#   public, so the GitHub-hosted runner costs nothing.
-# - maestro runs on the self-hosted Linux fleet (issue #395, epic #372) purely
-#   to install the prebuilt APK into Redroid (Android-in-a-privileged-container,
-#   the fleet's only arm64-native way to run Android at all) and drive Maestro.
-#   No Gradle, SDK, or NDK step belongs in this job.
+#   linux-aarch64 host toolchain. That reasoning is unchanged by the runner
+#   move below: the self-hosted amd64 node could host a Gradle build now, but
+#   this repo is public, so the GitHub-hosted runner costs nothing and keeps
+#   fleet capacity for the part that actually needs a device.
+# - maestro runs on the self-hosted x86_64 Linux fleet (tart-runner-fleet
+#   scale set trf-rnw-linux-amd64-4x8) purely to install the prebuilt APK into
+#   a KVM-accelerated Android emulator and drive Maestro. No Gradle, SDK, or
+#   NDK step belongs in this job.
+#
+#   This used to say "arm64-native Redroid is the fleet's only way to run
+#   Android at all", and on the Apple-silicon Linux VMs that was true: no
+#   x86_64 host, no /dev/kvm, so the only option was Android-in-a-privileged-
+#   container on the host kernel. The amd64 node retires that constraint. It
+#   runs jobs in an ephemeral rootless Podman container with /dev/kvm passed
+#   through (`emulator -accel-check` reports accel 0, KVM version 12), so the
+#   real AOSP emulator boots — measured 23s cold, headless, for
+#   system-images;android-34;google_apis;x86_64. That is Google's own image
+#   with Google Play services present, which is what the payments suite needs
+#   and what forced the community GMS Redroid image before. It is also why
+#   Redroid cannot run here even as a fallback: no sudo, no privileged mode,
+#   no docker daemon, so binderfs can never be mounted. The arm64 Redroid path
+#   still exists on the macOS fleet if this ever needs reverting.
 #
 # The package/target matrix comes from .github/scripts/maestro-matrix.mjs,
 # which also decides which suites a pull request actually needs; add new
@@ -193,7 +206,13 @@ jobs:
         if: needs.detect.outputs.any == 'true'
         # Time-boxed: see the same flag in ios-maestro.yml and issue #601.
         continue-on-error: ${{ matrix.package == 'screen-chrome' }}
-        runs-on: [self-hosted, linux-tiered, linux-xl]
+        # 4x8, not 2x4: only the 4cpu/8GB profile of the amd64 scale set has
+        # /dev/kvm. On any other shape the emulator falls back to pure
+        # software emulation of x86_64-on-x86_64, which is slow enough that
+        # every step budget below is wrong. The scale set also advertises its
+        # own name (trf-rnw-linux-amd64-4x8) as a label if this ever has to be
+        # pinned harder than the shape.
+        runs-on: [self-hosted, trf-linux-amd64-4x8]
         # Self-hosted fleet capacity is shared with other repositories, so both the
         # job and every step below carry an explicit bound. See the step comments
         # for how each number was sized. No Gradle/SDK/NDK step runs here anymore
@@ -201,23 +220,27 @@ jobs:
         timeout-minutes: 30
         strategy:
             fail-fast: false
-            # One redroid at a time. Every leg that has ever died mid-boot overlapped
-            # another leg, and upstream reports that a second instance booting on the
-            # same host makes adb unresponsive on both (redroid-doc#904): privileged
-            # containers share the host kernel's binder devices, so the contention is
-            # across runners and no per-container limit can bound it. The legs are
-            # already serialized by fleet capacity most of the time; this makes it a
-            # property of the workflow rather than a coincidence of scheduling.
+            # One device at a time, for a different reason than before. The old
+            # redroid limit was about privileged containers sharing the host
+            # kernel's binder devices; nothing about an ephemeral rootless
+            # container running its own emulator process is shared that way.
+            # What is shared is the host: a booted API-34 AVD measured ~4.2 GB
+            # RSS in the 4x8 shape, so a handful of concurrent legs landing on
+            # one node would contend for RAM and KVM before they contend for
+            # anything else. The serialization stays until that headroom is
+            # measured rather than assumed.
             max-parallel: 1
             matrix:
                 include: ${{ fromJSON(needs.detect.outputs.matrix) }}
         env:
             MAESTRO_DEBUG_OUTPUT_DIRECTORY: ${{ github.workspace }}/${{ matrix.example_dir }}/artifacts/maestro-android-${{ matrix.package }}-${{ matrix.target }}
-            # Several legs can land on the same self-hosted host, so the container
-            # name is per-leg. The data directory and adb port are derived inside the
-            # redroid step: job-level env cannot read the runner context, and docker
-            # assigns the port.
-            REDROID_CONTAINER: redroid-${{ matrix.package }}-${{ matrix.target }}-${{ github.run_id }}
+            # The runner container is ephemeral and holds exactly one AVD, so a
+            # fixed name is unambiguous — no per-leg suffix is needed the way the
+            # shared-host redroid container needed one. The system image is named
+            # here so the create, the fallback SDK install, and the diagnostics
+            # can never disagree about which one this job wants.
+            AVD_NAME: e2e
+            ANDROID_SYSTEM_IMAGE: 'system-images;android-34;google_apis;x86_64'
 
         steps:
             -   name: Checkout repository
@@ -249,189 +272,229 @@ jobs:
                     name: apk-${{ matrix.package }}-${{ matrix.target }}
                     path: .ci-artifacts/apk
 
-            -   name: Install adb
-                # Google ships platform-tools for linux-x86_64 only. On this arm64
-                # fleet that adb cannot exec at all — the shell falls back to parsing
-                # the ELF as a script and reports "Syntax error: word unexpected".
-                # Gradle/SDK/NDK provisioning (and that whole problem) moved to
-                # build-apk's x86_64 runner; this job only needs a working adb to
-                # install the prebuilt APK and drive Maestro, so the distro package
-                # is enough on its own — no Android SDK setup at all here.
-                timeout-minutes: 10
+            -   name: Locate the preinstalled Android SDK
+                id: sdk
+                # The runner image bakes an SDK layer (cmdline-tools,
+                # platform-tools, emulator, platforms;android-34 and the x86_64
+                # system image), but nothing in the contract says ANDROID_HOME is
+                # exported into the job environment, and a future image revision
+                # may move it. So the location is probed instead of assumed, and a
+                # candidate only counts when it can do all three things this job
+                # needs: create an AVD, boot it, and talk to it. Anything short of
+                # that hands over to the setup-android fallback below rather than
+                # failing halfway through `avdmanager create`.
+                timeout-minutes: 3
+                shell: bash
                 run: |
                     set -euo pipefail
-                    if ! dpkg -s adb >/dev/null 2>&1; then
-                      sudo apt-get update -y
-                      sudo apt-get install -y adb
+                    image_dir="system-images/android-34/google_apis/x86_64"
+                    sdk=''
+                    cli_bin=''
+                    for candidate in "${ANDROID_HOME:-}" "${ANDROID_SDK_ROOT:-}" /opt/android-sdk /usr/local/lib/android/sdk "$HOME/Android/Sdk"; do
+                      [ -n "$candidate" ] && [ -d "$candidate" ] || continue
+                      [ -x "$candidate/emulator/emulator" ] || continue
+                      [ -x "$candidate/platform-tools/adb" ] || continue
+                      [ -d "$candidate/$image_dir" ] || continue
+                      cli_bin=''
+                      for bin in "$candidate/cmdline-tools/latest/bin" "$candidate/cmdline-tools/bin" "$candidate/tools/bin"; do
+                        if [ -x "$bin/avdmanager" ]; then cli_bin="$bin"; break; fi
+                      done
+                      [ -n "$cli_bin" ] || continue
+                      sdk="$candidate"
+                      break
+                    done
+                    if [ -z "$sdk" ]; then
+                      echo "sdk=" >> "$GITHUB_OUTPUT"
+                      echo "::warning::No Android SDK on this runner carries all of cmdline-tools, platform-tools, emulator and $ANDROID_SYSTEM_IMAGE; installing one with android-actions/setup-android instead. That still works, it just costs a download this image is supposed to have baked in."
+                      exit 0
                     fi
-                    adb version
+                    echo "Using the preinstalled Android SDK at $sdk"
+                    {
+                      echo "ANDROID_HOME=$sdk"
+                      echo "ANDROID_SDK_ROOT=$sdk"
+                    } >> "$GITHUB_ENV"
+                    {
+                      echo "$cli_bin"
+                      echo "$sdk/platform-tools"
+                      echo "$sdk/emulator"
+                    } >> "$GITHUB_PATH"
+                    echo "sdk=$sdk" >> "$GITHUB_OUTPUT"
 
-            -   name: Start redroid container
-                id: redroid
-                # redroid runs Android on the host kernel instead of emulating a
-                # foreign architecture, so it needs neither KVM nor an x86_64 host —
-                # the two things this arm64 fleet cannot offer. The image is
-                # arm64-native, so its ABI matches the arm64-v8a slice of the release
-                # APK.
-                #
-                # 20 minutes, not 15: a host whose prewarm manifest names a different
-                # image cold-pulls ~1.1 GB and pays Android's first boot plus GMS
-                # first-run initialization in this step.
-                timeout-minutes: 20
+            -   name: Set up Android SDK (fallback)
+                # Only when the probe above found nothing usable, so the job keeps
+                # working across runner image revisions instead of depending on one.
+                if: steps.sdk.outputs.sdk == ''
+                uses: android-actions/setup-android@v3
+                timeout-minutes: 25
+                with:
+                    # Explicit, because the action still defaults to
+                    # "tools platform-tools" and the obsolete "tools" package was
+                    # withdrawn from the Google SDK repository — see the same note
+                    # in build-apk. Unlike build-apk, this job needs the emulator
+                    # and a system image, and no Gradle run is here to resolve them.
+                    packages: 'platform-tools emulator platforms;android-34 ${{ env.ANDROID_SYSTEM_IMAGE }}'
+
+            -   name: Verify the Android SDK and KVM acceleration
+                timeout-minutes: 5
+                shell: bash
                 run: |
                     set -euo pipefail
-                    # darknightlab/redroid-gms overlays MindTheGapps onto the stock
-                    # redroid/redroid:14.0.0_64only-latest base this fleet already
-                    # knows how to run (same binder_linux, privileged-container, and
-                    # GPU-mode requirements). Stock redroid ships no Google Play
-                    # services at all, which made every PaymentRequest show()-path flow
-                    # fail deterministically with "Google Play services is invalid.
-                    # Cannot recover." in logcat. Android 14 instead of 15: no
-                    # maintained prebuilt GMS image for 15 exists, and the fleet
-                    # cannot build one. Pinned by digest because the tag is mutable
-                    # and the publisher is a community account.
-                    REDROID_IMAGE='darknightlab/redroid-gms:14.0.0_64only-latest@sha256:849bb5ec8d14e9409535ff1a2ca6c2c603555aeb4e36a47b6f984524095e6f0a'
-                    # binder_linux must load on every boot. /dev/binder* is not a
-                    # reliable presence signal: on 6.x binderfs kernels no
-                    # /dev/binder, /dev/hwbinder, or /dev/vndbinder node ever appears
-                    # on the host at all — the privileged container mounts binderfs
-                    # and creates its own — so /sys/module/binder_linux is the only
-                    # portable check, and it is checked only after modprobe rather
-                    # than instead of it. A precondition that only checks and never
-                    # loads is a false positive on exactly the hosts redroid needs it
-                    # most on, and that false positive is what let eight runners die.
-                    sudo modprobe binder_linux devices=binder,hwbinder,vndbinder 2>&1 || true
-                    if [ ! -d /sys/module/binder_linux ]; then
-                      echo "::error::binder_linux is not loaded on this host after modprobe. Redroid cannot run without it, and that is host-kernel provisioning a workflow run cannot self-heal safely."
+                    sdk="${ANDROID_HOME:-${ANDROID_SDK_ROOT:-}}"
+                    if [ -z "$sdk" ] || [ ! -d "$sdk" ]; then
+                      echo "::error::Neither the probe nor android-actions/setup-android left a usable Android SDK on this runner."
                       exit 1
                     fi
-                    # Every wait below can only fail as a timeout, which says nothing
-                    # about why Android did not come up. The container's own log does,
-                    # and so does whether this host's docker is rootless — under
-                    # rootless docker `--privileged` grants nothing, redroid cannot
-                    # mount binderfs, and the container stays up while adbd never
-                    # listens, which looks exactly like a slow boot.
-                    dump_redroid_state() {
-                      echo "::group::redroid diagnostics"
-                      docker info --format 'security options: {{.SecurityOptions}}' || true
-                      # Upstream wants binder_linux and ashmem_linux; Android 12+ uses
-                      # memfd instead of ashmem, so a missing ashmem is reported rather
-                      # than treated as fatal. Neighbouring containers matter too — a
-                      # second redroid booting on this kernel destabilizes both.
-                      lsmod | grep -E '^(binder_linux|ashmem_linux)' || echo "no binder/ashmem module rows"
-                      docker ps --filter "ancestor=$REDROID_IMAGE" --format 'neighbour: {{.Names}} {{.Status}}' || true
-                      docker ps -a --filter "name=$REDROID_CONTAINER" --format '{{.Names}}: {{.Status}}' || true
-                      docker logs --tail 200 "$REDROID_CONTAINER" 2>&1 || true
+                    # setup-android puts cmdline-tools and platform-tools on PATH
+                    # but not emulator/, and on the probe path GITHUB_PATH only
+                    # takes effect for later steps — this one included. Both routes
+                    # converge here.
+                    for dir in "$sdk/cmdline-tools/latest/bin" "$sdk/platform-tools" "$sdk/emulator"; do
+                      [ -d "$dir" ] || continue
+                      case ":$PATH:" in
+                        *":$dir:"*) ;;
+                        *) echo "$dir" >> "$GITHUB_PATH"; PATH="$dir:$PATH" ;;
+                      esac
+                    done
+                    adb version
+                    # sed -n '1p', not `head -n 1`: head exits at the first line
+                    # and the still-writing emulator then dies of SIGPIPE, which
+                    # under pipefail fails this step over a log line.
+                    emulator -version 2>&1 | sed -n '1p'
+                    # The one hard precondition of this job, checked rather than
+                    # assumed. /dev/kvm is passed into the runner container only on
+                    # the 4x8 profile of the scale set; anywhere else the emulator
+                    # still starts, at software-emulation speed, and every timeout
+                    # below becomes wrong for reasons no log would explain.
+                    # The exit status is checked *and* the message is matched:
+                    # accel-check has shipped builds that report a negative accel
+                    # code and still exit 0, and a precondition that only looks at
+                    # one of the two is a false positive on exactly the host it
+                    # exists to catch. A healthy node prints
+                    # "accel: 0 KVM (version 12) is installed and usable".
+                    accel_status=0
+                    accel_output="$(emulator -accel-check 2>&1)" || accel_status=$?
+                    echo "$accel_output"
+                    if [ "$accel_status" -ne 0 ] || ! grep -q 'is installed and usable' <<<"$accel_output"; then
+                      echo "::error::This runner has no usable KVM acceleration. The maestro job must run on the trf-linux-amd64-4x8 profile — it is the only one of the amd64 scale set's shapes that passes /dev/kvm into the job container."
+                      exit 1
+                    fi
+
+            -   name: Create the AVD
+                id: avd
+                # An AVD created with no --device inherits whatever skin the
+                # system image happens to ship, which is not a stable contract
+                # across image revisions. The suite's flows are written against a
+                # phone-shaped screen — they scroll by percentage, and several of
+                # them (see the "CI device profile" comments in the payments
+                # flows) care where the fold lands — so the profile is named. The
+                # fallbacks exist because the device catalogue belongs to
+                # cmdline-tools, not to this workflow.
+                timeout-minutes: 5
+                shell: bash
+                run: |
+                    set -euo pipefail
+                    devices="$(avdmanager list device -c)"
+                    device=''
+                    for candidate in pixel_6 pixel_5 pixel_4 pixel; do
+                      if grep -qx "$candidate" <<<"$devices"; then
+                        device="$candidate"
+                        break
+                      fi
+                    done
+                    if [ -z "$device" ]; then
+                      echo "::error::None of the expected phone device profiles (pixel_6, pixel_5, pixel_4, pixel) exist in this cmdline-tools' device catalogue."
+                      exit 1
+                    fi
+                    echo "Creating AVD '$AVD_NAME' from $ANDROID_SYSTEM_IMAGE on device profile $device"
+                    # `echo no`: avdmanager prompts for a custom hardware profile
+                    # even when --device is given, and an unanswered prompt is a
+                    # hang, not an error.
+                    echo no | avdmanager create avd --force -n "$AVD_NAME" -k "$ANDROID_SYSTEM_IMAGE" --device "$device"
+                    # ANDROID_AVD_HOME wins if the image sets it: avdmanager and
+                    # the emulator both honour it, so hardcoding ~/.android/avd
+                    # would edit a config.ini neither of them reads.
+                    config="${ANDROID_AVD_HOME:-$HOME/.android/avd}/$AVD_NAME.avd/config.ini"
+                    test -f "$config"
+                    # Appended, not edited: the AVD config parser keeps the last
+                    # occurrence of a key, so this overrides the generated values
+                    # without having to rewrite a file avdmanager owns.
+                    {
+                      echo "hw.ramSize=2048"
+                      # Maestro's driver types through the hardware keyboard; a
+                      # soft-keyboard-only AVD turns text input into flake.
+                      echo "hw.keyboard=yes"
+                      echo "hw.gpu.enabled=yes"
+                      echo "hw.gpu.mode=swiftshader_indirect"
+                    } >> "$config"
+                    avdmanager list avd
+
+            -   name: Boot the emulator
+                id: emulator
+                # 10 minutes against a 23s measured cold boot on this node: the
+                # budget is here to catch a wedged boot, not to bound a healthy
+                # one. The redroid step it replaces needed 20 because it could
+                # cold-pull a 1.1 GB image and then pay Android's plus GMS's first
+                # boot; a baked system image pays neither.
+                timeout-minutes: 10
+                shell: bash
+                run: |
+                    set -euo pipefail
+                    emulator_log="$RUNNER_TEMP/emulator.log"
+                    echo "EMULATOR_LOG=$emulator_log" >> "$GITHUB_ENV"
+                    # Every wait below can only fail as a timeout, which says
+                    # nothing about why Android did not come up. The emulator's own
+                    # stdout does — a refused /dev/kvm, a corrupt AVD, and a guest
+                    # kernel panic all look identical from the outside.
+                    dump_emulator_state() {
+                      echo "::group::emulator diagnostics"
+                      tail -n 200 "$emulator_log" 2>/dev/null || echo "no emulator log at $emulator_log"
+                      adb devices -l || true
                       echo "::endgroup::"
                     }
-                    trap dump_redroid_state ERR
-                    docker rm -f "$REDROID_CONTAINER" >/dev/null 2>&1 || true
-                    REDROID_DATA_DIR="$RUNNER_TEMP/$REDROID_CONTAINER"
-                    echo "REDROID_DATA_DIR=$REDROID_DATA_DIR" >> "$GITHUB_ENV"
-                    rm -rf "$REDROID_DATA_DIR"
-                    mkdir -p "$REDROID_DATA_DIR"
-                    # Seed /data from the fleet's prewarmed volume the same way
-                    # vitalyiegorov/suuudokuuu does (prewarm-redroid-linux.sh): a
-                    # first-boot-completed, animations-off /data cuts boot from
-                    # minutes to seconds. Cold-pulling and cold-booting redroid is
-                    # exactly the path three independent sources tie to the guest
-                    # kernel hard-locking on this fleet, so this is not optional on
-                    # runners that have been prewarmed.
-                    REDROID_PREWARM_MANIFEST="$HOME/.sudoku-ci/android-emulator.json"
-                    if [ -f "$REDROID_PREWARM_MANIFEST" ]; then
-                      # `|| true`: under pipefail, a manifest with no "dataDir"/"image"
-                      # key makes grep exit 1 with no output, and that failure
-                      # propagates through the pipe even though sed exits 0 — which
-                      # would abort the whole step here instead of reaching the
-                      # unusable-manifest fallback below. An empty PREWARM_DATA_DIR is
-                      # exactly what that fallback branch is for.
-                      PREWARM_DATA_DIR=$(grep -o '"dataDir"[[:space:]]*:[[:space:]]*"[^"]*"' "$REDROID_PREWARM_MANIFEST" | sed -E 's/.*:[[:space:]]*"([^"]*)"/\1/' || true)
-                      PREWARM_IMAGE=$(grep -o '"image"[[:space:]]*:[[:space:]]*"[^"]*"' "$REDROID_PREWARM_MANIFEST" | sed -E 's/.*:[[:space:]]*"([^"]*)"/\1/' || true)
-                      # A /data volume is only reusable by the exact image that booted
-                      # it: seeding the GMS image from a tree first-booted by a
-                      # different Android build (the fleet's manifests still name
-                      # stock redroid/redroid:15.0.0_64only-latest until they are
-                      # re-prewarmed) would boot Android 14 GMS on Android 15
-                      # first-boot state. That mismatch cold-pulls instead, which is
-                      # slower but correct, and is also what makes the first run after
-                      # this image bump possible before any host has been re-prewarmed.
-                      if [ "$PREWARM_IMAGE" != "$REDROID_IMAGE" ]; then
-                        echo "::warning::Prewarm manifest $REDROID_PREWARM_MANIFEST was built for image '$PREWARM_IMAGE', not '$REDROID_IMAGE'; ignoring its dataDir and falling back to a cold pull and cold boot until the host is re-prewarmed."
-                        PREWARM_DATA_DIR=''
-                      fi
-                      if [ -n "$PREWARM_DATA_DIR" ] && [ -d "$PREWARM_DATA_DIR" ]; then
-                        echo "Seeding redroid /data from the prewarmed volume at $PREWARM_DATA_DIR (manifest: $REDROID_PREWARM_MANIFEST)."
-                        # The prewarmed tree is root-owned (redroid writes it as root
-                        # inside a --privileged container), so a plain cp as the
-                        # unprivileged runner user fails "Permission denied" on most
-                        # of /data. mobile-ci's run-maestro-android-redroid action hits
-                        # the same requirement and also shells out through sudo, for
-                        # both the seed (here) and the teardown rm below.
-                        sudo cp -a "$PREWARM_DATA_DIR/." "$REDROID_DATA_DIR/"
-                      else
-                        # The image-mismatch branch above already explained itself; a
-                        # second warning here would misattribute the fallback to a
-                        # broken manifest.
-                        if [ "$PREWARM_IMAGE" = "$REDROID_IMAGE" ]; then
-                          echo "::warning::Prewarm manifest $REDROID_PREWARM_MANIFEST does not name a usable dataDir ($PREWARM_DATA_DIR); falling back to a cold pull and cold boot."
-                        fi
-                        docker pull "$REDROID_IMAGE"
-                      fi
-                    else
-                      echo "::warning::No prewarm manifest at $REDROID_PREWARM_MANIFEST; this runner was not prewarmed by the fleet, so redroid will cold-pull and cold-boot instead of seeding /data from a prewarmed volume."
-                      docker pull "$REDROID_IMAGE"
-                    fi
-                    # An unbounded container took every runner down with "the self-hosted
-                    # runner lost communication with the server" — the runner agent has to
-                    # keep reporting while Android boots, and in guest GPU mode that boot
-                    # is pure CPU work, so the container is held to all but two cores and
-                    # a memory ceiling. --memory-swap matches --memory (Docker otherwise
-                    # allows 2x swap) so a bloated redroid cannot page out the runner
-                    # agent instead of being OOM-killed itself. The display flags are
-                    # dropped: the prewarmed /data volume was created at redroid's
-                    # defaults, and booting it under a different display config is
-                    # untested; nothing in the suite depends on the pixel count anyway,
-                    # every gesture is expressed in percentages.
-                    container_cpus=$(( $(nproc) > 3 ? $(nproc) - 2 : 1 ))
-                    echo "host cores: $(nproc); container limited to ${container_cpus}"
-                    # 8g, not 6g: GMS adds its own service constellation on top of
-                    # stock Android, and a first boot additionally pays GMS
-                    # initialization; the ceiling still exists so a bloated redroid is
-                    # OOM-killed instead of paging out the runner agent.
-                    docker run -d --privileged \
-                      --name "$REDROID_CONTAINER" \
-                      --cpus "$container_cpus" \
-                      --memory 8g \
-                      --memory-swap 8g \
-                      -p 127.0.0.1::5555 \
-                      -v "$REDROID_DATA_DIR:/data" \
-                      "$REDROID_IMAGE" \
-                      androidboot.redroid_gpu_mode=guest
-                    # The export is load-bearing: the wait loops below run in a child
-                    # `bash -c`, whose single quotes defer expansion to that child, and
-                    # $GITHUB_ENV only reaches later steps. Unexported, the child saw an
-                    # empty port and polled `adb connect 127.0.0.1:` until the timeout —
-                    # a 124 that read as "redroid never booted" while it had booted fine.
-                    export ADB_PORT
-                    ADB_PORT=$(docker port "$REDROID_CONTAINER" 5555/tcp | head -1 | sed 's/.*://')
-                    test -n "$ADB_PORT"
-                    echo "ADB_PORT=$ADB_PORT" >> "$GITHUB_ENV"
+                    trap dump_emulator_state ERR
+                    # -no-window and swiftshader_indirect because the runner
+                    # container is headless with no GPU to pass through;
+                    # -no-snapshot so every leg boots the same way instead of
+                    # resuming whatever the previous one left behind.
+                    nohup emulator -avd "$AVD_NAME" \
+                      -no-window -no-audio -no-boot-anim \
+                      -gpu swiftshader_indirect \
+                      -no-snapshot -no-metrics \
+                      -netdelay none -netspeed full \
+                      > "$emulator_log" 2>&1 &
+                    echo "EMULATOR_PID=$!" >> "$GITHUB_ENV"
                     adb start-server
-                    timeout 180 bash -c 'until adb connect "127.0.0.1:$ADB_PORT" | grep -q connected; do sleep 3; done'
-                    timeout 300 adb -s "127.0.0.1:$ADB_PORT" wait-for-device
-                    # A killed runner uploads no log at all, so the boot narrates itself
-                    # into the live stream as it goes: load average beside the boot
-                    # properties is what separates "starved" from "stuck".
-                    device="127.0.0.1:$ADB_PORT"
-                    export device
-                    # 600, not 300: a cold first boot of the GMS image also runs GMS
-                    # first-run initialization before sys.boot_completed flips, and
-                    # that is the guaranteed path on every host until its prewarm
-                    # manifest is rebuilt for this image.
-                    timeout 600 bash -c 'until [ "$(adb -s "$device" shell getprop sys.boot_completed | tr -d "\r")" = "1" ]; do
-                      echo "booting: bootanim=$(adb -s "$device" shell getprop init.svc.bootanim | tr -d "\r") load=$(cut -d" " -f1-3 /proc/loadavg)"
-                      sleep 10
+                    timeout 120 adb wait-for-device
+                    # Derived, not assumed to be emulator-5554: the console port is
+                    # whatever was free when the emulator claimed it. The device
+                    # list is captured first because an awk that exits at the first
+                    # match would SIGPIPE adb, and under pipefail that is a step
+                    # failure rather than a match.
+                    devices="$(adb devices)"
+                    serial="$(awk '/^emulator-[0-9]+/ { print $1; exit }' <<<"$devices")"
+                    test -n "$serial"
+                    echo "ANDROID_SERIAL=$serial" >> "$GITHUB_ENV"
+                    # The export is load-bearing: the wait loop below runs in a
+                    # child `bash -c` whose single quotes defer expansion to that
+                    # child, and $GITHUB_ENV only reaches later steps.
+                    export ANDROID_SERIAL="$serial"
+                    # 300s against a measured 23s — generous on purpose. It
+                    # narrates itself as it goes because a killed runner uploads no
+                    # artifact at all, so the boot has to be readable in the live
+                    # log: load average beside the boot properties is what
+                    # separates "starved" from "stuck".
+                    timeout 300 bash -c 'until [ "$(adb shell getprop sys.boot_completed 2>/dev/null | tr -d "\r")" = "1" ]; do
+                      echo "booting: bootanim=$(adb shell getprop init.svc.bootanim 2>/dev/null | tr -d "\r") load=$(cut -d" " -f1-3 /proc/loadavg)"
+                      sleep 5
                     done'
+                    # Dismiss the lock screen the stock image boots into, then turn
+                    # animations off — the same property the prewarmed redroid
+                    # /data volume used to carry, and one Maestro's waits depend on
+                    # more than anything else here.
+                    adb shell input keyevent 82 || true
+                    for scale in window_animation_scale transition_animation_scale animator_duration_scale; do
+                      adb shell settings put global "$scale" 0 || true
+                    done
                     adb devices -l
 
             -   name: Install Maestro
@@ -583,14 +646,14 @@ jobs:
                     echo "Installed and using maestro $MAESTRO_VERSION at $pinned_bin"
 
             -   name: Install APK and run Maestro tests
-                id: emulator
+                id: tests
                 # Step-level flag (the job-level one is not honored for the check
                 # run conclusion on this runner): see the job-level comment.
                 continue-on-error: ${{ matrix.package == 'screen-chrome' }}
-                # redroid is already booted (previous step) and the APK is already
-                # built (build-apk, a GitHub-hosted x86_64 runner — see the
-                # top-of-file note on why native builds can't run here). This step
-                # is install + test only.
+                # The emulator is already booted (previous step) and the APK is
+                # already built (build-apk, a GitHub-hosted x86_64 runner — see the
+                # top-of-file note on why the build stays there). This step is
+                # install + test only.
                 timeout-minutes: 20
                 shell: bash
                 run: |
@@ -598,52 +661,64 @@ jobs:
                     set -x
                     apk=$(find .ci-artifacts/apk -name '*.apk' | head -1)
                     test -n "$apk"
-                    timeout 300 adb -s "127.0.0.1:$ADB_PORT" install -r "$apk"
+                    # The APK is universal (all four reactNativeArchitectures), so
+                    # the x86_64 slice this emulator needs is in the same artifact
+                    # the arm64 redroid path used to install.
+                    timeout 300 adb -s "$ANDROID_SERIAL" install -r "$apk"
                     cd "${{ matrix.example_dir }}"
                     pnpm e2e:android:${{ matrix.target }}
 
             -   name: Capture final device state
-                # Only meaningful when the redroid container booted and the test step
-                # then failed. If setup failed earlier, this is skipped instead of
+                # Only meaningful when the emulator booted and the test step then
+                # failed. If setup failed earlier, this is skipped instead of
                 # talking to an adb server that has no device.
-                if: failure() || steps.emulator.outcome == 'failure' || steps.redroid.outcome == 'failure'
+                if: failure() || steps.tests.outcome == 'failure' || steps.emulator.outcome == 'failure'
                 # A diagnostic must never outlive the test it is diagnosing.
                 timeout-minutes: 3
                 shell: bash
                 run: |
                     out="${{ env.MAESTRO_DEBUG_OUTPUT_DIRECTORY }}"
                     mkdir -p "$out"
-                    docker logs "$REDROID_CONTAINER" > "$out/redroid-container.log" 2>&1 || true
-                    if ! timeout 30 adb -s "127.0.0.1:$ADB_PORT" wait-for-device; then
+                    # The emulator's own stdout is what `docker logs` used to be
+                    # here: it is the only place a refused /dev/kvm, a corrupt AVD,
+                    # or a guest kernel panic is reported.
+                    if [ -n "${EMULATOR_LOG:-}" ] && [ -f "$EMULATOR_LOG" ]; then
+                      cp "$EMULATOR_LOG" "$out/emulator.log" || true
+                    fi
+                    # ANDROID_SERIAL is only set once the emulator has registered
+                    # with adb; a boot that failed before that leaves it unset, and
+                    # an empty -s argument is not a parseable adb target.
+                    if [ -z "${ANDROID_SERIAL:-}" ]; then
+                      echo "No emulator serial was recorded; skipping device state capture."
+                      exit 0
+                    fi
+                    if ! timeout 30 adb -s "$ANDROID_SERIAL" wait-for-device; then
                       echo "No device attached after 30s; skipping device state capture."
                       exit 0
                     fi
-                    device="127.0.0.1:$ADB_PORT"
-                    timeout 30 adb -s "$device" exec-out screencap -p > "$out/final-screen.png" || true
-                    timeout 60 adb -s "$device" logcat -d > "$out/logcat-full.txt" 2>&1 || true
-                    timeout 30 adb -s "$device" logcat -d -b crash > "$out/logcat-crash.txt" 2>&1 || true
+                    timeout 30 adb -s "$ANDROID_SERIAL" exec-out screencap -p > "$out/final-screen.png" || true
+                    timeout 60 adb -s "$ANDROID_SERIAL" logcat -d > "$out/logcat-full.txt" 2>&1 || true
+                    timeout 30 adb -s "$ANDROID_SERIAL" logcat -d -b crash > "$out/logcat-crash.txt" 2>&1 || true
 
-            -   name: Stop redroid container
-                # The fleet is shared, so a leaked privileged container (and its data
-                # directory) must never outlive the job that started it.
+            -   name: Stop the emulator
+                # The runner container is ephemeral, so this is not the leak guard
+                # the redroid teardown had to be — but a live emulator holds
+                # /dev/kvm and a lock on the AVD, and shutting it down cleanly is
+                # cheaper than making the container teardown do it by force.
                 if: always()
-                timeout-minutes: 5
+                timeout-minutes: 3
                 shell: bash
                 run: |
-                    # ADB_PORT is only set once the container is up and docker has
-                    # assigned it a host port; a redroid step that failed before that
-                    # point leaves it unset, and "127.0.0.1:0" is not a parseable adb
-                    # target, so this is skipped rather than logging a spurious error.
-                    if [ -n "${ADB_PORT:-}" ]; then adb disconnect "127.0.0.1:$ADB_PORT" || true; fi
-                    docker rm -f "$REDROID_CONTAINER" || true
-                    # sudo: seeding from the prewarmed volume (above) leaves this tree
-                    # root-owned, same as mobile-ci's run-maestro-android-redroid.
-                    if [ -n "${REDROID_DATA_DIR:-}" ]; then sudo rm -rf "$REDROID_DATA_DIR" || true; fi
+                    if [ -n "${ANDROID_SERIAL:-}" ]; then
+                      adb -s "$ANDROID_SERIAL" emu kill || true
+                    fi
+                    adb kill-server || true
+                    if [ -n "${EMULATOR_PID:-}" ]; then kill "$EMULATOR_PID" 2>/dev/null || true; fi
 
             -   name: Upload Maestro artifacts
                 # Matches the capture step's condition — gating this on the test step
-                # alone discarded the container log whenever setup was what failed.
-                if: failure() || steps.emulator.outcome == 'failure' || steps.redroid.outcome == 'failure'
+                # alone discarded the emulator log whenever setup was what failed.
+                if: failure() || steps.tests.outcome == 'failure' || steps.emulator.outcome == 'failure'
                 uses: actions/upload-artifact@v4
                 timeout-minutes: 5
                 with:
