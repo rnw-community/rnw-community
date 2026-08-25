@@ -47,6 +47,7 @@ pnpm lint:fix           # Fix lint issues in this package
 - **react-native-payments-example** — private example package: shared `src/` screens plus `apps/bare` (React Native CLI) and `apps/expo` (Expo) app targets
 - **react-native-collapsible-header** — Generic slot-based Reanimated header transition with provider-based scroll wiring, snap, overlay mode, and React Compiler precompiled output
 - **react-native-collapsible-header-example** — private example package: shared `src/` demo screen plus `apps/bare` and `apps/expo` app targets, carries the Maestro e2e suite and readme demo-GIF recording flow
+- **react-native-screen-chrome** — Safe-area screen structure, progressive edge fades, and compound collapsible chrome
 - **platform, fast-style, redux-loadable** — React Native/Web utilities
 - **object-field-tree** — Object field combination trees
 - **wdio** — WebDriverIO page objects and commands
@@ -282,9 +283,12 @@ dual-build described below. Bob owns what the tsc pipeline reimplements by hand 
 (target `'18'`, `panicThreshold: 'all_errors'`) through a `babel.config.bob.js` so published dist ships precompiled
 React Compiler output (`react-compiler-runtime` as a runtime dependency). `'worklet'` directives pass through for the
 consumer app's worklets plugin. The enforcement gates stay identical: `assert-esm-extensions.mjs` on `dist/module`,
-`assert-react-compiler-output.mjs` on both trees, publint + attw, and `smoke:esm`.
-`react-native-collapsible-header` is the reference implementation. Node/NestJS packages (no JSX, no compiler) keep the
-tsc pipeline below.
+publint + attw, and `smoke:esm` — plus `assert-react-compiler-output.mjs` on both trees for packages that ship
+compiler output.
+`react-native-collapsible-header` is the reference implementation. **Exception — `react-native-screen-chrome` ships
+without compiler output**: its compiler-transformed code corrupts the Hermes heap at runtime on the current
+RN 0.86 / iOS 26 stack (bisect and evidence in #601); re-add the plugin there only after #601 resolves.
+Node/NestJS packages (no JSX, no compiler) keep the tsc pipeline below.
 
 ## ESM Modernization Status
 
@@ -417,14 +421,19 @@ The monorepo uses dual ESM + CJS output. Key decisions:
 
 ## PR Review & Merge Policy
 
-**Before merging any PR, read every automated review comment on it** (every finding posted by any bot account,
-whatever the current review tooling is) and run this loop for each — it is mandatory for agents, not optional:
+**Before merging any PR, read every review comment on it — automated findings AND human/maintainer comments alike**
+(every thread, whoever opened it, whatever the current review tooling is) and run this loop for each — it is mandatory
+for agents, not optional:
 
-1. **Validate** the finding against the actual code — never accept or dismiss it on wording alone.
+1. **Validate** the finding or question against the actual code — never accept or dismiss it on wording alone.
 2. **Valid** → fix it in the same PR (root cause, not suppression) and reply on the thread naming the fixing commit.
 3. **Invalid** → reply on the thread with the concrete refutation (evidence: file/line, spec reference, or reproduction).
-4. A finding that is neither fixed nor answered on its thread **blocks the merge** — no exceptions without explicit
-   maintainer approval, and admin merges are not a bypass. Findings the bot itself marks resolved/outdated are cleared.
+4. **Maintainer questions get an answer on their thread** with the same evidence standard — including when the answer
+   is "already addressed in `<sha>`" or "removed in `<sha>`". A question with no reply blocks the merge exactly like an
+   unanswered bot finding.
+5. **No silent resolutions** — never mark a thread resolved without a reply naming the fixing commit or the refutation.
+6. A thread that is neither fixed nor answered **blocks the merge** — no exceptions without explicit maintainer
+   approval, and admin merges are not a bypass. Findings the bot itself marks resolved/outdated are cleared.
 
 ## Pre-commit Checks
 

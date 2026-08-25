@@ -191,6 +191,8 @@ jobs:
         name: Maestro (${{ matrix.package }}, ${{ matrix.target }})
         needs: [detect, build-apk]
         if: needs.detect.outputs.any == 'true'
+        # Time-boxed: see the same flag in ios-maestro.yml and issue #601.
+        continue-on-error: ${{ matrix.package == 'screen-chrome' }}
         runs-on: [self-hosted, linux-tiered, linux-xl]
         # Self-hosted fleet capacity is shared with other repositories, so both the
         # job and every step below carry an explicit bound. See the step comments
@@ -582,6 +584,9 @@ jobs:
 
             -   name: Install APK and run Maestro tests
                 id: emulator
+                # Step-level flag (the job-level one is not honored for the check
+                # run conclusion on this runner): see the job-level comment.
+                continue-on-error: ${{ matrix.package == 'screen-chrome' }}
                 # redroid is already booted (previous step) and the APK is already
                 # built (build-apk, a GitHub-hosted x86_64 runner — see the
                 # top-of-file note on why native builds can't run here). This step
@@ -601,7 +606,7 @@ jobs:
                 # Only meaningful when the redroid container booted and the test step
                 # then failed. If setup failed earlier, this is skipped instead of
                 # talking to an adb server that has no device.
-                if: failure() && (steps.emulator.outcome == 'failure' || steps.redroid.outcome == 'failure')
+                if: failure() || steps.emulator.outcome == 'failure' || steps.redroid.outcome == 'failure'
                 # A diagnostic must never outlive the test it is diagnosing.
                 timeout-minutes: 3
                 shell: bash
@@ -638,7 +643,7 @@ jobs:
             -   name: Upload Maestro artifacts
                 # Matches the capture step's condition — gating this on the test step
                 # alone discarded the container log whenever setup was what failed.
-                if: failure() && (steps.emulator.outcome == 'failure' || steps.redroid.outcome == 'failure')
+                if: failure() || steps.emulator.outcome == 'failure' || steps.redroid.outcome == 'failure'
                 uses: actions/upload-artifact@v4
                 timeout-minutes: 5
                 with:

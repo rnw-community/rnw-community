@@ -1,0 +1,118 @@
+{
+    "name": "@rnw-community/react-native-screen-chrome",
+    "version": "2.12.10",
+    "description": "Composable scroll-driven screen chrome for React Native and React Native Web",
+    "keywords": [
+        "react",
+        "react-native",
+        "react-native-web",
+        "reanimated",
+        "screen chrome",
+        "collapsible header"
+    ],
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/rnw-community/rnw-community.git",
+        "directory": "packages/react-native-screen-chrome"
+    },
+    "license": "MIT",
+    "sideEffects": false,
+    "exports": {
+        ".": {
+            "import": {
+                "types": "./dist/typescript/module/index.d.ts",
+                "default": "./dist/module/index.js"
+            },
+            "require": {
+                "types": "./dist/typescript/commonjs/index.d.ts",
+                "default": "./dist/commonjs/index.js"
+            }
+        }
+    },
+    "main": "dist/commonjs/index.js",
+    "module": "dist/module/index.js",
+    "browser": {
+        "./dist/commonjs/constant/screen-chrome-default-config.constant.js": "./dist/commonjs/constant/screen-chrome-default-config.constant.web.js",
+        "./dist/commonjs/edge-fade/edge-fade.js": "./dist/commonjs/edge-fade/edge-fade.web.js",
+        "./dist/module/constant/screen-chrome-default-config.constant.js": "./dist/module/constant/screen-chrome-default-config.constant.web.js",
+        "./dist/module/edge-fade/edge-fade.js": "./dist/module/edge-fade/edge-fade.web.js"
+    },
+    "types": "dist/typescript/module/index.d.ts",
+    "files": [
+        "dist/**/*"
+    ],
+    "scripts": {
+        "build": "rm -rf ./dist && bob build && pnpm run build:esm-extensions",
+        "build:esm-extensions": "node ../../scripts/rewrite-esm-extensions.mjs ./dist/module && node ../../scripts/rewrite-esm-extensions.mjs ./dist/typescript/module && node ../../scripts/assert-esm-extensions.mjs ./dist/module && node ../../scripts/assert-esm-extensions.mjs ./dist/typescript/module",
+        "clear": "rm -rf coverage && rm -rf dist && rm -f *.tsbuildinfo",
+        "clear:deps": "rm -rf ./node_modules && rm -rf ./dist",
+        "format": "prettier --write \"./src/**/*.{ts,tsx}\"",
+        "lint": "eslint src",
+        "lint:fix": "eslint --fix src",
+        "test": "jest",
+        "test:coverage": "jest --coverage",
+        "ts": "tsc --pretty -p tsconfig.json",
+        "ts:nodenext": "tsc --pretty -p tsconfig.nodenext-check.json"
+    },
+    "dependencies": {
+        "@rnw-community/shared": "^2.12.10"
+    },
+    "devDependencies": {
+        "@babel/core": "^7.29.7",
+        "@react-native/babel-preset": "0.86.2",
+        "@react-native/jest-preset": "0.86.2",
+        "@react-native/metro-config": "0.86.2",
+        "@rnw-community/react-native-collapsible-header": "workspace:^",
+        "@testing-library/react-native": "^13.3.3",
+        "@types/react": "19.2.18",
+        "@types/react-test-renderer": "19.1.0",
+        "expo-blur": "~57.0.0",
+        "react": "19.2.3",
+        "react-native": "0.86.2",
+        "react-native-builder-bob": "^0.43.0",
+        "react-native-reanimated": "4.5.3",
+        "react-native-safe-area-context": "~5.7.0",
+        "react-native-worklets": "0.11.3",
+        "react-test-renderer": "19.2.3"
+    },
+    "peerDependencies": {
+        "@rnw-community/react-native-collapsible-header": ">=2.13.0 <3",
+        "expo-blur": ">=55 <58",
+        "react": ">=18",
+        "react-native": ">=0.72",
+        "react-native-reanimated": ">=3.17.2 <5",
+        "react-native-safe-area-context": ">=4 <6"
+    },
+    "engines": {
+        "node": ">=22.0.0"
+    },
+    "publishConfig": {
+        "access": "public"
+    },
+    "react-native-builder-bob": {
+        "source": "src",
+        "output": "dist",
+        "targets": [
+            [
+                "module",
+                {
+                    "esm": true,
+                    "configFile": "./babel.config.bob.js"
+                }
+            ],
+            [
+                "commonjs",
+                {
+                    "esm": true,
+                    "configFile": "./babel.config.bob.js"
+                }
+            ],
+            [
+                "typescript",
+                {
+                    "project": "tsconfig.build.json"
+                }
+            ]
+        ]
+    }
+}

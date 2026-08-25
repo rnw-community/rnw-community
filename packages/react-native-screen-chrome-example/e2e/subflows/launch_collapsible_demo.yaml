@@ -1,0 +1,9 @@
+appId: ${APP_ID}
+---
+- runFlow: ../subflows/launch_home.yaml
+- tapOn:
+      id: 'home-open-collapsible'
+- extendedWaitUntil:
+      visible:
+          id: 'collapsible-demo-expanded-title'
+      timeout: 15000

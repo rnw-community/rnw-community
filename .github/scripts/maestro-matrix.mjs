@@ -53,6 +53,29 @@ const EXAMPLES = [
             },
         },
     },
+    {
+        package: 'screen-chrome',
+        exampleDir: 'packages/react-native-screen-chrome-example',
+        buildFilter: '@rnw-community/react-native-screen-chrome',
+        targets: {
+            bare: {
+                iosScheme: 'ReactNativeScreenChromeExample',
+                members: [
+                    '@rnw-community/react-native-screen-chrome',
+                    '@rnw-community/react-native-screen-chrome-example',
+                    '@rnw-community/react-native-screen-chrome-example-bare',
+                ],
+            },
+            expo: {
+                iosScheme: 'reactnativescreenchromeexpoexample',
+                members: [
+                    '@rnw-community/react-native-screen-chrome',
+                    '@rnw-community/react-native-screen-chrome-example',
+                    '@rnw-community/react-native-screen-chrome-example-expo',
+                ],
+            },
+        },
+    },
 ];
 
 const [, , affectedFilePath] = process.argv;

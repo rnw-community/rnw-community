@@ -38,4 +38,5 @@ coverage
 # PNPM
 .pnpm-store/
 .superpowers
+/docs/superpowers/
 .claude/worktrees

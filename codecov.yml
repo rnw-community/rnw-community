@@ -86,6 +86,11 @@ coverage:
           - react-native-collapsible-header
         target: *target-default
         threshold: *threshold-project-default
+      react-native-screen-chrome:
+        flags:
+          - react-native-screen-chrome
+        target: *target-default
+        threshold: *threshold-project-default
       react-native-payments:
         flags:
           - react-native-payments
@@ -188,6 +193,11 @@ coverage:
           - react-native-collapsible-header
         target: *target-default
         threshold: *threshold-patch-default
+      react-native-screen-chrome:
+        flags:
+          - react-native-screen-chrome
+        target: *target-default
+        threshold: *threshold-patch-default
       react-native-payments:
         flags:
           - react-native-payments
@@ -275,6 +285,10 @@ flags:
     carryforward: true
     paths:
       - packages/react-native-collapsible-header/
+  react-native-screen-chrome:
+    carryforward: true
+    paths:
+      - packages/react-native-screen-chrome/
   react-native-payments:
     carryforward: true
     paths:

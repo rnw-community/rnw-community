@@ -1,0 +1,24 @@
+appId: ${APP_ID}
+---
+# A static header never collapses: after a full page of scrolling the title row
+# is still exactly where it started, and the top fade band is mounted.
+- runFlow: ../subflows/launch_home.yaml
+- tapOn:
+      id: 'home-open-static-header'
+- extendedWaitUntil:
+      visible:
+          id: 'static-demo-title'
+      timeout: 15000
+- repeat:
+      times: 2
+      commands:
+          - swipe:
+                start: 50%, 80%
+                end: 50%, 30%
+                duration: 900
+- waitForAnimationToEnd:
+      timeout: 5000
+- assertVisible:
+      id: 'static-demo-title'
+- assertVisible:
+      id: 'static-demo-top-fade'
