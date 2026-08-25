@@ -371,6 +371,7 @@ jobs:
                     echo "Installed and using maestro $MAESTRO_VERSION at $pinned_bin"
 
             -   name: Run Maestro suite
+                id: maestro
                 # Step-level flag (the job-level one is not honored for the check
                 # run conclusion on this runner): see the job-level comment.
                 continue-on-error: ${{ matrix.package == 'screen-chrome' }}
