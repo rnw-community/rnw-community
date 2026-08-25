@@ -39,17 +39,22 @@ describe('ScreenChromeHeader', () => {
         expect(getByText(TITLE)).toBeDefined();
     });
 
-    it('pads the device top inset and keeps the configured header row height', () => {
+    it('pads the device top inset and pins the row to the configured height', () => {
         expect.hasAssertions();
 
-        const { getByTestId } = renderHeader(
+        const screen = renderHeader(
             <ScreenChromeHeader testID="static-header">
                 <Text>{TITLE}</Text>
             </ScreenChromeHeader>
         );
 
-        expect(getByTestId('static-header')).toHaveProp('pointerEvents', 'box-none');
-        expect(getByTestId('static-header')).toHaveStyle({ paddingTop: INSETS.insets.top, zIndex: 3 });
+        expect(screen.getByTestId('static-header')).toHaveProp('pointerEvents', 'box-none');
+        expect(screen.getByTestId('static-header')).toHaveStyle({ paddingTop: INSETS.insets.top, zIndex: 3 });
+
+        expect(screen.getByTestId('static-header-row')).toHaveStyle({
+            height: SCREEN_CHROME_DEFAULT_CONFIG.headerHeight,
+            overflow: 'hidden',
+        });
     });
 
     it('adds the explicit top inset on top of the safe area', () => {

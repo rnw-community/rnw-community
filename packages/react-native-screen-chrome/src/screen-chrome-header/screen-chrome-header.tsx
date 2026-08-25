@@ -2,6 +2,8 @@ import React from 'react';
 import { View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { isDefined } from '@rnw-community/shared';
+
 import { useScreenChrome } from '../hooks/use-screen-chrome/use-screen-chrome.hook';
 
 import { screenChromeHeaderStyles } from './screen-chrome-header.styles';
@@ -30,7 +32,11 @@ export const ScreenChromeHeader = ({ children, style, testID, topInset = 0 }: Pr
             style={[screenChromeHeaderStyles.container, { paddingTop: insets.top + topInset }, style]}
             testID={testID}
         >
-            <View pointerEvents="box-none" style={[screenChromeHeaderStyles.row, { minHeight: config.headerHeight }]}>
+            <View
+                pointerEvents="box-none"
+                style={[screenChromeHeaderStyles.row, { height: config.headerHeight, overflow: 'hidden' }]}
+                {...(isDefined(testID) ? { testID: `${testID}-row` } : {})}
+            >
                 {children}
             </View>
         </View>
