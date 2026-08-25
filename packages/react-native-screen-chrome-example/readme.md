@@ -6,11 +6,14 @@ targets (`apps/bare` React Native CLI with committed native projects, `apps/expo
 
 ## Demos
 
+![Collapsible header demo — large title collapsing into the small title row while the list scrolls](docs/collapsible-header.gif)
+
 - **Collapsible header** — compound slot grammar, provider-owned scroll wiring, snap, per-layer `motion` override,
-  top edge fade.
+  top edge fade (above).
 - **Static header** — fixed header row plus the `useScreenChromeHeaderMetrics` API driving `contentInsetTop`.
 - **Header and footer** — static header with a sticky footer band recipe (absolute container + bottom `EdgeFade` +
-  safe-area padding), `contentInsetBottom` reserving space for the bar.
+  safe-area padding), `contentInsetBottom` reserving space for the bar. GIF pending #601 (this screen carries two
+  blur bands and trips the native crash most reliably).
 
 Each screen mounts its own `ScreenChromeProvider`; the navigator mounts none.
 
