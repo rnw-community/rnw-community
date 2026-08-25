@@ -8,12 +8,12 @@ Framework-agnostic method decorator that records call duration into any histogra
 
 ## When the observation fires
 
-| Return | When |
-|---|---|
-| `T` (sync) | on return |
-| `Promise<T>` | on resolve |
-| `Promise<T>` that rejects | on reject (duration still emitted; error propagates) |
-| `Observable<T>` | on `complete` (completion-latency) |
+| Return                      | When                                                       |
+| --------------------------- | ---------------------------------------------------------- |
+| `T` (sync)                  | on return                                                  |
+| `Promise<T>`                | on resolve                                                 |
+| `Promise<T>` that rejects   | on reject (duration still emitted; error propagates)       |
+| `Observable<T>`             | on `complete` (completion-latency)                         |
 | `Observable<T>` that errors | on stream error (duration still emitted; error propagates) |
 
 One decorator, correct duration semantics for all five shapes. Observable support is built in — `rxjs` is an optional peer, install it only when your methods return `Observable`.
@@ -21,7 +21,7 @@ One decorator, correct duration semantics for all five shapes. Observable suppor
 ## Usage
 
 ```bash
-yarn add @rnw-community/histogram-metric-decorator @rnw-community/decorators-core
+npm install @rnw-community/histogram-metric-decorator @rnw-community/decorators-core
 ```
 
 ```ts
@@ -35,10 +35,14 @@ const HistogramMetric = createHistogramMetricDecorator({ transport });
 
 class OrderService {
     @HistogramMetric()
-    async placeOrder(order: Order): Promise<Receipt> { /* ... */ }
+    async placeOrder(order: Order): Promise<Receipt> {
+        /* ... */
+    }
 
     @HistogramMetric({ name: 'order_fetch_ms', labels: ([id]) => ({ orderId: id }) })
-    async fetchOrder(id: string): Promise<Order> { /* ... */ }
+    async fetchOrder(id: string): Promise<Order> {
+        /* ... */
+    }
 }
 ```
 
@@ -107,7 +111,10 @@ const config: HistogramOptionsInterface<[id: string]> = {
 ```ts
 import { createHistogramMetricDecorator } from '@rnw-community/histogram-metric-decorator';
 
-import type { CreateHistogramMetricOptionsInterface, HistogramTransportInterface } from '@rnw-community/histogram-metric-decorator';
+import type {
+    CreateHistogramMetricOptionsInterface,
+    HistogramTransportInterface,
+} from '@rnw-community/histogram-metric-decorator';
 
 declare const transport: HistogramTransportInterface;
 

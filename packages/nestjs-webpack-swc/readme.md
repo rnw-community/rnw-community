@@ -7,10 +7,10 @@ NestJS webpack and SWC configuration helpers, this can speed up your local NestJ
 [![coverage](https://img.shields.io/codecov/c/github/rnw-community/rnw-community?flag=nestjs-webpack-swc&label=coverage)](https://app.codecov.io/gh/rnw-community/rnw-community)
 [![npm downloads](https://img.shields.io/npm/dm/%40rnw-community%2Fnestjs-webpack-swc.svg)](https://www.npmjs.com/package/%40rnw-community%2Fnestjs-webpack-swc)
 
--   [NestJS](https://docs.nestjs.com) offers [Webpack](https://webpack.js.org) configuration with [HMR](https://docs.nestjs.com/recipes/hot-reload) which significantly
-    improves rebuild speed within local development especially if your project grows.
--   [SWC](https://swc.rs) is **next generation of fast developer tools** which transpiles typescript blazingly
-    fast compared to [Babel](https://babeljs.io), and it has webpack [swc-loader](https://github.com/swc-project/swc-loader)
+- [NestJS](https://docs.nestjs.com) offers [Webpack](https://webpack.js.org) configuration with [HMR](https://docs.nestjs.com/recipes/hot-reload) which significantly
+  improves rebuild speed within local development especially if your project grows.
+- [SWC](https://swc.rs) is **next generation of fast developer tools** which transpiles typescript blazingly
+  fast compared to [Babel](https://babeljs.io), and it has webpack [swc-loader](https://github.com/swc-project/swc-loader)
 
 > This package helps to easily configure NestJS webpack and SWC integration and make you DX good and quick again
 
@@ -85,7 +85,7 @@ this package provides utility for loading TypeORM migrations within webpack buil
 
 1. Install additional dev dependencies:
 
--   [@types/webpack-env](https://www.npmjs.com/package/@types/webpack-env)
+- [@types/webpack-env](https://www.npmjs.com/package/@types/webpack-env)
 
 2. Add this package to your `tsconfig.*.json` files:
 
@@ -118,10 +118,10 @@ you will need additional changes:
 {
     "scripts": {
         "typeorm": "ts-node -P tsconfig.build.json -r tsconfig-paths/register ./node_modules/.bin/typeorm",
-        "migrate:create": "yarn typeorm migration:create -d ./data-source.mjs",
-        "migrate:down": "yarn typeorm migration:revert -d ./data-source.mjs",
-        "migrate:generate": "yarn typeorm migration:generate -d ./data-source.mjs",
-        "migrate:up": "yarn typeorm migration:run -d ./data-source.mjs"
+        "migrate:create": "npm run typeorm -- migration:create -d ./data-source.mjs",
+        "migrate:down": "npm run typeorm -- migration:revert -d ./data-source.mjs",
+        "migrate:generate": "npm run typeorm -- migration:generate -d ./data-source.mjs",
+        "migrate:up": "npm run typeorm -- migration:run -d ./data-source.mjs"
     }
 }
 ```
@@ -136,12 +136,17 @@ If your project is running inside the docker container and your host system has 
 you may end up with `Error: Bindings not found` SWC error, this is happening because when you install
 [SWC](https://swc.rs) it uses the bindings for your host machine, to fix this:
 
-1. Create `.yarnrc` file in the project root:
+1. Tell your package manager to install bindings that do not match the host `os`/`cpu`, which it otherwise skips:
 
-```plain
---ignore-engines true
---ignore-platform true
-```
+    - npm: pass the target architecture on install, e.g. `npm install --os=linux --cpu=x64 --libc=musl`.
+    - pnpm: add the target architectures to the `supportedArchitectures` setting (`pnpm-workspace.yaml` on pnpm 11,
+      the `pnpm` key of `package.json` on earlier majors).
+    - Yarn 1 (classic) only: create a `.yarnrc` file in the project root:
+
+        ```plain
+        --ignore-engines true
+        --ignore-platform true
+        ```
 
 2. Add swc bindings dependencies:
 

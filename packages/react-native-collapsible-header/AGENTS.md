@@ -6,7 +6,7 @@ snap-to-endpoint, overlay mode, overscroll stretch, and React Compiler precompil
 ## Package Commands
 
 ```bash
-yarn test && yarn test:coverage && yarn build && yarn ts && yarn ts:nodenext && yarn lint
+pnpm test && pnpm test:coverage && pnpm build && pnpm ts && pnpm ts:nodenext && pnpm lint
 ```
 
 ## Architecture
@@ -118,8 +118,9 @@ src/
   called on the UI runtime.
 - `react`, `react-native`, and `react-native-reanimated` remain peer dependencies. Never bundle a second Reanimated copy.
 - Every React and React Native devDependency is pinned to an exact version, identical across the whole monorepo (the
-  root `resolutions` block repeats the core ones). Yarn keeps a separate physical copy per version descriptor, so one
-  stray range gives this package its own `node_modules/react`; `react-compiler-runtime` then imports that second copy,
+  `overrides:` block in the root `pnpm-workspace.yaml` repeats the core ones). pnpm resolves each version descriptor on
+  its own and hard-links every resolved version into its own virtual-store directory, so one stray range gives this
+  package its own `node_modules/react`; `react-compiler-runtime` then imports that second copy,
   whose dispatcher is null during the host render, and every compiled component throws
   `TypeError: Cannot read property 'useMemoCache' of null` at runtime while unit tests stay green.
 - Runtime animation code uses APIs shared by Reanimated 3.17.2 and 4.x, and only the compiler-safe `.get()`/`.set()`

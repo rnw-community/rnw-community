@@ -5,7 +5,7 @@ React Native/Web platform detection constants, conditional styling helpers, and 
 ## Package Commands
 
 ```bash
-yarn test && yarn test:coverage && yarn build && yarn ts && yarn lint:fix
+pnpm test && pnpm test:coverage && pnpm build && pnpm ts && pnpm lint:fix
 ```
 
 ## Architecture
@@ -42,7 +42,7 @@ src/
 ### Publication
 
 `tsconfig.build-esm.json`/`tsconfig.build-cjs.json` exclude `**/*.mock.*` (matching `wdio`'s existing pattern) so
-`platform.mock.ts` is type-checked by `yarn ts` but never compiled into `dist/` or shipped in the npm tarball — it is
+`platform.mock.ts` is type-checked by `pnpm ts` but never compiled into `dist/` or shipped in the npm tarball — it is
 a test-only fixture for `platform-style.spec.ts`, not a public export.
 
 ### Dependencies

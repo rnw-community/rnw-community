@@ -6,7 +6,7 @@ of silently dropping) and `rethrowException` (catch, log, then rethrow or wrap).
 ## Package Commands
 
 ```bash
-yarn test && yarn test:coverage && yarn build && yarn ts && yarn lint:fix
+pnpm test && pnpm test:coverage && pnpm build && pnpm ts && pnpm lint:fix
 ```
 
 ## Architecture
@@ -48,7 +48,7 @@ src/
 ### Dependencies
 
 - `@rnw-community/shared` — `getErrorMessage` extracts a safe `.message` string inside `rethrowException`'s log line
-- Peer: `rxjs` (^7.8.1)
+- Peer: `rxjs` (^7.8.2)
 - DevDependency `expect-type` is used only in `filter-with-exception.operator.spec.ts` to assert compile-time type
   narrowing on the type-guard overload
 

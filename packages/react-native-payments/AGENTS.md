@@ -42,7 +42,7 @@ them relative to the file they originally came from.
 ## Package Commands
 
 ```bash
-yarn test && yarn test:coverage && yarn build && yarn ts && yarn lint:fix
+pnpm test && pnpm test:coverage && pnpm build && pnpm ts && pnpm lint:fix
 ```
 
 ## Architecture
@@ -162,6 +162,6 @@ round-trip, async `updateWith` completion) is out of scope here and tracked acro
 - [#397](https://github.com/rnw-community/rnw-community/issues/397) ports the `maestro-e2e` agent skill into this
   repo's `.claude/skills`.
 - [#393](https://github.com/rnw-community/rnw-community/issues/393) adds the Maestro flow suites (iOS simulator +
-  Android emulator, both app targets) and the local `yarn e2e:*` runner scripts.
+  Android emulator, both app targets) and the local `pnpm e2e:*` runner scripts.
 - [#395](https://github.com/rnw-community/rnw-community/issues/395) wires `ios-maestro.yml` / `android-maestro.yml`
   CI workflows on the self-hosted fleet, with native build caching and failure artifacts.

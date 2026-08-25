@@ -11,7 +11,7 @@ end_of_line = lf
 insert_final_newline = true
 max_line_length = 125
 
-# yarn / npm uses 2 spaces when it dumps the file after a change
+# pnpm / npm uses 2 spaces when it dumps the file after a change
 [package.json]
 indent_size = 2
 

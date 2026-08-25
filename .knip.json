@@ -4,7 +4,6 @@
         "packages/nestjs-webpack-swc"
     ],
     "ignore": [
-        ".yarn/**",
         "**/dist/**",
         "**/metro.config.js",
         "**/*.native.ts",

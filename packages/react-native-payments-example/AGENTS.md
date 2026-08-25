@@ -41,8 +41,9 @@ e2e/
                                    simulator/emulator)
 ```
 
-`apps/bare` and `apps/expo` are nested Yarn workspaces (root glob `packages/react-native-payments-example/apps/*`). They are
-excluded from Lerna (`lerna.json` keeps `packages/*`), so they are never versioned or published.
+`apps/bare` and `apps/expo` are nested pnpm workspaces (root glob `packages/react-native-payments-example/apps/*` in
+`pnpm-workspace.yaml`). They are excluded from Lerna (`lerna.json` keeps `packages/*`), so they are never versioned or
+published.
 
 ## Key patterns
 
@@ -52,8 +53,12 @@ excluded from Lerna (`lerna.json` keeps `packages/*`), so they are never version
   Expo) only scans the app target's own dependencies.
 - Metro in both targets watches the monorepo root and resolves through app → package → root `node_modules`.
 - The Expo native projects are generated (`expo prebuild`) and gitignored; the bare target keeps its `ios/`/`android/`
-  directories checked in, with `node_modules` paths relative to the repository root (`../../../../node_modules` from
-  `apps/bare/android`).
+  directories checked in. Their Gradle config never counts `../` levels to a hoisted `node_modules`: `settings.gradle` and
+  `android/app/build.gradle` locate `react-native`, `@react-native/gradle-plugin`, `@react-native/codegen` and
+  `hermes-compiler` by running `node --print require.resolve(...)` from the Gradle root, which resolves correctly under
+  pnpm's isolated store (nothing is hoisted to the repository root) and under any other layout. `REACT_NATIVE_PATH` in the
+  Xcode project is rewritten by `react_native_post_install` at `pod install` time, so the checked-in value is not
+  load-bearing.
 - The Expo target is intentionally router-free: a single `registerRootComponent(App)` entry, so it carries only `expo`,
   `expo-system-ui`, `@expo/metro-runtime`, `react-native-web` and `react-dom` on top of the shared layer. Apple Pay
   entitlements come from the `@rnw-community/react-native-payments/app.plugin` entry in `app.json`.

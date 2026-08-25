@@ -56,6 +56,12 @@
                 "src/**/*.web.ts"
             ]
         },
+        "packages/wdio": {
+            "entry": [
+                "src/index.ts",
+                "src/**/*.native.ts"
+            ]
+        },
         "packages/react-native-payments-example/apps/bare": {
             "ignoreDependencies": [
                 "@rnw-community/react-native-payments"
@@ -65,28 +71,19 @@
     "ignore": [
         ".agents/**",
         ".claude/**",
-        ".github/scripts/**",
-        ".yarn/**",
         "packages/fast-style/src/enum/**",
         "packages/nestjs-webpack-swc/src/config/**",
         "packages/react-native-payments-example/apps/*/app.json",
         "packages/react-native-payments-example/apps/*/metro.config.js",
-        "packages/react-native-payments/src/@standard/**",
         "packages/react-native-payments/src/app.plugin.ts",
-        "packages/react-native-payments/src/expo-plugins/**",
         "packages/wdio/src/component/mocks/**",
-        "packages/wdio/src/rooted-component/mocks/**",
-        "packages/wdio/src/util/get-platform/**",
-        "scripts/**"
+        "packages/wdio/src/rooted-component/mocks/**"
     ],
     "ignoreBinaries": [
-        "maestro",
-        "run"
+        "maestro"
     ],
     "ignoreDependencies": [
         "@arethetypeswrong/cli",
-        "@babel/preset-env",
-        "@babel/preset-typescript",
         "@babel/runtime",
         "babel-jest",
         "husky",
@@ -98,13 +95,6 @@
         "run-script-webpack-plugin",
         "terser-webpack-plugin",
         "webpack",
-        "webpack-node-externals",
-        "react-dom",
-        "@expo/config-plugins",
-        "expo",
-        "ioredis",
-        "prom-client",
-        "redlock",
-        "rxjs"
+        "webpack-node-externals"
     ]
 }

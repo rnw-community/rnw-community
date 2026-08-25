@@ -1,10 +1,10 @@
 {
     "packages/**/*.{ts,tsx}": [
-        "yarn eslint --fix",
-        "yarn prettier --write"
+        "pnpm exec eslint --fix",
+        "pnpm exec prettier --write"
     ],
     "*.{md, json}": [
-        "yarn prettier --write"
+        "pnpm exec prettier --write"
     ],
-    'package.json': ['yarn sort-package-json']
+    'package.json': ['pnpm exec sort-package-json']
 }

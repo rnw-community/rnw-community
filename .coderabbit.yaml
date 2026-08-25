@@ -10,12 +10,11 @@ reviews:
         drafts: false
     path_filters:
         - '!**/dist/**'
-        - '!.yarn/**'
         - '!**/CHANGELOG.md'
         - '!**/*.pbxproj'
         - '!**/Podfile.lock'
         - '!**/gradle/wrapper/**'
-        - '!**/yarn.lock'
+        - '!**/pnpm-lock.yaml'
     path_instructions:
         - path: 'packages/**/src/**/*.{ts,tsx}'
           instructions: >-

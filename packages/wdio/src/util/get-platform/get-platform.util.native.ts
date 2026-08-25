@@ -1,4 +1,4 @@
-// eslint-disable-next-line @typescript-eslint/no-require-imports,@typescript-eslint/no-unsafe-assignment,n/no-extraneous-require
+// eslint-disable-next-line @typescript-eslint/no-require-imports,@typescript-eslint/no-unsafe-assignment
 const { Platform: RNPlatform } = require('react-native');
 
 // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment

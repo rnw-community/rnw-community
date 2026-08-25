@@ -6,7 +6,7 @@ instead of building inline style objects.
 ## Package Commands
 
 ```bash
-yarn test && yarn test:coverage && yarn build && yarn ts && yarn lint:fix
+pnpm test && pnpm test:coverage && pnpm build && pnpm ts && pnpm lint:fix
 ```
 
 ## Architecture
@@ -39,7 +39,7 @@ src/
 
 - `@rnw-community/object-field-tree` — `combine()` and `CombineReturn3` powering both `Flex` and `getFont`
 - `@rnw-community/shared` — `Enum` constraint type for `getFont`'s generics
-- Peers: `react` (>=18), `react-native` (>=0.64) — `getFont` types against `react-native`'s `TextStyle`/`ColorValue`
+- Peers: `react` (>=18), `react-native` (>=0.72) — `getFont` types against `react-native`'s `TextStyle`/`ColorValue`
 
 ### Coverage
 
