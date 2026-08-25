@@ -52,13 +52,13 @@
     "devDependencies": {
         "@nestjs-modules/ioredis": "^2.2.2",
         "@nestjs/common": "^11.1.28",
-        "ioredis": "^5.11.1",
+        "ioredis": "^6.0.0",
         "rxjs": "^7.8.2"
     },
     "peerDependencies": {
         "@nestjs-modules/ioredis": "^2.2.2",
         "@nestjs/common": "^11.1.28",
-        "ioredis": "^5.11.1",
+        "ioredis": "^6.0.0",
         "rxjs": "^7.8.2"
     },
     "engines": {
