@@ -216,8 +216,10 @@ jobs:
         # Self-hosted fleet capacity is shared with other repositories, so both the
         # job and every step below carry an explicit bound. See the step comments
         # for how each number was sized. No Gradle/SDK/NDK step runs here anymore
-        # (see build-apk), so this budget is boot + install + test only.
-        timeout-minutes: 30
+        # (see build-apk), so this budget is boot + settle + install + test only.
+        # 35, not 30: the boot step now waits for the device to settle as well as
+        # to boot, and a full suite measured ~3 minutes of Maestro on top.
+        timeout-minutes: 35
         strategy:
             fail-fast: false
             # One device at a time, for a different reason than before. The old
@@ -381,35 +383,44 @@ jobs:
 
             -   name: Create the AVD
                 id: avd
-                # An AVD created with no --device inherits whatever skin the
-                # system image happens to ship, which is not a stable contract
-                # across image revisions. The suite's flows are written against a
-                # phone-shaped screen — they scroll by percentage, and several of
-                # them (see the "CI device profile" comments in the payments
-                # flows) care where the fold lands — so the profile is named. The
-                # fallbacks exist because the device catalogue belongs to
-                # cmdline-tools, not to this workflow.
+                # The display is pinned to 720x1280 @ 320dpi because that is the
+                # display redroid presented, and the suite's flows are calibrated
+                # against it — not because it is a nice round number.
+                #
+                # The first amd64 run created this AVD from the `pixel_6` device
+                # profile (1080x2400 @ 420dpi) and three legs failed. Two proofs
+                # that the display was the cause:
+                #
+                #  1. snap_to_nearest_endpoint documents its own calibration:
+                #     the Android swipe releases between "the snap midpoint
+                #     (78dp) and the snap end (156dp)", with "offset =
+                #     travel/2". Its swipe travels 75%->37% = 38% of the
+                #     viewport height. At redroid's 640dp viewport that is
+                #     243dp of travel and a 122dp release — inside the window.
+                #     At pixel_6's 914dp viewport it is 347dp of travel and a
+                #     174dp release — past the snap end, so the flow no longer
+                #     tests a snap at all. The collapsible-header legs failed on
+                #     exactly the two flows that depend on where the release
+                #     lands.
+                #  2. pixel_6 has a punch-hole cutout redroid never had:
+                #     `displayCutoutSafeInsets=Rect(0, 128 - 0, 0)` in the
+                #     captured logcat of both failing collapsible-header legs.
+                #     128px at 420dpi is a 49dp top inset instead of the plain
+                #     24dp status bar, which moves every safe-area-inset layout —
+                #     and the expo apps render edge-to-edge, which is why the
+                #     expo leg lost its header buttons on all 7 flows.
+                #
+                # So no --device profile is used at all: a profile is exactly the
+                # thing that reintroduces a cutout and a resolution this suite is
+                # not written for. The geometry is stated outright instead.
                 timeout-minutes: 5
                 shell: bash
                 run: |
                     set -euo pipefail
-                    devices="$(avdmanager list device -c)"
-                    device=''
-                    for candidate in pixel_6 pixel_5 pixel_4 pixel; do
-                      if grep -qx "$candidate" <<<"$devices"; then
-                        device="$candidate"
-                        break
-                      fi
-                    done
-                    if [ -z "$device" ]; then
-                      echo "::error::None of the expected phone device profiles (pixel_6, pixel_5, pixel_4, pixel) exist in this cmdline-tools' device catalogue."
-                      exit 1
-                    fi
-                    echo "Creating AVD '$AVD_NAME' from $ANDROID_SYSTEM_IMAGE on device profile $device"
-                    # `echo no`: avdmanager prompts for a custom hardware profile
-                    # even when --device is given, and an unanswered prompt is a
-                    # hang, not an error.
-                    echo no | avdmanager create avd --force -n "$AVD_NAME" -k "$ANDROID_SYSTEM_IMAGE" --device "$device"
+                    echo "Creating AVD '$AVD_NAME' from $ANDROID_SYSTEM_IMAGE"
+                    # `echo no`: avdmanager prompts for a custom hardware profile,
+                    # and an unanswered prompt is a hang, not an error.
+                    echo no | avdmanager create avd --force -n "$AVD_NAME" -k "$ANDROID_SYSTEM_IMAGE"
                     # ANDROID_AVD_HOME wins if the image sets it: avdmanager and
                     # the emulator both honour it, so hardcoding ~/.android/avd
                     # would edit a config.ini neither of them reads.
@@ -419,6 +430,20 @@ jobs:
                     # occurrence of a key, so this overrides the generated values
                     # without having to rewrite a file avdmanager owns.
                     {
+                      # 720x1280 @ 320dpi = a 360x640dp viewport, density 2.0.
+                      # See the step comment: this is redroid's default display,
+                      # which is the display every flow in this suite was
+                      # calibrated on.
+                      echo "hw.lcd.width=720"
+                      echo "hw.lcd.height=1280"
+                      echo "hw.lcd.density=320"
+                      # No skin file and no cutout. skin.name doubles as the
+                      # emulator's window geometry, so it has to agree with
+                      # hw.lcd.* or the guest is letterboxed into a display the
+                      # flows' percentages no longer describe.
+                      echo "skin.name=720x1280"
+                      echo "skin.path=_no_skin"
+                      echo "hw.displayCutout=none"
                       echo "hw.ramSize=2048"
                       # Maestro's driver types through the hardware keyboard; a
                       # soft-keyboard-only AVD turns text input into flake.
@@ -430,12 +455,13 @@ jobs:
 
             -   name: Boot the emulator
                 id: emulator
-                # 10 minutes against a 23s measured cold boot on this node: the
+                # 12 minutes against a 23s measured cold boot on this node: the
                 # budget is here to catch a wedged boot, not to bound a healthy
-                # one. The redroid step it replaces needed 20 because it could
-                # cold-pull a 1.1 GB image and then pay Android's plus GMS's first
-                # boot; a baked system image pays neither.
-                timeout-minutes: 10
+                # one, and it has to cover the two bounded settling waits at the
+                # end of the step as well. The redroid step it replaces needed 20
+                # because it could cold-pull a 1.1 GB image and then pay Android's
+                # plus GMS's first boot; a baked system image pays neither.
+                timeout-minutes: 12
                 shell: bash
                 run: |
                     set -euo pipefail
@@ -495,6 +521,37 @@ jobs:
                     for scale in window_animation_scale transition_animation_scale animator_duration_scale; do
                       adb shell settings put global "$scale" 0 || true
                     done
+                    # sys.boot_completed flips well before the device is settled:
+                    # the launcher is still starting and GMS has not finished its
+                    # first-run initialization. The redroid path never saw this
+                    # because it booted a prewarmed /data volume that had already
+                    # been through both. On the first amd64 run one payments flow
+                    # burned its whole 60s launch budget waiting for an app that
+                    # was competing with that background work, while the seven
+                    # flows around it passed. These are the device's own readiness
+                    # signals, not a sleep: bootanim stopping means the launcher is
+                    # up, and broadcast-idle means the boot broadcast queue (GMS
+                    # first-run receivers included) has drained.
+                    timeout 180 bash -c 'until [ "$(adb shell getprop init.svc.bootanim | tr -d "\r")" = "stopped" ]; do sleep 5; done' \
+                      || echo "::warning::init.svc.bootanim never reported 'stopped'; continuing, but the device may still be starting its launcher."
+                    # Non-fatal and bounded: `am wait-for-broadcast-idle` is the
+                    # right signal but it is a debug command, so an image that does
+                    # not implement it must not fail the job over a settling hint.
+                    timeout 180 adb shell am wait-for-broadcast-idle \
+                      || echo "::warning::'am wait-for-broadcast-idle' did not complete within 180s; continuing with a device that may still be draining boot broadcasts."
+                    # The flows are calibrated against a 360x640dp viewport (see
+                    # the AVD step). A config.ini key that stopped being honoured
+                    # would otherwise surface as a handful of unrelated-looking
+                    # flow failures twenty minutes later, so the geometry is
+                    # asserted here, where the cause is still obvious.
+                    size="$(adb shell wm size | tr -d '\r')"
+                    density="$(adb shell wm density | tr -d '\r')"
+                    echo "$size"
+                    echo "$density"
+                    if ! grep -q '720x1280' <<<"$size" || ! grep -q '320' <<<"$density"; then
+                      echo "::error::The emulator came up as '$size' / '$density', not the 720x1280 @ 320dpi display this suite's Maestro flows are calibrated against. Check the hw.lcd.* keys in the Create the AVD step."
+                      exit 1
+                    fi
                     adb devices -l
 
             -   name: Install Maestro
