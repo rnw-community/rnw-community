@@ -5,7 +5,7 @@ RxJS-wrapped Redis operations for NestJS. Observable-returning methods (`$` suff
 ## Package Commands
 
 ```bash
-yarn test && yarn test:coverage && yarn build && yarn ts && yarn lint:fix
+pnpm test && pnpm test:coverage && pnpm build && pnpm ts && pnpm lint:fix
 ```
 
 ## Architecture

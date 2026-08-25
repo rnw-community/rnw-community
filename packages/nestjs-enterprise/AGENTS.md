@@ -5,7 +5,7 @@ Thin-adapter layer exposing NestJS-flavored decorators (`Log`, `HistogramMetric`
 ## Package Commands
 
 ```bash
-yarn test && yarn test:coverage && yarn build && yarn ts && yarn lint:fix
+pnpm test && pnpm test:coverage && pnpm build && pnpm ts && pnpm lint:fix
 ```
 
 ## Architecture
@@ -43,12 +43,12 @@ PascalCase convention: `./HistogramMetric`, `./Log`, `./LockPromise`, `./LockObs
 - **Log**: `createLogDecorator({ transport: nestLogTransport })` from `@rnw-community/log-decorator`, bound once to a transport built on `@nestjs/common`'s `Logger`. The exported `Log` is the direct factory return — no further wrapper. Sync/Promise/Observable handling is entirely `log-decorator`'s own internal responsibility now (there is no `observableStrategy` involved anywhere in this package; that concept no longer exists in `decorators-core`).
 - **HistogramMetric**: called directly as `HistogramMetric(metricName, configuration?)` — not a two-step factory like `Log`. It resolves (or lazily creates) a prom-client `Histogram` for `metricName` immediately and returns `createHistogramMetricDecorator({ transport })({ name: metricName, labels })` inline. `histogramMetricTracking` memoizes each registered metric's `{ buckets, labelNames }` per `Registry` in a `WeakMap`; a second `@HistogramMetric` call reusing the same name with **different** `buckets`/`labelNames` on the same registry throws a descriptive mismatch error (`"<name>" already registered with different buckets/labelNames. Existing: ... Requested: ...`); a call with a **matching** config reuses the existing prom-client `Histogram` instance instead of re-instantiating it. The transport converts the engine's milliseconds into prom-client's canonical seconds via `histogram.observe(labelValues, durationMs / 1000)`.
 - **Locks — the two live factory families do NOT wire the same way, and neither goes through `createInterceptor`:**
-  - `createPromiseLockDecorators(serviceToken, defaultDuration)` hand-rolls its own `descriptor.value = async function (...)`, calling `store.acquire` / releasing in a `finally` directly — it reuses `createLockServiceStore` (the `LockServiceInterface` → `LockStoreInterface` bridge) but does **not** reuse `@rnw-community/lock-decorator`'s `createLockMiddleware`; the acquire/invoke/release cycle is reimplemented locally.
-  - `createObservableLockDecorators(serviceToken, defaultDuration)` **does** reuse `createLockMiddleware$` from `@rnw-community/lock-decorator` directly, invoking it by hand inside a `defer(...)` with a manually built `ExecutionContextInterface`-shaped object (`{ className: '', methodName, args, logContext: methodName }`) — since it bypasses `createInterceptor`, it never gets a real `className` from `decorators-core`'s `buildContext`.
-  - Both bridge the multi-resource `LockServiceInterface` to the single-key `LockStoreInterface` via `createLockServiceStore`, which NUL-joins (`RESOURCE_SEPARATOR = '\x00'`) multi-resource keys into one store key.
-  - `createObservableLockDecorators` wraps method-thrown errors in a local `MethodThrownError` marker class so its single `catchError` can tell a method failure apart from a lock-acquire failure and apply the right recovery (`recoverFromMethodError` vs `recoverFromAcquireError`); the Promise version doesn't need a marker since it catches around `store.acquire` and around invoking/awaiting the method in two separate `try` blocks.
-  - `LockBusyError` translation is shared in spirit between both: for `mode === 'exclusive'` with no `catchErrorFn`/`catchErrorFn$` supplied, contention resolves to `undefined` (Promise) / `EMPTY` (Observable); otherwise `LockBusyError` is normalized into a generic `Error("Lock not acquired for keys: …")` (splitting the joined key back on `RESOURCE_SEPARATOR`) before being thrown or handed to the recovery callback.
-  - Setup errors (missing DI binding, empty `preLock` result) bypass `catchErrorFn`/`catchErrorFn$` entirely and always throw.
+    - `createPromiseLockDecorators(serviceToken, defaultDuration)` hand-rolls its own `descriptor.value = async function (...)`, calling `store.acquire` / releasing in a `finally` directly — it reuses `createLockServiceStore` (the `LockServiceInterface` → `LockStoreInterface` bridge) but does **not** reuse `@rnw-community/lock-decorator`'s `createLockMiddleware`; the acquire/invoke/release cycle is reimplemented locally.
+    - `createObservableLockDecorators(serviceToken, defaultDuration)` **does** reuse `createLockMiddleware$` from `@rnw-community/lock-decorator` directly, invoking it by hand inside a `defer(...)` with a manually built `ExecutionContextInterface`-shaped object (`{ className: '', methodName, args, logContext: methodName }`) — since it bypasses `createInterceptor`, it never gets a real `className` from `decorators-core`'s `buildContext`.
+    - Both bridge the multi-resource `LockServiceInterface` to the single-key `LockStoreInterface` via `createLockServiceStore`, which NUL-joins (`RESOURCE_SEPARATOR = '\x00'`) multi-resource keys into one store key.
+    - `createObservableLockDecorators` wraps method-thrown errors in a local `MethodThrownError` marker class so its single `catchError` can tell a method failure apart from a lock-acquire failure and apply the right recovery (`recoverFromMethodError` vs `recoverFromAcquireError`); the Promise version doesn't need a marker since it catches around `store.acquire` and around invoking/awaiting the method in two separate `try` blocks.
+    - `LockBusyError` translation is shared in spirit between both: for `mode === 'exclusive'` with no `catchErrorFn`/`catchErrorFn$` supplied, contention resolves to `undefined` (Promise) / `EMPTY` (Observable); otherwise `LockBusyError` is normalized into a generic `Error("Lock not acquired for keys: …")` (splitting the joined key back on `RESOURCE_SEPARATOR`) before being thrown or handed to the recovery callback.
+    - Setup errors (missing DI binding, empty `preLock` result) bypass `catchErrorFn`/`catchErrorFn$` entirely and always throw.
 
 ### Key patterns
 
@@ -74,5 +74,5 @@ Default monorepo threshold: **99.9%** on all metrics (statements, branches, func
 
 ### Important Notes
 
-- `redlock` has a Yarn patch applied (adds `"types"` to its exports for `moduleResolution: "bundler"` consumers).
+- `redlock` is patched via pnpm `patchedDependencies` (`patches/redlock@5.0.0-beta2.patch`, adds `"types"` to its exports for `moduleResolution: "bundler"` consumers).
 - Prefer `createPromiseLockDecorators` / `createObservableLockDecorators` over the deprecated inheritance-based `LockPromise` / `LockObservable`.

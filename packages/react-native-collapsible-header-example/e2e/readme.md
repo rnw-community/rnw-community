@@ -6,7 +6,7 @@ simulator/emulator with the app already installed (`ios:expo`/`ios:bare`/`androi
 ## Running
 
 ```bash
-yarn workspace @rnw-community/react-native-collapsible-header-example e2e:ios:expo
+pnpm --filter @rnw-community/react-native-collapsible-header-example e2e:ios:expo
 ```
 
 Or directly: `maestro test -e APP_ID=<appId> e2e/flows`.

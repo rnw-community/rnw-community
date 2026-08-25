@@ -1,0 +1,41 @@
+packages:
+  - packages/*
+  - packages/react-native-collapsible-header-example/apps/*
+  - packages/react-native-payments-example/apps/*
+
+overrides:
+  "@expo/cli": 57.0.6
+  "@expo/metro-runtime": 57.0.3
+  "@types/react": 19.2.18
+  axios: ^1.19.0
+  babel-jest: ^29.7.0
+  expo: 57.0.4
+  expo-asset: 57.0.3
+  expo-constants: 57.0.3
+  expo-file-system: 57.0.0
+  expo-font: 57.0.0
+  expo-keep-awake: 57.0.0
+  expo-modules-autolinking: 57.0.5
+  expo-modules-core: 57.0.3
+  expo-modules-jsi: 57.0.1
+  ip-address: ^10.3.1
+  js-yaml@4.1.1: ^4.3.1
+  nanoid@^3.3.16: ^3.3.18
+  react: 19.2.3
+  react-dom: 19.2.3
+  react-native: 0.86.2
+  tar@7.5.11: ^7.5.21
+  tar@^7.4.3: ^7.5.21
+  tar@^7.5.4: ^7.5.21
+
+minimumReleaseAge: 1440
+
+# Deny-by-default parity with the former enableScripts: false posture.
+allowBuilds:
+  "@swc/core": false
+  edgedriver: false
+  geckodriver: false
+  nx: false
+
+patchedDependencies:
+  redlock@5.0.0-beta2: patches/redlock@5.0.0-beta2.patch

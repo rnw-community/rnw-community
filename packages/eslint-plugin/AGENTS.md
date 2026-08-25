@@ -5,7 +5,7 @@ Custom ESLint plugin with JSX code-quality rules. Currently ships exactly one ru
 ## Package Commands
 
 ```bash
-yarn test && yarn test:coverage && yarn build && yarn ts && yarn lint:fix
+pnpm test && pnpm test:coverage && pnpm build && pnpm ts && pnpm lint:fix
 ```
 
 ## Architecture
@@ -52,7 +52,7 @@ src/
 Unlike every other package in the repo, this one does not ship a genuine ESM build: `export = plugin` cannot be
 re-emitted as ESM syntax, so `tsc` compiles both `dist/esm/` and `dist/cjs/` as CommonJS (see root AGENTS.md's ESM
 Modernization Status for the full reasoning). `package.json` reflects this with root-level `"type": "commonjs"`
-(covering both dist trees) and no `"module"` field. `yarn publint`'s `attw` check for this package alone passes
+(covering both dist trees) and no `"module"` field. `pnpm publint`'s `attw` check for this package alone passes
 `--ignore-rules named-exports`, since `attw`'s named-export warning only flags the unsupported (and undocumented)
 `import { x } from '@rnw-community/eslint-plugin'` form — the readme's documented usage is a default import. The
 `build` script also deletes `dist/esm/package.json` / `dist/cjs/package.json` after compiling: `tsc`'s
