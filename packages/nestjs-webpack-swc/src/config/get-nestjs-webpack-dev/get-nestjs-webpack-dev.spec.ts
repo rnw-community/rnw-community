@@ -24,4 +24,13 @@ describe('getNestJSWebpackDevConfig', () => {
         expect(config.plugins).toHaveLength(4);
         expect(config.plugins?.[3]).toBeInstanceOf(RunScriptWebpackPlugin);
     });
+
+    it('builds the dev plugin set from scratch when the passed options carry no plugins', () => {
+        expect.assertions(2);
+
+        const config = getNestJSWebpackDevConfig({ entry: 'src/main.ts', output: { filename: 'main.js' } }, webpackMock);
+
+        expect(config.plugins).toHaveLength(3);
+        expect(config.plugins?.[2]).toBeInstanceOf(RunScriptWebpackPlugin);
+    });
 });
