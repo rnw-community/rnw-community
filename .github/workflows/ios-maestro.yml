@@ -118,7 +118,7 @@ jobs:
                 run: xcodebuild -version
 
             -   name: Restore CocoaPods global cache
-                uses: actions/cache@v5
+                uses: actions/cache@v4
                 timeout-minutes: 10
                 with:
                     path: |
@@ -129,7 +129,7 @@ jobs:
                         pods-global-${{ runner.os }}-
 
             -   name: Restore project Pods and DerivedData cache
-                uses: actions/cache@v5
+                uses: actions/cache@v4
                 # The bound covers the implicit post-job save too, and a full
                 # DerivedData tree for a React Native app regularly needs more than
                 # ten minutes to upload from the self-hosted fleet — which failed the
