@@ -8,11 +8,3 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 ### Features
 
 - **react-native-screen-chrome:** add composable screen chrome ([#546](https://github.com/rnw-community/rnw-community/issues/546)) ([675c7a9](https://github.com/rnw-community/rnw-community/commit/675c7a91e865340b0715677223cbe05f0cfa665e)), closes [#545](https://github.com/rnw-community/rnw-community/issues/545)
-
-## Unreleased
-
-### Features
-
-- add provider-owned scroll coordination, validated configuration, and optional collapse snapping
-- add safe-area screen structure and native/web progressive edge fades
-- add compound large/small title chrome with leading and trailing controls mounted once

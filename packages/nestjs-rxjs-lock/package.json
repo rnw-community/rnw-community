@@ -1,6 +1,6 @@
 {
     "name": "@rnw-community/nestjs-rxjs-lock",
-    "version": "2.13.0",
+    "version": "2.15.0",
     "description": "NestJS RxJS lock",
     "keywords": [
         "nestjs",
@@ -50,7 +50,7 @@
         "@nestjs-modules/ioredis": "^2.2.2",
         "@nestjs/common": "^11.1.28",
         "@nestjs/core": "^11.1.28",
-        "@rnw-community/shared": "^2.13.0",
+        "@rnw-community/shared": "^2.15.0",
         "ioredis": "^5.11.1",
         "redlock": "5.0.0-beta2",
         "rxjs": "^7.8.2"
