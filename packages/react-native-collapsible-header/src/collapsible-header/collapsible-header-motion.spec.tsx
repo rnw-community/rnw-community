@@ -247,9 +247,9 @@ describe('CollapsibleHeader endpoint animation', () => {
 
 describe('CollapsibleHeader interaction', () => {
     it.each([
-        [0, 'auto', 'none'],
-        [COLLAPSE_DISTANCE * 0.5, 'auto', 'none'],
-        [COLLAPSE_DISTANCE, 'none', 'auto'],
+        [0, 'box-none', 'none'],
+        [COLLAPSE_DISTANCE * 0.5, 'box-none', 'none'],
+        [COLLAPSE_DISTANCE, 'none', 'box-none'],
     ])(
         'keeps only the visible content interactive at scroll offset %s',
         (scrollOffset, expandedPointer, collapsedPointer) => {
@@ -262,8 +262,8 @@ describe('CollapsibleHeader interaction', () => {
     );
 
     it.each([
-        [CUSTOM_POINTER_EVENTS_SWITCH_SCROLL_OFFSET, 'auto', 'none'],
-        [CUSTOM_POINTER_EVENTS_SWITCH_SCROLL_OFFSET + 1, 'none', 'auto'],
+        [CUSTOM_POINTER_EVENTS_SWITCH_SCROLL_OFFSET, 'box-none', 'none'],
+        [CUSTOM_POINTER_EVENTS_SWITCH_SCROLL_OFFSET + 1, 'none', 'box-none'],
     ])('uses the custom pointer-event threshold at scroll offset %s', (scrollOffset, expandedPointer, collapsedPointer) => {
         expect.hasAssertions();
         render(

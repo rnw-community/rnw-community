@@ -57,7 +57,7 @@ export const useCollapsibleHeaderAnimatedLayers = ({
     const pointerEventsSwitchOffset = collapseStart + collapseDistance * motionConfig.pointerEventsSwitchProgress;
     const expandedAnimatedStyle = useAnimatedStyle(() => ({
         opacity: interpolateProgressFadeOut(progress.get(), motionConfig.expandedOpacityEndProgress),
-        pointerEvents: scrollY.get() <= pointerEventsSwitchOffset ? 'auto' : 'none',
+        pointerEvents: scrollY.get() <= pointerEventsSwitchOffset ? 'box-none' : 'none',
         transform: [
             {
                 translateY: interpolate(progress.get(), [0, 1], [0, motionConfig.expandedTranslateY], Extrapolation.CLAMP),
@@ -67,7 +67,7 @@ export const useCollapsibleHeaderAnimatedLayers = ({
     }));
     const collapsedAnimatedStyle = useAnimatedStyle(() => ({
         opacity: interpolateProgressFadeIn(progress.get(), motionConfig.collapsedOpacityStartProgress),
-        pointerEvents: scrollY.get() <= pointerEventsSwitchOffset ? 'none' : 'auto',
+        pointerEvents: scrollY.get() <= pointerEventsSwitchOffset ? 'none' : 'box-none',
         transform: [
             {
                 translateY: interpolateCollapsedProgressTranslateY(

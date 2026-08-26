@@ -83,7 +83,7 @@ describe('useCollapsibleHeaderAnimatedLayers', () => {
 
         expect(result.current.progress.get()).toBe(0);
         expect(result.current.headerAnimatedStyle).toEqual({ height: EXPANDED_HEIGHT });
-        expect(result.current.expandedAnimatedStyle).toMatchObject({ opacity: 1, pointerEvents: 'auto' });
+        expect(result.current.expandedAnimatedStyle).toMatchObject({ opacity: 1, pointerEvents: 'box-none' });
         expect(result.current.collapsedAnimatedStyle).toMatchObject({ opacity: 0, pointerEvents: 'none' });
         expect(result.current.expandedAnimatedProps).toEqual({
             accessibilityElementsHidden: false,
@@ -113,7 +113,7 @@ describe('useCollapsibleHeaderAnimatedLayers', () => {
         expect(result.current.progress.get()).toBe(1);
         expect(result.current.headerAnimatedStyle).toEqual({ height: COLLAPSED_HEIGHT });
         expect(result.current.expandedAnimatedStyle).toMatchObject({ opacity: 0, pointerEvents: 'none' });
-        expect(result.current.collapsedAnimatedStyle).toMatchObject({ opacity: 1, pointerEvents: 'auto' });
+        expect(result.current.collapsedAnimatedStyle).toMatchObject({ opacity: 1, pointerEvents: 'box-none' });
         expect(result.current.expandedAnimatedProps).toMatchObject({ accessibilityElementsHidden: true });
         expect(result.current.collapsedAnimatedProps).toMatchObject({ accessibilityElementsHidden: false });
     });
