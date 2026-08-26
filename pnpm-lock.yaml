@@ -181,10 +181,10 @@ importers:
     dependencies:
       '@rnw-community/object-field-tree':
         specifier: ^2.13.0
-        version: 2.13.0
+        version: link:../object-field-tree
       '@rnw-community/shared':
         specifier: ^2.13.0
-        version: 2.13.0
+        version: link:../shared
       react:
         specifier: 19.2.3
         version: 19.2.3
@@ -285,7 +285,7 @@ importers:
         version: 11.2.1(@nestjs/common@11.2.1(reflect-metadata@0.2.2)(rxjs@7.8.2)(supports-color@8.1.1))(reflect-metadata@0.2.2)(rxjs@7.8.2)
       '@rnw-community/shared':
         specifier: ^2.13.0
-        version: 2.13.0
+        version: link:../shared
       ioredis:
         specifier: ^5.11.1
         version: 5.11.1(supports-color@8.1.1)
@@ -300,7 +300,7 @@ importers:
     dependencies:
       '@rnw-community/shared':
         specifier: ^2.13.0
-        version: 2.13.0
+        version: link:../shared
     devDependencies:
       '@nestjs/common':
         specifier: ^11.1.28
@@ -313,7 +313,7 @@ importers:
     dependencies:
       '@rnw-community/shared':
         specifier: ^2.13.0
-        version: 2.13.0
+        version: link:../shared
     devDependencies:
       '@nestjs/common':
         specifier: ^11.1.28
@@ -332,7 +332,7 @@ importers:
     dependencies:
       '@rnw-community/shared':
         specifier: ^2.13.0
-        version: 2.13.0
+        version: link:../shared
     devDependencies:
       '@nestjs-modules/ioredis':
         specifier: ^2.2.2
@@ -351,7 +351,7 @@ importers:
     dependencies:
       '@rnw-community/shared':
         specifier: ^2.13.0
-        version: 2.13.0
+        version: link:../shared
     devDependencies:
       '@nestjs/common':
         specifier: ^11.1.28
@@ -370,7 +370,7 @@ importers:
     dependencies:
       '@rnw-community/shared':
         specifier: ^2.13.0
-        version: 2.13.0
+        version: link:../shared
       '@swc/cli':
         specifier: ^0.1.57
         version: 0.1.65(@swc/core@1.16.1(@swc/helpers@0.4.37))
@@ -410,7 +410,7 @@ importers:
     dependencies:
       '@rnw-community/shared':
         specifier: ^2.13.0
-        version: 2.13.0
+        version: link:../shared
 
   packages/platform:
     devDependencies:
@@ -434,7 +434,7 @@ importers:
     dependencies:
       '@rnw-community/shared':
         specifier: ^2.13.0
-        version: 2.13.0
+        version: link:../shared
       react-compiler-runtime:
         specifier: ^1.0.0
         version: 1.0.0(react@19.2.3)
@@ -618,7 +618,7 @@ importers:
         version: 9.1.7(supports-color@8.1.1)
       '@rnw-community/shared':
         specifier: ^2.13.0
-        version: 2.13.0
+        version: link:../shared
       expo:
         specifier: 57.0.4
         version: 57.0.4(70c94e2f0f8f3342f4491993ce70adc1)
@@ -724,7 +724,7 @@ importers:
     dependencies:
       '@rnw-community/shared':
         specifier: ^2.12.10
-        version: 2.13.0
+        version: link:../shared
     devDependencies:
       '@babel/core':
         specifier: ^7.29.7
@@ -919,7 +919,7 @@ importers:
     dependencies:
       '@rnw-community/shared':
         specifier: ^2.13.0
-        version: 2.13.0
+        version: link:../shared
     devDependencies:
       expect-type:
         specifier: ^0.20.0
@@ -934,7 +934,7 @@ importers:
     dependencies:
       '@rnw-community/shared':
         specifier: ^2.13.0
-        version: 2.13.0
+        version: link:../shared
       '@wdio/globals':
         specifier: ^9.29.1
         version: 9.31.1(expect-webdriverio@6.0.7)(webdriverio@9.31.2(supports-color@8.1.1))
@@ -2966,14 +2966,6 @@ packages:
 
   '@react-navigation/routers@7.6.4':
     resolution: {integrity: sha512-GI7eJm8/KsZUQaYcXvEExikKurRZRgEsSzyZ7faENfi65yqJBCXjDMwyN1pF6pNW1MoLH1ErDwDivFxY6BzD3w==}
-
-  '@rnw-community/object-field-tree@2.13.0':
-    resolution: {integrity: sha512-nDQbLeCyuf1BJz01ldHBfzh3XVmAxdejId49iPQatcCZt6dlERrHiB5hPwQFjCfLFHb+jokze5/Hbg80S0AnTw==}
-    engines: {node: '>=22.0.0'}
-
-  '@rnw-community/shared@2.13.0':
-    resolution: {integrity: sha512-xgVYyRhl/9xNjQXbuseNvhh1EzuFZGYHlE6ZH/73T0QL9m1TawX+o078OfQXrUFKy9QN+bOdMjPLgDIhmfzRNw==}
-    engines: {node: '>=22.0.0'}
 
   '@rtsao/scc@1.1.0':
     resolution: {integrity: sha512-zt6OdqaDoOnJ1ZYsCYGt9YmWzDXl4vQdKTyJev62gFhRGKdx7mcT54V9KIjg+d2wi9EXsPvAPKe7i7WjfVWB8g==}
@@ -7502,6 +7494,7 @@ packages:
   prom-client@15.1.3:
     resolution: {integrity: sha512-6ZiOBfCywsD4k1BN9IX0uZhF+tJkV8q8llP64G5Hajs4JOeVLPCwpPVcpXy3BwYiUGgyJzsJJQeOIv7+hDSq8g==}
     engines: {node: ^16 || ^18 || >=20}
+    deprecated: prom-client has been replaced by @prometheus-io/client
 
   promise-all-reject-late@1.0.1:
     resolution: {integrity: sha512-vuf0Lf0lOxyQREH7GDIOUMLS7kz+gs8i6B+Yi8dC68a2sychGrHTJYghMBD6k7eUcH0H5P73EckCA48xijWqXw==}
@@ -12777,12 +12770,6 @@ snapshots:
   '@react-navigation/routers@7.6.4':
     dependencies:
       nanoid: 3.3.18
-
-  '@rnw-community/object-field-tree@2.13.0':
-    dependencies:
-      '@rnw-community/shared': 2.13.0
-
-  '@rnw-community/shared@2.13.0': {}
 
   '@rtsao/scc@1.1.0': {}
 

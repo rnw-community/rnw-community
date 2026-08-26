@@ -4,6 +4,8 @@ packages:
   - packages/react-native-payments-example/apps/*
   - packages/react-native-screen-chrome-example/apps/*
 
+linkWorkspacePackages: true
+
 overrides:
   "@expo/cli": 57.0.6
   "@expo/metro-runtime": 57.0.3
