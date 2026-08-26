@@ -28,22 +28,22 @@
         },
         "./get-nestjs-webpack-dev.config": {
             "import": {
-                "types": "./dist/esm/config/get-nestjs-webpack-dev.config.d.ts",
-                "default": "./dist/esm/config/get-nestjs-webpack-dev.config.js"
+                "types": "./dist/esm/config/get-nestjs-webpack-dev/get-nestjs-webpack-dev.config.d.ts",
+                "default": "./dist/esm/config/get-nestjs-webpack-dev/get-nestjs-webpack-dev.config.js"
             },
             "require": {
-                "types": "./dist/cjs/config/get-nestjs-webpack-dev.config.d.ts",
-                "default": "./dist/cjs/config/get-nestjs-webpack-dev.config.js"
+                "types": "./dist/cjs/config/get-nestjs-webpack-dev/get-nestjs-webpack-dev.config.d.ts",
+                "default": "./dist/cjs/config/get-nestjs-webpack-dev/get-nestjs-webpack-dev.config.js"
             }
         },
         "./get-nestjs-webpack-prod.config": {
             "import": {
-                "types": "./dist/esm/config/get-nestjs-webpack-prod.config.d.ts",
-                "default": "./dist/esm/config/get-nestjs-webpack-prod.config.js"
+                "types": "./dist/esm/config/get-nestjs-webpack-prod/get-nestjs-webpack-prod.config.d.ts",
+                "default": "./dist/esm/config/get-nestjs-webpack-prod/get-nestjs-webpack-prod.config.js"
             },
             "require": {
-                "types": "./dist/cjs/config/get-nestjs-webpack-prod.config.d.ts",
-                "default": "./dist/cjs/config/get-nestjs-webpack-prod.config.js"
+                "types": "./dist/cjs/config/get-nestjs-webpack-prod/get-nestjs-webpack-prod.config.d.ts",
+                "default": "./dist/cjs/config/get-nestjs-webpack-prod/get-nestjs-webpack-prod.config.js"
             }
         }
     },
@@ -61,6 +61,8 @@
         "clear:deps": "rm -rf ./node_modules && rm -rf ./dist",
         "format": "prettier --write \"./src/**/*.{ts,tsx}\"",
         "lint": "eslint src",
+        "test": "jest",
+        "test:coverage": "jest --coverage",
         "lint:fix": "eslint --fix src",
         "ts": "tsc --pretty -p tsconfig.json",
         "ts:nodenext": "tsc --pretty -p tsconfig.nodenext-check.json"

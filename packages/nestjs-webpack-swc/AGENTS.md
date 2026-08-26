@@ -5,14 +5,11 @@ Pre-configured Webpack + SWC build configs for NestJS — dev (HMR) and prod (Te
 ## Package Commands
 
 ```bash
-pnpm build && pnpm ts && pnpm lint:fix
+pnpm test && pnpm test:coverage && pnpm build && pnpm ts && pnpm lint:fix
 ```
 
-This package has **no `test` or `test:coverage` script** in `package.json` — only `ts`, `build:esm`, `build:cjs`,
-`build`, `lint`, `lint:fix`, `format`, `clear`, `clear:deps`. A `jest.config.js` exists (delegating to the shared
-`get-jest.config.js` like every other package) but nothing invokes it — no script runs `jest` and no `.spec.ts` files
-exist under `src/`. Treat the config as orphaned scaffolding, not a live coverage gate: there is no unit-test coverage
-percentage to report for this package, and none should be assumed or backfilled without first adding a `test` script.
+Specs are colocated per entity (`src/**/<entity>/<entity>.spec.ts`) and the package inherits the shared 99.9%
+coverage gate from `get-jest.config.js` like every other package.
 
 ## Architecture
 
@@ -23,17 +20,17 @@ src/
   config/
     swc.config.ts                               — swcConfig: es2020 target, TS parser with decorators,
                                                     legacyDecorator + decoratorMetadata transforms, keepClassNames
-    get-nestjs-webpack-generic.config.ts         — getNestJSWebpackGenericConfig(options, swcOptions?, allowList?):
-                                                    shared base (never exported, internal-only)
-    get-nestjs-webpack-dev.config.ts             — getNestJSWebpackDevConfig(options, webpack)
-    get-nestjs-webpack-prod.config.ts            — getNestJSWebpackProdConfig(options, _webpack)
+    get-nestjs-webpack-generic/                  — getNestJSWebpackGenericConfig(options, swcOptions?, allowList?):
+                                                    shared base (never exported, internal-only) + spec
+    get-nestjs-webpack-dev/                      — getNestJSWebpackDevConfig(options, webpack) + spec
+    get-nestjs-webpack-prod/                     — getNestJSWebpackProdConfig(options, _webpack) + spec
   hmr/
     index.ts                                     — barrel: HmrModuleInterface (type), handleNestJSWebpackHmr
-    handle-nestjs-webpack-hmr.ts                  — handleNestJSWebpackHmr(app, webpackModule)
+    handle-nestjs-webpack-hmr/                    — handleNestJSWebpackHmr(app, webpackModule) + spec
     hmr-module.interface.ts                       — HmrModuleInterface ({ hot?: { accept, dispose } })
   typeorm/
     index.ts                                      — barrel: importTypeormWebpackMigrations
-    import-typeorm-webpack-migrations.util.ts     — importTypeormWebpackMigrations(requireContext)
+    import-typeorm-webpack-migrations/            — importTypeormWebpackMigrations(requireContext) + spec
 ```
 
 ### Subpath Exports
