@@ -8,11 +8,11 @@ import type { AndroidSignedKey } from './android-signed-key';
  * @see https://developers.google.com/pay/api/android/guides/resources/payment-data-cryptography#intermediate-signing-key
  */
 export interface AndroidIntermediateSigningKey {
-    signatures: string;
+    signatures: string[];
     signedKey: AndroidSignedKey;
 }
 
 export const emptyAndroidIntermediateSigningKey: AndroidIntermediateSigningKey = {
-    signatures: '',
+    signatures: [],
     signedKey: emptyAndroidSignedKey,
 };
