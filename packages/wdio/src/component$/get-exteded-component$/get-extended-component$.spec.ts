@@ -5,7 +5,7 @@ import { ExtendedComponent$Mock } from '../mocks/extended-component$.mock';
 import { ParentComponent$SelectorsMock } from '../mocks/parent-component$-selectors.mock';
 
 describe('getExtendedComponent$', () => {
-    it('should use extended parent component$ testID selector functions', async () => {
+    it('resolves testID selectors of the extended class through the parent component$ selector functions', async () => {
          
         expect.assertions(6);
 

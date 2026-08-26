@@ -6,7 +6,7 @@ import { RootedComponent$SelectorsMock } from '../mocks/rooted-component$-select
 import { RootedComponent$Mock } from '../mocks/rooted-component$.mock';
 
 describe('getExtendedRootedComponent$', () => {
-    it('should return RootEl using getter', async () => {
+    it('resolves RootEl to the root element found by the Root$ chainable selector', async () => {
         expect.assertions(2);
 
         const component = new RootedComponent$Mock(RootedComponent$SelectorsMock.Root$);
@@ -17,7 +17,7 @@ describe('getExtendedRootedComponent$', () => {
         jest.clearAllMocks();
     });
 
-    it('can have default root selector from the selectors enum', async () => {
+    it('falls back to the Root$ selector from the selectors enum when the extended $ class passes no root argument', async () => {
         expect.assertions(1);
 
         const component = new DefaultRootRootedExtendedComponent$Mock();

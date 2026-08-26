@@ -7,7 +7,18 @@ import { ExtendedComponentMock } from '../mocks/extended-component.mock';
 import { ParentComponentSelectorsMock } from '../mocks/parent-component-selectors.mock';
 
 describe('getExtendedComponent', () => {
-    it('should work with css-like selector methods', async () => {
+    it('resolves an awaited extended instance to the component itself because the proxy exposes no then method', async () => {
+        expect.assertions(2);
+
+        const component = new ExtendedComponentMock();
+
+        const awaited = await Promise.resolve(component);
+
+        expect(awaited).toBe(component);
+        await expect(awaited.Button.el()).resolves.toBe(mockElement);
+    });
+
+    it('resolves a css-like selector from the selectors enum to a child element', async () => {
         expect.assertions(2);
 
         const component = new ComponentMock();
@@ -157,7 +168,7 @@ describe('getExtendedComponent', () => {
         expect(mockDefaultConfig.elSelectorFn).toHaveBeenCalledWith(ComponentSelectorsMock.Button);
     });
 
-    it('should throw error on accessing not existing selector element/wdio element property', () => {
+    it('throws a TypeError when the extended component accesses a method missing from both selectors and the wdio element', () => {
         expect.assertions(1);
 
         const component = new ComponentMock();
@@ -167,7 +178,7 @@ describe('getExtendedComponent', () => {
         expect(() => void component.Button.IDONOTEXISTS()).toThrow(TypeError);
     });
 
-    it('should call extended class methods and change class state', () => {
+    it('preserves own and parent instance state across extended class method calls', () => {
         expect.assertions(2);
 
         const component = new ExtendedComponentMock();
@@ -183,7 +194,7 @@ describe('getExtendedComponent', () => {
         expect(component.getParentData()).toBe(parentTestData);
     });
 
-    it('should call extended class getters/setters and change class state', () => {
+    it('preserves own and parent instance state across extended class getters and setters', () => {
         expect.assertions(2);
 
         const component = new ExtendedComponentMock();

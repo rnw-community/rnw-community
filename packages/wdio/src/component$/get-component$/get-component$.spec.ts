@@ -23,7 +23,7 @@ describe('getComponent$', () => {
         await assert$ComponentMethods(new Component$Mock());
     });
 
-    it('should use extended parent component$ testID selector functions', async () => {
+    it('resolves testID selectors through the component$ chainable selector functions', async () => {
          
         expect.assertions(6);
 
