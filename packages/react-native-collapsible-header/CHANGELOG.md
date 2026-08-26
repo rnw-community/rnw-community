@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.15.1](https://github.com/rnw-community/rnw-community/compare/v2.15.0...v2.15.1) (2026-08-26)
+
+### Bug Fixes
+
+- **react-native-collapsible-header:** stop active title layer swallowing touches with box-none ([#610](https://github.com/rnw-community/rnw-community/issues/610)) ([0628e62](https://github.com/rnw-community/rnw-community/commit/0628e6243f0417e22f3b26931d64de86a1d53f55)), closes [#606](https://github.com/rnw-community/rnw-community/issues/606)
+
 # [2.15.0](https://github.com/rnw-community/rnw-community/compare/v2.14.1...v2.15.0) (2026-08-26)
 
 **Note:** Version bump only for package @rnw-community/react-native-collapsible-header
