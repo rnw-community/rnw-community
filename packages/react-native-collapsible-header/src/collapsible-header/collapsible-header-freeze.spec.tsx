@@ -68,7 +68,7 @@ describe('CollapsibleHeader under react-freeze', () => {
         const scrollY = makeMutable(COLLAPSE_DISTANCE);
         render(<Subject frozen={false} scrollY={scrollY} />);
 
-        expect(getAnimatedStyle(getLayer('collapsed'))).toMatchObject({ opacity: 1, pointerEvents: 'auto' });
+        expect(getAnimatedStyle(getLayer('collapsed'))).toMatchObject({ opacity: 1, pointerEvents: 'box-none' });
 
         screen.rerender(<Subject frozen scrollY={scrollY} />);
 
@@ -76,7 +76,7 @@ describe('CollapsibleHeader under react-freeze', () => {
 
         screen.rerender(<Subject frozen={false} scrollY={scrollY} />);
 
-        expect(getAnimatedStyle(getLayer('collapsed'))).toMatchObject({ opacity: 1, pointerEvents: 'auto' });
+        expect(getAnimatedStyle(getLayer('collapsed'))).toMatchObject({ opacity: 1, pointerEvents: 'box-none' });
         expect(getAnimatedStyle(getLayer('expanded'))).toMatchObject({ opacity: 0, pointerEvents: 'none' });
         expect((getLayer('expanded').props as ViewProps).accessibilityElementsHidden).toBe(true);
         expect((getLayer('collapsed').props as ViewProps).accessibilityElementsHidden).toBe(false);
