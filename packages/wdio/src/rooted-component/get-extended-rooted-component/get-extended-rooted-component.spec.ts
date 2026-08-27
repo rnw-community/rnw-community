@@ -10,7 +10,7 @@ import { RootedParentComponentSelectorsMock } from '../mocks/rooted-parent-compo
 
  
 describe('getExtendedRootedComponent', () => {
-    it('should return RootEl using getter', async () => {
+    it('resolves RootEl to the root element found by the Root selector', async () => {
         expect.assertions(2);
 
         const component = new RootedComponentMock(RootedComponentSelectorsMock.Root);
@@ -21,7 +21,7 @@ describe('getExtendedRootedComponent', () => {
         jest.clearAllMocks();
     });
 
-    it('should call parent RootedComponent methods', async () => {
+    it('exposes inherited RootedComponent element methods on extended class instances', async () => {
         expect.assertions(4);
 
         const component = new RootedComponentMock(RootedComponentSelectorsMock.Root);
@@ -71,7 +71,7 @@ describe('getExtendedRootedComponent', () => {
         expect(mockDefaultConfig.elSelectorFn).toHaveBeenCalledWith(RootedComponentSelectorsMock.CustomRoot);
     });
 
-    it('should call extended class methods and change class state', () => {
+    it('preserves own and parent instance state across extended rooted class method calls', () => {
         expect.assertions(2);
 
         const component = new RootedExtendedComponentMock();
@@ -87,7 +87,7 @@ describe('getExtendedRootedComponent', () => {
         expect(component.getParentData()).toBe(parentTestData);
     });
 
-    it('should call extended class getters/setters and change class state', () => {
+    it('preserves own and parent instance state across extended rooted class getters and setters', () => {
         expect.assertions(2);
 
         const Ctor = RootedExtendedComponentMock;
@@ -129,7 +129,18 @@ describe('getExtendedRootedComponent', () => {
         await expect(awaitedComponent.Button.el()).resolves.toBe(mockElement);
     });
 
-    it('can have default root selector from the selectors enum', async () => {
+    it('resolves an awaited rooted instance to the component itself, since the proxy guards then from RootEl', async () => {
+        expect.assertions(2);
+
+        const component = new RootedExtendedComponentMock();
+
+        const awaited = await Promise.resolve(component);
+
+        expect(awaited).toBe(component);
+        await expect(awaited.RootEl).resolves.toBe(mockElement);
+    });
+
+    it('falls back to the enum CustomRoot selector when the extended class passes no root argument', async () => {
         expect.assertions(1);
 
         const component = new DefaultRootRootedExtendedComponentMock();
