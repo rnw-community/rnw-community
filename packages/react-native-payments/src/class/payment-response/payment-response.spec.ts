@@ -53,7 +53,7 @@ describe('PaymentResponse', () => {
                     keyExpiration: '',
                     keyValue: 'mockSignedKeyValue',
                 },
-                signatures: 'mockSignature1',
+                signatures: ['mockSignature1'],
             },
             protocolVersion: 'EC_v1',
             rawToken: 'mockRawToken',
