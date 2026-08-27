@@ -17,7 +17,7 @@ describe('getExtendedRootedComponent$', () => {
         jest.clearAllMocks();
     });
 
-    it('falls back to the Root$ selector from the selectors enum when the extended $ class passes no root argument', async () => {
+    it('falls back to the enum Root$ selector when the extended $ class passes no root argument', async () => {
         expect.assertions(1);
 
         const component = new DefaultRootRootedExtendedComponent$Mock();

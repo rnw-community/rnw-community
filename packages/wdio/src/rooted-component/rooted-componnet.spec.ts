@@ -131,7 +131,7 @@ describe('RootedComponent', () => {
         );
     });
 
-    it('throws a TypeError when the rooted component accesses a method missing from both selectors and the root element', () => {
+    it('throws a TypeError accessing a method missing from both selectors and the root element', () => {
         expect.assertions(1);
 
         const component = new RootedComponent(

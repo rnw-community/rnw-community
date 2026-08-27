@@ -81,7 +81,7 @@ describe('getRootedComponent$', () => {
         );
     });
 
-    it('falls back to the Root$ selector from the selectors enum when getRootedComponent$ gets no root argument', async () => {
+    it('falls back to the enum Root$ selector when getRootedComponent$ gets no root argument', async () => {
         expect.assertions(1);
 
         const component = new DefaultRootRootedComponent$Mock();

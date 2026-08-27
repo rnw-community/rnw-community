@@ -129,7 +129,7 @@ describe('getExtendedRootedComponent', () => {
         await expect(awaitedComponent.Button.el()).resolves.toBe(mockElement);
     });
 
-    it('resolves an awaited extended instance to the component itself because the proxy guards then/catch/finally from forwarding to RootEl', async () => {
+    it('resolves an awaited rooted instance to the component itself, since the proxy guards then from RootEl', async () => {
         expect.assertions(2);
 
         const component = new RootedExtendedComponentMock();
@@ -140,7 +140,7 @@ describe('getExtendedRootedComponent', () => {
         await expect(awaited.RootEl).resolves.toBe(mockElement);
     });
 
-    it('falls back to the CustomRoot selector from the selectors enum when the extended class passes no root argument', async () => {
+    it('falls back to the enum CustomRoot selector when the extended class passes no root argument', async () => {
         expect.assertions(1);
 
         const component = new DefaultRootRootedExtendedComponentMock();

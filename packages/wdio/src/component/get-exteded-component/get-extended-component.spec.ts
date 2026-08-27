@@ -7,7 +7,7 @@ import { ExtendedComponentMock } from '../mocks/extended-component.mock';
 import { ParentComponentSelectorsMock } from '../mocks/parent-component-selectors.mock';
 
 describe('getExtendedComponent', () => {
-    it('resolves an awaited extended instance to the component itself because the proxy exposes no then method', async () => {
+    it('resolves an awaited instance to the component itself, since the proxy exposes no then method', async () => {
         expect.assertions(2);
 
         const component = new ExtendedComponentMock();
@@ -168,7 +168,7 @@ describe('getExtendedComponent', () => {
         expect(mockDefaultConfig.elSelectorFn).toHaveBeenCalledWith(ComponentSelectorsMock.Button);
     });
 
-    it('throws a TypeError when the extended component accesses a method missing from both selectors and the wdio element', () => {
+    it('throws a TypeError accessing a method missing from both selectors and the wdio element', () => {
         expect.assertions(1);
 
         const component = new ComponentMock();
