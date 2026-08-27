@@ -12,6 +12,8 @@ import { SCREEN_CHROME_DEFAULT_CONFIG } from '../constant/screen-chrome-default-
 
 import { CollapsibleHeader } from './collapsible-header';
 
+import type { StyleProp, ViewStyle } from 'react-native';
+
 const mockConfig = { ...SCREEN_CHROME_DEFAULT_CONFIG, snapToCollapse: true };
 const mockTopInset = 59;
 
@@ -29,6 +31,35 @@ const renderDelegatedProps = (motion?: {
 }) => {
     render(
         <CollapsibleHeader testID="chrome-header" motion={motion}>
+            <CollapsibleHeaderSlot>
+                <Text>Back</Text>
+            </CollapsibleHeaderSlot>
+            <CollapsibleHeaderTitleSlot>
+                <Text>Large</Text>
+                <Text>Small</Text>
+            </CollapsibleHeaderTitleSlot>
+            <CollapsibleHeaderSlot>
+                <Text>Menu</Text>
+            </CollapsibleHeaderSlot>
+        </CollapsibleHeader>
+    );
+
+    const [props] = jest.mocked(GenericCollapsibleHeader).mock.calls[0] ?? [];
+
+    if (!isDefined(props)) {
+        throw new Error('Generic collapsible header was not rendered');
+    }
+
+    return props;
+};
+
+const renderWithContainerStyles = (containerStyles: {
+    readonly expandedContentContainerStyle?: StyleProp<ViewStyle>;
+    readonly collapsedContentContainerStyle?: StyleProp<ViewStyle>;
+    readonly persistentContentContainerStyle?: StyleProp<ViewStyle>;
+}) => {
+    render(
+        <CollapsibleHeader {...containerStyles}>
             <CollapsibleHeaderSlot>
                 <Text>Back</Text>
             </CollapsibleHeaderSlot>
@@ -138,5 +169,51 @@ describe('CollapsibleHeader', () => {
         expect(markers.getByText('Expanded')).toBeTruthy();
         expect(markers.getByText('Collapsed')).toBeTruthy();
         expect(markers.getByText('Trailing')).toBeTruthy();
+    });
+});
+
+describe('CollapsibleHeader content container styles', () => {
+    beforeEach(() => {
+        jest.mocked(GenericCollapsibleHeader).mockClear();
+    });
+
+    it('centers both title layers behind the control gutter when no container style is given', () => {
+        expect.hasAssertions();
+
+        const props = renderWithContainerStyles({});
+
+        expect(StyleSheet.flatten(props.expandedContentContainerStyle)).toEqual({
+            alignItems: 'center',
+            justifyContent: 'center',
+            paddingHorizontal: 72,
+        });
+        expect(StyleSheet.flatten(props.collapsedContentContainerStyle)).toEqual({
+            alignItems: 'center',
+            justifyContent: 'center',
+            paddingHorizontal: 72,
+        });
+        expect(props.persistentContentContainerStyle).toBeUndefined();
+    });
+
+    it('lets a consumer container style override the derived title layer for a left-aligned large title', () => {
+        expect.hasAssertions();
+
+        const props = renderWithContainerStyles({
+            expandedContentContainerStyle: { alignItems: 'flex-start', paddingHorizontal: 16 },
+        });
+        const expanded = StyleSheet.flatten(props.expandedContentContainerStyle);
+
+        expect(expanded.alignItems).toBe('flex-start');
+        expect(expanded.paddingHorizontal).toBe(16);
+        expect(expanded.justifyContent).toBe('center');
+        expect(StyleSheet.flatten(props.collapsedContentContainerStyle).alignItems).toBe('center');
+    });
+
+    it('forwards the persistent container style straight through to the primitive', () => {
+        expect.hasAssertions();
+
+        const props = renderWithContainerStyles({ persistentContentContainerStyle: { paddingHorizontal: 8 } });
+
+        expect(StyleSheet.flatten(props.persistentContentContainerStyle)).toEqual({ paddingHorizontal: 8 });
     });
 });

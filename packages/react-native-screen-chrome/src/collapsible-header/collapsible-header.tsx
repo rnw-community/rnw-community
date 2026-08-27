@@ -12,18 +12,29 @@ import { collapsibleHeaderStyles } from './collapsible-header.styles';
 
 import type { CollapsibleHeaderMotionConfig } from '@rnw-community/react-native-collapsible-header';
 import type { ReactNode } from 'react';
-import type { ViewProps } from 'react-native';
+import type { StyleProp, ViewProps, ViewStyle } from 'react-native';
 
 interface Props extends Omit<ViewProps, 'children'> {
     readonly children: ReactNode;
     readonly motion?: Partial<CollapsibleHeaderMotionConfig>;
+    readonly expandedContentContainerStyle?: StyleProp<ViewStyle>;
+    readonly collapsedContentContainerStyle?: StyleProp<ViewStyle>;
+    readonly persistentContentContainerStyle?: StyleProp<ViewStyle>;
 }
 
 /**
  * Composes safe-area-aware title and control slots through the generic collapsible-header primitive.
  * @see https://github.com/rnw-community/rnw-community/tree/master/packages/react-native-screen-chrome#collapsibleheader
  */
-export const CollapsibleHeader = ({ children, motion, style, ...viewProps }: Props): ReactNode => {
+export const CollapsibleHeader = ({
+    children,
+    motion,
+    style,
+    expandedContentContainerStyle,
+    collapsedContentContainerStyle,
+    persistentContentContainerStyle,
+    ...viewProps
+}: Props): ReactNode => {
     const { config } = useScreenChrome();
     const insets = useSafeAreaInsets();
     const { leading, expandedTitle, collapsedTitle, trailing } = getCollapsibleHeaderSlots(children);
@@ -51,8 +62,9 @@ export const CollapsibleHeader = ({ children, motion, style, ...viewProps }: Pro
             persistentContent={persistentContent}
             motion={{ ...getCollapsibleHeaderMotion(config), ...motion }}
             headerStyle={{ paddingTop: insets.top }}
-            expandedContentContainerStyle={collapsibleHeaderStyles.titleLayer}
-            collapsedContentContainerStyle={collapsibleHeaderStyles.titleLayer}
+            expandedContentContainerStyle={[collapsibleHeaderStyles.titleLayer, expandedContentContainerStyle]}
+            collapsedContentContainerStyle={[collapsibleHeaderStyles.titleLayer, collapsedContentContainerStyle]}
+            persistentContentContainerStyle={persistentContentContainerStyle}
         />
     );
 };

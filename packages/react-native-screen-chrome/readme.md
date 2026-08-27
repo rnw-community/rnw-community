@@ -121,6 +121,17 @@ expanded-layer scale) without widening the config surface:
 <CollapsibleHeader motion={{ backgroundOpacityStartProgress: 0.7, expandedScale: 0.9 }}>{/* slots */}</CollapsibleHeader>
 ```
 
+Both title layers default to centered content behind a 72pt gutter that keeps the title clear of the leading and
+trailing controls. `expandedContentContainerStyle`, `collapsedContentContainerStyle` and
+`persistentContentContainerStyle` are forwarded to the primitive and merged after that default, so a consumer style
+wins without needing to know or cancel the gutter value — an iOS-style left-aligned large title is just:
+
+```tsx
+<CollapsibleHeader expandedContentContainerStyle={{ alignItems: 'flex-start', paddingHorizontal: 16 }}>
+    {/* slots */}
+</CollapsibleHeader>
+```
+
 ## Compound header contract
 
 `CollapsibleHeaderSlot`, `CollapsibleHeaderTitleSlot`, and a second `CollapsibleHeaderSlot` must be direct children of
