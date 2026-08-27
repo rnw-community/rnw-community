@@ -2,14 +2,19 @@ import path from 'path';
 
 import { describe, expect, it } from '@jest/globals';
 
+import { isNotEmptyArray } from '@rnw-community/shared';
+
 import { swcConfig } from '../swc.config';
 
 import { getNestJSWebpackGenericConfig } from './get-nestjs-webpack-generic.config';
 
 import type { RuleSetRule } from 'webpack';
 
-const getSwcRule = (config: ReturnType<typeof getNestJSWebpackGenericConfig>): RuleSetRule =>
-    (config.module?.rules as RuleSetRule[])[0];
+const getSwcRule = (config: ReturnType<typeof getNestJSWebpackGenericConfig>): RuleSetRule | undefined => {
+    const rules = (config.module?.rules ?? []) as RuleSetRule[];
+
+    return isNotEmptyArray(rules) ? rules[0] : void 0;
+};
 
 describe('getNestJSWebpackGenericConfig', () => {
     it('extends the passed options with node externals, filesystem cache and the swc loader rule', () => {
@@ -33,7 +38,7 @@ describe('getNestJSWebpackGenericConfig', () => {
 
         const config = getNestJSWebpackGenericConfig({}, { minify: true });
 
-        expect(getSwcRule(config).use).toStrictEqual({
+        expect(getSwcRule(config)?.use).toStrictEqual({
             loader: 'swc-loader',
             options: { ...swcConfig, minify: true },
         });
