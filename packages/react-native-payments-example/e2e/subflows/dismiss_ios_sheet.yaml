@@ -6,10 +6,14 @@ appId: ${APP_ID}
     commands:
       # Presenting the Apple Pay sheet is the slowest thing the suite waits on, and
       # slowest of all on whichever flow runs first against a just-installed app.
+      # Measured 64s and 74s for that first presentation on the CI simulators, so a
+      # 45s bound failed whenever the scheduler put a sheet flow first. The bound is
+      # for the slowest host, not for a warm sheet: extendedWaitUntil returns as soon
+      # as the element appears, so a warm run costs nothing extra here.
       - extendedWaitUntil:
           visible:
             id: "dismiss"
-          timeout: 45000
+          timeout: 120000
       - tapOn:
           id: "dismiss"
       - extendedWaitUntil:
