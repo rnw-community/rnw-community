@@ -39,19 +39,10 @@ describe('getNestJSWebpackGenericConfig', () => {
         });
     });
 
-    it('spreads an array allow list into the externals allowlist unchanged', () => {
-        expect.assertions(1);
+    it('normalizes both array and single-entry allow lists into a node-externals matcher', () => {
+        expect.assertions(2);
 
-        const config = getNestJSWebpackGenericConfig({}, {}, ['pkg-a', 'pkg-b']);
-
-        expect(config.externals).toStrictEqual([expect.any(Function)]);
-    });
-
-    it('wraps a single allow list entry into the externals allowlist', () => {
-        expect.assertions(1);
-
-        const config = getNestJSWebpackGenericConfig({}, {}, 'single-pkg');
-
-        expect(config.externals).toStrictEqual([expect.any(Function)]);
+        expect(getNestJSWebpackGenericConfig({}, {}, ['pkg-a', 'pkg-b']).externals).toStrictEqual([expect.any(Function)]);
+        expect(getNestJSWebpackGenericConfig({}, {}, 'single-pkg').externals).toStrictEqual([expect.any(Function)]);
     });
 });

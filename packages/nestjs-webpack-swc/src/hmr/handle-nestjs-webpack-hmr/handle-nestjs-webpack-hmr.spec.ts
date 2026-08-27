@@ -12,16 +12,18 @@ describe('handleNestJSWebpackHmr', () => {
         const close = jest.fn(() => Promise.resolve());
         const app = { close } as unknown as INestApplication;
         const accept = jest.fn();
-        const dispose = jest.fn();
+        const captured: { disposeCallback?: () => Promise<void> } = {};
+        const dispose = jest.fn((callback: () => Promise<void>) => {
+            captured.disposeCallback = callback;
+        });
         const webpackModule: HmrModuleInterface = { hot: { accept, dispose } };
 
         handleNestJSWebpackHmr(app, webpackModule);
 
         expect(accept).toHaveBeenCalledTimes(1);
-        expect(dispose).toHaveBeenCalledTimes(1);
+        expect(captured.disposeCallback).toBeDefined();
 
-        const disposeCallback = dispose.mock.calls[0][0] as () => Promise<void>;
-        void disposeCallback();
+        void captured.disposeCallback?.();
 
         expect(close).toHaveBeenCalledTimes(1);
     });
