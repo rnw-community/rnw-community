@@ -108,10 +108,13 @@ from `useScreenChrome`.
 </CollapsibleHeader>
 ```
 
-The header container is sized to `safeAreaInsets.top + config.headerHeight` and reserves the top inset as padding, so
-`config.headerHeight` is always the usable content height regardless of notch or dynamic-island depth. It is the same
-composition `ScreenChromeScrollView` applies to `contentInsetTop`, so passing `contentInsetTop={config.headerHeight}`
-clears the overlay header exactly.
+The header container is sized to `safeAreaInsets.top + config.headerHeight`, and both title layers and the persistent
+control row start at `safeAreaInsets.top`, so `config.headerHeight` is always the usable content height regardless of
+notch or dynamic-island depth. The primitive positions those layers absolutely inside the animated header, so the
+offset is a layer `top` rather than container padding — padding leaves absolute layers resolving against the full
+container box and centers their content over the inset instead of below it. It is the same composition
+`ScreenChromeScrollView` applies to `contentInsetTop`, so passing `contentInsetTop={config.headerHeight}` clears the
+overlay header exactly.
 
 Pass `motion` to override individual per-layer animation windows or transforms derived from config — any key you set
 wins, the rest stay config-driven. This covers app-specific motion (for example an earlier background fade start, or
@@ -407,7 +410,10 @@ positions, colors, and transition ordering are validated. The required threshold
 `collapseStart <= smallTitleStart <= largeTitleEnd <= collapseEnd` with a non-zero collapse interval.
 
 Thresholds are mapped to normalized collapse progress and handed to the generic header as its `motion` config, so
-`smallTitleStart` and `largeTitleEnd` keep their meaning while the transition itself is owned upstream.
+`smallTitleStart` and `largeTitleEnd` keep their meaning while the transition itself is owned upstream. The
+pointer-event and accessibility switch is deliberately left unset so the primitive derives it from the mapped
+cross-fade midpoint, which keeps the interactive, accessibility-exposed title the one that is actually visible for
+every threshold pair.
 
 `snapToCollapse` is forwarded to the generic header's `snap` prop, which snaps the scrollable toward the nearest
 endpoint once a released scroll holds still for three frames — momentum events are never relied on, because a
