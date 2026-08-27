@@ -451,15 +451,18 @@ caller's own overrides object, and non-sharing of nested mask-stop objects betwe
 Fans one instance out to several refs, so a chrome scroll ref can be attached alongside consumer and local refs.
 
 ```tsx
+import { useCollapsibleHeaderScroll } from '@rnw-community/react-native-collapsible-header';
+
 const AnimatedKeyboardAwareScrollView = Animated.createAnimatedComponent(KeyboardAwareScrollView);
-const { scrollRef } = useScreenChrome();
+const { scrollRef } = useCollapsibleHeaderScroll();
 const localRef = useRef<KeyboardAwareScrollView>(null);
 
 <AnimatedKeyboardAwareScrollView ref={mergeRefs(scrollRef, localRef, props.ref)} />;
 ```
 
-Object refs receive the instance on `.current`, function refs are called with it, and `null`/`undefined` entries are
-skipped — including the detach pass React makes with `null`.
+Object refs receive the instance on `.current`, function refs are called with it, and `null`/`undefined` entries in the
+ref list are skipped. On detach React passes `null` as the instance, and that `null` is forwarded to every provided ref
+so none is left holding a stale instance.
 
 ## mergeScrollContentInset
 
