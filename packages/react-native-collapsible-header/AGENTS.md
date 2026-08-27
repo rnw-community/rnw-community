@@ -24,6 +24,7 @@ src/
     collapsible-header.spec.tsx  — rendering, a11y, mode, defaults, and validation coverage
     collapsible-header-motion.spec.tsx — animation, clamping, and interaction coverage
     collapsible-header-accessibility.spec.tsx — pointer-event and accessibility handoff across the cross-fade
+    collapsible-header-hit-testing.spec.tsx — header shell pointer-event defaulting and caller override
   config/
     default-collapsible-header-motion.config.ts — public original-compatible motion preset
     resolve-collapsible-header-motion.config.ts — partial motion override resolution
@@ -83,6 +84,13 @@ src/
 - The package owns header height, background opacity, expanded opacity/translation/scale, collapsed opacity/translation,
   clamping, persistent layer placement, visible-layer pointer events, and visible-layer accessibility focus (the hidden
   transition layer is removed from the accessibility tree).
+- Every layer is transparent to touches it does not own, the height-animated shell included: background `none`,
+  persistent and visible transition layer `box-none`, shell `box-none`. An `auto` shell hit-tests across the whole
+  header rectangle and eats taps meant for the scrollable beneath it — a non-interactive title would then stop
+  dismissing the keyboard through `keyboardShouldPersistTaps`. The shell default lives in `styles.header`, ahead of
+  `headerStyle` in the style array, so a caller-supplied `pointerEvents` wins; the library's animated shell style is
+  merged last but only ever sets `height`. The style channel is deliberate — a `pointerEvents` prop is resolved ahead
+  of the style value, so a prop default could not be overridden by `headerStyle` at all.
 - All layer animations are expressed in normalized progress space via one `useDerivedValue`; the same progress shared
   value is provided to slot content through `useCollapsibleHeaderProgress`.
 - **One provider per scrollable, mounted inside each screen — never once around a navigator.** A provider owns exactly

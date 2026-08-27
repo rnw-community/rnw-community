@@ -35,7 +35,7 @@ const getLayerTestIDs = (testID?: string): CollapsibleHeaderLayerTestIDs =>
 
 const styles = StyleSheet.create({
     background: { position: 'absolute', top: 0, right: 0, bottom: 0, left: 0 },
-    header: { position: 'relative' },
+    header: { position: 'relative', pointerEvents: 'box-none' },
     content: { position: 'absolute', top: 0, right: 0, bottom: 0, left: 0 },
     overlayContainer: { position: 'absolute', top: 0, right: 0, left: 0 },
 });

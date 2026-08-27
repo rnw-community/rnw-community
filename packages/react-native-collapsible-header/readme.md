@@ -127,6 +127,12 @@ offsets after `collapseStart + collapseDistance` to the collapsed state. Only th
 pointer events and accessibility focus — the hidden layer is removed from the accessibility tree, so screen readers
 never announce both layers. Persistent content uses `box-none`.
 
+Every layer is transparent to touches it does not own: the background layer uses `none`, the persistent layer and the
+visible transition layer use `box-none`, and the height-animated shell that hosts them all defaults to `box-none` too,
+so a tap on empty header space reaches the scrollable underneath instead of dying on the header rectangle. Descendants
+stay tappable — `box-none` excludes only the shell itself. Pass `headerStyle={{ pointerEvents: 'auto' }}` to make the
+shell swallow those taps; the caller value wins because `headerStyle` is merged after the default.
+
 Content taller than the shrinking header can paint outside it mid-transition; pass
 `headerStyle={{ overflow: 'hidden' }}` to clip (clipping also cuts shadows, which is why it is not the default).
 

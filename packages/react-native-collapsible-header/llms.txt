@@ -51,6 +51,9 @@ reduce-motion setting: instant instead of animated when it is on.
   midpoint `(collapsedOpacityStartProgress + expandedOpacityEndProgress) / 2`.
 - The invisible layer is removed from the accessibility tree (accessibilityElementsHidden /
   importantForAccessibility='no-hide-descendants' / aria-hidden on web).
+- Every layer is transparent to touches it does not own: background 'none', persistent and visible transition layer
+  'box-none', and the height-animated shell 'box-none' — taps on empty header space reach the scrollable beneath.
+  Descendants stay tappable; headerStyle={{ pointerEvents: 'auto' }} overrides the shell default.
 - Testing-library queries for content in the hidden layer require `{ includeHiddenElements: true }`.
 - When testID is set, layers derive their own: {testID}-background/-header/-expanded/-collapsed/-persistent —
   usable from RNTL, Maestro, or Detox.
