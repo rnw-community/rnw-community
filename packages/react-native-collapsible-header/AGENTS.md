@@ -23,6 +23,7 @@ src/
     collapsible-header.tsx       — public component, layer composition, scroll-source resolution
     collapsible-header.spec.tsx  — rendering, a11y, mode, defaults, and validation coverage
     collapsible-header-motion.spec.tsx — animation, clamping, and interaction coverage
+    collapsible-header-accessibility.spec.tsx — pointer-event and accessibility handoff across the cross-fade
   config/
     default-collapsible-header-motion.config.ts — public original-compatible motion preset
     resolve-collapsible-header-motion.config.ts — partial motion override resolution
@@ -113,7 +114,11 @@ src/
 - `collapseDistance` defaults to `expandedHeight - collapsedHeight`; `collapseStart` is optional, non-negative, and
   defaults to `0`.
 - `motion` is additive and partial; missing fields resolve against `DefaultCollapsibleHeaderMotionConfig` (public)
-  before validation, so omitted options preserve existing behavior.
+  before validation, so omitted options preserve existing behavior. The one derived field is
+  `pointerEventsSwitchProgress`: omitted, it resolves to `(collapsedOpacityStartProgress + expandedOpacityEndProgress) / 2`
+  from the already-resolved thresholds, so pointer events and the accessibility tree never move to a layer that is
+  still transparent. A fixed switch point cannot satisfy that for every threshold pair, and the exported preset keeps
+  its literal `0.5` so spreading it stays byte-compatible.
 - Worklet bodies use plain `=== null` checks — `@rnw-community/shared` guards are not workletized and must not be
   called on the UI runtime.
 - `react`, `react-native`, and `react-native-reanimated` remain peer dependencies. Never bundle a second Reanimated copy.

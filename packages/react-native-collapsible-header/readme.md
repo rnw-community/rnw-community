@@ -259,6 +259,10 @@ The baseline motion preset. Spread it when building named presets so omitted fie
 const subtleMotion = { ...DefaultCollapsibleHeaderMotionConfig, expandedScale: 1, expandedTranslateY: 0 };
 ```
 
+Every field carries the value applied when `motion` is omitted, except `pointerEventsSwitchProgress`: an omitted
+switch progress resolves to the cross-fade midpoint of the thresholds actually in use, while spreading the preset
+passes its `0.5` explicitly.
+
 ## CollapsibleHeaderMotionConfig
 
 Motion progress fields are normalized within the active collapse interval
@@ -270,10 +274,17 @@ to the collapsed endpoint. Omitted `motion` fields use the defaults below, prese
 | `expandedOpacityEndProgress`     | `0.6`   | Progress where expanded content finishes fading from opacity `1` to `0`.     |
 | `collapsedOpacityStartProgress`  | `0.5`   | Progress where collapsed content begins fading from opacity `0` to `1`.      |
 | `backgroundOpacityStartProgress` | `0.7`   | Progress where the background begins fading from opacity `0` to `1`.         |
-| `pointerEventsSwitchProgress`    | `0.5`   | Progress where pointer events and accessibility focus switch between layers. |
+| `pointerEventsSwitchProgress`    | derived | Progress where pointer events and accessibility focus switch between layers. |
 | `expandedTranslateY`             | `-20`   | Expanded content translateY at the collapsed endpoint.                       |
 | `expandedScale`                  | `0.9`   | Expanded content scale at the collapsed endpoint; must be greater than `0`.  |
 | `collapsedTranslateY`            | `10`    | Collapsed content translateY at the fade-in start endpoint.                  |
+
+`pointerEventsSwitchProgress` defaults to the cross-fade midpoint,
+`(collapsedOpacityStartProgress + expandedOpacityEndProgress) / 2`, so the layer that owns pointer events and
+accessibility focus is always the layer the user can actually see. A fixed switch point combined with a late
+`collapsedOpacityStartProgress` hands interaction and the accessibility tree to a layer that is still fully
+transparent, leaving no title exposed for that part of the scroll. Setting the field explicitly wins over the derived
+midpoint; with the default thresholds the derived value is `0.55`.
 
 Opacity progress fields must be between `0` and `1`, and `collapsedOpacityStartProgress` must be less than or equal to
 `expandedOpacityEndProgress`. Translation endpoints must be finite numbers.

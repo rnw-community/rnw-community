@@ -47,6 +47,8 @@ reduce-motion setting: instant instead of animated when it is on.
 - Consumer owns scroll (or delegates to the provider), safe-area, typography, and colors; package owns geometry
   animation, crossfade, pointer-event and accessibility switching between layers, and clamping.
 - Motion thresholds are normalized progress values in [0, 1] over [collapseStart, collapseStart + collapseDistance].
+- Pointer events and accessibility focus switch at `pointerEventsSwitchProgress`, which defaults to the cross-fade
+  midpoint `(collapsedOpacityStartProgress + expandedOpacityEndProgress) / 2`.
 - The invisible layer is removed from the accessibility tree (accessibilityElementsHidden /
   importantForAccessibility='no-hide-descendants' / aria-hidden on web).
 - Testing-library queries for content in the hidden layer require `{ includeHiddenElements: true }`.
