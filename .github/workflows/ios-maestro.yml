@@ -39,11 +39,11 @@ jobs:
             matrix: ${{ steps.affected.outputs.matrix }}
             any: ${{ steps.affected.outputs.any }}
         steps:
-            - uses: actions/checkout@v5
+            - uses: actions/checkout@v7
               with:
                   fetch-depth: 0
                   persist-credentials: false
-            - uses: actions/setup-node@v5
+            - uses: actions/setup-node@v7
               with:
                   node-version: 22.x
                   package-manager-cache: false
@@ -96,14 +96,14 @@ jobs:
 
         steps:
             -   name: Checkout repository
-                uses: actions/checkout@v5
+                uses: actions/checkout@v7
                 timeout-minutes: 10
 
             -   name: Setup pnpm
                 uses: pnpm/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1 # v4
 
             -   name: Setup Node
-                uses: actions/setup-node@v5
+                uses: actions/setup-node@v7
                 timeout-minutes: 10
                 with:
                     node-version: 22.x
@@ -399,7 +399,7 @@ jobs:
 
             -   name: Upload Maestro artifacts
                 if: failure() || (steps.maestro.outcome == 'failure' && steps.simulator.outcome == 'success')
-                uses: actions/upload-artifact@v4
+                uses: actions/upload-artifact@v6
                 timeout-minutes: 5
                 with:
                     name: maestro-ios-${{ matrix.package }}-${{ matrix.target }}

@@ -154,6 +154,6 @@ describe('ScreenChromeProvider context', () => {
             </>
         );
 
-        expect(scrollValues.at(0)?.scrollY).not.toBe(scrollValues.at(-1)?.scrollY);
+        expect(scrollValues[0]?.scrollY).not.toBe(scrollValues[scrollValues.length - 1]?.scrollY);
     });
 });
