@@ -457,6 +457,24 @@ having to restate everything else. Six spec cases pin this: scalar overrides, pe
 sibling scheme, per-edge mask-stop merges that preserve the sibling edge, immutability of the source defaults and the
 caller's own overrides object, and non-sharing of nested mask-stop objects between the merged result and its inputs.
 
+## mergeRefs
+
+Fans one instance out to several refs, so a chrome scroll ref can be attached alongside consumer and local refs.
+
+```tsx
+import { useCollapsibleHeaderScroll } from '@rnw-community/react-native-collapsible-header';
+
+const AnimatedKeyboardAwareScrollView = Animated.createAnimatedComponent(KeyboardAwareScrollView);
+const { scrollRef } = useCollapsibleHeaderScroll();
+const localRef = useRef<KeyboardAwareScrollView>(null);
+
+<AnimatedKeyboardAwareScrollView ref={mergeRefs(scrollRef, localRef, props.ref)} />;
+```
+
+Object refs receive the instance on `.current`, function refs are called with it, and `null`/`undefined` entries in the
+ref list are skipped. On detach React passes `null` as the instance, and that `null` is forwarded to every provided ref
+so none is left holding a stale instance.
+
 ## mergeScrollContentInset
 
 Prepends safe-area and chrome content padding while preserving consumer styles after generated padding.
@@ -467,7 +485,10 @@ const contentContainerStyle = mergeScrollContentInset(insets, 96, 48, { paddingH
 
 ## Public utilities
 
-`mergeScrollContentInset` composes safe-area and caller chrome padding while retaining consumer styles last.
+`mergeRefs` fans one instance out to several refs so the chrome scroll ref can coexist with consumer refs.
+`mergeScrollContentInset` composes safe-area and caller chrome padding while retaining consumer styles last;
+consumer padding is applied after the generated padding, so a consumer `paddingTop` replaces the computed
+safe-area+chrome inset rather than adding to it.
 `useScrollFadeStyle` creates a clamped opacity style from the collapsible-header provider scroll value and therefore
 requires a `ScreenChromeProvider` ancestor.
 
