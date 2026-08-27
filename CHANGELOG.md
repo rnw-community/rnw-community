@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [2.16.0](https://github.com/rnw-community/rnw-community/compare/v2.15.3...v2.16.0) (2026-08-27)
+
+### Features
+
+- **react-native-screen-chrome:** forward per-layer content container styles ([#616](https://github.com/rnw-community/rnw-community/issues/616)) ([8c4fb38](https://github.com/rnw-community/rnw-community/commit/8c4fb38b69267f16cd2f9f980f7d94d050fa68cd))
+
 ## [2.15.3](https://github.com/rnw-community/rnw-community/compare/v2.15.2...v2.15.3) (2026-08-27)
 
 **Note:** Version bump only for package rnw-community
