@@ -1,8 +1,8 @@
 import { RunScriptWebpackPlugin } from 'run-script-webpack-plugin';
 
-import { getNestJSWebpackGenericConfig } from './get-nestjs-webpack-generic.config';
+import { getNestJSWebpackGenericConfig } from '../get-nestjs-webpack-generic/get-nestjs-webpack-generic.config';
 
-import type { Configuration, WebpackPluginInstance } from 'webpack';
+import type { Configuration } from 'webpack';
 import type Webpack from 'webpack';
 
 export const getNestJSWebpackDevConfig = (options: Configuration, webpack: typeof Webpack): Configuration => ({
@@ -10,7 +10,7 @@ export const getNestJSWebpackDevConfig = (options: Configuration, webpack: typeo
     // @ts-expect-error entry type mismatch
     entry: ['webpack/hot/poll?100', options.entry],
     plugins: [
-        ...(options.plugins as WebpackPluginInstance[]),
+        ...(options.plugins ?? []),
         new webpack.HotModuleReplacementPlugin(),
         new webpack.WatchIgnorePlugin({ paths: [/\.js$/u, /\.d\.ts$/u] }),
 

@@ -1,6 +1,6 @@
 import { isDefined } from '@rnw-community/shared';
 
-import type { HmrModuleInterface } from './hmr-module.interface';
+import type { HmrModuleInterface } from '../hmr-module.interface';
 import type { INestApplication, INestMicroservice } from '@nestjs/common';
 
 /**
