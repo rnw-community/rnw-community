@@ -1,6 +1,6 @@
 {
     "name": "@rnw-community/react-native-screen-chrome",
-    "version": "2.17.0",
+    "version": "2.17.1",
     "description": "Composable scroll-driven screen chrome for React Native and React Native Web",
     "keywords": [
         "react",
