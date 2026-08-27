@@ -1,6 +1,6 @@
 import { describe, expect, it, jest } from '@jest/globals';
 
-import { MockElement, mockDefaultConfig, mockElement } from '../element.mock';
+import { MockElementPromise, mockDefaultConfig, mockElement } from '../element.mock';
 import { SelectorElement } from '../selector-element/selector-element';
 
 import { RootedComponentSelectorsMock } from './mocks/rooted-component-selectors.mock';
@@ -104,7 +104,7 @@ describe('RootedComponent', () => {
             RootedComponentSelectorsMock.Root
         );
 
-        const el = MockElement.resolve(mockElement) as unknown as ChainablePromiseElement;
+        const el = MockElementPromise.resolve(mockElement) as unknown as ChainablePromiseElement;
         const elementMethodSpy = jest.spyOn(el, 'click');
 
         const getRootElSpy = jest.spyOn(rootedComponent, 'RootEl', 'get');
@@ -131,7 +131,7 @@ describe('RootedComponent', () => {
         );
     });
 
-    it('should throw error on accessing not existing selector element/wdio element property', () => {
+    it('throws a TypeError accessing a method missing from both selectors and the root element', () => {
         expect.assertions(1);
 
         const component = new RootedComponent(

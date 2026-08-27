@@ -6,7 +6,7 @@ import { RootedComponentSelectorsMock } from '../mocks/rooted-component-selector
 import { RootedComponentMock } from '../mocks/rooted-component.mock';
 
 describe('getRootedComponent', () => {
-    it('should call parent RootedComponent methods', async () => {
+    it('exposes inherited RootedComponent element methods on getRootedComponent instances', async () => {
         expect.assertions(1);
 
         const component = new RootedComponentMock(RootedComponentSelectorsMock.Root);
@@ -16,7 +16,7 @@ describe('getRootedComponent', () => {
         expect(mockDefaultConfig.elSelectorFn).toHaveBeenNthCalledWith(1, RootedComponentSelectorsMock.Root);
     });
 
-    it('can have default root selector from the selectors enum', async () => {
+    it('falls back to the Root selector from the selectors enum when getRootedComponent gets no root argument', async () => {
         expect.assertions(1);
 
         const component = new DefaultRootRootedComponentMock();
