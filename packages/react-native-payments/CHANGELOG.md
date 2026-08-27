@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.15.2](https://github.com/rnw-community/rnw-community/compare/v2.15.1...v2.15.2) (2026-08-27)
+
+### Bug Fixes
+
+- **react-native-payments:** type AndroidIntermediateSigningKey.signatures as string[] ([#612](https://github.com/rnw-community/rnw-community/issues/612)) ([6770310](https://github.com/rnw-community/rnw-community/commit/67703106be6053abdd0a3228db4d91fbfe8d995d))
+
 # [2.15.0](https://github.com/rnw-community/rnw-community/compare/v2.14.1...v2.15.0) (2026-08-26)
 
 **Note:** Version bump only for package @rnw-community/react-native-payments
