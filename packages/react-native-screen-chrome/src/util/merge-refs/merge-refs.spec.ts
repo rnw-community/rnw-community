@@ -6,7 +6,7 @@ import type { MutableRefObject, Ref } from 'react';
 
 describe('mergeRefs', () => {
     it('assigns the instance to every object ref it is given', () => {
-        expect.assertions(2);
+        expect.hasAssertions();
 
         const first: MutableRefObject<string | null> = { current: null };
         const second: MutableRefObject<string | null> = { current: null };
@@ -18,7 +18,7 @@ describe('mergeRefs', () => {
     });
 
     it('calls every function ref it is given with the instance', () => {
-        expect.assertions(2);
+        expect.hasAssertions();
 
         const first = jest.fn<(instance: string | null) => void>();
         const second = jest.fn<(instance: string | null) => void>();
@@ -30,7 +30,7 @@ describe('mergeRefs', () => {
     });
 
     it('fans a single instance out to mixed function and object refs together', () => {
-        expect.assertions(2);
+        expect.hasAssertions();
 
         const callback = jest.fn<(instance: string | null) => void>();
         const object: MutableRefObject<string | null> = { current: null };
@@ -42,17 +42,44 @@ describe('mergeRefs', () => {
     });
 
     it('skips null and undefined refs instead of throwing', () => {
-        expect.assertions(2);
+        expect.hasAssertions();
 
         const object: MutableRefObject<string | null> = { current: null };
-        const refs: Ref<string>[] = [null, object];
+        const refs: (Ref<string> | undefined)[] = [null, void 0, object];
+        const cleanup = mergeRefs<string>(...refs)('instance');
 
-        expect(() => mergeRefs<string>(...refs)('instance')).not.toThrow();
         expect(object.current).toBe('instance');
+        expect(() => cleanup?.()).not.toThrow();
+        expect(object.current).toBeNull();
     });
 
-    it('propagates the detach null to every ref when React clears the callback', () => {
-        expect.assertions(2);
+    it('detaches refs that returned no cleanup by clearing them from the returned cleanup', () => {
+        expect.hasAssertions();
+
+        const callback = jest.fn<(instance: string | null) => void>();
+        const object: MutableRefObject<string | null> = { current: null };
+
+        mergeRefs<string>(callback, object)('instance')?.();
+
+        expect(callback).toHaveBeenLastCalledWith(null);
+        expect(object.current).toBeNull();
+    });
+
+    it('runs a child ref cleanup instead of detaching that ref with null', () => {
+        expect.hasAssertions();
+
+        const cleanup = jest.fn();
+        const callback = jest.fn<(instance: string | null) => () => void>(() => cleanup);
+
+        mergeRefs<string>(callback)('instance')?.();
+
+        expect(cleanup).toHaveBeenCalledTimes(1);
+        expect(callback).toHaveBeenCalledTimes(1);
+        expect(callback).not.toHaveBeenCalledWith(null);
+    });
+
+    it('propagates the detach null to every ref when React clears the callback directly', () => {
+        expect.hasAssertions();
 
         const callback = jest.fn<(instance: string | null) => void>();
         const object: MutableRefObject<string | null> = { current: 'instance' };
