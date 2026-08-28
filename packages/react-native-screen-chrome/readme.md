@@ -463,6 +463,7 @@ Fans one instance out to several refs, so a chrome scroll ref can be attached al
 
 ```tsx
 import { useCollapsibleHeaderScroll } from '@rnw-community/react-native-collapsible-header';
+import { mergeRefs } from '@rnw-community/react-native-screen-chrome';
 
 const AnimatedKeyboardAwareScrollView = Animated.createAnimatedComponent(KeyboardAwareScrollView);
 const { scrollRef } = useCollapsibleHeaderScroll();
@@ -472,8 +473,9 @@ const localRef = useRef<KeyboardAwareScrollView>(null);
 ```
 
 Object refs receive the instance on `.current`, function refs are called with it, and `null`/`undefined` entries in the
-ref list are skipped. On detach React passes `null` as the instance, and that `null` is forwarded to every provided ref
-so none is left holding a stale instance.
+ref list are skipped. Detach is handled both ways React 19 can request it: the returned cleanup runs each child ref's
+own cleanup where one was returned and clears the rest, and calling the merged callback with `null` directly forwards
+that `null` to every ref — so no ref is left holding a stale instance and no child cleanup is dropped.
 
 ## mergeScrollContentInset
 
