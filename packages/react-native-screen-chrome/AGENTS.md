@@ -35,10 +35,16 @@ pnpm test && pnpm test:coverage && pnpm build && pnpm ts && pnpm ts:nodenext && 
 - `snapToCollapse` only takes effect while a `CollapsibleHeader` is mounted: the header registers the snap geometry
   with the provider. Reduced-motion-aware snapping is upstream scope, not a local reimplementation.
 - Native peer dependencies remain external so applications own native versions and linking.
-- `CollapsibleHeader` sizes the generic header container to `safeAreaInsets.top + config.headerHeight` and reserves the
-  inset as `paddingTop`. The generic primitive positions its content layers inside that padding, so leaving the inset
-  out of `expandedHeight`/`collapsedHeight` compresses the title and controls to whatever the notch does not consume.
-  It is the same composition `mergeScrollContentInset` applies, which keeps overlay content padding aligned.
+- `CollapsibleHeader` sizes the generic header container to `safeAreaInsets.top + config.headerHeight` and offsets every
+  content layer by `top: safeAreaInsets.top`. Leaving the inset out of `expandedHeight`/`collapsedHeight` compresses the
+  title and controls to whatever the notch does not consume, and `paddingTop` on `headerStyle` does not move them at
+  all: the primitive renders the expanded, collapsed, and persistent layers as `position: absolute` boxes with inset
+  `0`, which resolve against the container box and ignore its padding, centering the content over the inset band. The
+  container height is the same composition `mergeScrollContentInset` applies, which keeps overlay content padding
+  aligned.
+- The generic `motion` mapping omits `pointerEventsSwitchProgress` on purpose so the primitive derives it from the
+  cross-fade midpoint of the mapped `smallTitleStart`/`largeTitleEnd` windows; pinning it to a fixed progress hands
+  pointer events and the accessibility tree to a title layer that is still transparent.
 - The `expo-blur` peer floor is `>=55`: `blurMethod` and the `BlurMethod` type only exist from that release (it renamed
   `experimentalBlurMethod`), and the same release made `dimezisBlurView` require a `BlurTargetView`. `EdgeFade`
   therefore defaults `blurMethod` from `blurTarget` presence rather than hard-coding a targeted method.

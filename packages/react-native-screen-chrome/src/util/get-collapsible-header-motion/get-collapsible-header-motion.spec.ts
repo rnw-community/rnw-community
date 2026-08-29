@@ -17,7 +17,6 @@ describe('getCollapsibleHeaderMotion', () => {
             expandedOpacityEndProgress: 0.75,
             collapsedOpacityStartProgress: 0.5,
             backgroundOpacityStartProgress: 1,
-            pointerEventsSwitchProgress: 0.5,
             expandedTranslateY: 0,
             expandedScale: 1,
             collapsedTranslateY: 0,
@@ -37,6 +36,12 @@ describe('getCollapsibleHeaderMotion', () => {
 
         expect(motion.collapsedOpacityStartProgress).toBe(0.2);
         expect(motion.expandedOpacityEndProgress).toBe(0.6);
+    });
+
+    it('leaves the pointer-event and accessibility switch to the derived cross-fade midpoint', () => {
+        expect.hasAssertions();
+
+        expect(getCollapsibleHeaderMotion(SCREEN_CHROME_DEFAULT_CONFIG)).not.toHaveProperty('pointerEventsSwitchProgress');
     });
 
     it('keeps title layers free of endpoint translation and scaling', () => {
