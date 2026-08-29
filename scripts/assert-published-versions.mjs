@@ -9,8 +9,18 @@ const readManifest = pkg => {
     return fs.existsSync(manifestPath) ? JSON.parse(fs.readFileSync(manifestPath, 'utf8')) : null;
 };
 
+const REGISTRY_TIMEOUT_MS = 15000;
+
 const fetchLatest = async name => {
-    const response = await fetch(`https://registry.npmjs.org/${encodeURIComponent(name)}`);
+    let response;
+
+    try {
+        response = await fetch(`https://registry.npmjs.org/${encodeURIComponent(name)}`, {
+            signal: AbortSignal.timeout(REGISTRY_TIMEOUT_MS),
+        });
+    } catch (error) {
+        throw new Error(`registry lookup for ${name} failed: ${error.message}`);
+    }
 
     if (response.status === 404) {
         return null;

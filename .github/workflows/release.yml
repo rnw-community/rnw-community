@@ -29,6 +29,11 @@ jobs:
     name: Publish a release
     timeout-minutes: 15
     runs-on: ubuntu-latest
+    # A manual from-package recovery must never overlap a push-triggered release: two concurrent
+    # lerna runs would race on tags and publishes. Never cancel a run that may be mid-publish.
+    concurrency:
+      group: release-${{ github.repository }}
+      cancel-in-progress: false
     permissions:
       # Required for npm provenance attestations.
       id-token: write
@@ -77,6 +82,7 @@ jobs:
           token: ${{ secrets.CODECOV_TOKEN }}
 
       - name: Publish a release
+        id: publish
         if: github.event_name == 'push' || inputs.mode == 'conventional'
         env:
           GH_TOKEN: ${{ secrets.GH_PAT_TOKEN }}
@@ -84,11 +90,18 @@ jobs:
         run: pnpm release
 
       - name: Publish packages missing from the registry
+        id: publish-from-package
         if: github.event_name == 'workflow_dispatch' && inputs.mode == 'from-package'
         env:
           GH_TOKEN: ${{ secrets.GH_PAT_TOKEN }}
           NPM_CONFIG_PROVENANCE: true
         run: pnpm release:from-package
 
+      # Runs whenever a publish was attempted, including when it failed: a failed or partial publish is
+      # exactly the case this assertion exists to report. Stays skipped when an earlier build or test
+      # step failed, because both publish steps are skipped then too.
       - name: Verify every public package matches the registry
+        if: >-
+          !cancelled()
+          && (steps.publish.outcome != 'skipped' || steps.publish-from-package.outcome != 'skipped')
         run: node scripts/assert-published-versions.mjs
