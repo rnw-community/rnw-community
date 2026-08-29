@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, jest } from '@jest/globals';
+import { afterEach, beforeEach, describe, expect, it, jest } from '@jest/globals';
 import { render } from '@testing-library/react-native';
 import React from 'react';
 import { StyleSheet, Text } from 'react-native';
@@ -15,7 +15,9 @@ import { CollapsibleHeader } from './collapsible-header';
 import type { StyleProp, ViewStyle } from 'react-native';
 
 const mockConfig = { ...SCREEN_CHROME_DEFAULT_CONFIG, snapToCollapse: true };
-const mockTopInset = 59;
+const DEVICE_TOP_INSET = 59;
+const NO_TOP_INSET = 0;
+let mockTopInset = DEVICE_TOP_INSET;
 
 jest.mock('@rnw-community/react-native-collapsible-header', () => ({ CollapsibleHeader: jest.fn(() => null) }));
 jest.mock('react-native-safe-area-context', () => ({
@@ -104,12 +106,10 @@ describe('CollapsibleHeader', () => {
                 collapsedHeight: mockTopInset + mockConfig.headerHeight,
                 collapseStart: mockConfig.collapseStart,
                 collapseDistance: mockConfig.collapseEnd - mockConfig.collapseStart,
-                headerStyle: { paddingTop: mockTopInset },
                 motion: {
                     expandedOpacityEndProgress: 0.75,
                     collapsedOpacityStartProgress: 0.5,
                     backgroundOpacityStartProgress: 1,
-                    pointerEventsSwitchProgress: 0.5,
                     expandedTranslateY: 0,
                     expandedScale: 1,
                     collapsedTranslateY: 0,
@@ -120,15 +120,19 @@ describe('CollapsibleHeader', () => {
         expect(controls.getAllByText('Menu')).toHaveLength(1);
     });
 
-    it('reserves the configured content height above the safe-area top inset', () => {
+    it('starts every content layer below the safe-area top inset', () => {
         expect.hasAssertions();
 
         const props = renderDelegatedProps();
-        const headerPaddingTop = Number(StyleSheet.flatten(props.headerStyle).paddingTop);
+        const expandedTop = Number(StyleSheet.flatten(props.expandedContentContainerStyle).top);
+        const collapsedTop = Number(StyleSheet.flatten(props.collapsedContentContainerStyle).top);
+        const persistentTop = Number(StyleSheet.flatten(props.persistentContentContainerStyle).top);
 
-        expect(headerPaddingTop).toBe(mockTopInset);
-        expect(props.expandedHeight - headerPaddingTop).toBe(mockConfig.headerHeight);
-        expect(props.collapsedHeight - headerPaddingTop).toBe(mockConfig.headerHeight);
+        expect(expandedTop).toBe(mockTopInset);
+        expect(collapsedTop).toBe(mockTopInset);
+        expect(persistentTop).toBe(mockTopInset);
+        expect(props.expandedHeight - expandedTop).toBe(mockConfig.headerHeight);
+        expect(props.collapsedHeight - collapsedTop).toBe(mockConfig.headerHeight);
     });
 
     it('lets the motion override win over derived windows while the rest stays config-driven', () => {
@@ -140,7 +144,6 @@ describe('CollapsibleHeader', () => {
             expandedOpacityEndProgress: 0.75,
             collapsedOpacityStartProgress: 0.5,
             backgroundOpacityStartProgress: 0.7,
-            pointerEventsSwitchProgress: 0.5,
             expandedTranslateY: 0,
             expandedScale: 0.9,
             collapsedTranslateY: 0,
@@ -186,13 +189,15 @@ describe('CollapsibleHeader content container styles', () => {
             alignItems: 'center',
             justifyContent: 'center',
             paddingHorizontal: 72,
+            top: mockTopInset,
         });
         expect(StyleSheet.flatten(props.collapsedContentContainerStyle)).toEqual({
             alignItems: 'center',
             justifyContent: 'center',
             paddingHorizontal: 72,
+            top: mockTopInset,
         });
-        expect(props.persistentContentContainerStyle).toBeUndefined();
+        expect(StyleSheet.flatten(props.persistentContentContainerStyle)).toEqual({ top: mockTopInset });
     });
 
     it('lets a consumer container style override the derived title layer for a left-aligned large title', () => {
@@ -214,6 +219,31 @@ describe('CollapsibleHeader content container styles', () => {
 
         const props = renderWithContainerStyles({ persistentContentContainerStyle: { paddingHorizontal: 8 } });
 
-        expect(StyleSheet.flatten(props.persistentContentContainerStyle)).toEqual({ paddingHorizontal: 8 });
+        expect(StyleSheet.flatten(props.persistentContentContainerStyle)).toEqual({
+            paddingHorizontal: 8,
+            top: mockTopInset,
+        });
+    });
+});
+
+describe('CollapsibleHeader without a safe-area top inset', () => {
+    beforeEach(() => {
+        jest.mocked(GenericCollapsibleHeader).mockClear();
+        mockTopInset = NO_TOP_INSET;
+    });
+
+    afterEach(() => {
+        mockTopInset = DEVICE_TOP_INSET;
+    });
+
+    it('keeps the content layers flush with the header container', () => {
+        expect.hasAssertions();
+
+        const props = renderDelegatedProps();
+
+        expect(props.expandedHeight).toBe(mockConfig.headerHeight);
+        expect(StyleSheet.flatten(props.expandedContentContainerStyle).top).toBe(NO_TOP_INSET);
+        expect(StyleSheet.flatten(props.collapsedContentContainerStyle).top).toBe(NO_TOP_INSET);
+        expect(StyleSheet.flatten(props.persistentContentContainerStyle).top).toBe(NO_TOP_INSET);
     });
 });

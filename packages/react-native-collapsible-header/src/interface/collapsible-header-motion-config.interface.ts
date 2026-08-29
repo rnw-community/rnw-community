@@ -20,7 +20,7 @@ export interface CollapsibleHeaderMotionConfig {
     readonly backgroundOpacityStartProgress: number;
     /**
      * Progress where pointer events and accessibility focus move from expanded to collapsed content.
-     * @defaultValue `0.5`
+     * @defaultValue `(collapsedOpacityStartProgress + expandedOpacityEndProgress) / 2`
      */
     readonly pointerEventsSwitchProgress: number;
     /**

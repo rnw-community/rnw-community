@@ -23,6 +23,8 @@ src/
     collapsible-header.tsx       — public component, layer composition, scroll-source resolution
     collapsible-header.spec.tsx  — rendering, a11y, mode, defaults, and validation coverage
     collapsible-header-motion.spec.tsx — animation, clamping, and interaction coverage
+    collapsible-header-accessibility.spec.tsx — pointer-event and accessibility handoff across the cross-fade
+    collapsible-header-hit-testing.spec.tsx — header shell pointer-event defaulting and caller override
   config/
     default-collapsible-header-motion.config.ts — public original-compatible motion preset
     resolve-collapsible-header-motion.config.ts — partial motion override resolution
@@ -82,6 +84,13 @@ src/
 - The package owns header height, background opacity, expanded opacity/translation/scale, collapsed opacity/translation,
   clamping, persistent layer placement, visible-layer pointer events, and visible-layer accessibility focus (the hidden
   transition layer is removed from the accessibility tree).
+- Every layer is transparent to touches it does not own, the height-animated shell included: background `none`,
+  persistent and visible transition layer `box-none`, shell `box-none`. An `auto` shell hit-tests across the whole
+  header rectangle and eats taps meant for the scrollable beneath it — a non-interactive title would then stop
+  dismissing the keyboard through `keyboardShouldPersistTaps`. The shell default lives in `styles.header`, ahead of
+  `headerStyle` in the style array, so a caller-supplied `pointerEvents` wins; the library's animated shell style is
+  merged last but only ever sets `height`. The style channel is deliberate — a `pointerEvents` prop is resolved ahead
+  of the style value, so a prop default could not be overridden by `headerStyle` at all.
 - All layer animations are expressed in normalized progress space via one `useDerivedValue`; the same progress shared
   value is provided to slot content through `useCollapsibleHeaderProgress`.
 - **One provider per scrollable, mounted inside each screen — never once around a navigator.** A provider owns exactly
@@ -113,7 +122,14 @@ src/
 - `collapseDistance` defaults to `expandedHeight - collapsedHeight`; `collapseStart` is optional, non-negative, and
   defaults to `0`.
 - `motion` is additive and partial; missing fields resolve against `DefaultCollapsibleHeaderMotionConfig` (public)
-  before validation, so omitted options preserve existing behavior.
+  before validation, so omitted options preserve existing behavior. The one derived field is
+  `pointerEventsSwitchProgress`: omitted, it resolves to `(collapsedOpacityStartProgress + expandedOpacityEndProgress) / 2`
+  from the already-resolved thresholds, so pointer events and the accessibility tree never move to a layer that is
+  still transparent. A fixed switch point cannot satisfy that for every threshold pair, and the exported preset keeps
+  its literal `0.5` so spreading it stays byte-compatible. The derived midpoint alone is not sufficient either: for
+  equal or inverted thresholds it lands exactly where the expanded layer reaches zero opacity, so
+  `useCollapsibleHeaderAnimatedLayers` additionally requires the expanded layer to still be painted before it may own
+  hit testing or the accessibility tree — one `expandedOwnsInteraction` derived value feeds both, keeping them in sync.
 - Worklet bodies use plain `=== null` checks — `@rnw-community/shared` guards are not workletized and must not be
   called on the UI runtime.
 - `react`, `react-native`, and `react-native-reanimated` remain peer dependencies. Never bundle a second Reanimated copy.

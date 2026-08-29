@@ -39,6 +39,7 @@ export const CollapsibleHeader = ({
     const insets = useSafeAreaInsets();
     const { leading, expandedTitle, collapsedTitle, trailing } = getCollapsibleHeaderSlots(children);
     const containerHeight = insets.top + config.headerHeight;
+    const contentLayerStyle = { top: insets.top };
     const persistentContent = (
         <View style={collapsibleHeaderStyles.persistentRow} pointerEvents="box-none">
             {leading}
@@ -61,10 +62,17 @@ export const CollapsibleHeader = ({
             collapsedContent={collapsedTitle}
             persistentContent={persistentContent}
             motion={{ ...getCollapsibleHeaderMotion(config), ...motion }}
-            headerStyle={{ paddingTop: insets.top }}
-            expandedContentContainerStyle={[collapsibleHeaderStyles.titleLayer, expandedContentContainerStyle]}
-            collapsedContentContainerStyle={[collapsibleHeaderStyles.titleLayer, collapsedContentContainerStyle]}
-            persistentContentContainerStyle={persistentContentContainerStyle}
+            expandedContentContainerStyle={[
+                collapsibleHeaderStyles.titleLayer,
+                contentLayerStyle,
+                expandedContentContainerStyle,
+            ]}
+            collapsedContentContainerStyle={[
+                collapsibleHeaderStyles.titleLayer,
+                contentLayerStyle,
+                collapsedContentContainerStyle,
+            ]}
+            persistentContentContainerStyle={[contentLayerStyle, persistentContentContainerStyle]}
         />
     );
 };
