@@ -126,7 +126,10 @@ src/
   `pointerEventsSwitchProgress`: omitted, it resolves to `(collapsedOpacityStartProgress + expandedOpacityEndProgress) / 2`
   from the already-resolved thresholds, so pointer events and the accessibility tree never move to a layer that is
   still transparent. A fixed switch point cannot satisfy that for every threshold pair, and the exported preset keeps
-  its literal `0.5` so spreading it stays byte-compatible.
+  its literal `0.5` so spreading it stays byte-compatible. The derived midpoint alone is not sufficient either: for
+  equal or inverted thresholds it lands exactly where the expanded layer reaches zero opacity, so
+  `useCollapsibleHeaderAnimatedLayers` additionally requires the expanded layer to still be painted before it may own
+  hit testing or the accessibility tree — one `expandedOwnsInteraction` derived value feeds both, keeping them in sync.
 - Worklet bodies use plain `=== null` checks — `@rnw-community/shared` guards are not workletized and must not be
   called on the UI runtime.
 - `react`, `react-native`, and `react-native-reanimated` remain peer dependencies. Never bundle a second Reanimated copy.

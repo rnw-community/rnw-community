@@ -289,7 +289,10 @@ to the collapsed endpoint. Omitted `motion` fields use the defaults below, prese
 `(collapsedOpacityStartProgress + expandedOpacityEndProgress) / 2`, so the layer that owns pointer events and
 accessibility focus is always the layer the user can actually see. A fixed switch point combined with a late
 `collapsedOpacityStartProgress` hands interaction and the accessibility tree to a layer that is still fully
-transparent, leaving no title exposed for that part of the scroll. Setting the field explicitly wins over the derived
+transparent, leaving no title exposed for that part of the scroll. When the two fades do not overlap — equal or
+inverted thresholds, so the derived midpoint lands exactly where the expanded layer reaches zero opacity — the
+expanded layer stops owning interaction at that point and the collapsed layer takes over, so the guarantee holds for
+every threshold pair rather than only for overlapping cross-fades. Setting the field explicitly wins over the derived
 midpoint; with the default thresholds the derived value is `0.55`.
 
 Opacity progress fields must be between `0` and `1`, and `collapsedOpacityStartProgress` must be less than or equal to

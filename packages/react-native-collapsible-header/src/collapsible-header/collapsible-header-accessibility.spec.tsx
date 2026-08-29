@@ -22,6 +22,16 @@ const AFTER_LATE_CROSS_FADE_SWITCH_SCROLL_OFFSET = 63;
 const PAST_COLLAPSE_INTERVAL_MIDPOINT_SCROLL_OFFSET = 51;
 const DEFAULT_CROSS_FADE_SWITCH_SCROLL_OFFSET = 55;
 const AFTER_DEFAULT_CROSS_FADE_SWITCH_SCROLL_OFFSET = 56;
+const HARD_CUT_AT_END_MOTION: Partial<CollapsibleHeaderMotionConfig> = {
+    expandedOpacityEndProgress: 1,
+    collapsedOpacityStartProgress: 1,
+};
+const HARD_CUT_MIDWAY_MOTION: Partial<CollapsibleHeaderMotionConfig> = {
+    expandedOpacityEndProgress: 0.5,
+    collapsedOpacityStartProgress: 0.5,
+};
+const COLLAPSED_ENDPOINT_SCROLL_OFFSET = 100;
+const HARD_CUT_MIDWAY_SCROLL_OFFSET = 50;
 
 type SubjectProps = Partial<Pick<CollapsibleHeaderProps, 'motion'>> & {
     readonly scrollOffset?: number;
@@ -135,5 +145,42 @@ describe('CollapsibleHeader accessibility handoff', () => {
         expect(getLayerStyle('expanded').pointerEvents).toBe('none');
         expect(getLayerStyle('collapsed').pointerEvents).toBe('box-none');
         expect(getLayerAccessibility('collapsed')).toMatchObject({ accessibilityElementsHidden: false });
+    });
+});
+
+describe('CollapsibleHeader interaction ownership without a cross-fade window', () => {
+
+    it.each([
+        {
+            name: 'both fades end at the collapsed endpoint',
+            motion: HARD_CUT_AT_END_MOTION,
+            scrollOffset: COLLAPSED_ENDPOINT_SCROLL_OFFSET,
+        },
+        {
+            name: 'both fades meet midway',
+            motion: HARD_CUT_MIDWAY_MOTION,
+            scrollOffset: HARD_CUT_MIDWAY_SCROLL_OFFSET,
+        },
+    ])('hands interaction to the collapsed layer once the expanded layer is fully faded, when $name', ({
+        motion,
+        scrollOffset,
+    }) => {
+        expect.hasAssertions();
+        render(<Subject scrollOffset={scrollOffset} motion={motion} />);
+
+        expect(getLayerStyle('expanded').opacity).toBe(0);
+        expect(getLayerStyle('expanded').pointerEvents).toBe('none');
+        expect(getLayerStyle('collapsed').pointerEvents).toBe('box-none');
+        expect(getLayerAccessibility('expanded')).toMatchObject({ accessibilityElementsHidden: true });
+        expect(getLayerAccessibility('collapsed')).toMatchObject({ accessibilityElementsHidden: false });
+    });
+
+    it('keeps the visible expanded layer interactive right up to the point it fades out', () => {
+        expect.hasAssertions();
+        render(<Subject scrollOffset={HARD_CUT_MIDWAY_SCROLL_OFFSET - 1} motion={HARD_CUT_MIDWAY_MOTION} />);
+
+        expect(getLayerStyle('expanded').opacity).toBeGreaterThan(0);
+        expect(getLayerStyle('expanded').pointerEvents).toBe('box-none');
+        expect(getLayerStyle('collapsed').pointerEvents).toBe('none');
     });
 });

@@ -49,6 +49,8 @@ reduce-motion setting: instant instead of animated when it is on.
 - Motion thresholds are normalized progress values in [0, 1] over [collapseStart, collapseStart + collapseDistance].
 - Pointer events and accessibility focus switch at `pointerEventsSwitchProgress`, which defaults to the cross-fade
   midpoint `(collapsedOpacityStartProgress + expandedOpacityEndProgress) / 2`.
+- The expanded layer never owns pointer events or accessibility focus once it has faded to zero opacity, even when the
+  configured thresholds leave no cross-fade window for the derived midpoint to sit inside.
 - The invisible layer is removed from the accessibility tree (accessibilityElementsHidden /
   importantForAccessibility='no-hide-descendants' / aria-hidden on web).
 - Every layer is transparent to touches it does not own: background 'none', persistent and visible transition layer
