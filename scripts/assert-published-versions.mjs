@@ -10,7 +10,7 @@ const readManifest = pkg => {
 };
 
 const fetchLatest = async name => {
-    const response = await fetch(`https://registry.npmjs.org/${name.replace('/', '%2F')}`);
+    const response = await fetch(`https://registry.npmjs.org/${encodeURIComponent(name)}`);
 
     if (response.status === 404) {
         return null;
