@@ -3,6 +3,18 @@ on:
   push:
     branches:
       - master
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: >-
+          conventional = version + publish changed packages (the push default).
+          from-package = publish any package whose version is already tagged but missing from the registry,
+          for recovering a run that versioned successfully and then failed to publish.
+        type: choice
+        options:
+          - conventional
+          - from-package
+        default: conventional
 
 permissions:
   id-token: write
@@ -65,7 +77,18 @@ jobs:
           token: ${{ secrets.CODECOV_TOKEN }}
 
       - name: Publish a release
+        if: github.event_name == 'push' || inputs.mode == 'conventional'
         env:
           GH_TOKEN: ${{ secrets.GH_PAT_TOKEN }}
           NPM_CONFIG_PROVENANCE: true
         run: pnpm release
+
+      - name: Publish packages missing from the registry
+        if: github.event_name == 'workflow_dispatch' && inputs.mode == 'from-package'
+        env:
+          GH_TOKEN: ${{ secrets.GH_PAT_TOKEN }}
+          NPM_CONFIG_PROVENANCE: true
+        run: pnpm release:from-package
+
+      - name: Verify every public package matches the registry
+        run: node scripts/assert-published-versions.mjs
