@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.17.3](https://github.com/rnw-community/rnw-community/compare/v2.17.2...v2.17.3) (2026-08-29)
+
+### Bug Fixes
+
+- collapsible header safe-area layout, accessibility handoff, and shell hit testing ([#620](https://github.com/rnw-community/rnw-community/issues/620)) ([ac84c8c](https://github.com/rnw-community/rnw-community/commit/ac84c8c20b881d098479121e85f45cad76eae6fa)), closes [#619](https://github.com/rnw-community/rnw-community/issues/619) [#618](https://github.com/rnw-community/rnw-community/issues/618) [#621](https://github.com/rnw-community/rnw-community/issues/621)
+
 ## [2.15.1](https://github.com/rnw-community/rnw-community/compare/v2.15.0...v2.15.1) (2026-08-26)
 
 ### Bug Fixes
