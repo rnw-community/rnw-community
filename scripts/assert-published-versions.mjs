@@ -10,6 +10,13 @@ const readManifest = pkg => {
 };
 
 const REGISTRY_TIMEOUT_MS = 15000;
+// npm serves dist-tags through a CDN, so a just-published version is not visible immediately: the
+// assertion that runs seconds after a successful publish would otherwise read the previous version
+// and fail a release that actually worked. Real drift persists, so it survives every retry.
+const PROPAGATION_ATTEMPTS = 8;
+const PROPAGATION_DELAY_MS = 10000;
+
+const wait = ms => new Promise(resolve => setTimeout(resolve, ms));
 
 const fetchLatest = async name => {
     let response;
@@ -38,15 +45,34 @@ const manifests = fs
     .map(readManifest)
     .filter(manifest => manifest !== null && manifest.private !== true);
 
-const drifted = [];
+const findDrift = async candidates => {
+    const drift = [];
 
-for (const manifest of manifests) {
-    const latest = await fetchLatest(manifest.name);
+    for (const manifest of candidates) {
+        const latest = await fetchLatest(manifest.name);
 
-    if (latest !== manifest.version) {
-        drifted.push(`${manifest.name}: repo ${manifest.version}, registry ${latest ?? '(unpublished)'}`);
+        if (latest !== manifest.version) {
+            drift.push({ manifest, latest });
+        }
     }
+
+    return drift;
+};
+
+let pending = await findDrift(manifests);
+
+for (let attempt = 1; attempt < PROPAGATION_ATTEMPTS && pending.length > 0; attempt += 1) {
+    console.log(
+        `${pending.length} package(s) not visible yet, re-checking in ${PROPAGATION_DELAY_MS / 1000}s ` +
+            `(attempt ${attempt + 1}/${PROPAGATION_ATTEMPTS})`
+    );
+    await wait(PROPAGATION_DELAY_MS);
+    pending = await findDrift(pending.map(entry => entry.manifest));
 }
+
+const drifted = pending.map(
+    ({ manifest, latest }) => `${manifest.name}: repo ${manifest.version}, registry ${latest ?? '(unpublished)'}`
+);
 
 if (drifted.length > 0) {
     console.error('Published versions do not match the repository:');
