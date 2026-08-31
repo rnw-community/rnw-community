@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [2.18.0](https://github.com/rnw-community/rnw-community/compare/v2.17.3...v2.18.0) (2026-08-31)
+
+### Features
+
+- **react-native-collapsible-header:** opt-in native scroll offset sync ([#628](https://github.com/rnw-community/rnw-community/issues/628)) ([27fc1b6](https://github.com/rnw-community/rnw-community/commit/27fc1b6254450e315ac992e342a4d4220bdef3c3))
+
 ## [2.17.3](https://github.com/rnw-community/rnw-community/compare/v2.17.2...v2.17.3) (2026-08-29)
 
 ### Bug Fixes
