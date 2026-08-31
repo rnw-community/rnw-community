@@ -51,7 +51,10 @@ pnpm test && pnpm test:coverage && pnpm build && pnpm ts && pnpm ts:nodenext && 
 - Configuration is validated during provider render, before any chrome component reads it.
 - React 19-only syntax (`use()`) stays absent while the `react` peer floor is `>=18`.
 - Relative source imports stay extensionless; the build's post-compile rewrite/assert pair enforces extensioned specifiers in `dist/module` and `dist/typescript/module`, and NodeNext validation must pass.
-- No manual `useMemo`, `useCallback`, or `React.memo` in `src` — React Compiler owns memoization and `panicThreshold: 'all_errors'` fails the build on anything it cannot compile.
+- No manual `useMemo`, `useCallback`, or `React.memo` in `src` for plain derivations — that is React Compiler's
+  job once #601 resolves and compiler output returns. While the compiler is absent (see below), values whose
+  *identity* is behavior — a merged ref callback that React 19 would otherwise detach, clean up, and reattach
+  on every render — must be manually memoized; nothing else memoizes them today.
 - `EdgeFade` native renders the blur band directly — no `MaskedView`, no `expo-linear-gradient`: gradient native views
   corrupt the Hermes heap on the current RN 0.86 / iOS 26 stack (masked-view 0.3.2 is unmaintained; the gradient
   crashes nondeterministically even standalone). The band fades through the scroll-driven container opacity instead.

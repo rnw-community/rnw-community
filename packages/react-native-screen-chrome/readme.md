@@ -304,7 +304,9 @@ horizontal padding:
 
 ```tsx
 <ScreenChromeScrollView contentInsetMode="additive" contentInsetTop={96} contentContainerStyle={{ paddingTop: 8 }} />
-``` Change the event rate through
+```
+
+Change the event rate through
 `<ScreenChromeProvider config={{ scrollEventThrottle: 8 }}>`. The provider's `onScroll` is one processed Reanimated
 handler that also carries drag and snap events, so it is attached whole rather than wrapped — read the scroll position
 from the shared `scrollY` instead:
@@ -494,6 +496,18 @@ ref list are skipped. Detach is handled both ways React 19 can request it: the r
 own cleanup where one was returned and clears the rest, and calling the merged callback with `null` directly forwards
 that `null` to every ref — so no ref is left holding a stale instance and no child cleanup is dropped.
 
+## ScrollContentInsetMode
+
+Selects whether chrome content padding replaces consumer padding or stacks on top of it.
+
+```ts
+const mode: ScrollContentInsetMode = 'additive';
+```
+
+The two members mirror the two utilities: `'replace'` resolves padding through
+[`mergeScrollContentInset`](#mergescrollcontentinset) and `'additive'` through
+[`addScrollContentInset`](#addscrollcontentinset). `ScreenChromeScrollView` consumes it as `contentInsetMode`.
+
 ## addScrollContentInset
 
 Stacks safe-area and chrome content padding on top of consumer padding, leaving horizontal padding untouched.
@@ -505,8 +519,10 @@ const contentContainerStyle = addScrollContentInset(insets, 96, 48, { paddingTop
 
 The additive counterpart to `mergeScrollContentInset`: consumer `paddingTop`/`paddingBottom` are summed with the
 computed insets instead of replacing them, so migrating from an additive layout keeps the computed inset. Only
-numeric, explicit `paddingTop`/`paddingBottom` participate — `padding`/`paddingVertical` shorthands and percentage
-values are carried through untouched and do not join the sum.
+numeric, explicit `paddingTop`/`paddingBottom` participate. `padding`/`paddingVertical` shorthands are carried through
+untouched and do not join the sum. Percentage `paddingTop`/`paddingBottom` are not supported: both edges always
+resolve to the computed numeric total, so a percentage there is replaced rather than preserved — the same contract the
+consumer implementations this util replaces have shipped with.
 
 ## mergeScrollContentInset
 
@@ -523,7 +539,7 @@ counterpart to `mergeScrollContentInset`, selected on the scroll view via `conte
 `mergeRefs` fans one instance out to several refs so the chrome scroll ref can coexist with consumer refs.
 `mergeScrollContentInset` composes safe-area and caller chrome padding while retaining consumer styles last;
 consumer padding is applied after the generated padding, so a consumer `paddingTop` replaces the computed
-safe-area+chrome inset rather than adding to it.
+safe-area+chrome inset rather than adding to it — in `'replace'` mode only; `'additive'` mode stacks instead.
 `useScrollFadeStyle` creates a clamped opacity style from the collapsible-header provider scroll value and therefore
 requires a `ScreenChromeProvider` ancestor.
 

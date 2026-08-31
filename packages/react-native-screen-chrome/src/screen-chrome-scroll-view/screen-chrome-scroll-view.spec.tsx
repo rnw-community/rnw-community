@@ -158,19 +158,23 @@ describe('ScreenChromeScrollView additive insets and consumer ref', () => {
 
     it('attaches the scrollable to the chrome ref and a consumer object ref together', () => {
         expect.hasAssertions();
+        mockScrollRef.mockClear();
 
         const consumerRef: { current: ScrollView | null } = { current: null };
         render(<ScreenChromeScrollView testID="ref-scroll" ref={consumerRef} />);
 
         expect(consumerRef.current).not.toBeNull();
+        expect(mockScrollRef).toHaveBeenCalledTimes(1);
         expect(mockScrollRef).toHaveBeenCalledWith(consumerRef.current);
     });
 
     it('still attaches the chrome ref when the consumer passes none', () => {
         expect.hasAssertions();
+        mockScrollRef.mockClear();
 
         render(<ScreenChromeScrollView testID="no-ref-scroll" />);
 
-        expect(mockScrollRef).toHaveBeenCalledWith(expect.anything());
+        expect(mockScrollRef).toHaveBeenCalledTimes(1);
+        expect(mockScrollRef).not.toHaveBeenCalledWith(null);
     });
 });
