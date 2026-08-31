@@ -116,3 +116,61 @@ describe('ScreenChromeScrollView', () => {
         );
     });
 });
+
+describe('ScreenChromeScrollView additive insets and consumer ref', () => {
+    it('stacks consumer padding on the computed insets in additive mode instead of replacing it', () => {
+        expect.hasAssertions();
+
+        const screen = render(
+            <ScreenChromeScrollView
+                testID="additive-scroll"
+                contentInsetMode="additive"
+                contentInsetTop={CONTENT_INSET_TOP}
+                contentInsetBottom={CONTENT_INSET_BOTTOM}
+                contentContainerStyle={{ paddingTop: CONSUMER_PADDING_TOP }}
+            />
+        );
+        const { contentContainerStyle } = screen.getByTestId('additive-scroll').props;
+
+        expect(StyleSheet.flatten(contentContainerStyle)).toStrictEqual({
+            paddingTop: 10 + CONTENT_INSET_TOP + CONSUMER_PADDING_TOP,
+            paddingBottom: 30 + CONTENT_INSET_BOTTOM,
+        });
+    });
+
+    it('keeps replace semantics by default so consumer padding wins over the computed insets', () => {
+        expect.hasAssertions();
+
+        const screen = render(
+            <ScreenChromeScrollView
+                testID="replace-scroll"
+                contentInsetTop={CONTENT_INSET_TOP}
+                contentContainerStyle={{ paddingTop: CONSUMER_PADDING_TOP }}
+            />
+        );
+        const { contentContainerStyle } = screen.getByTestId('replace-scroll').props;
+
+        expect(StyleSheet.flatten(contentContainerStyle)).toMatchObject({
+            paddingTop: CONSUMER_PADDING_TOP,
+            paddingLeft: 40,
+        });
+    });
+
+    it('attaches the scrollable to the chrome ref and a consumer object ref together', () => {
+        expect.hasAssertions();
+
+        const consumerRef: { current: ScrollView | null } = { current: null };
+        render(<ScreenChromeScrollView testID="ref-scroll" ref={consumerRef} />);
+
+        expect(consumerRef.current).not.toBeNull();
+        expect(mockScrollRef).toHaveBeenCalledWith(consumerRef.current);
+    });
+
+    it('still attaches the chrome ref when the consumer passes none', () => {
+        expect.hasAssertions();
+
+        render(<ScreenChromeScrollView testID="no-ref-scroll" />);
+
+        expect(mockScrollRef).toHaveBeenCalledWith(expect.anything());
+    });
+});
