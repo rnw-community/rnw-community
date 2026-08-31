@@ -14,19 +14,20 @@ interface Props {
     readonly children: ReactNode;
     readonly colorScheme?: ScreenChromeColorScheme;
     readonly config?: ScreenChromeConfigOverridesInterface;
+    readonly syncNativeScrollOffset?: boolean;
 }
 
 /**
  * Provides validated configuration and color scheme to screen chrome components around one scrollable.
  * @see https://github.com/rnw-community/rnw-community/tree/master/packages/react-native-screen-chrome#screenchromeprovider
  */
-export const ScreenChromeProvider = ({ children, colorScheme = 'light', config }: Props): ReactNode => {
+export const ScreenChromeProvider = ({ children, colorScheme = 'light', config, syncNativeScrollOffset }: Props): ReactNode => {
     const resolvedConfig = mergeScreenChromeConfig(config);
 
     assertValidScreenChromeConfig(resolvedConfig);
 
     return (
-        <CollapsibleHeaderProvider>
+        <CollapsibleHeaderProvider syncNativeScrollOffset={syncNativeScrollOffset}>
             <ScreenChromeContext.Provider value={{ colorScheme, config: resolvedConfig }}>
                 {children}
             </ScreenChromeContext.Provider>

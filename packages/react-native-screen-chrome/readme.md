@@ -271,6 +271,11 @@ Provides validated configuration and color scheme to screen chrome components ar
 </ScreenChromeProvider>
 ```
 
+`syncNativeScrollOffset` is forwarded to the underlying `CollapsibleHeaderProvider`: it mirrors the native scroll
+offset into the shared scroll value so navigator offset restores without a scroll event keep the header in sync. It is
+opt-in because it requires the chrome scroll ref to resolve to a real host scrollable — see the collapsible-header
+readme for the full constraint.
+
 Pass a stable `config` reference — a module-scope constant, or one owned by state — rather than the inline literal above.
 React Compiler memoizes the merge, validation, and context value on the identity of that prop, so a fresh literal on
 every parent render re-merges, re-validates, and re-broadcasts the context to every chrome consumer:

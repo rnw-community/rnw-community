@@ -1,8 +1,10 @@
-import { describe, expect, it } from '@jest/globals';
+import { describe, expect, it, jest } from '@jest/globals';
 import { render } from '@testing-library/react-native';
-import React, { useEffect } from 'react';
+import React, { forwardRef, useEffect, useImperativeHandle } from 'react';
+import Animated from 'react-native-reanimated';
 
 import { useCollapsibleHeaderScroll } from '@rnw-community/react-native-collapsible-header';
+import { emptyFn } from '@rnw-community/shared';
 
 import { SCREEN_CHROME_DEFAULT_CONFIG } from '../constant/screen-chrome-default-config.constant';
 import { useScreenChrome } from '../hooks/use-screen-chrome/use-screen-chrome.hook';
@@ -12,6 +14,7 @@ import { ScreenChromeProvider } from './screen-chrome-provider';
 import type { ScreenChromeContextValueInterface } from '../interface/screen-chrome-context-value.interface';
 import type { ScreenChromeColorScheme } from '../type/screen-chrome-color-scheme.type';
 import type { CollapsibleHeaderScroll } from '@rnw-community/react-native-collapsible-header';
+import type { ScrollHandlerProcessed } from 'react-native-reanimated';
 
 const OVERRIDDEN_HEADER_HEIGHT = 72;
 const CUSTOM_MASK_STOP_POSITION = 0.25;
@@ -29,6 +32,24 @@ interface ProviderProps {
     readonly colorScheme?: ScreenChromeColorScheme;
     readonly config?: Parameters<typeof ScreenChromeProvider>[0]['config'];
 }
+
+interface ScrollableListHandle {
+    readonly getScrollableNode: () => null;
+    readonly scrollToOffset: (offset: number) => void;
+}
+
+const HandleList = forwardRef<ScrollableListHandle, { readonly onScroll: ScrollHandlerProcessed }>(({ onScroll }, ref) => {
+    useImperativeHandle(ref, () => ({ getScrollableNode: () => null, scrollToOffset: emptyFn }));
+
+    return <Animated.ScrollView testID="scrollable" onScroll={onScroll} scrollEventThrottle={16} />;
+});
+HandleList.displayName = 'HandleList';
+
+const HandleListProbe = () => {
+    const { onScroll, scrollRef } = useCollapsibleHeaderScroll();
+
+    return <HandleList ref={scrollRef} onScroll={onScroll} />;
+};
 
 const Consumer = ({ onValue }: ConsumerProps) => {
     const value = useScreenChrome();
@@ -155,5 +176,35 @@ describe('ScreenChromeProvider context', () => {
         );
 
         expect(scrollValues[0]?.scrollY).not.toBe(scrollValues[scrollValues.length - 1]?.scrollY);
+    });
+});
+
+describe('ScreenChromeProvider native offset sync forwarding', () => {
+    it('forwards syncNativeScrollOffset to the collapsible-header provider, proven by its documented constraint', () => {
+        expect.hasAssertions();
+
+        const spy = jest.spyOn(console, 'error').mockImplementation(emptyFn);
+
+        expect(() =>
+            render(
+                <ScreenChromeProvider syncNativeScrollOffset>
+                    <HandleListProbe />
+                </ScreenChromeProvider>
+            )
+        ).toThrow();
+
+        spy.mockRestore();
+    });
+
+    it('leaves imperative-handle scrollables working when the sync flag is omitted', () => {
+        expect.hasAssertions();
+
+        const screen = render(
+            <ScreenChromeProvider>
+                <HandleListProbe />
+            </ScreenChromeProvider>
+        );
+
+        expect(screen.getByTestId('scrollable')).toBeTruthy();
     });
 });
