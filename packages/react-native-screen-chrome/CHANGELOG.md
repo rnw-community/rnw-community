@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [2.19.0](https://github.com/rnw-community/rnw-community/compare/v2.18.0...v2.19.0) (2026-08-31)
+
+### Features
+
+- **react-native-screen-chrome:** additive content insets and consumer ref on the scroll view ([#627](https://github.com/rnw-community/rnw-community/issues/627)) ([07fc5bb](https://github.com/rnw-community/rnw-community/commit/07fc5bb615b3b9d223e24bd7cb137d37b5076008))
+
 # [2.18.0](https://github.com/rnw-community/rnw-community/compare/v2.17.3...v2.18.0) (2026-08-31)
 
 ### Features
