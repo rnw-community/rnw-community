@@ -24,6 +24,8 @@ export type { ScreenChromeConfigOverridesInterface } from './interface/screen-ch
 export type { ScreenChromeContextValueInterface } from './interface/screen-chrome-context-value.interface';
 export { getScreenChromeHeaderMetrics } from './util/get-screen-chrome-header-metrics/get-screen-chrome-header-metrics.util';
 export { assertValidScreenChromeConfig } from './util/assert-valid-screen-chrome-config/assert-valid-screen-chrome-config.util';
+export { addScrollContentInset } from './util/add-scroll-content-inset/add-scroll-content-inset.util';
 export { mergeRefs } from './util/merge-refs/merge-refs.util';
+export type { ScrollContentInsetMode } from './type/scroll-content-inset-mode.type';
 export { mergeScrollContentInset } from './util/merge-scroll-content-inset/merge-scroll-content-inset.util';
 export { mergeScreenChromeConfig } from './util/merge-screen-chrome-config/merge-screen-chrome-config.util';
