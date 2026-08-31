@@ -46,6 +46,9 @@ reduce-motion setting: instant instead of animated when it is on.
 
 - Consumer owns scroll (or delegates to the provider), safe-area, typography, and colors; package owns geometry
   animation, crossfade, pointer-event and accessibility switching between layers, and clamping.
+- `CollapsibleHeaderProvider syncNativeScrollOffset` (default false) mirrors the native scroll offset into
+  `scrollY`, covering navigator offset restores that emit no scroll event; it requires the provider ref to
+  resolve to a real host scrollable and throws for imperative-handle-only attachments, hence opt-in.
 - Motion thresholds are normalized progress values in [0, 1] over [collapseStart, collapseStart + collapseDistance].
 - Pointer events and accessibility focus switch at `pointerEventsSwitchProgress`, which defaults to the cross-fade
   midpoint `(collapsedOpacityStartProgress + expandedOpacityEndProgress) / 2`.
