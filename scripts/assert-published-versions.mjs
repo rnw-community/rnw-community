@@ -12,8 +12,11 @@ const readManifest = pkg => {
 const REGISTRY_TIMEOUT_MS = 15000;
 // npm serves dist-tags through a CDN, so a just-published version is not visible immediately: the
 // assertion that runs seconds after a successful publish would otherwise read the previous version
-// and fail a release that actually worked. Real drift persists, so it survives every retry.
-const PROPAGATION_ATTEMPTS = 8;
+// and fail a release that actually worked. `?write=true` asks the registry for an authoritative,
+// uncached read (the same escape hatch the npm CLI uses for dist-tag operations), and the retry
+// window covers the release that measured propagation exceeding 80 seconds (run 33272999755).
+// Real drift persists, so it survives every retry.
+const PROPAGATION_ATTEMPTS = 30;
 const PROPAGATION_DELAY_MS = 10000;
 
 const wait = ms => new Promise(resolve => setTimeout(resolve, ms));
@@ -22,7 +25,7 @@ const fetchLatest = async name => {
     let response;
 
     try {
-        response = await fetch(`https://registry.npmjs.org/${encodeURIComponent(name)}`, {
+        response = await fetch(`https://registry.npmjs.org/${encodeURIComponent(name)}?write=true`, {
             signal: AbortSignal.timeout(REGISTRY_TIMEOUT_MS),
         });
     } catch (error) {
