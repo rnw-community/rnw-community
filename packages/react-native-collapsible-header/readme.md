@@ -175,6 +175,22 @@ The provider also reads Reanimated's `useReducedMotion()` and snaps instantly in
 "reduce motion" accessibility setting is on. Nothing is configurable here on purpose: an animated snap is an unrequested
 motion the user did not initiate, so it follows the platform setting.
 
+### syncNativeScrollOffset
+
+`scrollY` is written from scroll events, so a navigator that restores a screen's native scroll offset without emitting
+one — pop back to an already-scrolled screen without `freezeOnBlur` — leaves `scrollY` stale and the header expanded
+over scrolled content until the next scroll. `syncNativeScrollOffset` (default `false`) additionally mirrors the true
+native offset into `scrollY` via Reanimated's `useScrollOffset`, which covers that restore.
+
+It is opt-in because mirroring requires resolving the scroll ref to a real host instance: attaching the provider ref to
+a component that exposes only an imperative handle (`getScrollableNode`/`scrollToOffset`, a supported attachment)
+never resolves to one and throws inside Reanimated's observer. Enable it only when the provider ref always lands on a
+real scrollable (`Animated.ScrollView`, `Animated.FlatList`, or an exposed inner animated ref):
+
+```tsx
+<CollapsibleHeaderProvider syncNativeScrollOffset>{/* screens */}</CollapsibleHeaderProvider>
+```
+
 ### Snap requires a mounted CollapsibleHeader
 
 The provider owns the snap slot, but a `CollapsibleHeader` fills it: a header rendered with `snap` registers its
