@@ -71,7 +71,7 @@
         "@rnw-community/shared": "^2.15.0"
     },
     "devDependencies": {
-        "@nestjs/common": "^11.1.28",
+        "@nestjs/common": "^12.0.1",
         "@types/webpack-env": "^1.18.8",
         "@types/webpack-node-externals": "^3.0.4",
         "run-script-webpack-plugin": "^0.2.3",
@@ -80,7 +80,7 @@
         "webpack-node-externals": "^3.0.0"
     },
     "peerDependencies": {
-        "@nestjs/common": "^11.1.28",
+        "@nestjs/common": "^12.0.1",
         "@swc/cli": "^0.1.57",
         "@swc/core": "^1.2.239",
         "@swc/helpers": "^0.4.7",
