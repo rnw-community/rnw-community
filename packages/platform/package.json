@@ -50,10 +50,10 @@
         "ts:nodenext": "tsc --pretty -p tsconfig.nodenext-check.json"
     },
     "devDependencies": {
-        "@react-native/babel-preset": "0.86.2",
-        "@react-native/jest-preset": "0.86.2",
-        "react": "19.2.3",
-        "react-native": "0.86.2",
+        "@react-native/babel-preset": "0.87.1",
+        "@react-native/jest-preset": "0.87.1",
+        "react": "19.2.8",
+        "react-native": "0.87.1",
         "react-native-config": "^1.6.1"
     },
     "peerDependencies": {
