@@ -100,8 +100,8 @@
         "react-native-uuid": "^2.0.4"
     },
     "devDependencies": {
-        "react": "19.2.3",
-        "react-native": "0.86.2"
+        "react": "19.2.8",
+        "react-native": "0.87.1"
     },
     "peerDependencies": {
         "expo": "*",
