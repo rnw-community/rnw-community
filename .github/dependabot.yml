@@ -5,7 +5,7 @@ updates:
     schedule:
       interval: "monthly"
       day: "monday"
-    open-pull-requests-limit: 10
+    open-pull-requests-limit: 0
     versioning-strategy: "increase-if-necessary"
     commit-message:
       prefix: "chore"
@@ -25,17 +25,13 @@ updates:
           - "*"
         update-types:
           - "major"
-      npm-security:
-        applies-to: security-updates
-        patterns:
-          - "*"
 
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
       interval: "monthly"
       day: "monday"
-    open-pull-requests-limit: 5
+    open-pull-requests-limit: 0
     commit-message:
       prefix: "chore"
       include: "scope"
