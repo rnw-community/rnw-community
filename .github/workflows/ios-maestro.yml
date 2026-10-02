@@ -345,7 +345,7 @@ jobs:
                           staging_dir="$(mktemp -d "$pinned_root/.staging-XXXXXX")"
                           unzip -q "$zip_path" -d "$staging_dir"
                           chmod +x "$staging_dir/maestro/bin/maestro" 2>/dev/null || true
-                          staged_version="$("$staging_dir/maestro/bin/maestro" --version 2>/dev/null | tail -n 1 | tr -d '\r' || true)"
+                          staged_version="$("$staging_dir/maestro/bin/maestro" --version | tail -n 1 | tr -d '\r')"
                           if [ "$staged_version" != "$MAESTRO_VERSION" ]; then
                             echo "::error::Extracted maestro from cli-$MAESTRO_VERSION's maestro.zip reports version '$staged_version', not the pinned $MAESTRO_VERSION; the release archive layout may have changed."
                             exit 1
@@ -361,7 +361,7 @@ jobs:
                       echo "::error::Expected a maestro binary at '$pinned_bin' after installing cli-$MAESTRO_VERSION; the install may have failed or been interrupted."
                       exit 1
                     fi
-                    resolved_version="$("$pinned_bin" --version 2>/dev/null | tail -n 1 | tr -d '\r' || true)"
+                    resolved_version="$("$pinned_bin" --version | tail -n 1 | tr -d '\r')"
                     if [ "$resolved_version" != "$MAESTRO_VERSION" ]; then
                       echo "::error::maestro at '$pinned_bin' reports version '$resolved_version', not the pinned $MAESTRO_VERSION."
                       exit 1
@@ -378,7 +378,7 @@ jobs:
                 # 25 minutes covers a slow retry loop without holding the fleet.
                 timeout-minutes: 25
                 working-directory: ${{ matrix.example_dir }}
-                run: pnpm e2e:ios:${{ matrix.target }}
+                run: pnpm e2e:ios:${{ matrix.target }} --debug-output "$MAESTRO_DEBUG_OUTPUT_DIRECTORY"
 
             -   name: Capture final simulator state
                 # Pointless unless a simulator actually booted: without it
