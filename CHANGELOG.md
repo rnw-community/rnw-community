@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.19.1](https://github.com/rnw-community/rnw-community/compare/v2.19.0...v2.19.1) (2026-10-03)
+
+### Bug Fixes
+
+- **react-native-screen-chrome:** fade native edge bands through a gradient mask ([#640](https://github.com/rnw-community/rnw-community/issues/640)) ([11e308f](https://github.com/rnw-community/rnw-community/commit/11e308f4b4c4d4b14e65924f702536523a308a64))
+
 # [2.19.0](https://github.com/rnw-community/rnw-community/compare/v2.18.0...v2.19.0) (2026-08-31)
 
 ### Features
