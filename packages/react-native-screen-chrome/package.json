@@ -1,6 +1,6 @@
 {
     "name": "@rnw-community/react-native-screen-chrome",
-    "version": "2.19.0",
+    "version": "2.19.1",
     "description": "Composable scroll-driven screen chrome for React Native and React Native Web",
     "keywords": [
         "react",
@@ -58,8 +58,8 @@
         "@rnw-community/shared": "^2.15.0"
     },
     "devDependencies": {
-        "@react-native-masked-view/masked-view": "^0.3.2",
         "@babel/core": "^7.29.7",
+        "@react-native-masked-view/masked-view": "^0.3.2",
         "@react-native/babel-preset": "0.86.2",
         "@react-native/jest-preset": "0.86.2",
         "@react-native/metro-config": "0.86.2",
