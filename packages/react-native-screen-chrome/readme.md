@@ -14,7 +14,7 @@ content and product behavior stay consumer-owned.
 ```bash
 npm install @rnw-community/react-native-screen-chrome \
     @rnw-community/react-native-collapsible-header \
-    expo-blur \
+    @react-native-masked-view/masked-view expo-blur expo-linear-gradient \
     react-native-reanimated react-native-safe-area-context
 ```
 
@@ -23,7 +23,7 @@ by the host application: the application must resolve exactly one copy of the co
 context has two identities and the chrome components fail to find their provider. Reanimated 4 applications also
 install `react-native-worklets` and configure `react-native-worklets/plugin`.
 
-`expo-blur` must be `>=55 <58`: the `blurMethod` prop and the `BlurMethod` type this package passes and re-exports in
+`expo-blur` must be `>=55 <59`: the `blurMethod` prop and the `BlurMethod` type this package passes and re-exports in
 `EdgeFadePropsInterface` only exist from that release, which renamed `experimentalBlurMethod` to `blurMethod`.
 
 ## Complete example
