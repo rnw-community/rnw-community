@@ -3,6 +3,8 @@ import { describe, expect, it, jest } from '@jest/globals';
 import * as screenChrome from './index';
 
 jest.mock('expo-blur', () => ({ BlurView: jest.fn(() => null) }));
+jest.mock('expo-linear-gradient', () => ({ LinearGradient: jest.fn(() => null) }));
+jest.mock('@react-native-masked-view/masked-view', () => ({ __esModule: true, default: jest.fn(() => null) }));
 
 describe('public API', () => {
     it('exports the documented generic screen chrome surface', () => {

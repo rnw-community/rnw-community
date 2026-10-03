@@ -14,9 +14,26 @@ const mockScrollY = { get: jest.fn(() => 0) };
 const mockConfig = SCREEN_CHROME_DEFAULT_CONFIG;
 let mockColorScheme: ScreenChromeColorScheme = 'light';
 
-const MockBlurHost = (props: { readonly testID?: string } | undefined): ReactNode => <View {...props} />;
+interface MockHostProps {
+    readonly children?: ReactNode;
+    readonly maskElement?: ReactNode;
+}
 
-jest.mock('expo-blur', () => ({ BlurView: (props: { readonly testID?: string } | undefined) => MockBlurHost(props) }));
+const MockBlurHost = (props: MockHostProps): ReactNode => <View testID="edge-fade-blur" {...props} />;
+const MockGradientHost = (props: MockHostProps): ReactNode => <View testID="edge-fade-gradient" {...props} />;
+const MockMaskedHost = ({ children, maskElement }: MockHostProps): ReactNode => (
+    <View testID="edge-fade-mask">
+        {maskElement}
+        {children}
+    </View>
+);
+
+jest.mock('expo-blur', () => ({ BlurView: (props: MockHostProps) => MockBlurHost(props) }));
+jest.mock('expo-linear-gradient', () => ({ LinearGradient: (props: MockHostProps) => MockGradientHost(props) }));
+jest.mock('@react-native-masked-view/masked-view', () => ({
+    __esModule: true,
+    default: (props: MockHostProps) => MockMaskedHost(props),
+}));
 jest.mock('react-native-safe-area-context', () => ({
     useSafeAreaInsets: () => ({ top: 10, right: 20, bottom: 30, left: 40 }),
 }));
@@ -53,11 +70,11 @@ describe('EdgeFade native', () => {
         expect.hasAssertions();
 
         const screen = render(<EdgeFade testID="top-fade" position="top" intensity={0} blurMethod="none" />);
-        const fade = screen.getByTestId('top-fade', { includeHiddenElements: true });
+        const blur = screen.getByTestId('edge-fade-blur', { includeHiddenElements: true });
 
-        expect(fade).toHaveProp('intensity', 0);
-        expect(fade).toHaveProp('tint', 'systemChromeMaterialLight');
-        expect(fade).toHaveProp('blurMethod', 'none');
+        expect(blur).toHaveProp('intensity', 0);
+        expect(blur).toHaveProp('tint', 'systemChromeMaterialLight');
+        expect(blur).toHaveProp('blurMethod', 'none');
     });
 
     it('drives bottom opacity and blur intensity from scroll animation ranges', () => {
@@ -74,26 +91,38 @@ describe('EdgeFade native', () => {
             />
         );
         const fade = screen.getByTestId('bottom-fade', { includeHiddenElements: true });
+        const blur = screen.getByTestId('edge-fade-blur', { includeHiddenElements: true });
 
         expect(fade).toHaveStyle({ height: 180, bottom: -30, opacity: 0.5 });
-        expect(fade).toHaveProp('intensity', 30);
-        expect(fade).toHaveProp('tint', 'systemThinMaterialDark');
-        expect(fade).toHaveProp('blurMethod', 'none');
+        expect(blur).toHaveProp('intensity', 30);
+        expect(blur).toHaveProp('tint', 'systemThinMaterialDark');
+        expect(blur).toHaveProp('blurMethod', 'none');
     });
 
     it('opts into the Android blur method only once a blur target is supplied', () => {
         expect.hasAssertions();
 
         const blurTarget = React.createRef<View>();
-        const targeted = render(<EdgeFade testID="targeted-fade" position="top" blurTarget={blurTarget} />);
+        const targeted = render(<EdgeFade position="top" blurTarget={blurTarget} />);
 
-        expect(targeted.getByTestId('targeted-fade', { includeHiddenElements: true })).toHaveProp(
+        expect(targeted.getByTestId('edge-fade-blur', { includeHiddenElements: true })).toHaveProp(
             'blurMethod',
             'dimezisBlurView'
         );
 
-        const untargeted = render(<EdgeFade testID="untargeted-fade" position="top" />);
+        const untargeted = render(<EdgeFade position="top" />);
 
-        expect(untargeted.getByTestId('untargeted-fade', { includeHiddenElements: true })).toHaveProp('blurMethod', 'none');
+        expect(untargeted.getByTestId('edge-fade-blur', { includeHiddenElements: true })).toHaveProp('blurMethod', 'none');
+    });
+
+    it('fades the blur and color wash out through the configured edge mask', () => {
+        expect.hasAssertions();
+
+        const screen = render(<EdgeFade position="top" />);
+        const [mask, wash] = screen.getAllByTestId('edge-fade-gradient', { includeHiddenElements: true });
+
+        expect(mask).toHaveProp('colors', ['rgba(0,0,0,0.99)', '#000000', 'transparent']);
+        expect(mask).toHaveProp('locations', [0, 0.5, 1]);
+        expect(wash).toHaveProp('colors', [mockConfig.colors.light.solid, mockConfig.colors.light.wash]);
     });
 });
