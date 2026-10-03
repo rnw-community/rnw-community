@@ -14,25 +14,34 @@ const mockScrollY = { get: jest.fn(() => 0) };
 const mockConfig = SCREEN_CHROME_DEFAULT_CONFIG;
 let mockColorScheme: ScreenChromeColorScheme = 'light';
 
-interface MockHostProps {
+const MockBlurHost = (props: { readonly children?: ReactNode; readonly maskElement?: ReactNode }): ReactNode => (
+    <View testID="edge-fade-blur" {...props} />
+);
+const MockGradientHost = (props: { readonly children?: ReactNode; readonly maskElement?: ReactNode }): ReactNode => (
+    <View testID="edge-fade-gradient" {...props} />
+);
+const MockMaskedHost = ({
+    children,
+    maskElement,
+}: {
     readonly children?: ReactNode;
     readonly maskElement?: ReactNode;
-}
-
-const MockBlurHost = (props: MockHostProps): ReactNode => <View testID="edge-fade-blur" {...props} />;
-const MockGradientHost = (props: MockHostProps): ReactNode => <View testID="edge-fade-gradient" {...props} />;
-const MockMaskedHost = ({ children, maskElement }: MockHostProps): ReactNode => (
+}): ReactNode => (
     <View testID="edge-fade-mask">
         {maskElement}
         {children}
     </View>
 );
 
-jest.mock('expo-blur', () => ({ BlurView: (props: MockHostProps) => MockBlurHost(props) }));
-jest.mock('expo-linear-gradient', () => ({ LinearGradient: (props: MockHostProps) => MockGradientHost(props) }));
+jest.mock('expo-blur', () => ({
+    BlurView: (props: { readonly children?: ReactNode; readonly maskElement?: ReactNode }) => MockBlurHost(props),
+}));
+jest.mock('expo-linear-gradient', () => ({
+    LinearGradient: (props: { readonly children?: ReactNode; readonly maskElement?: ReactNode }) => MockGradientHost(props),
+}));
 jest.mock('@react-native-masked-view/masked-view', () => ({
     __esModule: true,
-    default: (props: MockHostProps) => MockMaskedHost(props),
+    default: (props: { readonly children?: ReactNode; readonly maskElement?: ReactNode }) => MockMaskedHost(props),
 }));
 jest.mock('react-native-safe-area-context', () => ({
     useSafeAreaInsets: () => ({ top: 10, right: 20, bottom: 30, left: 40 }),
