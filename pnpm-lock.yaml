@@ -819,6 +819,9 @@ importers:
 
     packages/react-native-screen-chrome-example/apps/bare:
         dependencies:
+            '@react-native-masked-view/masked-view':
+                specifier: ^0.3.2
+                version: 0.3.2(react-native@0.86.2(@babel/core@7.29.7(supports-color@8.1.1))(@react-native-community/cli@20.1.0(supports-color@8.1.1)(typescript@5.9.3))(@react-native/jest-preset@0.86.2(@babel/core@7.29.7(supports-color@8.1.1))(react@19.2.3)(supports-color@8.1.1))(@react-native/metro-config@0.86.2(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.2.18)(react@19.2.3)(supports-color@8.1.1))(react@19.2.3)
             '@rnw-community/react-native-collapsible-header':
                 specifier: workspace:*
                 version: link:../../../react-native-collapsible-header
@@ -829,6 +832,9 @@ importers:
                 specifier: workspace:*
                 version: link:../..
             expo-blur:
+                specifier: ~57.0.0
+                version: 57.0.2(expo@57.0.4)(react-native@0.86.2(@babel/core@7.29.7(supports-color@8.1.1))(@react-native-community/cli@20.1.0(supports-color@8.1.1)(typescript@5.9.3))(@react-native/jest-preset@0.86.2(@babel/core@7.29.7(supports-color@8.1.1))(react@19.2.3)(supports-color@8.1.1))(@react-native/metro-config@0.86.2(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.2.18)(react@19.2.3)(supports-color@8.1.1))(react@19.2.3)
+            expo-linear-gradient:
                 specifier: ~57.0.0
                 version: 57.0.2(expo@57.0.4)(react-native@0.86.2(@babel/core@7.29.7(supports-color@8.1.1))(@react-native-community/cli@20.1.0(supports-color@8.1.1)(typescript@5.9.3))(@react-native/jest-preset@0.86.2(@babel/core@7.29.7(supports-color@8.1.1))(react@19.2.3)(supports-color@8.1.1))(@react-native/metro-config@0.86.2(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.2.18)(react@19.2.3)(supports-color@8.1.1))(react@19.2.3)
             react:
@@ -874,6 +880,9 @@ importers:
             '@expo/metro-runtime':
                 specifier: 57.0.3
                 version: 57.0.3(@expo/log-box@57.0.3)(expo@57.0.4)(react-dom@19.2.3(react@19.2.3))(react-native@0.86.2(@babel/core@7.29.7(supports-color@8.1.1))(@react-native-community/cli@20.1.0(supports-color@8.1.1)(typescript@5.9.3))(@react-native/jest-preset@0.86.2(@babel/core@7.29.7(supports-color@8.1.1))(react@19.2.3)(supports-color@8.1.1))(@react-native/metro-config@0.86.2(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.2.18)(react@19.2.3)(supports-color@8.1.1))(react@19.2.3)
+            '@react-native-masked-view/masked-view':
+                specifier: ^0.3.2
+                version: 0.3.2(react-native@0.86.2(@babel/core@7.29.7(supports-color@8.1.1))(@react-native-community/cli@20.1.0(supports-color@8.1.1)(typescript@5.9.3))(@react-native/jest-preset@0.86.2(@babel/core@7.29.7(supports-color@8.1.1))(react@19.2.3)(supports-color@8.1.1))(@react-native/metro-config@0.86.2(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.2.18)(react@19.2.3)(supports-color@8.1.1))(react@19.2.3)
             '@rnw-community/react-native-collapsible-header':
                 specifier: workspace:*
                 version: link:../../../react-native-collapsible-header
@@ -887,6 +896,9 @@ importers:
                 specifier: 57.0.4
                 version: 57.0.4(70c94e2f0f8f3342f4491993ce70adc1)
             expo-blur:
+                specifier: ~57.0.0
+                version: 57.0.2(expo@57.0.4)(react-native@0.86.2(@babel/core@7.29.7(supports-color@8.1.1))(@react-native-community/cli@20.1.0(supports-color@8.1.1)(typescript@5.9.3))(@react-native/jest-preset@0.86.2(@babel/core@7.29.7(supports-color@8.1.1))(react@19.2.3)(supports-color@8.1.1))(@react-native/metro-config@0.86.2(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.2.18)(react@19.2.3)(supports-color@8.1.1))(react@19.2.3)
+            expo-linear-gradient:
                 specifier: ~57.0.0
                 version: 57.0.2(expo@57.0.4)(react-native@0.86.2(@babel/core@7.29.7(supports-color@8.1.1))(@react-native-community/cli@20.1.0(supports-color@8.1.1)(typescript@5.9.3))(@react-native/jest-preset@0.86.2(@babel/core@7.29.7(supports-color@8.1.1))(react@19.2.3)(supports-color@8.1.1))(@react-native/metro-config@0.86.2(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.2.18)(react@19.2.3)(supports-color@8.1.1))(react@19.2.3)
             react:
