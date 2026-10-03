@@ -491,7 +491,7 @@ importers:
                 version: 7.3.17(react-native@0.86.2(@babel/core@7.29.7(supports-color@8.1.1))(@react-native-community/cli@20.1.0(supports-color@8.1.1)(typescript@5.9.3))(@react-native/jest-preset@0.86.2(@babel/core@7.29.7(supports-color@8.1.1))(react@19.2.3)(supports-color@8.1.1))(@react-native/metro-config@0.86.2(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.2.18)(react@19.2.3)(supports-color@8.1.1))(react@19.2.3)
             '@react-navigation/native-stack':
                 specifier: ^7.3.16
-                version: 7.18.9(3f9bb9aa1ea9aa38007ed1f9c0fbc178)
+                version: 7.18.9(365dab1972e202d94a3a69af81cbf3a0)
             '@rnw-community/react-native-collapsible-header':
                 specifier: workspace:*
                 version: link:../react-native-collapsible-header
@@ -728,6 +728,9 @@ importers:
             '@babel/core':
                 specifier: ^7.29.7
                 version: 7.29.7(supports-color@8.1.1)
+            '@react-native-masked-view/masked-view':
+                specifier: ^0.3.2
+                version: 0.3.2(react-native@0.86.2(@babel/core@7.29.7(supports-color@8.1.1))(@react-native-community/cli@20.1.0(supports-color@8.1.1)(typescript@5.9.3))(@react-native/jest-preset@0.86.2(@babel/core@7.29.7(supports-color@8.1.1))(react@19.2.3)(supports-color@8.1.1))(@react-native/metro-config@0.86.2(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.2.18)(react@19.2.3)(supports-color@8.1.1))(react@19.2.3)
             '@react-native/babel-preset':
                 specifier: 0.86.2
                 version: 0.86.2(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1)
@@ -750,6 +753,9 @@ importers:
                 specifier: 19.1.0
                 version: 19.1.0
             expo-blur:
+                specifier: ~57.0.0
+                version: 57.0.2(expo@57.0.4)(react-native@0.86.2(@babel/core@7.29.7(supports-color@8.1.1))(@react-native-community/cli@20.1.0(supports-color@8.1.1)(typescript@5.9.3))(@react-native/jest-preset@0.86.2(@babel/core@7.29.7(supports-color@8.1.1))(react@19.2.3)(supports-color@8.1.1))(@react-native/metro-config@0.86.2(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.2.18)(react@19.2.3)(supports-color@8.1.1))(react@19.2.3)
+            expo-linear-gradient:
                 specifier: ~57.0.0
                 version: 57.0.2(expo@57.0.4)(react-native@0.86.2(@babel/core@7.29.7(supports-color@8.1.1))(@react-native-community/cli@20.1.0(supports-color@8.1.1)(typescript@5.9.3))(@react-native/jest-preset@0.86.2(@babel/core@7.29.7(supports-color@8.1.1))(react@19.2.3)(supports-color@8.1.1))(@react-native/metro-config@0.86.2(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.2.18)(react@19.2.3)(supports-color@8.1.1))(react@19.2.3)
             react:
@@ -781,7 +787,7 @@ importers:
                 version: 7.3.17(react-native@0.86.2(@babel/core@7.29.7(supports-color@8.1.1))(@react-native-community/cli@20.1.0(supports-color@8.1.1)(typescript@5.9.3))(@react-native/jest-preset@0.86.2(@babel/core@7.29.7(supports-color@8.1.1))(react@19.2.3)(supports-color@8.1.1))(@react-native/metro-config@0.86.2(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.2.18)(react@19.2.3)(supports-color@8.1.1))(react@19.2.3)
             '@react-navigation/native-stack':
                 specifier: ^7.3.16
-                version: 7.18.9(3f9bb9aa1ea9aa38007ed1f9c0fbc178)
+                version: 7.18.9(365dab1972e202d94a3a69af81cbf3a0)
             '@rnw-community/react-native-collapsible-header':
                 specifier: workspace:*
                 version: link:../react-native-collapsible-header
@@ -813,6 +819,9 @@ importers:
 
     packages/react-native-screen-chrome-example/apps/bare:
         dependencies:
+            '@react-native-masked-view/masked-view':
+                specifier: ^0.3.2
+                version: 0.3.2(react-native@0.86.2(@babel/core@7.29.7(supports-color@8.1.1))(@react-native-community/cli@20.1.0(supports-color@8.1.1)(typescript@5.9.3))(@react-native/jest-preset@0.86.2(@babel/core@7.29.7(supports-color@8.1.1))(react@19.2.3)(supports-color@8.1.1))(@react-native/metro-config@0.86.2(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.2.18)(react@19.2.3)(supports-color@8.1.1))(react@19.2.3)
             '@rnw-community/react-native-collapsible-header':
                 specifier: workspace:*
                 version: link:../../../react-native-collapsible-header
@@ -823,6 +832,9 @@ importers:
                 specifier: workspace:*
                 version: link:../..
             expo-blur:
+                specifier: ~57.0.0
+                version: 57.0.2(expo@57.0.4)(react-native@0.86.2(@babel/core@7.29.7(supports-color@8.1.1))(@react-native-community/cli@20.1.0(supports-color@8.1.1)(typescript@5.9.3))(@react-native/jest-preset@0.86.2(@babel/core@7.29.7(supports-color@8.1.1))(react@19.2.3)(supports-color@8.1.1))(@react-native/metro-config@0.86.2(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.2.18)(react@19.2.3)(supports-color@8.1.1))(react@19.2.3)
+            expo-linear-gradient:
                 specifier: ~57.0.0
                 version: 57.0.2(expo@57.0.4)(react-native@0.86.2(@babel/core@7.29.7(supports-color@8.1.1))(@react-native-community/cli@20.1.0(supports-color@8.1.1)(typescript@5.9.3))(@react-native/jest-preset@0.86.2(@babel/core@7.29.7(supports-color@8.1.1))(react@19.2.3)(supports-color@8.1.1))(@react-native/metro-config@0.86.2(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.2.18)(react@19.2.3)(supports-color@8.1.1))(react@19.2.3)
             react:
@@ -868,6 +880,9 @@ importers:
             '@expo/metro-runtime':
                 specifier: 57.0.3
                 version: 57.0.3(@expo/log-box@57.0.3)(expo@57.0.4)(react-dom@19.2.3(react@19.2.3))(react-native@0.86.2(@babel/core@7.29.7(supports-color@8.1.1))(@react-native-community/cli@20.1.0(supports-color@8.1.1)(typescript@5.9.3))(@react-native/jest-preset@0.86.2(@babel/core@7.29.7(supports-color@8.1.1))(react@19.2.3)(supports-color@8.1.1))(@react-native/metro-config@0.86.2(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.2.18)(react@19.2.3)(supports-color@8.1.1))(react@19.2.3)
+            '@react-native-masked-view/masked-view':
+                specifier: ^0.3.2
+                version: 0.3.2(react-native@0.86.2(@babel/core@7.29.7(supports-color@8.1.1))(@react-native-community/cli@20.1.0(supports-color@8.1.1)(typescript@5.9.3))(@react-native/jest-preset@0.86.2(@babel/core@7.29.7(supports-color@8.1.1))(react@19.2.3)(supports-color@8.1.1))(@react-native/metro-config@0.86.2(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.2.18)(react@19.2.3)(supports-color@8.1.1))(react@19.2.3)
             '@rnw-community/react-native-collapsible-header':
                 specifier: workspace:*
                 version: link:../../../react-native-collapsible-header
@@ -881,6 +896,9 @@ importers:
                 specifier: 57.0.4
                 version: 57.0.4(70c94e2f0f8f3342f4491993ce70adc1)
             expo-blur:
+                specifier: ~57.0.0
+                version: 57.0.2(expo@57.0.4)(react-native@0.86.2(@babel/core@7.29.7(supports-color@8.1.1))(@react-native-community/cli@20.1.0(supports-color@8.1.1)(typescript@5.9.3))(@react-native/jest-preset@0.86.2(@babel/core@7.29.7(supports-color@8.1.1))(react@19.2.3)(supports-color@8.1.1))(@react-native/metro-config@0.86.2(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.2.18)(react@19.2.3)(supports-color@8.1.1))(react@19.2.3)
+            expo-linear-gradient:
                 specifier: ~57.0.0
                 version: 57.0.2(expo@57.0.4)(react-native@0.86.2(@babel/core@7.29.7(supports-color@8.1.1))(@react-native-community/cli@20.1.0(supports-color@8.1.1)(typescript@5.9.3))(@react-native/jest-preset@0.86.2(@babel/core@7.29.7(supports-color@8.1.1))(react@19.2.3)(supports-color@8.1.1))(@react-native/metro-config@0.86.2(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.2.18)(react@19.2.3)(supports-color@8.1.1))(react@19.2.3)
             react:
@@ -3178,6 +3196,13 @@ packages:
             { integrity: sha512-441WsVtRe4nGJ9OzA+QMU1+22lA6Q2hRWqqIMKD0wjEMLqcSfOZyu2UL9a/yRpL/dRpyUsU4n7AxqKfTKO/Csg== }
         engines: { node: '>=20.19.4' }
         hasBin: true
+
+    '@react-native-masked-view/masked-view@0.3.2':
+        resolution:
+            { integrity: sha512-XwuQoW7/GEgWRMovOQtX3A4PrXhyaZm0lVUiY8qJDvdngjLms9Cpdck6SmGAUNqQwcj2EadHC1HwL0bEyoa/SQ== }
+        peerDependencies:
+            react: 19.2.3
+            react-native: 0.86.2
 
     '@react-native/assets-registry@0.86.2':
         resolution:
@@ -5862,6 +5887,14 @@ packages:
         peerDependencies:
             expo: 57.0.4
             react: 19.2.3
+
+    expo-linear-gradient@57.0.2:
+        resolution:
+            { integrity: sha512-eGNSfcbdXYvw0B/TQ3nmXKQgj0jLUi3EgsXGlvI79rlXg5RR5dQTkY2yqkf7BQDM3PMd3tqBMZdsLhvBqSUaMg== }
+        peerDependencies:
+            expo: 57.0.4
+            react: 19.2.3
+            react-native: 0.86.2
 
     expo-modules-autolinking@57.0.5:
         resolution:
@@ -13849,6 +13882,11 @@ snapshots:
             - typescript
             - utf-8-validate
 
+    '@react-native-masked-view/masked-view@0.3.2(react-native@0.86.2(@babel/core@7.29.7(supports-color@8.1.1))(@react-native-community/cli@20.1.0(supports-color@8.1.1)(typescript@5.9.3))(@react-native/jest-preset@0.86.2(@babel/core@7.29.7(supports-color@8.1.1))(react@19.2.3)(supports-color@8.1.1))(@react-native/metro-config@0.86.2(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.2.18)(react@19.2.3)(supports-color@8.1.1))(react@19.2.3)':
+        dependencies:
+            react: 19.2.3
+            react-native: 0.86.2(@babel/core@7.29.7(supports-color@8.1.1))(@react-native-community/cli@20.1.0(supports-color@8.1.1)(typescript@5.9.3))(@react-native/jest-preset@0.86.2(@babel/core@7.29.7(supports-color@8.1.1))(react@19.2.3)(supports-color@8.1.1))(@react-native/metro-config@0.86.2(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.2.18)(react@19.2.3)(supports-color@8.1.1)
+
     '@react-native/assets-registry@0.86.2': {}
 
     '@react-native/babel-plugin-codegen@0.86.2(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1)':
@@ -14046,7 +14084,7 @@ snapshots:
             use-latest-callback: 0.2.6(react@19.2.3)
             use-sync-external-store: 1.6.0(react@19.2.3)
 
-    '@react-navigation/elements@2.9.39(2e852a86fb698a4a9991d6da61776334)':
+    '@react-navigation/elements@2.9.39(1aaa36335cdb2b34278ca889832c7642)':
         dependencies:
             '@react-navigation/native': 7.3.17(react-native@0.86.2(@babel/core@7.29.7(supports-color@8.1.1))(@react-native-community/cli@20.1.0(supports-color@8.1.1)(typescript@5.9.3))(@react-native/jest-preset@0.86.2(@babel/core@7.29.7(supports-color@8.1.1))(react@19.2.3)(supports-color@8.1.1))(@react-native/metro-config@0.86.2(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.2.18)(react@19.2.3)(supports-color@8.1.1))(react@19.2.3)
             color: 4.2.3
@@ -14055,10 +14093,12 @@ snapshots:
             react-native-safe-area-context: 5.7.0(react-native@0.86.2(@babel/core@7.29.7(supports-color@8.1.1))(@react-native-community/cli@20.1.0(supports-color@8.1.1)(typescript@5.9.3))(@react-native/jest-preset@0.86.2(@babel/core@7.29.7(supports-color@8.1.1))(react@19.2.3)(supports-color@8.1.1))(@react-native/metro-config@0.86.2(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.2.18)(react@19.2.3)(supports-color@8.1.1))(react@19.2.3)
             use-latest-callback: 0.2.6(react@19.2.3)
             use-sync-external-store: 1.6.0(react@19.2.3)
+        optionalDependencies:
+            '@react-native-masked-view/masked-view': 0.3.2(react-native@0.86.2(@babel/core@7.29.7(supports-color@8.1.1))(@react-native-community/cli@20.1.0(supports-color@8.1.1)(typescript@5.9.3))(@react-native/jest-preset@0.86.2(@babel/core@7.29.7(supports-color@8.1.1))(react@19.2.3)(supports-color@8.1.1))(@react-native/metro-config@0.86.2(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.2.18)(react@19.2.3)(supports-color@8.1.1))(react@19.2.3)
 
-    '@react-navigation/native-stack@7.18.9(3f9bb9aa1ea9aa38007ed1f9c0fbc178)':
+    '@react-navigation/native-stack@7.18.9(365dab1972e202d94a3a69af81cbf3a0)':
         dependencies:
-            '@react-navigation/elements': 2.9.39(2e852a86fb698a4a9991d6da61776334)
+            '@react-navigation/elements': 2.9.39(1aaa36335cdb2b34278ca889832c7642)
             '@react-navigation/native': 7.3.17(react-native@0.86.2(@babel/core@7.29.7(supports-color@8.1.1))(@react-native-community/cli@20.1.0(supports-color@8.1.1)(typescript@5.9.3))(@react-native/jest-preset@0.86.2(@babel/core@7.29.7(supports-color@8.1.1))(react@19.2.3)(supports-color@8.1.1))(@react-native/metro-config@0.86.2(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.2.18)(react@19.2.3)(supports-color@8.1.1))(react@19.2.3)
             color: 4.2.3
             react: 19.2.3
@@ -16691,6 +16731,12 @@ snapshots:
         dependencies:
             expo: 57.0.4(70c94e2f0f8f3342f4491993ce70adc1)
             react: 19.2.3
+
+    expo-linear-gradient@57.0.2(expo@57.0.4)(react-native@0.86.2(@babel/core@7.29.7(supports-color@8.1.1))(@react-native-community/cli@20.1.0(supports-color@8.1.1)(typescript@5.9.3))(@react-native/jest-preset@0.86.2(@babel/core@7.29.7(supports-color@8.1.1))(react@19.2.3)(supports-color@8.1.1))(@react-native/metro-config@0.86.2(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.2.18)(react@19.2.3)(supports-color@8.1.1))(react@19.2.3):
+        dependencies:
+            expo: 57.0.4(70c94e2f0f8f3342f4491993ce70adc1)
+            react: 19.2.3
+            react-native: 0.86.2(@babel/core@7.29.7(supports-color@8.1.1))(@react-native-community/cli@20.1.0(supports-color@8.1.1)(typescript@5.9.3))(@react-native/jest-preset@0.86.2(@babel/core@7.29.7(supports-color@8.1.1))(react@19.2.3)(supports-color@8.1.1))(@react-native/metro-config@0.86.2(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.2.18)(react@19.2.3)(supports-color@8.1.1)
 
     expo-modules-autolinking@57.0.5(supports-color@8.1.1)(typescript@5.9.3):
         dependencies:
