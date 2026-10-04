@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.19.2](https://github.com/rnw-community/rnw-community/compare/v2.19.1...v2.19.2) (2026-10-04)
+
+### Bug Fixes
+
+- **eslint-plugin:** stop importing package.json so the published entry loads ([#641](https://github.com/rnw-community/rnw-community/issues/641)) ([6e638f4](https://github.com/rnw-community/rnw-community/commit/6e638f4c71e8517611f74c0eeb3c8af0648fffa9)), closes [#530](https://github.com/rnw-community/rnw-community/issues/530)
+
 ## [2.15.2](https://github.com/rnw-community/rnw-community/compare/v2.15.1...v2.15.2) (2026-08-27)
 
 **Note:** Version bump only for package @rnw-community/eslint-plugin
