@@ -411,13 +411,6 @@ The monorepo uses dual ESM + CJS output. Key decisions:
   crash at runtime" finding is exactly the CJS-via-`import`-statement default-interop pattern this package's own
   readme documents as its supported usage (`import rnwcPlugin from '@rnw-community/eslint-plugin'`), never named
   imports of individual properties
-- **`tsc`'s `resolveJsonModule` copies imported `.json` files into `dist/`, including nested `package.json` copies
-  with a self-referential (and Node-ignored) `"exports"` field.** `eslint-plugin`'s `src/index.ts` imports
-  `../package.json` for `meta.name`/`meta.version`; because that import falls outside `./src`, `tsc` widens its
-  inferred `rootDir` to the package root and mirrors `package.json` into both `dist/esm/` and `dist/cjs/` verbatim.
-  `publint` flags the duplicated, non-functional `"exports"` field. The package's `build` script now deletes both
-  copies (`rm -f dist/esm/package.json dist/cjs/package.json`) after compilation — the import itself stays, since
-  rewriting it to avoid the `rootDir` widening is a larger refactor than a publish-hygiene pass warrants
 
 ## PR Review & Merge Policy
 

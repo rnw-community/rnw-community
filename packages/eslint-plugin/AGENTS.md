@@ -25,8 +25,8 @@ src/
 
 - `src/index.ts` ends with `export = plugin` — required CommonJS interop shape for an ESLint plugin object; this is
   the reason `verbatimModuleSyntax` is disabled for this package (see TypeScript Config below)
-- The plugin's `namespace` is derived at runtime from `pkg.name.split('/')[0]` (falls back to the literal
-  `'@rnw-community'` string if that split ever comes back empty), then used to key both config presets:
+- `src/index.ts` defines `namespace` as `'@rnw-community'` and `meta.name` as `${namespace}/eslint-plugin`;
+  `namespace` keys both config presets:
   `configs.recommended` (legacy eslintrc array, `parserOptions.ecmaFeatures.jsx: true`) and
   `configs['flat/recommended']` (flat-config array, `languageOptions.parserOptions.ecmaFeatures.jsx: true` and a
   `plugins: { [namespace]: plugin }` self-reference) — both presets exist in source and both enable
