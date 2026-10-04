@@ -354,7 +354,7 @@ The monorepo uses dual ESM + CJS output. Key decisions:
       classic `require()` probes it) are back to that form too.
       `no-restricted-syntax` selectors in `eslint.config.mjs` now flag the _opposite_ shape: any relative
       `Import`/`Export`/dynamic-`import()` specifier that **does** carry a `.js`/`.jsx`/`.mjs`/`.cjs` extension is a lint
-      error (`.json` stays allowed — `resolveJsonModule` imports like `eslint-plugin`'s `../package.json` need it). This
+      error (`.json` stays allowed for `resolveJsonModule` imports). This
       isn't just style: without a `moduleNameMapper` (see next), a stray `.js` in source would make Jest fail to resolve
       the specifier outright, since Jest resolves relative imports straight against the real `.ts` files on disk. Plain
       `import/extensions` from `eslint-plugin-import` remains unsuitable for the same reason it was rejected under the old
@@ -411,13 +411,6 @@ The monorepo uses dual ESM + CJS output. Key decisions:
   crash at runtime" finding is exactly the CJS-via-`import`-statement default-interop pattern this package's own
   readme documents as its supported usage (`import rnwcPlugin from '@rnw-community/eslint-plugin'`), never named
   imports of individual properties
-- **`tsc`'s `resolveJsonModule` copies imported `.json` files into `dist/`, including nested `package.json` copies
-  with a self-referential (and Node-ignored) `"exports"` field.** `eslint-plugin`'s `src/index.ts` imports
-  `../package.json` for `meta.name`/`meta.version`; because that import falls outside `./src`, `tsc` widens its
-  inferred `rootDir` to the package root and mirrors `package.json` into both `dist/esm/` and `dist/cjs/` verbatim.
-  `publint` flags the duplicated, non-functional `"exports"` field. The package's `build` script now deletes both
-  copies (`rm -f dist/esm/package.json dist/cjs/package.json`) after compilation — the import itself stays, since
-  rewriting it to avoid the `rootDir` widening is a larger refactor than a publish-hygiene pass warrants
 
 ## PR Review & Merge Policy
 

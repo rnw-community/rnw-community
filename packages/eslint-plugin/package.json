@@ -18,17 +18,17 @@
     "exports": {
         ".": {
             "import": {
-                "types": "./dist/esm/src/index.d.ts",
-                "default": "./dist/esm/src/index.js"
+                "types": "./dist/esm/index.d.ts",
+                "default": "./dist/esm/index.js"
             },
             "require": {
-                "types": "./dist/cjs/src/index.d.ts",
-                "default": "./dist/cjs/src/index.js"
+                "types": "./dist/cjs/index.d.ts",
+                "default": "./dist/cjs/index.js"
             }
         }
     },
-    "main": "dist/cjs/src/index.js",
-    "types": "dist/esm/src/index.d.ts",
+    "main": "dist/cjs/index.js",
+    "types": "dist/esm/index.d.ts",
     "files": [
         "dist/**/*"
     ],
@@ -45,7 +45,7 @@
         "ts:nodenext": "tsc --pretty -p tsconfig.nodenext-check.json",
         "build:esm": "tsc --pretty -p tsconfig.build-esm.json",
         "build:cjs": "tsc --pretty -p tsconfig.build-cjs.json",
-        "build": "pnpm run build:esm && pnpm run build:cjs && rm -rf ./dist/*/*.tsbuildinfo && rm -f dist/esm/package.json dist/cjs/package.json",
+        "build": "pnpm run build:esm && pnpm run build:cjs && rm -rf ./dist/*/*.tsbuildinfo",
         "lint": "eslint src",
         "lint:fix": "eslint --fix src",
         "test": "jest",
