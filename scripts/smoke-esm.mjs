@@ -12,6 +12,7 @@ const scopeDir = path.join(projectDir, 'node_modules', '@rnw-community');
 
 const EXECUTABLE_PACKAGES = [
     { pkg: 'decorators-core', exportName: 'createInterceptor' },
+    { pkg: 'eslint-plugin', exportName: 'rules', esmExportName: 'default', hasRealEsmOutput: false },
     { pkg: 'fast-style', exportName: 'getFont' },
     { pkg: 'histogram-metric-decorator', exportName: 'createHistogramMetricDecorator' },
     { pkg: 'lock-decorator', exportName: 'LockBusyError' },
@@ -39,7 +40,8 @@ const RESOLUTION_ONLY_PACKAGES = [
     },
     {
         pkg: 'react-native-screen-chrome',
-        unloadableBecause: 'imports React Native, Reanimated, and native blur bindings that require a native or Metro environment',
+        unloadableBecause:
+            'imports React Native, Reanimated, and native blur bindings that require a native or Metro environment',
         unresolvedExternalPackages: [
             '@react-native-masked-view/masked-view',
             'expo-blur',
@@ -53,15 +55,8 @@ const RESOLUTION_ONLY_PACKAGES = [
         unloadableBecause:
             "imports value bindings ('Platform', 'NativeModules', 'TurboModuleRegistry', 'NativeEventEmitter') from 'react-native', untranspiled Flow/JSX",
     },
-    {
-        pkg: 'eslint-plugin',
-        unloadableBecause:
-            "requires '../package.json', a file its own build script deletes post-compile (pre-existing, documented in AGENTS.md, unrelated to #531)",
-        hasRealEsmOutput: false,
-    },
 ];
 
-const eslintPluginPackageJsonSpecifier = '../package.json';
 const nativePaymentsNativeModuleRequireSpecifier = '../../NativePayments';
 
 function isRuntimeRequireCall(fullMatchText) {
@@ -87,7 +82,9 @@ const ALL_PACKAGE_NAMES = [
     ...RESOLUTION_ONLY_PACKAGES.map(entry => entry.pkg),
 ];
 const ESM_INVARIANT_EXEMPT_PACKAGES = new Set(
-    RESOLUTION_ONLY_PACKAGES.filter(entry => entry.hasRealEsmOutput === false).map(entry => entry.pkg)
+    [...EXECUTABLE_PACKAGES, ...RESOLUTION_ONLY_PACKAGES]
+        .filter(entry => entry.hasRealEsmOutput === false)
+        .map(entry => entry.pkg)
 );
 
 const failures = [];
@@ -166,7 +163,7 @@ function runNode(args, cwd) {
     return execFileSync('node', args, { cwd, encoding: 'utf8' });
 }
 
-function checkExecutable({ pkg, exportName }) {
+function checkExecutable({ pkg, exportName, esmExportName = exportName }) {
     const specifier = `@rnw-community/${pkg}`;
 
     try {
@@ -186,13 +183,13 @@ function checkExecutable({ pkg, exportName }) {
         fail(pkg, `require('${specifier}') threw: ${error.message.split('\n')[0]}`);
     }
 
-    const script = `import('${specifier}').then(m => { console.log(typeof m['${exportName}'] !== 'undefined' ? 'OK' : 'MISSING'); }, e => { console.error(e.code, e.message); process.exit(1); });`;
+    const script = `import('${specifier}').then(m => { console.log(typeof m['${esmExportName}'] !== 'undefined' ? 'OK' : 'MISSING'); }, e => { console.error(e.code, e.message); process.exit(1); });`;
     try {
         const out = runNode(['--input-type=module', '-e', script], projectDir).trim();
         if (out !== 'OK') {
-            fail(pkg, `import('${specifier}') succeeded but '${exportName}' is missing from the ESM export`);
+            fail(pkg, `import('${specifier}') succeeded but '${esmExportName}' is missing from the ESM export`);
         } else {
-            log(`  OK   ${pkg} (ESM import, '${exportName}')`);
+            log(`  OK   ${pkg} (ESM import, '${esmExportName}')`);
         }
     } catch (error) {
         fail(pkg, `import('${specifier}') threw: ${error.message.split('\n')[0]}`);
@@ -200,16 +197,7 @@ function checkExecutable({ pkg, exportName }) {
 }
 
 function findSpotCheckableRelativeSpecifier(entryFile) {
-    const content = fs.readFileSync(entryFile, 'utf8');
-    const specRe = createRelativeSpecifierRegex();
-    let match;
-    while ((match = specRe.exec(content))) {
-        if (match[2] !== eslintPluginPackageJsonSpecifier) {
-            return match[2];
-        }
-    }
-
-    return undefined;
+    return createRelativeSpecifierRegex().exec(fs.readFileSync(entryFile, 'utf8'))?.[2];
 }
 
 function checkResolutionOnly({ pkg, unloadableBecause, hasRealEsmOutput = true, unresolvedExternalPackages = [] }) {

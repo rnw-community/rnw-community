@@ -1,5 +1,3 @@
-import pkg from '../package.json';
-
 import { rules } from './rules';
 
 import type { ESLint } from 'eslint';
@@ -8,12 +6,11 @@ interface Plugin extends Omit<ESLint.Plugin, 'rules'> {
     rules: typeof rules;
 }
 
-const namespace = pkg.name.split('/')[0] ?? '@rnw-community';
+const namespace = '@rnw-community';
 
 const plugin: Plugin = {
     meta: {
-        name: pkg.name,
-        version: pkg.version,
+        name: `${namespace}/eslint-plugin`,
         namespace,
     },
     configs: {},
