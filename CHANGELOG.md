@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.19.3](https://github.com/rnw-community/rnw-community/compare/v2.19.2...v2.19.3) (2026-10-04)
+
+### Bug Fixes
+
+- **eslint-plugin:** support ESLint 10 and drop the unused typescript-eslint peer ([#642](https://github.com/rnw-community/rnw-community/issues/642)) ([a5a2146](https://github.com/rnw-community/rnw-community/commit/a5a2146fa8c640cd82f1b38fbaf16fd8fe0750ef))
+
 ## [2.19.2](https://github.com/rnw-community/rnw-community/compare/v2.19.1...v2.19.2) (2026-10-04)
 
 ### Bug Fixes
