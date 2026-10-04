@@ -54,10 +54,9 @@ re-emitted as ESM syntax, so `tsc` compiles both `dist/esm/` and `dist/cjs/` as 
 Modernization Status for the full reasoning). `package.json` reflects this with root-level `"type": "commonjs"`
 (covering both dist trees) and no `"module"` field. `pnpm publint`'s `attw` check for this package alone passes
 `--ignore-rules named-exports`, since `attw`'s named-export warning only flags the unsupported (and undocumented)
-`import { x } from '@rnw-community/eslint-plugin'` form — the readme's documented usage is a default import. The
-`build` script also deletes `dist/esm/package.json` / `dist/cjs/package.json` after compiling: `tsc`'s
-`resolveJsonModule` copies the `../package.json` import target into both output trees verbatim (self-referential
-`"exports"` field and all), which `publint` correctly flags as dead weight.
+`import { x } from '@rnw-community/eslint-plugin'` form — the readme's documented usage is a default import. The plugin's
+`meta.name` and namespace are constants rather than a `../package.json` import, so nothing outside `src` lands in
+`dist` and the published entry stays loadable.
 
 ### Dependencies
 

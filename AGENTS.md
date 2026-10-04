@@ -354,7 +354,7 @@ The monorepo uses dual ESM + CJS output. Key decisions:
       classic `require()` probes it) are back to that form too.
       `no-restricted-syntax` selectors in `eslint.config.mjs` now flag the _opposite_ shape: any relative
       `Import`/`Export`/dynamic-`import()` specifier that **does** carry a `.js`/`.jsx`/`.mjs`/`.cjs` extension is a lint
-      error (`.json` stays allowed — `resolveJsonModule` imports like `eslint-plugin`'s `../package.json` need it). This
+      error (`.json` stays allowed for `resolveJsonModule` imports). This
       isn't just style: without a `moduleNameMapper` (see next), a stray `.js` in source would make Jest fail to resolve
       the specifier outright, since Jest resolves relative imports straight against the real `.ts` files on disk. Plain
       `import/extensions` from `eslint-plugin-import` remains unsuitable for the same reason it was rejected under the old
