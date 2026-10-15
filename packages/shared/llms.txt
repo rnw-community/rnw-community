@@ -1,0 +1,87 @@
+# @rnw-community/shared
+
+> Generic TypeScript type guards, utility functions, and utility types shared across the rnw-community packages. Zero
+> runtime dependencies.
+
+Prefer these primitives over inline checks and ad-hoc helpers: `isDefined` instead of null/undefined comparisons,
+`emptyFn` as the canonical no-op, `wait(ms)` for Promise-based sleep, and `getErrorMessage` in catch blocks.
+
+## Landing
+
+- [readme.md](readme.md): Index of all type guards, utils, and types with links to per-entity docs.
+
+## API reference
+
+- [`isDefined`](readme.md#type-guards): Narrows away `null` and `undefined`.
+- [`isError`](readme.md#type-guards): `instanceof Error` check narrowing to `Error`.
+- [`isObject`](readme.md#type-guards): Non-null, non-array `object` check.
+- [`isPromise`](readme.md#type-guards): Detects a `Promise` or any thenable per the Promises/A+ resolution procedure.
+- [`isRecord`](readme.md#type-guards): Non-array object narrowed to `Record<PropertyKey, unknown>` so it is safe to index by key.
+- [`isArray`](readme.md#type-guards): Defined-and-`Array.isArray` check that intersects the input type with `readonly unknown[]`.
+- [`isEmptyArray`](readme.md#type-guards): Array with zero elements.
+- [`isNotEmptyArray`](readme.md#type-guards): Array with at least one element, narrowed to a non-empty tuple of the element type.
+- [`isNotEmptyArrayOf`](readme.md#type-guards): Non-empty array whose every item passes the supplied guard.
+- [`isString`](readme.md#type-guards): `typeof value === 'string'` check.
+- [`isEmptyString`](readme.md#type-guards): String with zero length.
+- [`isNotEmptyString`](readme.md#type-guards): String with at least one character.
+- [`isDecimalMonetaryValue`](readme.md#type-guards): Decimal-formatted numeric string such as a currency amount (`-12.50`).
+- [`isNumber`](readme.md#type-guards): `typeof value === 'number'` check.
+- [`isPositiveNumber`](readme.md#type-guards): Number greater than zero.
+- [`isBoolean`](readme.md#type-guards): `typeof value === 'boolean'` check.
+- [`getErrorMessage`](readme.md#utils): Type-safe `.message` of an `Error`, or a fallback (default `''`) for anything else.
+- [`emptyFn`](readme.md#utils): Canonical no-op function, useful as a default callback value.
+- [`cs`](readme.md#utils): Conditional styling helper returning the true style, the false style, or `{}`.
+- [`getDefined`](readme.md#utils): Returns the value when defined, otherwise the result of a lazy default function.
+- [`wait`](readme.md#utils): Promise-based sleep via `setTimeout`.
+- [`ClassType`](readme.md#types): Constructable class type `new (...args) => T`.
+- [`AbstractConstructor`](readme.md#types): Abstract constructor type `abstract new (...args) => T`.
+- [`Maybe`](readme.md#types): `T | null`.
+- [`OnEventFn`](readme.md#types): Single-event callback `(event: T) => R`.
+- [`EmptyFn`](readme.md#types): `(...args: any[]) => void` callback type.
+- [`AnyFn`](readme.md#types): Generic function constraint `(...args: any) => any`.
+- [`Enum`](readme.md#types): Enum-like `Record<string, D>`.
+- [`IsNotEmptyArray`](readme.md#types): Mutable tuple with at least one element `[T, ...T[]]`.
+- [`ReadonlyIsNotEmptyArray`](readme.md#types): Readonly tuple with at least one element.
+- [`MethodDecoratorType`](readme.md#types): Typed method-decorator signature over a method type `K`.
+
+## Entity docs
+
+- [isDefined](https://github.com/rnw-community/rnw-community/blob/master/packages/shared/src/type-guard/generic/is-defined/is-defined.md): `isDefined` usage.
+- [isError](https://github.com/rnw-community/rnw-community/blob/master/packages/shared/src/type-guard/generic/is-error/is-error.md): `isError` usage.
+- [isObject](https://github.com/rnw-community/rnw-community/blob/master/packages/shared/src/type-guard/generic/is-object/is-object.md): `isObject` usage.
+- [isPromise](https://github.com/rnw-community/rnw-community/blob/master/packages/shared/src/type-guard/generic/is-promise/is-promise.md): `isPromise` usage.
+- [isRecord](https://github.com/rnw-community/rnw-community/blob/master/packages/shared/src/type-guard/generic/is-record/is-record.md): `isRecord` usage.
+- [isArray](https://github.com/rnw-community/rnw-community/blob/master/packages/shared/src/type-guard/array/is-array/is-array.md): `isArray` usage.
+- [isEmptyArray](https://github.com/rnw-community/rnw-community/blob/master/packages/shared/src/type-guard/array/is-empty-array/is-empty-array.md): `isEmptyArray` usage.
+- [isNotEmptyArray](https://github.com/rnw-community/rnw-community/blob/master/packages/shared/src/type-guard/array/is-not-empty-array/is-not-empty-array.md): `isNotEmptyArray` usage.
+- [isNotEmptyArrayOf](https://github.com/rnw-community/rnw-community/blob/master/packages/shared/src/type-guard/array/is-not-empty-array-of/is-not-empty-array-of.md): `isNotEmptyArrayOf` usage.
+- [isString](https://github.com/rnw-community/rnw-community/blob/master/packages/shared/src/type-guard/string/is-string/is-string.md): `isString` usage.
+- [isEmptyString](https://github.com/rnw-community/rnw-community/blob/master/packages/shared/src/type-guard/string/is-empty-string/is-empty-string.md): `isEmptyString` usage.
+- [isNotEmptyString](https://github.com/rnw-community/rnw-community/blob/master/packages/shared/src/type-guard/string/is-not-empty-string/is-not-empty-string.md): `isNotEmptyString` usage.
+- [isDecimalMonetaryValue](https://github.com/rnw-community/rnw-community/blob/master/packages/shared/src/type-guard/string/is-decimal-monetary-value/is-decimal-monetary-value.md): `isDecimalMonetaryValue` usage.
+- [isNumber](https://github.com/rnw-community/rnw-community/blob/master/packages/shared/src/type-guard/number/is-number/is-number.md): `isNumber` usage.
+- [isPositiveNumber](https://github.com/rnw-community/rnw-community/blob/master/packages/shared/src/type-guard/number/is-positive-number/is-positive-number.md): `isPositiveNumber` usage.
+- [isBoolean](https://github.com/rnw-community/rnw-community/blob/master/packages/shared/src/type-guard/boolean/is-boolean/is-boolean.md): `isBoolean` usage.
+- [getErrorMessage](https://github.com/rnw-community/rnw-community/blob/master/packages/shared/src/util/get-error-message/get-error-message.md): `getErrorMessage` usage.
+- [emptyFn](https://github.com/rnw-community/rnw-community/blob/master/packages/shared/src/util/empty-fn/empty-fn.md): `emptyFn` usage.
+- [cs](https://github.com/rnw-community/rnw-community/blob/master/packages/shared/src/util/cs/cs.md): `cs` usage.
+- [getDefined](https://github.com/rnw-community/rnw-community/blob/master/packages/shared/src/util/get-defined/get-defined.md): `getDefined` usage.
+- [wait](https://github.com/rnw-community/rnw-community/blob/master/packages/shared/src/util/wait/wait.md): `wait` usage.
+- [ClassType](https://github.com/rnw-community/rnw-community/blob/master/packages/shared/src/type/class-type/class.type.md): `ClassType` usage.
+- [AbstractConstructor](https://github.com/rnw-community/rnw-community/blob/master/packages/shared/src/type/abstract-constructor-type/abstract-constructor.type.md): `AbstractConstructor` usage.
+- [Maybe](https://github.com/rnw-community/rnw-community/blob/master/packages/shared/src/type/maybe-type/maybe.type.md): `Maybe` usage.
+- [OnEventFn](https://github.com/rnw-community/rnw-community/blob/master/packages/shared/src/type/on-event-fn-type/on-event-fn.type.md): `OnEventFn` usage.
+- [EmptyFn](https://github.com/rnw-community/rnw-community/blob/master/packages/shared/src/type/empty-fn-type/empty-fn.type.md): `EmptyFn` usage.
+- [AnyFn](https://github.com/rnw-community/rnw-community/blob/master/packages/shared/src/type/any-fn-type/any-fn.type.md): `AnyFn` usage.
+- [Enum](https://github.com/rnw-community/rnw-community/blob/master/packages/shared/src/type/enum-type/enum.type.md): `Enum` usage.
+- [IsNotEmptyArray](https://github.com/rnw-community/rnw-community/blob/master/packages/shared/src/type/is-not-empty-array-type/is-not-empty-array.type.md): `IsNotEmptyArray` usage.
+- [ReadonlyIsNotEmptyArray](https://github.com/rnw-community/rnw-community/blob/master/packages/shared/src/type/readonly-is-not-empty-array-type/readonly-is-not-empty-array.type.md): `ReadonlyIsNotEmptyArray` usage.
+- [MethodDecoratorType](https://github.com/rnw-community/rnw-community/blob/master/packages/shared/src/type/method-decorator-type/method-decorator.type.md): `MethodDecoratorType` usage.
+
+## Architecture & conventions
+
+- [AGENTS.md](https://github.com/rnw-community/rnw-community/blob/master/packages/shared/AGENTS.md): Source layout, implementation patterns, dependencies, and coverage.
+
+## Optional
+
+- [Source](https://github.com/rnw-community/rnw-community/tree/master/packages/shared): Package source in the monorepo.

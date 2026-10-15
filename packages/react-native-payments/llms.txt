@@ -46,8 +46,8 @@ handshake without a repo-wide search.
 
 ## Architecture & conventions
 
-- [AGENTS.md](AGENTS.md): Source layout, TurboModule/Expo-plugin architecture, key implementation patterns, dependencies, and coverage.
-- [Repository AGENTS.md — PR Review & Merge Policy](../../AGENTS.md#pr-review--merge-policy): Repo-wide policy for triaging automated review findings before merge; applies to this package's PRs.
+- [AGENTS.md](https://github.com/rnw-community/rnw-community/blob/master/packages/react-native-payments/AGENTS.md): Source layout, TurboModule/Expo-plugin architecture, key implementation patterns, dependencies, and coverage.
+- [Repository AGENTS.md — PR Review & Merge Policy](https://github.com/rnw-community/rnw-community/blob/master/AGENTS.md#pr-review--merge-policy):Repo-wide policy for triaging automated review findings before merge; applies to this package's PRs.
 
 ## Native contract
 
@@ -56,9 +56,9 @@ handshake without a repo-wide search.
 
 ## End-to-end verification
 
-- [react-native-payments-example/e2e/readme.md](../react-native-payments-example/e2e/readme.md): Maestro flow inventory and the documented iOS PassKit sheet accessibility-sandbox boundary.
-- [maestro-e2e skill](../../.agents/skills/maestro-e2e/SKILL.md): Agent skill for writing and running Maestro E2E flows against this package's example app.
+- [react-native-payments-example/e2e/readme.md](https://github.com/rnw-community/rnw-community/blob/master/packages/react-native-payments-example/e2e/readme.md): Maestro flow inventory and the documented iOS PassKit sheet accessibility-sandbox boundary.
+- [maestro-e2e skill](https://github.com/rnw-community/rnw-community/blob/master/.agents/skills/maestro-e2e/SKILL.md):Agent skill for writing and running Maestro E2E flows against this package's example app.
 
 ## Optional
 
-- [CHANGELOG.md](CHANGELOG.md): Version history.
+- [CHANGELOG.md](https://github.com/rnw-community/rnw-community/blob/master/packages/react-native-payments/CHANGELOG.md):Version history.

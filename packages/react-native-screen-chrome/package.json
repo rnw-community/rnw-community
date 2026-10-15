@@ -39,7 +39,9 @@
     },
     "types": "dist/typescript/module/index.d.ts",
     "files": [
-        "dist/**/*"
+        "dist/**/*",
+        "llms.txt",
+        "!dist/**/*.tsbuildinfo"
     ],
     "scripts": {
         "build": "rm -rf ./dist && bob build && pnpm run build:esm-extensions",

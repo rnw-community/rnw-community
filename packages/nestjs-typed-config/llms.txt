@@ -1,0 +1,31 @@
+# @rnw-community/nestjs-typed-config
+
+> NestJS typed configuration with full TypeScript support: an enum of environment variable names, an interface of their
+> types, and a `joi` validation schema produce a typed, cached config service. Peer dependencies: `@nestjs/common`,
+> `@nestjs/config`, and `joi`.
+
+Extend the service class returned by `NestJSTypedConfigModule.create` and wire the returned module into your own
+config module. Variables whose name ends with `_FILE` are read from the file path they contain.
+
+## Landing
+
+- [readme.md](readme.md): Installation, exports, configuration setup, usage, and file-backed variables.
+
+## Guides
+
+- [Configuration](readme.md#configuration): Defining the variables enum, types interface, joi schema, and the project config module.
+- [Usage](readme.md#usage): Injecting the extended config service and reading typed values with `get`.
+- [Reading values from files](readme.md#reading-values-from-files): `_FILE`-suffixed variables resolved to the trimmed contents of the referenced file.
+
+## API reference
+
+- [`NestJSTypedConfigModule`](readme.md#nestjstypedconfigmodule): `create<Enum, Config>(validationSchema)` returns a `[DynamicModule, ServiceClass]` tuple backed by a global, cached `ConfigModule.forRoot`.
+- [`NestJSTypedConfigService`](readme.md#nestjstypedconfigservice): Injectable service whose `get(envVariable)` returns the typed value, caching lookups and reading `_FILE` variables from disk.
+
+## Architecture & conventions
+
+- [AGENTS.md](https://github.com/rnw-community/rnw-community/blob/master/packages/nestjs-typed-config/AGENTS.md): Package commands, architecture, key patterns, dependencies, and coverage.
+
+## Optional
+
+- [Source](https://github.com/rnw-community/rnw-community/tree/master/packages/nestjs-typed-config): Package source in the monorepo.

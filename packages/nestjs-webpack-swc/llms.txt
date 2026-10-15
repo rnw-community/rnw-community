@@ -1,0 +1,37 @@
+# @rnw-community/nestjs-webpack-swc
+
+> NestJS webpack and SWC configuration helpers for fast local development: ready-made dev (HMR) and production webpack
+> configs using `swc-loader`, an HMR bootstrap helper, and a TypeORM migrations loader for webpack builds. Peer
+> dependencies: `@nestjs/common`, `webpack`, `webpack-node-externals`, `swc-loader`, `@swc/*`, and webpack plugins.
+
+The webpack configs are consumed through the `@rnw-community/nestjs-webpack-swc/get-nestjs-webpack-dev.config` and
+`@rnw-community/nestjs-webpack-swc/get-nestjs-webpack-prod.config` subpath entry points. Webpack writes a filesystem
+cache to `.build_cache` in the package root, which should be git-ignored.
+
+## Landing
+
+- [readme.md](readme.md): Installation, webpack and HMR configuration, scripts, and known webpack / SWC issues.
+
+## Guides
+
+- [Scripts package.json](readme.md#scripts-packagejson): `build` and `start:dev` scripts using `nest build --webpack`.
+- [.gitignore](readme.md#gitignore): Ignoring the `.build_cache` webpack filesystem cache folder.
+- [Possible webpack issues](readme.md#possible-webpack-issues): Packages relying on absolute / relative paths under webpack bundling.
+- [Typeorm CLI](readme.md#typeorm-cli): Running the TypeORM CLI through `ts-node` when migrations are no longer emitted to dist.
+- [SWC bindings](readme.md#swc-bindings): Fixing `Bindings not found` when the container architecture differs from the host.
+
+## API reference
+
+- [`getNestJSWebpackDevConfig`](readme.md#development-webpack-configuration): Subpath `@rnw-community/nestjs-webpack-swc/get-nestjs-webpack-dev.config`; dev webpack config with SWC, hot module replacement, and auto-run of the bundle.
+- [`getNestJSWebpackProdConfig`](readme.md#production-webpack-configuration): Subpath `@rnw-community/nestjs-webpack-swc/get-nestjs-webpack-prod.config`; production webpack config with minified SWC output and Terser keeping class names.
+- [`handleNestJSWebpackHmr`](readme.md#nestjs-hmr): Accepts webpack hot updates and closes the NestJS app or microservice on dispose.
+- [`HmrModuleInterface`](readme.md#nestjs-hmr): Shape of the webpack `module` object (optional `hot` with `accept` / `dispose`) passed to `handleNestJSWebpackHmr`.
+- [`importTypeormWebpackMigrations`](readme.md#typeorm-migrations): Collects every exported migration class from a webpack `require.context` for TypeORM configuration.
+
+## Architecture & conventions
+
+- [AGENTS.md](https://github.com/rnw-community/rnw-community/blob/master/packages/nestjs-webpack-swc/AGENTS.md): Package commands, architecture, subpath exports, key patterns, and dependencies.
+
+## Optional
+
+- [Source](https://github.com/rnw-community/rnw-community/tree/master/packages/nestjs-webpack-swc): Package source in the monorepo.

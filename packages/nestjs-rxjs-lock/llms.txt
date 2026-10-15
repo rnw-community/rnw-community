@@ -1,0 +1,30 @@
+# @rnw-community/nestjs-rxjs-lock
+
+> NestJS module for Redis-backed distributed locking via Redlock, exposing an RxJS `Observable` API. Depends on
+> `@nestjs/common`, `@nestjs/core`, `@nestjs-modules/ioredis`, `ioredis`, `redlock`, and `rxjs`.
+
+Wrap the typed module and service returned by `NestJSRxJSLockModule.registerTypedAsync<E>()` in your own module so lock
+prefixes stay type-safe; lock keys take the form `lock:[prefix]:[name]`, and `lock$` errors when the lock is not acquired.
+
+## Landing
+
+- [readme.md](readme.md): Typed module setup, `registerTypedAsync` options, and `lock$` usage.
+
+## Guides
+
+- [Configuration](readme.md#configuration): Wrapping the typed module and service with a type-safe lock-code enum.
+
+## API reference
+
+- [`NestJSRxJSLockModule`](readme.md#nestjsrxjslockmoduleregistertypedasync): Module whose `registerTypedAsync<E>(options?)` returns a `[DynamicModule, LockService]` tuple bound to Redis.
+- [`NestJSRxJSLockService`](readme.md#nestjsrxjsservicelock): Abstract service whose `lock$(name, prefix, handler$, expireInMs?)` runs `handler$` while holding a Redlock lock.
+- [`NestJSRxJSLockModuleOptions`](readme.md#nestjsrxjslockmoduleregistertypedasync): Redlock `Settings` extended with `defaultExpireMs`.
+- [`defaultNestJSRxJSLockModuleOptions`](readme.md#nestjsrxjslockmoduleregistertypedasync): Default options merged under the ones passed to `registerTypedAsync` (`defaultExpireMs: 10000`, `retryCount: 0`).
+
+## Architecture & conventions
+
+- [AGENTS.md](https://github.com/rnw-community/rnw-community/blob/master/packages/nestjs-rxjs-lock/AGENTS.md): Source layout, implementation patterns, dependencies, and coverage.
+
+## Optional
+
+- [Source](https://github.com/rnw-community/rnw-community/tree/master/packages/nestjs-rxjs-lock): Package source in the monorepo.

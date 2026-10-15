@@ -77,7 +77,8 @@
         "!src/**/*.spec.ts",
         "!src/**/*.mock.ts",
         "!src/**/e2e/**",
-        "!**/.*"
+        "!**/.*",
+        "!dist/**/*.tsbuildinfo"
     ],
     "scripts": {
         "build": "pnpm run build:esm && pnpm run build:cjs && node ../../scripts/rewrite-esm-extensions.mjs ./dist/esm && node ../../scripts/assert-esm-extensions.mjs ./dist/esm && rm -rf ./dist/*/*.tsbuildinfo && echo '{\"type\":\"module\"}' > dist/esm/package.json && echo '{\"type\":\"commonjs\"}' > dist/cjs/package.json",
