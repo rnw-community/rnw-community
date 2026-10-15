@@ -20,7 +20,7 @@ handshake without a repo-wide search.
 ## Platforms
 
 - [docs/platforms/ios.md](docs/platforms/ios.md): Apple Pay setup, capabilities, and iOS-only known deviations.
-- [docs/platforms/android.md](docs/platforms/android.md): Google Pay setup, capabilities, and Android-only known deviations.
+- [docs/platforms/android.md](docs/platforms/android.md): Google Pay setup, capabilities (including merchant-initiated transactions for pre-orders, bookings, subscriptions and automatic reloads), and Android-only known deviations.
 - [docs/platforms/web.md](docs/platforms/web.md): Browser fallback behavior via the W3C `PaymentRequest` implementation.
 - [docs/platforms/expo.md](docs/platforms/expo.md): Expo config plugin options reference.
 

@@ -30,13 +30,14 @@ dependencies {
 
 - `environment` (`EnvironmentEnum`) selects the Google Pay environment for the payment; see
   [api/environment-enum.md](../api/environment-enum.md).
-- `totalPriceStatus` describes how the total price will change: `'FINAL'` (default), `'ESTIMATED'` or
-  `'NOT_CURRENTLY_KNOWN'`. A zero total amount (`'0.00'`) is valid per the W3C spec and can be combined with a
-  non-final status when the price is not known upfront. See
+- `totalPriceStatus` describes how the total price will change: `'FINAL'` (default) or `'ESTIMATED'`. A zero total
+  amount (`'0.00'`) is valid per the W3C spec. `'NOT_CURRENTLY_KNOWN'` is still accepted by the type for backwards compatibility,
+  but Google's current `TransactionInfo` reference only lists `'ESTIMATED'` and `'FINAL'` — for a charge whose amount
+  is not known at checkout, use a [merchant-initiated transaction](#merchant-initiated-transactions) instead. See
   [TransactionInfo](https://developers.google.com/pay/api/android/reference/request-objects#TransactionInfo).
-- `checkoutOption` selects the payment sheet submit behavior: `'DEFAULT'` or `'COMPLETE_IMMEDIATE_PURCHASE'`.
-  Google Pay only allows `'COMPLETE_IMMEDIATE_PURCHASE'` together with the `'FINAL'` `totalPriceStatus`, so the
-  constructor throws on any other combination.
+- `checkoutOption` selects the payment sheet submit button: `'DEFAULT'`, `'COMPLETE_IMMEDIATE_PURCHASE'` ("Pay now")
+  or `'CONTINUE_TO_REVIEW'` ("Review Order"). Google Pay only allows `'COMPLETE_IMMEDIATE_PURCHASE'` together with the
+  `'FINAL'` `totalPriceStatus`, so the constructor throws on any other combination.
 - `transactionId` correlates the payment attempt in Google Pay transaction events.
 - `allowedAuthMethods` (`AndroidAllowedAuthMethodsEnum`) defaults to both `PAN_ONLY` and `CRYPTOGRAM_3DS` when
   omitted. See [api/android-payment-method-data.md](../api/android-payment-method-data.md).
@@ -46,6 +47,15 @@ dependencies {
   [#259](https://github.com/rnw-community/rnw-community/issues/259).
 - `hasEnrolledInstrument()` calls Google Pay's `isReadyToPay` with `existingPaymentMethodRequired: true`. See
   [Known deviations](#known-deviations).
+
+### Merchant-initiated transactions
+
+For pre-orders, bookings, subscriptions and automatic reloads, set exactly one of `deferredTransactionInfo`,
+`recurringTransactionInfo` or `automaticReloadTransactionInfo` on the Android `methodData.data`. The package sends it in
+place of `transactionInfo`, with `details.total` as the `immediateTotalPrice` due today (`'0.00'` allowed) and
+`currencyCode`, `countryCode` (required) and `transactionId` taken from the method data. It cannot be combined with
+`checkoutOption` or `totalPriceStatus`. See
+[api/android-merchant-initiated-transaction-info.md](../api/android-merchant-initiated-transaction-info.md).
 
 ## Known deviations
 

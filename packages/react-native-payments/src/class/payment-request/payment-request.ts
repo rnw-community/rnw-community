@@ -7,7 +7,6 @@ import { emptyFn, isDefined, isEmptyArray, isError, isNotEmptyArray, isNotEmptyS
 import { AndroidPaymentMethodTokenizationType } from '../../@standard/android/enum/android-payment-method-tokenization-type.enum';
 import { defaultAndroidPaymentDataRequest } from '../../@standard/android/request/android-payment-data-request';
 import { defaultAndroidPaymentMethod } from '../../@standard/android/request/android-payment-method';
-import { defaultAndroidTransactionInfo } from '../../@standard/android/request/android-transaction-info';
 import { IOSPKContactField } from '../../@standard/ios/enum/ios-pk-contact-field.enum';
 import { IosPKMerchantCapability } from '../../@standard/ios/enum/ios-pk-merchant-capability.enum';
 import { IosPKPaymentNetworksEnum } from '../../@standard/ios/enum/ios-pk-payment-networks.enum';
@@ -17,11 +16,13 @@ import { SupportedNetworkEnum } from '../../enum/supported-networks.enum';
 import { ConstructorError } from '../../error/constructor.error';
 import { DOMException } from '../../error/dom.exception';
 import { PaymentsError } from '../../error/payments.error';
+import { getAndroidBillingIntent } from '../../util/get-android-billing-intent.util';
 import { getAndroidCardNetworks } from '../../util/get-android-card-networks/get-android-card-networks.util';
 import { getNativePaymentsEventEmitter } from '../../util/get-native-payments-event-emitter/get-native-payments-event-emitter.util';
 import { isNativeUserCancellation } from '../../util/is-native-user-cancellation.util';
 import { resolvePaymentDetailsModifier } from '../../util/resolve-payment-details-modifier.util';
 import { validateAndroidCardNetworks } from '../../util/validate-android-card-networks.util';
+import { validateAndroidMerchantInitiatedTransaction } from '../../util/validate-android-merchant-initiated-transaction.util';
 import { validateAndroidTransactionInfo } from '../../util/validate-android-transaction-info.util';
 import { validateDetailsUpdate } from '../../util/validate-details-update.util';
 import { validateDisplayItems } from '../../util/validate-display-items.util';
@@ -313,6 +314,7 @@ export class PaymentRequest {
         validatePaymentMethods(methodData);
         validateAndroidTransactionInfo(methodData, ConstructorError);
         validateAndroidCardNetworks(methodData, ConstructorError);
+        validateAndroidMerchantInitiatedTransaction(methodData, ConstructorError);
         validateShippingType(methodData, ConstructorError);
 
         validateTotal(details.total, ConstructorError);
@@ -604,23 +606,12 @@ export class PaymentRequest {
             methodData.requestPayerName === true ||
             methodData.requestPayerPhone === true;
 
-        const totalPriceStatus = methodData.totalPriceStatus ?? defaultAndroidTransactionInfo.totalPriceStatus;
-
         return {
             ...defaultAndroidPaymentDataRequest,
             merchantInfo: {
                 merchantName: total.label,
             },
-            transactionInfo: {
-                ...defaultAndroidTransactionInfo,
-                currencyCode: methodData.currencyCode,
-                totalPrice: total.amount.value,
-                totalPriceLabel: total.label,
-                countryCode: methodData.countryCode,
-                totalPriceStatus,
-                ...(isDefined(methodData.checkoutOption) && { checkoutOption: methodData.checkoutOption }),
-                ...(isDefined(methodData.transactionId) && { transactionId: methodData.transactionId }),
-            },
+            ...getAndroidBillingIntent(methodData, total),
             allowedPaymentMethods: [
                 {
                     ...defaultAndroidPaymentMethod,
