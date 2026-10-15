@@ -12,6 +12,11 @@ appId: ${APP_ID}
 # A bare assertVisible here only allowed Maestro's short implicit retry, so a cold
 # release launch on a loaded host reported the flow state as missing when it was
 # merely not rendered yet. The bound is for the slowest host, not for startup.
+- scrollUntilVisible:
+    element:
+      id: "payments-flow-state"
+    direction: UP
+    timeout: 60000
 - extendedWaitUntil:
     visible:
       id: "payments-flow-state"
