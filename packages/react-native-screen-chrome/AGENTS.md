@@ -48,8 +48,10 @@ pnpm test && pnpm test:coverage && pnpm build && pnpm ts && pnpm ts:nodenext && 
 - The `@rnw-community/react-native-collapsible-header` peer floor is `>=2.18.0`: the derived
   `pointerEventsSwitchProgress` default (2.17.3) and `syncNativeScrollOffset` (2.18.0) are both load-bearing, and an
   older primitive accepts the props silently while reintroducing the transparent-layer pointer handoff.
-- Header slots are `pointerEvents="box-none"`: the slot box keeps its 44pt minimum for layout, but only its children
-  receive touches, so an empty or narrow slot never swallows taps meant for the layers underneath.
+- Header slots are `pointerEvents="box-none"`: the slot box defaults to a 44pt minimum for layout, but only its
+  children receive touches, so an empty or narrow slot never swallows taps meant for the layers underneath. The
+  consumer `style` merges last on purpose — it is the sizing escape hatch, so a consumer that overrides `minWidth`/
+  `minHeight` owns the touch-target size of the control it renders.
 - The `expo-blur` peer floor is `>=55`: `blurMethod` and the `BlurMethod` type only exist from that release (it renamed
   `experimentalBlurMethod`), and the same release made `dimezisBlurView` require a `BlurTargetView`. `EdgeFade`
   therefore defaults `blurMethod` from `blurTarget` presence rather than hard-coding a targeted method.
@@ -58,7 +60,7 @@ pnpm test && pnpm test:coverage && pnpm build && pnpm ts && pnpm ts:nodenext && 
 - Relative source imports stay extensionless; the build's post-compile rewrite/assert pair enforces extensioned specifiers in `dist/module` and `dist/typescript/module`, and NodeNext validation must pass.
 - No manual `useMemo`, `useCallback`, or `React.memo` in `src` for plain derivations — that is React Compiler's
   job once #601 resolves and compiler output returns. While the compiler is absent (see below), values whose
-  _identity_ is behavior — a merged ref callback that React 19 would otherwise detach, clean up, and reattach
+  *identity* is behavior — a merged ref callback that React 19 would otherwise detach, clean up, and reattach
   on every render — must be manually memoized; nothing else memoizes them today.
 - `EdgeFade` native renders the blur band directly — no `MaskedView`, no `expo-linear-gradient`: gradient native views
   corrupt the Hermes heap on the current RN 0.86 / iOS 26 stack (masked-view 0.3.2 is unmaintained; the gradient

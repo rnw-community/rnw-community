@@ -161,8 +161,9 @@ transition layers.
 </CollapsibleHeaderSlot>
 ```
 
-The slot is `pointerEvents="box-none"`, so an empty or narrow slot never swallows taps; pass `style` to adjust its size
-or spacing.
+The slot is `pointerEvents="box-none"`, so an empty or narrow slot never swallows taps while its children stay
+pressable. It defaults to a 44pt minimum; `style` merges last to adjust size or spacing, so overriding
+`minWidth`/`minHeight` makes the rendered control responsible for its own touch target.
 
 ## CollapsibleHeaderTitleSlot
 
