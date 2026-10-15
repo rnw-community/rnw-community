@@ -177,4 +177,38 @@ describe('ScreenChromeScrollView additive insets and consumer ref', () => {
         expect(mockScrollRef).toHaveBeenCalledTimes(1);
         expect(mockScrollRef).not.toHaveBeenCalledWith(null);
     });
+
+    it('keeps the iOS scroll indicator clear of the safe area and chrome insets', () => {
+        expect.hasAssertions();
+
+        const screen = render(
+            <ScreenChromeScrollView
+                testID="indicator-scroll"
+                contentInsetTop={CONTENT_INSET_TOP}
+                contentInsetBottom={CONTENT_INSET_BOTTOM}
+                contentContainerStyle={{ paddingTop: CONSUMER_PADDING_TOP }}
+            />
+        );
+        const scrollView = screen.getByTestId('indicator-scroll');
+
+        expect(scrollView).toHaveProp('automaticallyAdjustsScrollIndicatorInsets', false);
+        expect(scrollView).toHaveProp('scrollIndicatorInsets', { top: 15, bottom: 37 });
+    });
+
+    it('lets consumer scroll indicator settings win', () => {
+        expect.hasAssertions();
+
+        const consumerIndicatorInsets = { top: 1, bottom: 2 };
+        const screen = render(
+            <ScreenChromeScrollView
+                testID="consumer-indicator-scroll"
+                automaticallyAdjustsScrollIndicatorInsets
+                scrollIndicatorInsets={consumerIndicatorInsets}
+            />
+        );
+        const scrollView = screen.getByTestId('consumer-indicator-scroll');
+
+        expect(scrollView).toHaveProp('automaticallyAdjustsScrollIndicatorInsets', true);
+        expect(scrollView).toHaveProp('scrollIndicatorInsets', consumerIndicatorInsets);
+    });
 });
