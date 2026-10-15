@@ -33,6 +33,9 @@ React Native CLI rather than Expo) must install Expo Modules support before it c
 npx install-expo-modules@latest
 ```
 
+Only the native module setup is needed: answer No to `Install the Expo CLI integration?` to keep bundling with the
+React Native CLI (`--non-interactive` answers Yes and switches Babel, Metro and the native bundling phases to Expo CLI).
+
 The tool picks the Expo SDK from the application's React Native version; if it reports
 `Unable to find compatible Expo SDK version`, run a newer release explicitly with the matching SDK, for example
 `npx install-expo-modules@next --sdk-version 57.0.0` for React Native 0.86. See
