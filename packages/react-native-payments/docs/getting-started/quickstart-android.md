@@ -9,9 +9,29 @@ story (capabilities, deviations, dependency version).
    [Platforms — Android](../platforms/android.md#native-setup) for the Gradle snippet.
 4. Add your test Google account to the
    [Google Pay API Test Cards Allowlist](https://groups.google.com/g/googlepay-test-mode-stub-data?pli=1).
-5. Construct a `PaymentRequest` with `PaymentMethodNameEnum.AndroidPay` method data (`supportedNetworks`,
-   `environment`, `countryCode`, `currencyCode`, `gatewayConfig`) and call `show()` — see the
-   [readme quickstart](../../readme.md#quickstart) for the full snippet.
+5. Build the Google Pay method data with `createGooglePayMethodData`, construct a `PaymentRequest` and call `show()`:
+
+```ts
+import { PaymentRequest, createGooglePayMethodData } from '@rnw-community/react-native-payments';
+
+const methodData = [
+    createGooglePayMethodData({
+        countryCode: 'US',
+        currencyCode: 'USD',
+        gatewayConfig: { gateway: 'example', gatewayMerchantId: 'id' },
+    }),
+];
+const paymentResponse = await new PaymentRequest(methodData, {
+    total: { label: 'Total', amount: { currency: 'USD', value: '10.00' } },
+}).show();
+```
+
+`environment` defaults to `EnvironmentEnum.TEST` and `supportedNetworks` to Visa and Mastercard. Pass
+`environment: EnvironmentEnum.PRODUCTION` for live payments — see
+[api/create-google-pay-method-data.md](../api/create-google-pay-method-data.md). To write the method data by hand
+instead, pass `{ supportedMethods: PaymentMethodNameEnum.AndroidPay, data: { supportedNetworks, environment,
+countryCode, currencyCode, gatewayConfig } }` — see [api/android-payment-method-data.md](../api/android-payment-method-data.md).
+The [readme quickstart](../../readme.md#quickstart) shows the full flow, including `complete()`.
 
 `canMakePayment()` on Android always checks against `EnvironmentEnum.TEST` regardless of the `environment` set
 on `methodData.data` — set the real `environment` for `show()` regardless of what `canMakePayment()` reported.

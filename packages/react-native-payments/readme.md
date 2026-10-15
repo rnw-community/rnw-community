@@ -33,26 +33,22 @@ one-time platform setup before writing any code:
 ```ts
 import {
     PaymentComplete,
-    PaymentMethodNameEnum,
     PaymentRequest,
-    SupportedNetworkEnum,
+    createApplePayMethodData,
+    createGooglePayMethodData,
 } from '@rnw-community/react-native-payments';
 
 const methodData = [
-    {
-        supportedMethods: PaymentMethodNameEnum.ApplePay,
-        data: {
-            merchantIdentifier: 'merchant.com.your-app.namespace',
-            supportedNetworks: [SupportedNetworkEnum.Visa, SupportedNetworkEnum.Mastercard],
-            countryCode: 'US',
-            currencyCode: 'USD',
-        },
-    },
-    // Add a matching AndroidPay entry to the same array to support both platforms.
+    createApplePayMethodData({ merchantIdentifier: 'merchant.com.your-app', countryCode: 'US', currencyCode: 'USD' }),
+    createGooglePayMethodData({
+        countryCode: 'US',
+        currencyCode: 'USD',
+        gatewayConfig: { gateway: 'example', gatewayMerchantId: 'id' },
+    }),
 ];
-const paymentDetails = { total: { label: 'Total', amount: { currency: 'USD', value: '10.00' } } };
-
-const paymentRequest = new PaymentRequest(methodData, paymentDetails);
+const paymentRequest = new PaymentRequest(methodData, {
+    total: { label: 'Total', amount: { currency: 'USD', value: '10.00' } },
+});
 
 if (await paymentRequest.canMakePayment()) {
     const paymentResponse = await paymentRequest.show();
@@ -62,10 +58,19 @@ if (await paymentRequest.canMakePayment()) {
 }
 ```
 
+[`createApplePayMethodData`](docs/api/create-apple-pay-method-data.md) and
+[`createGooglePayMethodData`](docs/api/create-google-pay-method-data.md) fill in the defaults: Visa and Mastercard on
+both platforms, plus the Google Pay `TEST` environment — pass `environment: EnvironmentEnum.PRODUCTION` for live
+payments. Each one returns the plain `methodData` entry, so you can still write that object by hand — see
+[api/ios-payment-method-data.md](docs/api/ios-payment-method-data.md) and
+[api/android-payment-method-data.md](docs/api/android-payment-method-data.md) for the raw shape.
+
 Only call `complete(PaymentComplete.SUCCESS)` once your backend has actually confirmed the charge. A
 `PaymentRequest` is single-use — build a new one per payment attempt rather than reusing a settled request; see
-[docs/architecture.md](docs/architecture.md). For the full two-platform `methodData` shape, shipping/coupon
-change events, and payment details modifiers, see the [doc map](#doc-map) below.
+[docs/architecture.md](docs/architecture.md).
+[`createPaymentRequestFactory`](docs/api/create-payment-request-factory.md) builds a fresh request per attempt from
+shared configuration. For shipping/coupon change events and payment details modifiers, see the [doc map](#doc-map)
+below.
 
 ### Screenshots
 

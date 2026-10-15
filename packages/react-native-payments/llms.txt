@@ -27,6 +27,8 @@ handshake without a repo-wide search.
 ## API reference
 
 - [docs/api/index.md](docs/api/index.md): Every exported class, enum, interface and type, one file per entity group.
+- [docs/api/create-apple-pay-method-data.md](docs/api/create-apple-pay-method-data.md), [docs/api/create-google-pay-method-data.md](docs/api/create-google-pay-method-data.md): Method data presets with Visa/Mastercard and Google Pay `TEST` defaults.
+- [docs/api/create-payment-request-factory.md](docs/api/create-payment-request-factory.md): Builds a fresh single-use `PaymentRequest` per checkout attempt; documents the base/per-checkout details merge.
 
 ## Guides
 
