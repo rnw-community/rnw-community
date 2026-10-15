@@ -10,6 +10,7 @@ const ZERO = 0;
 const NEGATIVE_ONE = -1;
 const INVALID_SMALL_TITLE_START = 90;
 const INVALID_MASK_STOP_POSITION = 1.1;
+const COLLAPSED_HEADER_HEIGHT = 44;
 
 type NumericConfigProperty = keyof Pick<
     ScreenChromeConfigInterface,
@@ -52,6 +53,38 @@ describe('assertValidScreenChromeConfig', () => {
         expect(() => {
             assertValidScreenChromeConfig(buildConfig({ [property]: value }));
         }).toThrow(message);
+    });
+
+    it('accepts a collapsed header height up to the expanded header height', () => {
+        expect.hasAssertions();
+
+        expect(() => {
+            assertValidScreenChromeConfig(buildConfig({ collapsedHeaderHeight: COLLAPSED_HEADER_HEIGHT }));
+        }).not.toThrow();
+        expect(() => {
+            assertValidScreenChromeConfig(buildConfig({ collapsedHeaderHeight: SCREEN_CHROME_DEFAULT_CONFIG.headerHeight }));
+        }).not.toThrow();
+    });
+
+    it.each([ZERO, NEGATIVE_ONE, Number.NaN, Number.POSITIVE_INFINITY])(
+        'rejects a non-positive or non-finite collapsed header height %s',
+        collapsedHeaderHeight => {
+            expect.hasAssertions();
+
+            expect(() => {
+                assertValidScreenChromeConfig(buildConfig({ collapsedHeaderHeight }));
+            }).toThrow('collapsedHeaderHeight must be a positive finite number');
+        }
+    );
+
+    it('rejects a collapsed header height taller than the expanded header height', () => {
+        expect.hasAssertions();
+
+        expect(() => {
+            assertValidScreenChromeConfig(
+                buildConfig({ collapsedHeaderHeight: SCREEN_CHROME_DEFAULT_CONFIG.headerHeight + 1 })
+            );
+        }).toThrow('collapsedHeaderHeight must be less than or equal to headerHeight');
     });
 
     it('rejects invalid threshold ordering', () => {

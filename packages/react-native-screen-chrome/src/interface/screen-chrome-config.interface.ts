@@ -9,6 +9,11 @@ import type { ScreenChromeColorScheme } from '../type/screen-chrome-color-scheme
  */
 export interface ScreenChromeConfigInterface {
     readonly headerHeight: number;
+    /**
+     * Collapsed `CollapsibleHeader` content height below the safe area, positive and not greater than `headerHeight`.
+     * @defaultValue `headerHeight`
+     */
+    readonly collapsedHeaderHeight?: number;
     readonly topFadeHeight: number;
     readonly bottomFadeHeight: number;
     readonly headerBackdropHeight: number;

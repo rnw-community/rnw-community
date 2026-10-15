@@ -38,7 +38,19 @@ const assertNumberConfig = (config: ScreenChromeConfigInterface): void => {
     assertPositiveFiniteNumber('scrollEventThrottle', config.scrollEventThrottle);
 };
 
-const assertThresholdOrder = (config: ScreenChromeConfigInterface): void => {
+const assertCollapsedHeaderHeight = (config: ScreenChromeConfigInterface): void => {
+    if (!isDefined(config.collapsedHeaderHeight)) {
+        return;
+    }
+
+    assertPositiveFiniteNumber('collapsedHeaderHeight', config.collapsedHeaderHeight);
+
+    if (config.collapsedHeaderHeight > config.headerHeight) {
+        throw new Error('collapsedHeaderHeight must be less than or equal to headerHeight');
+    }
+};
+
+const assertThresholdOrder =(config: ScreenChromeConfigInterface): void => {
     const hasValidOrder =
         config.collapseStart <= config.smallTitleStart &&
         config.smallTitleStart <= config.largeTitleEnd &&
@@ -90,6 +102,7 @@ const assertMaskStops = (
  */
 export const assertValidScreenChromeConfig = (config: ScreenChromeConfigInterface): void => {
     assertNumberConfig(config);
+    assertCollapsedHeaderHeight(config);
     assertThresholdOrder(config);
     assertColorSet('light', config.colors.light);
     assertColorSet('dark', config.colors.dark);

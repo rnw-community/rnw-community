@@ -1,4 +1,4 @@
-import { describe, expect, it, jest } from '@jest/globals';
+import { afterEach, describe, expect, it, jest } from '@jest/globals';
 import { render, screen } from '@testing-library/react-native';
 import React from 'react';
 import { StyleSheet, Text } from 'react-native';
@@ -12,9 +12,12 @@ import { SCREEN_CHROME_DEFAULT_CONFIG } from '../constant/screen-chrome-default-
 
 import { CollapsibleHeader } from './collapsible-header';
 
+import type { ScreenChromeConfigInterface } from '../interface/screen-chrome-config.interface';
 import type { StyleProp, ViewStyle } from 'react-native';
 
-const mockConfig = { ...SCREEN_CHROME_DEFAULT_CONFIG, snapToCollapse: true };
+const DEFAULT_MOCK_CONFIG: ScreenChromeConfigInterface = { ...SCREEN_CHROME_DEFAULT_CONFIG, snapToCollapse: true };
+const COLLAPSED_HEADER_HEIGHT = 44;
+let mockConfig = DEFAULT_MOCK_CONFIG;
 const mockTopInset = 12;
 
 jest.mock('react-native-safe-area-context', () => ({
@@ -86,5 +89,33 @@ describe('CollapsibleHeader integration', () => {
         expect(getLayerStyle('collapsed').top).toBe(mockTopInset);
         expect(getLayerStyle('persistent').top).toBe(mockTopInset);
         expect(getLayerStyle('header').paddingTop).toBeUndefined();
+    });
+
+    describe('with a collapsed header height', () => {
+        afterEach(() => {
+            mockConfig = DEFAULT_MOCK_CONFIG;
+        });
+
+        it('mounts an overlay header that rests at the expanded height and keeps a lone title slot', () => {
+            expect.hasAssertions();
+
+            mockConfig = { ...DEFAULT_MOCK_CONFIG, collapsedHeaderHeight: COLLAPSED_HEADER_HEIGHT };
+
+            render(
+                <CollapsibleHeaderProvider>
+                    <CollapsibleHeader testID="chrome-header">
+                        <CollapsibleHeaderTitleSlot>
+                            <Text>Expanded</Text>
+                            <Text>Collapsed</Text>
+                        </CollapsibleHeaderTitleSlot>
+                    </CollapsibleHeader>
+                </CollapsibleHeaderProvider>
+            );
+
+            expect(getAnimatedStyle(screen.getByTestId('chrome-header-header')).height).toBe(
+                mockTopInset + mockConfig.headerHeight
+            );
+            expect(screen.getAllByText('Expanded')).toHaveLength(1);
+        });
     });
 });

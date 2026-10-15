@@ -38,12 +38,12 @@ export const CollapsibleHeader = ({
     const { config } = useScreenChrome();
     const insets = useSafeAreaInsets();
     const { leading, expandedTitle, collapsedTitle, trailing } = getCollapsibleHeaderSlots(children);
-    const containerHeight = insets.top + config.headerHeight;
     const contentLayerStyle = { top: insets.top };
+    const vacantSlot = <View pointerEvents="none" />;
     const persistentContent = (
         <View style={collapsibleHeaderStyles.persistentRow} pointerEvents="box-none">
-            {leading}
-            {trailing}
+            {leading ?? vacantSlot}
+            {trailing ?? vacantSlot}
         </View>
     );
 
@@ -54,8 +54,8 @@ export const CollapsibleHeader = ({
             style={[collapsibleHeaderStyles.container, style]}
             mode="overlay"
             snap={config.snapToCollapse}
-            expandedHeight={containerHeight}
-            collapsedHeight={containerHeight}
+            expandedHeight={insets.top + config.headerHeight}
+            collapsedHeight={insets.top + (config.collapsedHeaderHeight ?? config.headerHeight)}
             collapseStart={config.collapseStart}
             collapseDistance={config.collapseEnd - config.collapseStart}
             expandedContent={expandedTitle}
