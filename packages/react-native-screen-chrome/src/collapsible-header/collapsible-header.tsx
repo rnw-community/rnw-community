@@ -7,9 +7,11 @@ import { CollapsibleHeader as GenericCollapsibleHeader } from '@rnw-community/re
 import { useScreenChrome } from '../hooks/use-screen-chrome/use-screen-chrome.hook';
 import { getCollapsibleHeaderMotion } from '../util/get-collapsible-header-motion/get-collapsible-header-motion.util';
 import { getCollapsibleHeaderSlots } from '../util/get-collapsible-header-slots/get-collapsible-header-slots.util';
+import { getExpandedTitleLayerStyle } from '../util/get-expanded-title-layer-style/get-expanded-title-layer-style.util';
 
 import { collapsibleHeaderStyles } from './collapsible-header.styles';
 
+import type { ExpandedTitleAlignment } from '../type/expanded-title-alignment.type';
 import type { CollapsibleHeaderMotionConfig } from '@rnw-community/react-native-collapsible-header';
 import type { ReactNode } from 'react';
 import type { StyleProp, ViewProps, ViewStyle } from 'react-native';
@@ -17,6 +19,7 @@ import type { StyleProp, ViewProps, ViewStyle } from 'react-native';
 interface Props extends Omit<ViewProps, 'children'> {
     readonly children: ReactNode;
     readonly motion?: Partial<CollapsibleHeaderMotionConfig>;
+    readonly expandedTitleAlignment?: ExpandedTitleAlignment;
     readonly expandedContentContainerStyle?: StyleProp<ViewStyle>;
     readonly collapsedContentContainerStyle?: StyleProp<ViewStyle>;
     readonly persistentContentContainerStyle?: StyleProp<ViewStyle>;
@@ -29,6 +32,7 @@ interface Props extends Omit<ViewProps, 'children'> {
 export const CollapsibleHeader = ({
     children,
     motion,
+    expandedTitleAlignment = 'center',
     style,
     expandedContentContainerStyle,
     collapsedContentContainerStyle,
@@ -63,7 +67,8 @@ export const CollapsibleHeader = ({
             persistentContent={persistentContent}
             motion={{ ...getCollapsibleHeaderMotion(config), ...motion }}
             expandedContentContainerStyle={[
-                collapsibleHeaderStyles.titleLayer,
+                collapsibleHeaderStyles.expandedTitleLayer,
+                getExpandedTitleLayerStyle(expandedTitleAlignment, leading, trailing),
                 contentLayerStyle,
                 expandedContentContainerStyle,
             ]}
