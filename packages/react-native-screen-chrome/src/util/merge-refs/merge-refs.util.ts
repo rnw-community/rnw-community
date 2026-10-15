@@ -4,7 +4,7 @@ import type { Ref, RefCallback } from 'react';
 
 type RefCleanup = ReturnType<RefCallback<unknown>>;
 
-const detach = <T,>(ref: Ref<T> | undefined, cleanup: RefCleanup): void => {
+const detach = <T>(ref: Ref<T> | undefined, cleanup: RefCleanup): void => {
     if (typeof cleanup === 'function') {
         cleanup();
     } else if (typeof ref === 'function') {
@@ -19,7 +19,7 @@ const detach = <T,>(ref: Ref<T> | undefined, cleanup: RefCleanup): void => {
  * @see https://github.com/rnw-community/rnw-community/tree/master/packages/react-native-screen-chrome#mergerefs
  */
 export const mergeRefs =
-    <T,>(...refs: readonly (Ref<T> | undefined)[]): RefCallback<T> =>
+    <T>(...refs: readonly (Ref<T> | undefined)[]): RefCallback<T> =>
     instance => {
         const cleanups = refs.map(ref => {
             if (typeof ref === 'function') {

@@ -168,15 +168,26 @@ expanded-layer scale) without widening the config surface:
 ```
 
 Both title layers default to centered content behind a 72pt gutter that keeps the title clear of the leading and
-trailing controls. `expandedContentContainerStyle`, `collapsedContentContainerStyle` and
-`persistentContentContainerStyle` are forwarded to the primitive and merged after that default, so a consumer style
-wins without needing to know or cancel the gutter value — an iOS-style left-aligned large title is just:
+trailing controls. For an iOS-style leading large title, set `expandedTitleAlignment="start"`
+([`ExpandedTitleAlignment`](#expandedtitlealignment)): the expanded title stretches from the leading edge and is padded
+by the row padding plus the default 44pt slot size on the side of each non-empty slot, so it clears standard icon
+controls and uses the space of an empty slot. The collapsed title stays centered. The reserve is static, not measured:
+a control wider than 44pt (a text button, or a slot resized through `style`) needs a matching `paddingStart`/`paddingEnd`
+in `expandedContentContainerStyle`.
 
 ```tsx
-<CollapsibleHeader expandedContentContainerStyle={{ alignItems: 'flex-start', paddingHorizontal: 16 }}>
-    {/* slots */}
-</CollapsibleHeader>
+<CollapsibleHeader expandedTitleAlignment="start">{/* slots */}</CollapsibleHeader>
+
+const { rowPadding } = SCREEN_CHROME_HEADER_LAYOUT_METRICS;
+
+<CollapsibleHeader expandedTitleAlignment="start" expandedContentContainerStyle={{ paddingStart: rowPadding + 72 }}>
+    {/* a 72pt-wide "Cancel" leading slot */}
+</CollapsibleHeader>;
 ```
+
+`expandedContentContainerStyle`, `collapsedContentContainerStyle` and `persistentContentContainerStyle` are forwarded to
+the primitive and merged after those defaults, so a consumer style always wins. Derive custom offsets from
+[`SCREEN_CHROME_HEADER_LAYOUT_METRICS`](#screen_chrome_header_layout_metrics) instead of copying the numbers.
 
 ## Compound header contract
 
@@ -627,6 +638,26 @@ the header registers the snap geometry with the provider, so a screen that enabl
 The platform default `ScreenChromeConfigInterface`: native (`screen-chrome-default-config.constant.ts`) uses 150-point top and
 bottom fade bands and a 220-point header backdrop; web (`screen-chrome-default-config.constant.web.ts`) uses 76-pixel bands and a
 108-pixel backdrop. `mergeScreenChromeConfig` starts from this value.
+
+## SCREEN_CHROME_HEADER_LAYOUT_METRICS
+
+`SCREEN_CHROME_HEADER_LAYOUT_METRICS` exposes the horizontal metrics the compound header renders with — `rowPadding`
+(16), `slotSize` (44) and `titleInset` (72) — so custom title layouts stay aligned when the defaults change.
+
+```tsx
+const { rowPadding, slotSize } = SCREEN_CHROME_HEADER_LAYOUT_METRICS;
+const titleStart = rowPadding + slotSize;
+```
+
+## ScreenChromeHeaderLayoutMetricsInterface
+
+Shape of [`SCREEN_CHROME_HEADER_LAYOUT_METRICS`](#screen_chrome_header_layout_metrics): `rowPadding`, `slotSize` and
+`titleInset`, all in points.
+
+## ExpandedTitleAlignment
+
+`'center' | 'start'` — selects how [`CollapsibleHeader`](#collapsibleheader) lays out the expanded title. `'center'` (the
+default) centers it behind the symmetric title inset; `'start'` aligns it to the leading edge beside the slots.
 
 ## SCREEN_CHROME_SHARED_DEFAULT_CONFIG
 

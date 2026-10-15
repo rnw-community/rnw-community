@@ -4,6 +4,9 @@ export type { CollapsibleHeaderBackdropPropsInterface } from './collapsible-head
 export { CollapsibleHeaderSlot } from './collapsible-header-slot/collapsible-header-slot';
 export { CollapsibleHeaderTitleSlot } from './collapsible-header-title-slot/collapsible-header-title-slot';
 export { SCREEN_CHROME_DEFAULT_CONFIG } from './constant/screen-chrome-default-config.constant';
+export { SCREEN_CHROME_HEADER_LAYOUT_METRICS } from './constant/screen-chrome-header-layout-metrics.constant';
+export type { ScreenChromeHeaderLayoutMetricsInterface } from './interface/screen-chrome-header-layout-metrics.interface';
+export type { ExpandedTitleAlignment } from './type/expanded-title-alignment.type';
 export { SCREEN_CHROME_SHARED_DEFAULT_CONFIG } from './constant/screen-chrome-shared-default-config.constant';
 export { ScreenChromeContext } from './context/screen-chrome.context';
 export { EdgeFade } from './edge-fade/edge-fade';
