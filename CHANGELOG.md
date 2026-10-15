@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [2.27.0](https://github.com/rnw-community/rnw-community/compare/v2.26.0...v2.27.0) (2026-10-15)
+
+### Features
+
+- **react-native-payments:** add method data presets and a payment request factory ([#659](https://github.com/rnw-community/rnw-community/issues/659)) ([8e6b05d](https://github.com/rnw-community/rnw-community/commit/8e6b05d3f288d61a6744727a55876db744b4bb31))
+
 # [2.26.0](https://github.com/rnw-community/rnw-community/compare/v2.25.0...v2.26.0) (2026-10-15)
 
 ### Features
