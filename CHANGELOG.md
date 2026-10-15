@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.24.1](https://github.com/rnw-community/rnw-community/compare/v2.24.0...v2.24.1) (2026-10-15)
+
+### Bug Fixes
+
+- **react-native-payments:** send only Google Pay card networks on Android ([#666](https://github.com/rnw-community/rnw-community/issues/666)) ([528406a](https://github.com/rnw-community/rnw-community/commit/528406afa356cf53a3c5d0592f332c5f91357c25))
+
 # [2.24.0](https://github.com/rnw-community/rnw-community/compare/v2.23.2...v2.24.0) (2026-10-15)
 
 ### Features
