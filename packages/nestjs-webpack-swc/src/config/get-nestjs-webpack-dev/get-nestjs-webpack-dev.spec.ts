@@ -33,4 +33,21 @@ describe('getNestJSWebpackDevConfig', () => {
         expect(config.plugins).toHaveLength(3);
         expect(config.plugins?.[2]).toBeInstanceOf(RunScriptWebpackPlugin);
     });
+
+    it('spreads an array entry after the hot poll entry instead of nesting it', () => {
+        expect.assertions(1);
+
+        const config = getNestJSWebpackDevConfig(
+            { entry: ['src/polyfills.ts', 'src/main.ts'], output: { filename: 'main.js' } },
+            webpackMock
+        );
+
+        expect(config.entry).toStrictEqual(['webpack/hot/poll?100', 'src/polyfills.ts', 'src/main.ts']);
+    });
+
+    it('rejects entries the hot poll cannot be prepended to', () => {
+        expect.assertions(1);
+
+        expect(() => getNestJSWebpackDevConfig({ entry: { main: 'src/main.ts' } }, webpackMock)).toThrow(TypeError);
+    });
 });
