@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.19.5](https://github.com/rnw-community/rnw-community/compare/v2.19.4...v2.19.5) (2026-10-15)
+
+### Bug Fixes
+
+- **deps:** patch vulnerable transitive dependencies ([#647](https://github.com/rnw-community/rnw-community/issues/647)) ([ab95845](https://github.com/rnw-community/rnw-community/commit/ab9584525487a36c6a89e347f1ffa418d4d24012))
+
 ## [2.19.4](https://github.com/rnw-community/rnw-community/compare/v2.19.3...v2.19.4) (2026-10-15)
 
 ### Bug Fixes
