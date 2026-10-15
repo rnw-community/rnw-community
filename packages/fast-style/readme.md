@@ -33,7 +33,7 @@ Styles usage example with spreading styles:
 
 ```ts
 import { StyleSheet } from 'react-native';
-import { Flex, Font } from '@rnw-community/fast-style';
+import { Flex } from '@rnw-community/fast-style';
 
 export const componentStyles = StyleSheet.create({
     root: {

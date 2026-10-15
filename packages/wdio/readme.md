@@ -26,9 +26,12 @@ WDIO commands and utils.
 
 ## Installation
 
-Install additional peer dependencies:
+[webdriverio](https://github.com/webdriverio/webdriverio) (with `@wdio/globals` and `@wdio/protocols`) ships as a regular
+dependency of this package, so it does not need to be installed separately.
 
--   [webdriverio](https://github.com/webdriverio/webdriverio)
+Install the additional peer dependency:
+
+-   [react-native](https://github.com/facebook/react-native) `>=0.72`
 
 ## Usage
 

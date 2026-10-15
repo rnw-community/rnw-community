@@ -2,7 +2,7 @@ import type { ScreenChromeConfigInterface } from '../interface/screen-chrome-con
 
 /**
  * Defines platform-independent screen chrome defaults shared by native and web.
- * @see https://github.com/rnw-community/rnw-community/tree/master/packages/react-native-screen-chrome#screenchromeshareddefaultconfig
+ * @see https://github.com/rnw-community/rnw-community/tree/master/packages/react-native-screen-chrome#screen_chrome_shared_default_config
  */
 export const SCREEN_CHROME_SHARED_DEFAULT_CONFIG: Omit<
     ScreenChromeConfigInterface,
