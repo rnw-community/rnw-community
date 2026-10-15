@@ -1,0 +1,34 @@
+# @rnw-community/histogram-metric-decorator
+
+> Framework-agnostic method decorator that records call duration into any histogram transport (Prometheus,
+> OpenTelemetry, in-memory, ...). Handles sync, `Promise`, and `Observable` return types. Built on
+> `@rnw-community/decorators-core`; requires TypeScript `experimentalDecorators`. `rxjs` is an optional peer, needed only
+> for `Observable`-returning methods.
+
+The `labels` callback receives the method args as a tuple inferred from the method signature. The default metric name
+is `${className}_${methodName}_duration_ms`; consumers ship their own transport.
+
+## Landing
+
+- [readme.md](readme.md): Observation timing table, usage, crash-safe label resolution, and full public API.
+
+## Guides
+
+- [When the observation fires](readme.md#when-the-observation-fires): Duration emission timing for sync, `Promise`, and `Observable` returns, including errors.
+- [Usage](readme.md#usage): Wiring a transport, per-decoration `name` / `labels`, and the default metric name.
+- [Crash-safe label resolution](readme.md#crash-safe-label-resolution--onlabelserror): Observations still emit when `labels` throws; observe throws via `onLabelsError`.
+
+## API reference
+
+- [`createHistogramMetricDecorator`](readme.md#createhistogrammetricdecorator): Factory taking `{ transport, onLabelsError? }` that returns the `@HistogramMetric(config?)` decorator.
+- [`HistogramTransportInterface`](readme.md#histogramtransportinterface): `observe(name, durationMs, labels?)` contract for plugging in any metrics backend.
+- [`HistogramOptionsInterface`](readme.md#histogramoptionsinterfacetargs): Per-decoration `{ name?, labels? }` passed to `@HistogramMetric(...)`.
+- [`CreateHistogramMetricOptionsInterface`](readme.md#createhistogrammetricoptionsinterface): Options object accepted by `createHistogramMetricDecorator`.
+
+## Architecture & conventions
+
+- [AGENTS.md](https://github.com/rnw-community/rnw-community/blob/master/packages/histogram-metric-decorator/AGENTS.md): Source layout, implementation patterns, dependencies, and coverage.
+
+## Optional
+
+- [Source](https://github.com/rnw-community/rnw-community/tree/master/packages/histogram-metric-decorator): Package source in the monorepo.

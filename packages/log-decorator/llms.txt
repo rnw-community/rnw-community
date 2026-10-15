@@ -1,0 +1,37 @@
+# @rnw-community/log-decorator
+
+> Universal `@Log` method decorator with pre / post / error logging hooks and a pluggable transport. Handles sync,
+> `Promise`, and `Observable` return types automatically. Built on `@rnw-community/decorators-core`; requires
+> TypeScript `experimentalDecorators`. `rxjs` is an optional peer, needed only for `Observable`-returning methods.
+
+Callback params narrow from annotated callback arguments — never spell out factory generics. The decorator is
+timing-free; compose with `@rnw-community/histogram-metric-decorator` for latency metrics.
+
+## Landing
+
+- [readme.md](readme.md): Hook timing table, type-narrowing rules, full public API, and Observable support.
+
+## Guides
+
+- [When each hook fires](readme.md#when-each-hook-fires): `preLog` / `postLog` / `errorLog` timing for sync, `Promise`, and `Observable` returns.
+- [Type narrowing](readme.md#type-narrowing--no-factory-generics-needed): How callback params narrow without factory generics, and when to annotate them.
+- [Observable support](readme.md#observable-support): Per-emission `postLog` and stream-error `errorLog` for `Observable` returns.
+
+## API reference
+
+- [`createLogDecorator`](readme.md#createlogdecorator): Factory taking `{ transport }` that returns the `@Log(preLog?, postLog?, errorLog?)` decorator.
+- [`consoleTransport`](readme.md#consoletransport): Default transport forwarding to `console.log` / `console.debug` / `console.error`.
+- [`LogTransportInterface`](readme.md#logtransportinterface): `log` / `debug` / `error` contract for plugging in any logger.
+- [`CreateLogOptionsInterface`](readme.md#createlogoptionsinterface): Options object accepted by `createLogDecorator`.
+- [`PreLogInputType`](readme.md#preloginputtypetargs): Static string or callback over the method args for the pre-call message.
+- [`PostLogInputType`](readme.md#postloginputtypetargs-tresult): Static string or callback over the result and args for the post-call message.
+- [`ErrorLogInputType`](readme.md#errorloginputtypetargs): Static string or callback over the error and args for the error message.
+- [`GetResultType`](readme.md#getresulttypet): Unwraps `Promise<T>` / `Observable<T>` to the awaited or emitted value.
+
+## Architecture & conventions
+
+- [AGENTS.md](https://github.com/rnw-community/rnw-community/blob/master/packages/log-decorator/AGENTS.md): Source layout, implementation patterns, dependencies, and coverage.
+
+## Optional
+
+- [Source](https://github.com/rnw-community/rnw-community/tree/master/packages/log-decorator): Package source in the monorepo.

@@ -1,0 +1,65 @@
+# @rnw-community/react-native-screen-chrome
+
+> Composable, safe-area-aware screen chrome for React Native and React Native Web: collapsible titles, persistent
+> navigation controls, progressive edge fades, and content insets around one scrollable. Motion, scroll wiring, and
+> snapping are delegated to the peer `@rnw-community/react-native-collapsible-header`; other peers are
+> `react-native-reanimated`, `react-native-safe-area-context`, `@react-native-masked-view/masked-view`, `expo-blur`
+> (>=55 <59), and `expo-linear-gradient`.
+
+Mount one `ScreenChromeProvider` per scrollable inside each screen, never once around a navigator, and resolve exactly
+one copy of the collapsible header. Render content first, decorative fades and backdrop second, `CollapsibleHeader` last.
+
+## Landing
+
+- [readme.md](readme.md): Installation, complete example, paint order, compound header contract, and full public API.
+
+## Guides
+
+- [Installation](readme.md#installation): Required peer dependencies and why the collapsible header must resolve to a single copy.
+- [Complete example](readme.md#complete-example): Provider, frame, scroll view, fades, and compound header composed into one screen.
+- [Structure and paint order](readme.md#structure-and-paint-order): Provider ownership, one provider per scrollable, and layer ordering.
+- [Compound header contract](readme.md#compound-header-contract): Required direct-child slot order and the render-time `TypeError` on violations.
+- [Edge fades](readme.md#edge-fades): Native masked-gradient blur versus web CSS mask and backdrop-filter behavior.
+- [Configuration and snapping](readme.md#configuration-and-snapping): Deep-merge rules, threshold ordering, and `snapToCollapse` requirements.
+
+## API reference
+
+- [`CollapsibleHeader`](readme.md#collapsibleheader): Compound collapsible header composing control and title slots into the generic collapsible-header primitive, with optional `motion` overrides.
+- [`CollapsibleHeaderSlot`](readme.md#collapsibleheaderslot): Persistent leading or trailing control slot mounted once above both title layers.
+- [`CollapsibleHeaderTitleSlot`](readme.md#collapsibleheadertitleslot): Groups the expanded and collapsed title layers of a compound header.
+- [`CollapsibleHeaderBackdrop`](readme.md#collapsibleheaderbackdrop): Top `EdgeFade` sized to `headerBackdropHeight` and aligned with the title-collapse thresholds.
+- [`EdgeFade`](readme.md#edgefade): Decorative top or bottom blur band, scroll-animatable through `scrollAnimation`, with opt-in Android blur via `blurTarget`.
+- [`EdgeFadePropsInterface`](readme.md#edgefadepropsinterface): Props accepted by `EdgeFade`.
+- [`EdgeFadeScrollAnimationInterface`](readme.md#edgefadescrollanimationinterface): Scroll-driven opacity and blur intensity ranges for an edge fade.
+- [`EdgeFadePosition`](readme.md#edgefadeposition): `'top' | 'bottom'` screen edge of a fade band.
+- [`ScreenChromeMaskStopInterface`](readme.md#screenchromemaskstopinterface): One color stop in an edge-fade mask.
+- [`ScreenChromeFrame`](readme.md#screenchromeframe): Relative full-screen layout root for content, fades, and header chrome.
+- [`ScreenChromeHeader`](readme.md#screenchromeheader): Static, non-collapsible header row with the same safe-area and paint-order contract.
+- [`ScreenChromeProvider`](readme.md#screenchromeprovider): Provides validated configuration and color scheme around one scrollable and mounts the collapsible-header provider.
+- [`ScreenChromeScrollView`](readme.md#screenchromescrollview): Animated scroll view wired to the collapsible-header scroll handling with safe-area content padding and `contentInsetMode`.
+- [`ScreenChromeContext`](readme.md#screenchromecontext): React context carrying the resolved `{ colorScheme, config }` value.
+- [`useScreenChrome`](readme.md#usescreenchrome): Reads the nearest screen chrome context and throws without a provider.
+- [`useScrollFadeStyle`](readme.md#usescrollfadestyle): Clamped opacity style interpolated from the provider scroll value.
+- [`getScreenChromeHeaderMetrics`](readme.md#getscreenchromeheadermetrics): Pure computation of the rendered header footprint from header height, device top inset, and optional extra inset.
+- [`useScreenChromeHeaderMetrics`](readme.md#usescreenchromeheadermetrics): Header footprint for the live provider config and device insets.
+- [`ScreenChromeColorScheme`](readme.md#screenchromecolorscheme): `'light' | 'dark'` palette selector, assignable from `useColorScheme()`.
+- [`ScreenChromeColorSetInterface`](readme.md#screenchromecolorsetinterface): Solid and translucent wash colors for one color scheme.
+- [`ScreenChromeConfigInterface`](readme.md#screenchromeconfiginterface): Full chrome geometry, colors, fade masks, scroll throttling, and collapse thresholds.
+- [`ScreenChromeConfigOverridesInterface`](readme.md#screenchromeconfigoverridesinterface): Partial overrides accepted by the provider `config` prop, preserving nested colors and mask stops.
+- [`ScreenChromeContextValueInterface`](readme.md#screenchromecontextvalueinterface): The `{ colorScheme, config }` shape returned by `useScreenChrome`.
+- [`SCREEN_CHROME_DEFAULT_CONFIG`](readme.md#screen_chrome_default_config): Platform default config (native and web variants) that `mergeScreenChromeConfig` starts from.
+- [`SCREEN_CHROME_SHARED_DEFAULT_CONFIG`](readme.md#screen_chrome_shared_default_config): Platform-independent subset of the default config shared by native and web.
+- [`assertValidScreenChromeConfig`](readme.md#assertvalidscreenchromeconfig): Throws a property-specific error for configs that cannot drive stable scroll animations.
+- [`mergeScreenChromeConfig`](readme.md#mergescreenchromeconfig): Resolves partial overrides into a complete immutable config, deep-merging `colors` and `maskStops`.
+- [`mergeRefs`](readme.md#mergerefs): Fans one instance out to several object or function refs with React 19 cleanup handling.
+- [`ScrollContentInsetMode`](readme.md#scrollcontentinsetmode): `'replace' | 'additive'` selector for how chrome padding meets consumer padding.
+- [`addScrollContentInset`](readme.md#addscrollcontentinset): Stacks safe-area and chrome padding on top of consumer `paddingTop` / `paddingBottom`.
+- [`mergeScrollContentInset`](readme.md#mergescrollcontentinset): Prepends safe-area and chrome padding while letting consumer styles win.
+
+## Architecture & conventions
+
+- [AGENTS.md](https://github.com/rnw-community/rnw-community/blob/master/packages/react-native-screen-chrome/AGENTS.md): Architecture, invariants, provider and scroll ownership, build, and coverage.
+
+## Optional
+
+- [Source](https://github.com/rnw-community/rnw-community/tree/master/packages/react-native-screen-chrome): Package source in the monorepo.

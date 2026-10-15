@@ -1,0 +1,37 @@
+# @rnw-community/eslint-plugin
+
+> ESLint plugin for React / React Native projects with the `no-complex-jsx-logic` rule, which restricts complex
+> expressions inside JSX. Ships CommonJS only and supports both legacy `.eslintrc` and flat config. Peer dependency:
+> `eslint` 9 or 10.
+
+The plugin namespace is `@rnw-community`; enable the rule as `@rnw-community/no-complex-jsx-logic` or extend the
+`recommended` (legacy) / `flat/recommended` (flat) config.
+
+## Landing
+
+- [readme.md](readme.md): Rule overview, installation, and legacy and flat configuration.
+
+## Guides
+
+- [Installation](readme.md#installation): Installing the plugin as a dev dependency.
+- [Legacy configuration](readme.md#configurationlegacy-eslintrc): `.eslintrc` custom rule setup and extending `plugin:@rnw-community/recommended`.
+- [Flat configuration](readme.md#configurationnew-eslintconfigjs): `eslint.config.js` custom rule setup and extending `configs['flat/recommended']`.
+
+## API reference
+
+- [Plugin default export](readme.md#configurationnew-eslintconfigjs): The plugin object (`export =`) with `meta`, `rules`, and `configs`.
+- [`no-complex-jsx-logic`](readme.md#notable-rule-no-complex-jsx-logic): Rule restricting complex logic expressions directly inside JSX.
+- [`configs.recommended`](readme.md#extending-recommended): Legacy config enabling `@rnw-community/no-complex-jsx-logic` as an error with JSX parsing.
+- [`configs['flat/recommended']`](readme.md#extending-recommended-1): Flat config registering the plugin and enabling `@rnw-community/no-complex-jsx-logic` as an error.
+
+## Entity docs
+
+- [no-complex-jsx-logic.md](https://github.com/rnw-community/rnw-community/blob/master/packages/eslint-plugin/src/rules/no-complex-jsx-logic/no-complex-jsx-logic.md): Rationale and valid / invalid patterns for the `no-complex-jsx-logic` rule.
+
+## Architecture & conventions
+
+- [AGENTS.md](https://github.com/rnw-community/rnw-community/blob/master/packages/eslint-plugin/AGENTS.md): Package commands, architecture, key patterns, CommonJS-only publication shape, and dependencies.
+
+## Optional
+
+- [Source](https://github.com/rnw-community/rnw-community/tree/master/packages/eslint-plugin): Package source in the monorepo.

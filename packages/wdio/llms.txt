@@ -1,0 +1,56 @@
+# @rnw-community/wdio
+
+> WebdriverIO test automation utilities for React Native and React Native Web apps: custom testID commands,
+> Proxy-based typed page objects (`Component` / `RootedComponent`), platform-aware testID selectors, capability
+> detection, and testID prop helpers. Depends on `webdriverio` 9 and `@wdio/globals`; peer `react-native` (>=0.72).
+
+Call `addWdioCommands(browser)` once in the WDIO config `before` hook and copy the two ambient `.d.ts` files into the
+e2e project so the custom commands type-check. Use `setTestID` in app code so the same testID resolves on web and mobile.
+
+## Landing
+
+- [readme.md](readme.md): testID utils, command setup and usage, component page objects, and selector recommendations.
+
+## Guides
+
+- [Command setup](readme.md#setup): Ambient `.d.ts` files and registering commands in the WDIO config.
+- [Components](readme.md#components): Building page objects from a selectors enum, with and without a root element.
+- [Recommendations](readme.md#recommendations): Colocating a selectors enum per component and re-exporting them from one file.
+
+## API reference
+
+- [`addWdioCommands`](readme.md#add-wdioconfigjs-to-your-e2e-project): Registers `testID$` / `testID$$` / `openDeepLink` on the browser and `testID$` / `testID$$` / `slowInput` / `clearInput` / `relativeClick` / `swipe` on elements.
+- [`openDeepLinkCommand`](readme.md#opendeeplink): Opens a deep link via `mobile:deepLink` on Android or by typing it into Safari on iOS.
+- [`testID$`, `testID$$`](readme.md#testid-and-testid): `$` / `$$` equivalents that resolve a testID through the platform-aware selector.
+- [`testID$$Index`](readme.md#testidindex): Returns the element at an index among all matches for a testID.
+- [`byIndex$$`](readme.md#testidindex): Returns the element at an index among all matches for a raw selector.
+- [`slowInputCommand`](readme.md#slowinput): Types a value character by character with a delay (plain `setValue` on Android).
+- [`clearInputCommand`](readme.md#clearinput): Clears an input via `clearValue`, `setValue('')`, then backspaces for any remaining characters.
+- [`relativeClickCommand`](readme.md#relativeclick): Taps an element at a position given in percent of its width and height.
+- [`isAndroidCapability`, `isIOSCapability`, `isBrowserCapability`](readme.md#commands): Detect the current session platform from WDIO capabilities.
+- [`testIDSelector`, `webTestIDSelector`, `mobileTestIDSelector`, `androidTestIDSelector`, `iosTestIDSelector`](readme.md#testid-and-testid): Build a testID selector; `testIDSelector` picks `[data-test-id="id"]` on web and `~id` on mobile.
+- [`Component`](readme.md#components): Base page-object class resolving selector-enum keys to elements through a Proxy.
+- [`createComponent`](readme.md#createcomponent): Instantiates a testID-backed component from a selectors enum.
+- [`getComponent`](readme.md#getcomponent): Returns a testID-backed component class to extend with custom methods.
+- [`getExtendedComponent`](readme.md#getcomponent): Like `getComponent`, but falls back to a parent component class for unresolved fields.
+- [`createComponent$`, `getComponent$`, `getExtendedComponent$`](readme.md#components): Component factories backed by raw `$` / `$$` selectors instead of testIDs.
+- [`RootedComponent`](readme.md#createrootedcomponent): Component scoped to a root element, proxying unknown fields to that element.
+- [`createRootedComponent`](readme.md#createrootedcomponent): Instantiates a testID-backed rooted component from a selectors enum.
+- [`getRootedComponent`](readme.md#getrootedcomponent): Returns a testID-backed rooted component class to extend with custom methods.
+- [`getExtendedRootedComponent`](readme.md#getrootedcomponent): Like `getRootedComponent`, but falls back to a parent component class for unresolved fields.
+- [`createRootedComponent$`, `getRootedComponent$`, `getExtendedRootedComponent$`](readme.md#components): Rooted component factories backed by raw `$` / `$$` selectors instead of testIDs.
+- [`setTestID`](readme.md#settestid): Builds platform-correct testID props from joined id parts.
+- [`getTestID`](readme.md#gettestid): Reads the platform-specific testID back from props produced by `setTestID` / `setPropTestID`.
+- [`setPropTestID`](readme.md#setproptestid): Like `setTestID`, but uses the props `testID` when given and a default otherwise.
+- [`TestIDProps`, `AndroidTestIDProps`, `WebTestIDProps`](readme.md#settestid): Prop interfaces carrying `testID`, plus `accessibilityLabel` (Android) or `data-test-id` (web).
+- [`ComponentConfigInterface`, `ElSelectorFn`, `ElsSelectorFn`, `ElsIndexSelectorFn`, `SelectorContextType`](readme.md#components): Element lookup functions and search context that a component config is built from.
+- [`ComponentType`, `ComponentWithSelectors`, `ComponentWithSelectorsCtor`, `RootedComponentWithSelectors`, `RootedComponentWithSelectorsCtor`, `ComponentInputArg`](readme.md#components): Typed component instance and constructor shapes keyed by the selectors enum, and the rooted-component root input.
+- [`SwipeDirectionType`](readme.md#commands): `'bottom' | 'left' | 'right' | 'top'` direction for the element `swipe` command.
+
+## Architecture & conventions
+
+- [AGENTS.md](https://github.com/rnw-community/rnw-community/blob/master/packages/wdio/AGENTS.md): Source layout, Proxy-based page-object patterns, selector resolution, dependencies, and coverage.
+
+## Optional
+
+- [Source](https://github.com/rnw-community/rnw-community/tree/master/packages/wdio): Package source in the monorepo.

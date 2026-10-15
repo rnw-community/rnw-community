@@ -23,6 +23,7 @@ pnpm test:coverage      # Run tests with coverage
 pnpm format             # Prettier format all
 pnpm cpd                # Copy-paste detection
 pnpm deadcode           # Find unused code (knip)
+pnpm assert:pack        # Pack-content gate: llms.txt shipped, no specs/build junk, entry targets present (needs build)
 
 # Single package (cd into package first)
 cd packages/shared
@@ -208,6 +209,20 @@ A package MUST NOT re-export (`export type { X } from '@rnw-community/other'`) a
 - `readme.md` at the package root — short summary + badges + per-export section with one usage example
 - `<entity>.md` (optional) colocated next to source — 5–20 line file with focused example
 - `AGENTS.md` at the package root — agent-facing architecture notes (commands, layout, patterns, dependencies, coverage)
+- `llms.txt` at the package root of every publishable package ([llmstxt.org](https://llmstxt.org) format) — H1 with the
+  exact package name, a `>` blockquote summary, then link sections: one `## API reference` bullet per export of
+  `src/index.ts` pointing at its `readme.md#<anchor>`, plus colocated `<entity>.md` / `AGENTS.md` links. It ships in the
+  npm tarball (`"llms.txt"` in `files`; npm always adds `readme.md`), so relative links may only target files inside the
+  tarball — anything else (`AGENTS.md`, per-entity `.md` under `src/`, `CHANGELOG.md`, other packages) uses an absolute
+  `https://github.com/rnw-community/rnw-community/blob/master/...` URL. Update it whenever an export is added, removed,
+  or renamed, or a readme heading changes
+- **Pack-content gate** — `pnpm assert:pack` (`scripts/assert-pack-contents.mjs`, run in the `pr.yml` code-quality job
+  after `pnpm publint`, which builds every package first) runs `npm pack --dry-run --json` for each non-private
+  package and fails if the tarball is missing `package.json`/`readme.md`/`llms.txt`, ships a spec/test/mock file,
+  `__tests__`/fixtures/e2e/coverage directory, `*.tsbuildinfo`, or native build output (`ios/build*`, `android/build*`,
+  `.gradle`, `Pods`), lacks any `main`/`module`/`types`/`exports` target, or if `llms.txt` has a wrong H1, no
+  blockquote, a relative link to a file outside the tarball, or a `readme.md#anchor` with no matching heading. Pass
+  package directory names (`pnpm assert:pack shared wdio`) to check a subset
 
 ### TypeScript — Strict mode with all strict flags enabled, decorators enabled
 

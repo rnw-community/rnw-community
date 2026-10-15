@@ -1,0 +1,47 @@
+# @rnw-community/nestjs-enterprise
+
+> NestJS method decorators for logging (`@Log`), Prometheus latency histograms (`@HistogramMetric`), and DI-bound
+> distributed locking, built on the `log-decorator` / `histogram-metric-decorator` / `lock-decorator` packages. Peers:
+> `@nestjs/common`, `rxjs`; optional `prom-client`, `ioredis`, `redlock`. Requires TypeScript `experimentalDecorators`.
+
+Each decorator is also available as a subpath entry point: `@rnw-community/nestjs-enterprise/Log`, `/HistogramMetric`,
+`/LockPromise`, `/LockObservable`, `/CreatePromiseLockDecorators`, `/CreateObservableLockDecorators`.
+
+## Landing
+
+- [readme.md](readme.md): Installation, decorator index, DI-based distributed locking, lock types, and deprecated APIs.
+
+## Guides
+
+- [Distributed Locking](readme.md#distributed-locking): Binding `SequentialLock` / `ExclusiveLock` (and `$` variants) to any injectable `LockServiceInterface`.
+
+## API reference
+
+- [`Log`](readme.md#decorators): `@Log(preLog?, postLog?, errorLog?)` decorator that logs method lifecycle events through the NestJS `Logger` for sync, `Promise`, and `Observable` returns.
+- [`HistogramMetric`](readme.md#decorators): `@HistogramMetric(metricName, configuration?)` decorator that records call duration into a `prom-client` `Histogram`.
+- [`createPromiseLockDecorators`](readme.md#distributed-locking): Factory taking an injectable lock service class and duration that returns `SequentialLock` and `ExclusiveLock` for async methods.
+- [`createObservableLockDecorators`](readme.md#distributed-locking): Factory taking an injectable lock service class and duration that returns `SequentialLock$` and `ExclusiveLock$` for `Observable` methods.
+- [`PreDecoratorFunction`](readme.md#types): Spread-form `(...args: TArgs) => TResult` callback that computes lock resource keys from the decorated method's arguments.
+- [`LockServiceInterface`](readme.md#types): Injectable lock-provider contract with `acquire(resources, duration)` and `tryAcquire(resources, duration)` resolving a `LockHandle`.
+- [`LockHandle`](readme.md#types): `{ release(): Promise<void> }` handle released automatically once the decorated method settles.
+- [`LockPromise`](readme.md#deprecated): Deprecated Redlock-based lock decorator for `Promise` methods on a `LockableService` subclass; use `createPromiseLockDecorators`.
+- [`LockObservable`](readme.md#deprecated): Deprecated Redlock-based lock decorator for `Observable` methods on a `LockableService` subclass; use `createObservableLockDecorators`.
+- [`LockableService`](readme.md#deprecated): Deprecated base class holding a `redlock` instance built from an ioredis client; use `LockServiceInterface`.
+
+## Entity docs
+
+- [Log decorator](https://github.com/rnw-community/rnw-community/blob/master/packages/nestjs-enterprise/src/decorator/log/log-decorator.md): String and function hooks, automatic type narrowing, and log context.
+- [HistogramMetric decorator](https://github.com/rnw-community/rnw-community/blob/master/packages/nestjs-enterprise/src/decorator/histogram-metric/histogram-metric-decorator.md): Observation timing per return shape, installation, and configuration.
+- [createPromiseLockDecorators](https://github.com/rnw-community/rnw-community/blob/master/packages/nestjs-enterprise/src/decorator/lock/create-promise-lock-decorators/create-promise-lock-decorators.md): `SequentialLock` / `ExclusiveLock` usage for async methods.
+- [createObservableLockDecorators](https://github.com/rnw-community/rnw-community/blob/master/packages/nestjs-enterprise/src/decorator/lock/create-observable-lock-decorators/create-observable-lock-decorators.md): `SequentialLock$` / `ExclusiveLock$` usage for `Observable` methods.
+- [Lock decorators (deprecated)](https://github.com/rnw-community/rnw-community/blob/master/packages/nestjs-enterprise/src/decorator/lock/lock-decorator.md): `LockableService`-based locking and migration to the DI factories.
+- [LockPromise (deprecated)](https://github.com/rnw-community/rnw-community/blob/master/packages/nestjs-enterprise/src/decorator/lock/lock-promise/lock-promise-decorator.md): Inheritance-based lock for `Promise` methods.
+- [LockObservable (deprecated)](https://github.com/rnw-community/rnw-community/blob/master/packages/nestjs-enterprise/src/decorator/lock/lock-observable/lock-observable-decorator.md): Inheritance-based lock for `Observable` methods.
+
+## Architecture & conventions
+
+- [AGENTS.md](https://github.com/rnw-community/rnw-community/blob/master/packages/nestjs-enterprise/AGENTS.md): Source layout, adapter patterns over the universal decorators, dependencies, and coverage.
+
+## Optional
+
+- [Source](https://github.com/rnw-community/rnw-community/tree/master/packages/nestjs-enterprise): Package source in the monorepo.

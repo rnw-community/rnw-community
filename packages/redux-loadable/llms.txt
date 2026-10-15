@@ -1,0 +1,33 @@
+# @rnw-community/redux-loadable
+
+> Generic Redux loading state, selectors, and reducer utils for tracking request `pristine` / `loading` / `failed` /
+> `success` states. Works with Redux Toolkit and classic Redux approaches; no runtime dependencies.
+
+The reducer utils mutate the given state and return a shallow copy, so they can be returned directly from a Redux
+Toolkit `createSlice` reducer.
+
+## Landing
+
+- [readme.md](readme.md): Supported loading states, state shape, reducer utils, and the slice selector.
+
+## Guides
+
+- [Utils](readme.md#utils): How the reducer helpers are meant to be used inside `createSlice` reducers.
+
+## API reference
+
+- [`LoadingStateInterface`](readme.md#loadingstateinterface): `isPristine` / `isLoading` / `error` fields to extend a state slice with.
+- [`initialLoadingState`](readme.md#initialloadingstate): `{ isPristine: true, isLoading: false, error: '' }` starting value for a loadable slice.
+- [`loadingStarted`](readme.md#loadingstartedstate): Sets `isLoading: true`, clears `error`, and marks the slice non-pristine.
+- [`loadingFinished`](readme.md#loadingfinishedstate): Sets `isLoading: false` and clears `error` after a successful load.
+- [`loadingFailed`](readme.md#loadingfailedstate-errorreason): Sets `isLoading: false` and stores the error reason in `error`.
+- [`loadingReset`](readme.md#loadingresetstate): Resets the slice's loading fields back to `initialLoadingState`.
+- [`loadingStateSelector`](readme.md#loadingstateselectorslice): Curried selector returning `[isLoading, isFailed, isPristine, error]` for a named slice.
+
+## Architecture & conventions
+
+- [AGENTS.md](https://github.com/rnw-community/rnw-community/blob/master/packages/redux-loadable/AGENTS.md): Package commands, architecture, key patterns, and coverage.
+
+## Optional
+
+- [Source](https://github.com/rnw-community/rnw-community/tree/master/packages/redux-loadable): Package source in the monorepo.

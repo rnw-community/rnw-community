@@ -1,0 +1,29 @@
+# @rnw-community/rxjs-errors
+
+> RxJS operators for error handling in observables: `filterWithException` throws instead of silently filtering, and
+> `rethrowException` logs caught errors and rethrows them as a typed error. Peer dependency: `rxjs`.
+
+Both operators default to `RxJSFilterError`; `rethrowException` rethrows errors that are already instances of the
+target error class as is.
+
+## Landing
+
+- [readme.md](readme.md): Error class, available operators, and usage examples.
+
+## Guides
+
+- [Available operators](readme.md#available-operators): Overview of what each operator does.
+
+## API reference
+
+- [`RxJSFilterError`](readme.md#rxjsfiltererror): `Error` subclass used as the default error by both operators.
+- [`filterWithException`](readme.md#filterwithexception): Passes values matching a predicate or type guard, otherwise errors the stream with a message string or message function.
+- [`rethrowException`](readme.md#rethrowexception): Catches stream errors, logs `message: error`, and rethrows the original error if it is the target class or a new one with the message otherwise.
+
+## Architecture & conventions
+
+- [AGENTS.md](https://github.com/rnw-community/rnw-community/blob/master/packages/rxjs-errors/AGENTS.md): Package commands, architecture, key patterns, dependencies, and coverage.
+
+## Optional
+
+- [Source](https://github.com/rnw-community/rnw-community/tree/master/packages/rxjs-errors): Package source in the monorepo.

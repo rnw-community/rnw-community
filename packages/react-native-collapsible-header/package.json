@@ -34,7 +34,8 @@
     "types": "dist/typescript/module/index.d.ts",
     "files": [
         "dist/**/*",
-        "llms.txt"
+        "llms.txt",
+        "!dist/**/*.tsbuildinfo"
     ],
     "scripts": {
         "build": "rm -rf ./dist && bob build && node ../../scripts/assert-esm-extensions.mjs ./dist/module && node ../../scripts/assert-react-compiler-output.mjs ./dist/module ./dist/commonjs",
