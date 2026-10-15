@@ -1,0 +1,100 @@
+# rnw-community
+
+> TypeScript monorepo of `@rnw-community/*` npm packages for NestJS, React, React Native, and React Native Web: shared
+> utilities, framework-agnostic method decorators, NestJS RxJS modules, and React Native UI and payments libraries.
+
+pnpm 11 workspace orchestrated by Turbo and released by Lerna in fixed-version mode. Every public package ships dual
+ESM + CJS with type declarations and requires Node 22+. Each package root has a `readme.md` (public API with one
+example per export), an `AGENTS.md` (layout, patterns, commands, coverage), and an `llms.txt` (agent entry point).
+
+## Repository
+
+- [README.md](README.md): Package catalog and badges.
+- [AGENTS.md](AGENTS.md): Repository conventions for contributors and agents: commands, file organization, comments
+  policy, `@rnw-community/shared` primitives, ESM build invariants, PR review and merge policy.
+- [CONTRIBUTING.md](CONTRIBUTING.md): Setup, commands, and pull request requirements.
+- [RELEASE.md](RELEASE.md): Versioning model and the automated npm release workflow.
+- [SECURITY.md](SECURITY.md): Supported versions and private vulnerability reporting.
+
+## Core utilities
+
+- [@rnw-community/shared](packages/shared/llms.txt): Type guards, utility types, and helpers (`isDefined`, `emptyFn`,
+  `wait`, `Maybe`, ...) used by every other package. Docs: [readme](packages/shared/readme.md),
+  [AGENTS](packages/shared/AGENTS.md).
+- [@rnw-community/object-field-tree](packages/object-field-tree/llms.txt): Typed nested field-combination trees built
+  from a data-generator callback. Docs: [readme](packages/object-field-tree/readme.md),
+  [AGENTS](packages/object-field-tree/AGENTS.md).
+- [@rnw-community/rxjs-errors](packages/rxjs-errors/llms.txt): RxJS operators and error classes for filtering and
+  rethrowing errors in observables. Docs: [readme](packages/rxjs-errors/readme.md),
+  [AGENTS](packages/rxjs-errors/AGENTS.md).
+- [@rnw-community/redux-loadable](packages/redux-loadable/llms.txt): Redux loading/error state slice, selectors, and
+  helpers for request lifecycles. Docs: [readme](packages/redux-loadable/readme.md),
+  [AGENTS](packages/redux-loadable/AGENTS.md).
+
+## Method decorators
+
+- [@rnw-community/decorators-core](packages/decorators-core/llms.txt): Framework-agnostic interceptor primitive the log,
+  histogram, and lock decorators are built on. Docs: [readme](packages/decorators-core/readme.md),
+  [AGENTS](packages/decorators-core/AGENTS.md).
+- [@rnw-community/log-decorator](packages/log-decorator/llms.txt): Method decorator with pre/post/error logging hooks and
+  a pluggable transport. Docs: [readme](packages/log-decorator/readme.md), [AGENTS](packages/log-decorator/AGENTS.md).
+- [@rnw-community/histogram-metric-decorator](packages/histogram-metric-decorator/llms.txt): Method decorator that
+  records call duration into any histogram transport. Docs: [readme](packages/histogram-metric-decorator/readme.md),
+  [AGENTS](packages/histogram-metric-decorator/AGENTS.md).
+- [@rnw-community/lock-decorator](packages/lock-decorator/llms.txt): Sequential and exclusive method lock decorators for
+  Promise and Observable methods. Docs: [readme](packages/lock-decorator/readme.md),
+  [AGENTS](packages/lock-decorator/AGENTS.md).
+
+## NestJS
+
+- [@rnw-community/nestjs-enterprise](packages/nestjs-enterprise/llms.txt): Enterprise-grade NestJS decorators and
+  modules built on the decorator packages. Docs: [readme](packages/nestjs-enterprise/readme.md),
+  [AGENTS](packages/nestjs-enterprise/AGENTS.md).
+- [@rnw-community/nestjs-rxjs-logger](packages/nestjs-rxjs-logger/llms.txt): NestJS logger wrapper exposing pipeable
+  RxJS logging operators. Docs: [readme](packages/nestjs-rxjs-logger/readme.md),
+  [AGENTS](packages/nestjs-rxjs-logger/AGENTS.md).
+- [@rnw-community/nestjs-rxjs-metrics](packages/nestjs-rxjs-metrics/llms.txt): NestJS Prometheus metrics wrapper for
+  RxJS streams. Docs: [readme](packages/nestjs-rxjs-metrics/readme.md), [AGENTS](packages/nestjs-rxjs-metrics/AGENTS.md).
+- [@rnw-community/nestjs-rxjs-redis](packages/nestjs-rxjs-redis/llms.txt): NestJS Redis wrapper for RxJS streams. Docs:
+  [readme](packages/nestjs-rxjs-redis/readme.md), [AGENTS](packages/nestjs-rxjs-redis/AGENTS.md).
+- [@rnw-community/nestjs-rxjs-lock](packages/nestjs-rxjs-lock/llms.txt): Redis-backed distributed lock for NestJS with
+  RxJS. Docs: [readme](packages/nestjs-rxjs-lock/readme.md), [AGENTS](packages/nestjs-rxjs-lock/AGENTS.md).
+- [@rnw-community/nestjs-typed-config](packages/nestjs-typed-config/llms.txt): Strongly typed NestJS configuration.
+  Docs: [readme](packages/nestjs-typed-config/readme.md), [AGENTS](packages/nestjs-typed-config/AGENTS.md).
+- [@rnw-community/nestjs-webpack-swc](packages/nestjs-webpack-swc/llms.txt): Webpack and SWC configuration helpers for
+  fast NestJS builds. Docs: [readme](packages/nestjs-webpack-swc/readme.md),
+  [AGENTS](packages/nestjs-webpack-swc/AGENTS.md).
+
+## React Native and React Native Web
+
+- [@rnw-community/react-native-payments](packages/react-native-payments/llms.txt): W3C Payment Request API for React
+  Native (Apple Pay on iOS, Google Pay on Android) with an Expo config plugin. Docs:
+  [readme](packages/react-native-payments/readme.md), [AGENTS](packages/react-native-payments/AGENTS.md),
+  [full docs](packages/react-native-payments/llms-full.txt).
+- [@rnw-community/react-native-collapsible-header](packages/react-native-collapsible-header/llms.txt): Slot-based
+  Reanimated collapsible header with provider-based scroll wiring, snap, and overlay mode. Docs:
+  [readme](packages/react-native-collapsible-header/readme.md),
+  [AGENTS](packages/react-native-collapsible-header/AGENTS.md).
+- [@rnw-community/react-native-screen-chrome](packages/react-native-screen-chrome/llms.txt): Safe-area screen structure,
+  progressive edge fades, and compound collapsible chrome around one scrollable. Docs:
+  [readme](packages/react-native-screen-chrome/readme.md), [AGENTS](packages/react-native-screen-chrome/AGENTS.md).
+- [@rnw-community/platform](packages/platform/llms.txt): Platform detection constants and helpers for React Native Web.
+  Docs: [readme](packages/platform/readme.md), [AGENTS](packages/platform/AGENTS.md).
+- [@rnw-community/fast-style](packages/fast-style/llms.txt): Rapid React Native flex and font styling utilities. Docs:
+  [readme](packages/fast-style/readme.md), [AGENTS](packages/fast-style/AGENTS.md).
+
+## Tooling
+
+- [@rnw-community/wdio](packages/wdio/llms.txt): WebdriverIO commands, page objects, and helpers for end-to-end tests.
+  Docs: [readme](packages/wdio/readme.md), [AGENTS](packages/wdio/AGENTS.md).
+- [@rnw-community/eslint-plugin](packages/eslint-plugin/llms.txt): ESLint plugin with React and React Native rules such
+  as `no-complex-jsx-logic`. Docs: [readme](packages/eslint-plugin/readme.md), [AGENTS](packages/eslint-plugin/AGENTS.md).
+
+## Optional
+
+- [react-native-payments-example](packages/react-native-payments-example/readme.md): Private, unpublished. Bare and Expo
+  example apps for `react-native-payments`.
+- [react-native-collapsible-header-example](packages/react-native-collapsible-header-example/readme.md): Private,
+  unpublished. Bare and Expo example apps, Maestro e2e suite, and demo recordings for `react-native-collapsible-header`.
+- [react-native-screen-chrome-example](packages/react-native-screen-chrome-example/readme.md): Private, unpublished. Bare
+  and Expo example apps for `react-native-screen-chrome`.
