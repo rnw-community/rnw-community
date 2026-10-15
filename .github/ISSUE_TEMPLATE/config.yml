@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+    - name: Security vulnerability
+      url: https://github.com/rnw-community/rnw-community/security/advisories/new
+      about: Report vulnerabilities privately through GitHub Security Advisories, never in a public issue.
+    - name: Package documentation
+      url: https://github.com/rnw-community/rnw-community#packages
+      about: Every package readme documents each public export with a usage example.
