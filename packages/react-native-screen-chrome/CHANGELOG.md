@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [2.23.0](https://github.com/rnw-community/rnw-community/compare/v2.22.0...v2.23.0) (2026-10-15)
+
+### Features
+
+- **react-native-screen-chrome:** add useScreenChromeScrollProps for arbitrary scrollables ([#657](https://github.com/rnw-community/rnw-community/issues/657)) ([3821dc0](https://github.com/rnw-community/rnw-community/commit/3821dc0e8d89ea4571dd505a61c4ac2e23426412))
+
 # [2.22.0](https://github.com/rnw-community/rnw-community/compare/v2.21.1...v2.22.0) (2026-10-15)
 
 ### Features
