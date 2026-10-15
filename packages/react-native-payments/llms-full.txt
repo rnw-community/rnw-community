@@ -138,7 +138,7 @@ Autolinking picks up the TurboModule on both architectures — no manual `react-
 
 Before writing any code, complete the one-time platform setup for every platform you target:
 
-- [iOS quickstart](docs/getting-started/quickstart-ios.md) — Apple developer account, merchant ID, `PassKit` import in `AppDelegate`.
+- [iOS quickstart](docs/getting-started/quickstart-ios.md) — Apple developer account, merchant ID, `pod install`.
 - [Android quickstart](docs/getting-started/quickstart-android.md) — Google developer account, `play-services-wallet` dependency, test-card allowlist.
 - [Expo quickstart](docs/getting-started/quickstart-expo.md) — the `app.plugin` entry plus `expo prebuild --clean`.
 
@@ -157,8 +157,8 @@ The fastest path to an Apple Pay sheet. See [Platforms — iOS](docs/platforms/i
 1. Create an [Apple developer account](https://developer.apple.com/programs/enroll/) and a merchant ID.
 2. Follow Apple's [Apple Pay configuration guide](https://developer.apple.com/library/archive/ApplePay_Guide/Configuration.html)
    to enable the capability and register the merchant ID.
-3. Import `PassKit` in your `AppDelegate` — see [Platforms — iOS](docs/platforms/ios.md#native-setup) for the
-   Objective-C and Swift snippets.
+3. Run `pod install` — the pod links `PassKit` itself, no `AppDelegate` import is needed (see
+   [Platforms — iOS](docs/platforms/ios.md#native-setup)).
 4. Construct a `PaymentRequest` with `PaymentMethodNameEnum.ApplePay` method data (`merchantIdentifier`,
    `supportedNetworks`, `countryCode`, `currencyCode`) and call `show()` — see the
    [readme quickstart](readme.md#quickstart) for the full snippet.
@@ -249,25 +249,8 @@ Setup, capabilities, and how this package's `PaymentRequest` maps onto PassKit.
 
 ### Native setup
 
-Add the following code to your `AppDelegate.h` (Objective-C):
-
-```objc
-#import <RCTAppDelegate.h>
-#import <UIKit/UIKit.h>
-#import <PassKit/PassKit.h> // Add this import
-
-@interface AppDelegate : RCTAppDelegate
-```
-
-Add the following code to your `AppDelegate.swift` (Swift):
-
-```swift
-import UIKit
-import React
-import React_RCTAppDelegate
-import ReactAppDependencyProvider
-import PassKit // Add this import
-```
+No `AppDelegate` changes are needed. The pod links `PassKit` and `Contacts` itself (`s.frameworks` in
+`react-native-payments.podspec`), so `pod install` — or `expo prebuild` — is the whole native step.
 
 ## Capabilities
 

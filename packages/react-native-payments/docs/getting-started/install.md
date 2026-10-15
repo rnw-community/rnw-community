@@ -10,7 +10,7 @@ Autolinking picks up the TurboModule on both architectures — no manual `react-
 
 Before writing any code, complete the one-time platform setup for every platform you target:
 
-- [iOS quickstart](./quickstart-ios.md) — Apple developer account, merchant ID, `PassKit` import in `AppDelegate`.
+- [iOS quickstart](./quickstart-ios.md) — Apple developer account, merchant ID, `pod install`.
 - [Android quickstart](./quickstart-android.md) — Google developer account, `play-services-wallet` dependency, test-card allowlist.
 - [Expo quickstart](./quickstart-expo.md) — the `app.plugin` entry plus `expo prebuild --clean`.
 

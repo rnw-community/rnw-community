@@ -6,8 +6,8 @@ The fastest path to an Apple Pay sheet. See [Platforms — iOS](../platforms/ios
 1. Create an [Apple developer account](https://developer.apple.com/programs/enroll/) and a merchant ID.
 2. Follow Apple's [Apple Pay configuration guide](https://developer.apple.com/library/archive/ApplePay_Guide/Configuration.html)
    to enable the capability and register the merchant ID.
-3. Import `PassKit` in your `AppDelegate` — see [Platforms — iOS](../platforms/ios.md#native-setup) for the
-   Objective-C and Swift snippets.
+3. Run `pod install` — the pod links `PassKit` itself, no `AppDelegate` import is needed (see
+   [Platforms — iOS](../platforms/ios.md#native-setup)).
 4. Construct a `PaymentRequest` with `PaymentMethodNameEnum.ApplePay` method data (`merchantIdentifier`,
    `supportedNetworks`, `countryCode`, `currencyCode`) and call `show()` — see the
    [readme quickstart](../../readme.md#quickstart) for the full snippet.
