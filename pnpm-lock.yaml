@@ -846,6 +846,9 @@ importers:
             '@rnw-community/react-native-screen-chrome-example':
                 specifier: workspace:*
                 version: link:../..
+            expo:
+                specifier: 57.0.4
+                version: 57.0.4(70c94e2f0f8f3342f4491993ce70adc1)
             expo-blur:
                 specifier: ~57.0.0
                 version: 57.0.2(expo@57.0.4)(react-native@0.86.2(@babel/core@7.29.7(supports-color@8.1.1))(@react-native-community/cli@20.2.0(supports-color@8.1.1)(typescript@5.9.3))(@react-native/jest-preset@0.86.2(@babel/core@7.29.7(supports-color@8.1.1))(react@19.2.3)(supports-color@8.1.1))(@react-native/metro-config@0.86.2(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.2.18)(react@19.2.3)(supports-color@8.1.1))(react@19.2.3)
