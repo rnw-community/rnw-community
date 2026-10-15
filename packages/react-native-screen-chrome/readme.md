@@ -93,7 +93,7 @@ layers. `ScreenChromeScrollView` adds safe-area padding and caller-provided cont
 
 ## CollapsibleHeader
 
-Composes the persistent leading/trailing controls and the expanded/collapsed title layers of its three compound
+Composes the optional persistent leading/trailing controls and the expanded/collapsed title layers of its compound
 children into the generic `@rnw-community/react-native-collapsible-header` primitive, reading geometry and thresholds
 from `useScreenChrome`.
 
@@ -108,13 +108,36 @@ from `useScreenChrome`.
 </CollapsibleHeader>
 ```
 
-The header container is sized to `safeAreaInsets.top + config.headerHeight`, and both title layers and the persistent
-control row start at `safeAreaInsets.top`, so `config.headerHeight` is always the usable content height regardless of
-notch or dynamic-island depth. The primitive positions those layers absolutely inside the animated header, so the
-offset is a layer `top` rather than container padding — padding leaves absolute layers resolving against the full
+Both control slots are optional — a title-only header, or one with just a back button or just a trailing action, is
+the same component with fewer children:
+
+```tsx
+<CollapsibleHeader>
+    <CollapsibleHeaderTitleSlot>
+        {/* expanded title */}
+        {/* collapsed title */}
+    </CollapsibleHeaderTitleSlot>
+    <CollapsibleHeaderSlot>{/* trailing control */}</CollapsibleHeaderSlot>
+</CollapsibleHeader>
+```
+
+A missing control is replaced by an empty, non-interactive placeholder in the persistent row, so the row keeps its
+`space-between` layout and a lone trailing control stays right-aligned instead of sliding to the leading edge.
+
+The header container rests at `safeAreaInsets.top + config.headerHeight` and collapses to
+`safeAreaInsets.top + config.collapsedHeaderHeight` (which defaults to `headerHeight`, i.e. no height change) over the
+`collapseStart`–`collapseEnd` window. Both title layers and the persistent control row start at `safeAreaInsets.top`
+and fill the remaining header height, so `config.headerHeight` is always the usable expanded content height regardless
+of notch or dynamic-island depth, and the controls and collapsed title stay vertically centered in the shrinking band.
+The primitive positions those layers absolutely inside the animated header, so the offset is a layer `top` rather than container padding — padding leaves absolute layers resolving against the full
 container box and centers their content over the inset instead of below it. It is the same composition
 `ScreenChromeScrollView` applies to `contentInsetTop`, so passing `contentInsetTop={config.headerHeight}` clears the
-overlay header exactly.
+overlay header exactly at rest. Content insets and header metrics always use the expanded `headerHeight`: content must
+clear the header before any scroll, and the overlay header only shrinks once that content has scrolled under it.
+
+```tsx
+<ScreenChromeProvider config={{ headerHeight: 156, collapsedHeaderHeight: 40 }}>{children}</ScreenChromeProvider>
+```
 
 Pass `motion` to override individual per-layer animation windows or transforms derived from config — any key you set
 wins, the rest stay config-driven. This covers app-specific motion (for example an earlier background fade start, or
@@ -137,16 +160,27 @@ wins without needing to know or cancel the gutter value — an iOS-style left-al
 
 ## Compound header contract
 
-`CollapsibleHeaderSlot`, `CollapsibleHeaderTitleSlot`, and a second `CollapsibleHeaderSlot` must be direct children of
-`CollapsibleHeader` in that order. The title slot must directly contain the expanded title followed by the collapsed
-title. Fragments and extra wrapper components are rejected so slot discovery stays deterministic.
+`CollapsibleHeader` requires exactly one `CollapsibleHeaderTitleSlot` direct child and accepts at most one
+`CollapsibleHeaderSlot` before it (the leading control) and at most one after it (the trailing control). The title slot
+must directly contain the expanded title followed by the collapsed title. `null`, `false`, and `undefined` children are
+ignored, so `{canGoBack && <CollapsibleHeaderSlot>…</CollapsibleHeaderSlot>}` works; fragments, host views, and
+unmarked wrapper components are rejected so slot discovery stays deterministic.
+
+Slots are recognized by a stable string marker, `screenChromeSlotKind` (a [`CollapsibleHeaderSlotKind`](#collapsibleheaderslotkind)),
+that each slot component carries as a static property — `'control'` for `CollapsibleHeaderSlot`, `'title'` for
+`CollapsibleHeaderTitleSlot` — with component identity used only as a fast path. Two resolved copies of this package in
+one bundle (for example `dist/module` for one importer and `dist/commonjs` for another) produce two distinct function
+identities for the same slot; the marker still matches both, so such a bundle renders instead of throwing.
 
 The shape above is a compound-component contract that TypeScript's type system cannot express: JSX children are
-`ReactNode`, so nothing in the type checker distinguishes three correctly ordered slots from an arbitrary fragment tree
-at compile time. `CollapsibleHeader` therefore validates its children at render time and throws a `TypeError` naming the
-violated rule (missing slot, wrong slot type, wrong title-layer count) instead of silently mounting a broken layout —
-a mispositioned or dropped slot without this check degrades into leading controls rendering as the title, or a header
-that mounts with no crash and no visible content. Four spec cases pin the accepted shape and every rejected one.
+`ReactNode`, so nothing in the type checker distinguishes a valid slot set from an arbitrary fragment tree at compile
+time. `CollapsibleHeader` therefore validates its children at render time and throws a `TypeError` naming the violated
+rule (unknown child type, missing title slot, duplicate slot, wrong title-layer count) instead of silently mounting a
+broken layout.
+
+Slot discovery deliberately inspects children synchronously instead of having each slot register itself through
+context: registration would mount the slots, collect them in an effect, and only then render the header layers, so the
+first frame would paint an empty header.
 
 ## CollapsibleHeaderSlot
 
@@ -175,6 +209,22 @@ handoff between them are delegated to `@rnw-community/react-native-collapsible-h
     <Text>Accounts</Text>
     <Text>Accounts</Text>
 </CollapsibleHeaderTitleSlot>
+```
+
+## CollapsibleHeaderSlotKind
+
+The `screenChromeSlotKind` marker value a compound header child carries: `'control' | 'title'`. A wrapper component
+around a slot is only accepted when it carries the same static marker as the slot it renders:
+
+```tsx
+const BackSlot = ({ onPress }: { readonly onPress: () => void }) => (
+    <CollapsibleHeaderSlot>
+        <Pressable accessibilityRole="button" onPress={onPress}>
+            <Text>Back</Text>
+        </Pressable>
+    </CollapsibleHeaderSlot>
+);
+BackSlot.screenChromeSlotKind = 'control' satisfies CollapsibleHeaderSlotKind;
 ```
 
 ## CollapsibleHeaderBackdrop
@@ -372,7 +422,8 @@ const headerTotalHeight = getScreenChromeHeaderMetrics(config.headerHeight, inse
 
 Returns `getScreenChromeHeaderMetrics` for the live provider config and device insets (no extra top inset — the
 collapsible container owns none), so screens offset their content from the rendered header without re-merging
-`SCREEN_CHROME_DEFAULT_CONFIG`. Requires a `ScreenChromeProvider` ancestor.
+`SCREEN_CHROME_DEFAULT_CONFIG`. It always reports the expanded `headerHeight` footprint, never
+`collapsedHeaderHeight`: that is the space content must clear at rest. Requires a `ScreenChromeProvider` ancestor.
 
 ```tsx
 const headerTotalHeight = useScreenChromeHeaderMetrics();
@@ -404,6 +455,11 @@ Configures screen chrome geometry, colors, fade masks, scroll throttling, and co
 [Configuration and snapping](#configuration-and-snapping) for the threshold ordering rule and
 [`SCREEN_CHROME_DEFAULT_CONFIG`](#screen_chrome_default_config) for the full default shape.
 
+| Field                   | Description                                                                                                                                                                                                    |
+| ----------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `headerHeight`          | Expanded header content height below the safe area; used by `CollapsibleHeader` at rest, `ScreenChromeHeader`, and the header metrics.                                                                         |
+| `collapsedHeaderHeight` | Optional collapsed `CollapsibleHeader` content height below the safe area; must be positive and not greater than `headerHeight`. Omitted by default, which keeps the collapsed height equal to `headerHeight`. |
+
 ## ScreenChromeConfigOverridesInterface
 
 Overrides selected screen chrome defaults while preserving nested color schemes and mask-stop records; the shape
@@ -428,7 +484,8 @@ const stop: ScreenChromeMaskStopInterface = { color: 'rgba(0,0,0,0.99)' };
 ## Configuration and snapping
 
 Provider overrides deep-merge light/dark colors and top/bottom mask stops. Geometry, blur intensity, throttle, mask
-positions, colors, and transition ordering are validated. The required threshold order is
+positions, colors, and transition ordering are validated; an optional `collapsedHeaderHeight` must be a positive finite
+number not greater than `headerHeight`. The required threshold order is
 `collapseStart <= smallTitleStart <= largeTitleEnd <= collapseEnd` with a non-zero collapse interval.
 
 Thresholds are mapped to normalized collapse progress and handed to the generic header as its `motion` config, so

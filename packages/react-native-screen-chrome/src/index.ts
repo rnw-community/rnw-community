@@ -17,6 +17,7 @@ export { ScreenChromeFrame } from './screen-chrome-frame/screen-chrome-frame';
 export { ScreenChromeHeader } from './screen-chrome-header/screen-chrome-header';
 export { ScreenChromeProvider } from './screen-chrome-provider/screen-chrome-provider';
 export { ScreenChromeScrollView } from './screen-chrome-scroll-view/screen-chrome-scroll-view';
+export type { CollapsibleHeaderSlotKind } from './type/collapsible-header-slot-kind.type';
 export type { ScreenChromeColorScheme } from './type/screen-chrome-color-scheme.type';
 export type { ScreenChromeColorSetInterface } from './interface/screen-chrome-color-set.interface';
 export type { ScreenChromeConfigInterface } from './interface/screen-chrome-config.interface';
