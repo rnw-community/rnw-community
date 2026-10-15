@@ -1,1 +1,1 @@
-module.exports = require('../../get-jest.config.js')('nestjs-rxjs-redis');
+module.exports = require('../../get-jest.config.js')('nestjs-rxjs-redis', undefined, ['@nestjs']);

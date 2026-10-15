@@ -477,10 +477,55 @@ jobs:
                     GH_TOKEN: ${{ github.token }}
                 run: pipx run "zizmor==${ZIZMOR_VERSION}" --format=github .github/workflows
 
+    nestjs-compatibility:
+        name: NestJS compatibility (@nestjs/common ${{ matrix.nestjs }}, @nestjs/config ${{ matrix.nestjs-config }})
+        timeout-minutes: 20
+        runs-on: ubuntu-latest
+        permissions:
+            contents: read
+        strategy:
+            fail-fast: false
+            matrix:
+                include:
+                    -   nestjs: 11.1.28
+                        nestjs-config: 4.0.4
+                    -   nestjs: 12.0.0
+                        nestjs-config: 12.0.1
+
+        steps:
+            -   name: Checkout repository
+                uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+                with:
+                    persist-credentials: false
+
+            -   name: Setup pnpm
+                uses: pnpm/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1 # v4
+
+            -   name: Setup Node
+                uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+                with:
+                    node-version: 22.x
+                    cache: pnpm
+
+            -   name: Pin the NestJS stack under test
+                env:
+                    NESTJS_VERSION: ${{ matrix.nestjs }}
+                    NESTJS_CONFIG_VERSION: ${{ matrix.nestjs-config }}
+                run: |
+                    sed -i "s|^overrides:$|overrides:\n  \"@nestjs/common\": ${NESTJS_VERSION}\n  \"@nestjs/core\": ${NESTJS_VERSION}\n  \"@nestjs/config\": ${NESTJS_CONFIG_VERSION}|" pnpm-workspace.yaml
+                    pnpm install --no-frozen-lockfile
+                    pnpm why -r @nestjs/common @nestjs/core @nestjs/config | grep '^@nestjs/'
+
+            -   name: Build the NestJS packages and their workspace dependencies
+                run: pnpm exec turbo run build --filter='@rnw-community/nestjs-*'
+
+            -   name: Typecheck and test the NestJS packages
+                run: pnpm exec turbo run ts test:coverage --filter='@rnw-community/nestjs-*'
+
     required-checks:
         name: Required checks
         if: always()
-        needs: [code-quality, package-manager-smoke, workflow-lint]
+        needs: [code-quality, package-manager-smoke, workflow-lint, nestjs-compatibility]
         timeout-minutes: 5
         runs-on: ubuntu-latest
         permissions: {}
@@ -491,11 +536,13 @@ jobs:
                     CODE_QUALITY_RESULT: ${{ needs.code-quality.result }}
                     PACKAGE_MANAGER_SMOKE_RESULT: ${{ needs.package-manager-smoke.result }}
                     WORKFLOW_LINT_RESULT: ${{ needs.workflow-lint.result }}
+                    NESTJS_COMPATIBILITY_RESULT: ${{ needs.nestjs-compatibility.result }}
                 run: |
                     echo "code-quality=${CODE_QUALITY_RESULT}"
                     echo "package-manager-smoke=${PACKAGE_MANAGER_SMOKE_RESULT}"
                     echo "workflow-lint=${WORKFLOW_LINT_RESULT}"
-                    if [ "${CODE_QUALITY_RESULT}" != 'success' ] || [ "${PACKAGE_MANAGER_SMOKE_RESULT}" != 'success' ] || [ "${WORKFLOW_LINT_RESULT}" != 'success' ]; then
+                    echo "nestjs-compatibility=${NESTJS_COMPATIBILITY_RESULT}"
+                    if [ "${CODE_QUALITY_RESULT}" != 'success' ] || [ "${PACKAGE_MANAGER_SMOKE_RESULT}" != 'success' ] || [ "${WORKFLOW_LINT_RESULT}" != 'success' ] || [ "${NESTJS_COMPATIBILITY_RESULT}" != 'success' ]; then
                       echo "Required jobs did not pass"
                       exit 1
                     fi
