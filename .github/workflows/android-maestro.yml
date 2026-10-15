@@ -619,6 +619,11 @@ jobs:
                       echo "booting: bootanim=$(adb shell getprop init.svc.bootanim 2>/dev/null | tr -d "\r") load=$(cut -d" " -f1-3 /proc/loadavg)"
                       sleep 5
                     done'
+                    # The stock 256K ring buffer holds about six seconds of this
+                    # image's GMS chatter, so the logcat captured after a failed
+                    # suite never reached back to the flow that failed. 16M keeps
+                    # the whole suite.
+                    adb logcat -G 16M || echo "::warning::could not resize the logcat ring buffer; the captured logcat will only cover the last few seconds."
                     # Dismiss the lock screen the stock image boots into, then turn
                     # animations off — the same property the prewarmed redroid
                     # /data volume used to carry, and one Maestro's waits depend on
@@ -866,6 +871,10 @@ jobs:
                     timeout 30 adb -s "$ANDROID_SERIAL" exec-out screencap -p > "$out/final-screen.png" || true
                     timeout 60 adb -s "$ANDROID_SERIAL" logcat -d > "$out/logcat-full.txt" 2>&1 || true
                     timeout 30 adb -s "$ANDROID_SERIAL" logcat -d -b crash > "$out/logcat-crash.txt" 2>&1 || true
+                    # The events buffer is where ActivityTaskManager records which
+                    # activity was resumed and focused, which is what separates a
+                    # launch that never reached the foreground from one that did.
+                    timeout 30 adb -s "$ANDROID_SERIAL" logcat -d -b events > "$out/logcat-events.txt" 2>&1 || true
 
             -   name: Stop the emulator
                 # The runner container is ephemeral, so this is not the leak guard
