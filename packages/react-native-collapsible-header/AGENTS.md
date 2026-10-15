@@ -24,6 +24,7 @@ src/
     collapsible-header.spec.tsx  — rendering, a11y, mode, defaults, and validation coverage
     collapsible-header-motion.spec.tsx — animation, clamping, and interaction coverage
     collapsible-header-accessibility.spec.tsx — pointer-event and accessibility handoff across the cross-fade
+    collapsible-header-web-accessibility.spec.tsx — aria-hidden handoff with the `.web` accessibility variant
     collapsible-header-hit-testing.spec.tsx — header shell pointer-event defaulting and caller override
   config/
     default-collapsible-header-motion.config.ts — public original-compatible motion preset
@@ -68,6 +69,11 @@ src/
                                                      those when a plain JS momentum prop sets `sendMomentumEvents`,
                                                      which a worklet-only `onScroll` handler never does
       create-collapsible-header-scroll-worklets.spec.ts
+    get-collapsible-header-layer-accessibility-props/
+      get-collapsible-header-layer-accessibility-props.ts — internal worklet: native per-layer a11y hiding pair
+      get-collapsible-header-layer-accessibility-props.web.ts — internal worklet: web `aria-hidden` variant
+      get-collapsible-header-layer-accessibility-props.spec.ts
+      get-collapsible-header-layer-accessibility-props.web.spec.ts
     get-collapsible-header-content-inset-style/
       get-collapsible-header-content-inset-style.ts — public overlay-mode content inset helper
       get-collapsible-header-content-inset-style.spec.ts
@@ -130,6 +136,15 @@ src/
   equal or inverted thresholds it lands exactly where the expanded layer reaches zero opacity, so
   `useCollapsibleHeaderAnimatedLayers` additionally requires the expanded layer to still be painted before it may own
   hit testing or the accessibility tree — one `expandedOwnsInteraction` derived value feeds both, keeping them in sync.
+- Per-layer accessibility state rides on `useAnimatedProps`, the same worklet channel as the animated `pointerEvents`
+  style, so the switch costs no React render. Opacity is not an accessibility signal everywhere (VoiceOver skips alpha-0
+  views; TalkBack and web screen readers do not), so the inert layer must be hidden explicitly.
+  `getCollapsibleHeaderLayerAccessibilityProps` is platform-split: native emits the `accessibilityElementsHidden` +
+  `importantForAccessibility` pair, because RN expands `aria-hidden` only inside the JS `View` component (native-side
+  expansion is behind the off-by-default `enableNativeViewPropTransformations` flag) and animated-prop commits bypass
+  that component; the `.web.ts` variant emits `aria-hidden`, the only one of these props react-native-web forwards to
+  the DOM. The `.web` file is mapped through the `package.json` `browser` field for both dist trees, and the `build`
+  script runs `rewrite-esm-extensions.mjs` because bob leaves specifiers with platform variants extensionless.
 - Worklet bodies use plain `=== null` checks — `@rnw-community/shared` guards are not workletized and must not be
   called on the UI runtime.
 - `react`, `react-native`, and `react-native-reanimated` remain peer dependencies. Never bundle a second Reanimated copy.

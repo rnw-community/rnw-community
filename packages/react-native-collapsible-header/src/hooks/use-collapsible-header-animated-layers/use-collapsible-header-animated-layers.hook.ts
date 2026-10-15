@@ -7,6 +7,8 @@ import {
     useDerivedValue,
 } from 'react-native-reanimated';
 
+import { getCollapsibleHeaderLayerAccessibilityProps } from '../../util/get-collapsible-header-layer-accessibility-props/get-collapsible-header-layer-accessibility-props';
+
 import type { CollapsibleHeaderAnimationConfig } from '../../interface/collapsible-header-animation-config.interface';
 import type { ViewProps } from 'react-native';
 
@@ -28,15 +30,6 @@ const interpolateProgressFadeIn = (progressValue: number, fadeStartProgress: num
     }
 
     return interpolate(progressValue, [fadeStartProgress, 1], [0, 1], Extrapolation.CLAMP);
-};
-
-const getLayerAccessibilityProps = (isExposed: boolean): ViewProps => {
-    'worklet';
-
-    return {
-        accessibilityElementsHidden: !isExposed,
-        importantForAccessibility: isExposed ? 'auto' : 'no-hide-descendants',
-    };
 };
 
 const isExpandedLayerVisible = (progressValue: number, fadeEndProgress: number): boolean => {
@@ -109,10 +102,10 @@ export const useCollapsibleHeaderAnimatedLayers = ({
             (stretchOnOverscroll && scrollY.get() < 0 ? -scrollY.get() : 0),
     }));
     const expandedAnimatedProps = useAnimatedProps<ViewProps>(() =>
-        getLayerAccessibilityProps(expandedOwnsInteraction.get())
+        getCollapsibleHeaderLayerAccessibilityProps(expandedOwnsInteraction.get())
     );
     const collapsedAnimatedProps = useAnimatedProps<ViewProps>(() =>
-        getLayerAccessibilityProps(!expandedOwnsInteraction.get())
+        getCollapsibleHeaderLayerAccessibilityProps(!expandedOwnsInteraction.get())
     );
 
     return {
