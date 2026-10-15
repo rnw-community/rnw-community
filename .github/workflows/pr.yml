@@ -85,6 +85,9 @@ jobs:
             -   name: Publish hygiene checks (publint, attw)
                 run: pnpm publint
 
+            -   name: Pack-content gate (llms.txt, no test/build artifacts, entry targets)
+                run: pnpm assert:pack
+
             -   name: Find dead code
                 run: pnpm deadcode
 
