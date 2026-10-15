@@ -22,10 +22,13 @@ src/
   collapsible-header/
     collapsible-header.tsx       — public component, layer composition, scroll-source resolution
     collapsible-header.spec.tsx  — rendering, a11y, mode, defaults, and validation coverage
+    collapsible-header-roll-transition.spec.tsx — fade/roll collapsed transition layer tree and roll motion
     collapsible-header-motion.spec.tsx — animation, clamping, and interaction coverage
     collapsible-header-accessibility.spec.tsx — pointer-event and accessibility handoff across the cross-fade
     collapsible-header-web-accessibility.spec.tsx — aria-hidden handoff with the `.web` accessibility variant
     collapsible-header-hit-testing.spec.tsx — header shell pointer-event defaulting and caller override
+  component/
+    collapsible-header-collapsed-layer.tsx — internal collapsed layer; wraps it in the clip band under 'roll'
   config/
     default-collapsible-header-motion.config.ts — public original-compatible motion preset
     resolve-collapsible-header-motion.config.ts — partial motion override resolution
@@ -58,6 +61,7 @@ src/
       collapsible-header-provider-reduced-motion.spec.tsx — animated/instant snap per system motion setting
       collapsible-header-provider-scrollables.spec.tsx — snap wiring across every supported scrollable shape
   type/
+    collapsible-header-collapsed-transition.type.ts — public 'fade' | 'roll' collapsed-content entry style
     collapsible-header-geometry.type.ts — normalized geometry validation input
     collapsible-header-mode.type.ts — public 'flow' | 'overlay' layout strategy
     collapsible-header-scroll-ref.type.ts — public animated scroll ref attachable to any scrollable
@@ -127,6 +131,14 @@ src/
   type-level plus readme recipes, and specs use locally declared handle-shaped stubs.
 - `collapseDistance` defaults to `expandedHeight - collapsedHeight`; `collapseStart` is optional, non-negative, and
   defaults to `0`.
+- `collapsedTransition` is a header prop, not a `CollapsibleHeaderMotionConfig` field: adding a required field to that
+  exported normalized interface would break callers that build a full config object. `'fade'` (default) renders the
+  exact pre-existing layer tree. `'roll'` cannot be expressed by `motion` alone — a view's `overflow: 'hidden'` never
+  clips its own transform, and the shell is still tall mid-transition — so `CollapsibleHeaderCollapsedLayer` wraps the
+  collapsed layer in a static `box-none` band of `collapsedHeight` with `overflow: 'hidden'`, and the motion resolver
+  defaults an omitted `collapsedTranslateY` to `collapsedHeight`. The animation hook is untouched: roll reuses the
+  fade's translate/opacity worklets and the pointer-event/accessibility handoff. The roll is scroll-linked (user
+  initiated), so it is not gated on reduced motion; the provider's snap already is.
 - `motion` is additive and partial; missing fields resolve against `DefaultCollapsibleHeaderMotionConfig` (public)
   before validation, so omitted options preserve existing behavior. The one derived field is
   `pointerEventsSwitchProgress`: omitted, it resolves to `(collapsedOpacityStartProgress + expandedOpacityEndProgress) / 2`
