@@ -77,7 +77,8 @@ published.
   initial details and the updates.
 - Change-event listeners are attached per request in `attach-change-listeners.ts`: `paymentmethodchange` always,
   the shipping pair when `requestShipping` is on, `couponcodechange` only on iOS with the coupon toggle on. On Android the
-  log records the documented no-op instead of staying silent.
+  log records that only the shipping pair is delivered (Google Pay callback intents), so a silent
+  `paymentmethodchange` there is expected.
 - The Maestro suite is one shared, parameterized flow set per scenario, not one per app target/platform: only the `APP_ID`
   env value and the connected device change between `apps/bare`/`apps/expo` and iOS/Android, and in-flow platform branching
   uses Maestro's `when: platform:` condition. Flows assert against the on-screen event log and flow-state/can-make-status

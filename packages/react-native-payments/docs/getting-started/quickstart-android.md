@@ -5,7 +5,7 @@ story (capabilities, deviations, dependency version).
 
 1. Create a [Google developer account](https://support.google.com/googleplay/android-developer/answer/6112435?hl=en).
 2. Follow Google's [Google Pay API for Android setup guide](https://developers.google.com/pay/api/android/guides/setup).
-3. Depend on `com.google.android.gms:play-services-wallet:18.0.0` or newer — see
+3. Depend on `com.google.android.gms:play-services-wallet:20.0.0` or newer — see
    [Platforms — Android](../platforms/android.md#native-setup) for the Gradle snippet.
 4. Add your test Google account to the
    [Google Pay API Test Cards Allowlist](https://groups.google.com/g/googlepay-test-mode-stub-data?pli=1).

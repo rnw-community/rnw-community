@@ -17,9 +17,11 @@ import { ConstructorError } from '../../error/constructor.error';
 import { DOMException } from '../../error/dom.exception';
 import { PaymentsError } from '../../error/payments.error';
 import { getAndroidBillingIntent } from '../../util/get-android-billing-intent.util';
+import { getAndroidCallbackPaymentDataRequest } from '../../util/get-android-callback-payment-data-request/get-android-callback-payment-data-request.util';
 import { getAndroidCardNetworks } from '../../util/get-android-card-networks/get-android-card-networks.util';
 import { getNativePaymentsEventEmitter } from '../../util/get-native-payments-event-emitter/get-native-payments-event-emitter.util';
 import { isNativeUserCancellation } from '../../util/is-native-user-cancellation.util';
+import { registerAndroidChangeEventsTask } from '../../util/register-android-change-events-task/register-android-change-events-task.util';
 import { resolvePaymentDetailsModifier } from '../../util/resolve-payment-details-modifier.util';
 import { validateAndroidCardNetworks } from '../../util/validate-android-card-networks.util';
 import { validateAndroidMerchantInitiatedTransaction } from '../../util/validate-android-merchant-initiated-transaction.util';
@@ -74,6 +76,7 @@ export class PaymentRequest {
     shippingOption: Maybe<string> = null;
 
     private readonly serializedMethodData: string;
+    private readonly nativePlatformMethodData: AndroidPaymentDataRequest | IosPaymentDataRequest;
     private readonly platformMethodData: AndroidPaymentMethodDataDataInterface | IosPaymentMethodDataDataInterface;
     private readonly eventRegistrations = new Map<PaymentRequestEventType, PaymentRequestEventRegistrationInterface>();
     private readonly pendingDispatchers = new Set<ChangeEventDispatcher>();
@@ -100,7 +103,7 @@ export class PaymentRequest {
 
         this.platformMethodData = this.findPlatformPaymentMethodData();
 
-        const nativePlatformMethodData =
+        this.nativePlatformMethodData =
             Platform.OS === 'android'
                 ? this.getAndroidPaymentMethodData(
                       this.platformMethodData as AndroidPaymentMethodDataDataInterface,
@@ -108,7 +111,7 @@ export class PaymentRequest {
                   )
                 : this.getIosPaymentMethodData(this.platformMethodData as IosPaymentMethodDataDataInterface);
 
-        this.serializedMethodData = JSON.stringify(nativePlatformMethodData);
+        this.serializedMethodData = JSON.stringify(this.nativePlatformMethodData);
     }
 
     /**
@@ -216,7 +219,7 @@ export class PaymentRequest {
         return new Promise<AndroidPaymentResponse | IosPaymentResponse>((resolve, reject) => {
             this.acceptPromiseRejecter = reject;
 
-            NativePayments.show(this.id, this.serializedMethodData, details)
+            NativePayments.show(this.id, this.getShowMethodData(resolvedDetails), details)
                 .then(jsonDetails => {
                     const paymentResponse = this.handleAccept(jsonDetails);
 
@@ -303,6 +306,25 @@ export class PaymentRequest {
         }
 
         this.dropRegistration(type, registration);
+    }
+
+    private getShowMethodData(resolvedDetails: ResolvedPaymentDetailsInterface): string {
+        if (Platform.OS !== 'android') {
+            return this.serializedMethodData;
+        }
+
+        const androidPaymentDataRequest = getAndroidCallbackPaymentDataRequest(
+            this.nativePlatformMethodData as AndroidPaymentDataRequest,
+            [...this.eventRegistrations.keys()],
+            resolvedDetails.displayItems,
+            this.details.shippingOptions ?? []
+        );
+
+        if (isDefined(androidPaymentDataRequest.callbackIntents)) {
+            registerAndroidChangeEventsTask();
+        }
+
+        return JSON.stringify(androidPaymentDataRequest);
     }
 
     private closeRequest(): void {
