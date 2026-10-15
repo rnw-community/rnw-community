@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.19.11](https://github.com/rnw-community/rnw-community/compare/v2.19.10...v2.19.11) (2026-10-15)
+
+### Bug Fixes
+
+- resolve the actionable TODOs recorded in [#554](https://github.com/rnw-community/rnw-community/issues/554) ([#662](https://github.com/rnw-community/rnw-community/issues/662)) ([6aa7546](https://github.com/rnw-community/rnw-community/commit/6aa75469254ef1175b20d20a816b0f09cd15835c))
+
 ## [2.19.8](https://github.com/rnw-community/rnw-community/compare/v2.19.7...v2.19.8) (2026-10-15)
 
 **Note:** Version bump only for package @rnw-community/nestjs-rxjs-logger
