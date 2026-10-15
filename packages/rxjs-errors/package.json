@@ -1,6 +1,6 @@
 {
     "name": "@rnw-community/rxjs-errors",
-    "version": "2.19.8",
+    "version": "2.19.13",
     "description": "RxJS errors utils",
     "keywords": [
         "rxjs error operator",
@@ -48,7 +48,7 @@
         "ts:nodenext": "tsc --pretty -p tsconfig.nodenext-check.json"
     },
     "dependencies": {
-        "@rnw-community/shared": "^2.19.8"
+        "@rnw-community/shared": "^2.19.13"
     },
     "devDependencies": {
         "expect-type": "^1.4.0",
