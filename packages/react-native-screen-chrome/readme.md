@@ -176,7 +176,7 @@ a control wider than 44pt (a text button, or a slot resized through `style`) nee
 in `expandedContentContainerStyle`.
 
 ```tsx
-<CollapsibleHeader expandedTitleAlignment="start">{/* slots */}</CollapsibleHeader>
+<CollapsibleHeader expandedTitleAlignment="start">{/* slots */}</CollapsibleHeader>;
 
 const { rowPadding } = SCREEN_CHROME_HEADER_LAYOUT_METRICS;
 
@@ -567,6 +567,143 @@ a consumer `ref` merged with the chrome scroll ref.
 The `{ ref, onScroll, scrollEventThrottle, contentContainerStyle, scrollIndicatorInsets,
 automaticallyAdjustsScrollIndicatorInsets }` bag returned by `useScreenChromeScrollProps`. `ref` is a memoized merged
 callback ref, stable until the consumer ref changes.
+
+## Bottom chrome
+
+Bottom chrome is a footer pinned over the scroll content plus an inset contract that lets the content clear it:
+`ScreenChromeFooter` measures itself and publishes the height into the nearest `BottomChromeInsetProvider`, and
+`useBottomChromeInset` reads it back where the scrollable is rendered.
+
+```tsx
+const AccountsContent = () => {
+    const { chromeHeight } = useBottomChromeInset();
+
+    return (
+        <>
+            <ScreenChromeScrollView contentInsetBottom={chromeHeight}>{rows}</ScreenChromeScrollView>
+            <ScreenChromeFooter>
+                <TotalRow />
+            </ScreenChromeFooter>
+        </>
+    );
+};
+
+export const AccountsScreen = () => (
+    <ScreenChromeProvider>
+        <BottomChromeInsetProvider>
+            <ScreenChromeFrame>
+                <AccountsContent />
+            </ScreenChromeFrame>
+        </BottomChromeInsetProvider>
+    </ScreenChromeProvider>
+);
+```
+
+The package ships no tab bar and no hide-on-scroll bottom bar. Expo Router's
+[`NativeTabs`](https://docs.expo.dev/router/advanced/native-tabs/) renders the platform tab bar — the Liquid Glass bar
+with native minimize-on-scroll on iOS 26 — and owns its insets, so a JavaScript re-implementation would only lag
+behind the platform. Use `ScreenChromeFooter` for screen-level action and summary bars.
+
+## BottomChromeInsetProvider
+
+Owns the measured bottom chrome height that `ScreenChromeFooter` publishes and `useBottomChromeInset` reads. It is
+independent of `ScreenChromeProvider`, so it can wrap one screen or sit above a navigator when the same bottom chrome
+persists across every screen in it. Prefer one provider per screen: a stack keeps a covered screen's footer mounted,
+and a navigator-wide provider would keep publishing that footer's height to the screen pushed on top. Each footer
+registers its own height, and the provider publishes the tallest one: footers are bottom-anchored and overlap, so the
+tallest one is what the content has to clear, and unmounting one footer leaves the others' heights in place.
+
+```tsx
+<BottomChromeInsetProvider>{screen}</BottomChromeInsetProvider>
+```
+
+## useBottomChromeInset
+
+Returns a [`BottomChromeInsetInterface`](#bottomchromeinsetinterface): `chromeHeight` is the measured footer height
+without the safe area, which is exactly what `ScreenChromeScrollView`'s `contentInsetBottom` expects because the scroll
+view adds the safe-area bottom itself; `inset` adds the safe-area bottom for surfaces that do not, such as a `FlatList`
+`contentContainerStyle` or an absolutely positioned button. Without a provider or a mounted footer `chromeHeight` is
+`0`, so the hook never throws. A reserve with a floor composes from it directly:
+
+```tsx
+const { chromeHeight } = useBottomChromeInset();
+
+<ScreenChromeScrollView contentInsetBottom={Math.max(132, chromeHeight + 88)} />;
+```
+
+The value changes only when the footer's measured height changes — never per scroll frame and never when the footer
+is moved by a transform — so pairing it with the scroll view relayouts content only on real footer resizes.
+
+## BottomChromeInsetInterface
+
+| Field          | Type     | Description                                                                                 |
+| -------------- | -------- | ------------------------------------------------------------------------------------------- |
+| `chromeHeight` | `number` | Measured bottom chrome height without the safe area; pass to `contentInsetBottom`.          |
+| `inset`        | `number` | `chromeHeight` plus the safe-area bottom inset, for surfaces that do not add the safe area. |
+
+```tsx
+const { inset }: BottomChromeInsetInterface = useBottomChromeInset();
+
+<FlatList contentContainerStyle={{ paddingBottom: inset }} data={rows} renderItem={renderRow} />;
+```
+
+## ScreenChromeFooter
+
+Pins consumer footer content to the bottom edge over a bottom [`EdgeFade`](#edgefade): an absolute, `box-none`
+container at `zIndex: 3` padded by the safe-area bottom, with the fade band painted behind a content node. The content
+node is measured synchronously on mount and again on every `onLayout`, and the height is published to the nearest
+`BottomChromeInsetProvider` (a no-op without one); unmounting the footer withdraws only its own height. The fade reads the
+screen chrome config, so the footer requires a `ScreenChromeProvider` ancestor like every other chrome layer.
+
+```tsx
+<ScreenChromeFooter contentStyle={{ alignSelf: 'center', maxWidth: 600, width: '100%' }} edgeFadeProps={{ height: 96 }}>
+    <Button onPress={onSave} title="Save" />
+</ScreenChromeFooter>
+```
+
+A `testID` lands on the container and `${testID}-content` on the measured content node; every other `View` prop is
+forwarded to the container.
+
+### Keyboard-sticky footer
+
+Keyboard tracking belongs to [`react-native-keyboard-controller`](https://kirillzyusko.github.io/react-native-keyboard-controller/),
+which the package deliberately does not depend on. Wrap the footer in its `KeyboardStickyView`, anchored where the
+footer would sit, and offset the opened state by the safe-area bottom the keyboard already covers:
+
+```tsx
+const insets = useSafeAreaInsets();
+
+<KeyboardStickyView offset={{ closed: 0, opened: insets.bottom }} style={styles.footerAnchor}>
+    <ScreenChromeFooter style={{ position: 'relative' }}>
+        <MessageComposer />
+    </ScreenChromeFooter>
+</KeyboardStickyView>;
+// styles.footerAnchor: { position: 'absolute', left: 0, right: 0, bottom: 0, zIndex: 3 }
+```
+
+`KeyboardStickyView` moves the footer with a transform, which never fires `onLayout`, so the published inset keeps the
+footer's resting height while the keyboard is open; a keyboard-aware scrollable (`KeyboardAwareScrollView`) owns the
+keyboard's own clearance. A composer that grows while typing re-measures and republishes on its next layout.
+
+## ScreenChromeFooterPropsInterface
+
+| Prop            | Type                                       | Description                                                        |
+| --------------- | ------------------------------------------ | ------------------------------------------------------------------ |
+| `children`      | `ReactNode`                                | Consumer-owned footer content, rendered above the fade band.       |
+| `contentStyle`  | `StyleProp<ViewStyle>`                     | Style of the measured content node: max-width caps and padding.    |
+| `edgeFadeProps` | `Omit<EdgeFadePropsInterface, 'position'>` | Props forwarded to the bottom `EdgeFade` behind the content.       |
+| `...ViewProps`  | `ViewProps`                                | Forwarded to the container, except `children` and `pointerEvents`. |
+
+```tsx
+const footerProps: ScreenChromeFooterPropsInterface = {
+    children: <TotalRow />,
+    contentStyle: { alignSelf: 'center', maxWidth: 600, width: '100%' },
+    edgeFadeProps: { height: 96 },
+    testID: 'totals-footer',
+};
+
+<ScreenChromeFooter {...footerProps} />;
+```
 
 ## ScreenChromeContext
 

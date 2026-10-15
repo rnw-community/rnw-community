@@ -14,7 +14,8 @@ src/
                                    optional content insets), chrome-demo-list-item.tsx,
                                    collapsible-demo-screen.tsx (compound slots + snap + motion override + top fade),
                                    static-header-demo-screen.tsx (static header + metrics-driven content inset),
-                                   footer-demo-screen.tsx (static header + sticky footer band recipe)
+                                   footer-demo-screen.tsx (static header + `ScreenChromeFooter` fed back into
+                                   the list through `useBottomChromeInset`)
   constant/                      — chrome-demo-items.ts, chrome-demo-style.ts
   interface/                     — chrome-demo-item.interface.ts
   type/                          — chrome-demo-stack-param-list.type.ts
@@ -37,8 +38,9 @@ e2e/
 - `ScreenChromeScrollView` owns scroll wiring (`onScroll`/`scrollRef`/throttle are package-owned props).
 - `snapToCollapse` through provider config; per-layer motion customization through the `motion` prop override.
 - `ScreenChromeHeader` + `useScreenChromeHeaderMetrics` replacing app-side default-config re-merges.
-- The sticky footer band is a documented composition (absolute container + bottom `EdgeFade` + safe-area padding),
-  not a library component — keep it that way until #590 lands a real bottom-chrome surface.
+- The sticky footer band is the library's `ScreenChromeFooter` under a per-screen `BottomChromeInsetProvider`; the list
+  clears it through `useBottomChromeInset().chromeHeight` instead of a hard-coded bottom inset. The `footer-demo-band`,
+  `footer-demo-fade`, `footer-demo-bar`, and `footer-demo-total` testIDs are Maestro hooks and stay stable.
 - testIDs are stable Maestro hooks: every interactive node carries one (`home-open-*`, `<demo>-*-header`, etc.).
 
 ## CI coverage
