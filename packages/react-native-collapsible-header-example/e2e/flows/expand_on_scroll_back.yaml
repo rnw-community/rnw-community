@@ -5,12 +5,18 @@ appId: ${APP_ID}
       file: ../subflows/collapse_header.yaml
       env:
           COLLAPSED_ID: header-demo-collapsed-amount
+# Mirrors collapse_header: at Maestro's 400ms default each swipe registers as a
+# fling, and the assertion would then race the list's deceleration toward the
+# top instead of reading a settled offset.
 - repeat:
       times: 3
       commands:
           - swipe:
                 start: 50%, 40%
                 end: 50%, 80%
+                duration: 900
+- waitForAnimationToEnd:
+      timeout: 5000
 - extendedWaitUntil:
       visible:
           id: 'header-demo-expanded-amount'
