@@ -236,6 +236,22 @@ native blur samples the content scrolling beneath the header.
 <CollapsibleHeaderBackdrop />
 ```
 
+Every `EdgeFade` prop except `position` is forwarded, so `testID`, `style`, `blurTarget`, and `renderBand` reach the
+band; `height` and `scrollAnimation` replace the header-derived defaults only when supplied:
+
+```tsx
+<CollapsibleHeaderBackdrop testID="header-backdrop" blurTarget={blurTarget} renderBand={renderSolidBand} />
+```
+
+## CollapsibleHeaderBackdropPropsInterface
+
+`Omit<EdgeFadePropsInterface, 'position'>`: `height` defaults to `headerBackdropHeight`, and `scrollAnimation` defaults
+to opacity over `collapseStart`–`smallTitleStart` and blur intensity over `collapseStart`–`collapseEnd`.
+
+```tsx
+const backdropProps: CollapsibleHeaderBackdropPropsInterface = { testID: 'header-backdrop', height: 120 };
+```
+
 ## Edge fades
 
 Native edge fades use Masked View, Expo Linear Gradient, and Expo Blur. They ignore pointer events and accessibility
@@ -266,16 +282,35 @@ const blurTarget = useRef<View>(null);
 <EdgeFade position="top" blurTarget={blurTarget} />;
 ```
 
+### Custom band content
+
+`renderBand` replaces the band content while the package keeps the band metrics, absolute positioning, safe-area
+offset, scroll-driven opacity, and the inert pointer/accessibility props on the container. The renderer receives the
+resolved visuals (`EdgeFadeBandRenderPropsInterface`), including the animated `blur` element and the complete
+`defaultBand`, so a renderer can wrap, compose, or conditionally fall back to the package output. Pass it per
+instance, or once on `ScreenChromeProvider` as `renderEdgeFadeBand`; the per-instance prop wins. Without either, the
+output is unchanged. Web honours the same contract: the CSS backdrop filter, mask, and wash move off the container
+into `blur` (backdrop filter only) and `defaultBand` (everything) when a renderer is set.
+
+```tsx
+const renderSolidBand: EdgeFadeBandRenderer = ({ colorScheme }) => (
+    <View style={{ flex: 1, backgroundColor: colorScheme === 'dark' ? '#000000' : '#ffffff' }} />
+);
+
+<EdgeFade position="bottom" renderBand={renderSolidBand} />;
+```
+
 ## EdgeFadePropsInterface
 
-| Prop              | Type                               | Description                                                                         |
-| ----------------- | ---------------------------------- | ----------------------------------------------------------------------------------- |
-| `position`        | `EdgeFadePosition`                 | Screen edge the band renders at.                                                    |
-| `height`          | `number`                           | Band height; defaults to the provider config's fade height.                         |
-| `intensity`       | `number`                           | Static blur intensity; ignored while `scrollAnimation` drives it.                   |
-| `scrollAnimation` | `EdgeFadeScrollAnimationInterface` | Optional scroll-driven opacity and blur intensity ranges.                           |
-| `blurMethod`      | `BlurMethod`                       | Android Expo Blur rendering method; defaults from `blurTarget`.                     |
-| `blurTarget`      | `RefObject<View \| null>`          | Android `BlurTargetView` ref the band blurs; required by `dimezisBlurView` methods. |
+| Prop              | Type                               | Description                                                                          |
+| ----------------- | ---------------------------------- | ------------------------------------------------------------------------------------ |
+| `position`        | `EdgeFadePosition`                 | Screen edge the band renders at.                                                     |
+| `height`          | `number`                           | Band height; defaults to the provider config's fade height.                          |
+| `intensity`       | `number`                           | Static blur intensity; ignored while `scrollAnimation` drives it.                    |
+| `scrollAnimation` | `EdgeFadeScrollAnimationInterface` | Optional scroll-driven opacity and blur intensity ranges.                            |
+| `blurMethod`      | `BlurMethod`                       | Android Expo Blur rendering method; defaults from `blurTarget`.                      |
+| `blurTarget`      | `RefObject<View \| null>`          | Android `BlurTargetView` ref the band blurs; required by `dimezisBlurView` methods.  |
+| `renderBand`      | `EdgeFadeBandRenderer`             | Custom band content; defaults to the provider's `renderEdgeFadeBand`, then built-in. |
 
 ## EdgeFadeScrollAnimationInterface
 
@@ -292,6 +327,62 @@ const scrollAnimation: EdgeFadeScrollAnimationInterface = {
 ## EdgeFadePosition
 
 Identifies the screen edge where a fade band is rendered: `'top' | 'bottom'`.
+
+## EdgeFadeBandRenderer
+
+`(props: EdgeFadeBandRenderPropsInterface) => ReactNode` — renders custom band content inside the package's positioned,
+scroll-animated, inert band container. Returning `null` renders an empty band.
+
+```tsx
+const renderGlassBand: EdgeFadeBandRenderer = ({ defaultBand }) =>
+    isLiquidGlassAvailable() ? <GlassView style={{ flex: 1 }} /> : defaultBand;
+```
+
+## EdgeFadeBandRenderPropsInterface
+
+| Prop            | Type                             | Description                                                            |
+| --------------- | -------------------------------- | ---------------------------------------------------------------------- |
+| `position`      | `EdgeFadePosition`               | Screen edge the band renders at.                                       |
+| `colorScheme`   | `ScreenChromeColorScheme`        | Active provider color scheme.                                          |
+| `height`        | `number`                         | Resolved band height, safe-area inset included.                        |
+| `tint`          | `BlurTint`                       | Expo Blur tint the default band uses.                                  |
+| `washColors`    | `readonly [string, string]`      | Wash gradient colors from top to bottom, solid at the screen edge.     |
+| `maskColors`    | `readonly [string, string, ...]` | Mask colors from the config's `maskStops` for this position, sorted.   |
+| `maskLocations` | `readonly [number, number, ...]` | Mask locations matching `maskColors`.                                  |
+| `blur`          | `ReactNode`                      | The package's blur element with its static or scroll-driven intensity. |
+| `defaultBand`   | `ReactNode`                      | The package's complete default band (masked blur and wash on native).  |
+
+Recompose the mask and wash around the package's animated blur, for example with an extra overlay layer:
+
+```tsx
+const renderTintedBand: EdgeFadeBandRenderer = ({ blur, washColors, maskColors, maskLocations }) => (
+    <MaskedView
+        style={{ flex: 1 }}
+        maskElement={<LinearGradient colors={maskColors} locations={maskLocations} style={{ flex: 1 }} />}
+    >
+        {blur}
+        <LinearGradient colors={washColors} style={StyleSheet.absoluteFill} />
+        <View style={[StyleSheet.absoluteFill, { backgroundColor: 'rgba(0,122,255,0.08)' }]} />
+    </MaskedView>
+);
+```
+
+## getEdgeFadeBandMetrics
+
+Resolves the height and safe-area offset an edge-fade band uses — `height` (fade height plus the edge inset) and a
+negative `top` or `bottom` offset — for custom bands positioned outside `EdgeFade`.
+
+```tsx
+const insets = useSafeAreaInsets();
+const { config } = useScreenChrome();
+const metrics = getEdgeFadeBandMetrics('bottom', undefined, config, insets);
+
+<View pointerEvents="none" style={[{ position: 'absolute', left: 0, right: 0 }, metrics]} />;
+```
+
+## EdgeFadeBandMetricsInterface
+
+The `{ height, top?, bottom? }` geometry returned by `getEdgeFadeBandMetrics`; only the offset matching the position is set.
 
 ## ScreenChromeFrame
 
@@ -329,6 +420,13 @@ Provides validated configuration and color scheme to screen chrome components ar
 offset into the shared scroll value so navigator offset restores without a scroll event keep the header in sync. It is
 opt-in because it requires the chrome scroll ref to resolve to a real host scrollable — see the collapsible-header
 readme for the full constraint.
+
+`renderEdgeFadeBand` sets the app-wide band renderer every `EdgeFade` and `CollapsibleHeaderBackdrop` inside the
+provider uses unless it passes its own `renderBand` — see [EdgeFade custom band content](#custom-band-content):
+
+```tsx
+<ScreenChromeProvider renderEdgeFadeBand={renderSolidBand}>{children}</ScreenChromeProvider>
+```
 
 Pass a stable `config` reference — a module-scope constant, or one owned by state — rather than the inline literal above.
 React Compiler memoizes the merge, validation, and context value on the identity of that prop, so a fresh literal on
@@ -475,7 +573,7 @@ Overrides selected screen chrome defaults while preserving nested color schemes 
 
 ## ScreenChromeContextValueInterface
 
-The `{ colorScheme, config }` shape returned by `useScreenChrome`.
+The `{ colorScheme, config, renderEdgeFadeBand? }` shape returned by `useScreenChrome`.
 
 ## ScreenChromeMaskStopInterface
 

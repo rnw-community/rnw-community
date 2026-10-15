@@ -1,14 +1,21 @@
 import { beforeEach, describe, expect, it, jest } from '@jest/globals';
 import { render } from '@testing-library/react-native';
 import React from 'react';
+import { View } from 'react-native';
 
 import { SCREEN_CHROME_DEFAULT_CONFIG } from '../constant/screen-chrome-default-config.constant.web';
 
 import { EdgeFade } from './edge-fade.web';
 
+import type { EdgeFadeBandRenderer } from './edge-fade-band-renderer.type';
+
 const mockScrollY = { get: jest.fn(() => 0) };
-const mockContext = {
-    colorScheme: 'light' as const,
+const mockContext: {
+    colorScheme: 'light';
+    config: typeof SCREEN_CHROME_DEFAULT_CONFIG;
+    renderEdgeFadeBand?: EdgeFadeBandRenderer;
+} = {
+    colorScheme: 'light',
     config: SCREEN_CHROME_DEFAULT_CONFIG,
 };
 
@@ -21,6 +28,7 @@ jest.mock('@rnw-community/react-native-collapsible-header', () => ({
 }));
 
 beforeEach(() => {
+    mockContext.renderEdgeFadeBand = void 0;
     mockScrollY.get.mockReturnValue(0);
 });
 
@@ -79,5 +87,88 @@ describe('EdgeFade web', () => {
                 }),
             ])
         );
+    });
+});
+
+describe('EdgeFade web band renderer', () => {
+    it('keeps positioning, opacity and inertness on the container while handing the visuals to the renderer', () => {
+        expect.hasAssertions();
+
+        mockScrollY.get.mockReturnValue(10);
+
+        const renderBand = jest.fn<EdgeFadeBandRenderer>(({ blur, defaultBand }) => (
+            <View testID="custom-band">
+                {blur}
+                {defaultBand}
+            </View>
+        ));
+        const screen = render(
+            <EdgeFade
+                testID="top-fade"
+                position="top"
+                renderBand={renderBand}
+                scrollAnimation={{ opacityInputRange: [0, 20] }}
+            />
+        );
+        const fade = screen.getByTestId('top-fade', { includeHiddenElements: true });
+
+        expect(renderBand).toHaveBeenCalledWith(
+            expect.objectContaining({
+                position: 'top',
+                colorScheme: 'light',
+                height: 86,
+                tint: 'systemMaterialLight',
+                washColors: [
+                    SCREEN_CHROME_DEFAULT_CONFIG.colors.light.solid,
+                    SCREEN_CHROME_DEFAULT_CONFIG.colors.light.wash,
+                ],
+                maskColors: ['rgba(0,0,0,0.99)', '#000000', 'transparent'],
+                maskLocations: [0, 0.5, 1],
+            })
+        );
+        expect(fade).toHaveProp('aria-hidden', true);
+        expect(fade).toHaveStyle({ height: 86, top: -10, opacity: 0.5 });
+        expect(fade).not.toHaveProp(
+            'style',
+            expect.arrayContaining([expect.objectContaining({ backdropFilter: expect.any(String) })])
+        );
+        expect(screen.getByTestId('custom-band', { includeHiddenElements: true }).children).toHaveLength(2);
+    });
+
+    it('builds a backdrop-only blur and a complete default band for the renderer', () => {
+        expect.hasAssertions();
+
+        const renderBand = jest.fn<EdgeFadeBandRenderer>(() => null);
+
+        render(<EdgeFade position="top" renderBand={renderBand} />);
+
+        const [[{ blur, defaultBand }]] = renderBand.mock.calls;
+
+        expect(blur).toHaveProperty('props.style', [
+            { flex: 1 },
+            { backdropFilter: 'blur(22.5px) saturate(1.08)', WebkitBackdropFilter: 'blur(22.5px) saturate(1.08)' },
+        ]);
+        expect(defaultBand).toHaveProperty('props.style', [
+            { flex: 1 },
+            expect.objectContaining({
+                backdropFilter: 'blur(22.5px) saturate(1.08)',
+                maskImage: 'linear-gradient(to bottom, rgba(0,0,0,0.99) 0%, #000000 50%, transparent 100%)',
+            }),
+        ]);
+    });
+
+    it('inherits the provider renderer and prefers the per-instance renderer over it', () => {
+        expect.hasAssertions();
+
+        mockContext.renderEdgeFadeBand = () => <View testID="provider-band" />;
+
+        const inherited = render(<EdgeFade position="bottom" />);
+
+        expect(inherited.getByTestId('provider-band', { includeHiddenElements: true })).toBeTruthy();
+
+        const overridden = render(<EdgeFade position="bottom" renderBand={() => <View testID="instance-band" />} />);
+
+        expect(overridden.getByTestId('instance-band', { includeHiddenElements: true })).toBeTruthy();
+        expect(overridden.queryByTestId('provider-band', { includeHiddenElements: true })).toBeNull();
     });
 });

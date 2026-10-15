@@ -1,17 +1,16 @@
 import MaskedView from '@react-native-masked-view/masked-view';
-import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
 import React from 'react';
 import { Platform, StyleSheet, View } from 'react-native';
 import { createAnimatedComponent } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { getDefined, isDefined } from '@rnw-community/shared';
+import { isDefined } from '@rnw-community/shared';
 
 import { useScreenChrome } from '../hooks/use-screen-chrome/use-screen-chrome.hook';
 
+import { EdgeFadeBlur } from './edge-fade-blur';
 import { edgeFadeStyles } from './edge-fade.styles';
-import { useEdgeFadeBlurProps } from './hooks/use-edge-fade-blur-props.hook';
 import { useEdgeFadeOpacityStyle } from './hooks/use-edge-fade-opacity-style.hook';
 import { getEdgeFadeBandMetrics } from './util/edge-fade-get-band-metrics/edge-fade-get-band-metrics.util';
 import { getEdgeFadeVisuals } from './util/get-edge-fade-visuals/get-edge-fade-visuals.util';
@@ -20,7 +19,6 @@ import type { EdgeFadePropsInterface } from './edge-fade-props.interface';
 import type { ReactNode } from 'react';
 
 const AnimatedView = createAnimatedComponent(View);
-const AnimatedBlurView = createAnimatedComponent(BlurView);
 const GRADIENT_START = { x: 0, y: 0 };
 const GRADIENT_END = { x: 0, y: 1 };
 
@@ -35,27 +33,47 @@ export const EdgeFade = ({
     scrollAnimation,
     blurMethod,
     blurTarget,
+    renderBand,
     style,
     ...viewProps
 }: EdgeFadePropsInterface): ReactNode => {
-    const { config, colorScheme } = useScreenChrome();
+    const { config, colorScheme, renderEdgeFadeBand } = useScreenChrome();
     const insets = useSafeAreaInsets();
-    const resolvedBlurMethod = getDefined(blurMethod, () => (isDefined(blurTarget) ? 'dimezisBlurView' : 'none'));
-    const resolvedIntensity = getDefined(intensity, () => config.intensity);
-    const { washColors, maskColors, maskLocations, tint } = getEdgeFadeVisuals(
-        position,
-        colorScheme,
-        config,
-        Platform.OS === 'ios'
-    );
-    const resolvedMaxIntensity = getDefined(scrollAnimation?.maxIntensity, () => config.maxBlurIntensity);
+    const visuals = getEdgeFadeVisuals(position, colorScheme, config, Platform.OS === 'ios');
     const containerAnimatedStyle = useEdgeFadeOpacityStyle(scrollAnimation?.opacityInputRange);
-    const animatedBlurProps = useEdgeFadeBlurProps(
-        scrollAnimation?.intensityInputRange,
-        resolvedMaxIntensity,
-        resolvedIntensity
-    );
     const positionalStyle = getEdgeFadeBandMetrics(position, height, config, insets);
+    const renderResolvedBand = renderBand ?? renderEdgeFadeBand;
+    const blur = (
+        <EdgeFadeBlur
+            tint={visuals.tint}
+            intensity={intensity}
+            scrollAnimation={scrollAnimation}
+            blurMethod={blurMethod}
+            blurTarget={blurTarget}
+        />
+    );
+    const defaultBand = (
+        <MaskedView
+            style={edgeFadeStyles.fill}
+            maskElement={
+                <LinearGradient
+                    colors={visuals.maskColors}
+                    locations={visuals.maskLocations}
+                    start={GRADIENT_START}
+                    end={GRADIENT_END}
+                    style={edgeFadeStyles.fill}
+                />
+            }
+        >
+            {blur}
+            <LinearGradient
+                colors={visuals.washColors}
+                start={GRADIENT_START}
+                end={GRADIENT_END}
+                style={StyleSheet.absoluteFill}
+            />
+        </MaskedView>
+    );
 
     return (
         <AnimatedView
@@ -66,34 +84,16 @@ export const EdgeFade = ({
             importantForAccessibility="no-hide-descendants"
             style={[edgeFadeStyles.band, positionalStyle, containerAnimatedStyle, style]}
         >
-            <MaskedView
-                style={edgeFadeStyles.fill}
-                maskElement={
-                    <LinearGradient
-                        colors={maskColors}
-                        locations={maskLocations}
-                        start={GRADIENT_START}
-                        end={GRADIENT_END}
-                        style={edgeFadeStyles.fill}
-                    />
-                }
-            >
-                <AnimatedBlurView
-                    style={edgeFadeStyles.fill}
-                    tint={tint}
-                    blurMethod={resolvedBlurMethod}
-                    {...(isDefined(blurTarget) ? { blurTarget } : {})}
-                    {...(isDefined(scrollAnimation)
-                        ? { animatedProps: animatedBlurProps }
-                        : { intensity: resolvedIntensity })}
-                />
-                <LinearGradient
-                    colors={washColors}
-                    start={GRADIENT_START}
-                    end={GRADIENT_END}
-                    style={StyleSheet.absoluteFill}
-                />
-            </MaskedView>
+            {isDefined(renderResolvedBand)
+                ? renderResolvedBand({
+                      position,
+                      colorScheme,
+                      height: positionalStyle.height,
+                      ...visuals,
+                      blur,
+                      defaultBand,
+                  })
+                : defaultBand}
         </AnimatedView>
     );
 };
