@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.23.2](https://github.com/rnw-community/rnw-community/compare/v2.23.1...v2.23.2) (2026-10-15)
+
+### Bug Fixes
+
+- **react-native-collapsible-header:** hide the inert transition layer from web screen readers ([#651](https://github.com/rnw-community/rnw-community/issues/651)) ([b2f7d1d](https://github.com/rnw-community/rnw-community/commit/b2f7d1d680d36397918147c9fd3cd7e1f2464a1a))
+
 ## [2.23.1](https://github.com/rnw-community/rnw-community/compare/v2.23.0...v2.23.1) (2026-10-15)
 
 ### Bug Fixes

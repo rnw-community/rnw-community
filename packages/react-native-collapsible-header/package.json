@@ -1,6 +1,6 @@
 {
     "name": "@rnw-community/react-native-collapsible-header",
-    "version": "2.19.13",
+    "version": "2.23.2",
     "description": "Generic Reanimated collapsible header for React Native",
     "keywords": [
         "react",
