@@ -1,12 +1,14 @@
 import React from 'react';
 import { Text, View } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import {
+    BottomChromeInsetProvider,
     EdgeFade,
+    ScreenChromeFooter,
     ScreenChromeFrame,
     ScreenChromeHeader,
     ScreenChromeProvider,
+    useBottomChromeInset,
     useScreenChromeHeaderMetrics,
 } from '@rnw-community/react-native-screen-chrome';
 
@@ -22,32 +24,30 @@ const FooterDemoHeader = () => (
     </ScreenChromeHeader>
 );
 
-const FooterBand = () => {
-    const insets = useSafeAreaInsets();
+const FOOTER_FADE_PROPS = { testID: 'footer-demo-fade' };
 
-    return (
-        <View
-            pointerEvents="box-none"
-            style={[styles.footerBand, { paddingBottom: insets.bottom }]}
-            testID="footer-demo-band"
-        >
-            <EdgeFade position="bottom" testID="footer-demo-fade" />
-            <View style={styles.footerContent} testID="footer-demo-bar">
-                <Text style={styles.footerLabel}>Total</Text>
-                <Text style={styles.footerLabel} testID="footer-demo-total">
-                    25
-                </Text>
-            </View>
+const FooterBand = () => (
+    <ScreenChromeFooter edgeFadeProps={FOOTER_FADE_PROPS} testID="footer-demo-band">
+        <View style={styles.footerContent} testID="footer-demo-bar">
+            <Text style={styles.footerLabel}>Total</Text>
+            <Text style={styles.footerLabel} testID="footer-demo-total">
+                25
+            </Text>
         </View>
-    );
-};
+    </ScreenChromeFooter>
+);
 
 const FooterDemoContent = () => {
     const headerTotalHeight = useScreenChromeHeaderMetrics();
+    const { chromeHeight } = useBottomChromeInset();
 
     return (
         <>
-            <ChromeDemoList contentInsetBottom={96} contentInsetTop={headerTotalHeight} testID="footer-demo-scroll" />
+            <ChromeDemoList
+                contentInsetBottom={chromeHeight}
+                contentInsetTop={headerTotalHeight}
+                testID="footer-demo-scroll"
+            />
             <FooterBand />
         </>
     );
@@ -55,10 +55,12 @@ const FooterDemoContent = () => {
 
 export const FooterDemoScreen = () => (
     <ScreenChromeProvider>
-        <ScreenChromeFrame>
-            <FooterDemoContent />
-            <EdgeFade position="top" testID="footer-demo-top-fade" />
-            <FooterDemoHeader />
-        </ScreenChromeFrame>
+        <BottomChromeInsetProvider>
+            <ScreenChromeFrame>
+                <FooterDemoContent />
+                <EdgeFade position="top" testID="footer-demo-top-fade" />
+                <FooterDemoHeader />
+            </ScreenChromeFrame>
+        </BottomChromeInsetProvider>
     </ScreenChromeProvider>
 );

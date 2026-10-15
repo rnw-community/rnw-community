@@ -40,6 +40,30 @@ pnpm test && pnpm test:coverage && pnpm build && pnpm ts && pnpm ts:nodenext && 
   `dist/commonjs`). Exactly one title slot is required; a control slot before it is leading, after it trailing, at
   most one each; unknown types, a missing title slot, and duplicates throw a `TypeError`. Context registration was
   rejected because it renders an empty header on the first frame.
+- Bottom chrome is `ScreenChromeFooter` (absolute `box-none` container, safe-area bottom padding, bottom `EdgeFade`
+  behind a measured content node) plus the inset contract: `BottomChromeInsetProvider` keeps a map of per-footer
+  heights keyed by a stable `Symbol` each footer creates in `useState`, and splits it into two contexts — the
+  published number (the max over registered footers, since bottom-anchored footers overlap) and a stable
+  `{ publish, withdraw }` registry created once in `useState` — so a publishing footer does not subscribe to its own
+  height change. Unchanged heights and unknown withdrawals return the previous map, so they do not re-render.
+  `useBottomChromeInset` returns `{ chromeHeight, inset }`. `chromeHeight` excludes the safe area
+  because `ScreenChromeScrollView` already adds `insets.bottom` to `contentInsetBottom`; `inset` includes it.
+  The footer publishes from a `useLayoutEffect` `measure` on mount (no one-frame reserve-0 jump) and from `onLayout`
+  for resizes, and withdraws only its own entry on unmount. The registry context defaults to `emptyFn` methods, so the
+  footer and hook work without a provider.
+
+## Bottom chrome scope (#590)
+
+- **No custom tab bar and no hide-on-scroll bottom bar.** Expo Router `NativeTabs` renders the platform tab bar
+  (Liquid Glass on iOS 26, with native minimize-on-scroll) and owns its insets, so a JS tab bar here would only trail
+  the platform. Do not re-add one; bottom chrome in this package is screen-level (`ScreenChromeFooter`).
+- **No keyboard dependency.** `react-native-keyboard-controller` is the standard; the readme documents wrapping
+  `ScreenChromeFooter` in its `KeyboardStickyView`. Transforms never fire `onLayout`, so the published inset is the
+  footer's resting height while the keyboard is open — keep the inset measurement-driven, never keyboard- or
+  scroll-frame-driven.
+- `ScreenChromeScrollView` is intentionally untouched by the bottom inset contract; consumers pass
+  `useBottomChromeInset().chromeHeight` into `contentInsetBottom`.
+- No new native views for bottom chrome: the footer reuses `EdgeFade` (see the #601 invariant below).
 
 ## Invariants
 
