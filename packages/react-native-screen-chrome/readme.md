@@ -26,6 +26,23 @@ install `react-native-worklets` and configure `react-native-worklets/plugin`.
 `expo-blur` must be `>=55 <59`: the `blurMethod` prop and the `BlurMethod` type this package passes and re-exports in
 `EdgeFadePropsInterface` only exist from that release, which renamed `experimentalBlurMethod` to `blurMethod`.
 
+`expo-blur` and `expo-linear-gradient` are Expo modules, so a bare React Native application (one created with the
+React Native CLI rather than Expo) must install Expo Modules support before it can render this package's components:
+
+```bash
+npx install-expo-modules@latest
+```
+
+The tool picks the Expo SDK from the application's React Native version; if it reports
+`Unable to find compatible Expo SDK version`, run a newer release explicitly with the matching SDK, for example
+`npx install-expo-modules@next --sdk-version 57.0.0` for React Native 0.86. See
+[Install Expo modules in an existing React Native project](https://docs.expo.dev/bare/installing-expo-modules/).
+
+Without it no Expo view manager is registered and the application crashes on launch with
+`Can't find ViewManager 'ViewManagerAdapter_ExpoLinearGradient' nor 'RCTViewManagerAdapter_ExpoLinearGradient'`
+on Android, after `Unable to get the view config` warnings for `ExpoLinearGradient` and `ExpoBlurView`. Expo
+applications already include Expo Modules and need no extra step.
+
 ## Complete example
 
 ```tsx
