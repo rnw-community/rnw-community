@@ -1,3 +1,4 @@
+import { describe, expect, it } from '@jest/globals';
 import { RuleTester } from '@typescript-eslint/rule-tester';
 
 import { noComplexJsxLogicRule } from './no-complex-jsx-logic.rule';
@@ -79,4 +80,14 @@ ruleTester.run('no-complex-jsx-logic', noComplexJsxLogicRule, {
             errors: [{ messageId: 'noTernaryCallbackArguments' }],
         },
     ],
+});
+
+describe('no-complex-jsx-logic metadata', () => {
+    it('links its documentation to the rule page in the repository', () => {
+        expect.hasAssertions();
+
+        expect(noComplexJsxLogicRule.meta.docs?.url).toBe(
+            'https://github.com/rnw-community/rnw-community/blob/master/packages/eslint-plugin/src/rules/no-complex-jsx-logic/no-complex-jsx-logic.md'
+        );
+    });
 });

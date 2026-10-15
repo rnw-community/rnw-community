@@ -61,8 +61,7 @@ export class NestJSRxJSLoggerService {
 
     print(message: string, context = this.context, level: AppLogLevelEnum = AppLogLevelEnum.info): void {
         if (level === AppLogLevelEnum.debug) {
-            // @ts-expect-error LoggerService method signature mismatch
-            this.logger.debug(message, context);
+            this.logger.debug?.(message, context);
         } else if (level === AppLogLevelEnum.error) {
             this.logger.error(message, context);
         } else if (level === AppLogLevelEnum.warn) {
@@ -70,8 +69,7 @@ export class NestJSRxJSLoggerService {
         } else if (level === AppLogLevelEnum.info) {
             this.logger.log(message, context);
         } else {
-            // @ts-expect-error LoggerService method signature mismatch
-            this.logger.verbose(message, context);
+            this.logger.verbose?.(message, context);
         }
     }
 

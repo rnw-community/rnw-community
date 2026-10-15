@@ -1,6 +1,8 @@
 import { AST_NODE_TYPES, ESLintUtils } from '@typescript-eslint/utils';
 
-const createRule = ESLintUtils.RuleCreator(() => `https://github.com/rnw-community/rnw-community/eslint-plugin`);
+const createRule = ESLintUtils.RuleCreator(
+    name => `https://github.com/rnw-community/rnw-community/blob/master/packages/eslint-plugin/src/rules/${name}/${name}.md`
+);
 
 export const noComplexJsxLogicRule = createRule({
     name: 'no-complex-jsx-logic',
