@@ -16,6 +16,8 @@ concurrency:
     group: claude-code-review-${{ github.event.pull_request.number }}
     cancel-in-progress: true
 
+permissions: {}
+
 jobs:
     claude-review:
         # Optional: Filter by PR author
@@ -28,20 +30,20 @@ jobs:
         runs-on: ubuntu-latest
         permissions:
             contents: read
-            pull-requests: write
+            pull-requests: write # posts the sticky review comment
             issues: read
-            id-token: write
+            id-token: write # OIDC exchange for the Claude GitHub App token
 
         steps:
             -   name: Checkout repository
-                uses: actions/checkout@v7
+                uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
                 with:
                     persist-credentials: false
                     fetch-depth: 1
 
             -   name: Run Claude Code Review
                 id: claude-review
-                uses: anthropics/claude-code-action@v1
+                uses: anthropics/claude-code-action@a26b07d8c778b0c43f64618e5fd29fd0f8af72e8 # v1.0.250
                 with:
                     claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
                     plugin_marketplaces: 'https://github.com/anthropics/claude-code.git'
