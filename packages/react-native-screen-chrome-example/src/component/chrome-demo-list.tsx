@@ -14,13 +14,14 @@ interface Props {
     readonly testID: string;
 }
 
+const DEMO_LIST_LEADING_GAP = 8;
 const DEMO_LIST_TRAILING_INSET = 120;
 
-export const ChromeDemoList = ({ contentInsetBottom = DEMO_LIST_TRAILING_INSET, contentInsetTop, testID }: Props) => (
+export const ChromeDemoList = ({ contentInsetBottom = DEMO_LIST_TRAILING_INSET, contentInsetTop = 0, testID }: Props) => (
     <ScreenChromeScrollView
         contentContainerStyle={styles.listContent}
         contentInsetBottom={contentInsetBottom}
-        contentInsetTop={contentInsetTop}
+        contentInsetTop={contentInsetTop + DEMO_LIST_LEADING_GAP}
         testID={testID}
     >
         <View>

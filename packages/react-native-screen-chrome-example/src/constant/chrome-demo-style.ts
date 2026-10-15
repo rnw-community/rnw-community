@@ -66,7 +66,6 @@ export const CHROME_DEMO_STYLES = StyleSheet.create({
     },
     listContent: {
         gap: 2,
-        paddingTop: 8,
     },
     slotText: {
         color: '#FFFFFF',
