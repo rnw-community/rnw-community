@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.19.7](https://github.com/rnw-community/rnw-community/compare/v2.19.6...v2.19.7) (2026-10-15)
+
+### Bug Fixes
+
+- **react-native-collapsible-header,react-native-screen-chrome:** stop shipping specs in dist ([#652](https://github.com/rnw-community/rnw-community/issues/652)) ([cdf1bde](https://github.com/rnw-community/rnw-community/commit/cdf1bde7948496c8ae8bb5d990c912206d8d55ea))
+
 ## [2.19.6](https://github.com/rnw-community/rnw-community/compare/v2.19.5...v2.19.6) (2026-10-15)
 
 ### Bug Fixes
