@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [2.25.0](https://github.com/rnw-community/rnw-community/compare/v2.24.1...v2.25.0) (2026-10-15)
+
+### Features
+
+- **react-native-screen-chrome:** add ScreenChromeFooter and bottom chrome inset contract ([#668](https://github.com/rnw-community/rnw-community/issues/668)) ([b0dc9a0](https://github.com/rnw-community/rnw-community/commit/b0dc9a03e38f4617dbf888096e3ed4a56c687a60))
+
 # [2.24.0](https://github.com/rnw-community/rnw-community/compare/v2.23.2...v2.24.0) (2026-10-15)
 
 **Note:** Version bump only for package @rnw-community/react-native-screen-chrome-example
