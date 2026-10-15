@@ -43,9 +43,12 @@ export const ScreenChromeScrollView = ({
         contentInsetMode === 'additive'
             ? addScrollContentInset(insets, contentInsetTop, contentInsetBottom, contentContainerStyle)
             : mergeScrollContentInset(insets, contentInsetTop, contentInsetBottom, contentContainerStyle);
+    const scrollIndicatorInsets = { top: insets.top + contentInsetTop, bottom: insets.bottom + contentInsetBottom };
 
     return (
         <AnimatedScrollView
+            automaticallyAdjustsScrollIndicatorInsets={false}
+            scrollIndicatorInsets={scrollIndicatorInsets}
             {...scrollViewProps}
             ref={mergedRef}
             contentContainerStyle={mergedContentContainerStyle}
