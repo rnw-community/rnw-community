@@ -23,8 +23,7 @@ concurrency:
     group: ios-maestro-${{ github.ref }}
     cancel-in-progress: true
 
-permissions:
-    contents: read
+permissions: {}
 
 env:
     MAESTRO_VERSION: '2.8.0'
@@ -35,15 +34,17 @@ jobs:
     detect:
         name: Detect affected packages
         runs-on: ubuntu-latest
+        permissions:
+            contents: read
         outputs:
             matrix: ${{ steps.affected.outputs.matrix }}
             any: ${{ steps.affected.outputs.any }}
         steps:
-            - uses: actions/checkout@v7
+            - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
               with:
                   fetch-depth: 0
                   persist-credentials: false
-            - uses: actions/setup-node@v7
+            - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
               with:
                   node-version: 22.x
                   package-manager-cache: false
@@ -76,6 +77,8 @@ jobs:
         name: Maestro (${{ matrix.package }}, ${{ matrix.target }})
         needs: detect
         if: needs.detect.outputs.any == 'true'
+        permissions:
+            contents: read
         # Time-boxed: the screen-chrome demo screens crash with a Hermes heap
         # corruption under the current expo native modules on the iOS 26
         # simulator (investigation log on issue #601). Tolerated, not silenced —
@@ -96,14 +99,16 @@ jobs:
 
         steps:
             -   name: Checkout repository
-                uses: actions/checkout@v7
+                uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
                 timeout-minutes: 10
+                with:
+                    persist-credentials: false
 
             -   name: Setup pnpm
-                uses: pnpm/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1 # v4
+                uses: pnpm/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1 # v4.3.0
 
             -   name: Setup Node
-                uses: actions/setup-node@v7
+                uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
                 timeout-minutes: 10
                 with:
                     node-version: 22.x
@@ -118,7 +123,7 @@ jobs:
                 run: xcodebuild -version
 
             -   name: Restore CocoaPods global cache
-                uses: actions/cache@v4
+                uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
                 timeout-minutes: 10
                 with:
                     path: |
@@ -129,7 +134,7 @@ jobs:
                         pods-global-${{ runner.os }}-
 
             -   name: Restore project Pods and DerivedData cache
-                uses: actions/cache@v4
+                uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
                 # The bound covers the implicit post-job save too, and a full
                 # DerivedData tree for a React Native app regularly needs more than
                 # ten minutes to upload from the self-hosted fleet — which failed the
@@ -145,7 +150,9 @@ jobs:
 
             -   name: Build workspace JS dependencies
                 timeout-minutes: 10
-                run: pnpm build --filter="${{ matrix.build_filter }}"
+                env:
+                    BUILD_FILTER: ${{ matrix.build_filter }}
+                run: pnpm build --filter="${BUILD_FILTER}"
 
             -   name: Generate native project (expo)
                 if: matrix.target == 'expo'
@@ -184,18 +191,20 @@ jobs:
                 # derives them from the slug. The matrix carries that name.
                 timeout-minutes: 45
                 working-directory: ${{ env.APP_DIR }}/ios
+                env:
+                    IOS_SCHEME: ${{ matrix.ios_scheme }}
                 run: |
                     set -euo pipefail
                     xcodebuild \
-                        -workspace ${{ matrix.ios_scheme }}.xcworkspace \
-                        -scheme ${{ matrix.ios_scheme }} \
+                        -workspace "${IOS_SCHEME}.xcworkspace" \
+                        -scheme "${IOS_SCHEME}" \
                         -configuration Release \
                         -sdk iphonesimulator \
                         -destination 'generic/platform=iOS Simulator' \
                         -derivedDataPath build \
                         CODE_SIGNING_ALLOWED=NO \
                         build
-                    echo "APP_PATH=${{ env.APP_DIR }}/ios/build/Build/Products/Release-iphonesimulator/${{ matrix.ios_scheme }}.app" >> "$GITHUB_ENV"
+                    echo "APP_PATH=${APP_DIR}/ios/build/Build/Products/Release-iphonesimulator/${IOS_SCHEME}.app" >> "$GITHUB_ENV"
 
             -   name: Install app on simulator
                 timeout-minutes: 10
@@ -378,7 +387,9 @@ jobs:
                 # 25 minutes covers a slow retry loop without holding the fleet.
                 timeout-minutes: 25
                 working-directory: ${{ matrix.example_dir }}
-                run: pnpm e2e:ios:${{ matrix.target }} --debug-output "$MAESTRO_DEBUG_OUTPUT_DIRECTORY"
+                env:
+                    TARGET: ${{ matrix.target }}
+                run: pnpm "e2e:ios:${TARGET}" --debug-output "$MAESTRO_DEBUG_OUTPUT_DIRECTORY"
 
             -   name: Capture final simulator state
                 # Pointless unless a simulator actually booted: without it
@@ -387,8 +398,8 @@ jobs:
                 timeout-minutes: 3
                 shell: bash
                 run: |
-                    mkdir -p "${{ env.MAESTRO_DEBUG_OUTPUT_DIRECTORY }}"
-                    xcrun simctl io "$SIMULATOR_UDID" screenshot "${{ env.MAESTRO_DEBUG_OUTPUT_DIRECTORY }}/final-screen.png" || true
+                    mkdir -p "${MAESTRO_DEBUG_OUTPUT_DIRECTORY}"
+                    xcrun simctl io "$SIMULATOR_UDID" screenshot "${MAESTRO_DEBUG_OUTPUT_DIRECTORY}/final-screen.png" || true
 
             -   name: Shutdown simulator
                 # always() is right here (the simulator must be released even when the
@@ -399,7 +410,7 @@ jobs:
 
             -   name: Upload Maestro artifacts
                 if: failure() || (steps.maestro.outcome == 'failure' && steps.simulator.outcome == 'success')
-                uses: actions/upload-artifact@v6
+                uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
                 timeout-minutes: 5
                 with:
                     name: maestro-ios-${{ matrix.package }}-${{ matrix.target }}
@@ -413,18 +424,23 @@ jobs:
         needs: [detect, maestro]
         if: always()
         runs-on: ubuntu-latest
+        permissions: {}
         steps:
             - name: Report
+              env:
+                  NEEDS_DETECT_RESULT: ${{ needs.detect.result }}
+                  NEEDS_DETECT_OUTPUTS_ANY: ${{ needs.detect.outputs.any }}
+                  NEEDS_MAESTRO_RESULT: ${{ needs.maestro.result }}
               run: |
-                  if [ "${{ needs.detect.result }}" != "success" ]; then
+                  if [ "${NEEDS_DETECT_RESULT}" != "success" ]; then
                     echo "Detection job did not succeed."
                     exit 1
                   fi
-                  if [ "${{ needs.detect.outputs.any }}" != "true" ]; then
+                  if [ "${NEEDS_DETECT_OUTPUTS_ANY}" != "true" ]; then
                     echo "Skipped: no example package dependency tree was touched."
                     exit 0
                   fi
-                  if [ "${{ needs.maestro.result }}" != "success" ]; then
+                  if [ "${NEEDS_MAESTRO_RESULT}" != "success" ]; then
                     echo "Maestro suite failed."
                     exit 1
                   fi
