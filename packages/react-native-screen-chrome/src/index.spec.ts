@@ -22,6 +22,7 @@ describe('public API', () => {
                 ScreenChromeProvider: expect.any(Function),
                 ScreenChromeScrollView: expect.any(Function),
                 useScreenChrome: expect.any(Function),
+                useScreenChromeScrollProps: expect.any(Function),
                 useScrollFadeStyle: expect.any(Function),
             })
         );
