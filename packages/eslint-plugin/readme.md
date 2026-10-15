@@ -10,7 +10,7 @@ Elevate your React/ReactNative projects with our [ESLint](https://eslint.org) pl
 
 Our plugin features the no-complex-jsx-logic rule, specifically designed to streamline JSX in your React components.
 It ensures simplicity in JSX by restricting complex expressions, thus enhancing readability and maintainability.
-For a comprehensive guide on this rule, see our [detailed documentation](./src/rules/no-complex-jsx-logic/no-complex-jsx-logic.md).
+For a comprehensive guide on this rule, see our [detailed documentation](https://github.com/rnw-community/rnw-community/blob/master/packages/eslint-plugin/src/rules/no-complex-jsx-logic/no-complex-jsx-logic.md).
 
 ## Installation
 
