@@ -12,7 +12,7 @@ readme](../readme.md) links here instead of carrying its own TODO ledger.
   [#442](https://github.com/rnw-community/rnw-community/issues/442).
 - [ ] Rewrite Android to Kotlin — decided, low effort, tracked in
       [#442](https://github.com/rnw-community/rnw-community/issues/442).
-- [ ] Drop the `AppDelegate.h` PassKit import requirement — looks droppable, needs a build-verify pass, tracked in
+- [x] Drop the `AppDelegate.h` PassKit import requirement — the pod links `PassKit` itself, tracked in
       [#442](https://github.com/rnw-community/rnw-community/issues/442).
 
 ## Docs
@@ -73,12 +73,10 @@ Spike findings (decision recorded on the issue):
   coupon codes, no in-sheet change events, no teardown state machine. The oldarch/newarch split already isolates the
   codegen boundary in one abstract spec file, so Kotlin interops with the generated `NativePaymentsSpec` without a
   bridging shim. Effort: S. Risk: low.
-- **`AppDelegate.h` PassKit import: document + verify.** The regenerated bare example's `AppDelegate.swift` (RN
-  0.86 community template) contains no `import PassKit`, and `react-native-payments.podspec` already declares
-  `s.frameworks = "PassKit", "Contacts"`, linking the framework at the Pod target level — the readme's "add this
-  import" instructions look like they predate that framework-level linking. Not yet build-verified; needs a
-  `pod install` + build against both the ObjC and Swift `AppDelegate` templates before the readme instruction is
-  dropped. Effort: XS.
+- **`AppDelegate.h` PassKit import: dropped.** `react-native-payments.podspec` declares
+  `s.frameworks = "PassKit", "Contacts"`, linking the framework at the Pod target level, and the bare example's
+  `AppDelegate.swift` (RN 0.86 community template) builds and passes the iOS Maestro suite without `import PassKit`.
+  An `AppDelegate` import only matters when the app's own delegate code references PassKit symbols.
 
 ## W3C compliance checklist
 

@@ -12,25 +12,8 @@ Setup, capabilities, and how this package's `PaymentRequest` maps onto PassKit.
 
 ### Native setup
 
-Add the following code to your `AppDelegate.h` (Objective-C):
-
-```objc
-#import <RCTAppDelegate.h>
-#import <UIKit/UIKit.h>
-#import <PassKit/PassKit.h> // Add this import
-
-@interface AppDelegate : RCTAppDelegate
-```
-
-Add the following code to your `AppDelegate.swift` (Swift):
-
-```swift
-import UIKit
-import React
-import React_RCTAppDelegate
-import ReactAppDependencyProvider
-import PassKit // Add this import
-```
+No `AppDelegate` changes are needed. The pod links `PassKit` and `Contacts` itself (`s.frameworks` in
+`react-native-payments.podspec`), so `pod install` — or `expo prebuild` — is the whole native step.
 
 ## Capabilities
 
