@@ -127,6 +127,20 @@ offsets after `collapseStart + collapseDistance` to the collapsed state. Only th
 pointer events and accessibility focus — the hidden layer is removed from the accessibility tree, so screen readers
 never announce both layers. Persistent content uses `box-none`.
 
+Opacity alone does not hide a layer from every screen reader: VoiceOver skips alpha-0 views, but TalkBack and web
+screen readers still announce and focus them. The header therefore flips per-layer accessibility state at the same
+`pointerEventsSwitchProgress` point that hands over pointer events, through Reanimated animated props so no React
+render happens per frame or per switch:
+
+| Platform     | Inert layer                                                                             | Visible layer                                                             |
+| ------------ | --------------------------------------------------------------------------------------- | ------------------------------------------------------------------------- |
+| iOS, Android | `accessibilityElementsHidden={true}`, `importantForAccessibility="no-hide-descendants"` | `accessibilityElementsHidden={false}`, `importantForAccessibility="auto"` |
+| Web          | `aria-hidden="true"`                                                                    | `aria-hidden="false"`                                                     |
+
+Native uses the explicit pair rather than `aria-hidden` because React Native only expands `aria-hidden` inside the
+JS `View` component, which animated-prop updates bypass; react-native-web, in turn, ignores the pair and only reads
+`aria-hidden`. The web variant ships as a `.web` file mapped through the package `browser` field.
+
 Every layer is transparent to touches it does not own: the background layer uses `none`, the persistent layer and the
 visible transition layer use `box-none`, and the height-animated shell that hosts them all defaults to `box-none` too,
 so a tap on empty header space reaches the scrollable underneath instead of dying on the header rectangle. Descendants
@@ -426,9 +440,10 @@ drop `scrollRef` entirely and keep only `onScroll`, which animates the header wh
 
 ### react-native-web
 
-The package is plain Reanimated + `View` layers and renders on react-native-web without platform-specific code —
-pointer events, accessibility hiding (`aria-hidden`), and transforms all map to their DOM equivalents through
-Reanimated's web support.
+The package is plain Reanimated + `View` layers and renders on react-native-web — pointer events and transforms map
+to their DOM equivalents through Reanimated's web support. Accessibility hiding is the one platform-specific piece:
+the inert transition layer gets `aria-hidden` from a `.web` module that bundlers pick up through platform extensions
+or the package `browser` field.
 
 ## Testing consumers
 
