@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.19.6](https://github.com/rnw-community/rnw-community/compare/v2.19.5...v2.19.6) (2026-10-15)
+
+### Bug Fixes
+
+- **deps:** raise example app gem floors past the concurrent-ruby and activesupport advisories ([#667](https://github.com/rnw-community/rnw-community/issues/667)) ([db7622e](https://github.com/rnw-community/rnw-community/commit/db7622e59a35d4d44612879d6508477e741f19de))
+
 ## [2.19.5](https://github.com/rnw-community/rnw-community/compare/v2.19.4...v2.19.5) (2026-10-15)
 
 ### Bug Fixes
