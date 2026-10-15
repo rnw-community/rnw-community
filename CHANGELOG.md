@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [2.22.0](https://github.com/rnw-community/rnw-community/compare/v2.21.1...v2.22.0) (2026-10-15)
+
+### Features
+
+- **react-native-screen-chrome:** add start-aligned expanded title and header layout metrics ([#649](https://github.com/rnw-community/rnw-community/issues/649)) ([701cde5](https://github.com/rnw-community/rnw-community/commit/701cde5ff18d99e7dd94d4f4c1467357e0a4da8e))
+
 ## [2.21.1](https://github.com/rnw-community/rnw-community/compare/v2.21.0...v2.21.1) (2026-10-15)
 
 ### Bug Fixes
