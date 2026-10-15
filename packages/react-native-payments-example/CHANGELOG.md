@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.19.4](https://github.com/rnw-community/rnw-community/compare/v2.19.3...v2.19.4) (2026-10-15)
+
+### Bug Fixes
+
+- **react-native-payments-example:** stabilize Maestro launch checks and retain diagnostics ([#639](https://github.com/rnw-community/rnw-community/issues/639)) ([f4fb478](https://github.com/rnw-community/rnw-community/commit/f4fb478ec9860e4348e6c34172711bc74ac2f4c7))
+
 ## [2.17.1](https://github.com/rnw-community/rnw-community/compare/v2.17.0...v2.17.1) (2026-08-27)
 
 **Note:** Version bump only for package @rnw-community/react-native-payments-example
