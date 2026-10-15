@@ -1,6 +1,6 @@
 {
     "name": "@rnw-community/nestjs-rxjs-redis",
-    "version": "2.17.1",
+    "version": "2.19.8",
     "description": "NestJS RxJS redis",
     "keywords": [
         "nestjs",
@@ -47,7 +47,7 @@
         "ts:nodenext": "tsc --pretty -p tsconfig.nodenext-check.json"
     },
     "dependencies": {
-        "@rnw-community/shared": "^2.15.0"
+        "@rnw-community/shared": "^2.19.8"
     },
     "devDependencies": {
         "@nestjs-modules/ioredis": "^2.2.2",
