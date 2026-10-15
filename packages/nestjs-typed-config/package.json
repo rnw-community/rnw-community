@@ -1,6 +1,6 @@
 {
     "name": "@rnw-community/nestjs-typed-config",
-    "version": "2.19.13",
+    "version": "2.28.0",
     "description": "NestJS typed config",
     "keywords": [
         "nestjs",
@@ -50,7 +50,7 @@
         "ts:nodenext": "tsc --pretty -p tsconfig.nodenext-check.json"
     },
     "dependencies": {
-        "@rnw-community/shared": "^2.19.13"
+        "@rnw-community/shared": "^2.28.0"
     },
     "devDependencies": {
         "@nestjs/common": "^12.1.3",

@@ -1,6 +1,6 @@
 {
     "name": "@rnw-community/react-native-screen-chrome",
-    "version": "2.25.0",
+    "version": "2.28.0",
     "description": "Composable scroll-driven screen chrome for React Native and React Native Web",
     "keywords": [
         "react",
@@ -57,7 +57,7 @@
         "ts:nodenext": "tsc --pretty -p tsconfig.nodenext-check.json"
     },
     "dependencies": {
-        "@rnw-community/shared": "^2.19.13"
+        "@rnw-community/shared": "^2.28.0"
     },
     "devDependencies": {
         "@babel/core": "^7.29.7",
