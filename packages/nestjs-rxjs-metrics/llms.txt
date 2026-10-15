@@ -19,8 +19,8 @@ Declare metric and label config objects (labels `as const`) so operator metric n
 
 ## API reference
 
-- [`NestJSRxJSMetricsModule`](readme.md#configuration): Module whose `create(options)` registers `PrometheusModule` and returns a `[DynamicModule, MetricsService]` tuple typed by the metric configs.
-- [`NestJSRxJSMetricsService`](readme.md#usage): Base service with `counter`, `gauge`, `gaugeInc`, `gaugeDec`, `histogramStart` / `histogramEnd`, and `summaryStart` / `summaryEnd` pipeable operators.
+- [`NestJSRxJSMetricsModule`](readme.md#nestjsrxjsmetricsmodule): Module whose `create(options)` registers `PrometheusModule` and returns a `[DynamicModule, MetricsService]` tuple typed by the metric configs.
+- [`NestJSRxJSMetricsService`](readme.md#nestjsrxjsmetricsservice): Base service with `counter`, `gauge`, `gaugeInc`, `gaugeDec`, `histogramStart` / `histogramEnd`, and `summaryStart` / `summaryEnd` pipeable operators.
 
 ## Architecture & conventions
 

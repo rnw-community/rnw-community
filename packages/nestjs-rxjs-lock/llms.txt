@@ -17,7 +17,7 @@ prefixes stay type-safe; lock keys take the form `lock:[prefix]:[name]`, and `lo
 ## API reference
 
 - [`NestJSRxJSLockModule`](readme.md#nestjsrxjslockmoduleregistertypedasync): Module whose `registerTypedAsync<E>(options?)` returns a `[DynamicModule, LockService]` tuple bound to Redis.
-- [`NestJSRxJSLockService`](readme.md#nestjsrxjsservicelock): Abstract service whose `lock$(name, prefix, handler$, expireInMs?)` runs `handler$` while holding a Redlock lock.
+- [`NestJSRxJSLockService`](readme.md#nestjsrxjslockservicelock): Abstract service whose `lock$(name, prefix, handler$, expireInMs?)` runs `handler$` while holding a Redlock lock.
 - [`NestJSRxJSLockModuleOptions`](readme.md#nestjsrxjslockmoduleregistertypedasync): Redlock `Settings` extended with `defaultExpireMs`.
 - [`defaultNestJSRxJSLockModuleOptions`](readme.md#nestjsrxjslockmoduleregistertypedasync): Default options merged under the ones passed to `registerTypedAsync` (`defaultExpireMs: 10000`, `retryCount: 0`).
 

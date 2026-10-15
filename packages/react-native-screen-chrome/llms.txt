@@ -47,8 +47,8 @@ one copy of the collapsible header. Render content first, decorative fades and b
 - [`ScreenChromeConfigInterface`](readme.md#screenchromeconfiginterface): Full chrome geometry, colors, fade masks, scroll throttling, and collapse thresholds.
 - [`ScreenChromeConfigOverridesInterface`](readme.md#screenchromeconfigoverridesinterface): Partial overrides accepted by the provider `config` prop, preserving nested colors and mask stops.
 - [`ScreenChromeContextValueInterface`](readme.md#screenchromecontextvalueinterface): The `{ colorScheme, config }` shape returned by `useScreenChrome`.
-- [`SCREEN_CHROME_DEFAULT_CONFIG`](readme.md#screenchromedefaultconfig): Platform default config (native and web variants) that `mergeScreenChromeConfig` starts from.
-- [`SCREEN_CHROME_SHARED_DEFAULT_CONFIG`](readme.md#screenchromeshareddefaultconfig): Platform-independent subset of the default config shared by native and web.
+- [`SCREEN_CHROME_DEFAULT_CONFIG`](readme.md#screen_chrome_default_config): Platform default config (native and web variants) that `mergeScreenChromeConfig` starts from.
+- [`SCREEN_CHROME_SHARED_DEFAULT_CONFIG`](readme.md#screen_chrome_shared_default_config): Platform-independent subset of the default config shared by native and web.
 - [`assertValidScreenChromeConfig`](readme.md#assertvalidscreenchromeconfig): Throws a property-specific error for configs that cannot drive stable scroll animations.
 - [`mergeScreenChromeConfig`](readme.md#mergescreenchromeconfig): Resolves partial overrides into a complete immutable config, deep-merging `colors` and `maskStops`.
 - [`mergeRefs`](readme.md#mergerefs): Fans one instance out to several object or function refs with React 19 cleanup handling.

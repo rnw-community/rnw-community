@@ -9,13 +9,13 @@
 
 ## Guides
 
-- [Basic operations examples](readme.md#basic-operations-examples): `set$`, `get$`, `del$`, and `mget$` usage.
-- [Operator examples](readme.md#operator-examples): Pipeable save, load, remove, and load-or-prepare caching operators.
+- [Basic operations](readme.md#basic-operations): `set$`, `get$`, `del$`, and `mget$` usage.
+- [Operators](readme.md#nestjsrxjsredisservice): Pipeable save, load, remove, and load-or-prepare caching operators.
 
 ## API reference
 
-- [`NestJSRxJSRedisModule`](readme.md#configuration): Module whose `forRootAsync(options)` registers the ioredis connection and a global `NestJSRxJSRedisService`.
-- [`NestJSRxJSRedisService`](readme.md#basic-operations-examples): Service with `set$` / `get$` / `del$` / `ttl$` / `expire$` / `incr$` / `mget$` commands and `save` / `load` / `remove` / `cache` operators.
+- [`NestJSRxJSRedisModule`](readme.md#nestjsrxjsredismodule): Module whose `forRootAsync(options)` registers the ioredis connection and a global `NestJSRxJSRedisService`.
+- [`NestJSRxJSRedisService`](readme.md#nestjsrxjsredisservice): Service with `set$` / `get$` / `del$` / `ttl$` / `expire$` / `incr$` / `mget$` commands and `save` / `load` / `remove` / `cache` operators.
 
 ## Architecture & conventions
 
