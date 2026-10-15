@@ -79,7 +79,7 @@
     },
     "peerDependencies": {
         "@react-native-masked-view/masked-view": ">=0.3 <1",
-        "@rnw-community/react-native-collapsible-header": ">=2.13.0 <3",
+        "@rnw-community/react-native-collapsible-header": ">=2.18.0 <3",
         "expo-blur": ">=55 <59",
         "expo-linear-gradient": ">=55 <59",
         "react": ">=18",

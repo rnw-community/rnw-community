@@ -161,6 +161,9 @@ transition layers.
 </CollapsibleHeaderSlot>
 ```
 
+The slot is `pointerEvents="box-none"`, so an empty or narrow slot never swallows taps; pass `style` to adjust its size
+or spacing.
+
 ## CollapsibleHeaderTitleSlot
 
 Groups the direct expanded and collapsed title layers of a compound collapsible header; title opacity and pointer-event

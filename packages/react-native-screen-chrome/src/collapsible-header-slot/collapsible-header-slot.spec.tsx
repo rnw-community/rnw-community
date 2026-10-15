@@ -29,4 +29,20 @@ describe('CollapsibleHeaderSlot', () => {
 
         expect(getByText('Back')).toBeTruthy();
     });
+
+    it('lets touches outside its children reach the layers underneath', () => {
+        expect.hasAssertions();
+
+        const { getByTestId } = render(<CollapsibleHeaderSlot testID="empty-slot" />);
+
+        expect(getByTestId('empty-slot')).toHaveProp('pointerEvents', 'box-none');
+    });
+
+    it('merges consumer styles after the slot defaults', () => {
+        expect.hasAssertions();
+
+        const { getByTestId } = render(<CollapsibleHeaderSlot style={{ minWidth: 88, marginLeft: 8 }} testID="wide-slot" />);
+
+        expect(getByTestId('wide-slot')).toHaveStyle({ minWidth: 88, minHeight: 44, marginLeft: 8 });
+    });
 });
