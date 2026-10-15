@@ -3,7 +3,7 @@
 Composable, safe-area-aware screen chrome for React Native and React Native Web. It paints collapsible titles,
 persistent navigation controls, progressive edge fades, and content insets around one scrollable, while all motion,
 scroll wiring, and collapse snapping are delegated to
-[`@rnw-community/react-native-collapsible-header`](../react-native-collapsible-header/readme.md) and all visible
+[`@rnw-community/react-native-collapsible-header`](https://github.com/rnw-community/rnw-community/blob/master/packages/react-native-collapsible-header/readme.md) and all visible
 content and product behavior stay consumer-owned.
 
 [![npm version](https://badge.fury.io/js/%40rnw-community%2Freact-native-screen-chrome.svg)](https://badge.fury.io/js/%40rnw-community%2Freact-native-screen-chrome)
@@ -398,7 +398,7 @@ const lightColors: ScreenChromeColorSetInterface = { solid: 'rgba(255,255,255,0.
 
 Configures screen chrome geometry, colors, fade masks, scroll throttling, and collapse thresholds. See
 [Configuration and snapping](#configuration-and-snapping) for the threshold ordering rule and
-[`ScreenChromeDefaultConfig`](#screenchromedefaultconfig) for the full default shape.
+[`SCREEN_CHROME_DEFAULT_CONFIG`](#screen_chrome_default_config) for the full default shape.
 
 ## ScreenChromeConfigOverridesInterface
 
@@ -439,16 +439,16 @@ worklet-only scroll handler never receives them on Android. Snapping therefore r
 the header registers the snap geometry with the provider, so a screen that enables `snapToCollapse` without rendering
 `CollapsibleHeader` scrolls freely. Snap animation currently ignores the reduced-motion setting.
 
-## ScreenChromeDefaultConfig
+## SCREEN_CHROME_DEFAULT_CONFIG
 
-The platform default `ScreenChromeConfigInterface`: native (`ScreenChromeDefaultConfig.ts`) uses 150-point top and
-bottom fade bands and a 220-point header backdrop; web (`ScreenChromeDefaultConfig.web.ts`) uses 76-pixel bands and a
+The platform default `ScreenChromeConfigInterface`: native (`screen-chrome-default-config.constant.ts`) uses 150-point top and
+bottom fade bands and a 220-point header backdrop; web (`screen-chrome-default-config.constant.web.ts`) uses 76-pixel bands and a
 108-pixel backdrop. `mergeScreenChromeConfig` starts from this value.
 
-## ScreenChromeSharedDefaultConfig
+## SCREEN_CHROME_SHARED_DEFAULT_CONFIG
 
 The platform-independent subset of the default configuration — geometry, colors, mask stops, and throttling shared by
-the native and web `ScreenChromeDefaultConfig` variants.
+the native and web `SCREEN_CHROME_DEFAULT_CONFIG` variants.
 
 ## assertValidScreenChromeConfig
 

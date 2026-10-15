@@ -10,7 +10,7 @@ Utils that help work with errors in rxjs observable's.
 
 ### RxJSFilterError
 
-Custom `Error` subclass; the default error thrown/created by `filterWithException` and `rethrowException` when no custom `ErrorCtor` is passed in.
+Custom `Error` subclass; the default error created by `filterWithException` when no custom `createError` factory is passed in, and by `rethrowException` when no custom `ErrorCtor` is passed in.
 
 ```typescript
 import { RxJSFilterError } from '@rnw-community/rxjs-errors';
@@ -29,10 +29,9 @@ try {
 -   [`filterWithException`](#filterwithexception) - works like `filter` from rxjs, but throw an error instead of ignoring the
     value.
 
--   [`rethrowException`](#rethrowexception) - will catch any error in the observable, create a
-    new `RxJSFilterError` (or any custom) with custom message and log it with a custom logger function that you can optionally
-    pass in. If it catches `RxJSFilterError` (or any custom), it will
-    just rethrow that exception as is.
+-   [`rethrowException`](#rethrowexception) - will catch any error in the observable, log it with the required logger
+    function, and throw a new `RxJSFilterError` (or any custom) with custom message. If it catches `RxJSFilterError` (or any
+    custom), it will just rethrow that exception as is.
 
 ## Usage examples
 
@@ -54,7 +53,7 @@ of('C')
     .subscribe(value => console.log(value));
 ```
 
-Passing custom error class:
+Passing a custom error factory as the third argument — a `(msg: string) => Error` function, not an error class:
 
 ```typescript
 import { filterWithException } from '@rnw-community/rxjs-errors';
@@ -66,7 +65,7 @@ of('F')
         filterWithException(
             letter => letter === 'A',
             letter => `Wanted A, but got ${letter}`,
-            BadRequestException
+            msg => new BadRequestException(msg)
         )
     )
     .subscribe(value => console.log(value));
@@ -109,15 +108,18 @@ If the `this.repository.doSomething(letter)` call will throw an error (not an in
 thrown error, and then create a new one of type `RxJSFilterError` with "Could not check letter" text.
 
 ```typescript
-import { filterWithException, rethrowException } from '@rnw-community/rxjs-errors/src';
-import { of } from 'rxjs';
+import { concatMap, of } from 'rxjs';
+
+import { filterWithException, rethrowException } from '@rnw-community/rxjs-errors';
+
+import type { Observable } from 'rxjs';
 
 class LetterService {
     constructor(private readonly repository: ILetterRepository) {}
 
     checkLetter$(letter: string): Observable<string> {
         return of(letter).pipe(
-            filterWithException(letter !== 'A', 'Invalid character'),
+            filterWithException(value => value === 'A', 'Invalid character'),
             concatMap(letter => this.repository.doSomething(letter)),
             rethrowException('Could not check letter', console.error)
         );
@@ -129,8 +131,11 @@ In this example any error except for `LetterError` will be caught, logged and a 
 not check letter" message.
 
 ```typescript
-import { filterWithException, rethrowException } from '@rnw-community/rxjs-errors/src';
-import { of } from 'rxjs';
+import { concatMap, of } from 'rxjs';
+
+import { filterWithException, rethrowException } from '@rnw-community/rxjs-errors';
+
+import type { Observable } from 'rxjs';
 
 class LetterError extends Error {}
 
@@ -139,7 +144,7 @@ class LetterService {
 
     checkLetter$(letter: string): Observable<string> {
         return of(letter).pipe(
-            filterWithException(letter !== 'A', 'Invalid character'),
+            filterWithException(value => value === 'A', 'Invalid character'),
             concatMap(letter => this.repository.doSomething(letter)),
             rethrowException('Could not check letter', console.error, LetterError)
         );
@@ -150,16 +155,19 @@ class LetterService {
 You could also pass in a function, that will accept the caught error, to create an error message:
 
 ```typescript
+import { concatMap, of } from 'rxjs';
+
 import { filterWithException, rethrowException } from '@rnw-community/rxjs-errors';
 import { getErrorMessage } from '@rnw-community/shared';
-import { of } from 'rxjs';
+
+import type { Observable } from 'rxjs';
 
 class LetterService {
     constructor(private readonly repository: ILetterRepository) {}
 
     checkLetter$(letter: string): Observable<string> {
         return of(letter).pipe(
-            filterWithException(letter !== 'A', 'Invalid character'),
+            filterWithException(value => value === 'A', 'Invalid character'),
             concatMap(letter => this.repository.doSomething(letter)),
             rethrowException((err: unknown) => getErrorMessage(err), console.error)
         );
@@ -167,21 +175,24 @@ class LetterService {
 }
 ```
 
-If you don't want to log anything, you can just not pass in a log function:
+The log function is required. If you don't want to log anything, pass `emptyFn` from `@rnw-community/shared`:
 
 ```typescript
+import { concatMap, of } from 'rxjs';
+
 import { filterWithException, rethrowException } from '@rnw-community/rxjs-errors';
-import { getErrorMessage } from '@rnw-community/shared';
-import { of } from 'rxjs';
+import { emptyFn } from '@rnw-community/shared';
+
+import type { Observable } from 'rxjs';
 
 class LetterService {
     constructor(private readonly repository: ILetterRepository) {}
 
     checkLetter$(letter: string): Observable<string> {
         return of(letter).pipe(
-            filterWithException(letter !== 'A', 'Invalid character'),
+            filterWithException(value => value === 'A', 'Invalid character'),
             concatMap(letter => this.repository.doSomething(letter)),
-            rethrowException('Could not check letter')
+            rethrowException('Could not check letter', emptyFn)
         );
     }
 }

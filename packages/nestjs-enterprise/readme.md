@@ -20,8 +20,8 @@ Peer dependencies that your project should contain:
 ## Contents
 
 ### Decorators
-- [Log](./src/decorator/log/log-decorator.md) - method call logging
-- [Histogram Metric](./src/decorator/histogram-metric/histogram-metric-decorator.md) - Prometheus histogram metrics
+- [Log](https://github.com/rnw-community/rnw-community/blob/master/packages/nestjs-enterprise/src/decorator/log/log-decorator.md) - method call logging
+- [Histogram Metric](https://github.com/rnw-community/rnw-community/blob/master/packages/nestjs-enterprise/src/decorator/histogram-metric/histogram-metric-decorator.md) - Prometheus histogram metrics
 
 ### Distributed Locking
 
@@ -32,8 +32,8 @@ const { SequentialLock, ExclusiveLock } = createPromiseLockDecorators(MyLockServ
 const { SequentialLock$, ExclusiveLock$ } = createObservableLockDecorators(MyLockService, 5000);
 ```
 
-- [createPromiseLockDecorators](./src/decorator/lock/create-promise-lock-decorators/create-promise-lock-decorators.md) - `SequentialLock` + `ExclusiveLock` for async methods
-- [createObservableLockDecorators](./src/decorator/lock/create-observable-lock-decorators/create-observable-lock-decorators.md) - `SequentialLock$` + `ExclusiveLock$` for Observable methods
+- [createPromiseLockDecorators](https://github.com/rnw-community/rnw-community/blob/master/packages/nestjs-enterprise/src/decorator/lock/create-promise-lock-decorators/create-promise-lock-decorators.md) - `SequentialLock` + `ExclusiveLock` for async methods
+- [createObservableLockDecorators](https://github.com/rnw-community/rnw-community/blob/master/packages/nestjs-enterprise/src/decorator/lock/create-observable-lock-decorators/create-observable-lock-decorators.md) - `SequentialLock$` + `ExclusiveLock$` for Observable methods
 
 ### Types
 
@@ -70,9 +70,9 @@ const { SequentialLock$, ExclusiveLock$ } = createObservableLockDecorators(MyLoc
 
 ### Deprecated
 
-- [LockPromise](./src/decorator/lock/lock-promise/lock-promise-decorator.md) - use `createPromiseLockDecorators` instead
-- [LockObservable](./src/decorator/lock/lock-observable/lock-observable-decorator.md) - use `createObservableLockDecorators` instead
-- [LockableService](./src/decorator/lock/lock-decorator.md) - use `LockServiceInterface` instead
+- [LockPromise](https://github.com/rnw-community/rnw-community/blob/master/packages/nestjs-enterprise/src/decorator/lock/lock-promise/lock-promise-decorator.md) - use `createPromiseLockDecorators` instead
+- [LockObservable](https://github.com/rnw-community/rnw-community/blob/master/packages/nestjs-enterprise/src/decorator/lock/lock-observable/lock-observable-decorator.md) - use `createObservableLockDecorators` instead
+- [LockableService](https://github.com/rnw-community/rnw-community/blob/master/packages/nestjs-enterprise/src/decorator/lock/lock-decorator.md) - use `LockServiceInterface` instead
 
 ## License
 

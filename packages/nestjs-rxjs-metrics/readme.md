@@ -38,7 +38,8 @@ const summaryLabels = {
 };
 ```
 
--   Create metrics module and service for NestJS DI, this module and service should be used in the project:
+-   Create metrics module and service for NestJS DI with [`NestJSRxJSMetricsModule.create`](#nestjsrxjsmetricsmodule),
+    this module and service should be used in the project:
 
 ```ts
 import { Injectable, Module } from '@nestjs/common';
@@ -65,7 +66,30 @@ export class MetricsService extends BaseMetricsService {}
 export class MetricsModule {}
 ```
 
-## Usage
+## NestJSRxJSMetricsModule
+
+`NestJSRxJSMetricsModule.create(options)` registers `PrometheusModule` from `@willsoto/nestjs-prometheus` and returns a
+`[module, service]` tuple, where the service is a `NestJSRxJSMetricsService` subclass typed with your metric and label
+objects. `options` takes `counterMetrics`, `gaugeMetrics`, `histogramMetrics`, `summaryMetrics`, optional
+`histogramLabels` / `summaryLabels`, plus any `PrometheusOptions` of `@willsoto/nestjs-prometheus`, which are passed
+through to `PrometheusModule.register`:
+
+```ts
+import { NestJSRxJSMetricsModule } from '@rnw-community/nestjs-rxjs-metrics';
+
+export const [BaseMetricsModule, BaseMetricsService] = NestJSRxJSMetricsModule.create({
+    counterMetrics,
+    gaugeMetrics,
+    histogramMetrics,
+    summaryMetrics,
+    path: '/metrics',
+});
+```
+
+## NestJSRxJSMetricsService
+
+Base class of the service returned by `NestJSRxJSMetricsModule.create`; extend the returned service class and inject it
+to use the operators below.
 
 This package provides a set of [RxJS](https://rxjs.dev) operators for beautiful usage of prometheus metrics inside the streams.
 Take a look at best practises and other useful docs from official [prometheus documentation](https://prometheus.io/docs/introduction/overview/).

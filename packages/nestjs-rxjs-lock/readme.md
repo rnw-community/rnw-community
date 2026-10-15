@@ -23,7 +23,6 @@ allow us to use typesafe `LockCodesEnum` in our business logic.
 import { Injectable, Module } from '@nestjs/common';
 
 import { NestJSRxJSLockModule } from '@rnw-community/nestjs-rxjs-lock';
-import { LockCodesEnum } from '@seezona/admin-api-backend/src/generic/enum/lock-codes.enum';
 
 // Create a enum which would be typesafe to use in your locks
 enum LockCodesEnum {
@@ -50,23 +49,54 @@ export class LockModule {}
 
 ### NestJSRxJSLockModule.registerTypedAsync
 
--   `options` is a `NestJSRxJSLockModuleOptions` which extends [Redlock.Options](https://www.npmjs.com/package/redlock) object
-    with [default values](src/nestjs-rxjs-lock-module.options.ts)):
-    -   `retryCount` is a number of lock attempts
-    -   `defaultExpireMs` is a default lock expiration time in milliseconds
+Returns a `[module, service]` tuple: a NestJS module and an injectable `NestJSRxJSLockService` subclass typed with your
+lock-prefix enum.
 
-##### Example(see [Setup](#setup) section for more details
+-   `options` is a `Partial<NestJSRxJSLockModuleOptions>` (see [NestJSRxJSLockModuleOptions](#nestjsrxjslockmoduleoptions)),
+    merged over [defaultNestJSRxJSLockModuleOptions](#defaultnestjsrxjslockmoduleoptions)
 
-### NestJSRxJSService.lock$
+##### Example (see the [Configuration](#configuration) section for more details)
+
+```typescript
+const [BaseLockModule, BaseLockService] = NestJSRxJSLockModule.registerTypedAsync<LockCodesEnum>({ retryCount: 3 });
+```
+
+### NestJSRxJSLockModuleOptions
+
+Module options interface: extends the [Redlock `Settings`](https://www.npmjs.com/package/redlock) object
+(`retryCount`, `retryDelay`, `retryJitter`, `driftFactor`, `automaticExtensionThreshold`) with:
+
+-   `defaultExpireMs` - default lock expiration time in milliseconds
+
+```typescript
+import type { NestJSRxJSLockModuleOptions } from '@rnw-community/nestjs-rxjs-lock';
+
+const lockOptions: Partial<NestJSRxJSLockModuleOptions> = { retryCount: 3, defaultExpireMs: 5000 };
+```
+
+### defaultNestJSRxJSLockModuleOptions
+
+Default `NestJSRxJSLockModuleOptions` values applied by `registerTypedAsync`: `defaultExpireMs: 10000`, `retryCount: 0`,
+`driftFactor: 0.01`, `retryDelay: 200`, `retryJitter: 200`, `automaticExtensionThreshold: 500`.
+
+```typescript
+import { NestJSRxJSLockModule, defaultNestJSRxJSLockModuleOptions } from '@rnw-community/nestjs-rxjs-lock';
+
+const [LockModule, LockService] = NestJSRxJSLockModule.registerTypedAsync({
+    retryCount: defaultNestJSRxJSLockModuleOptions.retryCount + 3,
+});
+```
+
+### NestJSRxJSLockService.lock$
 
 #### Arguments
 
 -   `name` - unique lock identifier like user id in our setup example
 -   `prefix` - typesafe `LockCodesEnum` value from the setup, used as a prefix for the lock key
 -   `handler$` - business logic wrapped in RxJS observable
--   `expireMs` - lock expiration time in milliseconds, a module configuration default value is used if not provided
+-   `expireInMs` - lock expiration time in milliseconds, the module `defaultExpireMs` value is used if not provided
 
-> Redis lock key will be formed as `lock:[prefix]:[name]` and will be expired after `expireMs` milliseconds and wil
+> Redis lock key will be formed as `lock:[prefix]:[name]` and will be expired after `expireInMs` milliseconds and will
 > retry `retryCount` times.
 
 #### Usage
