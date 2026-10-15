@@ -41,26 +41,22 @@ one-time platform setup before writing any code:
 ```ts
 import {
     PaymentComplete,
-    PaymentMethodNameEnum,
     PaymentRequest,
-    SupportedNetworkEnum,
+    createApplePayMethodData,
+    createGooglePayMethodData,
 } from '@rnw-community/react-native-payments';
 
 const methodData = [
-    {
-        supportedMethods: PaymentMethodNameEnum.ApplePay,
-        data: {
-            merchantIdentifier: 'merchant.com.your-app.namespace',
-            supportedNetworks: [SupportedNetworkEnum.Visa, SupportedNetworkEnum.Mastercard],
-            countryCode: 'US',
-            currencyCode: 'USD',
-        },
-    },
-    // Add a matching AndroidPay entry to the same array to support both platforms.
+    createApplePayMethodData({ merchantIdentifier: 'merchant.com.your-app', countryCode: 'US', currencyCode: 'USD' }),
+    createGooglePayMethodData({
+        countryCode: 'US',
+        currencyCode: 'USD',
+        gatewayConfig: { gateway: 'example', gatewayMerchantId: 'id' },
+    }),
 ];
-const paymentDetails = { total: { label: 'Total', amount: { currency: 'USD', value: '10.00' } } };
-
-const paymentRequest = new PaymentRequest(methodData, paymentDetails);
+const paymentRequest = new PaymentRequest(methodData, {
+    total: { label: 'Total', amount: { currency: 'USD', value: '10.00' } },
+});
 
 if (await paymentRequest.canMakePayment()) {
     const paymentResponse = await paymentRequest.show();
@@ -70,10 +66,19 @@ if (await paymentRequest.canMakePayment()) {
 }
 ```
 
+[`createApplePayMethodData`](docs/api/create-apple-pay-method-data.md) and
+[`createGooglePayMethodData`](docs/api/create-google-pay-method-data.md) fill in the defaults: Visa and Mastercard on
+both platforms, plus the Google Pay `TEST` environment — pass `environment: EnvironmentEnum.PRODUCTION` for live
+payments. Each one returns the plain `methodData` entry, so you can still write that object by hand — see
+[api/ios-payment-method-data.md](docs/api/ios-payment-method-data.md) and
+[api/android-payment-method-data.md](docs/api/android-payment-method-data.md) for the raw shape.
+
 Only call `complete(PaymentComplete.SUCCESS)` once your backend has actually confirmed the charge. A
 `PaymentRequest` is single-use — build a new one per payment attempt rather than reusing a settled request; see
-[docs/architecture.md](docs/architecture.md). For the full two-platform `methodData` shape, shipping/coupon
-change events, and payment details modifiers, see the [doc map](#doc-map) below.
+[docs/architecture.md](docs/architecture.md).
+[`createPaymentRequestFactory`](docs/api/create-payment-request-factory.md) builds a fresh request per attempt from
+shared configuration. For shipping/coupon change events and payment details modifiers, see the [doc map](#doc-map)
+below.
 
 ### Screenshots
 
@@ -159,9 +164,24 @@ The fastest path to an Apple Pay sheet. See [Platforms — iOS](docs/platforms/i
    to enable the capability and register the merchant ID.
 3. Run `pod install` — the pod links `PassKit` itself, no `AppDelegate` import is needed (see
    [Platforms — iOS](docs/platforms/ios.md#native-setup)).
-4. Construct a `PaymentRequest` with `PaymentMethodNameEnum.ApplePay` method data (`merchantIdentifier`,
-   `supportedNetworks`, `countryCode`, `currencyCode`) and call `show()` — see the
-   [readme quickstart](readme.md#quickstart) for the full snippet.
+4. Build the Apple Pay method data with `createApplePayMethodData`, construct a `PaymentRequest` and call `show()`:
+
+```ts
+import { PaymentRequest, createApplePayMethodData } from '@rnw-community/react-native-payments';
+
+const methodData = [
+    createApplePayMethodData({ merchantIdentifier: 'merchant.com.your-app', countryCode: 'US', currencyCode: 'USD' }),
+];
+const paymentResponse = await new PaymentRequest(methodData, {
+    total: { label: 'Total', amount: { currency: 'USD', value: '10.00' } },
+}).show();
+```
+
+`supportedNetworks` defaults to Visa and Mastercard — see
+[api/create-apple-pay-method-data.md](docs/api/create-apple-pay-method-data.md). To write the method data by hand
+instead, pass `{ supportedMethods: PaymentMethodNameEnum.ApplePay, data: { merchantIdentifier, supportedNetworks,
+countryCode, currencyCode } }` — see [api/ios-payment-method-data.md](docs/api/ios-payment-method-data.md). The
+[readme quickstart](readme.md#quickstart) shows the full flow, including `complete()`.
 
 `merchantIdentifier` passed to `methodData.data` must exactly match the merchant ID declared in the app's
 `com.apple.developer.in-app-payments` entitlement, or the sheet fails with a merchant/entitlement error — see
@@ -182,9 +202,29 @@ story (capabilities, deviations, dependency version).
    [Platforms — Android](docs/platforms/android.md#native-setup) for the Gradle snippet.
 4. Add your test Google account to the
    [Google Pay API Test Cards Allowlist](https://groups.google.com/g/googlepay-test-mode-stub-data?pli=1).
-5. Construct a `PaymentRequest` with `PaymentMethodNameEnum.AndroidPay` method data (`supportedNetworks`,
-   `environment`, `countryCode`, `currencyCode`, `gatewayConfig`) and call `show()` — see the
-   [readme quickstart](readme.md#quickstart) for the full snippet.
+5. Build the Google Pay method data with `createGooglePayMethodData`, construct a `PaymentRequest` and call `show()`:
+
+```ts
+import { PaymentRequest, createGooglePayMethodData } from '@rnw-community/react-native-payments';
+
+const methodData = [
+    createGooglePayMethodData({
+        countryCode: 'US',
+        currencyCode: 'USD',
+        gatewayConfig: { gateway: 'example', gatewayMerchantId: 'id' },
+    }),
+];
+const paymentResponse = await new PaymentRequest(methodData, {
+    total: { label: 'Total', amount: { currency: 'USD', value: '10.00' } },
+}).show();
+```
+
+`environment` defaults to `EnvironmentEnum.TEST` and `supportedNetworks` to Visa and Mastercard. Pass
+`environment: EnvironmentEnum.PRODUCTION` for live payments — see
+[api/create-google-pay-method-data.md](docs/api/create-google-pay-method-data.md). To write the method data by hand
+instead, pass `{ supportedMethods: PaymentMethodNameEnum.AndroidPay, data: { supportedNetworks, environment,
+countryCode, currencyCode, gatewayConfig } }` — see [api/android-payment-method-data.md](docs/api/android-payment-method-data.md).
+The [readme quickstart](readme.md#quickstart) shows the full flow, including `complete()`.
 
 `canMakePayment()` on Android always checks against `EnvironmentEnum.TEST` regardless of the `environment` set
 on `methodData.data` — set the real `environment` for `show()` regardless of what `canMakePayment()` reported.
@@ -500,6 +540,7 @@ pairing the package already uses for tightly-coupled siblings (a data shape and 
 ## Core classes
 
 - [payment-request.md](docs/api/payment-request.md) — `PaymentRequest`
+- [create-payment-request-factory.md](docs/api/create-payment-request-factory.md) — `createPaymentRequestFactory`, `PaymentRequestFactoryConfig`, `PaymentRequestFactory`
 - [payment-response.md](docs/api/payment-response.md) — `PaymentResponse`
 - [ios-payment-response.md](docs/api/ios-payment-response.md) — `IosPaymentResponse`
 - [ios-pk-token.md](docs/api/ios-pk-token.md) — `IosPKToken`
@@ -541,6 +582,8 @@ pairing the package already uses for tightly-coupled siblings (a data shape and 
 
 ## Platform method data
 
+- [create-apple-pay-method-data.md](docs/api/create-apple-pay-method-data.md) — `createApplePayMethodData`, `ApplePayMethodDataOptions`
+- [create-google-pay-method-data.md](docs/api/create-google-pay-method-data.md) — `createGooglePayMethodData`, `GooglePayMethodDataOptions`
 - [android-payment-method-data.md](docs/api/android-payment-method-data.md) — `AndroidPaymentMethodDataInterface`, `AndroidPaymentMethodDataDataInterface`
 - [android-allowed-auth-methods-enum.md](docs/api/android-allowed-auth-methods-enum.md) — `AndroidAllowedAuthMethodsEnum`
 - [android-merchant-initiated-transaction-info.md](docs/api/android-merchant-initiated-transaction-info.md) — `AndroidDeferredTransactionInfo`, `AndroidRecurringTransactionInfo`, `AndroidAutomaticReloadTransactionInfo`, `AndroidRecurrencePeriodItem`, `AndroidIntroductoryPeriodInfo`, `AndroidDisplayItem`
@@ -707,6 +750,8 @@ your `methodData` array.
 shared with [`IosPaymentMethodDataDataInterface`](docs/api/ios-payment-method-data.md) (both extend the package's
 common `GenericPaymentMethodDataDataInterface`): each is an optional boolean that, when `true`, adds the matching
 field to the resulting `PaymentResponse` — see [api/payment-response.md](docs/api/payment-response.md).
+
+[`createGooglePayMethodData`](docs/api/create-google-pay-method-data.md) builds this entry with defaults filled in.
 
 ## Example
 
@@ -879,6 +924,205 @@ input is otherwise valid and no platform-matching payment method exists — see
 
 ---
 
+# FILE: docs/api/create-apple-pay-method-data.md
+
+# `createApplePayMethodData` / `ApplePayMethodDataOptions`
+
+## What & why
+
+Builds the Apple Pay entry of the `methodData` array from the few fields that are specific to your merchant. Reach for it
+instead of hand-writing `{ supportedMethods: PaymentMethodNameEnum.ApplePay, data: { … } }` when the defaults below
+match your integration.
+
+## How
+
+```ts
+createApplePayMethodData(options: ApplePayMethodDataOptions): IosPaymentMethodDataInterface
+```
+
+`ApplePayMethodDataOptions` is [`IosPaymentMethodDataDataInterface`](docs/api/ios-payment-method-data.md) with
+`supportedNetworks` made optional. Every option is copied into `data` unchanged. Only the defaults below are filled in:
+
+| Option                 | Required | Default when omitted                                                                                                                 |
+| ---------------------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------ |
+| `merchantIdentifier`   | yes      | —                                                                                                                                    |
+| `countryCode`          | yes      | —                                                                                                                                    |
+| `currencyCode`         | yes      | —                                                                                                                                    |
+| `supportedNetworks`    | no       | `[SupportedNetworkEnum.Visa, SupportedNetworkEnum.Mastercard]`                                                                       |
+| `merchantCapabilities` | no       | Left unset — the request then uses `3DS`, `Debit` and `Credit`, see [ios-pk-merchant-capability.md](docs/api/ios-pk-merchant-capability.md) |
+
+The function is pure: it has no native call, no platform check, and every result has its own `supportedNetworks`
+array.
+
+## Example
+
+```ts
+import { createApplePayMethodData } from '@rnw-community/react-native-payments';
+
+const applePayMethodData = createApplePayMethodData({
+    merchantIdentifier: 'merchant.com.your-app.namespace',
+    countryCode: 'US',
+    currencyCode: 'USD',
+});
+```
+
+## References
+
+- [api/ios-payment-method-data.md](docs/api/ios-payment-method-data.md) — the raw shape this function returns
+- [api/create-google-pay-method-data.md](docs/api/create-google-pay-method-data.md)
+- [platforms/ios.md](docs/platforms/ios.md)
+- [Apple `PKPaymentRequest`](https://developer.apple.com/documentation/passkit/pkpaymentrequest)
+
+---
+
+# FILE: docs/api/create-google-pay-method-data.md
+
+# `createGooglePayMethodData` / `GooglePayMethodDataOptions`
+
+## What & why
+
+Builds the Google Pay entry of the `methodData` array from the few fields that are specific to your merchant. Reach for
+it instead of hand-writing `{ supportedMethods: PaymentMethodNameEnum.AndroidPay, data: { … } }` when the defaults below
+match your integration.
+
+## How
+
+```ts
+createGooglePayMethodData(options: GooglePayMethodDataOptions): AndroidPaymentMethodDataInterface
+```
+
+`GooglePayMethodDataOptions` is [`AndroidPaymentMethodDataDataInterface`](docs/api/android-payment-method-data.md) with
+`environment` and `supportedNetworks` made optional. Every option is copied into `data` unchanged. Only the defaults
+below are filled in:
+
+| Option                            | Required    | Default when omitted                                                                                                                                    |
+| --------------------------------- | ----------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `currencyCode`                    | yes         | —                                                                                                                                                       |
+| `gatewayConfig` or `directConfig` | exactly one | —                                                                                                                                                       |
+| `countryCode`                     | no          | — (Google Pay requires it for EEA merchants)                                                                                                            |
+| `environment`                     | no          | `EnvironmentEnum.TEST`                                                                                                                                  |
+| `supportedNetworks`               | no          | `[SupportedNetworkEnum.Visa, SupportedNetworkEnum.Mastercard]`                                                                                          |
+| `allowedAuthMethods`              | no          | Left unset — the request then sends `PAN_ONLY` and `CRYPTOGRAM_3DS`, see [android-allowed-auth-methods-enum.md](docs/api/android-allowed-auth-methods-enum.md) |
+
+The function is pure: it has no native call, no platform check, and every result has its own `supportedNetworks`
+array.
+
+## Example
+
+```ts
+import { EnvironmentEnum, createGooglePayMethodData } from '@rnw-community/react-native-payments';
+
+const googlePayMethodData = createGooglePayMethodData({
+    countryCode: 'US',
+    currencyCode: 'USD',
+    gatewayConfig: { gateway: 'example', gatewayMerchantId: 'exampleGatewayMerchantId' },
+    environment: __DEV__ ? EnvironmentEnum.TEST : EnvironmentEnum.PRODUCTION,
+});
+```
+
+## Pitfalls
+
+- `environment` defaults to `EnvironmentEnum.TEST`, which only returns test card data. Pass
+  `EnvironmentEnum.PRODUCTION` for live payments.
+
+## References
+
+- [api/android-payment-method-data.md](docs/api/android-payment-method-data.md) — the raw shape this function returns
+- [api/create-apple-pay-method-data.md](docs/api/create-apple-pay-method-data.md)
+- [api/environment-enum.md](docs/api/environment-enum.md)
+- [platforms/android.md](docs/platforms/android.md)
+- [Google Pay `PaymentDataRequest`](https://developers.google.com/pay/api/android/reference/request-objects#PaymentDataRequest)
+
+---
+
+# FILE: docs/api/create-payment-request-factory.md
+
+# `createPaymentRequestFactory` / `PaymentRequestFactoryConfig` / `PaymentRequestFactory`
+
+## What & why
+
+A `PaymentRequest` is single-use (see [architecture.md](docs/architecture.md)), so every checkout attempt — including a
+retry after a failed or cancelled payment — needs a new instance. `createPaymentRequestFactory` captures the
+configuration that stays the same across attempts once, and returns a function that builds a fresh request from the
+details of each checkout.
+
+## How
+
+```ts
+createPaymentRequestFactory(config: PaymentRequestFactoryConfig): PaymentRequestFactory
+
+type PaymentRequestFactory = (details: PaymentDetailsInit) => PaymentRequest;
+```
+
+| `PaymentRequestFactoryConfig` member | Required | Notes                                                                                                     |
+| ------------------------------------ | -------- | --------------------------------------------------------------------------------------------------------- |
+| `methodData`                         | yes      | Passed to every request. Each request gets its own copy of the array.                                     |
+| `details`                            | no       | Base `PaymentDetailsInit` without `total` and `id` (for example shared `shippingOptions` or `modifiers`). |
+
+Merge semantics: every call builds `new PaymentRequest([...methodData], { ...config.details, ...details })`.
+
+- The merge is shallow. A key in the per-checkout `details` replaces the base value as a whole, so arrays are
+  replaced, not concatenated.
+- A key set to `undefined` in the per-checkout `details` clears the base value.
+- `total` and `id` only come from the per-checkout `details`. When `id` is omitted, every request gets a new
+  generated one.
+- The constructor runs on every call, so invalid details throw `ConstructorError` from the factory call, exactly like
+  `new PaymentRequest(...)`.
+
+Event listeners belong to one request. Register them on each request the factory returns. The factory is a plain
+function with no React dependency. In a component, create it once (module scope or `useMemo`) and call it inside the
+pay handler.
+
+## Example
+
+```ts
+import {
+    PaymentComplete,
+    createApplePayMethodData,
+    createGooglePayMethodData,
+    createPaymentRequestFactory,
+} from '@rnw-community/react-native-payments';
+
+const createPaymentRequest = createPaymentRequestFactory({
+    methodData: [
+        createApplePayMethodData({
+            merchantIdentifier: 'merchant.com.your-app.namespace',
+            countryCode: 'US',
+            currencyCode: 'USD',
+        }),
+        createGooglePayMethodData({
+            countryCode: 'US',
+            currencyCode: 'USD',
+            gatewayConfig: { gateway: 'example', gatewayMerchantId: 'id' },
+        }),
+    ],
+});
+
+const pay = async (value: string): Promise<void> => {
+    const paymentResponse = await createPaymentRequest({
+        total: { label: 'Total', amount: { currency: 'USD', value } },
+    }).show();
+
+    await paymentResponse.complete(
+        (await sendToYourBackend(paymentResponse.details)) ? PaymentComplete.SUCCESS : PaymentComplete.FAIL
+    );
+};
+```
+
+## Pitfalls
+
+- On react-native-web, `PaymentRequest` resolves to the browser's `window.PaymentRequest`, and the factory builds that
+  one. It is `null` during SSR. See [platforms/web.md](docs/platforms/web.md).
+
+## References
+
+- [api/payment-request.md](docs/api/payment-request.md)
+- [api/payment-details-init.md](docs/api/payment-details-init.md)
+- [guides/retry.md](docs/guides/retry.md#starting-a-new-attempt)
+- [W3C `PaymentRequest` constructor](https://www.w3.org/TR/payment-request/#constructor)
+
+---
+
 # FILE: docs/api/dom-exception.md
 
 # `DOMException`
@@ -1031,15 +1275,17 @@ your `methodData` array.
 
 ## How
 
-| Type | Notes |
-| --- | --- |
-| `IosPaymentMethodDataInterface` | `supportedMethods: PaymentMethodNameEnum.ApplePay` paired with an `IosPaymentMethodDataDataInterface` `data`. |
+| Type                                | Notes                                                                                                                                                                                                                                                                                                                                |
+| ----------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `IosPaymentMethodDataInterface`     | `supportedMethods: PaymentMethodNameEnum.ApplePay` paired with an `IosPaymentMethodDataDataInterface` `data`.                                                                                                                                                                                                                        |
 | `IosPaymentMethodDataDataInterface` | `merchantIdentifier`, `supportedNetworks`, `countryCode`, `currencyCode`, plus the iOS-only options in [platforms/ios.md](docs/platforms/ios.md) (`merchantCapabilities?` — [`IosPKMerchantCapability`](docs/api/ios-pk-merchant-capability.md), `shippingType`, `couponCode`, `applicationData`) and the cross-platform request flags below. |
 
 `requestBillingAddress`, `requestPayerEmail`, `requestPayerName`, `requestPayerPhone` and `requestShipping` are
 shared with [`AndroidPaymentMethodDataDataInterface`](docs/api/android-payment-method-data.md) (both extend the
 package's common `GenericPaymentMethodDataDataInterface`): each is an optional boolean that, when `true`, adds
 the matching field to the resulting `PaymentResponse` — see [api/payment-response.md](docs/api/payment-response.md).
+
+[`createApplePayMethodData`](docs/api/create-apple-pay-method-data.md) builds this entry with defaults filled in.
 
 ## Example
 
@@ -1629,16 +1875,19 @@ payment — everything else in this package (events, responses, errors) hangs of
 import { PaymentRequest } from '@rnw-community/react-native-payments';
 ```
 
-| Member | Signature | Notes |
-| --- | --- | --- |
-| constructor | `new PaymentRequest(methodData, details)` | Validates per W3C spec, then serializes platform-specific JSON for native. Throws `ConstructorError` on invalid input, `DOMException NotSupportedError` when no platform-matching method is found — see [architecture.md](docs/architecture.md). |
-| `canMakePayment()` | `(): Promise<boolean>` | iOS: PassKit `canMakePaymentsUsingNetworks:` restricted to `supportedNetworks`. Android: Google Pay `isReadyToPay` against `EnvironmentEnum.TEST` always — see [platforms/android.md](docs/platforms/android.md). Rejects `InvalidStateError` when not `created`. |
-| `hasEnrolledInstrument()` | `(): Promise<boolean>` | Android: `isReadyToPay` with `existingPaymentMethodRequired: true`, optimistic — see [platforms/android.md](docs/platforms/android.md). Rejects `InvalidStateError` when not `created`. |
-| `show()` | `(): Promise<PaymentResponse>` | Presents the sheet; single-use — see [architecture.md](docs/architecture.md). Rejects `AbortError` on user cancellation, `InvalidStateError` when not `created`. |
-| `abort()` | `(): Promise<void>` | Dismisses an interactive sheet. No effect on Android (Google Pay activity has no in-sheet dismiss). Rejects `InvalidStateError` when not `interactive`. |
-| `addEventListener` / `removeEventListener` | `(type, listener) => void` | See [guides/change-events.md](docs/guides/change-events.md). |
-| `on*` attributes | `onshippingaddresschange`, `onshippingoptionchange`, `onpaymentmethodchange`, `oncouponcodechange` | See [guides/change-events.md](docs/guides/change-events.md#event-handler-attributes). |
-| `shippingAddress`, `shippingOption`, `couponCode`, `updating`, `id` | properties | Mirror the latest change-event selection — see [guides/change-events.md](docs/guides/change-events.md#changed-values-on-the-request). |
+| Member                                                              | Signature                                                                                          | Notes                                                                                                                                                                                                                                                           |
+| ------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| constructor                                                         | `new PaymentRequest(methodData, details)`                                                          | Validates per W3C spec, then serializes platform-specific JSON for native. Throws `ConstructorError` on invalid input, `DOMException NotSupportedError` when no platform-matching method is found — see [architecture.md](docs/architecture.md).                  |
+| `canMakePayment()`                                                  | `(): Promise<boolean>`                                                                             | iOS: PassKit `canMakePaymentsUsingNetworks:` restricted to `supportedNetworks`. Android: Google Pay `isReadyToPay` against `EnvironmentEnum.TEST` always — see [platforms/android.md](docs/platforms/android.md). Rejects `InvalidStateError` when not `created`. |
+| `hasEnrolledInstrument()`                                           | `(): Promise<boolean>`                                                                             | Android: `isReadyToPay` with `existingPaymentMethodRequired: true`, optimistic — see [platforms/android.md](docs/platforms/android.md). Rejects `InvalidStateError` when not `created`.                                                                           |
+| `show()`                                                            | `(): Promise<PaymentResponse>`                                                                     | Presents the sheet; single-use — see [architecture.md](docs/architecture.md). Rejects `AbortError` on user cancellation, `InvalidStateError` when not `created`.                                                                                                  |
+| `abort()`                                                           | `(): Promise<void>`                                                                                | Dismisses an interactive sheet. No effect on Android (Google Pay activity has no in-sheet dismiss). Rejects `InvalidStateError` when not `interactive`.                                                                                                         |
+| `addEventListener` / `removeEventListener`                          | `(type, listener) => void`                                                                         | See [guides/change-events.md](docs/guides/change-events.md).                                                                                                                                                                                                      |
+| `on*` attributes                                                    | `onshippingaddresschange`, `onshippingoptionchange`, `onpaymentmethodchange`, `oncouponcodechange` | See [guides/change-events.md](docs/guides/change-events.md#event-handler-attributes).                                                                                                                                                                             |
+| `shippingAddress`, `shippingOption`, `couponCode`, `updating`, `id` | properties                                                                                         | Mirror the latest change-event selection — see [guides/change-events.md](docs/guides/change-events.md#changed-values-on-the-request).                                                                                                                             |
+
+A `PaymentRequest` is single-use — [`createPaymentRequestFactory`](docs/api/create-payment-request-factory.md) builds a fresh
+one per checkout attempt from shared configuration.
 
 `methodData` is an array of `IosPaymentMethodDataInterface` / `AndroidPaymentMethodDataInterface` entries — see
 [api/ios-payment-method-data.md](docs/api/ios-payment-method-data.md) and
@@ -2496,6 +2745,33 @@ dismisses the sheet, which would silently cancel the correction opportunity `ret
 > spec's return type without re-displaying the Google Pay sheet, matching the existing `complete()`/`abort()`
 > no-op boundary on Android.
 
+## Starting a new attempt
+
+`retry()` only corrects fields inside the sheet that is still open. Once a request has settled — the user cancelled,
+`complete(PaymentComplete.FAIL)` was called, or `show()` rejected — it is `closed` for good, and the next attempt needs
+a new `PaymentRequest`. [`createPaymentRequestFactory`](docs/api/create-payment-request-factory.md) keeps the shared
+configuration in one place, so each attempt only passes its own details:
+
+```ts
+import { PaymentComplete, createPaymentRequestFactory } from '@rnw-community/react-native-payments';
+
+import type { PaymentItem } from '@rnw-community/react-native-payments';
+
+const createPaymentRequest = createPaymentRequestFactory({ methodData });
+
+const pay = async (total: PaymentItem): Promise<boolean> => {
+    const paymentResponse = await createPaymentRequest({ total }).show();
+    const isConfirmed = await sendToYourBackend(paymentResponse.details);
+
+    await paymentResponse.complete(isConfirmed ? PaymentComplete.SUCCESS : PaymentComplete.FAIL);
+
+    return isConfirmed;
+};
+```
+
+Calling `pay(total)` again after it returns `false` or rejects builds a new request. There is no state to reset, and
+listeners are registered on the request that `createPaymentRequest` returns.
+
 ## Known deviations
 
 - **`PaymentResponse.retry()` supports at most one in-sheet correction pass, and only on iOS.** The spec
@@ -2517,6 +2793,7 @@ dismisses the sheet, which would silently cancel the correction opportunity `ret
 
 - [api/payment-response.md](docs/api/payment-response.md)
 - [api/payment-validation-errors.md](docs/api/payment-validation-errors.md)
+- [api/create-payment-request-factory.md](docs/api/create-payment-request-factory.md)
 
 ---
 

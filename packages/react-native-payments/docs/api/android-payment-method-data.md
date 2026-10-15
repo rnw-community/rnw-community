@@ -17,6 +17,8 @@ shared with [`IosPaymentMethodDataDataInterface`](./ios-payment-method-data.md) 
 common `GenericPaymentMethodDataDataInterface`): each is an optional boolean that, when `true`, adds the matching
 field to the resulting `PaymentResponse` — see [api/payment-response.md](./payment-response.md).
 
+[`createGooglePayMethodData`](./create-google-pay-method-data.md) builds this entry with defaults filled in.
+
 ## Example
 
 ```ts

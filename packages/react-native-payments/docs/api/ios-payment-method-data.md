@@ -7,15 +7,17 @@ your `methodData` array.
 
 ## How
 
-| Type | Notes |
-| --- | --- |
-| `IosPaymentMethodDataInterface` | `supportedMethods: PaymentMethodNameEnum.ApplePay` paired with an `IosPaymentMethodDataDataInterface` `data`. |
+| Type                                | Notes                                                                                                                                                                                                                                                                                                                                |
+| ----------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `IosPaymentMethodDataInterface`     | `supportedMethods: PaymentMethodNameEnum.ApplePay` paired with an `IosPaymentMethodDataDataInterface` `data`.                                                                                                                                                                                                                        |
 | `IosPaymentMethodDataDataInterface` | `merchantIdentifier`, `supportedNetworks`, `countryCode`, `currencyCode`, plus the iOS-only options in [platforms/ios.md](../platforms/ios.md) (`merchantCapabilities?` — [`IosPKMerchantCapability`](./ios-pk-merchant-capability.md), `shippingType`, `couponCode`, `applicationData`) and the cross-platform request flags below. |
 
 `requestBillingAddress`, `requestPayerEmail`, `requestPayerName`, `requestPayerPhone` and `requestShipping` are
 shared with [`AndroidPaymentMethodDataDataInterface`](./android-payment-method-data.md) (both extend the
 package's common `GenericPaymentMethodDataDataInterface`): each is an optional boolean that, when `true`, adds
 the matching field to the resulting `PaymentResponse` — see [api/payment-response.md](./payment-response.md).
+
+[`createApplePayMethodData`](./create-apple-pay-method-data.md) builds this entry with defaults filled in.
 
 ## Example
 

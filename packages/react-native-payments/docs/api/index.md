@@ -7,6 +7,7 @@ pairing the package already uses for tightly-coupled siblings (a data shape and 
 ## Core classes
 
 - [payment-request.md](./payment-request.md) — `PaymentRequest`
+- [create-payment-request-factory.md](./create-payment-request-factory.md) — `createPaymentRequestFactory`, `PaymentRequestFactoryConfig`, `PaymentRequestFactory`
 - [payment-response.md](./payment-response.md) — `PaymentResponse`
 - [ios-payment-response.md](./ios-payment-response.md) — `IosPaymentResponse`
 - [ios-pk-token.md](./ios-pk-token.md) — `IosPKToken`
@@ -48,6 +49,8 @@ pairing the package already uses for tightly-coupled siblings (a data shape and 
 
 ## Platform method data
 
+- [create-apple-pay-method-data.md](./create-apple-pay-method-data.md) — `createApplePayMethodData`, `ApplePayMethodDataOptions`
+- [create-google-pay-method-data.md](./create-google-pay-method-data.md) — `createGooglePayMethodData`, `GooglePayMethodDataOptions`
 - [android-payment-method-data.md](./android-payment-method-data.md) — `AndroidPaymentMethodDataInterface`, `AndroidPaymentMethodDataDataInterface`
 - [android-allowed-auth-methods-enum.md](./android-allowed-auth-methods-enum.md) — `AndroidAllowedAuthMethodsEnum`
 - [android-merchant-initiated-transaction-info.md](./android-merchant-initiated-transaction-info.md) — `AndroidDeferredTransactionInfo`, `AndroidRecurringTransactionInfo`, `AndroidAutomaticReloadTransactionInfo`, `AndroidRecurrencePeriodItem`, `AndroidIntroductoryPeriodInfo`, `AndroidDisplayItem`
