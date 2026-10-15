@@ -150,11 +150,19 @@ expanded-layer scale) without widening the config surface:
 Both title layers default to centered content behind a 72pt gutter that keeps the title clear of the leading and
 trailing controls. For an iOS-style leading large title, set `expandedTitleAlignment="start"`
 ([`ExpandedTitleAlignment`](#expandedtitlealignment)): the expanded title stretches from the leading edge and is padded
-by the row padding plus the slot size on the side of each non-empty slot, so it never sits under a control and uses the
-space of an empty slot. The collapsed title stays centered.
+by the row padding plus the default 44pt slot size on the side of each non-empty slot, so it clears standard icon
+controls and uses the space of an empty slot. The collapsed title stays centered. The reserve is static, not measured:
+a control wider than 44pt (a text button, or a slot resized through `style`) needs a matching `paddingStart`/`paddingEnd`
+in `expandedContentContainerStyle`.
 
 ```tsx
 <CollapsibleHeader expandedTitleAlignment="start">{/* slots */}</CollapsibleHeader>
+
+const { rowPadding } = SCREEN_CHROME_HEADER_LAYOUT_METRICS;
+
+<CollapsibleHeader expandedTitleAlignment="start" expandedContentContainerStyle={{ paddingStart: rowPadding + 72 }}>
+    {/* a 72pt-wide "Cancel" leading slot */}
+</CollapsibleHeader>;
 ```
 
 `expandedContentContainerStyle`, `collapsedContentContainerStyle` and `persistentContentContainerStyle` are forwarded to
