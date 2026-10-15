@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [2.26.0](https://github.com/rnw-community/rnw-community/compare/v2.25.0...v2.26.0) (2026-10-15)
+
+### Features
+
+- **react-native-payments:** support Google Pay merchant-initiated transaction info ([#658](https://github.com/rnw-community/rnw-community/issues/658)) ([b6763ed](https://github.com/rnw-community/rnw-community/commit/b6763ed7b8f6895db7a928ad170db343171461c5))
+
 # [2.25.0](https://github.com/rnw-community/rnw-community/compare/v2.24.1...v2.25.0) (2026-10-15)
 
 ### Features
