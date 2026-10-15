@@ -4,7 +4,7 @@
  * @see https://developers.google.com/pay/api/android/reference/request-objects#TransactionInfo
  */
 export interface AndroidTransactionInfo {
-    checkoutOption?: 'COMPLETE_IMMEDIATE_PURCHASE' | 'DEFAULT';
+    checkoutOption?: 'COMPLETE_IMMEDIATE_PURCHASE' | 'CONTINUE_TO_REVIEW' | 'DEFAULT';
     countryCode?: string;
     currencyCode: string;
     totalPrice: string;

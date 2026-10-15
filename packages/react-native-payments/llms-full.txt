@@ -206,12 +206,11 @@ options reference.
 ```js
 export default {
     plugins: [
-        ...
-        [
-            "@rnw-community/react-native-payments/app.plugin",
+        ...[
+            '@rnw-community/react-native-payments/app.plugin',
             {
-                "merchantIdentifier": "merchant.react-native-payments"
-            }
+                merchantIdentifier: 'merchant.react-native-payments',
+            },
         ],
     ],
 };
@@ -322,13 +321,14 @@ dependencies {
 
 - `environment` (`EnvironmentEnum`) selects the Google Pay environment for the payment; see
   [api/environment-enum.md](docs/api/environment-enum.md).
-- `totalPriceStatus` describes how the total price will change: `'FINAL'` (default), `'ESTIMATED'` or
-  `'NOT_CURRENTLY_KNOWN'`. A zero total amount (`'0.00'`) is valid per the W3C spec and can be combined with a
-  non-final status when the price is not known upfront. See
+- `totalPriceStatus` describes how the total price will change: `'FINAL'` (default) or `'ESTIMATED'`. A zero total
+  amount (`'0.00'`) is valid per the W3C spec. `'NOT_CURRENTLY_KNOWN'` is still accepted by the type for backwards compatibility,
+  but Google's current `TransactionInfo` reference only lists `'ESTIMATED'` and `'FINAL'` — for a charge whose amount
+  is not known at checkout, use a [merchant-initiated transaction](#merchant-initiated-transactions) instead. See
   [TransactionInfo](https://developers.google.com/pay/api/android/reference/request-objects#TransactionInfo).
-- `checkoutOption` selects the payment sheet submit behavior: `'DEFAULT'` or `'COMPLETE_IMMEDIATE_PURCHASE'`.
-  Google Pay only allows `'COMPLETE_IMMEDIATE_PURCHASE'` together with the `'FINAL'` `totalPriceStatus`, so the
-  constructor throws on any other combination.
+- `checkoutOption` selects the payment sheet submit button: `'DEFAULT'`, `'COMPLETE_IMMEDIATE_PURCHASE'` ("Pay now")
+  or `'CONTINUE_TO_REVIEW'` ("Review Order"). Google Pay only allows `'COMPLETE_IMMEDIATE_PURCHASE'` together with the
+  `'FINAL'` `totalPriceStatus`, so the constructor throws on any other combination.
 - `transactionId` correlates the payment attempt in Google Pay transaction events.
 - `allowedAuthMethods` (`AndroidAllowedAuthMethodsEnum`) defaults to both `PAN_ONLY` and `CRYPTOGRAM_3DS` when
   omitted. See [api/android-payment-method-data.md](docs/api/android-payment-method-data.md).
@@ -339,8 +339,25 @@ dependencies {
 - `hasEnrolledInstrument()` calls Google Pay's `isReadyToPay` with `existingPaymentMethodRequired: true`. See
   [Known deviations](#known-deviations).
 
+### Merchant-initiated transactions
+
+For pre-orders, bookings, subscriptions and automatic reloads, set exactly one of `deferredTransactionInfo`,
+`recurringTransactionInfo` or `automaticReloadTransactionInfo` on the Android `methodData.data`. The package sends it in
+place of `transactionInfo`, with `details.total` as the `immediateTotalPrice` due today (`'0.00'` allowed) and
+`currencyCode`, `countryCode` (required) and `transactionId` taken from the method data. It cannot be combined with
+`checkoutOption` or `totalPriceStatus`. See
+[api/android-merchant-initiated-transaction-info.md](docs/api/android-merchant-initiated-transaction-info.md).
+
 ## Known deviations
 
+- **`canMakePayment()`/`hasEnrolledInstrument()`/`show()` resolve gracefully without Google Play
+  Services.** `GoogleApiAvailability.isGooglePlayServicesAvailable()` is checked before the chained
+  `isReadyToPay()`/`loadPaymentData()` call that actually reaches into Play services —
+  `Wallet.getPaymentsClient(...)` itself never fails on its own. On a device where Play Services is
+  missing or invalid, Play Services would otherwise turn that chained call into a blocking,
+  unrecoverable system dialog over the whole screen instead of failing the promise; the guard
+  reports AndroidPay as unsupported instead, so `canMakePayment()`/`hasEnrolledInstrument()`
+  resolve `false` and `show()` rejects like any other unsupported configuration.
 - **Change events are a no-op.** Google Pay renders its sheet in its own activity and never asks the app for an
   in-sheet update, so `addEventListener` can be called but a registered listener never fires on Android. See
   [guides/change-events.md](docs/guides/change-events.md).
@@ -448,11 +465,11 @@ remains, prebuild fails with an error:
 
 ## Plugin options reference
 
-| Option | Type | Default | What it mutates |
-| --- | --- | --- | --- |
-| `merchantIdentifier` | `string \| string[]` | *(required)* | iOS entitlements plist: appends every non-empty identifier to `com.apple.developer.in-app-payments`, de-duplicated. Throws at prebuild time if no non-empty identifier is provided. |
-| `supportedNetworks` | `SupportedNetworkEnum[]` | every `SupportedNetworkEnum` value | Android `AndroidManifest.xml`: writes the comma-joined list as the `com.rnw-community.react-native-payments.supported-networks` meta-data value on the main application. Throws if given an empty array or a value outside `SupportedNetworkEnum`. |
-| `googlePayEnvironment` | `EnvironmentEnum` | `EnvironmentEnum.PRODUCTION` | Android `AndroidManifest.xml`: writes the `com.google.android.gms.wallet.api.environment` meta-data value on the main application. Throws if given a value outside `EnvironmentEnum`. |
+| Option                 | Type                     | Default                            | What it mutates                                                                                                                                                                                                                                    |
+| ---------------------- | ------------------------ | ---------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `merchantIdentifier`   | `string \| string[]`     | _(required)_                       | iOS entitlements plist: appends every non-empty identifier to `com.apple.developer.in-app-payments`, de-duplicated. Throws at prebuild time if no non-empty identifier is provided.                                                                |
+| `supportedNetworks`    | `SupportedNetworkEnum[]` | every `SupportedNetworkEnum` value | Android `AndroidManifest.xml`: writes the comma-joined list as the `com.rnw-community.react-native-payments.supported-networks` meta-data value on the main application. Throws if given an empty array or a value outside `SupportedNetworkEnum`. |
+| `googlePayEnvironment` | `EnvironmentEnum`        | `EnvironmentEnum.PRODUCTION`       | Android `AndroidManifest.xml`: writes the `com.google.android.gms.wallet.api.environment` meta-data value on the main application. Throws if given a value outside `EnvironmentEnum`.                                                              |
 
 `withGooglePay` also always writes `com.google.android.gms.wallet.api.enabled=true` (no option needed) so the
 Google Pay API is enabled for the app. `SupportedNetworkEnum` and `EnvironmentEnum` are both exported from the
@@ -526,6 +543,7 @@ pairing the package already uses for tightly-coupled siblings (a data shape and 
 
 - [android-payment-method-data.md](docs/api/android-payment-method-data.md) — `AndroidPaymentMethodDataInterface`, `AndroidPaymentMethodDataDataInterface`
 - [android-allowed-auth-methods-enum.md](docs/api/android-allowed-auth-methods-enum.md) — `AndroidAllowedAuthMethodsEnum`
+- [android-merchant-initiated-transaction-info.md](docs/api/android-merchant-initiated-transaction-info.md) — `AndroidDeferredTransactionInfo`, `AndroidRecurringTransactionInfo`, `AndroidAutomaticReloadTransactionInfo`, `AndroidRecurrencePeriodItem`, `AndroidIntroductoryPeriodInfo`, `AndroidDisplayItem`
 - [ios-payment-method-data.md](docs/api/ios-payment-method-data.md) — `IosPaymentMethodDataInterface`, `IosPaymentMethodDataDataInterface`
 - [ios-pk-merchant-capability.md](docs/api/ios-pk-merchant-capability.md) — `IosPKMerchantCapability`
 
@@ -569,6 +587,106 @@ None — narrowing this list only restricts which cards Google Pay offers; it do
 
 ---
 
+# FILE: docs/api/android-merchant-initiated-transaction-info.md
+
+# `AndroidDeferredTransactionInfo` / `AndroidRecurringTransactionInfo` / `AndroidAutomaticReloadTransactionInfo`
+
+Also covers the nested `AndroidRecurrencePeriodItem`, `AndroidIntroductoryPeriodInfo` and `AndroidDisplayItem` shapes.
+
+## What & why
+
+Google Pay's merchant-initiated transaction (MIT) objects describe a payment the merchant charges later instead of a
+regular checkout: a pre-order or a booking (`deferredTransactionInfo`), a subscription (`recurringTransactionInfo`), or
+a stored-value automatic reload (`automaticReloadTransactionInfo`). Reach for them when the amount charged at
+checkout differs from what the user is agreeing to be charged in the future — for example a `'0.00'` hotel
+reservation that is charged on the arrival date.
+
+## How
+
+Set exactly one of the three objects on the Android entry of `methodData.data`. The package sends it to Google Pay in
+place of the regular `transactionInfo` and fills the fields it already owns:
+
+| `PaymentDataRequest` field | Filled from                                                                                                                  |
+| -------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
+| `currencyCode`             | `methodData.data.currencyCode`                                                                                               |
+| `countryCode`              | `methodData.data.countryCode` — required by Google Pay for every MIT object                                                  |
+| `transactionId`            | `methodData.data.transactionId`, when set                                                                                    |
+| `immediateTotalPrice`      | `details.total.amount.value` after [modifiers](docs/guides/modifiers.md) are resolved — the amount due today, `'0.00'` allowed |
+
+Everything else comes from the object you supply:
+
+| Type                                    | Fields                                                                                                                                                                                   |
+| --------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `AndroidDeferredTransactionInfo`        | `billingDateTime` (RFC 3339, in the future), `label`, `priceStatus` + `price`, `displayItems?`                                                                                           |
+| `AndroidRecurringTransactionInfo`       | `recurrenceItems` (non-empty `AndroidRecurrencePeriodItem[]`), `introductoryPeriodInfo?` (`AndroidIntroductoryPeriodInfo`)                                                               |
+| `AndroidAutomaticReloadTransactionInfo` | `label`, `minimumBalanceAmount`, `reloadAmount`                                                                                                                                          |
+| `AndroidRecurrencePeriodItem`           | `label`, `priceStatus` + `price`, `recurrencePeriod` (`'DAY'`/`'WEEK'`/`'MONTH'`/`'YEAR'`), `recurrencePeriodCount`, `billingInitialDateTime?`, `billingFinalDateTime?`, `displayItems?` |
+| `AndroidIntroductoryPeriodInfo`         | `introductoryPeriodEndDateTime`, `label`, `totalPrice`, `introductoryPeriodStartDateTime?`, `displayItems?`                                                                              |
+| `AndroidDisplayItem`                    | `label`, `price`, `type` (`'DISCOUNT'`/`'LINE_ITEM'`/`'SHIPPING_OPTION'`/`'SUBTOTAL'`/`'TAX'`), `status?`                                                                                |
+
+The three MIT objects also accept `tokenUpdateUrl?`, `managementUrl?`, `billingAgreement?` and
+`immediateDisplayItems?` (`AndroidDisplayItem[]`). `priceStatus` is `'FINAL'` or `'ESTIMATED'` together with a
+`price`, or `'NOT_CURRENTLY_KNOWN'` without one — the type rejects any other pairing.
+
+| Platform | Behavior                                                          |
+| -------- | ----------------------------------------------------------------- |
+| Android  | Serialized into the `PaymentDataRequest` as documented by Google. |
+| iOS      | Not applicable — the fields live on the Android method data only. |
+
+## Example
+
+```ts
+import {
+    EnvironmentEnum,
+    PaymentMethodNameEnum,
+    PaymentRequest,
+    SupportedNetworkEnum,
+} from '@rnw-community/react-native-payments';
+
+const request = new PaymentRequest(
+    [
+        {
+            supportedMethods: PaymentMethodNameEnum.AndroidPay,
+            data: {
+                supportedNetworks: [SupportedNetworkEnum.Visa, SupportedNetworkEnum.Mastercard],
+                environment: EnvironmentEnum.TEST,
+                countryCode: 'US',
+                currencyCode: 'USD',
+                gatewayConfig: { gateway: 'example', gatewayMerchantId: 'exampleGatewayMerchantId' },
+                deferredTransactionInfo: {
+                    billingDateTime: '2026-12-01T08:00:00Z',
+                    label: 'Hotel Room Reservation',
+                    priceStatus: 'FINAL',
+                    price: '200.00',
+                },
+            },
+        },
+    ],
+    { total: { label: 'Due today', amount: { currency: 'USD', value: '0.00' } } }
+);
+```
+
+## Pitfalls
+
+- The constructor throws a `ConstructorError` when more than one MIT object is set, when `countryCode` is missing,
+  or when an MIT object is combined with `checkoutOption` or `totalPriceStatus` — those two only exist on the regular
+  `transactionInfo` that the MIT object replaces.
+- Google Pay documents MIT objects for merchant-initiated transactions only and does not support dynamic price
+  updates for them. Your gateway must also support MIT tokens — confirm with it before going live.
+- `tokenUpdateUrl` and `managementUrl` must be HTTPS endpoints with no trailing slash, query parameters or fragment.
+
+## References
+
+- [Google Pay Android `PaymentDataRequest`](https://developers.google.com/pay/api/android/reference/request-objects#PaymentDataRequest)
+- [Google Pay `DeferredTransactionInfo`](https://developers.google.com/pay/api/android/reference/request-objects#DeferredTransactionInfo),
+  [`RecurringTransactionInfo`](https://developers.google.com/pay/api/android/reference/request-objects#RecurringTransactionInfo),
+  [`AutomaticReloadTransactionInfo`](https://developers.google.com/pay/api/android/reference/request-objects#AutomaticReloadTransactionInfo)
+- [Google Pay merchant-initiated transactions guide](https://developers.google.com/pay/api/web/guides/resources/merchant-initiated-transactions)
+- [api/android-payment-method-data.md](docs/api/android-payment-method-data.md)
+- [platforms/android.md](docs/platforms/android.md)
+
+---
+
 # FILE: docs/api/android-payment-method-data.md
 
 # `AndroidPaymentMethodDataInterface` / `AndroidPaymentMethodDataDataInterface`
@@ -580,10 +698,10 @@ your `methodData` array.
 
 ## How
 
-| Type | Notes |
-| --- | --- |
-| `AndroidPaymentMethodDataInterface` | `supportedMethods: PaymentMethodNameEnum.AndroidPay` paired with an `AndroidPaymentMethodDataDataInterface` `data`. |
-| `AndroidPaymentMethodDataDataInterface` | `supportedNetworks`, `environment`, `countryCode?`, `currencyCode`, exactly one of `gatewayConfig` (`{ gateway, gatewayMerchantId }`) or `directConfig` (`{ protocolVersion, publicKey }`) — the type forbids supplying both, `allowedAuthMethods?` ([`AndroidAllowedAuthMethodsEnum`](docs/api/android-allowed-auth-methods-enum.md)), `totalPriceStatus?`, `checkoutOption?`, `transactionId?` — see [platforms/android.md](docs/platforms/android.md) for every field. |
+| Type                                    | Notes                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
+| --------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `AndroidPaymentMethodDataInterface`     | `supportedMethods: PaymentMethodNameEnum.AndroidPay` paired with an `AndroidPaymentMethodDataDataInterface` `data`.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
+| `AndroidPaymentMethodDataDataInterface` | `supportedNetworks`, `environment`, `countryCode?`, `currencyCode`, exactly one of `gatewayConfig` (`{ gateway, gatewayMerchantId }`) or `directConfig` (`{ protocolVersion, publicKey }`) — the type forbids supplying both, `allowedAuthMethods?` ([`AndroidAllowedAuthMethodsEnum`](docs/api/android-allowed-auth-methods-enum.md)), `totalPriceStatus?`, `checkoutOption?`, `transactionId?`, at most one of `deferredTransactionInfo?` / `recurringTransactionInfo?` / `automaticReloadTransactionInfo?` ([merchant-initiated transactions](docs/api/android-merchant-initiated-transaction-info.md)) — see [platforms/android.md](docs/platforms/android.md) for every field. |
 
 `requestBillingAddress`, `requestPayerEmail`, `requestPayerName`, `requestPayerPhone` and `requestShipping` are
 shared with [`IosPaymentMethodDataDataInterface`](docs/api/ios-payment-method-data.md) (both extend the package's
@@ -609,6 +727,9 @@ const androidMethod: AndroidPaymentMethodDataInterface = {
 
 - `checkoutOption: 'COMPLETE_IMMEDIATE_PURCHASE'` is only allowed together with `totalPriceStatus: 'FINAL'` —
   the constructor throws on any other combination. See [platforms/android.md](docs/platforms/android.md).
+- A merchant-initiated transaction object replaces `transactionInfo`, so it cannot be combined with
+  `checkoutOption` or `totalPriceStatus`, and it requires `countryCode` — the constructor throws otherwise. See
+  [api/android-merchant-initiated-transaction-info.md](docs/api/android-merchant-initiated-transaction-info.md).
 - `countryCode` is optional on this interface (unlike the required `countryCode` on the iOS side) — omitting it
   is valid TypeScript, but Google Pay's own requirements for your merchant configuration may still need it set.
 - `gatewayConfig` and `directConfig` are mutually exclusive at the type level (`{ directConfig; gatewayConfig?: never } | { directConfig?: never; gatewayConfig }`) — providing both, or neither, is a type error.
@@ -618,6 +739,7 @@ const androidMethod: AndroidPaymentMethodDataInterface = {
 - [platforms/android.md](docs/platforms/android.md)
 - [api/payment-method-name-enum.md](docs/api/payment-method-name-enum.md)
 - [api/android-allowed-auth-methods-enum.md](docs/api/android-allowed-auth-methods-enum.md)
+- [api/android-merchant-initiated-transaction-info.md](docs/api/android-merchant-initiated-transaction-info.md)
 
 ---
 
@@ -2586,21 +2708,21 @@ the concrete API surface so an existing integration can be ported.
 
 ## API mapping
 
-| Upstream (`react-native-payments`) | This package (`@rnw-community/react-native-payments`) | Notes |
-| --- | --- | --- |
-| `npm install react-native-payments` + `react-native link` | `npm install @rnw-community/react-native-payments` | Autolinked TurboModule — no manual linking step. See [getting-started/install.md](docs/getting-started/install.md). |
-| `global.PaymentRequest = require('react-native-payments').PaymentRequest;` | `import { PaymentRequest } from '@rnw-community/react-native-payments';` | No global polyfill; import the class where you use it. |
-| `supportedMethods: ['apple-pay']` / `['android-pay']` (string) | `supportedMethods: PaymentMethodNameEnum.ApplePay` / `PaymentMethodNameEnum.AndroidPay` (enum) | Same runtime values, typed. |
-| `new PaymentRequest(methodData, details, options)` — 3rd arg `options.requestPayerName` etc. | `new PaymentRequest(methodData, details)` — payer/shipping flags live on each entry's `methodData.data` | No top-level `options` object. See [api/payment-request.md](docs/api/payment-request.md). |
-| `paymentRequest.show()`, reusable after a rejection | `paymentRequest.show()` — **single-use**, `closed` once it settles | See [architecture.md](docs/architecture.md) and [migrate-from-v2.md](docs/guides/migrate-from-v2.md). |
-| `paymentRequest.abort()` | `paymentRequest.abort()` | Same name, TurboModule-backed, spec-mapped `DOMException` on misuse. |
-| `addEventListener('shippingaddresschange' \| 'shippingoptionchange', e => e.updateWith(...))` | Same two, plus `paymentmethodchange` and the PassKit-only `couponcodechange` | Request-scoped native events, `isAnswered`, field-level errors. See [change-events.md](docs/guides/change-events.md). |
-| `paymentResponse.details.paymentData` / `transactionIdentifier` (iOS) | `paymentResponse.details.applePayToken` (`IosPKToken`) | One typed token object instead of loose fields. |
-| `paymentResponse.details.getPaymentToken()` (Android, async) / `.paymentToken` (gateway) | `paymentResponse.details.androidPayToken` (`AndroidPaymentMethodToken`) | Synchronous typed field; no async indirection, no built-in gateway token. |
-| `paymentResponse.complete('success' \| 'fail' \| 'unknown')` (string) | `paymentResponse.complete(PaymentComplete.SUCCESS \| PaymentComplete.FAIL \| PaymentComplete.UNKNOWN)` (enum) | Same three outcomes, typed — see [api/payment-complete-enum.md](docs/api/payment-complete-enum.md). |
-| Built-in Stripe / Braintree add-on packages | Removed — bring your own gateway via `gatewayConfig` (Android) or the raw token (iOS) | Stripe/Braintree already ship their own maintained RN SDKs. |
-| Untyped JS, legacy bridge module | Full TypeScript, TurboModule (New Architecture-ready) | See [architecture.md](docs/architecture.md). |
-| Ad-hoc thrown errors, no stable identity | Spec-mapped `ConstructorError` / `DOMException` / `PaymentsError` | See [errors.md](docs/guides/errors.md). |
+| Upstream (`react-native-payments`)                                                            | This package (`@rnw-community/react-native-payments`)                                                         | Notes                                                                                                             |
+| --------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------- |
+| `npm install react-native-payments` + `react-native link`                                     | `npm install @rnw-community/react-native-payments`                                                            | Autolinked TurboModule — no manual linking step. See [getting-started/install.md](docs/getting-started/install.md). |
+| `global.PaymentRequest = require('react-native-payments').PaymentRequest;`                    | `import { PaymentRequest } from '@rnw-community/react-native-payments';`                                      | No global polyfill; import the class where you use it.                                                            |
+| `supportedMethods: ['apple-pay']` / `['android-pay']` (string)                                | `supportedMethods: PaymentMethodNameEnum.ApplePay` / `PaymentMethodNameEnum.AndroidPay` (enum)                | Same runtime values, typed.                                                                                       |
+| `new PaymentRequest(methodData, details, options)` — 3rd arg `options.requestPayerName` etc.  | `new PaymentRequest(methodData, details)` — payer/shipping flags live on each entry's `methodData.data`       | No top-level `options` object. See [api/payment-request.md](docs/api/payment-request.md).                           |
+| `paymentRequest.show()`, reusable after a rejection                                           | `paymentRequest.show()` — **single-use**, `closed` once it settles                                            | See [architecture.md](docs/architecture.md) and [migrate-from-v2.md](docs/guides/migrate-from-v2.md).                         |
+| `paymentRequest.abort()`                                                                      | `paymentRequest.abort()`                                                                                      | Same name, TurboModule-backed, spec-mapped `DOMException` on misuse.                                              |
+| `addEventListener('shippingaddresschange' \| 'shippingoptionchange', e => e.updateWith(...))` | Same two, plus `paymentmethodchange` and the PassKit-only `couponcodechange`                                  | Request-scoped native events, `isAnswered`, field-level errors. See [change-events.md](docs/guides/change-events.md).       |
+| `paymentResponse.details.paymentData` / `transactionIdentifier` (iOS)                         | `paymentResponse.details.applePayToken` (`IosPKToken`)                                                        | One typed token object instead of loose fields.                                                                   |
+| `paymentResponse.details.getPaymentToken()` (Android, async) / `.paymentToken` (gateway)      | `paymentResponse.details.androidPayToken` (`AndroidPaymentMethodToken`)                                       | Synchronous typed field; no async indirection, no built-in gateway token.                                         |
+| `paymentResponse.complete('success' \| 'fail' \| 'unknown')` (string)                         | `paymentResponse.complete(PaymentComplete.SUCCESS \| PaymentComplete.FAIL \| PaymentComplete.UNKNOWN)` (enum) | Same three outcomes, typed — see [api/payment-complete-enum.md](docs/api/payment-complete-enum.md).                 |
+| Built-in Stripe / Braintree add-on packages                                                   | Removed — bring your own gateway via `gatewayConfig` (Android) or the raw token (iOS)                         | Stripe/Braintree already ship their own maintained RN SDKs.                                                       |
+| Untyped JS, legacy bridge module                                                              | Full TypeScript, TurboModule (New Architecture-ready)                                                         | See [architecture.md](docs/architecture.md).                                                                        |
+| Ad-hoc thrown errors, no stable identity                                                      | Spec-mapped `ConstructorError` / `DOMException` / `PaymentsError`                                             | See [errors.md](docs/guides/errors.md).                                                                                     |
 
 ## Worked example
 

@@ -7,10 +7,10 @@ your `methodData` array.
 
 ## How
 
-| Type | Notes |
-| --- | --- |
-| `AndroidPaymentMethodDataInterface` | `supportedMethods: PaymentMethodNameEnum.AndroidPay` paired with an `AndroidPaymentMethodDataDataInterface` `data`. |
-| `AndroidPaymentMethodDataDataInterface` | `supportedNetworks`, `environment`, `countryCode?`, `currencyCode`, exactly one of `gatewayConfig` (`{ gateway, gatewayMerchantId }`) or `directConfig` (`{ protocolVersion, publicKey }`) — the type forbids supplying both, `allowedAuthMethods?` ([`AndroidAllowedAuthMethodsEnum`](./android-allowed-auth-methods-enum.md)), `totalPriceStatus?`, `checkoutOption?`, `transactionId?` — see [platforms/android.md](../platforms/android.md) for every field. |
+| Type                                    | Notes                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
+| --------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `AndroidPaymentMethodDataInterface`     | `supportedMethods: PaymentMethodNameEnum.AndroidPay` paired with an `AndroidPaymentMethodDataDataInterface` `data`.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
+| `AndroidPaymentMethodDataDataInterface` | `supportedNetworks`, `environment`, `countryCode?`, `currencyCode`, exactly one of `gatewayConfig` (`{ gateway, gatewayMerchantId }`) or `directConfig` (`{ protocolVersion, publicKey }`) — the type forbids supplying both, `allowedAuthMethods?` ([`AndroidAllowedAuthMethodsEnum`](./android-allowed-auth-methods-enum.md)), `totalPriceStatus?`, `checkoutOption?`, `transactionId?`, at most one of `deferredTransactionInfo?` / `recurringTransactionInfo?` / `automaticReloadTransactionInfo?` ([merchant-initiated transactions](./android-merchant-initiated-transaction-info.md)) — see [platforms/android.md](../platforms/android.md) for every field. |
 
 `requestBillingAddress`, `requestPayerEmail`, `requestPayerName`, `requestPayerPhone` and `requestShipping` are
 shared with [`IosPaymentMethodDataDataInterface`](./ios-payment-method-data.md) (both extend the package's
@@ -36,6 +36,9 @@ const androidMethod: AndroidPaymentMethodDataInterface = {
 
 - `checkoutOption: 'COMPLETE_IMMEDIATE_PURCHASE'` is only allowed together with `totalPriceStatus: 'FINAL'` —
   the constructor throws on any other combination. See [platforms/android.md](../platforms/android.md).
+- A merchant-initiated transaction object replaces `transactionInfo`, so it cannot be combined with
+  `checkoutOption` or `totalPriceStatus`, and it requires `countryCode` — the constructor throws otherwise. See
+  [api/android-merchant-initiated-transaction-info.md](./android-merchant-initiated-transaction-info.md).
 - `countryCode` is optional on this interface (unlike the required `countryCode` on the iOS side) — omitting it
   is valid TypeScript, but Google Pay's own requirements for your merchant configuration may still need it set.
 - `gatewayConfig` and `directConfig` are mutually exclusive at the type level (`{ directConfig; gatewayConfig?: never } | { directConfig?: never; gatewayConfig }`) — providing both, or neither, is a type error.
@@ -45,3 +48,4 @@ const androidMethod: AndroidPaymentMethodDataInterface = {
 - [platforms/android.md](../platforms/android.md)
 - [api/payment-method-name-enum.md](./payment-method-name-enum.md)
 - [api/android-allowed-auth-methods-enum.md](./android-allowed-auth-methods-enum.md)
+- [api/android-merchant-initiated-transaction-info.md](./android-merchant-initiated-transaction-info.md)
