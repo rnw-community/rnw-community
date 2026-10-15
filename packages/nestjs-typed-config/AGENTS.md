@@ -15,6 +15,7 @@ src/
   index.ts                          — barrel: module, service
   env.type.ts                       — EnvType<T, K extends keyof T> = T[K] (indexed access utility type)
   nest-js-typed-config.module.ts    — NestJSTypedConfigModule.create<Enum, C>(joiSchema)
+  create-joi-config-validator/      — internal: Joi schema -> ConfigModule `validate` callback (not exported)
   nest-js-typed-config.service.ts   — NestJSTypedConfigService<EnvEnum, EnvTypes, EnvKeys>
 ```
 
@@ -22,10 +23,16 @@ src/
 
 - `NestJSTypedConfigModule.create<Enum extends string, C extends Record<Enum, boolean | number | string>>(joiSchema:
 Joi.ObjectSchema<C>)` declares an inline `class Service extends NestJSTypedConfigService<Enum, C, Extract<keyof C,
-string>>` with no constructor override, wires `ConfigModule.forRoot({ cache: true, validationSchema: joiSchema,
-validationOptions: { abortEarly: false }, isGlobal: true })`, and returns `[DynamicModule, Type<Service>]` — the
+string>>` with no constructor override, wires `ConfigModule.forRoot({ cache: true, validate: createJoiConfigValidator(joiSchema),
+isGlobal: true })`, and returns `[DynamicModule, Type<Service>]` — the
   returned `DynamicModule` itself also sets `global: true`, so the module is global on two levels: NestJS's own
   `ConfigModule` and this module's own `providers`/`exports`
+- `createJoiConfigValidator(joiSchema)` (`src/create-joi-config-validator/`) runs `joiSchema.validate(config,
+  { abortEarly: false, allowUnknown: true })` itself and throws `Error('Config validation error: <joi message>')` —
+  exactly what `@nestjs/config` 4's built-in Joi path did. Validation goes through the major-agnostic `validate`
+  callback instead of `validationSchema` because `@nestjs/config` 12 switched `validationSchema` to Standard Schema
+  (Joi 18+ only, options moved under `validationOptions.libraryOptions`); the callback keeps Joi 17 working and keeps
+  coercion/defaults/unknown-key/aggregated-error behaviour identical on config 4 and config 12
 - `abortEarly: false` means Joi validation reports every failing env var at once instead of stopping at the first
   failure
 - `NestJSTypedConfigService.get<T extends EnvKeys>(envVariable)` checks `envCache` (a `Map`) first; a cache hit
@@ -45,8 +52,9 @@ validationOptions: { abortEarly: false }, isGlobal: true })`, and returns `[Dyna
 
 ### Dependencies
 
-Peers: `@nestjs/common`, `@nestjs/config`, `joi` (all declared in both `devDependencies` and `peerDependencies`, plus
-`@types/hapi__joi` as a type-only devDependency). Direct dependency: `@rnw-community/shared` (`isNotEmptyString`, used
+Peers: `@nestjs/common` (`^11.1.28 || ^12.0.0`), `@nestjs/config` (`^4.0.4 || ^12.0.1`), `joi` (all declared in both
+`devDependencies` and `peerDependencies`, plus `@types/hapi__joi` as a type-only devDependency and `@nestjs/core` as a
+devDependency for the application-context bootstrap spec). Direct dependency: `@rnw-community/shared` (`isNotEmptyString`, used
 in production `src`).
 
 ### Coverage

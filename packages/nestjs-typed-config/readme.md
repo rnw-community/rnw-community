@@ -13,6 +13,17 @@ Install additional peer dependencies:
 -   [@nestjs/config](https://github.com/nestjs/config)
 -   [joi](https://github.com/sideway/joi)
 
+Supported combinations:
+
+| `@nestjs/common` | `@nestjs/config` | `joi`                 |
+| ---------------- | ---------------- | --------------------- |
+| `^11.1.28`       | `^4.0.4`         | `^17.1.1 \|\| ^18.2.5` |
+| `^12.0.0`        | `^12.0.1`        | `^17.1.1 \|\| ^18.2.5` |
+
+The Joi schema is validated by this package itself (all errors reported at once, unknown variables allowed, values
+coerced and defaulted) and handed to `ConfigModule.forRoot` through its `validate` callback, so behaviour is identical on
+both config majors and does not depend on `@nestjs/config` 12's Standard Schema support.
+
 ## Exports
 
 ### `NestJSTypedConfigModule`

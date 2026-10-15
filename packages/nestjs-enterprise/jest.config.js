@@ -1,1 +1,1 @@
-module.exports = require('../../get-jest.config.js')('nestjs-enterprise');
+module.exports = require('../../get-jest.config.js')('nestjs-enterprise', undefined, ['@nestjs']);

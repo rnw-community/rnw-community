@@ -11,7 +11,8 @@ NestJS prometheus metrics wrapper for using with RxJS streams with full TypeScri
 Install additional peer dependencies:
 
 -   [prom-client](https://github.com/siimon/prom-client)
--   [nestjs-prometheus](https://github.com/willsoto/nestjs-prometheus)
+-   [nestjs-prometheus](https://github.com/willsoto/nestjs-prometheus) `^6.0.0` (NestJS 12 requires `>=6.1.1`; the
+    `7.x` line moved from `prom-client` to `@prometheus-io/client` and is not supported yet)
 
 ## Configuration
 
