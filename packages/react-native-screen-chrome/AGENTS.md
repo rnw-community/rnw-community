@@ -45,6 +45,13 @@ pnpm test && pnpm test:coverage && pnpm build && pnpm ts && pnpm ts:nodenext && 
 - The generic `motion` mapping omits `pointerEventsSwitchProgress` on purpose so the primitive derives it from the
   cross-fade midpoint of the mapped `smallTitleStart`/`largeTitleEnd` windows; pinning it to a fixed progress hands
   pointer events and the accessibility tree to a title layer that is still transparent.
+- The `@rnw-community/react-native-collapsible-header` peer floor is `>=2.18.0`: the derived
+  `pointerEventsSwitchProgress` default (2.17.3) and `syncNativeScrollOffset` (2.18.0) are both load-bearing, and an
+  older primitive accepts the props silently while reintroducing the transparent-layer pointer handoff.
+- Header slots are `pointerEvents="box-none"`: the slot box defaults to a 44pt minimum for layout, but only its
+  children receive touches, so an empty or narrow slot never swallows taps meant for the layers underneath. The
+  consumer `style` merges last on purpose — it is the sizing escape hatch, so a consumer that overrides `minWidth`/
+  `minHeight` owns the touch-target size of the control it renders.
 - The `expo-blur` peer floor is `>=55`: `blurMethod` and the `BlurMethod` type only exist from that release (it renamed
   `experimentalBlurMethod`), and the same release made `dimezisBlurView` require a `BlurTargetView`. `EdgeFade`
   therefore defaults `blurMethod` from `blurTarget` presence rather than hard-coding a targeted method.
