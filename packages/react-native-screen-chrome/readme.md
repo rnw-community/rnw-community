@@ -311,6 +311,10 @@ horizontal padding:
 <ScreenChromeScrollView contentInsetMode="additive" contentInsetTop={96} contentContainerStyle={{ paddingTop: 8 }} />
 ```
 
+The scroll view also sets `scrollIndicatorInsets` to the same safe-area+chrome top and bottom insets (with
+`automaticallyAdjustsScrollIndicatorInsets={false}`), so the iOS scroll indicator never runs under the header or the
+bottom inset; pass either prop to override it.
+
 Change the event rate through
 `<ScreenChromeProvider config={{ scrollEventThrottle: 8 }}>`. The provider's `onScroll` is one processed Reanimated
 handler that also carries drag and snap events, so it is attached whole rather than wrapped — read the scroll position
