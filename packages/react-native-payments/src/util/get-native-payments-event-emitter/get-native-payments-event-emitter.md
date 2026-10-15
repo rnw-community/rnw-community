@@ -15,7 +15,7 @@ subscription?.remove();
 ## JS <-> native contract
 
 The methods below are members of the codegen `Spec` in `NativePayments.ts` — `Payments.mm` (`RCTEventEmitter`) and
-`PaymentsModule.java` both implement them. `NativePaymentsChangeEventsInterface` keeps them optional at the type level and
+`PaymentsModule.kt` both implement them. `NativePaymentsChangeEventsInterface` keeps them optional at the type level and
 `NativePayments` subtracts them from the `Spec` type, so a JS bundle running against an older installed binary that lacks
 them degrades to the v2 behaviour instead of crashing: every call site guards with `isDefined` and
 `getNativePaymentsEventEmitter()` returns `null`.

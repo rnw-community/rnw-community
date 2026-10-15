@@ -1,4 +1,6 @@
 buildscript {
+  def kotlinVersion = rootProject.ext.has("kotlinVersion") ? rootProject.ext.get("kotlinVersion") : project.properties["Payments_kotlinVersion"]
+
   repositories {
     google()
     mavenCentral()
@@ -6,6 +8,8 @@ buildscript {
 
   dependencies {
     classpath "com.android.tools.build:gradle:7.2.1"
+    // noinspection DifferentKotlinGradleVersion
+    classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:${kotlinVersion}"
   }
 }
 
@@ -14,6 +18,7 @@ def isNewArchitectureEnabled() {
 }
 
 apply plugin: "com.android.library"
+apply plugin: "kotlin-android"
 
 
 def appProject = rootProject.allprojects.find { it.plugins.hasPlugin('com.android.application') }

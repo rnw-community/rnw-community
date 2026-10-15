@@ -43,7 +43,7 @@ Google Pay's `loadPaymentData` supports dynamic price updates via `callbackInten
 (`SHIPPING_ADDRESS`, `SHIPPING_OPTION`) and `PaymentDataCallbacks`, meaning `shippingaddresschange` /
 `shippingoptionchange` could fire on Android and feed the same `updateWith` contract iOS already uses — but this is
 new infrastructure, not a small tweak to the existing no-op: `AndroidManifest.xml` currently declares no services at
-all, and `PaymentsModule.java`'s `setActiveEvents`/`updatePaymentDetails` resolve immediately without touching Google
+all, and `PaymentsModule.kt`'s `setActiveEvents`/`updatePaymentDetails` resolve immediately without touching Google
 Pay. Shipping on Android would require registering a `Service` extending `BasePaymentDataCallbacks` in the manifest
 (with the `com.google.android.gms.permission.BIND_PAYMENTS_CALLBACK_SERVICE` permission and a
 `com.google.android.gms.wallet.callback.PAYMENT_DATA_CALLBACKS` intent filter) that overrides
@@ -68,11 +68,13 @@ Spike findings (decision recorded on the issue):
   adding a bridging layer without removing the interop this module already has, while asking to re-verify ~1100 lines
   of delegate state whose regressions are silent runtime sheet hangs, not compile errors. Effort: L. Risk: high.
   Revisit only as part of an Expo Modules API spike (see #445), not as a standalone plain-Swift TurboModule rewrite.
-- **Android → Kotlin: do.** `PaymentsModule.java` (284 lines) is a single activity-result round trip, not a delegate
-  protocol — `abort`/`complete`/`setActiveEvents`/`updatePaymentDetails` are no-ops that resolve immediately, no
-  coupon codes, no in-sheet change events, no teardown state machine. The oldarch/newarch split already isolates the
-  codegen boundary in one abstract spec file, so Kotlin interops with the generated `NativePaymentsSpec` without a
-  bridging shim. Effort: S. Risk: low.
+- [x] **Android → Kotlin: done.** The former `PaymentsModule.java` (284 lines) was a single activity-result round
+  trip, not a delegate protocol — `abort`/`complete`/`setActiveEvents`/`updatePaymentDetails` are no-ops that resolve
+  immediately, no coupon codes, no in-sheet change events, no teardown state machine. It is now `PaymentsModule.kt`,
+  `PaymentsPackage.kt` and the two `android/src/*arch/PaymentsSpec.kt` variants, behaviour-identical (same method
+  names, promise codes and messages); the newarch spec extends the codegen-generated Java `NativePaymentsSpec`
+  directly, with no bridging shim. The library applies the `kotlin-android` plugin, resolving `kotlinVersion` from
+  the consuming app's root project (React Native 0.86 apps already define it).
 - **`AppDelegate.h` PassKit import: dropped.** `react-native-payments.podspec` declares
   `s.frameworks = "PassKit", "Contacts"`, linking the framework at the Pod target level, and the bare example's
   `AppDelegate.swift` (RN 0.86 community template) builds and passes the iOS Maestro suite without `import PassKit`.

@@ -108,8 +108,8 @@ src/
   `resolveCouponCodeChangeEventWithErrors:…`, `getCouponCodeErrorsWithMessage:expired:` and
   `getPaymentMethodUpdateWithSummaryItems:errors:`, so the file builds with `-Wunguarded-availability-new` as an error
 - The change-event methods (`setActiveEvents`, `updatePaymentDetails`, `addListener`, `removeListeners`) are members of
-  the codegen `Spec`, so they have to exist in `Payments.mm`, `PaymentsModule.java` and both `android/src/*arch`
-  `PaymentsSpec.java` variants — the TS spec and the three native surfaces only ever change together, in one commit
+  the codegen `Spec`, so they have to exist in `Payments.mm`, `PaymentsModule.kt` and both `android/src/*arch`
+  `PaymentsSpec.kt` variants — the TS spec and the three native surfaces only ever change together, in one commit
 - `NativePayments` types them through `NativePaymentsChangeEventsInterface & Omit<Spec, …>` so they stay optional and
   every call site keeps its `isDefined` guard: a new JS bundle on an older installed binary degrades to the v2 flow,
   `getNativePaymentsEventEmitter()` returns `null` and `show()` keeps working on both architectures
