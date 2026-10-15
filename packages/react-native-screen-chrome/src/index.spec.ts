@@ -12,16 +12,19 @@ describe('public API', () => {
 
         expect(screenChrome).toEqual(
             expect.objectContaining({
+                BottomChromeInsetProvider: expect.any(Function),
                 CollapsibleHeader: expect.any(Function),
                 CollapsibleHeaderBackdrop: expect.any(Function),
                 CollapsibleHeaderSlot: expect.any(Function),
                 CollapsibleHeaderTitleSlot: expect.any(Function),
                 EdgeFade: expect.any(Function),
                 getEdgeFadeBandMetrics: expect.any(Function),
+                ScreenChromeFooter: expect.any(Function),
                 ScreenChromeFrame: expect.any(Function),
                 ScreenChromeProvider: expect.any(Function),
                 ScreenChromeScrollView: expect.any(Function),
                 SCREEN_CHROME_HEADER_LAYOUT_METRICS: { rowPadding: 16, slotSize: 44, titleInset: 72 },
+                useBottomChromeInset: expect.any(Function),
                 useScreenChrome: expect.any(Function),
                 useScreenChromeScrollProps: expect.any(Function),
                 useScrollFadeStyle: expect.any(Function),

@@ -4,13 +4,6 @@ export const CHROME_DEMO_STYLES = StyleSheet.create({
     demoScreen: {
         flex: 1,
     },
-    footerBand: {
-        bottom: 0,
-        left: 0,
-        position: 'absolute',
-        right: 0,
-        zIndex: 3,
-    },
     footerContent: {
         alignItems: 'center',
         flexDirection: 'row',

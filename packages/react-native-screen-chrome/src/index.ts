@@ -27,6 +27,11 @@ export { ScreenChromeHeader } from './screen-chrome-header/screen-chrome-header'
 export { ScreenChromeProvider } from './screen-chrome-provider/screen-chrome-provider';
 export { ScreenChromeScrollView } from './screen-chrome-scroll-view/screen-chrome-scroll-view';
 export type { CollapsibleHeaderSlotKind } from './type/collapsible-header-slot-kind.type';
+export { ScreenChromeFooter } from './screen-chrome-footer/screen-chrome-footer';
+export type { ScreenChromeFooterPropsInterface } from './screen-chrome-footer/screen-chrome-footer-props.interface';
+export { BottomChromeInsetProvider } from './bottom-chrome-inset-provider/bottom-chrome-inset-provider';
+export { useBottomChromeInset } from './hooks/use-bottom-chrome-inset/use-bottom-chrome-inset.hook';
+export type { BottomChromeInsetInterface } from './interface/bottom-chrome-inset.interface';
 export type { ScreenChromeColorScheme } from './type/screen-chrome-color-scheme.type';
 export type { ScreenChromeColorSetInterface } from './interface/screen-chrome-color-set.interface';
 export type { ScreenChromeConfigInterface } from './interface/screen-chrome-config.interface';
