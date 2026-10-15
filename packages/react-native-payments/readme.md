@@ -104,8 +104,8 @@ placeholder.
 
 This package implements the [W3C Payment Request API](https://www.w3.org/TR/payment-request/) — change events,
 `PaymentDetailsModifier`, `hasEnrolledInstrument()`, `retry()`, `toJSON()` and the event-handler attributes are
-all implemented, with a small set of documented platform deviations (Android has no in-sheet change events,
-iOS ignores `shippingOption.selected`, `PaymentRequest` is single-use). See the full
+all implemented, with a small set of documented platform deviations (Android delivers only the shipping change
+events, iOS ignores `shippingOption.selected`, `PaymentRequest` is single-use). See the full
 [W3C compliance checklist](docs/roadmap.md#w3c-compliance-checklist) and each platform's known deviations in
 [docs/platforms/](docs/platforms/).
 

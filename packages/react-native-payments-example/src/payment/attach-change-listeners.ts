@@ -37,6 +37,6 @@ export const attachChangeListeners = (
     log(formatLogMessage('listeners attached', { types: eventTypes.join(',') }));
 
     if (Platform.OS === 'android') {
-        log(formatLogMessage('platform note', { changeEvents: 'no-op', platform: 'android' }));
+        log(formatLogMessage('platform note', { changeEvents: 'shipping-only', platform: 'android' }));
     }
 };

@@ -1,3 +1,5 @@
+import type { AndroidDisplayItem } from './android-display-item';
+
 /**
  * The Google Pay `TransactionInfo` request shape.
  *
@@ -7,6 +9,7 @@ export interface AndroidTransactionInfo {
     checkoutOption?: 'COMPLETE_IMMEDIATE_PURCHASE' | 'CONTINUE_TO_REVIEW' | 'DEFAULT';
     countryCode?: string;
     currencyCode: string;
+    displayItems?: AndroidDisplayItem[];
     totalPrice: string;
     totalPriceLabel?: string;
     totalPriceStatus: 'ESTIMATED' | 'FINAL' | 'NOT_CURRENTLY_KNOWN';

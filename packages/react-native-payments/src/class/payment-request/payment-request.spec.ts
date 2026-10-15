@@ -20,6 +20,7 @@ import { ConstructorError } from '../../error/constructor.error';
 import { DOMException } from '../../error/dom.exception';
 import { PaymentsError } from '../../error/payments.error';
 import { getNativePaymentsEventEmitter } from '../../util/get-native-payments-event-emitter/get-native-payments-event-emitter.util';
+import { registerAndroidChangeEventsTask } from '../../util/register-android-change-events-task/register-android-change-events-task.util';
 import { NativePayments } from '../native-payments/native-payments';
 import { PaymentMethodChangeEvent } from '../payment-method-change-event/payment-method-change-event';
 import { IosPaymentResponse } from '../payment-response/ios-payment-response';
@@ -60,6 +61,10 @@ jest.mock('../native-payments/native-payments', () => ({
 
 jest.mock('../../util/get-native-payments-event-emitter/get-native-payments-event-emitter.util', () => ({
     getNativePaymentsEventEmitter: jest.fn(),
+}));
+
+jest.mock('../../util/register-android-change-events-task/register-android-change-events-task.util', () => ({
+    registerAndroidChangeEventsTask: jest.fn(),
 }));
 
 jest.mock('react-native', () => ({
@@ -1252,6 +1257,90 @@ describe('PaymentRequest', () => {
 
                 expect(methodDataRequest.shippingAddressRequired).toBe(true);
                 expect(methodDataRequest.shippingAddressParameters).toStrictEqual({ phoneNumberRequired: true });
+            });
+        });
+
+        describe('callback intents serialization', () => {
+            const shippingMethodData: AndroidPaymentMethodDataInterface = {
+                ...androidMethodData,
+                data: { ...androidMethodData.data, requestShipping: true },
+            };
+            const shippingDetails: PaymentDetailsInit = {
+                ...paymentDetails,
+                displayItems: [{ label: 'Order', amount: { currency: 'USD', value: '10.00' } }],
+                shippingOptions: [{ id: 'standard', label: 'Standard', amount: { currency: 'USD', value: '0.00' } }],
+            };
+
+            const getShownMethodData = async (request: PaymentRequest): Promise<AndroidPaymentDataRequest> => {
+                jest.mocked(NativePayments.show).mockRejectedValue(new Error('closed'));
+
+                await request.show().catch(emptyFn);
+
+                const [[, shownMethodData]] = jest.mocked(NativePayments.show).mock.calls;
+
+                return JSON.parse(shownMethodData) as AndroidPaymentDataRequest;
+            };
+
+            it('should show the base request when no change listener is registered', async () => {
+                expect.hasAssertions();
+
+                const methodDataRequest = await getShownMethodData(new PaymentRequest([shippingMethodData], shippingDetails));
+
+                expect(methodDataRequest).not.toHaveProperty('callbackIntents');
+                expect(methodDataRequest.transactionInfo).not.toHaveProperty('displayItems');
+                expect(registerAndroidChangeEventsTask).not.toHaveBeenCalled();
+            });
+
+            it('should opt the shown request into the callback intents of the registered shipping listeners', async () => {
+                expect.hasAssertions();
+
+                const request = new PaymentRequest([shippingMethodData], shippingDetails);
+                request.addEventListener('shippingaddresschange', emptyFn);
+                request.addEventListener('shippingoptionchange', emptyFn);
+
+                const methodDataRequest = await getShownMethodData(request);
+
+                expect(methodDataRequest.callbackIntents).toStrictEqual([
+                    'PAYMENT_AUTHORIZATION',
+                    'SHIPPING_ADDRESS',
+                    'SHIPPING_OPTION',
+                ]);
+                expect(methodDataRequest.shippingOptionRequired).toBe(true);
+                expect(methodDataRequest.shippingOptionParameters).toStrictEqual({
+                    defaultSelectedOptionId: 'standard',
+                    shippingOptions: [{ id: 'standard', label: 'Standard' }],
+                });
+                expect(methodDataRequest.transactionInfo.displayItems).toStrictEqual([
+                    { label: 'Order', price: '10.00', status: 'FINAL', type: 'LINE_ITEM' },
+                ]);
+                expect(registerAndroidChangeEventsTask).toHaveBeenCalledWith();
+            });
+
+            it('should skip the shipping option intent when the request has no shipping options', async () => {
+                expect.hasAssertions();
+
+                const request = new PaymentRequest([shippingMethodData], paymentDetails);
+                request.addEventListener('shippingoptionchange', emptyFn);
+                request.addEventListener('shippingaddresschange', emptyFn);
+
+                const methodDataRequest = await getShownMethodData(request);
+
+                expect(methodDataRequest.callbackIntents).toStrictEqual(['PAYMENT_AUTHORIZATION', 'SHIPPING_ADDRESS']);
+                expect(methodDataRequest).not.toHaveProperty('shippingOptionParameters');
+            });
+
+            it('should keep canMakePayment on the base request even with active listeners', async () => {
+                expect.hasAssertions();
+
+                jest.mocked(NativePayments.canMakePayments).mockResolvedValue(true);
+                const request = new PaymentRequest([shippingMethodData], shippingDetails);
+                request.addEventListener('shippingaddresschange', emptyFn);
+
+                await request.canMakePayment();
+
+                const [[serializedMethodData]] = jest.mocked(NativePayments.canMakePayments).mock.calls;
+
+                expect(JSON.parse(serializedMethodData)).not.toHaveProperty('callbackIntents');
             });
         });
     });

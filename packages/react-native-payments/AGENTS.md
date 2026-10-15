@@ -119,7 +119,16 @@ src/
   into a per-event-type registry, is taken out of it before being invoked (single fire), completes immediately with a
   no-change update when its event type is not active for the current request, and is flushed on every teardown path
   (`didFinish`, `didAuthorizePayment`, `complete`, `abort`, `stopObserving`, `invalidate`) so the sheet cannot hang.
-  Android answers the same contract with documented no-ops. The semantics live in
+  Android delivers `shippingaddresschange`/`shippingoptionchange` from Google Pay's payment data callbacks:
+  `PaymentsCallbacksService` (library manifest) -> `PaymentsDataCallbacks` -> `PaymentsCallbackBridge` (weak ref to the
+  live module) -> `PaymentsChangeEventCoordinator`, which mirrors the iOS registry (per-event pending
+  `OnCompleteListener`, `eventId` supersede, flush on every teardown path) plus a 25 s native deadline under Google's
+  30 s callback limit. React Native pauses JS timers while the Google Pay activity covers the app, so
+  `PaymentsChangeEventsTask` runs the `RNPaymentsChangeEvents` headless JS task (registered from `show()` by
+  `registerAndroidChangeEventsTask`) for as long as a callback-enabled sheet is open.
+  `PaymentDataRequestUpdateFactory` turns the `updatePaymentDetails` arguments into a `PaymentDataRequestUpdate`.
+  `show()` adds the `callbackIntents` in JS (`getAndroidCallbackPaymentDataRequest`) for the shipping listeners
+  registered at that moment; `canMakePayment()`/`hasEnrolledInstrument()` keep the base request. The semantics live in
   [get-native-payments-event-emitter.md](src/util/get-native-payments-event-emitter/get-native-payments-event-emitter.md)
 - Change events are request-scoped: `show()` passes the request `id` to native so `activeRequestId` is adopted at
   presentation time regardless of whether any listener was ever registered, `setActiveEvents(requestId, eventNames)`

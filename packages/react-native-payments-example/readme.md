@@ -73,7 +73,7 @@ enough to assert on as substrings:
 | Availability probe      | `canMakePayment: status=available` / `canMakePayment failed: error=…`                                                                      |
 | Request built           | `request created: id=… total=20.00`, `listeners attached: types=…`                                                                         |
 | Constructor rejection   | `request failed: error=…`                                                                                                                  |
-| Android reality         | `platform note: changeEvents=no-op platform=android`                                                                                       |
+| Android reality         | `platform note: changeEvents=shipping-only platform=android`                                                                               |
 | Sheet shown             | `show called: id=…`                                                                                                                        |
 | Change event            | `shippingaddresschange: city=Berlin country=DE`, `shippingoptionchange: option=express`, `paymentmethodchange: method=…`                   |
 | Answer sent             | `shippingoptionchange updateWith: mode=sync shipping=express total=25.00`                                                                  |
