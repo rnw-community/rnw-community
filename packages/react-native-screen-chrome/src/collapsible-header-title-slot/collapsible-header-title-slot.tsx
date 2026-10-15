@@ -19,3 +19,5 @@ export const CollapsibleHeaderTitleSlot = ({ children, testID }: Props): ReactNo
         {children}
     </View>
 );
+
+CollapsibleHeaderTitleSlot.screenChromeSlotKind = 'title' as const;

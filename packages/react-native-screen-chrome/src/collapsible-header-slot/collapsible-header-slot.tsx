@@ -19,3 +19,5 @@ export const CollapsibleHeaderSlot = ({ children, testID }: Props): ReactNode =>
         {children}
     </View>
 );
+
+CollapsibleHeaderSlot.screenChromeSlotKind = 'control' as const;

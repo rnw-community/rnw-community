@@ -21,6 +21,14 @@ pnpm test && pnpm test:coverage && pnpm build && pnpm ts && pnpm ts:nodenext && 
   renders in `mode="overlay"`, forwards `config.snapToCollapse` as `snap`, and maps config thresholds to normalized
   motion through `getCollapsibleHeaderMotion`.
 - Generic leading and trailing control slots live in one persistent layer and must never be duplicated for transitions.
+  Both are optional; a missing one is replaced by an empty `pointerEvents="none"` placeholder so the `space-between`
+  row keeps a lone trailing control right-aligned.
+- Slot discovery (`getCollapsibleHeaderSlots`) classifies direct children through `getCollapsibleHeaderSlotKind`: the
+  static string marker `screenChromeSlotKind` (`'control'`/`'title'`) on the element type, with component identity as
+  a fast path only. Identity alone breaks when a bundle resolves two copies of this package (`dist/module` +
+  `dist/commonjs`). Exactly one title slot is required; a control slot before it is leading, after it trailing, at
+  most one each; unknown types, a missing title slot, and duplicates throw a `TypeError`. Context registration was
+  rejected because it renders an empty header on the first frame.
 
 ## Invariants
 
@@ -35,13 +43,19 @@ pnpm test && pnpm test:coverage && pnpm build && pnpm ts && pnpm ts:nodenext && 
 - `snapToCollapse` only takes effect while a `CollapsibleHeader` is mounted: the header registers the snap geometry
   with the provider. Reduced-motion-aware snapping is upstream scope, not a local reimplementation.
 - Native peer dependencies remain external so applications own native versions and linking.
-- `CollapsibleHeader` sizes the generic header container to `safeAreaInsets.top + config.headerHeight` and offsets every
-  content layer by `top: safeAreaInsets.top`. Leaving the inset out of `expandedHeight`/`collapsedHeight` compresses the
-  title and controls to whatever the notch does not consume, and `paddingTop` on `headerStyle` does not move them at
-  all: the primitive renders the expanded, collapsed, and persistent layers as `position: absolute` boxes with inset
-  `0`, which resolve against the container box and ignore its padding, centering the content over the inset band. The
-  container height is the same composition `mergeScrollContentInset` applies, which keeps overlay content padding
-  aligned.
+- `CollapsibleHeader` passes `expandedHeight = safeAreaInsets.top + config.headerHeight` and
+  `collapsedHeight = safeAreaInsets.top + (config.collapsedHeaderHeight ?? config.headerHeight)`, and offsets every
+  content layer by `top: safeAreaInsets.top`. `collapsedHeaderHeight` is optional and absent from the defaults so an overridden `headerHeight`
+  never collapses to a stale default; validation requires a positive `collapsedHeaderHeight` not greater than
+  `headerHeight`, matching the primitive's `expandedHeight >= collapsedHeight` assertion. Every other `headerHeight`
+  consumer (`ScreenChromeHeader`, `getScreenChromeHeaderMetrics`/`useScreenChromeHeaderMetrics`, and therefore the
+  scroll content inset) deliberately keeps the expanded height — content must clear the header at rest — and
+  `CollapsibleHeaderBackdrop` stays on its independent `headerBackdropHeight`. Leaving the inset out of
+  `expandedHeight`/`collapsedHeight` compresses the title and controls to whatever the notch does not consume, and
+  `paddingTop` on `headerStyle` does not move them at all: the primitive renders the expanded, collapsed, and persistent
+  layers as `position: absolute` boxes with inset `0`, which resolve against the container box and ignore its padding,
+  centering the content over the inset band. The container height is the same composition `mergeScrollContentInset`
+  applies, which keeps overlay content padding aligned.
 - The generic `motion` mapping omits `pointerEventsSwitchProgress` on purpose so the primitive derives it from the
   cross-fade midpoint of the mapped `smallTitleStart`/`largeTitleEnd` windows; pinning it to a fixed progress hands
   pointer events and the accessibility tree to a title layer that is still transparent.

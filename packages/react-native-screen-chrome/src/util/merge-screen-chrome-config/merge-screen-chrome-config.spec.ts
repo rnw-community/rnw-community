@@ -5,6 +5,7 @@ import { SCREEN_CHROME_DEFAULT_CONFIG } from '../../constant/screen-chrome-defau
 import { mergeScreenChromeConfig } from './merge-screen-chrome-config.util';
 
 const OVERRIDDEN_HEADER_HEIGHT = 72;
+const COLLAPSED_HEADER_HEIGHT = 44;
 
 describe('mergeScreenChromeConfig', () => {
     it('uses defaults when overrides are omitted', () => {
@@ -24,6 +25,15 @@ describe('mergeScreenChromeConfig', () => {
         expect(config.headerHeight).toBe(OVERRIDDEN_HEADER_HEIGHT);
         expect(config.snapToCollapse).toBe(true);
         expect(config.topFadeHeight).toBe(SCREEN_CHROME_DEFAULT_CONFIG.topFadeHeight);
+    });
+
+    it('leaves the collapsed header height unset by default and passes an override through', () => {
+        expect.hasAssertions();
+
+        expect(mergeScreenChromeConfig()).not.toHaveProperty('collapsedHeaderHeight');
+        expect(mergeScreenChromeConfig({ collapsedHeaderHeight: COLLAPSED_HEADER_HEIGHT }).collapsedHeaderHeight).toBe(
+            COLLAPSED_HEADER_HEIGHT
+        );
     });
 
     it('deep merges colors without deleting sibling schemes or values', () => {
