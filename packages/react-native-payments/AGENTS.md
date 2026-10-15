@@ -94,6 +94,11 @@ src/
   `transactionInfo` at construction, iOS PassKit summary items at `show()`); a modifier for the other platform's method
   is left untouched. The same resolution re-runs on every `updateWith()` so a listener can ship new modifiers with the
   rest of the update; `this.details` always keeps the raw, unresolved values it was given
+- The Android `PaymentDataRequest` carries exactly one billing intent, built by `getAndroidBillingIntent`: a
+  `deferredTransactionInfo` / `recurringTransactionInfo` / `automaticReloadTransactionInfo` set on the method data
+  replaces `transactionInfo`, with the resolved total as `immediateTotalPrice`;
+  `validateAndroidMerchantInitiatedTransaction` rejects more than one of them, a missing `countryCode`, and a
+  combination with the `transactionInfo`-only `checkoutOption` / `totalPriceStatus`
 - iOS builds `PKShippingMethod` and `PKPaymentSummaryItem` with one converter each for the initial `show()` details and
   for `updatePaymentDetails`, so an option or an item renders the same in both flows: label, amount, identifier and the
   optional detail for a shipping method, `PKPaymentSummaryItemTypePending` for a `pending` item

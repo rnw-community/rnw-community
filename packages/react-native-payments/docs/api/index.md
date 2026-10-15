@@ -50,5 +50,6 @@ pairing the package already uses for tightly-coupled siblings (a data shape and 
 
 - [android-payment-method-data.md](./android-payment-method-data.md) — `AndroidPaymentMethodDataInterface`, `AndroidPaymentMethodDataDataInterface`
 - [android-allowed-auth-methods-enum.md](./android-allowed-auth-methods-enum.md) — `AndroidAllowedAuthMethodsEnum`
+- [android-merchant-initiated-transaction-info.md](./android-merchant-initiated-transaction-info.md) — `AndroidDeferredTransactionInfo`, `AndroidRecurringTransactionInfo`, `AndroidAutomaticReloadTransactionInfo`, `AndroidRecurrencePeriodItem`, `AndroidIntroductoryPeriodInfo`, `AndroidDisplayItem`
 - [ios-payment-method-data.md](./ios-payment-method-data.md) — `IosPaymentMethodDataInterface`, `IosPaymentMethodDataDataInterface`
 - [ios-pk-merchant-capability.md](./ios-pk-merchant-capability.md) — `IosPKMerchantCapability`

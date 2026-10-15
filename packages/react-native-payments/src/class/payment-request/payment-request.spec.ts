@@ -27,7 +27,10 @@ import { IosPaymentResponse } from '../payment-response/ios-payment-response';
 import { PaymentRequest } from './payment-request';
 
 import type { AndroidPaymentMethodDataInterface } from '../../@standard/android/mapping/android-payment-method-data.interface';
+import type { AndroidAutomaticReloadTransactionInfo } from '../../@standard/android/request/android-automatic-reload-transaction-info.interface';
+import type { AndroidDeferredTransactionInfo } from '../../@standard/android/request/android-deferred-transaction-info.type';
 import type { AndroidPaymentDataRequest } from '../../@standard/android/request/android-payment-data-request';
+import type { AndroidRecurringTransactionInfo } from '../../@standard/android/request/android-recurring-transaction-info.interface';
 import type { AndroidTransactionInfo } from '../../@standard/android/request/android-transaction-info';
 import type { IosPaymentMethodDataInterface } from '../../@standard/ios/mapping/ios-payment-method-data.interface';
 import type { IosPaymentDataRequest } from '../../@standard/ios/request/ios-payment-data-request';
@@ -818,7 +821,7 @@ describe('PaymentRequest', () => {
 
                 const [[serializedMethodData]] = jest.mocked(NativePayments.canMakePayments).mock.calls;
 
-                return (JSON.parse(serializedMethodData) as AndroidPaymentDataRequest).transactionInfo;
+                return (JSON.parse(serializedMethodData) as AndroidPaymentDataRequest).transactionInfo as AndroidTransactionInfo;
             };
 
             it('should serialize FINAL totalPriceStatus and no optional fields by default', async () => {
@@ -907,6 +910,239 @@ describe('PaymentRequest', () => {
                 expect(() => new PaymentRequest([invalidMethodData], paymentDetails)).toThrow(
                     new ConstructorError(`checkoutOption 'COMPLETE_IMMEDIATE_PURCHASE' requires totalPriceStatus 'FINAL'`)
                 );
+            });
+        });
+
+        describe('merchant-initiated transaction serialization', () => {
+            const deferredTransactionInfo: AndroidDeferredTransactionInfo = {
+                billingDateTime: '2026-12-01T08:00:00Z',
+                label: 'Hotel Room Reservation',
+                price: '200.00',
+                priceStatus: 'FINAL',
+                tokenUpdateUrl: 'https://api.merchant.com/token/update',
+            };
+            const recurringTransactionInfo: AndroidRecurringTransactionInfo = {
+                billingAgreement: 'Cancel any time from your account',
+                introductoryPeriodInfo: {
+                    introductoryPeriodEndDateTime: '2026-12-08T00:00:00Z',
+                    label: '7 Day Free Trial',
+                    totalPrice: '0.00',
+                },
+                recurrenceItems: [
+                    {
+                        billingInitialDateTime: '2026-12-08T00:00:00Z',
+                        label: 'Premium Plan Monthly Subscription',
+                        price: '25.00',
+                        priceStatus: 'FINAL',
+                        recurrencePeriod: 'MONTH',
+                        recurrencePeriodCount: 1,
+                    },
+                ],
+            };
+            const automaticReloadTransactionInfo: AndroidAutomaticReloadTransactionInfo = {
+                immediateDisplayItems: [{ label: 'Initial reload', price: '30.00', type: 'LINE_ITEM' }],
+                label: 'Gift Card Reload',
+                minimumBalanceAmount: '20.00',
+                reloadAmount: '30.00',
+            };
+            const zeroTotalDetails: PaymentDetailsInit = {
+                total: { label: 'Due today', amount: { currency: 'USD', value: '0.00' } },
+            };
+
+            const getSerializedRequest = async (
+                data: AndroidPaymentMethodDataInterface['data'],
+                details: PaymentDetailsInit = zeroTotalDetails
+            ): Promise<AndroidPaymentDataRequest> => {
+                jest.mocked(NativePayments.canMakePayments).mockResolvedValue(true);
+
+                await new PaymentRequest([{ ...androidMethodData, data }], details).canMakePayment();
+
+                const [[serializedMethodData]] = jest.mocked(NativePayments.canMakePayments).mock.calls;
+
+                return JSON.parse(serializedMethodData) as AndroidPaymentDataRequest;
+            };
+
+            it('should serialize deferredTransactionInfo in place of transactionInfo with a zero immediate total', async () => {
+                expect.assertions(2);
+
+                const request = await getSerializedRequest({
+                    ...androidMethodData.data,
+                    countryCode: 'US',
+                    deferredTransactionInfo,
+                    transactionId: 'txn-1',
+                });
+
+                expect(request).not.toHaveProperty('transactionInfo');
+                expect(request.deferredTransactionInfo).toStrictEqual({
+                    ...deferredTransactionInfo,
+                    countryCode: 'US',
+                    currencyCode: 'USD',
+                    immediateTotalPrice: '0.00',
+                    transactionId: 'txn-1',
+                });
+            });
+
+            it('should serialize deferredTransactionInfo without a price when the price is not currently known', async () => {
+                expect.assertions(1);
+
+                const request = await getSerializedRequest({
+                    ...androidMethodData.data,
+                    countryCode: 'US',
+                    deferredTransactionInfo: {
+                        billingDateTime: '2026-12-01T08:00:00Z',
+                        label: 'Pre-order',
+                        priceStatus: 'NOT_CURRENTLY_KNOWN',
+                    },
+                });
+
+                expect(request.deferredTransactionInfo).toStrictEqual({
+                    billingDateTime: '2026-12-01T08:00:00Z',
+                    countryCode: 'US',
+                    currencyCode: 'USD',
+                    immediateTotalPrice: '0.00',
+                    label: 'Pre-order',
+                    priceStatus: 'NOT_CURRENTLY_KNOWN',
+                });
+            });
+
+            it('should serialize recurringTransactionInfo with the modifier-resolved total as immediateTotalPrice', async () => {
+                expect.assertions(2);
+
+                const request = await getSerializedRequest(
+                    { ...androidMethodData.data, countryCode: 'US', recurringTransactionInfo },
+                    {
+                        total: { label: 'Total', amount: { currency: 'USD', value: '25.00' } },
+                        modifiers: [
+                            {
+                                supportedMethods: PaymentMethodNameEnum.AndroidPay,
+                                total: { label: 'Trial', amount: { currency: 'USD', value: '0.00' } },
+                            },
+                        ],
+                    }
+                );
+
+                expect(request).not.toHaveProperty('transactionInfo');
+                expect(request.recurringTransactionInfo).toStrictEqual({
+                    ...recurringTransactionInfo,
+                    countryCode: 'US',
+                    currencyCode: 'USD',
+                    immediateTotalPrice: '0.00',
+                });
+            });
+
+            it('should serialize automaticReloadTransactionInfo in place of transactionInfo', async () => {
+                expect.assertions(2);
+
+                const request = await getSerializedRequest(
+                    { ...androidMethodData.data, countryCode: 'US', automaticReloadTransactionInfo },
+                    { total: { label: 'Initial reload', amount: { currency: 'USD', value: '30.00' } } }
+                );
+
+                expect(request).not.toHaveProperty('transactionInfo');
+                expect(request.automaticReloadTransactionInfo).toStrictEqual({
+                    ...automaticReloadTransactionInfo,
+                    countryCode: 'US',
+                    currencyCode: 'USD',
+                    immediateTotalPrice: '30.00',
+                });
+            });
+
+            it('should serialize transactionInfo and no merchant-initiated transaction info by default', async () => {
+                expect.assertions(4);
+
+                const request = await getSerializedRequest(androidMethodData.data, paymentDetails);
+
+                expect(request.transactionInfo).toBeDefined();
+                expect(request).not.toHaveProperty('deferredTransactionInfo');
+                expect(request).not.toHaveProperty('recurringTransactionInfo');
+                expect(request).not.toHaveProperty('automaticReloadTransactionInfo');
+            });
+
+            it('should serialize checkoutOption CONTINUE_TO_REVIEW into transactionInfo', async () => {
+                expect.assertions(1);
+
+                const request = await getSerializedRequest(
+                    { ...androidMethodData.data, checkoutOption: 'CONTINUE_TO_REVIEW' },
+                    paymentDetails
+                );
+
+                expect(request.transactionInfo?.checkoutOption).toBe('CONTINUE_TO_REVIEW');
+            });
+
+            it('should throw when more than one merchant-initiated transaction info is provided', () => {
+                expect.assertions(1);
+
+                const invalidData: AndroidPaymentMethodDataInterface['data'] = {
+                    ...androidMethodData.data,
+                    deferredTransactionInfo,
+                    automaticReloadTransactionInfo,
+                };
+
+                expect(() => new PaymentRequest([{ ...androidMethodData, data: invalidData }], zeroTotalDetails)).toThrow(
+                    new ConstructorError(
+                        'Only one of deferredTransactionInfo, recurringTransactionInfo, automaticReloadTransactionInfo can be provided'
+                    )
+                );
+            });
+
+            it('should throw when a merchant-initiated transaction info is provided without countryCode', () => {
+                expect.assertions(1);
+
+                const { countryCode: _countryCode, ...dataWithoutCountryCode } = androidMethodData.data;
+                const invalidData: AndroidPaymentMethodDataInterface['data'] = {
+                    ...dataWithoutCountryCode,
+                    recurringTransactionInfo,
+                };
+
+                expect(() => new PaymentRequest([{ ...androidMethodData, data: invalidData }], zeroTotalDetails)).toThrow(
+                    new ConstructorError('recurringTransactionInfo requires countryCode')
+                );
+            });
+
+            it('should throw when a merchant-initiated transaction info is combined with checkoutOption', () => {
+                expect.assertions(1);
+
+                const invalidData: AndroidPaymentMethodDataInterface['data'] = {
+                    ...androidMethodData.data,
+                    countryCode: 'US',
+                    checkoutOption: 'DEFAULT',
+                    automaticReloadTransactionInfo,
+                };
+
+                expect(() => new PaymentRequest([{ ...androidMethodData, data: invalidData }], zeroTotalDetails)).toThrow(
+                    new ConstructorError('automaticReloadTransactionInfo cannot be combined with checkoutOption or totalPriceStatus')
+                );
+            });
+
+            it('should throw when a merchant-initiated transaction info is combined with totalPriceStatus', () => {
+                expect.assertions(1);
+
+                const invalidData: AndroidPaymentMethodDataInterface['data'] = {
+                    ...androidMethodData.data,
+                    countryCode: 'US',
+                    totalPriceStatus: 'ESTIMATED',
+                    deferredTransactionInfo,
+                };
+
+                expect(() => new PaymentRequest([{ ...androidMethodData, data: invalidData }], zeroTotalDetails)).toThrow(
+                    new ConstructorError('deferredTransactionInfo cannot be combined with checkoutOption or totalPriceStatus')
+                );
+            });
+
+            it('should skip merchant-initiated transaction validation for non-Android method data', () => {
+                expect.assertions(1);
+
+                const iosMethodData: IosPaymentMethodDataInterface = {
+                    supportedMethods: PaymentMethodNameEnum.ApplePay,
+                    data: {
+                        countryCode: 'US',
+                        currencyCode: 'USD',
+                        merchantIdentifier: 'merchant.com.example',
+                        supportedNetworks: [SupportedNetworkEnum.Visa],
+                    },
+                };
+
+                expect(() => new PaymentRequest([iosMethodData, androidMethodData], paymentDetails)).not.toThrow();
             });
         });
 

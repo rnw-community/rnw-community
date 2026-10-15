@@ -26,6 +26,12 @@ export type { PaymentMethodData } from './@standard/w3c/payment-method-data';
 export type { AndroidPaymentMethodDataDataInterface } from './@standard/android/mapping/android-payment-method-data-data.interface';
 export type { AndroidPaymentMethodDataInterface } from './@standard/android/mapping/android-payment-method-data.interface';
 export type { AndroidPaymentMethodToken } from './@standard/android/response/android-payment-method-token';
+export type { AndroidDeferredTransactionInfo } from './@standard/android/request/android-deferred-transaction-info.type';
+export type { AndroidRecurringTransactionInfo } from './@standard/android/request/android-recurring-transaction-info.interface';
+export type { AndroidAutomaticReloadTransactionInfo } from './@standard/android/request/android-automatic-reload-transaction-info.interface';
+export type { AndroidRecurrencePeriodItem } from './@standard/android/request/android-recurrence-period-item.type';
+export type { AndroidIntroductoryPeriodInfo } from './@standard/android/request/android-introductory-period-info.interface';
+export type { AndroidDisplayItem } from './@standard/android/request/android-display-item.interface';
 export { AndroidAllowedAuthMethodsEnum } from './@standard/android/enum/android-allowed-auth-methods.enum';
 export { AndroidPaymentResponse } from './class/payment-response/android-payment-response';
 
