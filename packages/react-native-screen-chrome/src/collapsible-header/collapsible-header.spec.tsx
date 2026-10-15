@@ -12,6 +12,7 @@ import { SCREEN_CHROME_DEFAULT_CONFIG } from '../constant/screen-chrome-default-
 
 import { CollapsibleHeader } from './collapsible-header';
 
+import type { ExpandedTitleAlignment } from '../type/expanded-title-alignment.type';
 import type { StyleProp, ViewStyle } from 'react-native';
 
 const mockConfig = { ...SCREEN_CHROME_DEFAULT_CONFIG, snapToCollapse: true };
@@ -56,6 +57,7 @@ const renderDelegatedProps = (motion?: {
 };
 
 const renderWithContainerStyles = (containerStyles: {
+    readonly expandedTitleAlignment?: ExpandedTitleAlignment;
     readonly expandedContentContainerStyle?: StyleProp<ViewStyle>;
     readonly collapsedContentContainerStyle?: StyleProp<ViewStyle>;
     readonly persistentContentContainerStyle?: StyleProp<ViewStyle>;
@@ -212,6 +214,24 @@ describe('CollapsibleHeader content container styles', () => {
         expect(expanded.paddingHorizontal).toBe(16);
         expect(expanded.justifyContent).toBe('center');
         expect(StyleSheet.flatten(props.collapsedContentContainerStyle).alignItems).toBe('center');
+    });
+
+    it('aligns the expanded title beside the slots without changing the collapsed title', () => {
+        expect.hasAssertions();
+
+        const props = renderWithContainerStyles({ expandedTitleAlignment: 'start' });
+
+        expect(StyleSheet.flatten(props.expandedContentContainerStyle)).toEqual({
+            alignItems: 'stretch',
+            justifyContent: 'center',
+            paddingStart: 60,
+            paddingEnd: 60,
+            top: mockTopInset,
+        });
+        expect(StyleSheet.flatten(props.collapsedContentContainerStyle)).toMatchObject({
+            alignItems: 'center',
+            paddingHorizontal: 72,
+        });
     });
 
     it('forwards the persistent container style straight through to the primitive', () => {
