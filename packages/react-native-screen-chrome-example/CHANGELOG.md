@@ -3,6 +3,10 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.19.8](https://github.com/rnw-community/rnw-community/compare/v2.19.7...v2.19.8) (2026-10-15)
+
+**Note:** Version bump only for package @rnw-community/react-native-screen-chrome-example
+
 ## [2.19.7](https://github.com/rnw-community/rnw-community/compare/v2.19.6...v2.19.7) (2026-10-15)
 
 **Note:** Version bump only for package @rnw-community/react-native-screen-chrome-example
