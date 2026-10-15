@@ -1,4 +1,4 @@
-import { useContext, useLayoutEffect, useRef } from 'react';
+import { useContext, useLayoutEffect, useRef, useState } from 'react';
 
 import { BottomChromeHeightSetterContext } from '../../context/bottom-chrome-height-setter.context';
 
@@ -11,21 +11,22 @@ interface BottomChromeHeightPublisherInterface {
 }
 
 export const useBottomChromeHeightPublisher = (): BottomChromeHeightPublisherInterface => {
-    const publishHeight = useContext(BottomChromeHeightSetterContext);
+    const { publish, withdraw } = useContext(BottomChromeHeightSetterContext);
+    const [footerId] = useState(() => Symbol('bottom-chrome-footer'));
     const contentRef = useRef<View>(null);
 
     useLayoutEffect(() => {
         contentRef.current?.measure((_x, _y, _width, height) => {
-            publishHeight(height);
+            publish(footerId, height);
         });
 
         return () => {
-            publishHeight(0);
+            withdraw(footerId);
         };
-    }, [publishHeight]);
+    }, [footerId, publish, withdraw]);
 
     const onContentLayout = (event: LayoutChangeEvent): void => {
-        publishHeight(event.nativeEvent.layout.height);
+        publish(footerId, event.nativeEvent.layout.height);
     };
 
     return { contentRef, onContentLayout };

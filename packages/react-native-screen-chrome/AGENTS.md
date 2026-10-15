@@ -41,13 +41,16 @@ pnpm test && pnpm test:coverage && pnpm build && pnpm ts && pnpm ts:nodenext && 
   most one each; unknown types, a missing title slot, and duplicates throw a `TypeError`. Context registration was
   rejected because it renders an empty header on the first frame.
 - Bottom chrome is `ScreenChromeFooter` (absolute `box-none` container, safe-area bottom padding, bottom `EdgeFade`
-  behind a measured content node) plus the inset contract: `BottomChromeInsetProvider` holds the measured height in
-  two contexts — a number and the stable `useState` setter — so the publishing footer does not subscribe to its own
-  height change, and `useBottomChromeInset` returns `{ chromeHeight, inset }`. `chromeHeight` excludes the safe area
+  behind a measured content node) plus the inset contract: `BottomChromeInsetProvider` keeps a map of per-footer
+  heights keyed by a stable `Symbol` each footer creates in `useState`, and splits it into two contexts — the
+  published number (the max over registered footers, since bottom-anchored footers overlap) and a stable
+  `{ publish, withdraw }` registry created once in `useState` — so a publishing footer does not subscribe to its own
+  height change. Unchanged heights and unknown withdrawals return the previous map, so they do not re-render.
+  `useBottomChromeInset` returns `{ chromeHeight, inset }`. `chromeHeight` excludes the safe area
   because `ScreenChromeScrollView` already adds `insets.bottom` to `contentInsetBottom`; `inset` includes it.
   The footer publishes from a `useLayoutEffect` `measure` on mount (no one-frame reserve-0 jump) and from `onLayout`
-  for resizes, and withdraws to `0` on unmount. The setter context defaults to `emptyFn`, so the footer and hook work
-  without a provider.
+  for resizes, and withdraws only its own entry on unmount. The registry context defaults to `emptyFn` methods, so the
+  footer and hook work without a provider.
 
 ## Bottom chrome scope (#590)
 

@@ -14,7 +14,9 @@ interface Props {
     readonly testID: string;
 }
 
-export const ChromeDemoList = ({ contentInsetBottom, contentInsetTop, testID }: Props) => (
+const DEMO_LIST_TRAILING_INSET = 120;
+
+export const ChromeDemoList = ({ contentInsetBottom = DEMO_LIST_TRAILING_INSET, contentInsetTop, testID }: Props) => (
     <ScreenChromeScrollView
         contentContainerStyle={styles.listContent}
         contentInsetBottom={contentInsetBottom}

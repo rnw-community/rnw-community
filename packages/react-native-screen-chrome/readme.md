@@ -176,7 +176,7 @@ a control wider than 44pt (a text button, or a slot resized through `style`) nee
 in `expandedContentContainerStyle`.
 
 ```tsx
-<CollapsibleHeader expandedTitleAlignment="start">{/* slots */}</CollapsibleHeader>
+<CollapsibleHeader expandedTitleAlignment="start">{/* slots */}</CollapsibleHeader>;
 
 const { rowPadding } = SCREEN_CHROME_HEADER_LAYOUT_METRICS;
 
@@ -609,7 +609,9 @@ behind the platform. Use `ScreenChromeFooter` for screen-level action and summar
 Owns the measured bottom chrome height that `ScreenChromeFooter` publishes and `useBottomChromeInset` reads. It is
 independent of `ScreenChromeProvider`, so it can wrap one screen or sit above a navigator when the same bottom chrome
 persists across every screen in it. Prefer one provider per screen: a stack keeps a covered screen's footer mounted,
-and a navigator-wide provider would keep publishing that footer's height to the screen pushed on top.
+and a navigator-wide provider would keep publishing that footer's height to the screen pushed on top. Each footer
+registers its own height, and the provider publishes the tallest one: footers are bottom-anchored and overlap, so the
+tallest one is what the content has to clear, and unmounting one footer leaves the others' heights in place.
 
 ```tsx
 <BottomChromeInsetProvider>{screen}</BottomChromeInsetProvider>
@@ -639,12 +641,18 @@ is moved by a transform — so pairing it with the scroll view relayouts content
 | `chromeHeight` | `number` | Measured bottom chrome height without the safe area; pass to `contentInsetBottom`.          |
 | `inset`        | `number` | `chromeHeight` plus the safe-area bottom inset, for surfaces that do not add the safe area. |
 
+```tsx
+const { inset }: BottomChromeInsetInterface = useBottomChromeInset();
+
+<FlatList contentContainerStyle={{ paddingBottom: inset }} data={rows} renderItem={renderRow} />;
+```
+
 ## ScreenChromeFooter
 
 Pins consumer footer content to the bottom edge over a bottom [`EdgeFade`](#edgefade): an absolute, `box-none`
 container at `zIndex: 3` padded by the safe-area bottom, with the fade band painted behind a content node. The content
 node is measured synchronously on mount and again on every `onLayout`, and the height is published to the nearest
-`BottomChromeInsetProvider` (a no-op without one); unmounting the footer withdraws it back to `0`. The fade reads the
+`BottomChromeInsetProvider` (a no-op without one); unmounting the footer withdraws only its own height. The fade reads the
 screen chrome config, so the footer requires a `ScreenChromeProvider` ancestor like every other chrome layer.
 
 ```tsx
@@ -685,6 +693,17 @@ keyboard's own clearance. A composer that grows while typing re-measures and rep
 | `contentStyle`  | `StyleProp<ViewStyle>`                     | Style of the measured content node: max-width caps and padding.    |
 | `edgeFadeProps` | `Omit<EdgeFadePropsInterface, 'position'>` | Props forwarded to the bottom `EdgeFade` behind the content.       |
 | `...ViewProps`  | `ViewProps`                                | Forwarded to the container, except `children` and `pointerEvents`. |
+
+```tsx
+const footerProps: ScreenChromeFooterPropsInterface = {
+    children: <TotalRow />,
+    contentStyle: { alignSelf: 'center', maxWidth: 600, width: '100%' },
+    edgeFadeProps: { height: 96 },
+    testID: 'totals-footer',
+};
+
+<ScreenChromeFooter {...footerProps} />;
+```
 
 ## ScreenChromeContext
 

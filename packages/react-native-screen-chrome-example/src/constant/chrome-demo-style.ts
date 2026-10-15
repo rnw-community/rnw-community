@@ -66,7 +66,6 @@ export const CHROME_DEMO_STYLES = StyleSheet.create({
     },
     listContent: {
         gap: 2,
-        paddingBottom: 120,
         paddingTop: 8,
     },
     slotText: {

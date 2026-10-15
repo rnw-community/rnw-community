@@ -188,3 +188,60 @@ describe('ScreenChromeFooter bottom chrome inset publication', () => {
         }).not.toThrow();
     });
 });
+
+describe('ScreenChromeFooter with several footers under one provider', () => {
+    const TwoFooters = ({ withTallFooter }: { readonly withTallFooter: boolean }): ReactNode => (
+        <BottomChromeInsetProvider>
+            <InsetProbe />
+            <ScreenChromeFooter testID="short-footer">
+                <Text>Short</Text>
+            </ScreenChromeFooter>
+            {withTallFooter ? (
+                <ScreenChromeFooter testID="tall-footer">
+                    <Text>Tall</Text>
+                </ScreenChromeFooter>
+            ) : null}
+        </BottomChromeInsetProvider>
+    );
+    const wrapInChrome = (ui: ReactElement): ReactElement => (
+        <SafeAreaProvider initialMetrics={INSETS}>
+            <ScreenChromeProvider>{ui}</ScreenChromeProvider>
+        </SafeAreaProvider>
+    );
+
+    it('publishes the tallest footer height because bottom-anchored footers overlap', () => {
+        expect.hasAssertions();
+
+        const screen = render(wrapInChrome(<TwoFooters withTallFooter />));
+
+        fireEvent(screen.getByTestId('short-footer-content'), 'layout', layoutEvent(MEASURED_HEIGHT));
+        fireEvent(screen.getByTestId('tall-footer-content'), 'layout', layoutEvent(UPDATED_HEIGHT));
+
+        expect(screen.getByTestId('inset-probe')).toHaveTextContent(
+            `${UPDATED_HEIGHT}/${UPDATED_HEIGHT + INSETS.insets.bottom}`
+        );
+
+        fireEvent(screen.getByTestId('tall-footer-content'), 'layout', layoutEvent(MEASURED_HEIGHT - 1));
+
+        expect(screen.getByTestId('inset-probe')).toHaveTextContent(
+            `${MEASURED_HEIGHT}/${MEASURED_HEIGHT + INSETS.insets.bottom}`
+        );
+    });
+
+    it('keeps the remaining footer height when another footer unmounts', () => {
+        expect.hasAssertions();
+
+        const screen = render(wrapInChrome(<TwoFooters withTallFooter />));
+
+        fireEvent(screen.getByTestId('short-footer-content'), 'layout', layoutEvent(MEASURED_HEIGHT));
+        fireEvent(screen.getByTestId('tall-footer-content'), 'layout', layoutEvent(UPDATED_HEIGHT));
+
+        act(() => {
+            screen.rerender(wrapInChrome(<TwoFooters withTallFooter={false} />));
+        });
+
+        expect(screen.getByTestId('inset-probe')).toHaveTextContent(
+            `${MEASURED_HEIGHT}/${MEASURED_HEIGHT + INSETS.insets.bottom}`
+        );
+    });
+});
