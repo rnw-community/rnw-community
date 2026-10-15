@@ -13,51 +13,51 @@ Convenient [TypeScript type guards](https://www.typescriptlang.org/docs/handbook
 > These type guards make your code more explicit, readable, and type-safe — both at runtime and in TypeScript's flow analysis.
 
 - Generic:
-    - [isDefined](src/type-guard/generic/is-defined/is-defined.md)
-    - [isError](src/type-guard/generic/is-error/is-error.md)
-    - [isObject](src/type-guard/generic/is-object/is-object.md)
-    - [isPromise](src/type-guard/generic/is-promise/is-promise.md)
-    - [isRecord](src/type-guard/generic/is-record/is-record.md) - non-array objects that are safe to index by key
+    - [isDefined](https://github.com/rnw-community/rnw-community/blob/master/packages/shared/src/type-guard/generic/is-defined/is-defined.md)
+    - [isError](https://github.com/rnw-community/rnw-community/blob/master/packages/shared/src/type-guard/generic/is-error/is-error.md)
+    - [isObject](https://github.com/rnw-community/rnw-community/blob/master/packages/shared/src/type-guard/generic/is-object/is-object.md)
+    - [isPromise](https://github.com/rnw-community/rnw-community/blob/master/packages/shared/src/type-guard/generic/is-promise/is-promise.md)
+    - [isRecord](https://github.com/rnw-community/rnw-community/blob/master/packages/shared/src/type-guard/generic/is-record/is-record.md) - non-array objects that are safe to index by key
 - Array:
-    - [isArray](src/type-guard/array/is-array/is-array.md)
-    - [isEmptyArray](src/type-guard/array/is-empty-array/is-empty-array.md)
-    - [isNotEmptyArray](src/type-guard/array/is-not-empty-array/is-not-empty-array.md)
-    - [isNotEmptyArrayOf](src/type-guard/array/is-not-empty-array-of/is-not-empty-array-of.md)
+    - [isArray](https://github.com/rnw-community/rnw-community/blob/master/packages/shared/src/type-guard/array/is-array/is-array.md)
+    - [isEmptyArray](https://github.com/rnw-community/rnw-community/blob/master/packages/shared/src/type-guard/array/is-empty-array/is-empty-array.md)
+    - [isNotEmptyArray](https://github.com/rnw-community/rnw-community/blob/master/packages/shared/src/type-guard/array/is-not-empty-array/is-not-empty-array.md)
+    - [isNotEmptyArrayOf](https://github.com/rnw-community/rnw-community/blob/master/packages/shared/src/type-guard/array/is-not-empty-array-of/is-not-empty-array-of.md)
 - String:
-    - [isString](src/type-guard/string/is-string/is-string.md)
-    - [isEmptyString](src/type-guard/string/is-empty-string/is-empty-string.md)
-    - [isNotEmptyString](src/type-guard/string/is-not-empty-string/is-not-empty-string.md)
-    - [isDecimalMonetaryValue](src/type-guard/string/is-decimal-monetary-value/is-decimal-monetary-value.md) - decimal-formatted numeric string, e.g. currency amounts
+    - [isString](https://github.com/rnw-community/rnw-community/blob/master/packages/shared/src/type-guard/string/is-string/is-string.md)
+    - [isEmptyString](https://github.com/rnw-community/rnw-community/blob/master/packages/shared/src/type-guard/string/is-empty-string/is-empty-string.md)
+    - [isNotEmptyString](https://github.com/rnw-community/rnw-community/blob/master/packages/shared/src/type-guard/string/is-not-empty-string/is-not-empty-string.md)
+    - [isDecimalMonetaryValue](https://github.com/rnw-community/rnw-community/blob/master/packages/shared/src/type-guard/string/is-decimal-monetary-value/is-decimal-monetary-value.md) - decimal-formatted numeric string, e.g. currency amounts
 - Number:
-    - [isNumber](src/type-guard/number/is-number/is-number.md)
-    - [isPositiveNumber](src/type-guard/number/is-positive-number/is-positive-number.md)
+    - [isNumber](https://github.com/rnw-community/rnw-community/blob/master/packages/shared/src/type-guard/number/is-number/is-number.md)
+    - [isPositiveNumber](https://github.com/rnw-community/rnw-community/blob/master/packages/shared/src/type-guard/number/is-positive-number/is-positive-number.md)
 - Boolean:
-    - [isBoolean](src/type-guard/boolean/is-boolean/is-boolean.md)
+    - [isBoolean](https://github.com/rnw-community/rnw-community/blob/master/packages/shared/src/type-guard/boolean/is-boolean/is-boolean.md)
 
 ## Utils
 
 Utility functions that helps with everyday tasks:
 
-- [getErrorMessage](src/util/get-error-message/get-error-message.md) - Get typesafe Error object message.
-- [emptyFn](src/util/empty-fn/empty-fn.md) - Useful default react prop callback value.
-- [cs](src/util/cs/cs.md) - Conditional styling util.
-- [getDefined](src/util/get-defined/get-defined.md) - Get fallback value if passed variable is not defined.
-- [wait](src/util/wait/wait.md) - Promise-based sleep via `setTimeout`.
+- [getErrorMessage](https://github.com/rnw-community/rnw-community/blob/master/packages/shared/src/util/get-error-message/get-error-message.md) - Get typesafe Error object message.
+- [emptyFn](https://github.com/rnw-community/rnw-community/blob/master/packages/shared/src/util/empty-fn/empty-fn.md) - Useful default react prop callback value.
+- [cs](https://github.com/rnw-community/rnw-community/blob/master/packages/shared/src/util/cs/cs.md) - Conditional styling util.
+- [getDefined](https://github.com/rnw-community/rnw-community/blob/master/packages/shared/src/util/get-defined/get-defined.md) - Get fallback value if passed variable is not defined.
+- [wait](https://github.com/rnw-community/rnw-community/blob/master/packages/shared/src/util/wait/wait.md) - Promise-based sleep via `setTimeout`.
 
 ## Types
 
 Commonly used typescript types:
 
-- [ClassType](src/type/class-type/class.type.md)
-- [Maybe](src/type/maybe-type/maybe.type.md)
-- [OnEventFn](src/type/on-event-fn-type/on-event-fn.type.md)
-- [EmptyFn](src/type/empty-fn-type/empty-fn.type.md)
-- [Enum](src/type/enum-type/enum-type.md)
-- [IsNotEmptyArray](src/type/is-not-empty-array-type/is-not-empty-array.type.md)
-- [ReadonlyIsNotEmptyArray](src/type/readonly-is-not-empty-array-type/readonly-is-not-empty-array.type.md)
-- [AnyFn](src/type/any-fn-type/any-fn.type.md)
-- [AbstractConstructor](src/type/abstract-constructor-type/abstract-constructor.type.md)
-- [MethodDecoratorType](src/type/method-decorator-type/method-decorator.type.md)
+- [ClassType](https://github.com/rnw-community/rnw-community/blob/master/packages/shared/src/type/class-type/class.type.md)
+- [Maybe](https://github.com/rnw-community/rnw-community/blob/master/packages/shared/src/type/maybe-type/maybe.type.md)
+- [OnEventFn](https://github.com/rnw-community/rnw-community/blob/master/packages/shared/src/type/on-event-fn-type/on-event-fn.type.md)
+- [EmptyFn](https://github.com/rnw-community/rnw-community/blob/master/packages/shared/src/type/empty-fn-type/empty-fn.type.md)
+- [Enum](https://github.com/rnw-community/rnw-community/blob/master/packages/shared/src/type/enum-type/enum.type.md)
+- [IsNotEmptyArray](https://github.com/rnw-community/rnw-community/blob/master/packages/shared/src/type/is-not-empty-array-type/is-not-empty-array.type.md)
+- [ReadonlyIsNotEmptyArray](https://github.com/rnw-community/rnw-community/blob/master/packages/shared/src/type/readonly-is-not-empty-array-type/readonly-is-not-empty-array.type.md)
+- [AnyFn](https://github.com/rnw-community/rnw-community/blob/master/packages/shared/src/type/any-fn-type/any-fn.type.md)
+- [AbstractConstructor](https://github.com/rnw-community/rnw-community/blob/master/packages/shared/src/type/abstract-constructor-type/abstract-constructor.type.md)
+- [MethodDecoratorType](https://github.com/rnw-community/rnw-community/blob/master/packages/shared/src/type/method-decorator-type/method-decorator.type.md)
 
 ## License
 
