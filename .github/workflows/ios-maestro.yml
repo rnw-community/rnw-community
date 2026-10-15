@@ -87,7 +87,9 @@ jobs:
         runs-on: [self-hosted, macOS, ARM64, macos-maestro]
         # Self-hosted fleet capacity is shared with other repositories, so both the
         # job and every step below carry an explicit bound. See the step comments
-        # for how each number was sized.
+        # for how each number was sized. The cache saves at the end of the job
+        # used to run as implicit post steps inside this same budget; they are
+        # explicit, bounded steps now, so the total is unchanged.
         timeout-minutes: 60
         strategy:
             fail-fast: false
@@ -112,9 +114,33 @@ jobs:
                 timeout-minutes: 10
                 with:
                     node-version: 22.x
-                    cache: pnpm
+                    package-manager-cache: false
+
+            -   name: Resolve pnpm store path
+                id: pnpm-store
+                shell: bash
+                run: echo "path=$(pnpm store path --silent)" >> "$GITHUB_OUTPUT"
+
+            # Every cache in this job is restore-only up front and saved by an
+            # explicit step at the very end, only on a primary-key miss. Uploads
+            # from this fleet run at ~0.6 MB/s, and the implicit post-step saves
+            # of actions/cache and setup-node's `cache: pnpm` timed out after the
+            # suite had already passed, failing green runs. There is no
+            # GitHub-hosted macOS job whose paths ($HOME is /Users/admin here)
+            # would produce a restorable entry, so the save stays on this
+            # runner, but as a bounded, non-fatal step after the suite.
+            -   name: Restore pnpm store cache
+                id: pnpm-cache
+                uses: actions/cache/restore@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
+                timeout-minutes: 5
+                with:
+                    path: ${{ steps.pnpm-store.outputs.path }}
+                    key: pnpm-store-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('pnpm-lock.yaml') }}
+                    restore-keys: |
+                        pnpm-store-${{ runner.os }}-${{ runner.arch }}-
 
             -   name: Install dependencies
+                id: install
                 timeout-minutes: 15
                 run: pnpm install --frozen-lockfile
 
@@ -123,7 +149,8 @@ jobs:
                 run: xcodebuild -version
 
             -   name: Restore CocoaPods global cache
-                uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
+                id: pods-global-cache
+                uses: actions/cache/restore@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
                 timeout-minutes: 10
                 with:
                     path: |
@@ -134,12 +161,9 @@ jobs:
                         pods-global-${{ runner.os }}-
 
             -   name: Restore project Pods and DerivedData cache
-                uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
-                # The bound covers the implicit post-job save too, and a full
-                # DerivedData tree for a React Native app regularly needs more than
-                # ten minutes to upload from the self-hosted fleet — which failed the
-                # job after the Maestro suite had already passed.
-                timeout-minutes: 25
+                id: pods-project-cache
+                uses: actions/cache/restore@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
+                timeout-minutes: 15
                 with:
                     path: |
                         ${{ env.APP_DIR }}/ios/Pods
@@ -161,6 +185,7 @@ jobs:
                 run: pnpm prebuild:expo
 
             -   name: Install CocoaPods dependencies
+                id: pod-install
                 timeout-minutes: 20
                 working-directory: ${{ env.APP_DIR }}/ios
                 run: pod install --repo-update
@@ -186,6 +211,7 @@ jobs:
                     echo "SIMULATOR_UDID=$device_udid" >> "$GITHUB_ENV"
 
             -   name: Build app
+                id: build
                 # The workspace and scheme are the same name for both target kinds:
                 # the bare template names them after app.json, and expo prebuild
                 # derives them from the slug. The matrix carries that name.
@@ -418,6 +444,44 @@ jobs:
                     include-hidden-files: true
                     if-no-files-found: warn
                     retention-days: 7
+
+            # Each save reuses the restore step's computed primary key rather than
+            # re-hashing: Podfile.lock only exists after `pod install`, so a key
+            # recomputed here would never match the one the next run looks up.
+            # continue-on-error is confined to these steps: a slow or failed
+            # upload must never turn a finished suite red.
+            -   name: Save pnpm store cache
+                if: ${{ !cancelled() && steps.install.outcome == 'success' && steps.pnpm-cache.outputs.cache-hit != 'true' }}
+                uses: actions/cache/save@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
+                continue-on-error: true
+                timeout-minutes: 10
+                with:
+                    path: ${{ steps.pnpm-store.outputs.path }}
+                    key: ${{ steps.pnpm-cache.outputs.cache-primary-key }}
+
+            -   name: Save CocoaPods global cache
+                if: ${{ !cancelled() && steps.pod-install.outcome == 'success' && steps.pods-global-cache.outputs.cache-hit != 'true' }}
+                uses: actions/cache/save@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
+                continue-on-error: true
+                timeout-minutes: 5
+                with:
+                    path: |
+                        ~/Library/Caches/CocoaPods
+                        ~/.cocoapods
+                    key: ${{ steps.pods-global-cache.outputs.cache-primary-key }}
+
+            -   name: Save project Pods and DerivedData cache
+                # A full DerivedData tree measured ~20 minutes to upload from this
+                # fleet (860 MB at ~0.7 MB/s).
+                if: ${{ !cancelled() && steps.build.outcome == 'success' && steps.pods-project-cache.outputs.cache-hit != 'true' }}
+                uses: actions/cache/save@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
+                continue-on-error: true
+                timeout-minutes: 25
+                with:
+                    path: |
+                        ${{ env.APP_DIR }}/ios/Pods
+                        ${{ env.APP_DIR }}/ios/build
+                    key: ${{ steps.pods-project-cache.outputs.cache-primary-key }}
 
     status:
         name: iOS Maestro E2E result
