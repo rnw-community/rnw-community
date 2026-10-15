@@ -1,5 +1,6 @@
 {
     "packages/**/*.{ts,tsx}": [
+        "pnpm exec oxlint --fix",
         "pnpm exec eslint --fix",
         "pnpm exec prettier --write"
     ],

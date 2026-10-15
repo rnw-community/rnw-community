@@ -16,8 +16,10 @@ TypeScript monorepo with 22 packages providing NestJS, React, React Native, and 
 # Root-level (runs across all packages via Turbo)
 pnpm build              # Build all packages (dual ESM + CJS output to dist/)
 pnpm ts                 # Type check all packages
-pnpm lint               # ESLint all packages
-pnpm lint:fix           # Auto-fix lint issues
+pnpm lint               # oxlint first pass, then ESLint all packages
+pnpm lint:fast          # oxlint only (sub-second, no type information)
+pnpm lint:fix           # Auto-fix lint issues (oxlint --fix, then ESLint --fix)
+pnpm lint:oxlint:generate # Regenerate .oxlintrc.json after editing eslint.config.mjs
 pnpm test               # Run all tests
 pnpm test:coverage      # Run tests with coverage
 pnpm format             # Prettier format all
@@ -32,7 +34,7 @@ pnpm test --watch       # Watch mode
 pnpm test:coverage      # Tests with coverage
 pnpm build              # Build this package only
 pnpm ts                 # Type check this package only
-pnpm lint:fix           # Fix lint issues in this package
+pnpm lint:fix           # Fix lint issues in this package (ESLint share only; run `pnpm lint:fast` at the root too)
 ```
 
 ## Architecture
@@ -246,6 +248,24 @@ Groups: builtin → external → `@rnw-community/*` → parent → sibling → i
 - Unused vars with `_` prefix are allowed (`argsIgnorePattern: ^_`)
 - `expect.hasAssertions()` in every test case
 
+### Lint toolchain — ESLint 10 + oxlint
+
+`eslint.config.mjs` is the single source of truth for every lint rule. `scripts/generate-oxlintrc.mjs` derives
+`.oxlintrc.json` from it: each rule ESLint enables that oxlint implements without type information, with identical
+options, and with matching results on a third-party parity corpus, moves to oxlint; `eslint-plugin-oxlint` then turns
+exactly those rules off in ESLint, so nothing is reported twice and nothing is dropped. The generator keeps a rule in
+ESLint when oxlint rejects its options or diverges from ESLint (its `rulesKeptInEslint` / `pluginsKeptInEslint` maps
+list each reason), and fails if the handoff would disable an ESLint rule that oxlint does not take over.
+
+- After changing `eslint.config.mjs`, run `pnpm lint:oxlint:generate` and commit `.oxlintrc.json`; CI runs
+  `pnpm lint:oxlint:check` and fails on drift
+- `pnpm lint` = `pnpm lint:fast` (oxlint over `packages/*/src`) followed by the per-package ESLint turbo task; a
+  per-package `pnpm lint` runs only the ESLint share
+- Disable directives keep ESLint syntax (`// eslint-disable-next-line <rule>`) — oxlint honours them. ESLint's
+  unused-directive report skips directives that name oxlint-owned rules (the `oxlint-handoff` processor), so those
+  are not checked for staleness
+- Type-aware rules stay in ESLint/typescript-eslint; oxlint's type-aware mode (`oxlint-tsgolint`) is not adopted yet
+
 ### Commit Messages (Conventional Commits, enforced by commitlint + husky)
 
 Format: `type(scope): description` — scope must be a package name (e.g., `shared`, `react-native-payments`). Header ≤100 chars.
@@ -378,7 +398,7 @@ The monorepo uses dual ESM + CJS output. Key decisions:
       error (`.json` stays allowed for `resolveJsonModule` imports). This
       isn't just style: without a `moduleNameMapper` (see next), a stray `.js` in source would make Jest fail to resolve
       the specifier outright, since Jest resolves relative imports straight against the real `.ts` files on disk. Plain
-      `import/extensions` from `eslint-plugin-import` remains unsuitable for the same reason it was rejected under the old
+      `import-x/extensions` from `eslint-plugin-import-x` remains unsuitable for the same reason it was rejected under the old
       approach — it keys off the _resolved_ file's real extension, not the declared one.
       `get-jest.config.js`'s `moduleNameMapper` (`^(\.{1,2}/.*)\.js$` → `$1`, added to strip the `.js` the old approach put
       in source before Jest tried to resolve it) is **removed** — there's nothing left to strip. Jest runs directly
@@ -461,6 +481,6 @@ All three must pass before creating a commit. Do not skip any of these checks.
 
 ## Pre-commit Hooks (Husky + lint-staged)
 
-- Auto-runs ESLint fix and Prettier on staged `.ts/.tsx` files
+- Auto-runs oxlint fix, ESLint fix and Prettier on staged `.ts/.tsx` files
 - Sorts `package.json` files
 - Validates commit message format
