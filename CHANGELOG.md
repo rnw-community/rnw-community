@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [2.24.0](https://github.com/rnw-community/rnw-community/compare/v2.23.2...v2.24.0) (2026-10-15)
+
+### Features
+
+- **react-native-collapsible-header:** add the roll collapsed transition ([#674](https://github.com/rnw-community/rnw-community/issues/674)) ([2426854](https://github.com/rnw-community/rnw-community/commit/242685473d7cead3fe93c4f4fc3403e59150de8b))
+
 ## [2.23.2](https://github.com/rnw-community/rnw-community/compare/v2.23.1...v2.23.2) (2026-10-15)
 
 ### Bug Fixes
