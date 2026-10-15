@@ -6,6 +6,7 @@ import { cs, getDefined, isDefined } from '@rnw-community/shared';
 
 import { assertSnappableCollapsibleHeaderScroll } from '../assert/assert-snappable-collapsible-header-scroll.assert';
 import { assertValidCollapsibleHeaderConfig } from '../assert/assert-valid-collapsible-header-config.assert';
+import { CollapsibleHeaderCollapsedLayer } from '../component/collapsible-header-collapsed-layer';
 import { resolveCollapsibleHeaderMotionConfig } from '../config/resolve-collapsible-header-motion.config';
 import { CollapsibleHeaderProgressContext } from '../context/collapsible-header-progress.context';
 import { CollapsibleHeaderScrollContext } from '../context/collapsible-header-scroll.context';
@@ -57,6 +58,7 @@ export const CollapsibleHeader = (props: CollapsibleHeaderProps) => {
         mode = 'flow',
         snap = false,
         stretchOnOverscroll = false,
+        collapsedTransition = 'fade',
         motion,
         headerStyle,
         backgroundStyle,
@@ -73,7 +75,7 @@ export const CollapsibleHeader = (props: CollapsibleHeaderProps) => {
         throw new Error('CollapsibleHeader requires a scrollY prop or a CollapsibleHeaderProvider ancestor');
     });
     assertSnappableCollapsibleHeaderScroll(snap, scrollY);
-    const motionConfig = resolveCollapsibleHeaderMotionConfig(motion);
+    const motionConfig = resolveCollapsibleHeaderMotionConfig(motion, collapsedTransition, collapsedHeight);
 
     assertValidCollapsibleHeaderConfig(
         { expandedHeight, collapsedHeight, collapseDistance: resolvedCollapseDistance, collapseStart },
@@ -99,13 +101,15 @@ export const CollapsibleHeader = (props: CollapsibleHeaderProps) => {
                     testID={layerTestIDs.background}
                 />
                 <Animated.View style={[styles.header, headerStyle, layers.headerAnimatedStyle]} testID={layerTestIDs.header}>
-                    <Animated.View
+                    <CollapsibleHeaderCollapsedLayer
+                        transition={collapsedTransition}
+                        collapsedHeight={collapsedHeight}
                         animatedProps={layers.collapsedAnimatedProps}
                         style={[styles.content, collapsedContentContainerStyle, layers.collapsedAnimatedStyle]}
                         testID={layerTestIDs.collapsed}
                     >
                         {collapsedContent}
-                    </Animated.View>
+                    </CollapsibleHeaderCollapsedLayer>
                     <Animated.View
                         animatedProps={layers.expandedAnimatedProps}
                         style={[styles.content, expandedContentContainerStyle, layers.expandedAnimatedStyle]}

@@ -7,5 +7,6 @@ export { getCollapsibleHeaderContentInsetStyle } from './util/get-collapsible-he
 export type { CollapsibleHeaderMotionConfig } from './interface/collapsible-header-motion-config.interface';
 export type { CollapsibleHeaderProps } from './interface/collapsible-header-props.interface';
 export type { CollapsibleHeaderScroll } from './interface/collapsible-header-scroll.interface';
+export type { CollapsibleHeaderCollapsedTransition } from './type/collapsible-header-collapsed-transition.type';
 export type { CollapsibleHeaderMode } from './type/collapsible-header-mode.type';
 export type { CollapsibleHeaderScrollRef } from './type/collapsible-header-scroll-ref.type';

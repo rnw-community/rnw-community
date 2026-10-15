@@ -151,7 +151,8 @@ Content taller than the shrinking header can paint outside it mid-transition; pa
 `headerStyle={{ overflow: 'hidden' }}` to clip (clipping also cuts shadows, which is why it is not the default).
 
 When a `testID` is set, every layer derives its own: `{testID}-background`, `{testID}-header`, `{testID}-expanded`,
-`{testID}-collapsed`, and `{testID}-persistent` (when persistent content exists). Query them in React Native Testing
+`{testID}-collapsed`, `{testID}-persistent` (when persistent content exists), and `{testID}-collapsed-clip` (when
+`collapsedTransition` is `'roll'`). Query them in React Native Testing
 Library with `{ includeHiddenElements: true }` — the invisible layer is accessibility-hidden by design — or target them
 directly from Maestro/Detox flows.
 
@@ -170,6 +171,7 @@ directly from Maestro/Detox flows.
 | `mode`                            | `'flow' \| 'overlay'`                    | `flow` participates in layout; `overlay` pins the header above the scrollable.         |
 | `snap`                            | `boolean`                                | Snaps to the nearest endpoint when scrolling settles mid-transition; needs a provider. |
 | `stretchOnOverscroll`             | `boolean`                                | Stretches the header height while the scrollable overscrolls above its top edge.       |
+| `collapsedTransition`             | `'fade' \| 'roll'`                       | How collapsed content enters; defaults to `'fade'`.                                    |
 | `motion`                          | `Partial<CollapsibleHeaderMotionConfig>` | Optional normalized transition thresholds and endpoint transforms.                     |
 | `headerStyle`                     | `StyleProp<ViewStyle>`                   | Style for the height-animated header layer.                                            |
 | `backgroundStyle`                 | `StyleProp<ViewStyle>`                   | Style for the background fade layer.                                                   |
@@ -327,6 +329,31 @@ midpoint; with the default thresholds the derived value is `0.55`.
 
 Opacity progress fields must be between `0` and `1`, and `collapsedOpacityStartProgress` must be less than or equal to
 `expandedOpacityEndProgress`. Translation endpoints must be finite numbers.
+
+## CollapsibleHeaderCollapsedTransition
+
+Selects how collapsed content enters. `'fade'` (default) cross-fades it in place with the small `collapsedTranslateY`
+nudge. `'roll'` is the iOS-style roll-in: the collapsed layer is clipped to a band of `collapsedHeight` at the top of
+the header, and its content rises from just below that band's bottom edge while it fades in, landing in place at the
+collapsed endpoint.
+
+```tsx
+<CollapsibleHeader
+    expandedHeight={120}
+    collapsedHeight={56}
+    collapsedTransition="roll"
+    expandedContent={<LargeTitle />}
+    collapsedContent={<SmallTitle />}
+/>
+```
+
+The roll runs over the same `collapsedOpacityStartProgress` → `1` window as the fade, so the motion thresholds keep
+working unchanged. Under `'roll'` an omitted `collapsedTranslateY` resolves to `collapsedHeight` — the distance that
+starts the content fully hidden below the band — and an explicit value still wins, for a shorter roll. Pointer events
+and accessibility focus hand over exactly as with `'fade'`; the clip band is `box-none`, and with a `testID` it is
+exposed as `{testID}-collapsed-clip`. The roll is driven directly by the user's scroll, so like every other scroll-linked
+transform it is not disabled by the system reduce-motion setting; the snap that finishes it is, through the provider.
+Because the band clips, collapsed content taller than `collapsedHeight` is cut off under `'roll'`.
 
 ## CollapsibleHeaderMode
 

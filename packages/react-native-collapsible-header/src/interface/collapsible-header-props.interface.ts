@@ -1,4 +1,5 @@
 import type { CollapsibleHeaderMotionConfig } from './collapsible-header-motion-config.interface';
+import type { CollapsibleHeaderCollapsedTransition } from '../type/collapsible-header-collapsed-transition.type';
 import type { CollapsibleHeaderMode } from '../type/collapsible-header-mode.type';
 import type { ReactNode } from 'react';
 import type { StyleProp, ViewProps, ViewStyle } from 'react-native';
@@ -46,6 +47,11 @@ export interface CollapsibleHeaderProps extends Omit<ViewProps, 'children'> {
      * @defaultValue `false`
      */
     readonly stretchOnOverscroll?: boolean;
+    /**
+     * How collapsed content enters: `fade` cross-fades in place, `roll` rises from below the collapsed bar's bottom edge.
+     * @defaultValue `'fade'`
+     */
+    readonly collapsedTransition?: CollapsibleHeaderCollapsedTransition;
     /** Optional normalized transition thresholds and endpoint transforms. */
     readonly motion?: Partial<CollapsibleHeaderMotionConfig>;
     /** Style for the height-animated header layer. */
