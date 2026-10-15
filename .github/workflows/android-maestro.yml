@@ -52,8 +52,7 @@ concurrency:
     group: android-maestro-${{ github.ref }}
     cancel-in-progress: true
 
-permissions:
-    contents: read
+permissions: {}
 
 env:
     MAESTRO_VERSION: '2.8.0'
@@ -64,15 +63,17 @@ jobs:
     detect:
         name: Detect affected packages
         runs-on: ubuntu-latest
+        permissions:
+            contents: read
         outputs:
             matrix: ${{ steps.affected.outputs.matrix }}
             any: ${{ steps.affected.outputs.any }}
         steps:
-            - uses: actions/checkout@v7
+            - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
               with:
                   fetch-depth: 0
                   persist-credentials: false
-            - uses: actions/setup-node@v7
+            - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
               with:
                   node-version: 22.x
                   package-manager-cache: false
@@ -106,6 +107,8 @@ jobs:
         name: Build APK (${{ matrix.package }}, ${{ matrix.target }})
         needs: detect
         if: needs.detect.outputs.any == 'true'
+        permissions:
+            contents: read
         # x86_64: the NDK's host clang has no arm64-Linux build, so this cannot
         # run on the self-hosted fleet. See the top-of-file note.
         runs-on: ubuntu-24.04
@@ -124,14 +127,16 @@ jobs:
             APP_DIR: ${{ matrix.example_dir }}/apps/${{ matrix.target }}
         steps:
             -   name: Checkout repository
-                uses: actions/checkout@v7
+                uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
                 timeout-minutes: 10
+                with:
+                    persist-credentials: false
 
             -   name: Setup pnpm
-                uses: pnpm/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1 # v4
+                uses: pnpm/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1 # v4.3.0
 
             -   name: Setup Node
-                uses: actions/setup-node@v7
+                uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
                 timeout-minutes: 10
                 with:
                     node-version: 22.x
@@ -143,7 +148,9 @@ jobs:
 
             -   name: Build workspace JS dependencies
                 timeout-minutes: 10
-                run: pnpm build --filter="${{ matrix.build_filter }}"
+                env:
+                    BUILD_FILTER: ${{ matrix.build_filter }}
+                run: pnpm build --filter="${BUILD_FILTER}"
 
             -   name: Generate native project (expo)
                 if: matrix.target == 'expo'
@@ -152,7 +159,7 @@ jobs:
                 run: pnpm prebuild:expo
 
             -   name: Set up Android SDK
-                uses: android-actions/setup-android@v3
+                uses: android-actions/setup-android@9fc6c4e9069bf8d3d10b2204b1fb8f6ef7065407 # v3.2.2
                 timeout-minutes: 15
                 with:
                     # The action still defaults to "tools platform-tools", but the
@@ -165,7 +172,7 @@ jobs:
                     packages: platform-tools
 
             -   name: Restore Gradle cache
-                uses: actions/cache@v4
+                uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
                 timeout-minutes: 10
                 with:
                     path: |
@@ -189,10 +196,10 @@ jobs:
                 run: |
                     set -euo pipefail
                     set -x
-                    (cd "${{ env.APP_DIR }}/android" && ./gradlew assembleRelease)
+                    (cd "${APP_DIR}/android" && ./gradlew assembleRelease)
 
             -   name: Upload APK artifact
-                uses: actions/upload-artifact@v6
+                uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
                 timeout-minutes: 5
                 with:
                     name: apk-${{ matrix.package }}-${{ matrix.target }}
@@ -204,6 +211,8 @@ jobs:
         name: Maestro (${{ matrix.package }}, ${{ matrix.target }})
         needs: [detect, build-apk]
         if: needs.detect.outputs.any == 'true'
+        permissions:
+            contents: read
         # Time-boxed: see the same flag in ios-maestro.yml and issue #601.
         continue-on-error: ${{ matrix.package == 'screen-chrome' }}
         # 4x8, not 2x4: only the 4cpu/8GB profile of the amd64 scale set has
@@ -246,14 +255,16 @@ jobs:
 
         steps:
             -   name: Checkout repository
-                uses: actions/checkout@v7
+                uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
                 timeout-minutes: 10
+                with:
+                    persist-credentials: false
 
             -   name: Setup pnpm
-                uses: pnpm/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1 # v4
+                uses: pnpm/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1 # v4.3.0
 
             -   name: Setup Node
-                uses: actions/setup-node@v7
+                uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
                 timeout-minutes: 10
                 with:
                     node-version: 22.x
@@ -268,7 +279,7 @@ jobs:
                 run: pnpm install --frozen-lockfile
 
             -   name: Download APK artifact
-                uses: actions/download-artifact@v8
+                uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
                 timeout-minutes: 10
                 with:
                     name: apk-${{ matrix.package }}-${{ matrix.target }}
@@ -293,7 +304,7 @@ jobs:
                     sdk=''
                     cli_bin=''
                     for candidate in "${ANDROID_HOME:-}" "${ANDROID_SDK_ROOT:-}" /opt/android-sdk /usr/local/lib/android/sdk "$HOME/Android/Sdk"; do
-                      [ -n "$candidate" ] && [ -d "$candidate" ] || continue
+                      if [ -z "$candidate" ] || [ ! -d "$candidate" ]; then continue; fi
                       [ -x "$candidate/emulator/emulator" ] || continue
                       [ -x "$candidate/platform-tools/adb" ] || continue
                       [ -d "$candidate/$image_dir" ] || continue
@@ -326,7 +337,7 @@ jobs:
                 # Only when the probe above found nothing usable, so the job keeps
                 # working across runner image revisions instead of depending on one.
                 if: steps.sdk.outputs.sdk == ''
-                uses: android-actions/setup-android@v3
+                uses: android-actions/setup-android@9fc6c4e9069bf8d3d10b2204b1fb8f6ef7065407 # v3.2.2
                 timeout-minutes: 25
                 with:
                     # Explicit, because the action still defaults to
@@ -509,6 +520,7 @@ jobs:
                     # artifact at all, so the boot has to be readable in the live
                     # log: load average beside the boot properties is what
                     # separates "starved" from "stuck".
+                    # shellcheck disable=SC2016
                     timeout 300 bash -c 'until [ "$(adb shell getprop sys.boot_completed 2>/dev/null | tr -d "\r")" = "1" ]; do
                       echo "booting: bootanim=$(adb shell getprop init.svc.bootanim 2>/dev/null | tr -d "\r") load=$(cut -d" " -f1-3 /proc/loadavg)"
                       sleep 5
@@ -532,6 +544,7 @@ jobs:
                     # signals, not a sleep: bootanim stopping means the launcher is
                     # up, and broadcast-idle means the boot broadcast queue (GMS
                     # first-run receivers included) has drained.
+                    # shellcheck disable=SC2016
                     timeout 180 bash -c 'until [ "$(adb shell getprop init.svc.bootanim | tr -d "\r")" = "stopped" ]; do sleep 5; done' \
                       || echo "::warning::init.svc.bootanim never reported 'stopped'; continuing, but the device may still be starting its launcher."
                     # Non-fatal and bounded: `am wait-for-broadcast-idle` is the
@@ -713,6 +726,9 @@ jobs:
                 # install + test only.
                 timeout-minutes: 20
                 shell: bash
+                env:
+                    EXAMPLE_DIR: ${{ matrix.example_dir }}
+                    TARGET: ${{ matrix.target }}
                 run: |
                     set -euo pipefail
                     set -x
@@ -722,8 +738,8 @@ jobs:
                     # the x86_64 slice this emulator needs is in the same artifact
                     # the arm64 redroid path used to install.
                     timeout 300 adb -s "$ANDROID_SERIAL" install -r "$apk"
-                    cd "${{ matrix.example_dir }}"
-                    pnpm e2e:android:${{ matrix.target }} --debug-output "$MAESTRO_DEBUG_OUTPUT_DIRECTORY"
+                    cd "${EXAMPLE_DIR}"
+                    pnpm "e2e:android:${TARGET}" --debug-output "$MAESTRO_DEBUG_OUTPUT_DIRECTORY"
 
             -   name: Capture final device state
                 # Only meaningful when the emulator booted and the test step then
@@ -734,7 +750,7 @@ jobs:
                 timeout-minutes: 3
                 shell: bash
                 run: |
-                    out="${{ env.MAESTRO_DEBUG_OUTPUT_DIRECTORY }}"
+                    out="${MAESTRO_DEBUG_OUTPUT_DIRECTORY}"
                     mkdir -p "$out"
                     # The emulator's own stdout is what `docker logs` used to be
                     # here: it is the only place a refused /dev/kvm, a corrupt AVD,
@@ -776,7 +792,7 @@ jobs:
                 # Matches the capture step's condition — gating this on the test step
                 # alone discarded the emulator log whenever setup was what failed.
                 if: failure() || steps.tests.outcome == 'failure' || steps.emulator.outcome == 'failure'
-                uses: actions/upload-artifact@v6
+                uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
                 timeout-minutes: 5
                 with:
                     name: maestro-android-${{ matrix.package }}-${{ matrix.target }}
@@ -790,22 +806,28 @@ jobs:
         needs: [detect, build-apk, maestro]
         if: always()
         runs-on: ubuntu-latest
+        permissions: {}
         steps:
             - name: Report
+              env:
+                  NEEDS_DETECT_RESULT: ${{ needs.detect.result }}
+                  NEEDS_DETECT_OUTPUTS_ANY: ${{ needs.detect.outputs.any }}
+                  NEEDS_BUILD_APK_RESULT: ${{ needs.build-apk.result }}
+                  NEEDS_MAESTRO_RESULT: ${{ needs.maestro.result }}
               run: |
-                  if [ "${{ needs.detect.result }}" != "success" ]; then
+                  if [ "${NEEDS_DETECT_RESULT}" != "success" ]; then
                     echo "Detection job did not succeed."
                     exit 1
                   fi
-                  if [ "${{ needs.detect.outputs.any }}" != "true" ]; then
+                  if [ "${NEEDS_DETECT_OUTPUTS_ANY}" != "true" ]; then
                     echo "Skipped: no example package dependency tree was touched."
                     exit 0
                   fi
-                  if [ "${{ needs.build-apk.result }}" != "success" ]; then
+                  if [ "${NEEDS_BUILD_APK_RESULT}" != "success" ]; then
                     echo "APK build failed."
                     exit 1
                   fi
-                  if [ "${{ needs.maestro.result }}" != "success" ]; then
+                  if [ "${NEEDS_MAESTRO_RESULT}" != "success" ]; then
                     echo "Maestro suite failed."
                     exit 1
                   fi
