@@ -17,6 +17,13 @@ pnpm test && pnpm test:coverage && pnpm build && pnpm ts && pnpm ts:nodenext && 
   Those three props are omitted from its public props so a caller-supplied value fails to compile instead of being
   silently overwritten by the spread order.
 - `EdgeFade` has explicit native and web implementations with shared metrics and animation hooks.
+- The band renderer (`EdgeFade` `renderBand`, falling back to `ScreenChromeProvider` `renderEdgeFadeBand` through
+  context) only swaps the container's children. The container — absolute positioning, `getEdgeFadeBandMetrics`
+  geometry, scroll-driven opacity, and the inert pointer/accessibility props — stays package-owned in both
+  implementations, and the native blur (with its intensity animation) lives in the internal `EdgeFadeBlur` so the
+  renderer receives it as a ready element. With no renderer the rendered tree is identical to the pre-renderer output;
+  on web the CSS visuals stay on the container in that case and move into the `blur`/`defaultBand` children only when a
+  renderer is set. `CollapsibleHeaderBackdrop` forwards every `EdgeFade` prop except `position`.
 - The compound header validates direct slots and delegates all transitions to `react-native-collapsible-header`; it
   renders in `mode="overlay"`, forwards `config.snapToCollapse` as `snap`, and maps config thresholds to normalized
   motion through `getCollapsibleHeaderMotion`.
@@ -76,10 +83,10 @@ pnpm test && pnpm test:coverage && pnpm build && pnpm ts && pnpm ts:nodenext && 
   job once #601 resolves and compiler output returns. While the compiler is absent (see below), values whose
   *identity* is behavior — a merged ref callback that React 19 would otherwise detach, clean up, and reattach
   on every render — must be manually memoized; nothing else memoizes them today.
-- `EdgeFade` native renders the blur band directly — no `MaskedView`, no `expo-linear-gradient`: gradient native views
-  corrupt the Hermes heap on the current RN 0.86 / iOS 26 stack (masked-view 0.3.2 is unmaintained; the gradient
-  crashes nondeterministically even standalone). The band fades through the scroll-driven container opacity instead.
-  Revisit both when #601 lands.
+- `EdgeFade` native wraps its blur and wash in `MaskedView` + `expo-linear-gradient` (#640). Do not add further native
+  views to the default band while #601 is open — gradient/masked native views have corrupted the Hermes heap on the
+  RN 0.86 / iOS 26 stack. Additional visuals (Liquid Glass, solid colors, custom gradients) belong in a consumer
+  `renderBand`/`renderEdgeFadeBand`, never in the package default.
 - Public exports carry repository-standard scoped TSDoc and package readme links.
 - Tests retain at least 99.9% statements, branches, functions, and lines coverage.
 

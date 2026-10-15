@@ -1,4 +1,5 @@
 import type { ScreenChromeConfigInterface } from './screen-chrome-config.interface';
+import type { EdgeFadeBandRenderer } from '../edge-fade/edge-fade-band-renderer.type';
 import type { ScreenChromeColorScheme } from '../type/screen-chrome-color-scheme.type';
 
 /**
@@ -10,4 +11,6 @@ export interface ScreenChromeContextValueInterface {
     readonly colorScheme: ScreenChromeColorScheme;
     /** Validated configuration merged from defaults and caller overrides. */
     readonly config: ScreenChromeConfigInterface;
+    /** App-wide band renderer every `EdgeFade` without its own `renderBand` uses. */
+    readonly renderEdgeFadeBand?: EdgeFadeBandRenderer;
 }

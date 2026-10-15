@@ -17,6 +17,7 @@ describe('public API', () => {
                 CollapsibleHeaderSlot: expect.any(Function),
                 CollapsibleHeaderTitleSlot: expect.any(Function),
                 EdgeFade: expect.any(Function),
+                getEdgeFadeBandMetrics: expect.any(Function),
                 ScreenChromeFrame: expect.any(Function),
                 ScreenChromeProvider: expect.any(Function),
                 ScreenChromeScrollView: expect.any(Function),

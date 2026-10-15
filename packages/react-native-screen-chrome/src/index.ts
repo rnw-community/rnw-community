@@ -1,5 +1,6 @@
 export { CollapsibleHeader } from './collapsible-header/collapsible-header';
 export { CollapsibleHeaderBackdrop } from './collapsible-header-backdrop/collapsible-header-backdrop';
+export type { CollapsibleHeaderBackdropPropsInterface } from './collapsible-header-backdrop/collapsible-header-backdrop-props.interface';
 export { CollapsibleHeaderSlot } from './collapsible-header-slot/collapsible-header-slot';
 export { CollapsibleHeaderTitleSlot } from './collapsible-header-title-slot/collapsible-header-title-slot';
 export { SCREEN_CHROME_DEFAULT_CONFIG } from './constant/screen-chrome-default-config.constant';
@@ -10,6 +11,10 @@ export type { EdgeFadePropsInterface } from './edge-fade/edge-fade-props.interfa
 export type { EdgeFadeScrollAnimationInterface } from './edge-fade/edge-fade-scroll-animation.interface';
 export type { ScreenChromeMaskStopInterface } from './edge-fade/screen-chrome-mask-stop.interface';
 export type { EdgeFadePosition } from './edge-fade/edge-fade-position.type';
+export type { EdgeFadeBandRenderer } from './edge-fade/edge-fade-band-renderer.type';
+export type { EdgeFadeBandRenderPropsInterface } from './edge-fade/edge-fade-band-render-props.interface';
+export type { EdgeFadeBandMetricsInterface } from './edge-fade/edge-fade-band-metrics.interface';
+export { getEdgeFadeBandMetrics } from './edge-fade/util/edge-fade-get-band-metrics/edge-fade-get-band-metrics.util';
 export { useScreenChrome } from './hooks/use-screen-chrome/use-screen-chrome.hook';
 export { useScreenChromeHeaderMetrics } from './hooks/use-screen-chrome-header-metrics/use-screen-chrome-header-metrics.hook';
 export { useScrollFadeStyle } from './hooks/use-scroll-fade-style/use-scroll-fade-style.hook';

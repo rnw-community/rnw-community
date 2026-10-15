@@ -31,6 +31,7 @@ interface ScrollConsumerProps {
 interface ProviderProps {
     readonly colorScheme?: ScreenChromeColorScheme;
     readonly config?: Parameters<typeof ScreenChromeProvider>[0]['config'];
+    readonly renderEdgeFadeBand?: Parameters<typeof ScreenChromeProvider>[0]['renderEdgeFadeBand'];
 }
 
 interface ScrollableListHandle {
@@ -125,6 +126,15 @@ describe('ScreenChromeProvider context', () => {
         });
         expect(context.config.maskStops.top[CUSTOM_MASK_STOP_POSITION]).toEqual({ color: 'rgba(0,0,0,0.25)' });
         expect(context.config.maskStops.bottom).toEqual(SCREEN_CHROME_DEFAULT_CONFIG.maskStops.bottom);
+    });
+
+    it('provides no edge-fade band renderer unless one is supplied', () => {
+        expect.hasAssertions();
+
+        const renderEdgeFadeBand = jest.fn(() => null);
+
+        expect(captureContext().renderEdgeFadeBand).toBeUndefined();
+        expect(captureContext({ renderEdgeFadeBand }).renderEdgeFadeBand).toBe(renderEdgeFadeBand);
     });
 
     it('rejects an invalid configuration before rendering children', () => {

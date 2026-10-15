@@ -1,4 +1,4 @@
-import { describe, expect, it, jest } from '@jest/globals';
+import { beforeEach, describe, expect, it, jest } from '@jest/globals';
 import { render } from '@testing-library/react-native';
 import React from 'react';
 
@@ -14,6 +14,10 @@ jest.mock('../hooks/use-screen-chrome/use-screen-chrome.hook', () => ({
     useScreenChrome: () => ({ config: mockConfig }),
 }));
 
+beforeEach(() => {
+    jest.mocked(EdgeFade).mockClear();
+});
+
 describe('CollapsibleHeaderBackdrop', () => {
     it('maps header collapse thresholds to a top edge fade', () => {
         expect.hasAssertions();
@@ -27,6 +31,36 @@ describe('CollapsibleHeaderBackdrop', () => {
                 opacityInputRange: [mockConfig.collapseStart, mockConfig.smallTitleStart],
                 intensityInputRange: [mockConfig.collapseStart, mockConfig.collapseEnd],
             },
+        });
+    });
+
+    it('forwards edge-fade props and lets explicit geometry and animation override the header defaults', () => {
+        expect.hasAssertions();
+
+        const renderBand = jest.fn(() => null);
+        const scrollAnimation = { opacityInputRange: [0, 10] as const };
+        const unsafeProps = { position: 'bottom' } as object;
+
+        render(
+            <CollapsibleHeaderBackdrop
+                {...unsafeProps}
+                testID="backdrop"
+                style={{ zIndex: 5 }}
+                height={64}
+                intensity={12}
+                scrollAnimation={scrollAnimation}
+                renderBand={renderBand}
+            />
+        );
+
+        expect(jest.mocked(EdgeFade).mock.calls[0][0]).toEqual({
+            testID: 'backdrop',
+            style: { zIndex: 5 },
+            position: 'top',
+            height: 64,
+            intensity: 12,
+            scrollAnimation,
+            renderBand,
         });
     });
 });
