@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [2.21.0](https://github.com/rnw-community/rnw-community/compare/v2.20.1...v2.21.0) (2026-10-15)
+
+### Features
+
+- **react-native-screen-chrome:** pluggable edge-fade band renderer and configurable backdrop ([#663](https://github.com/rnw-community/rnw-community/issues/663)) ([dcf32db](https://github.com/rnw-community/rnw-community/commit/dcf32db6f6b4ba7c8f196025c350afba7a6c9886))
+
 ## [2.20.1](https://github.com/rnw-community/rnw-community/compare/v2.20.0...v2.20.1) (2026-10-15)
 
 ### Bug Fixes
