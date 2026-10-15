@@ -404,6 +404,7 @@ jobs:
                 with:
                     name: maestro-ios-${{ matrix.package }}-${{ matrix.target }}
                     path: ${{ env.MAESTRO_DEBUG_OUTPUT_DIRECTORY }}/**
+                    include-hidden-files: true
                     if-no-files-found: warn
                     retention-days: 7
 
