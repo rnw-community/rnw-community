@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.20.1](https://github.com/rnw-community/rnw-community/compare/v2.20.0...v2.20.1) (2026-10-15)
+
+### Bug Fixes
+
+- **react-native-screen-chrome:** inset the iOS scroll indicator past the chrome ([#646](https://github.com/rnw-community/rnw-community/issues/646)) ([d925248](https://github.com/rnw-community/rnw-community/commit/d925248616a434ed67b18147f10acfbca1a84d52))
+
 # [2.20.0](https://github.com/rnw-community/rnw-community/compare/v2.19.14...v2.20.0) (2026-10-15)
 
 ### Features
