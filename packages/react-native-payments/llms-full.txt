@@ -1978,6 +1978,11 @@ oldest supported iOS version, rejected below their minimum:
 | `Dankort` | iOS 15.1 |
 | `Bancontact` | iOS 16 |
 
+On Android only the networks Google Pay accepts are sent: `Amex`, `Discover`, `Interac`, `Jcb`, `Mastercard` and
+`Visa`, plus `Electron`, `Maestro` and `Elo` for Brazilian combo cards. Other members are left out of the Google Pay
+request, so one cross-platform `supportedNetworks` list works on both platforms. If a Google Pay `methodData` entry
+contains none of those networks, the constructor throws `ConstructorError`.
+
 ## Example
 
 ```ts
