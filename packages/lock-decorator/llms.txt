@@ -1,0 +1,47 @@
+# @rnw-community/lock-decorator
+
+> Framework-agnostic sequential (FIFO queue) and exclusive (skip-on-busy) method lock decorators for `Promise`- and
+> `Observable`-returning methods, backed by a pluggable lock store. Built on `@rnw-community/decorators-core`; requires
+> TypeScript `experimentalDecorators`. `rxjs` is an optional peer, needed only for the `$` factories.
+
+Locking semantics are owned by your `LockStoreInterface` implementation; the decorators resolve the key, forward it to
+`store.acquire()`, and release the handle when the Promise settles or the Observable completes, errors, or unsubscribes.
+
+## Landing
+
+- [readme.md](readme.md): The four decorator factories, raw middleware, store contract, errors, and key-argument types.
+
+## Guides
+
+- [The four decorator factories](readme.md#the-four-decorator-factories): Sequential vs. exclusive and Promise vs. Observable factory matrix.
+- [Observable variants](readme.md#observable-variants---factories): Subscription-lifecycle release and `AbortSignal` bridging for the `$` factories.
+- [Raw middleware](readme.md#raw-middleware): Feeding lock middleware into your own `createInterceptor` call.
+- [Store contract](readme.md#store-contract): What a lock store implementation must provide.
+- [Errors](readme.md#errors): Conventional error classes a store rejects with.
+
+## API reference
+
+- [`createSequentialLockDecorator`](readme.md#createsequentiallockdecorator): FIFO-queued lock decorator factory for `Promise`-returning methods, forwarding `timeoutMs` / `signal` to the store.
+- [`createExclusiveLockDecorator`](readme.md#createexclusivelockdecorator): Skip-on-busy lock decorator factory for `Promise`-returning methods.
+- [`createSequentialLockDecorator$`](readme.md#createsequentiallockdecorator-1): Sequential lock decorator factory for `Observable`-returning methods.
+- [`createExclusiveLockDecorator$`](readme.md#createexclusivelockdecorator-1): Exclusive lock decorator factory for `Observable`-returning methods.
+- [`createLockMiddleware`](readme.md#createlockmiddleware): Raw `InterceptorMiddleware` for `Promise`-returning methods, for building custom lock decorators.
+- [`createLockMiddleware$`](readme.md#createlockmiddleware-1): Raw `InterceptorMiddleware` for `Observable`-returning methods that also bridges an external `AbortSignal`.
+- [`LockStoreInterface`](readme.md#lockstoreinterface): `acquire(key, mode, options)` contract returning a lock handle.
+- [`LockHandleInterface`](readme.md#lockhandleinterface): `{ key, mode, release }` handle returned by `LockStoreInterface.acquire`.
+- [`AcquireOptionsInterface`](readme.md#acquireoptionsinterface): `{ timeoutMs?, signal? }` passed as the third argument to `acquire`.
+- [`LockModeType`](readme.md#lockmodetype): `'sequential' | 'exclusive'` mode forwarded to the store.
+- [`CreateLockOptionsInterface`](readme.md#createlockoptionsinterface): `{ store }` options object accepted by all four factories.
+- [`LockBusyError`](readme.md#lockbusyerror): Error a store rejects with when an exclusive key is already held.
+- [`LockAcquireTimeoutError`](readme.md#lockacquiretimeouterror): Error a store rejects with when a sequential acquire exceeds `timeoutMs`.
+- [`SequentialLockArgumentType`](readme.md#sequentiallockargumenttypetargs): Key shapes for sequential factories: string, args callback, or `{ key, timeoutMs?, signal? }`.
+- [`ExclusiveLockArgumentType`](readme.md#exclusivelockargumenttypetargs): Key shapes for exclusive factories: string, args callback, or `{ key }`.
+- [`LockArgumentType`](readme.md#lockargumenttypetargs): Union of sequential and exclusive key shapes accepted by the raw middleware.
+
+## Architecture & conventions
+
+- [AGENTS.md](https://github.com/rnw-community/rnw-community/blob/master/packages/lock-decorator/AGENTS.md): Source layout, implementation patterns, dependencies, and coverage.
+
+## Optional
+
+- [Source](https://github.com/rnw-community/rnw-community/tree/master/packages/lock-decorator): Package source in the monorepo.

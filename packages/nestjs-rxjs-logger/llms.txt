@@ -1,0 +1,29 @@
+# @rnw-community/nestjs-rxjs-logger
+
+> NestJS default logger wrapper for RxJS streams: pipeable per-level logging operators, logged stream creation, and
+> catch-and-rethrow logging. Peers: `@nestjs/common`, `rxjs`.
+
+## Landing
+
+- [readme.md](readme.md): Exports overview and usage examples for operators, stream creation, error catching, and context.
+
+## Guides
+
+- [Basic operators example](readme.md#basic-operators-example): Logging inside a pipe with a per-level operator.
+- [Create stream example](readme.md#create-stream-example): Starting a logged stream with `create$`.
+- [Catch and rethrow example](readme.md#catch-and-rethrow-example): Logging stream errors with `catch` and rethrowing them.
+- [Set logger context](readme.md#set-logger-context): Setting a default context with `setContext`.
+
+## API reference
+
+- [`AppLogLevelEnum`](readme.md#apploglevelenum): `debug` / `error` / `info` / `verbose` / `warn` level accepted by `print` and `create$`.
+- [`NestJSRxJSLoggerModule`](readme.md#nestjsrxjsloggermodule): Module providing `NestJSRxJSLoggerService` bound to the NestJS `Logger` under the `'LOGGER'` token.
+- [`NestJSRxJSLoggerService`](readme.md#nestjsrxjsloggerservice): Transient-scoped service with per-level pipeable operators plus `create$`, `catch`, `setContext`, and `print`.
+
+## Architecture & conventions
+
+- [AGENTS.md](https://github.com/rnw-community/rnw-community/blob/master/packages/nestjs-rxjs-logger/AGENTS.md): Source layout, implementation patterns, dependencies, and coverage.
+
+## Optional
+
+- [Source](https://github.com/rnw-community/rnw-community/tree/master/packages/nestjs-rxjs-logger): Package source in the monorepo.

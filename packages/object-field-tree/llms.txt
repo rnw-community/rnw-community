@@ -1,0 +1,34 @@
+# @rnw-community/object-field-tree
+
+> Generates nested objects from 1 to 5 enum-like collections and a data generator callback, with full TypeScript
+> support and IDE autocompletion. Depends on `@rnw-community/shared`.
+
+`combine((...keys) => data, ...objects)` produces one nesting level per collection, with each leaf computed from the
+keys along its path. `@rnw-community/fast-style` is a real-world consumer.
+
+## Landing
+
+- [readme.md](readme.md): Exports, return types, and enum / component generation examples.
+
+## Guides
+
+- [Typescript enum and object usage example](readme.md#typescript-enum-and-object-usage-example): Combining TypeScript enums and plain objects into a typed tree.
+- [Generating components example](readme.md#generating-components-example): Generating a nested tree of components from collections.
+
+## API reference
+
+- [`combine`](readme.md#combine): Overloaded for 1-5 collections; builds a nested lookup object whose leaves are `dataFn(key1, key2, ...)`.
+- [`Enum`](readme.md#enum): Type re-exported from `@rnw-community/shared`; the constraint every `combine` collection must satisfy.
+- [`CombineReturn1`](readme.md#combinereturn1t-d): Return type of `combine` with 1 collection: `Record<keyof T, D>`.
+- [`CombineReturn2`](readme.md#combinereturn2d-t1-t2): Return type of `combine` with 2 collections.
+- [`CombineReturn3`](readme.md#combinereturn3d-t1-t2-t3): Return type of `combine` with 3 collections.
+- [`CombineReturn4`](readme.md#combinereturn4d-t1-t2-t3-t4): Return type of `combine` with 4 collections.
+- [`CombineReturn5`](readme.md#combinereturn5d-t1-t2-t3-t4-t5): Return type of `combine` with 5 collections, the deepest supported arity.
+
+## Architecture & conventions
+
+- [AGENTS.md](https://github.com/rnw-community/rnw-community/blob/master/packages/object-field-tree/AGENTS.md): Package commands, architecture, key patterns, dependencies, and coverage.
+
+## Optional
+
+- [Source](https://github.com/rnw-community/rnw-community/tree/master/packages/object-field-tree): Package source in the monorepo.

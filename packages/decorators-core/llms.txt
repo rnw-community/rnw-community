@@ -1,0 +1,34 @@
+# @rnw-community/decorators-core
+
+> Framework-agnostic interceptor primitive for building method decorators (log, metrics, lock, retry, ...): wraps a
+> method descriptor so every invocation is routed through one consumer-supplied middleware. Depends only on
+> `@rnw-community/shared`; requires TypeScript `experimentalDecorators`.
+
+The whole contract is one `(context, next) => result` middleware; it owns result-shape handling (sync, `Promise`,
+`Observable`) and error handling. Stack concerns by stacking decorators at the call site.
+
+## Landing
+
+- [readme.md](readme.md): The `createInterceptor` primitive, exported types, building a custom decorator, execution context, and engine guarantees.
+
+## Guides
+
+- [The primitive](readme.md#the-primitive): How `createInterceptor` wraps a method and how `next()` invokes the original.
+- [Build your own decorator](readme.md#build-your-own-decorator): A complete logging middleware turned into a decorator.
+- [Execution context](readme.md#execution-context): How `className`, `methodName`, `args`, and `logContext` are resolved per invocation.
+- [Engine guarantees](readme.md#engine-guarantees): Pass-through of non-function descriptors, single middleware call, and unchanged error propagation.
+
+## API reference
+
+- [`createInterceptor`](readme.md#createinterceptor): Wraps a method descriptor with a single middleware and returns a `MethodDecoratorType<AnyFn>`.
+- [`InterceptorMiddleware`](readme.md#interceptormiddlewaretargs-tresult): Function type `(context, next) => TResult` that decides what happens around the original call.
+- [`ExecutionContextInterface`](readme.md#executioncontextinterfacetargs): Per-invocation `{ className, methodName, args, logContext }` passed to every middleware.
+- [`CreateInterceptorOptionsInterface`](readme.md#createinterceptoroptionsinterfacetargs-tresult): `{ middleware }` options object accepted by `createInterceptor`.
+
+## Architecture & conventions
+
+- [AGENTS.md](https://github.com/rnw-community/rnw-community/blob/master/packages/decorators-core/AGENTS.md): Source layout, class-name resolution rules, implementation patterns, dependencies, and coverage.
+
+## Optional
+
+- [Source](https://github.com/rnw-community/rnw-community/tree/master/packages/decorators-core): Package source in the monorepo.

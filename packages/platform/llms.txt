@@ -1,0 +1,26 @@
+# @rnw-community/platform
+
+> React Native / React Native Web platform helpers: platform detection constants, platform-specific style spreads, and
+> a cross-platform environment variable getter. Peers: `react` (>=18), `react-native` (>=0.72), and
+> `react-native-config` (>=1.4).
+
+`getEnv` reads `react-native-config` on native and `process.env` with a `REACT_APP_` prefix on web (resolved via the
+`.web.ts` platform suffix).
+
+## Landing
+
+- [readme.md](readme.md): Platform constants, platform styling helpers, and `getEnv` with usage examples.
+
+## API reference
+
+- [`isWeb`, `isIOS`, `isAndroid`, `isMobile`](readme.md#platform-constants): Booleans derived once from `Platform.OS`; `isMobile` is iOS or Android.
+- [`webStyles`, `mobileStyles`, `iosStyles`, `androidStyles`](readme.md#platform-styling): Return the given style object on the matching platform and `{}` elsewhere, for spreading into `StyleSheet.create`.
+- [`getEnv`](readme.md#getenv): Reads an environment variable by key from `react-native-config` on native or `process.env.REACT_APP_<key>` on web.
+
+## Architecture & conventions
+
+- [AGENTS.md](https://github.com/rnw-community/rnw-community/blob/master/packages/platform/AGENTS.md): Source layout, platform-suffix resolution, test mocks, dependencies, and coverage.
+
+## Optional
+
+- [Source](https://github.com/rnw-community/rnw-community/tree/master/packages/platform): Package source in the monorepo.
