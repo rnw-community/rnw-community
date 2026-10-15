@@ -194,4 +194,18 @@ describe('nestJsRxJSLoggerService', () => {
 
         expect(loggerMethod).toHaveBeenCalledWith(testMessage, '');
     });
+
+    it('should skip debug and verbose output when the logger does not implement them', () => {
+        expect.hasAssertions();
+
+        const log = jest.fn();
+        const warn = jest.fn();
+        const service = new NestJSRxJSLoggerService({ log, error: jest.fn(), warn });
+
+        service.print('debug message', 'ctx', AppLogLevelEnum.debug);
+        service.print('verbose message', 'ctx', AppLogLevelEnum.verbose);
+
+        expect(log).not.toHaveBeenCalled();
+        expect(warn).not.toHaveBeenCalled();
+    });
 });
