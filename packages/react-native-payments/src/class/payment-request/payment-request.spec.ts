@@ -123,6 +123,27 @@ describe('PaymentRequest', () => {
             ).toThrow(ConstructorError);
         });
 
+        it('should reject Google Pay method data whose supportedNetworks Google Pay cannot accept', () => {
+            expect.hasAssertions();
+
+            expect(
+                () =>
+                    new PaymentRequest(
+                        [
+                            {
+                                ...methodData,
+                                data: { ...methodData.data, supportedNetworks: [SupportedNetworkEnum.Bancontact] },
+                            },
+                        ],
+                        paymentDetails
+                    )
+            ).toThrow(
+                new PaymentsError(
+                    `Failed to construct 'PaymentRequest': supportedNetworks contains no card network that Google Pay accepts`
+                )
+            );
+        });
+
         it('should throw when payment methods not passed', () => {
             expect.assertions(2);
 
@@ -427,9 +448,7 @@ describe('PaymentRequest', () => {
 
                 expect(() => new PaymentRequest([methodData], paymentDetailsWithTotal)).not.toThrow();
                 expect(() => constructWithModifiers([])).not.toThrow();
-                expect(() =>
-                    constructWithModifiers([{ supportedMethods: PaymentMethodNameEnum.AndroidPay }])
-                ).not.toThrow();
+                expect(() => constructWithModifiers([{ supportedMethods: PaymentMethodNameEnum.AndroidPay }])).not.toThrow();
             });
 
             it('should throw when a modifier has no supportedMethods', () => {
@@ -903,6 +922,22 @@ describe('PaymentRequest', () => {
 
                 return JSON.parse(serializedMethodData) as AndroidPaymentDataRequest;
             };
+
+            it('should send only Google Pay card network names to native', async () => {
+                expect.hasAssertions();
+
+                const methodDataRequest = await getSerializedAndroidMethodData({
+                    ...androidMethodData,
+                    data: {
+                        ...androidMethodData.data,
+                        supportedNetworks: [SupportedNetworkEnum.Mastercard, SupportedNetworkEnum.Bancontact],
+                    },
+                });
+
+                expect(methodDataRequest.allowedPaymentMethods[0].parameters.allowedCardNetworks).toStrictEqual([
+                    'MASTERCARD',
+                ]);
+            });
 
             it('should require a full billing address when requestBillingAddress is set', async () => {
                 expect.hasAssertions();

@@ -17,9 +17,11 @@ import { SupportedNetworkEnum } from '../../enum/supported-networks.enum';
 import { ConstructorError } from '../../error/constructor.error';
 import { DOMException } from '../../error/dom.exception';
 import { PaymentsError } from '../../error/payments.error';
+import { getAndroidCardNetworks } from '../../util/get-android-card-networks/get-android-card-networks.util';
 import { getNativePaymentsEventEmitter } from '../../util/get-native-payments-event-emitter/get-native-payments-event-emitter.util';
 import { isNativeUserCancellation } from '../../util/is-native-user-cancellation.util';
 import { resolvePaymentDetailsModifier } from '../../util/resolve-payment-details-modifier.util';
+import { validateAndroidCardNetworks } from '../../util/validate-android-card-networks.util';
 import { validateAndroidTransactionInfo } from '../../util/validate-android-transaction-info.util';
 import { validateDetailsUpdate } from '../../util/validate-details-update.util';
 import { validateDisplayItems } from '../../util/validate-display-items.util';
@@ -34,7 +36,6 @@ import { NativePayments } from '../native-payments/native-payments';
 import { AndroidPaymentResponse } from '../payment-response/android-payment-response';
 import { IosPaymentResponse } from '../payment-response/ios-payment-response';
 
-import type { AndroidAllowedCardNetworksEnum } from '../../@standard/android/enum/android-allowed-card-networks.enum';
 import type { AndroidPaymentMethodDataDataInterface } from '../../@standard/android/mapping/android-payment-method-data-data.interface';
 import type { AndroidPaymentDataRequest } from '../../@standard/android/request/android-payment-data-request';
 import type { IosPaymentMethodDataDataInterface } from '../../@standard/ios/mapping/ios-payment-method-data-data.interface';
@@ -311,6 +312,7 @@ export class PaymentRequest {
     private validateConstructorInputs(methodData: PaymentMethodData[], details: PaymentDetailsInit): void {
         validatePaymentMethods(methodData);
         validateAndroidTransactionInfo(methodData, ConstructorError);
+        validateAndroidCardNetworks(methodData, ConstructorError);
         validateShippingType(methodData, ConstructorError);
 
         validateTotal(details.total, ConstructorError);
@@ -624,9 +626,7 @@ export class PaymentRequest {
                     ...defaultAndroidPaymentMethod,
                     parameters: {
                         ...defaultAndroidPaymentMethod.parameters,
-                        allowedCardNetworks: methodData.supportedNetworks.map(
-                            network => network.toUpperCase() as AndroidAllowedCardNetworksEnum
-                        ),
+                        allowedCardNetworks: getAndroidCardNetworks(methodData.supportedNetworks),
                         allowedAuthMethods:
                             methodData.allowedAuthMethods ?? defaultAndroidPaymentMethod.parameters.allowedAuthMethods,
                         ...(isBillingRequired && {
