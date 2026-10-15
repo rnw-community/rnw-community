@@ -270,7 +270,9 @@ Describe **what changed and why** in code-intrinsic terms. A regression fix is d
 - NestJS integration packages support NestJS 11 and 12 (`^11.1.28 || ^12.0.0` peers) and test against 12. `@nestjs/*`
   12 ships ESM-only, so their `jest.config.js` passes `['@nestjs']` as `get-jest.config.js`'s `transformablePackageNames`
   and Babel transforms those modules to CommonJS for Jest 29; `packages/shared/babel.config.js` carries
-  `babel-plugin-transform-import-meta` (`module: 'ES6'`) for their `import.meta.url` usages
+  `babel-plugin-transform-import-meta` (`module: 'ES6'`) for their `import.meta.url` usages. The `nestjs-compatibility`
+  PR job re-runs their `ts` + `test:coverage` with `pnpm-workspace.yaml` overrides pinning the minimum supported stacks
+  (`@nestjs/*` 11.1.28 + `@nestjs/config` 4.0.4, and 12.0.0 + 12.0.1)
 - Mock files matching `*.mock.ts` are excluded from coverage (`coveragePathIgnorePatterns`) — legacy `wdio` scaffolding only; see the next subsection
 - Test the BEHAVIOR, not the comments — behavior is self-documenting when a comment would otherwise be needed
 
