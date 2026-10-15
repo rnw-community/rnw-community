@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [2.20.0](https://github.com/rnw-community/rnw-community/compare/v2.19.14...v2.20.0) (2026-10-15)
+
+### Features
+
+- **react-native-screen-chrome:** marker-based optional header slots and collapsed header height ([#650](https://github.com/rnw-community/rnw-community/issues/650)) ([01d7ed6](https://github.com/rnw-community/rnw-community/commit/01d7ed6cb9e9a5646567e0e43106c756660546db))
+
 ## [2.19.14](https://github.com/rnw-community/rnw-community/compare/v2.19.13...v2.19.14) (2026-10-15)
 
 ### Bug Fixes
