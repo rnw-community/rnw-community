@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.19.14](https://github.com/rnw-community/rnw-community/compare/v2.19.13...v2.19.14) (2026-10-15)
+
+### Bug Fixes
+
+- **react-native-screen-chrome:** let header slots pass through touches and raise peer floor ([#644](https://github.com/rnw-community/rnw-community/issues/644)) ([7c48e5f](https://github.com/rnw-community/rnw-community/commit/7c48e5f7ad66318167055264fc5494eecb1ebceb))
+
 ## [2.19.13](https://github.com/rnw-community/rnw-community/compare/v2.19.12...v2.19.13) (2026-10-15)
 
 **Note:** Version bump only for package @rnw-community/react-native-screen-chrome
