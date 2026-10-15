@@ -41,6 +41,13 @@ export type { IosPKToken } from './@standard/ios/response/ios-pk-token';
 export { IosPaymentResponse } from './class/payment-response/ios-payment-response';
 
 export { PaymentRequest } from './class/payment-request/payment-request';
+export { createApplePayMethodData } from './factory/create-apple-pay-method-data/create-apple-pay-method-data';
+export { createGooglePayMethodData } from './factory/create-google-pay-method-data/create-google-pay-method-data';
+export { createPaymentRequestFactory } from './factory/create-payment-request-factory/create-payment-request-factory';
+export type { ApplePayMethodDataOptions } from './interface/apple-pay-method-data-options.interface';
+export type { GooglePayMethodDataOptions } from './type/google-pay-method-data-options.type';
+export type { PaymentRequestFactoryConfig } from './interface/payment-request-factory-config.interface';
+export type { PaymentRequestFactory } from './type/payment-request-factory.type';
 export { PaymentResponse } from './class/payment-response/payment-response';
 
 export { PaymentRequestUpdateEvent } from './class/payment-request-update-event/payment-request-update-event';

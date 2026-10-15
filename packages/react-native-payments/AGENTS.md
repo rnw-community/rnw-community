@@ -61,7 +61,9 @@ src/
     payment-request-update-event/   — PaymentRequestUpdateEvent (updateWith)
     payment-method-change-event/    — PaymentMethodChangeEvent (extends PaymentRequestUpdateEvent)
     payment-response/               — PaymentResponse, IosPaymentResponse, AndroidPaymentResponse, web shims
-  constant/      — changeEventTimeoutMs
+  constant/      — changeEventTimeoutMs, defaultSupportedNetworks
+  factory/       — createApplePayMethodData, createGooglePayMethodData (method data presets),
+                   createPaymentRequestFactory (fresh single-use PaymentRequest per checkout attempt)
   enum/          — PaymentMethodNameEnum, EnvironmentEnum, PaymentComplete, SupportedNetworkEnum,
                    PaymentUpdateErrorTypeEnum + PaymentAddressFieldEnum + PaymentContactFieldEnum (field level errors)
   error/         — ConstructorError, DOMException, PaymentsError

@@ -37,6 +37,33 @@ dismisses the sheet, which would silently cancel the correction opportunity `ret
 > spec's return type without re-displaying the Google Pay sheet, matching the existing `complete()`/`abort()`
 > no-op boundary on Android.
 
+## Starting a new attempt
+
+`retry()` only corrects fields inside the sheet that is still open. Once a request has settled — the user cancelled,
+`complete(PaymentComplete.FAIL)` was called, or `show()` rejected — it is `closed` for good, and the next attempt needs
+a new `PaymentRequest`. [`createPaymentRequestFactory`](../api/create-payment-request-factory.md) keeps the shared
+configuration in one place, so each attempt only passes its own details:
+
+```ts
+import { PaymentComplete, createPaymentRequestFactory } from '@rnw-community/react-native-payments';
+
+import type { PaymentItem } from '@rnw-community/react-native-payments';
+
+const createPaymentRequest = createPaymentRequestFactory({ methodData });
+
+const pay = async (total: PaymentItem): Promise<boolean> => {
+    const paymentResponse = await createPaymentRequest({ total }).show();
+    const isConfirmed = await sendToYourBackend(paymentResponse.details);
+
+    await paymentResponse.complete(isConfirmed ? PaymentComplete.SUCCESS : PaymentComplete.FAIL);
+
+    return isConfirmed;
+};
+```
+
+Calling `pay(total)` again after it returns `false` or rejects builds a new request. There is no state to reset, and
+listeners are registered on the request that `createPaymentRequest` returns.
+
 ## Known deviations
 
 - **`PaymentResponse.retry()` supports at most one in-sheet correction pass, and only on iOS.** The spec
@@ -58,3 +85,4 @@ dismisses the sheet, which would silently cancel the correction opportunity `ret
 
 - [api/payment-response.md](../api/payment-response.md)
 - [api/payment-validation-errors.md](../api/payment-validation-errors.md)
+- [api/create-payment-request-factory.md](../api/create-payment-request-factory.md)
