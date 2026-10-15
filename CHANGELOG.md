@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.21.1](https://github.com/rnw-community/rnw-community/compare/v2.21.0...v2.21.1) (2026-10-15)
+
+### Bug Fixes
+
+- **react-native-screen-chrome-example:** install expo modules in the bare example app ([#654](https://github.com/rnw-community/rnw-community/issues/654)) ([0a1f2d1](https://github.com/rnw-community/rnw-community/commit/0a1f2d12114e37aa9861f4bc6ee22f6ac651a207))
+
 # [2.21.0](https://github.com/rnw-community/rnw-community/compare/v2.20.1...v2.21.0) (2026-10-15)
 
 ### Features
