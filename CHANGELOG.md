@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.23.1](https://github.com/rnw-community/rnw-community/compare/v2.23.0...v2.23.1) (2026-10-15)
+
+### Bug Fixes
+
+- **react-native-screen-chrome-example:** drag back until the header expands in the scroll-back flow ([#670](https://github.com/rnw-community/rnw-community/issues/670)) ([5102d46](https://github.com/rnw-community/rnw-community/commit/5102d4620f15b8c736ac799f29e1c2f708f1c3df))
+
 # [2.23.0](https://github.com/rnw-community/rnw-community/compare/v2.22.0...v2.23.0) (2026-10-15)
 
 ### Features
