@@ -16,6 +16,10 @@ pnpm test && pnpm test:coverage && pnpm build && pnpm ts && pnpm ts:nodenext && 
   `onScroll` and `scrollRef` from `useCollapsibleHeaderScroll` and its `scrollEventThrottle` from the provider config.
   Those three props are omitted from its public props so a caller-supplied value fails to compile instead of being
   silently overwritten by the spread order.
+- `ScreenChromeScrollView` delegates all scroll wiring to `useScreenChromeScrollProps` (merged ref, `onScroll`,
+  `scrollEventThrottle`, `contentContainerStyle` per `contentInsetMode`, `scrollIndicatorInsets` and
+  `automaticallyAdjustsScrollIndicatorInsets: false`) and only adds the animated `ScrollView`; the hook is the single
+  place that knowledge lives, so `Animated.FlatList`, FlashList, and LegendList get identical wiring by spreading it.
 - `EdgeFade` has explicit native and web implementations with shared metrics and animation hooks.
 - The band renderer (`EdgeFade` `renderBand`, falling back to `ScreenChromeProvider` `renderEdgeFadeBand` through
   context) only swaps the container's children. The container — absolute positioning, `getEdgeFadeBandMetrics`

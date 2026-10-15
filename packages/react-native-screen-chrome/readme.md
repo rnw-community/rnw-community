@@ -518,6 +518,56 @@ Every other `ScrollView` prop passes through untouched, including the scroll cal
 (`onMomentumScrollEnd`, `onContentSizeChange`, …) and `contentContainerStyle` — consumer padding is applied after the
 safe-area padding and wins.
 
+`ScreenChromeScrollView` is a thin consumer of [`useScreenChromeScrollProps`](#usescreenchromescrollprops); use the
+hook directly to wire any other scrollable.
+
+## useScreenChromeScrollProps
+
+Composes the scroll handler, merged ref, throttle, content padding and indicator insets any scrollable needs for chrome
+— the same bag `ScreenChromeScrollView` spreads, so a list gets identical wiring and insets. Accepts the
+[`ScreenChromeScrollPropsOptionsInterface`](#screenchromescrollpropsoptionsinterface) options and returns
+[`ScreenChromeScrollPropsInterface`](#screenchromescrollpropsinterface); spread it last so the package-owned
+`onScroll`/`scrollEventThrottle` are not overridden.
+
+```tsx
+const TransactionList = () => {
+    const scrollProps = useScreenChromeScrollProps({ contentInsetTop: 96 });
+
+    return <Animated.FlatList data={transactions} keyExtractor={keyExtractor} renderItem={renderItem} {...scrollProps} />;
+};
+```
+
+FlashList takes the same bag once wrapped at module scope; pass a consumer `ref` through the options so it merges with
+the chrome ref instead of replacing it:
+
+```tsx
+const AnimatedFlashList = Animated.createAnimatedComponent(FlashList<Transaction>);
+
+const TransactionList = () => {
+    const listRef = useRef<FlashListRef<Transaction>>(null);
+    const scrollProps = useScreenChromeScrollProps({ contentInsetTop: 96, ref: listRef });
+
+    return <AnimatedFlashList data={transactions} keyExtractor={keyExtractor} renderItem={renderItem} {...scrollProps} />;
+};
+```
+
+The returned `ref` attaches to component instances and imperative handles alike; for LegendList pass it as
+`refScrollView` (`const { ref, ...scrollProps } = useScreenChromeScrollProps()`). The worklet `onScroll` only stays
+cheap when rows do not re-render per scroll frame, so keep `renderItem` rendering memoized item components without
+inline object or arrow literals, and give the list a stable module-scope `keyExtractor`.
+
+## ScreenChromeScrollPropsOptionsInterface
+
+Configures `useScreenChromeScrollProps`: `contentInsetTop`/`contentInsetBottom` (default `0`), `contentInsetMode`
+(default `'replace'`, see [`ScrollContentInsetMode`](#scrollcontentinsetmode)), a consumer `contentContainerStyle`, and
+a consumer `ref` merged with the chrome scroll ref.
+
+## ScreenChromeScrollPropsInterface
+
+The `{ ref, onScroll, scrollEventThrottle, contentContainerStyle, scrollIndicatorInsets,
+automaticallyAdjustsScrollIndicatorInsets }` bag returned by `useScreenChromeScrollProps`. `ref` is a memoized merged
+callback ref, stable until the consumer ref changes.
+
 ## ScreenChromeContext
 
 The React context that carries the resolved screen chrome value to package components and hooks; consumers read it

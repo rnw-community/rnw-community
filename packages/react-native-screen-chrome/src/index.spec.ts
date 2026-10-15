@@ -23,6 +23,7 @@ describe('public API', () => {
                 ScreenChromeScrollView: expect.any(Function),
                 SCREEN_CHROME_HEADER_LAYOUT_METRICS: { rowPadding: 16, slotSize: 44, titleInset: 72 },
                 useScreenChrome: expect.any(Function),
+                useScreenChromeScrollProps: expect.any(Function),
                 useScrollFadeStyle: expect.any(Function),
             })
         );
