@@ -35,7 +35,7 @@ export interface CollapsibleHeaderMotionConfig {
     readonly expandedScale: number;
     /**
      * Collapsed content translateY at the fade-in start endpoint.
-     * @defaultValue `10`
+     * @defaultValue `10`, or `collapsedHeight` when `collapsedTransition` is `'roll'`
      */
     readonly collapsedTranslateY: number;
 }
