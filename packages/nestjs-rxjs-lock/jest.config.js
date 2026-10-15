@@ -1,1 +1,1 @@
-module.exports = require('../../get-jest.config.js')('nestjs-rxjs-lock');
+module.exports = require('../../get-jest.config.js')('nestjs-rxjs-lock', undefined, ['@nestjs']);

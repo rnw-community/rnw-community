@@ -42,7 +42,7 @@ pnpm lint:fix           # Fix lint issues in this package
 - **shared** — Core utility hub (type guards, helpers, types); many packages depend on it
 - **decorators-core** — Framework-agnostic interceptor primitive for building method decorators (foundation for log/histogram/lock)
 - **log-decorator, histogram-metric-decorator, lock-decorator** — Universal method decorators built on decorators-core
-- **nestjs-\*** — NestJS modules (enterprise decorators, rxjs-logger, rxjs-metrics, rxjs-lock, rxjs-redis, typed-config, webpack-swc)
+- **nestjs-\*** — NestJS 11/12 modules (enterprise decorators, rxjs-logger, rxjs-metrics, rxjs-lock, rxjs-redis, typed-config, webpack-swc)
 - **rxjs-errors** — RxJS error utilities
 - **react-native-payments** — Payment Request API for Apple Pay/Google Pay
 - **react-native-payments-example** — private example package: shared `src/` screens plus `apps/bare` (React Native CLI) and `apps/expo` (Expo) app targets
@@ -267,6 +267,10 @@ Describe **what changed and why** in code-intrinsic terms. A regression fix is d
 - Jest 29, test files colocated next to the source they cover: `src/**/<entity>/<entity>.spec.ts`
 - Imports from `@jest/globals` (not global Jest)
 - **Coverage threshold: 99.9%** for statements, branches, functions, and lines
+- NestJS integration packages support NestJS 11 and 12 (`^11.1.28 || ^12.0.0` peers) and test against 12. `@nestjs/*`
+  12 ships ESM-only, so their `jest.config.js` passes `['@nestjs']` as `get-jest.config.js`'s `transformablePackageNames`
+  and Babel transforms those modules to CommonJS for Jest 29; `packages/shared/babel.config.js` carries
+  `babel-plugin-transform-import-meta` (`module: 'ES6'`) for their `import.meta.url` usages
 - Mock files matching `*.mock.ts` are excluded from coverage (`coveragePathIgnorePatterns`) — legacy `wdio` scaffolding only; see the next subsection
 - Test the BEHAVIOR, not the comments — behavior is self-documenting when a comment would otherwise be needed
 

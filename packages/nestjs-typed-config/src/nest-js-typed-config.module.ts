@@ -2,6 +2,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 
+import { createJoiConfigValidator } from './create-joi-config-validator/create-joi-config-validator';
 import { NestJSTypedConfigService } from './nest-js-typed-config.service';
 
 import type { DynamicModule, Type } from '@nestjs/common';
@@ -18,8 +19,7 @@ export class NestJSTypedConfigModule {
             imports: [
                 ConfigModule.forRoot({
                     cache: true,
-                    validationSchema,
-                    validationOptions: { abortEarly: false },
+                    validate: createJoiConfigValidator(validationSchema),
                     isGlobal: true,
                 }),
             ],
