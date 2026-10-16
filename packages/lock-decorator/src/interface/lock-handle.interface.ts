@@ -1,7 +1,7 @@
 import type { LockModeType } from '../type/lock-mode.type';
 
 /**
- * The handle a store resolves after acquiring a key, released by the decorators once the protected call finishes.
+ * The handle a store resolves after acquiring a key, released by the decorators when the protected Promise settles or the protected Observable completes, errors, or is unsubscribed.
  *
  * @see https://github.com/rnw-community/rnw-community/blob/master/packages/lock-decorator/readme.md#lockhandleinterface
  */
