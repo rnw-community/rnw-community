@@ -169,11 +169,14 @@ src/
   package its own `node_modules/react`; `react-compiler-runtime` then imports that second copy,
   whose dispatcher is null during the host render, and every compiled component throws
   `TypeError: Cannot read property 'useMemoCache' of null` at runtime while unit tests stay green.
-- The Reanimated peer floor is `4.2.0`, proven by the `Reanimated compatibility` leg in `.github/workflows/pr.yml`
-  (typecheck + full jest suite against the floor minor's latest patch). Reanimated 3 lacks `useScrollOffset` and its
-  `createAnimatedComponent` is not a named export, and 4.0/4.1 type `scrollTo`/`useScrollOffset` refs as
-  `AnimatedRef<T extends Component>`, which `CollapsibleHeaderScrollRef` does not satisfy. The `react-native` peer floor is
-  `0.80`, the oldest React Native Reanimated 4.2 supports per its compatibility table. Raise the floors and the leg
+- The Reanimated peer floor is `4.1.0` and the `react-native` floor is `0.78`, the oldest React Native Reanimated 4.1
+  supports per its compatibility table. The `Reanimated compatibility` leg in `.github/workflows/pr.yml` is a type and
+  JS-API check, not a native-runtime proof: it swaps the Reanimated/Worklets JS packages while the workspace stays on
+  its own React Native version, then typechecks against 4.1.x and runs typecheck plus the full jest suites against
+  4.2.x (Reanimated 4.1's `getAnimatedStyle` Jest helper throws on `undefined` style-array entries, so the suites
+  cannot run there). `scrollTo` and `useScrollOffset` take an explicit `<Component>` type argument because 4.1 infers
+  `never` from `CollapsibleHeaderScrollRef`'s extra call signature. Reanimated 3 lacks `useScrollOffset` and a named
+  `createAnimatedComponent`; 4.0 types the `useScrollOffset` ref as a scroll view. Raise the floors and the leg
   together. Runtime code uses only the compiler-safe `.get()`/`.set()` shared-value accessors.
 - Modern-React posture: the React Compiler owns memoization (no manual `useMemo`/`useCallback`/`React.memo`), state is
   derived during render (worklets are pure functions of `scrollY`), and the only `useEffect` syncs the snap registry —

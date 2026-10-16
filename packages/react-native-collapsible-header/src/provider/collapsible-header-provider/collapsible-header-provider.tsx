@@ -38,7 +38,7 @@ export const CollapsibleHeaderProvider = ({ children, syncNativeScrollOffset = f
     // only an imperative handle (a supported attachment) never resolve to one and would throw in observe().
     // With it off, a navigator restoring a scrolled screen without an accompanying scroll event leaves scrollY
     // at its stale value until the next scroll; consumers whose ref always lands on a real scrollable enable it.
-    useScrollOffset(syncNativeScrollOffset ? scrollRef : null, scrollY);
+    useScrollOffset<Component>(syncNativeScrollOffset ? scrollRef : null, scrollY);
 
     return (
         <CollapsibleHeaderScrollContext.Provider value={{ onScroll, scrollRef, scrollY, snapConfig, snapOwnerCount }}>

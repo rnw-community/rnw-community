@@ -2,7 +2,7 @@
 
 > Generic slot-based collapsible header for React Native and react-native-web, driven by a Reanimated shared scroll
 > value. Ships ESM + CJS, precompiled with the React Compiler (React 18+), peer-depends on react-native-reanimated
-> >=4.2.0 <5 on react-native >=0.80. Works with ScrollView, FlatList, SectionList, FlashList, and LegendList.
+> >=4.1.0 <5 on react-native >=0.78. Works with ScrollView, FlatList, SectionList, FlashList, and LegendList.
 
 ## Exports
 

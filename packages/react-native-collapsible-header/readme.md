@@ -33,10 +33,12 @@ npm install @rnw-community/react-native-collapsible-header react-native-reanimat
 React Native Reanimated is a peer dependency and must be installed by the host application. Follow the
 [official Reanimated setup guide](https://docs.swmansion.com/react-native-reanimated/docs/fundamentals/getting-started/).
 
-The supported range is `react-native-reanimated >=4.2.0 <5` on `react-native >=0.80` — the oldest React Native
-Reanimated 4.2 supports (with `react-native-worklets` 0.7; worklets 0.8 needs React Native 0.81). Reanimated 4
-applications also install `react-native-worklets` and configure `react-native-worklets/plugin`. Reanimated 3 is not supported: the provider's
-scroll-offset sync uses `useScrollOffset`, and the scroll-ref type targets the `AnimatedRef` shape introduced in 4.2.
+The supported range is `react-native-reanimated >=4.1.0 <5` on `react-native >=0.78` — the oldest React Native
+Reanimated 4.1 supports. Reanimated 4 applications also install `react-native-worklets` and configure
+`react-native-worklets/plugin`. Reanimated 3 and 4.0 are not supported: Reanimated 3 has no `useScrollOffset`, and
+4.0 types the `useScrollOffset` ref as a scroll view, which the provider's scroll ref does not satisfy. On Reanimated
+4.1, `getAnimatedStyle` from Reanimated's own Jest utilities throws on style arrays containing `undefined` entries, so
+component tests that inspect the header's animated styles need Reanimated 4.2 or newer.
 Applications still on Reanimated 3 follow the official
 [Reanimated 3 migration guide](https://docs.swmansion.com/react-native-reanimated/docs/guides/migration-from-3.x/) first.
 See the [compatibility table](https://docs.swmansion.com/react-native-reanimated/docs/guides/compatibility/) for the
