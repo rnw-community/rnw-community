@@ -1,7 +1,9 @@
-import { beforeEach, describe, expect, it, jest } from '@jest/globals';
+import { afterEach, beforeEach, describe, expect, it, jest } from '@jest/globals';
 import { render } from '@testing-library/react-native';
-import React from 'react';
-import { View } from 'react-native';
+import React, { Activity, StrictMode } from 'react';
+import { Platform, View } from 'react-native';
+
+import { emptyFn } from '@rnw-community/shared';
 
 import { SCREEN_CHROME_DEFAULT_CONFIG } from '../constant/screen-chrome-default-config.constant';
 
@@ -210,5 +212,87 @@ describe('EdgeFade native band renderer', () => {
 
         expect(overridden.getByTestId('instance-band', { includeHiddenElements: true })).toBeTruthy();
         expect(overridden.queryByTestId('provider-band', { includeHiddenElements: true })).toBeNull();
+    });
+});
+
+describe('EdgeFade ignored Android blur warning', () => {
+    const scrollDrivenBlur = { intensityInputRange: [0, 80] as const };
+    let warn: ReturnType<typeof jest.spyOn>;
+
+    beforeEach(() => {
+        jest.replaceProperty(Platform, 'OS', 'android');
+        warn = jest.spyOn(console, 'warn').mockImplementation(emptyFn);
+    });
+
+    afterEach(() => {
+        jest.restoreAllMocks();
+    });
+
+    it.each([
+        ['a static intensity', { intensity: 40 }],
+        ['a scroll-driven intensity', { scrollAnimation: scrollDrivenBlur }],
+    ])('warns once when %s cannot render without a blur target', (_name, blurProps) => {
+        expect.hasAssertions();
+
+        const screen = render(<EdgeFade position="top" {...blurProps} />);
+
+        screen.rerender(<EdgeFade position="top" {...blurProps} />);
+
+        expect(warn).toHaveBeenCalledTimes(1);
+        expect(warn).toHaveBeenCalledWith(expect.stringContaining('ignored on Android without a blurTarget'));
+    });
+
+    it.each([
+        ['no blur is requested', {}],
+        ['the intensity is zero', { intensity: 0 }],
+        ['a blur target is supplied', { intensity: 40, blurTarget: React.createRef<View>() }],
+        ['the blur method is explicit', { intensity: 40, blurMethod: 'none' as const }],
+    ])('stays silent when %s', (_name, blurProps) => {
+        expect.hasAssertions();
+
+        render(<EdgeFade position="top" {...blurProps} />);
+
+        expect(warn).not.toHaveBeenCalled();
+    });
+
+    it('stays silent on iOS, where the blur renders without a target', () => {
+        expect.hasAssertions();
+
+        jest.replaceProperty(Platform, 'OS', 'ios');
+        render(<EdgeFade position="top" intensity={40} />);
+
+        expect(warn).not.toHaveBeenCalled();
+    });
+
+    it('warns once per band across Activity hide and show cycles and StrictMode effect replays', () => {
+        expect.hasAssertions();
+
+        const renderBand = (mode: 'hidden' | 'visible') => (
+            <StrictMode>
+                <Activity mode={mode}>
+                    <EdgeFade position="top" intensity={40} />
+                </Activity>
+            </StrictMode>
+        );
+        const screen = render(renderBand('visible'));
+
+        screen.rerender(renderBand('hidden'));
+        screen.rerender(renderBand('visible'));
+        screen.rerender(renderBand('hidden'));
+        screen.rerender(renderBand('visible'));
+
+        expect(warn).toHaveBeenCalledTimes(1);
+    });
+
+    it.each([
+        ['production builds', false],
+        ['runtimes without a __DEV__ global', void 0],
+    ])('stays silent in %s', (_name, devFlag) => {
+        expect.hasAssertions();
+
+        jest.replaceProperty(globalThis as unknown as { __DEV__: boolean | undefined }, '__DEV__', devFlag);
+        render(<EdgeFade position="top" intensity={40} />);
+
+        expect(warn).not.toHaveBeenCalled();
     });
 });
