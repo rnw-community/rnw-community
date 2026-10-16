@@ -7,6 +7,11 @@ import type { SequentialLockArgumentType } from '../../type/sequential-lock-argu
 import type { MethodDecoratorType } from '@rnw-community/shared';
 import type { Observable } from 'rxjs';
 
+/**
+ * Creates a sequential (FIFO-queued per key) lock decorator factory for `Observable`-returning methods that holds the lock for the subscription lifetime.
+ *
+ * @see https://github.com/rnw-community/rnw-community/blob/master/packages/lock-decorator/readme.md#createsequentiallockdecorator-1
+ */
 export const createSequentialLockDecorator$ =
     (options: CreateLockOptionsInterface) =>
     // eslint-disable-next-line @typescript-eslint/no-explicit-any -- decorator generic must accept any-parameter method
