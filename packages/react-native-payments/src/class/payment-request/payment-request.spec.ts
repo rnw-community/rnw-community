@@ -826,7 +826,8 @@ describe('PaymentRequest', () => {
 
                 const [[serializedMethodData]] = jest.mocked(NativePayments.canMakePayments).mock.calls;
 
-                return (JSON.parse(serializedMethodData) as AndroidPaymentDataRequest).transactionInfo as AndroidTransactionInfo;
+                return (JSON.parse(serializedMethodData) as AndroidPaymentDataRequest)
+                    .transactionInfo as AndroidTransactionInfo;
             };
 
             it('should serialize FINAL totalPriceStatus and no optional fields by default', async () => {
@@ -1115,7 +1116,9 @@ describe('PaymentRequest', () => {
                 };
 
                 expect(() => new PaymentRequest([{ ...androidMethodData, data: invalidData }], zeroTotalDetails)).toThrow(
-                    new ConstructorError('automaticReloadTransactionInfo cannot be combined with checkoutOption or totalPriceStatus')
+                    new ConstructorError(
+                        'automaticReloadTransactionInfo cannot be combined with checkoutOption or totalPriceStatus'
+                    )
                 );
             });
 
@@ -1130,7 +1133,9 @@ describe('PaymentRequest', () => {
                 };
 
                 expect(() => new PaymentRequest([{ ...androidMethodData, data: invalidData }], zeroTotalDetails)).toThrow(
-                    new ConstructorError('deferredTransactionInfo cannot be combined with checkoutOption or totalPriceStatus')
+                    new ConstructorError(
+                        'deferredTransactionInfo cannot be combined with checkoutOption or totalPriceStatus'
+                    )
                 );
             });
 
@@ -1284,7 +1289,9 @@ describe('PaymentRequest', () => {
             it('should show the base request when no change listener is registered', async () => {
                 expect.hasAssertions();
 
-                const methodDataRequest = await getShownMethodData(new PaymentRequest([shippingMethodData], shippingDetails));
+                const methodDataRequest = await getShownMethodData(
+                    new PaymentRequest([shippingMethodData], shippingDetails)
+                );
 
                 expect(methodDataRequest).not.toHaveProperty('callbackIntents');
                 expect(methodDataRequest.transactionInfo).not.toHaveProperty('displayItems');
@@ -1310,7 +1317,7 @@ describe('PaymentRequest', () => {
                     defaultSelectedOptionId: 'standard',
                     shippingOptions: [{ id: 'standard', label: 'Standard' }],
                 });
-                expect(methodDataRequest.transactionInfo.displayItems).toStrictEqual([
+                expect(methodDataRequest.transactionInfo?.displayItems).toStrictEqual([
                     { label: 'Order', price: '10.00', status: 'FINAL', type: 'LINE_ITEM' },
                 ]);
                 expect(registerAndroidChangeEventsTask).toHaveBeenCalledWith();

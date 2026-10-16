@@ -45,10 +45,12 @@ export const getAndroidCallbackPaymentDataRequest = (
     return {
         ...request,
         callbackIntents,
-        transactionInfo: {
-            ...request.transactionInfo,
-            ...(isNotEmptyArray(displayItems) && { displayItems: displayItems.map(getAndroidDisplayItem) }),
-        },
+        ...(isDefined(request.transactionInfo) && {
+            transactionInfo: {
+                ...request.transactionInfo,
+                ...(isNotEmptyArray(displayItems) && { displayItems: displayItems.map(getAndroidDisplayItem) }),
+            },
+        }),
         ...(isDefined(shippingOptionParameters) && { shippingOptionParameters, shippingOptionRequired: true }),
     };
 };
