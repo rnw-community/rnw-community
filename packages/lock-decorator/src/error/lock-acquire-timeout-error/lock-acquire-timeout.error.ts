@@ -1,3 +1,8 @@
+/**
+ * The error a store rejects with when a sequential lock's `timeoutMs` elapses before the key becomes free.
+ *
+ * @see https://github.com/rnw-community/rnw-community/blob/master/packages/lock-decorator/readme.md#lockacquiretimeouterror
+ */
 export class LockAcquireTimeoutError extends Error {
     readonly key: string;
     readonly timeoutMs: number;

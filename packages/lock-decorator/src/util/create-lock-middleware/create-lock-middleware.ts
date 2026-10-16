@@ -7,6 +7,11 @@ import type { LockArgumentType } from '../../type/lock-argument.type';
 import type { LockModeType } from '../../type/lock-mode.type';
 import type { InterceptorMiddleware } from '@rnw-community/decorators-core';
 
+/**
+ * Builds the raw `InterceptorMiddleware` that acquires a store lock around a `Promise`-returning method, for composing custom lock decorators.
+ *
+ * @see https://github.com/rnw-community/rnw-community/blob/master/packages/lock-decorator/readme.md#createlockmiddleware
+ */
 export const createLockMiddleware = <TArgs extends readonly unknown[]>(
     store: LockStoreInterface,
     mode: LockModeType,

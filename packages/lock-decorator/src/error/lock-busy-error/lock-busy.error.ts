@@ -1,3 +1,8 @@
+/**
+ * The error a store rejects with when an exclusive lock is requested for a key that is already held.
+ *
+ * @see https://github.com/rnw-community/rnw-community/blob/master/packages/lock-decorator/readme.md#lockbusyerror
+ */
 export class LockBusyError extends Error {
     readonly key: string;
     readonly cause?: unknown;
