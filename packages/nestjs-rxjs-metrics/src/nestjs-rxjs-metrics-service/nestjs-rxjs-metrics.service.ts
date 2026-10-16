@@ -13,6 +13,11 @@ import type { MonoTypeOperatorFunction } from 'rxjs';
 
 type ValuesOf<T extends readonly string[]> = T[number];
 
+/**
+ * The service base class exposing RxJS operators that update Prometheus metrics as stream values pass through, obtained from `NestJSRxJSMetricsModule.create`.
+ *
+ * @see https://github.com/rnw-community/rnw-community/blob/master/packages/nestjs-rxjs-metrics/readme.md#nestjsrxjsmetricsservice
+ */
 export class NestJSRxJSMetricsService<
     C extends MC,
     G extends MC,
@@ -39,32 +44,62 @@ export class NestJSRxJSMetricsService<
         ) as unknown as SummaryRecord<S>;
     }
 
+    /**
+     * Pipeable operator incrementing the counter metric by `value` (1 by default) for each emitted value.
+     *
+     * @see https://github.com/rnw-community/rnw-community/blob/master/packages/nestjs-rxjs-metrics/readme.md#counter
+     */
     counter<T>(metric: keyof C, value = 1): MonoTypeOperatorFunction<T> {
         return rxjsOperator(() => {
             this.counterMetrics[metric].inc(value);
         });
     }
 
+    /**
+     * Pipeable operator calling `handler` with the gauge metric for each emitted value.
+     *
+     * @see https://github.com/rnw-community/rnw-community/blob/master/packages/nestjs-rxjs-metrics/readme.md#gauge
+     */
     gauge<T>(metric: keyof G, handler: (gauge: Gauge) => void): MonoTypeOperatorFunction<T> {
         return rxjsOperator(() => {
             handler(this.gaugeMetrics[metric]);
         });
     }
 
+    /**
+     * Pipeable operator incrementing the gauge metric by `value` (1 by default) for each emitted value.
+     *
+     * @see https://github.com/rnw-community/rnw-community/blob/master/packages/nestjs-rxjs-metrics/readme.md#gauge
+     */
     gaugeInc<T>(metric: keyof G, value = 1): MonoTypeOperatorFunction<T> {
         return this.gauge(metric, gauge => void gauge.inc(value));
     }
 
+    /**
+     * Pipeable operator decrementing the gauge metric by `value` (1 by default) for each emitted value.
+     *
+     * @see https://github.com/rnw-community/rnw-community/blob/master/packages/nestjs-rxjs-metrics/readme.md#gauge
+     */
     gaugeDec<T>(metric: keyof G, value = 1): MonoTypeOperatorFunction<T> {
         return this.gauge(metric, gauge => void gauge.dec(value));
     }
 
+    /**
+     * Pipeable operator starting a histogram timer for each emitted value, to be ended by `histogramEnd`.
+     *
+     * @see https://github.com/rnw-community/rnw-community/blob/master/packages/nestjs-rxjs-metrics/readme.md#histogram
+     */
     histogramStart<T>(metric: keyof H, labels?: LabelValues<ValuesOf<HL[keyof H]>>): MonoTypeOperatorFunction<T> {
         return rxjsOperator(() => {
             this.startedHistogramMetrics[metric].push(this.histogramMetrics[metric].startTimer(labels));
         });
     }
 
+    /**
+     * Pipeable operator ending the most recently started histogram timer for each emitted value, logging an error when none was started.
+     *
+     * @see https://github.com/rnw-community/rnw-community/blob/master/packages/nestjs-rxjs-metrics/readme.md#histogram
+     */
     histogramEnd<T>(metric: keyof H, labels?: LabelValues<ValuesOf<HL[keyof H]>>): MonoTypeOperatorFunction<T> {
         return rxjsOperator(() => {
             const metricEndFn = this.startedHistogramMetrics[metric].pop();
@@ -80,12 +115,22 @@ export class NestJSRxJSMetricsService<
         });
     }
 
+    /**
+     * Pipeable operator starting a summary timer for each emitted value, to be ended by `summaryEnd`.
+     *
+     * @see https://github.com/rnw-community/rnw-community/blob/master/packages/nestjs-rxjs-metrics/readme.md#summary
+     */
     summaryStart<T>(metric: keyof S, labels?: LabelValues<ValuesOf<SL[keyof S]>>): MonoTypeOperatorFunction<T> {
         return rxjsOperator(() => {
             this.startedSummaryMetrics[metric].push(this.summaryMetrics[metric].startTimer(labels));
         });
     }
 
+    /**
+     * Pipeable operator ending the most recently started summary timer for each emitted value, logging an error when none was started.
+     *
+     * @see https://github.com/rnw-community/rnw-community/blob/master/packages/nestjs-rxjs-metrics/readme.md#summary
+     */
     summaryEnd<T>(metric: keyof S, labels?: LabelValues<ValuesOf<SL[keyof S]>>): MonoTypeOperatorFunction<T> {
         return rxjsOperator(() => {
             const metricEndFn = this.startedSummaryMetrics[metric].pop();
