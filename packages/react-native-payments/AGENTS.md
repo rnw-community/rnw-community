@@ -128,7 +128,9 @@ src/
   `registerAndroidChangeEventsTask`) for as long as a callback-enabled sheet is open.
   `PaymentDataRequestUpdateFactory` turns the `updatePaymentDetails` arguments into a `PaymentDataRequestUpdate`.
   `show()` adds the `callbackIntents` in JS (`getAndroidCallbackPaymentDataRequest`) for the shipping listeners
-  registered at that moment; `canMakePayment()`/`hasEnrolledInstrument()` keep the base request. The semantics live in
+  registered at that moment, and only when a regular `transactionInfo` carries `countryCode` (Google Pay requires it in
+  every callback `newTransactionInfo`); `canMakePayment()`/`hasEnrolledInstrument()` keep the base request. The
+  semantics live in
   [get-native-payments-event-emitter.md](src/util/get-native-payments-event-emitter/get-native-payments-event-emitter.md)
 - Change events are request-scoped: `show()` passes the request `id` to native so `activeRequestId` is adopted at
   presentation time regardless of whether any listener was ever registered, `setActiveEvents(requestId, eventNames)`
@@ -145,7 +147,8 @@ src/
   races **one** `changeEventTimeoutMs` deadline over the listener bodies and their answer together, so a listener
   awaiting a request that never settles cannot pin a native completion
 - Native events carry a monotonic `eventId` that JS echoes back in the update, and native resolves a completion only for
-  the `eventId` it is still waiting for, so the answer of a superseded event can never be applied to the newer one
+  the `eventId` it is still waiting for, so the answer of a superseded event can never be applied to the newer one;
+  Android additionally rejects an update without `eventId`, since only an `eventId`-emitting bundle can enable its callbacks
 - A dispatch is bound to an event generation bumped on every terminal path, so a response that arrives after the sheet
   finished is dropped instead of reaching native, and an event arriving while another one is processed is answered
   immediately with the unchanged details — its selection is still recorded on the request first, so

@@ -81,7 +81,9 @@ as a `NaN` amount. A `PaymentItem` becomes a `PKPaymentSummaryItem` under the sa
 
 Native resolves the completion only when the answered `eventId` is still the pending one: a second change event of the
 same type supersedes the first, and the answer of the superseded event is rejected with `no_completion` instead of being
-applied to the newer handler. An update without an `eventId` is accepted, which is what keeps an older JS bundle working.
+applied to the newer handler. On iOS an update without an `eventId` is accepted, which is what keeps an older JS bundle
+working; Android requires it, because only a bundle that emits `eventId` can declare the callback intents that start
+an Android change event, and an answer without it could otherwise land on a newer event of the same type.
 
 `addListener`/`removeListeners` are the `NativeEventEmitter` bookkeeping methods and carry no request semantics; their
 presence is what tells JS that the native module can emit change events at all.
@@ -147,8 +149,9 @@ event of the same type supersedes the pending one under a new `eventId`, and `sh
 payload carries `shippingAddress` (`IntermediateAddress` mapped onto `locality`, `administrativeArea`, `postalCode`,
 `countryCode`, the rest empty) and, when the sheet reports one, `shippingOption`.
 
-`updatePaymentDetails` completes the pending listener with a `PaymentDataRequestUpdate`: `newTransactionInfo` is the
-shown request's `transactionInfo` with `totalPrice`/`totalPriceLabel` from `update.total` and `displayItems` as
+`updatePaymentDetails` completes the pending listener with a `PaymentDataRequestUpdate`: `newTransactionInfo` (sent only
+for a request with regular `transactionInfo`, never for a merchant-initiated one) is the shown request's
+`transactionInfo`, `countryCode` included, with `totalPrice`/`totalPriceLabel` from `update.total` and `displayItems` as
 `LINE_ITEM`s (`PENDING` for a `pending` item); `newShippingOptionParameters` is only sent for `shippingaddresschange`
 and only when the request declared `SHIPPING_OPTION`, with the last `selected` option, else the sheet's current option,
 else the first one as `defaultSelectedOptionId`; a string `error` becomes `SHIPPING_ADDRESS_UNSERVICEABLE` /

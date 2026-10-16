@@ -33,22 +33,31 @@ with `shippingAddressRequired`):
 | `shippingoptionchange` with non-empty `details.shippingOptions` | `SHIPPING_OPTION` intent, `shippingOptionRequired`, `shippingOptionParameters` |
 | either of the above | the mandatory `PAYMENT_AUTHORIZATION` intent, `transactionInfo.displayItems` from `details.displayItems` |
 
+Google Pay requires every callback `newTransactionInfo` to repeat the `countryCode` of the original request, so a
+request with regular `transactionInfo` and no `countryCode` in its Android method data declares no callback intents
+at all — set `countryCode` to receive Android change events. A merchant-initiated request (`deferredTransactionInfo`,
+`recurringTransactionInfo` or `automaticReloadTransactionInfo`) already requires `countryCode`.
+
 The package ships a `PaymentsCallbacksService` (`BasePaymentDataCallbacksService`) in its library manifest, merged
 into the app by autolinking and by Expo prebuild alike, so there is nothing to declare by hand. Google Pay calls it
-with `onPaymentDataChanged` when the sheet opens (`INITIALIZE`, delivered as `shippingaddresschange` for the
-default address) and on every address or option change; the module emits the event, and the `updateWith` answer
-becomes a `PaymentDataRequestUpdate`:
+with `onPaymentDataChanged` when the sheet opens and on every address or option change. The opening `INITIALIZE`
+callback is delivered as `shippingaddresschange` for the default address when that listener is registered, and as
+`shippingoptionchange` when only the option listener is — so do not expect an initial address event without a
+`shippingaddresschange` listener. The module emits the event, and the `updateWith` answer becomes a
+`PaymentDataRequestUpdate`:
 
 | `updateWith` member | `PaymentDataRequestUpdate` |
 | --- | --- |
-| `total` | `newTransactionInfo.totalPrice` / `totalPriceLabel` (currency, country and price status of the request kept) |
-| `displayItems` | `newTransactionInfo.displayItems` (`LINE_ITEM`, `PENDING` for a `pending` item) |
+| `total` | `newTransactionInfo.totalPrice` / `totalPriceLabel` (currency, country and price status of the request kept) — regular `transactionInfo` requests only |
+| `displayItems` | `newTransactionInfo.displayItems` (`LINE_ITEM`, `PENDING` for a `pending` item) — regular `transactionInfo` requests only |
 | `shippingOptions` (address change only) | `newShippingOptionParameters` — `label`, `detail` as `description`, the last `selected` option (else the option the sheet shows, else the first) as `defaultSelectedOptionId` |
 | `error` | `error` with the event's `intent` — see [Sheet errors](#sheet-errors) |
 
-Like on iOS, an option change answers totals only, so the picker never snaps back to another option. Google Pay
-renders a shipping option from its `label` and `description` only — put the price in one of them. The address of a
-change event is redacted by Google Pay to `locality`, `administrativeArea`, `postalCode` and `countryCode`.
+A merchant-initiated request carries no `transactionInfo` and Google Pay does not support dynamic price updates
+for it, so `total` and `displayItems` of an answer are not sent there — only the shipping options and the error
+reach the sheet. Like on iOS, an option change answers totals only, so the picker never snaps back to another
+option. Google Pay renders a shipping option from its `label` and `description` only — put the price in one of them.
+The address of a change event is redacted by Google Pay to `locality`, `administrativeArea`, `postalCode` and `countryCode`.
 `onPaymentAuthorized` is answered with `SUCCESS` right away, so the payment still resolves `show()` as before.
 
 React Native pauses JS timers while the app's activity sits behind another activity, so while a callback-enabled

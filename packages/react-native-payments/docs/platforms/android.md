@@ -49,12 +49,14 @@ dependencies {
 - `hasEnrolledInstrument()` calls Google Pay's `isReadyToPay` with `existingPaymentMethodRequired: true`. See
   [Known deviations](#known-deviations).
 - `shippingaddresschange` / `shippingoptionchange` fire while the Google Pay sheet is open and their `updateWith`
-  answers update the total, the display items, the shipping options and the error in place, through Google Pay's
+  answers update the total and the display items (regular `transactionInfo` requests only — a merchant-initiated
+  request gets no price update), the shipping options and the error in place, through Google Pay's
   [dynamic price updates](https://developers.google.com/pay/api/android/guides/tutorial#enable-callbacks):
   `show()` declares the `callbackIntents` of the shipping listeners registered before it, and the library manifest
   declares the `PaymentsCallbacksService` Google Pay binds to (`BIND_PAYMENTS_CALLBACK_SERVICE` permission,
   `PAYMENT_DATA_CALLBACKS` action) — no app-side manifest or Expo plugin change is needed. Both require
-  `requestShipping`. See [guides/change-events.md](../guides/change-events.md#android).
+  `requestShipping`, and a regular `transactionInfo` request also needs `countryCode`. See
+  [guides/change-events.md](../guides/change-events.md#android).
 
 ### Merchant-initiated transactions
 
@@ -89,8 +91,9 @@ place of `transactionInfo`, with `details.total` as the `immediateTotalPrice` du
 - **`complete()` and `abort()` have no effect** — an artifact of the Google Pay activity-result flow, which has
   no in-sheet dismiss/complete call to make.
 - **`retry()` is a documented no-op.** It resolves without any visual effect, consistent with the `complete()`/
-  `abort()` no-op boundary above — Google Pay's sheet is a separate activity with no in-sheet update mechanism at
-  all. See [guides/retry.md](../guides/retry.md).
+  `abort()` no-op boundary above — Google Pay's sheet is a separate activity with no retry or dismiss call; its
+  only in-sheet update path is the shipping change-event callbacks above, which `retry()` cannot reach. See
+  [guides/retry.md](../guides/retry.md).
 - **`methodData.data.shippingType` is a no-op.** Google Pay has no `PKShippingType`-equivalent concept; the value
   is validated but not forwarded to native.
 - **`hasEnrolledInstrument()` is an optimistic signal, not a guarantee.** `isReadyToPay` with

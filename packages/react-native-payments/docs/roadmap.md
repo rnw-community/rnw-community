@@ -85,8 +85,10 @@ Spike findings (decision recorded on the issue):
       layer, iOS PassKit delivery and Android Google Pay callback delivery (shipping events) implemented (see
       [guides/change-events.md](./guides/change-events.md)); on-device
       verification is tracked in [#393](https://github.com/rnw-community/rnw-community/issues/393)
-- [x] [PaymentMethodChangeEvent](https://www.w3.org/TR/payment-request/#dom-paymentmethodchangeevent) — same
-      implementation and verification status as `PaymentRequestUpdateEvent`
+- [x] [PaymentMethodChangeEvent](https://www.w3.org/TR/payment-request/#dom-paymentmethodchangeevent) — JavaScript
+      layer and iOS PassKit delivery implemented; Android stays silent because Google Pay has no payment-method
+      callback intent; on-device verification is tracked in
+      [#393](https://github.com/rnw-community/rnw-community/issues/393)
 - [x] Implement [PaymentDetailsModifier](https://www.w3.org/TR/payment-request/#dom-paymentdetailsmodifier) — see
       [guides/modifiers.md](./guides/modifiers.md)
 - [x] Improve and unify errors according to the spec — see [guides/errors.md](./guides/errors.md)
