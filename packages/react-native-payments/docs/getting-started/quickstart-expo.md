@@ -42,3 +42,7 @@ export default {
     plugins: ['@rnw-community/react-native-payments/app.plugin'],
 };
 ```
+
+3. Pick your gateway: the [gateway recipes](../guides/gateways/index.md) give each payment service provider's
+   Google Pay `gatewayConfig`, its Apple Pay certificate setup for the `merchantIdentifier` above, and the server
+   call that charges the token.

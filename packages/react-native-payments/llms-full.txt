@@ -73,7 +73,10 @@ payments. Each one returns the plain `methodData` entry, so you can still write 
 [api/ios-payment-method-data.md](docs/api/ios-payment-method-data.md) and
 [api/android-payment-method-data.md](docs/api/android-payment-method-data.md) for the raw shape.
 
-Only call `complete(PaymentComplete.SUCCESS)` once your backend has actually confirmed the charge. A
+`sendToYourBackend` is where your payment service provider comes in — the
+[gateway recipes](docs/guides/gateways/index.md) give the exact method data, token and server call for Stripe, Adyen,
+Braintree and Checkout.com. Only call `complete(PaymentComplete.SUCCESS)` once your backend has actually confirmed the
+charge. A
 `PaymentRequest` is single-use — build a new one per payment attempt rather than reusing a settled request; see
 [docs/architecture.md](docs/architecture.md).
 [`createPaymentRequestFactory`](docs/api/create-payment-request-factory.md) builds a fresh request per attempt from
@@ -98,6 +101,9 @@ placeholder.
   [Payment details modifiers](docs/guides/modifiers.md) · [Error handling](docs/guides/errors.md) ·
   [Retrying a payment](docs/guides/retry.md) · [Unit testing](docs/guides/testing.md) ·
   [Troubleshooting](docs/guides/troubleshooting.md)
+- **Gateway recipes** — [Pick your gateway](docs/guides/gateways/index.md): [Stripe](docs/guides/gateways/stripe.md) ·
+  [Adyen](docs/guides/gateways/adyen.md) · [Braintree](docs/guides/gateways/braintree.md) ·
+  [Checkout.com](docs/guides/gateways/checkout-com.md) · [Direct tokenization](docs/guides/gateways/direct.md)
 - **Architecture** — [The JS↔native contract, single-use requests, event lifecycle](docs/architecture.md)
 - **Roadmap** — [Open work and the W3C compliance checklist](docs/roadmap.md)
 
@@ -177,6 +183,9 @@ const paymentResponse = await new PaymentRequest(methodData, {
 }).show();
 ```
 
+5. Pick your gateway: the [gateway recipes](docs/guides/gateways/index.md) show how each payment service provider
+   issues the Apple Pay processing certificate for your merchant ID and how to forward `applePayToken` to it.
+
 `supportedNetworks` defaults to Visa and Mastercard — see
 [api/create-apple-pay-method-data.md](docs/api/create-apple-pay-method-data.md). To write the method data by hand
 instead, pass `{ supportedMethods: PaymentMethodNameEnum.ApplePay, data: { merchantIdentifier, supportedNetworks,
@@ -218,6 +227,9 @@ const paymentResponse = await new PaymentRequest(methodData, {
     total: { label: 'Total', amount: { currency: 'USD', value: '10.00' } },
 }).show();
 ```
+
+6. Pick your gateway: replace the `example` gateway, which only returns a placeholder token, with your payment
+   service provider's `gatewayConfig` from the [gateway recipes](docs/guides/gateways/index.md).
 
 `environment` defaults to `EnvironmentEnum.TEST` and `supportedNetworks` to Visa and Mastercard. Pass
 `environment: EnvironmentEnum.PRODUCTION` for live payments — see
@@ -277,6 +289,10 @@ export default {
     plugins: ['@rnw-community/react-native-payments/app.plugin'],
 };
 ```
+
+3. Pick your gateway: the [gateway recipes](docs/guides/gateways/index.md) give each payment service provider's
+   Google Pay `gatewayConfig`, its Apple Pay certificate setup for the `merchantIdentifier` above, and the server
+   call that charges the token.
 
 ---
 
@@ -815,7 +831,7 @@ const androidMethod: AndroidPaymentMethodDataInterface = {
   keys (`stripe:publishableKey`, `braintree:clientKey`, …) go straight into it. `gatewayMerchantId` is optional
   because not every gateway takes it — Google's
   [processor table](https://developers.google.com/pay/api/android/guides/tutorial#tokenization) lists none for
-  Stripe or Braintree.
+  Stripe or Braintree. See [guides/gateways/](docs/guides/gateways/index.md) for each PSP's exact parameters.
 
 ## References
 
@@ -869,7 +885,8 @@ if (response instanceof AndroidPaymentResponse) {
   (`PAYMENT_GATEWAY`) gateways that forward Google's encrypted payload. A gateway that issues its own token instead
   (Stripe returns a Stripe Token JSON, Braintree a JSON carrying a nonce) leaves them at their empty defaults — send
   `rawToken` to the gateway and parse it as that gateway documents. You chose the tokenization type yourself through
-  `gatewayConfig` or `directConfig`, so branch on that rather than on empty fields.
+  `gatewayConfig` or `directConfig`, so branch on that rather than on empty fields. See
+  [guides/gateways/](docs/guides/gateways/index.md).
 
 - `AndroidPaymentMethodToken` is a plain TypeScript interface with no runtime validation of its own —
   constructing an object that merely matches its shape never throws. `PaymentsError` is thrown by
@@ -3116,6 +3133,588 @@ issue above, not a New Architecture incompatibility.
 `TurboModuleRegistry.getEnforcing(...): 'Payments' could not be found`).** Covered in
 [testing.md](docs/guides/testing.md) — mock `NativeModules.Payments` so the module resolves to a fake instead of falling
 through to the linking-error proxy ([#227](https://github.com/rnw-community/rnw-community/issues/227)).
+
+---
+
+# FILE: docs/guides/gateways/index.md
+
+# Gateway recipes
+
+Copy-paste integrations for the payment service providers (PSPs) that charge the Apple Pay and Google Pay tokens this
+package returns. Each recipe goes from the sheet to a charged token: the method data the PSP expects, the token to
+read off the `PaymentResponse`, the server call that charges it, and a sandbox checklist.
+
+| PSP | Google Pay tokenization | Apple Pay token handoff | Recipe |
+| --- | --- | --- | --- |
+| Stripe | `PAYMENT_GATEWAY`, `gateway: 'stripe'` | Stripe-issued certificate, `paymentData` exchanged for a Stripe token | [stripe.md](docs/guides/gateways/stripe.md) |
+| Adyen | `PAYMENT_GATEWAY`, `gateway: 'adyen'` | Your own certificate, base64 `paymentData` in `/payments` | [adyen.md](docs/guides/gateways/adyen.md) |
+| Braintree | `PAYMENT_GATEWAY`, `gateway: 'braintree'` | Braintree-issued certificate, `paymentData` exchanged for a nonce | [braintree.md](docs/guides/gateways/braintree.md) |
+| Checkout.com | `PAYMENT_GATEWAY`, `gateway: 'checkoutltd'` | Checkout.com-issued certificate, `paymentData` exchanged for a token | [checkout-com.md](docs/guides/gateways/checkout-com.md) |
+| None (self-decrypt) | `DIRECT`, your own public key | Your own certificate, decrypted on your server | [direct.md](docs/guides/gateways/direct.md) |
+
+## How to read a recipe
+
+Every PSP-specific value in a recipe sits in a table with the public doc page it was checked against and the date
+of that check. PSPs rename parameters and bump API versions, so re-check the linked page when a recipe's
+verification date is old. Where a PSP documents a step only through its own native SDK, the recipe says so and
+names the SDK source file the shape was taken from.
+
+## The flow every recipe shares
+
+1. Build `methodData` with [`createApplePayMethodData`](docs/api/create-apple-pay-method-data.md) and
+   [`createGooglePayMethodData`](docs/api/create-google-pay-method-data.md), passing the PSP values from the
+   recipe. `createGooglePayMethodData` defaults to `EnvironmentEnum.TEST`, which is what every sandbox checklist
+   below expects.
+2. `show()` the sheet and read the token off the response:
+    - **iOS** — `response.details.applePayToken` ([`IosPKToken`](docs/api/ios-pk-token.md)): `paymentData` is the
+      still-encrypted Apple Pay payment token, already parsed into `{ data, header, signature, version }`;
+      `paymentMethod` and `transactionIdentifier` describe the card and the transaction.
+    - **Android** — `response.details.androidPayToken.rawToken`
+      ([`AndroidPaymentMethodToken`](docs/api/android-payment-method-token.md)): the untouched
+      `tokenizationData.token` string Google Pay returned. Forward this string — whether it is Google's encrypted
+      envelope or a token the gateway issued depends on the gateway.
+3. Send the token to your backend over your own API. Never call a PSP endpoint that needs a secret key from the app.
+4. Your backend charges the token through the PSP, and the app calls `complete()` with the outcome.
+
+```ts
+import {
+    AndroidPaymentResponse,
+    IosPaymentResponse,
+    PaymentComplete,
+    PaymentRequest,
+} from '@rnw-community/react-native-payments';
+
+const response = await new PaymentRequest(methodData, details).show();
+
+if (response instanceof IosPaymentResponse) {
+    const { paymentData, paymentMethod, transactionIdentifier } = response.details.applePayToken;
+
+    await yourBackend.charge({
+        wallet: 'apple-pay',
+        paymentData: JSON.stringify(paymentData),
+        paymentMethod,
+        transactionIdentifier,
+    });
+} else if (response instanceof AndroidPaymentResponse) {
+    await yourBackend.charge({ wallet: 'google-pay', token: response.details.androidPayToken.rawToken });
+}
+
+await response.complete(PaymentComplete.SUCCESS);
+```
+
+`yourBackend.charge` stands for your own API call; each recipe lists what its payload carries and what the backend
+does with it. Call `complete(PaymentComplete.FAIL)` instead when the backend reports a declined or failed charge —
+see [guides/errors.md](docs/guides/errors.md).
+
+## Pitfalls
+
+- `JSON.stringify(paymentData)` re-serializes the parsed Apple Pay payload; the PSP parses it as JSON, it never
+  needs the original bytes. Each recipe says whether the PSP wants that JSON as-is or base64-encoded.
+- On the iOS simulator PassKit returns an empty `paymentData`, so every field of `applePayToken.paymentData` is an
+  empty string. Exercise a recipe's iOS path on a device.
+- The Google Pay `example` gateway in the quickstarts is accepted only in `TEST` and returns a token no PSP can
+  charge (`rawToken` is `examplePaymentMethodToken`). Swap in the recipe's gateway before testing against the PSP.
+
+## References
+
+- [Google Pay API — gateway tokenization and participating processors](https://developers.google.com/pay/api/android/guides/tutorial#tokenization)
+- [Google Pay API — `PaymentMethodTokenizationData`](https://developers.google.com/pay/api/android/reference/response-objects#PaymentMethodTokenizationData)
+- [Apple Pay — payment token format reference](https://developer.apple.com/documentation/passkit/apple_pay/payment_token_format_reference)
+- [platforms/android.md](docs/platforms/android.md), [platforms/ios.md](docs/platforms/ios.md)
+
+---
+
+# FILE: docs/guides/gateways/stripe.md
+
+# Stripe
+
+Charge Apple Pay and Google Pay through [Stripe](https://docs.stripe.com/) without Stripe's native SDKs. Both
+wallets end in the same server step: turn the wallet token into a Stripe `tok_…` token, attach it to a
+PaymentMethod, and confirm a PaymentIntent with it.
+
+> Stripe documents both wallets primarily through its own SDKs. The Google Pay parameters come from Google's
+> processor table, and the Apple Pay exchange step mirrors what Stripe's iOS SDK sends — both are marked below.
+> If you would rather stay on Stripe's documented path, use
+> [`@stripe/stripe-react-native`](https://docs.stripe.com/apple-pay?platform=react-native) instead of this package.
+
+## Values
+
+| Value | Where | Source | Verified |
+| --- | --- | --- | --- |
+| `gateway: 'stripe'` | `gatewayConfig` | [Google Pay tutorial — Stripe row](https://developers.google.com/pay/api/android/guides/tutorial#tokenization) | 2026-10-16 |
+| `'stripe:version': '2018-10-31'` | `gatewayConfig` | [Google Pay tutorial — Stripe row](https://developers.google.com/pay/api/android/guides/tutorial#tokenization) | 2026-10-16 |
+| `'stripe:publishableKey': 'pk_test_…'` | `gatewayConfig` | [Google Pay tutorial — Stripe row](https://developers.google.com/pay/api/android/guides/tutorial#tokenization) | 2026-10-16 |
+| no `gatewayMerchantId` | `gatewayConfig` | [Google Pay tutorial — Stripe row](https://developers.google.com/pay/api/android/guides/tutorial#tokenization) lists only the three keys above | 2026-10-16 |
+| Merchant ID registered with a Stripe-issued CSR | `merchantIdentifier` | [Stripe — Apple Pay, create a certificate](https://docs.stripe.com/apple-pay?platform=ios#csr) | 2026-10-16 |
+| `POST /v1/payment_methods` with `type=card`, `card[token]=tok_…` | backend | [Stripe API — create a PaymentMethod (`card.token`)](https://docs.stripe.com/api/payment_methods/create) | 2026-10-16 |
+| `POST /v1/payment_intents` with `payment_method`, `confirm=true` | backend | [Stripe API — create a PaymentIntent](https://docs.stripe.com/api/payment_intents/create) | 2026-10-16 |
+| `POST /v1/tokens` with `pk_token`, `pk_token_instrument_name`, `pk_token_payment_network`, `pk_token_transaction_id` | backend (Apple Pay) | Not in Stripe's API reference — mirrors [stripe-ios `STPAPIClient+ApplePay.swift`](https://github.com/stripe/stripe-ios/blob/master/StripePayments/StripePayments/Source/API%20Bindings/STPAPIClient%2BApplePay.swift) | 2026-10-16 |
+
+For Stripe Connect, Stripe's Android SDK sends `stripe:publishableKey` as `pk_…/acct_…` (publishable key, slash,
+connected account id) — see
+[stripe-android `GooglePayConfig.kt`](https://github.com/stripe/stripe-android/blob/master/payments-core/src/main/java/com/stripe/android/GooglePayConfig.kt).
+
+## 1. Account setup
+
+- **Apple Pay** — register a merchant ID in the Apple Developer portal, then in the Stripe Dashboard under
+  [iOS certificates](https://dashboard.stripe.com/settings/ios_certificates) choose **Add new application**,
+  download Stripe's CSR, create the Apple Pay Payment Processing Certificate from it and upload the `.cer` back to
+  Stripe. Stripe can only decrypt `paymentData` encrypted for that certificate, so a CSR you generated yourself
+  does not work. Add the merchant ID to the app's entitlement — see
+  [quickstart-ios.md](docs/getting-started/quickstart-ios.md).
+- **Google Pay** — nothing to configure on Stripe for `TEST`. To go live, request production access in the Google
+  Pay & Wallet Console with the **Gateway** integration type.
+
+## 2. Method data
+
+```ts
+import { createApplePayMethodData, createGooglePayMethodData } from '@rnw-community/react-native-payments';
+
+const methodData = [
+    createApplePayMethodData({
+        merchantIdentifier: 'merchant.com.your-app',
+        countryCode: 'US',
+        currencyCode: 'USD',
+    }),
+    createGooglePayMethodData({
+        countryCode: 'US',
+        currencyCode: 'USD',
+        gatewayConfig: {
+            gateway: 'stripe',
+            'stripe:version': '2018-10-31',
+            'stripe:publishableKey': 'pk_test_your_publishable_key',
+        },
+    }),
+];
+```
+
+## 3. Read the token
+
+- **Android** — `response.details.androidPayToken.rawToken` is a Stripe Token object serialized as JSON
+  (`{ "id": "tok_…", "object": "token", "card": { "tokenization_method": "android_pay", … } }`). It is not
+  Google's encrypted envelope, so the envelope fields of `androidPayToken` stay empty. Send `rawToken` to your
+  backend, or parse it and send only `id`.
+- **iOS** — send `JSON.stringify(applePayToken.paymentData)`, `applePayToken.paymentMethod.displayName`,
+  `applePayToken.paymentMethod.network` and `applePayToken.transactionIdentifier`.
+
+The [shared flow](docs/guides/gateways/index.md#the-flow-every-recipe-shares) shows the client code for both.
+
+## 4. Backend
+
+1. **Google Pay** — parse the forwarded `rawToken` and take its `id` (`tok_…`).
+2. **Apple Pay** — exchange the payment token for a Stripe token: `POST https://api.stripe.com/v1/tokens`
+   (form-encoded) with `pk_token` = the `paymentData` JSON string, `pk_token_instrument_name` = `displayName`,
+   `pk_token_payment_network` = `network`, `pk_token_transaction_id` = `transactionIdentifier`. The response is a
+   Token object; take its `id`. This is the request stripe-ios sends with the publishable key; it is not part of
+   Stripe's public API reference, so validate it in test mode before relying on it.
+3. Create a PaymentMethod from the token: `POST /v1/payment_methods` with `type=card` and `card[token]=tok_…`.
+4. Create and confirm a PaymentIntent: `POST /v1/payment_intents` with `amount`, `currency`,
+   `payment_method=pm_…` and `confirm=true`, authenticated with your secret key.
+5. Return the PaymentIntent `status` to the app; `succeeded` maps to `PaymentComplete.SUCCESS`. A
+   `requires_action` status needs 3-D Secure, which this package cannot present — treat it as a failure or hand off
+   to Stripe's SDK.
+
+## 5. Sandbox checklist
+
+- [ ] Google Pay: `environment` left at `TEST`, `stripe:publishableKey` is a `pk_test_…` key, and the test runs on a
+      physical Android device with a card in Google Wallet (or a member of
+      [Google's test card suite](https://developers.google.com/pay/api/android/guides/resources/test-card-suite)).
+- [ ] Google Pay: `rawToken` parses to an object whose `id` starts with `tok_`, and the PaymentIntent shows up in the
+      Stripe Dashboard in test mode.
+- [ ] Apple Pay: the merchant ID's processing certificate was created from the Stripe CSR, and the test runs on a
+      device with a **real** card in Wallet plus your test API keys — Stripe recognizes test mode and returns a test
+      card token (see [Stripe — testing Apple Pay](https://docs.stripe.com/apple-pay?platform=ios#testing)).
+- [ ] Backend only: [Stripe test tokens](https://docs.stripe.com/testing) such as `tok_visa` exercise steps 3–4
+      without a device.
+
+## Sources
+
+- [Google Pay API — tutorial, tokenization and processor table](https://developers.google.com/pay/api/android/guides/tutorial#tokenization)
+- [Stripe — Apple Pay (iOS)](https://docs.stripe.com/apple-pay?platform=ios)
+- [Stripe — Google Pay (Android)](https://docs.stripe.com/google-pay?platform=android)
+- [Stripe API — PaymentMethods](https://docs.stripe.com/api/payment_methods/create),
+  [PaymentIntents](https://docs.stripe.com/api/payment_intents/create), [Tokens](https://docs.stripe.com/api/tokens)
+- [stripe-ios — Apple Pay token request](https://github.com/stripe/stripe-ios/blob/master/StripePayments/StripePayments/Source/API%20Bindings/STPAPIClient%2BApplePay.swift)
+
+---
+
+# FILE: docs/guides/gateways/adyen.md
+
+# Adyen
+
+Charge Apple Pay and Google Pay through [Adyen](https://docs.adyen.com/)'s API-only integration. Adyen takes both
+wallet tokens directly in one Checkout API `/payments` request, so there is no separate token-exchange step.
+
+## Values
+
+| Value | Where | Source | Verified |
+| --- | --- | --- | --- |
+| `gateway: 'adyen'` | `gatewayConfig` | [Google Pay tutorial — Adyen row](https://developers.google.com/pay/api/android/guides/tutorial#tokenization), [Adyen — Google Pay](https://docs.adyen.com/payment-methods/google-pay/) | 2026-10-16 |
+| `gatewayMerchantId`: your Adyen merchant account name (or company account name) | `gatewayConfig` | [Adyen — Google Pay](https://docs.adyen.com/payment-methods/google-pay/) | 2026-10-16 |
+| Merchant ID with your **own** Apple Pay certificate, CSR downloaded from the Customer Area | `merchantIdentifier` | [Adyen — Apple Pay certificate (iOS)](https://docs.adyen.com/payment-methods/apple-pay/apple-pay-certificate/ios) | 2026-10-16 |
+| `POST https://checkout-test.adyen.com/v72/payments`, `X-API-Key` header | backend | [Adyen Checkout API reference](https://docs.adyen.com/api-explorer/Checkout/latest/overview) | 2026-10-16 |
+| `paymentMethod: { type: 'googlepay', googlePayToken }` | backend | [Adyen — Google Pay API-only](https://docs.adyen.com/payment-methods/google-pay/api-only/) | 2026-10-16 |
+| `paymentMethod: { type: 'applepay', applePayToken }`, `applePayToken` = base64 of the stringified `paymentData` | backend | [Adyen — Apple Pay API-only](https://docs.adyen.com/payment-methods/apple-pay/api-only/) | 2026-10-16 |
+
+The Google Pay API-only page requires Checkout API v67 or later; v72 is the latest version listed in the API
+reference on the verification date.
+
+## 1. Account setup
+
+- **Apple Pay** — mobile apps must use their own Apple Pay certificate; Adyen's shared certificate is web-only. In the
+  Customer Area go to **Developers › API credentials ›** your web service user **› Wallet payment methods › Apple
+  Pay › Add › Use your own certificate**, enter the merchant ID, download the CSR, create the Apple Pay Payment
+  Processing Certificate from it in the Apple Developer portal and upload it back. Adyen asks for separate merchant
+  IDs for test and live (it suggests `merchant.com.adyen.<merchantAccount>.test`). In-app payments need no merchant
+  session validation.
+  Live Apple Pay payments need the **API Clientside Encryption Payments** role on the API credential.
+- **Google Pay** — nothing extra for `TEST`. Before going live, complete Google's production access request with the
+  **Gateway** integration type.
+
+## 2. Method data
+
+```ts
+import { createApplePayMethodData, createGooglePayMethodData } from '@rnw-community/react-native-payments';
+
+const methodData = [
+    createApplePayMethodData({
+        merchantIdentifier: 'merchant.com.adyen.YourMerchantAccount.test',
+        countryCode: 'NL',
+        currencyCode: 'EUR',
+    }),
+    createGooglePayMethodData({
+        countryCode: 'NL',
+        currencyCode: 'EUR',
+        gatewayConfig: { gateway: 'adyen', gatewayMerchantId: 'YourMerchantAccount' },
+    }),
+];
+```
+
+## 3. Read the token
+
+- **Android** — `response.details.androidPayToken.rawToken`, the Google Pay encrypted envelope string. Forward it
+  unchanged; it becomes `googlePayToken`.
+- **iOS** — `JSON.stringify(response.details.applePayToken.paymentData)`. Base64-encode it (on the device or on
+  your backend); the result becomes `applePayToken`.
+
+The [shared flow](docs/guides/gateways/index.md#the-flow-every-recipe-shares) shows the client code for both.
+
+## 4. Backend
+
+1. `POST https://checkout-test.adyen.com/v72/payments` with the `X-API-Key` header and:
+    - `merchantAccount`, `reference`, `amount: { currency, value }` (minor units, so `'10.00'` EUR is `1000`);
+    - Google Pay: `paymentMethod: { type: 'googlepay', googlePayToken: <rawToken> }`;
+    - Apple Pay: `paymentMethod: { type: 'applepay', applePayToken: <base64 of the paymentData JSON> }`.
+2. `resultCode: 'Authorised'` maps to `PaymentComplete.SUCCESS`. A response with an `action` (`redirect` or
+   `threeDS2`) needs 3-D Secure handling, which this package cannot present — include `browserInfo` and
+   `returnUrl` only if you handle that action yourself, otherwise treat it as a failure.
+3. Live payments use your account's live prefix:
+   `https://{PREFIX}-checkout-live.adyenpayments.com/checkout/v72/payments`.
+
+## 5. Sandbox checklist
+
+- [ ] Google Pay: `environment` left at `TEST` and `gateway: 'adyen'` (not `example`) so the token can be
+      authorised. Join [Google's test card suite](https://developers.google.com/pay/api/android/guides/resources/test-card-suite)
+      — its cards map to Adyen test cards — or add a real card, which is mapped to an Adyen test card of the same
+      brand and never charged.
+- [ ] Google Pay: 3-D Secure 2 test flows need American Express or Discover cards.
+- [ ] Apple Pay: test merchant ID with its own Adyen-uploaded certificate, and an
+      [App Store Connect sandbox tester](https://developer.apple.com/apple-pay/sandbox-testing/) signed in on the
+      device with an Apple test card in Wallet.
+- [ ] The payment appears in the Customer Area under **Payments › Payment list**.
+
+## Sources
+
+- [Google Pay API — tutorial, tokenization and processor table](https://developers.google.com/pay/api/android/guides/tutorial#tokenization)
+- [Adyen — Google Pay](https://docs.adyen.com/payment-methods/google-pay/),
+  [Google Pay API-only](https://docs.adyen.com/payment-methods/google-pay/api-only/)
+- [Adyen — Apple Pay API-only](https://docs.adyen.com/payment-methods/apple-pay/api-only/),
+  [Apple Pay certificate](https://docs.adyen.com/payment-methods/apple-pay/apple-pay-certificate/),
+  [iOS certificate steps](https://docs.adyen.com/payment-methods/apple-pay/apple-pay-certificate/ios)
+- [Adyen Checkout API reference](https://docs.adyen.com/api-explorer/Checkout/latest/overview)
+- [Apple Pay sandbox testing](https://developer.apple.com/apple-pay/sandbox-testing/)
+
+---
+
+# FILE: docs/guides/gateways/braintree.md
+
+# Braintree
+
+Charge Apple Pay and Google Pay through [Braintree](https://developer.paypal.com/braintree/docs/) without
+Braintree's native SDKs. Both wallets end in a Braintree payment method nonce that your server charges with
+`Transaction: Sale`.
+
+> Braintree's guides cover both wallets through its own SDKs. The Google Pay parameters come from Google's processor
+> table, the token shape and the Apple Pay exchange from Braintree's public SDK sources and GraphQL schema — each
+> marked below. If you would rather stay on Braintree's documented path, use its native SDKs instead of this package.
+
+## Values
+
+| Value | Where | Source | Verified |
+| --- | --- | --- | --- |
+| `gateway: 'braintree'` | `gatewayConfig` | [Google Pay tutorial — Braintree row](https://developers.google.com/pay/api/android/guides/tutorial#tokenization) | 2026-10-16 |
+| `'braintree:apiVersion': 'v1'` | `gatewayConfig` | [Google Pay tutorial — Braintree row](https://developers.google.com/pay/api/android/guides/tutorial#tokenization) | 2026-10-16 |
+| `'braintree:sdkVersion'` | `gatewayConfig` | [Google Pay tutorial — Braintree row](https://developers.google.com/pay/api/android/guides/tutorial#tokenization) fills it from `braintree.client.VERSION`; Braintree documents no value for SDK-less integrations | 2026-10-16 |
+| `'braintree:merchantId'`: your Braintree merchant ID | `gatewayConfig` | [Google Pay tutorial — Braintree row](https://developers.google.com/pay/api/android/guides/tutorial#tokenization) | 2026-10-16 |
+| `'braintree:clientKey'`: your Braintree tokenization key | `gatewayConfig` | [Google Pay tutorial — Braintree row](https://developers.google.com/pay/api/android/guides/tutorial#tokenization) | 2026-10-16 |
+| no `gatewayMerchantId` | `gatewayConfig` | [Google Pay tutorial — Braintree row](https://developers.google.com/pay/api/android/guides/tutorial#tokenization) | 2026-10-16 |
+| Google Pay token: `{ "androidPayCards": [{ "nonce": … }] }` | Android response | [braintree-web `google-payment.js` parser](https://braintree.github.io/braintree-web/current/google-payment_google-payment.js.html) | 2026-10-16 |
+| Merchant ID with a Braintree-issued CSR | `merchantIdentifier` | [Braintree — Apple Pay configuration (iOS)](https://developer.paypal.com/braintree/docs/guides/apple-pay/configuration/ios/v6) | 2026-10-16 |
+| GraphQL `tokenizeApplePayCard` with `applePaymentToken: { paymentData (base64), paymentInstrumentName, paymentNetwork, transactionIdentifier }` | backend (Apple Pay) | [Braintree public GraphQL schema](https://github.com/braintree/graphql-api/blob/master/schema.graphql) | 2026-10-16 |
+| `Transaction: Sale` with the nonce as `payment_method_nonce` | backend | [Braintree — Google Pay server-side](https://developer.paypal.com/braintree/docs/guides/google-pay/server-side) | 2026-10-16 |
+
+## 1. Account setup
+
+- **Google Pay** — enable Google Pay in the Braintree Control Panel; it is required in sandbox too. For production
+  you also complete Google's own go-live process.
+- **Apple Pay** — in the Control Panel (gear icon › **Processing**) open the Apple Pay **Options**, add an iOS
+  certificate and download Braintree's CSR, create the Apple Pay Payment Processing Certificate from it in the Apple
+  Developer portal, and upload that certificate back under **Apple Merchant Certificates (iOS)**. Braintree requires its own CSR — do not generate one
+  yourself. Add the merchant ID to the app's entitlement — see
+  [quickstart-ios.md](docs/getting-started/quickstart-ios.md).
+
+## 2. Method data
+
+```ts
+import { createApplePayMethodData, createGooglePayMethodData } from '@rnw-community/react-native-payments';
+
+const methodData = [
+    createApplePayMethodData({
+        merchantIdentifier: 'merchant.com.your-app',
+        countryCode: 'US',
+        currencyCode: 'USD',
+    }),
+    createGooglePayMethodData({
+        countryCode: 'US',
+        currencyCode: 'USD',
+        gatewayConfig: {
+            gateway: 'braintree',
+            'braintree:apiVersion': 'v1',
+            'braintree:sdkVersion': 'your-braintree-sdk-version',
+            'braintree:merchantId': 'your_braintree_merchant_id',
+            'braintree:clientKey': 'sandbox_your_tokenization_key',
+        },
+    }),
+];
+```
+
+## 3. Read the token
+
+- **Android** — `response.details.androidPayToken.rawToken` is Braintree's JSON, not Google's encrypted envelope,
+  so the envelope fields of `androidPayToken` stay empty. The nonce is `JSON.parse(rawToken).androidPayCards[0].nonce`.
+  Send the nonce (or the whole `rawToken`) to your backend.
+- **iOS** — send `JSON.stringify(applePayToken.paymentData)`, `applePayToken.paymentMethod.displayName`,
+  `applePayToken.paymentMethod.network` and `applePayToken.transactionIdentifier`.
+
+The [shared flow](docs/guides/gateways/index.md#the-flow-every-recipe-shares) shows the client code for both.
+
+## 4. Backend
+
+1. **Apple Pay** — exchange the payment token for a nonce with the GraphQL `tokenizeApplePayCard` mutation, passing
+   `applePaymentToken.paymentData` = base64 of the `paymentData` JSON, `paymentInstrumentName` = `displayName`,
+   `paymentNetwork` = `network`, `transactionIdentifier`. The returned single-use payment method id is the nonce.
+   The mutation is defined in Braintree's public schema but not described in its guides, so validate it in sandbox
+   before relying on it.
+2. Charge the nonce with `Transaction: Sale` (`amount` plus `payment_method_nonce`) through a Braintree server SDK,
+   or with the GraphQL `chargePaymentMethod` mutation.
+3. A successful sale maps to `PaymentComplete.SUCCESS`.
+
+## 5. Sandbox checklist
+
+- [ ] Google Pay is enabled in the sandbox Control Panel and `braintree:clientKey` is a sandbox tokenization key.
+- [ ] Google Pay: `environment` left at `TEST`, and `JSON.parse(rawToken).androidPayCards[0].nonce` is present.
+- [ ] Apple Pay: the processing certificate was created from the Braintree sandbox CSR, and an
+      [App Store Connect sandbox tester](https://developer.apple.com/apple-pay/sandbox-testing/) is signed in on the
+      device with an Apple test card in Wallet.
+- [ ] Backend only: the [sandbox test nonces](https://developer.paypal.com/braintree/docs/reference/general/testing)
+      `fake-android-pay-visa-nonce` and `fake-apple-pay-visa-nonce` exercise step 2 without a device.
+
+## Sources
+
+- [Google Pay API — tutorial, tokenization and processor table](https://developers.google.com/pay/api/android/guides/tutorial#tokenization)
+- [Braintree — Google Pay configuration](https://developer.paypal.com/braintree/docs/guides/google-pay/configuration),
+  [server-side](https://developer.paypal.com/braintree/docs/guides/google-pay/server-side)
+- [Braintree — Apple Pay configuration (iOS)](https://developer.paypal.com/braintree/docs/guides/apple-pay/configuration/ios/v6)
+- [Braintree — testing reference](https://developer.paypal.com/braintree/docs/reference/general/testing)
+- [Braintree GraphQL schema](https://github.com/braintree/graphql-api/blob/master/schema.graphql)
+- [braintree-web — Google Pay token parser](https://braintree.github.io/braintree-web/current/google-payment_google-payment.js.html)
+
+---
+
+# FILE: docs/guides/gateways/checkout-com.md
+
+# Checkout.com
+
+Charge Apple Pay and Google Pay through [Checkout.com](https://www.checkout.com/docs)'s Unified Payments API. Both
+wallets go through the same two calls: exchange the wallet token for a Checkout.com `tok_…` token with
+`POST /tokens`, then pay with it through `POST /payments`.
+
+## Values
+
+| Value | Where | Source | Verified |
+| --- | --- | --- | --- |
+| `gateway: 'checkoutltd'` | `gatewayConfig` | [Google Pay tutorial — Checkout.com row](https://developers.google.com/pay/api/android/guides/tutorial#tokenization), [Checkout.com — Google Pay](https://www.checkout.com/docs/payments/add-payment-methods/google-pay/unified-payments-api) | 2026-10-16 |
+| `gatewayMerchantId`: your Checkout.com **public** key | `gatewayConfig` | [Checkout.com — Google Pay](https://www.checkout.com/docs/payments/add-payment-methods/google-pay/unified-payments-api) | 2026-10-16 |
+| Merchant ID with a Checkout.com-issued CSR (`POST /applepay/signing-requests`) | `merchantIdentifier` | [Checkout.com — Apple Pay](https://www.checkout.com/docs/payments/add-payment-methods/apple-pay/unified-payments-api) | 2026-10-16 |
+| `https://{prefix}.api.sandbox.checkout.com` (live: `https://{prefix}.api.checkout.com`) | backend | [Checkout.com — API endpoints](https://www.checkout.com/docs/developer-resources/api/api-endpoints) | 2026-10-16 |
+| `POST /tokens` with `type: 'googlepay'`, `token_data: { protocolVersion, signature, signedMessage }`, authenticated with the public key | backend | [Checkout.com — Google Pay](https://www.checkout.com/docs/payments/add-payment-methods/google-pay/unified-payments-api) | 2026-10-16 |
+| `POST /tokens` with `type: 'applepay'`, `token_data: { version, data, signature, header: { ephemeralPublicKey, publicKeyHash, transactionId } }` | backend | [Checkout.com — Apple Pay](https://www.checkout.com/docs/payments/add-payment-methods/apple-pay/unified-payments-api) | 2026-10-16 |
+| `POST /payments` with `source: { type: 'token', token: 'tok_…' }`, `Authorization: Bearer sk_sbox_…` | backend | [Checkout.com — Apple Pay](https://www.checkout.com/docs/payments/add-payment-methods/apple-pay/unified-payments-api), [API keys](https://www.checkout.com/docs/developer-resources/api/manage-api-keys/api-keys) | 2026-10-16 |
+
+`{prefix}` is the first eight characters of your `client_id` without the `cli_` prefix, and differs between sandbox
+and production. Requests to a base URL without it are rejected with `403` and `error_type: base_url_invalid`.
+
+## 1. Account setup
+
+- **Apple Pay** — create the CSR through Checkout.com: `POST /applepay/signing-requests` with
+  `{ "protocol_version": "ec_v1" }`, save the response `content` as a `.csr` file (it expires after 24 hours), create
+  the Apple Pay Payment Processing Certificate from it in the Apple Developer portal, then upload the downloaded
+  certificate, base64-encoded, with `POST /applepay/certificates`. Add the merchant ID to the app's entitlement —
+  see [quickstart-ios.md](docs/getting-started/quickstart-ios.md).
+- **Google Pay** — nothing to configure for `TEST`; Checkout.com validates the Google merchant ID only in
+  production.
+
+## 2. Method data
+
+```ts
+import { createApplePayMethodData, createGooglePayMethodData } from '@rnw-community/react-native-payments';
+
+const methodData = [
+    createApplePayMethodData({
+        merchantIdentifier: 'merchant.com.your-app',
+        countryCode: 'GB',
+        currencyCode: 'GBP',
+    }),
+    createGooglePayMethodData({
+        countryCode: 'GB',
+        currencyCode: 'GBP',
+        gatewayConfig: { gateway: 'checkoutltd', gatewayMerchantId: 'pk_sbox_your_public_key' },
+    }),
+];
+```
+
+## 3. Read the token
+
+- **Android** — `response.details.androidPayToken.rawToken`, the Google Pay encrypted envelope string. Forward it
+  unchanged: `signedMessage` must reach Checkout.com as the exact string Google produced, so build `token_data` on
+  the backend from `JSON.parse(rawToken)` rather than from the parsed `androidPayToken` fields.
+- **iOS** — `JSON.stringify(response.details.applePayToken.paymentData)`; its `version`, `data`, `signature` and
+  `header` are the `token_data` fields as-is.
+
+The [shared flow](docs/guides/gateways/index.md#the-flow-every-recipe-shares) shows the client code for both.
+
+## 4. Backend
+
+1. Exchange the wallet token. Checkout.com documents the Google Pay call as authenticated with the same public key
+   as `gatewayMerchantId`; its Apple Pay page does not name the key, so confirm it in sandbox:
+    - Google Pay: `POST /tokens` with `{ type: 'googlepay', token_data: { protocolVersion, signature, signedMessage } }`,
+      copying the three fields from `JSON.parse(rawToken)`. Checkout.com's example shows only these three fields
+      (with an `ECv1` token); if Google returns an `ECv2` token, its `intermediateSigningKey` is not part of the
+      documented request — validate the call in sandbox.
+    - Apple Pay: `POST /tokens` with `{ type: 'applepay', token_data: { version, data, signature, header } }`, where
+      `header` carries `ephemeralPublicKey`, `publicKeyHash` and `transactionId`.
+2. Pay with the returned `token` (`tok_…`): `POST /payments` with `{ source: { type: 'token', token }, amount,
+   currency }` (`amount` in minor units), authenticated with your secret key.
+3. An approved payment maps to `PaymentComplete.SUCCESS`.
+
+## 5. Sandbox checklist
+
+- [ ] All calls go to `https://{prefix}.api.sandbox.checkout.com` with sandbox keys (`pk_sbox_…`, `sk_sbox_…`).
+- [ ] Google Pay: `environment` left at `TEST` and `gateway: 'checkoutltd'` (not `example`). In sandbox Google
+      substitutes a test card, so no real card is charged.
+- [ ] Apple Pay: the certificate was issued from a sandbox signing request and uploaded to the sandbox account, and
+      an [App Store Connect sandbox tester](https://developer.apple.com/apple-pay/sandbox-testing/) is signed in on
+      the device with an Apple test card in Wallet.
+- [ ] `POST /tokens` returns a `tok_…` token for both wallets before you wire up `POST /payments`.
+
+## Sources
+
+- [Google Pay API — tutorial, tokenization and processor table](https://developers.google.com/pay/api/android/guides/tutorial#tokenization)
+- [Checkout.com — Google Pay](https://www.checkout.com/docs/payments/add-payment-methods/google-pay/unified-payments-api),
+  [Google Pay API-only](https://www.checkout.com/docs/payments/add-payment-methods/google-pay/api-only)
+- [Checkout.com — Apple Pay](https://www.checkout.com/docs/payments/add-payment-methods/apple-pay/unified-payments-api)
+- [Checkout.com — API endpoints](https://www.checkout.com/docs/developer-resources/api/api-endpoints),
+  [API keys](https://www.checkout.com/docs/developer-resources/api/manage-api-keys/api-keys)
+
+---
+
+# FILE: docs/guides/gateways/direct.md
+
+# Direct tokenization (self-decrypt)
+
+Decrypt the Apple Pay and Google Pay payloads on your own servers and send the card data to your processor
+yourself. Only for merchants with their own PCI DSS scope — every PSP recipe in this folder avoids it.
+
+## Values
+
+| Value | Where | Source | Verified |
+| --- | --- | --- | --- |
+| `directConfig: { protocolVersion: 'ECv2', publicKey }` (Google Pay `DIRECT` tokenization) | `directConfig` | [Google Pay — `DIRECT` parameters](https://developers.google.com/pay/api/android/reference/request-objects#direct) | 2026-10-16 |
+| `publicKey`: base64 elliptic-curve public key, uncompressed point format, registered in the Google Pay & Wallet Console, rotated yearly | `directConfig` | [Google Pay — payment data cryptography](https://developers.google.com/pay/api/android/guides/resources/payment-data-cryptography) | 2026-10-16 |
+| Eligibility: PCI DSS certification by a Qualified Security Assessor; not available to third-party gateways and processors | Google Pay | [Google Pay — `DIRECT` parameters](https://developers.google.com/pay/api/android/reference/request-objects#direct) | 2026-10-16 |
+| `PaymentMethodTokenRecipient` (Tink), `recipientId("merchant:<your merchant id>")`, `INSTANCE_TEST` / `INSTANCE_PRODUCTION` signing keys | backend | [Google Pay — payment data cryptography](https://developers.google.com/pay/api/android/guides/resources/payment-data-cryptography) | 2026-10-16 |
+| Apple Pay `paymentData`: `version` `EC_v1` or `RSA_v1`, `header.ephemeralPublicKey` (EC) / `wrappedKey` (RSA), `publicKeyHash`, `transactionId` | backend | [Apple — payment token format reference](https://developer.apple.com/documentation/passkit/payment-token-format-reference) | 2026-10-16 |
+
+## 1. Account setup
+
+- **Google Pay** — generate an EC key pair, register the public key in the
+  [Google Pay & Wallet Console](https://pay.google.com/business/console) under **Google Pay API › Direct
+  integration**, and keep the private key on your server.
+- **Apple Pay** — create the Apple Pay Payment Processing Certificate from a CSR you generate yourself, and keep its
+  private key on your server. Add the merchant ID to the app's entitlement — see
+  [quickstart-ios.md](docs/getting-started/quickstart-ios.md).
+
+## 2. Method data
+
+```ts
+import { createApplePayMethodData, createGooglePayMethodData } from '@rnw-community/react-native-payments';
+
+const methodData = [
+    createApplePayMethodData({
+        merchantIdentifier: 'merchant.com.your-app',
+        countryCode: 'US',
+        currencyCode: 'USD',
+    }),
+    createGooglePayMethodData({
+        countryCode: 'US',
+        currencyCode: 'USD',
+        directConfig: { protocolVersion: 'ECv2', publicKey: 'your-base64-uncompressed-ec-public-key' },
+    }),
+];
+```
+
+## 3. Read the token
+
+- **Android** — `response.details.androidPayToken` is Google's ECv2 envelope already split into `protocolVersion`,
+  `signature`, `intermediateSigningKey` and `signedMessage`. Forward `rawToken` — the decryption libraries verify
+  signatures over the original strings.
+- **iOS** — forward `JSON.stringify(response.details.applePayToken.paymentData)`.
+
+## 4. Backend
+
+1. **Google Pay** — unseal `rawToken` with Tink's `PaymentMethodTokenRecipient` (`protocolVersion("ECv2")`, your
+   `merchant:` recipient id, your private key, Google's `INSTANCE_TEST` signing keys in `TEST`). The decrypted
+   message carries the card or network token and, for tokenized cards, a cryptogram.
+2. **Apple Pay** — follow Apple's steps: verify the signature and its certificate chain to Apple Root CA - G3, reject
+   a signing time more than five minutes from the transaction time, select your certificate by `publicKeyHash`,
+   restore the symmetric key, decrypt `data` (AES-256-GCM for `EC_v1`), reject a `transactionId` you already
+   processed, and check `currencyCode`, `transactionAmount` and `applicationData` against your order.
+3. Send the decrypted credentials to your processor, and map its result to `PaymentComplete`.
+
+## 5. Sandbox checklist
+
+- [ ] Google Pay: `environment` left at `TEST`, and the recipient uses Google's test signing keys
+      (`INSTANCE_TEST`). Google's [test card suite](https://developers.google.com/pay/api/android/guides/resources/test-card-suite)
+      returns placeholder card data — use it to exercise decryption, not to charge.
+- [ ] Apple Pay: an [App Store Connect sandbox tester](https://developer.apple.com/apple-pay/sandbox-testing/) with
+      an Apple test card, and a payload that decrypts with your processing certificate's private key.
+- [ ] Your servers that touch decrypted data are in your PCI DSS scope before going live.
+
+## Sources
+
+- [Google Pay API — request objects, `DIRECT`](https://developers.google.com/pay/api/android/reference/request-objects#direct)
+- [Google Pay API — payment data cryptography](https://developers.google.com/pay/api/android/guides/resources/payment-data-cryptography)
+- [Apple — payment token format reference](https://developer.apple.com/documentation/passkit/payment-token-format-reference)
 
 ---
 

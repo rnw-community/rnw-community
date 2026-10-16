@@ -39,7 +39,8 @@ if (response instanceof AndroidPaymentResponse) {
   (`PAYMENT_GATEWAY`) gateways that forward Google's encrypted payload. A gateway that issues its own token instead
   (Stripe returns a Stripe Token JSON, Braintree a JSON carrying a nonce) leaves them at their empty defaults — send
   `rawToken` to the gateway and parse it as that gateway documents. You chose the tokenization type yourself through
-  `gatewayConfig` or `directConfig`, so branch on that rather than on empty fields.
+  `gatewayConfig` or `directConfig`, so branch on that rather than on empty fields. See
+  [guides/gateways/](../guides/gateways/index.md).
 
 - `AndroidPaymentMethodToken` is a plain TypeScript interface with no runtime validation of its own —
   constructing an object that merely matches its shape never throws. `PaymentsError` is thrown by

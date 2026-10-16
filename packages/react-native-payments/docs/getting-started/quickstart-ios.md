@@ -21,6 +21,9 @@ const paymentResponse = await new PaymentRequest(methodData, {
 }).show();
 ```
 
+5. Pick your gateway: the [gateway recipes](../guides/gateways/index.md) show how each payment service provider
+   issues the Apple Pay processing certificate for your merchant ID and how to forward `applePayToken` to it.
+
 `supportedNetworks` defaults to Visa and Mastercard — see
 [api/create-apple-pay-method-data.md](../api/create-apple-pay-method-data.md). To write the method data by hand
 instead, pass `{ supportedMethods: PaymentMethodNameEnum.ApplePay, data: { merchantIdentifier, supportedNetworks,
