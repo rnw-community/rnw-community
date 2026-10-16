@@ -62,6 +62,10 @@ native has already torn the sheet down.
 - `displayItems`: array of `PaymentItem`
 - `shippingOptions`: array of `PaymentShippingOption`
 
+On iOS the call feeds the
+[`PKPaymentRequestUpdate`](https://developer.apple.com/documentation/passkit/pkpaymentrequestupdate) the pending
+PassKit handler completes with.
+
 `displayItems`, `total` and `shippingOptions` are the same shapes `show()` receives in `details`, and iOS converts them
 with the same converters in both flows, so an option renders identically whether it came with the initial details or with
 an update:

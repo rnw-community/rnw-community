@@ -17,6 +17,12 @@ import type { PaymentResponseAddressInterface } from '../../interface/payment-re
 import type { PaymentResponseDetailsInterface } from '../../interface/payment-response-details.interface';
 import type { Maybe } from '@rnw-community/shared';
 
+/**
+ * The `PaymentResponse` that `show()` resolves with on iOS, parsed from the PassKit `PKPayment` payload.
+ *
+ * @see https://github.com/rnw-community/rnw-community/blob/master/packages/react-native-payments/docs/api/ios-payment-response.md
+ * @see https://developer.apple.com/documentation/passkit/pkpayment
+ */
 export class IosPaymentResponse extends PaymentResponse {
     constructor(requestId: string, methodName: string, jsonData: string, shippingOption: Maybe<string> = null) {
         super(requestId, methodName, IosPaymentResponse.parseDetails(jsonData), shippingOption);

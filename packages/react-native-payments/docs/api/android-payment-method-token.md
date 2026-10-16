@@ -43,4 +43,5 @@ if (response instanceof AndroidPaymentResponse) {
 ## References
 
 - [Google Pay API for Android — response objects](https://developers.google.com/pay/api/android/reference/response-objects)
+- [Google Pay payment method token structure](https://developers.google.com/pay/api/android/guides/resources/payment-data-cryptography#payment-method-token-structure) and [intermediate signing key](https://developers.google.com/pay/api/android/guides/resources/payment-data-cryptography#intermediate-signing-key) — the raw token this type is parsed from
 - [api/android-payment-response.md](./android-payment-response.md)

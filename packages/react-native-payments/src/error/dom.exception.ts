@@ -2,6 +2,12 @@ import { PaymentsErrorEnum } from '../enum/payments-error.enum';
 
 import { PaymentsError } from './payments.error';
 
+/**
+ * The W3C `DOMException` thrown for request state violations and abort or not-supported conditions, named by `PaymentsErrorEnum`.
+ *
+ * @see https://github.com/rnw-community/rnw-community/blob/master/packages/react-native-payments/docs/api/dom-exception.md
+ * @see https://webidl.spec.whatwg.org/#idl-DOMException
+ */
 export class DOMException extends PaymentsError {
     private static readonly messages: Record<PaymentsErrorEnum, string> = {
         [PaymentsErrorEnum.AbortError]: 'The operation was aborted.',

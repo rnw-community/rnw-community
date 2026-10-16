@@ -19,6 +19,12 @@ import type { PaymentResponseAddressInterface } from '../../interface/payment-re
 import type { PaymentResponseDetailsInterface } from '../../interface/payment-response-details.interface';
 import type { Maybe } from '@rnw-community/shared';
 
+/**
+ * The `PaymentResponse` that `show()` resolves with on Android, parsed from the Google Pay `PaymentData` payload.
+ *
+ * @see https://github.com/rnw-community/rnw-community/blob/master/packages/react-native-payments/docs/api/android-payment-response.md
+ * @see https://developers.google.com/pay/api/android/reference/response-objects#PaymentData
+ */
 export class AndroidPaymentResponse extends PaymentResponse {
     constructor(requestId: string, methodName: string, jsonData: string, shippingOption: Maybe<string> = null) {
         super(requestId, methodName, AndroidPaymentResponse.parseDetails(jsonData), shippingOption);
