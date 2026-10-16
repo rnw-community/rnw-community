@@ -211,7 +211,7 @@ describe('AndroidPaymentResponse', () => {
 
         expect(construct).toThrow(PaymentsError);
         expect(construct).not.toThrow(SyntaxError);
-        expect(construct).toThrow(`Failed parsing PaymentRequest details`);
+        expect(construct).toThrow(`Invalid Google Pay PAYMENT_GATEWAY payment method token`);
     });
 
     it('should throw a domain-specific error when constructed with malformed JSON', () => {
@@ -280,4 +280,57 @@ describe('AndroidPaymentResponse', () => {
         expect(androidPayToken.protocolVersion).toBe('');
         expect(androidPayToken.cardInfo.cardNetwork).toBe('VISA');
     });
+
+    const createResponseWithToken = (type: AndroidPaymentMethodTokenizationType, token?: string): AndroidPaymentResponse =>
+        createResponse({
+            ...authorizedPayment,
+            paymentMethodData: { ...authorizedPayment.paymentMethodData, tokenizationData: { type, token } },
+        });
+
+    it('should parse the signed message envelope of a DIRECT token', () => {
+        expect.hasAssertions();
+
+        const { androidPayToken } = createResponseWithToken(
+            AndroidPaymentMethodTokenizationType.DIRECT,
+            paymentToken
+        ).details;
+
+        expect(androidPayToken.rawToken).toBe(paymentToken);
+        expect(androidPayToken.protocolVersion).toBe('ECv2');
+        expect(androidPayToken.signedMessage.encryptedMessage).toBe('testEncryptedMessage');
+    });
+
+    it.each([
+        ['a missing token', undefined],
+        ['an empty JSON object', '{}'],
+        ['a gateway-issued token', JSON.stringify({ id: 'tok_test', object: 'token' })],
+        ['an envelope without a signature', JSON.stringify({ protocolVersion: 'ECv2', signedMessage: '{}' })],
+        ['a token that is not JSON', 'not-json'],
+    ])('should reject a DIRECT token with %s', (_, directToken) => {
+        expect.hasAssertions();
+
+        const construct = (): AndroidPaymentResponse =>
+            createResponseWithToken(AndroidPaymentMethodTokenizationType.DIRECT, directToken);
+
+        expect(construct).toThrow(PaymentsError);
+        expect(construct).toThrow(`Invalid Google Pay DIRECT payment method token`);
+    });
+
+    it.each([AndroidPaymentMethodTokenizationType.DIRECT, AndroidPaymentMethodTokenizationType.PAYMENT_GATEWAY])(
+        'should reject a %s envelope whose signed message is not JSON',
+        type => {
+            expect.hasAssertions();
+
+            const tokenWithInvalidSignedMessage = JSON.stringify({
+                protocolVersion: 'ECv2',
+                signature: 'testSignature',
+                signedMessage: '{not-json',
+            });
+
+            const construct = (): AndroidPaymentResponse => createResponseWithToken(type, tokenWithInvalidSignedMessage);
+
+            expect(construct).toThrow(PaymentsError);
+            expect(construct).toThrow(`Failed parsing PaymentRequest details`);
+        }
+    );
 });

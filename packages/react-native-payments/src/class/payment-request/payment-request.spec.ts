@@ -673,7 +673,7 @@ describe('PaymentRequest', () => {
             const result = await request.show();
 
             expect(NativePayments.show).toHaveBeenCalledWith(request.id, expect.any(String), expect.any(Object));
-            expect(result).toBeDefined();
+            expect(result.details.androidPayToken.rawToken).toBe('examplePaymentMethodToken');
             expect(request.state).toBe('closed');
         });
 
@@ -821,7 +821,8 @@ describe('PaymentRequest', () => {
 
                 const [[serializedMethodData]] = jest.mocked(NativePayments.canMakePayments).mock.calls;
 
-                return (JSON.parse(serializedMethodData) as AndroidPaymentDataRequest).transactionInfo as AndroidTransactionInfo;
+                return (JSON.parse(serializedMethodData) as AndroidPaymentDataRequest)
+                    .transactionInfo as AndroidTransactionInfo;
             };
 
             it('should serialize FINAL totalPriceStatus and no optional fields by default', async () => {
@@ -1110,7 +1111,9 @@ describe('PaymentRequest', () => {
                 };
 
                 expect(() => new PaymentRequest([{ ...androidMethodData, data: invalidData }], zeroTotalDetails)).toThrow(
-                    new ConstructorError('automaticReloadTransactionInfo cannot be combined with checkoutOption or totalPriceStatus')
+                    new ConstructorError(
+                        'automaticReloadTransactionInfo cannot be combined with checkoutOption or totalPriceStatus'
+                    )
                 );
             });
 
@@ -1125,7 +1128,9 @@ describe('PaymentRequest', () => {
                 };
 
                 expect(() => new PaymentRequest([{ ...androidMethodData, data: invalidData }], zeroTotalDetails)).toThrow(
-                    new ConstructorError('deferredTransactionInfo cannot be combined with checkoutOption or totalPriceStatus')
+                    new ConstructorError(
+                        'deferredTransactionInfo cannot be combined with checkoutOption or totalPriceStatus'
+                    )
                 );
             });
 
