@@ -15,6 +15,7 @@ const mockScrollY = { get: jest.fn(() => 0) };
 const mockConfig = SCREEN_CHROME_DEFAULT_CONFIG;
 let mockColorScheme: ScreenChromeColorScheme = 'light';
 let mockRenderEdgeFadeBand: EdgeFadeBandRenderer | undefined = void 0;
+let mockExternalScrollY: { readonly get: () => number } | undefined = void 0;
 
 const MockBlurHost = (props: { readonly children?: ReactNode; readonly maskElement?: ReactNode }): ReactNode => (
     <View testID="edge-fade-blur" {...props} />
@@ -53,6 +54,7 @@ jest.mock('../hooks/use-screen-chrome/use-screen-chrome.hook', () => ({
         colorScheme: mockColorScheme,
         config: mockConfig,
         renderEdgeFadeBand: mockRenderEdgeFadeBand,
+        externalScrollY: mockExternalScrollY,
     }),
 }));
 jest.mock('@rnw-community/react-native-collapsible-header', () => ({
@@ -62,6 +64,7 @@ jest.mock('@rnw-community/react-native-collapsible-header', () => ({
 beforeEach(() => {
     mockColorScheme = 'light';
     mockRenderEdgeFadeBand = void 0;
+    mockExternalScrollY = void 0;
     mockScrollY.get.mockReturnValue(0);
 });
 
@@ -110,6 +113,24 @@ describe('EdgeFade native', () => {
         expect(blur).toHaveProp('intensity', 30);
         expect(blur).toHaveProp('tint', 'systemThinMaterialDark');
         expect(blur).toHaveProp('blurMethod', 'none');
+    });
+
+    it('drives opacity and blur intensity from the provider external scroll offset instead of the provider-owned one', () => {
+        expect.hasAssertions();
+
+        mockScrollY.get.mockReturnValue(0);
+        mockExternalScrollY = { get: () => 40 };
+
+        const screen = render(
+            <EdgeFade
+                testID="external-fade"
+                position="top"
+                scrollAnimation={{ opacityInputRange: [0, 80], intensityInputRange: [0, 80], maxIntensity: 60 }}
+            />
+        );
+
+        expect(screen.getByTestId('external-fade', { includeHiddenElements: true })).toHaveStyle({ opacity: 0.5 });
+        expect(screen.getByTestId('edge-fade-blur', { includeHiddenElements: true })).toHaveProp('intensity', 30);
     });
 
     it('opts into the Android blur method only once a blur target is supplied', () => {

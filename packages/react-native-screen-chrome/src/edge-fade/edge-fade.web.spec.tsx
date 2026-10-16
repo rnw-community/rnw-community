@@ -8,12 +8,14 @@ import { SCREEN_CHROME_DEFAULT_CONFIG } from '../constant/screen-chrome-default-
 import { EdgeFade } from './edge-fade.web';
 
 import type { EdgeFadeBandRenderer } from './edge-fade-band-renderer.type';
+import type { SharedValue } from 'react-native-reanimated';
 
 const mockScrollY = { get: jest.fn(() => 0) };
 const mockContext: {
     colorScheme: 'light';
     config: typeof SCREEN_CHROME_DEFAULT_CONFIG;
     renderEdgeFadeBand?: EdgeFadeBandRenderer;
+    externalScrollY?: SharedValue<number>;
 } = {
     colorScheme: 'light',
     config: SCREEN_CHROME_DEFAULT_CONFIG,
@@ -170,5 +172,20 @@ describe('EdgeFade web band renderer', () => {
 
         expect(overridden.getByTestId('instance-band', { includeHiddenElements: true })).toBeTruthy();
         expect(overridden.queryByTestId('provider-band', { includeHiddenElements: true })).toBeNull();
+    });
+
+    it('fades from the provider external scroll offset instead of the provider-owned one', () => {
+        expect.hasAssertions();
+
+        mockScrollY.get.mockReturnValue(0);
+        mockContext.externalScrollY = { get: () => 10 } as unknown as SharedValue<number>;
+
+        const screen = render(
+            <EdgeFade testID="external-fade" position="top" scrollAnimation={{ opacityInputRange: [0, 20] }} />
+        );
+
+        mockContext.externalScrollY = void 0;
+
+        expect(screen.getByTestId('external-fade', { includeHiddenElements: true })).toHaveStyle({ opacity: 0.5 });
     });
 });
