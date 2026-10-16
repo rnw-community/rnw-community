@@ -1,11 +1,18 @@
 appId: ${APP_ID}
 ---
-- launchApp:
-      clearState: true
-- extendedWaitUntil:
-      visible:
-          id: 'home-open-collapsible'
-      timeout: 60000
+# The launch is retried because clearing app data removes the previous task,
+# and when Android's remove-task destroy timeout fires after the relaunch has
+# started it kills the new process by uid ("Killing <pid>: remove task"),
+# leaving a blank window that never renders. A relaunch is unaffected.
+- retry:
+      maxRetries: 2
+      commands:
+          - launchApp:
+                clearState: true
+          - extendedWaitUntil:
+                visible:
+                    id: 'home-open-collapsible'
+                timeout: 60000
 - assertVisible:
       id: 'home-open-static-header'
 - assertVisible:
