@@ -33,12 +33,14 @@ npm install @rnw-community/react-native-collapsible-header react-native-reanimat
 React Native Reanimated is a peer dependency and must be installed by the host application. Follow the
 [official Reanimated setup guide](https://docs.swmansion.com/react-native-reanimated/docs/fundamentals/getting-started/).
 
-- Reanimated 4 applications also install `react-native-worklets` and configure `react-native-worklets/plugin`.
-- Reanimated 3 applications configure `react-native-reanimated/plugin`.
-
-See the official [Reanimated 3 migration guide](https://docs.swmansion.com/react-native-reanimated/docs/guides/migration-from-3.x/)
-and [compatibility table](https://docs.swmansion.com/react-native-reanimated/docs/guides/compatibility/) when choosing a
-version. This package does not install native Reanimated or Worklets code on behalf of the host application.
+The supported range is `react-native-reanimated >=4.2.0 <5`; Reanimated 4 applications also install
+`react-native-worklets` and configure `react-native-worklets/plugin`. Reanimated 3 is not supported: the provider's
+scroll-offset sync uses `useScrollOffset`, and the scroll-ref type targets the `AnimatedRef` shape introduced in 4.2.
+Applications still on Reanimated 3 follow the official
+[Reanimated 3 migration guide](https://docs.swmansion.com/react-native-reanimated/docs/guides/migration-from-3.x/) first.
+See the [compatibility table](https://docs.swmansion.com/react-native-reanimated/docs/guides/compatibility/) for the
+React Native and Worklets versions each Reanimated release supports. This package does not install native Reanimated or
+Worklets code on behalf of the host application.
 
 ## React Compiler
 
@@ -47,8 +49,8 @@ React 18+, so every consumer gets automatically memoized header components — i
 compiler themselves (the compiler never processes `node_modules`, so precompilation is the only way library code
 benefits). The `react-compiler-runtime` dependency ships with the package and supports React 18 and 19. The package's
 own test suite runs fully compiled with `panicThreshold: 'all_errors'`, so any Rules-of-React violation fails the build
-instead of shipping. Reanimated supports the React Compiler from 3.17.2 — the peer floor — and this package uses the
-compiler-safe `.get()`/`.set()` shared-value API exclusively.
+instead of shipping. Every Reanimated release in the peer range supports the React Compiler, and this package uses the compiler-safe
+`.get()`/`.set()` shared-value API exclusively.
 
 ## Quick start
 

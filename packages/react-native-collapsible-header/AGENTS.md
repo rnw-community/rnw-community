@@ -39,7 +39,9 @@ src/
     use-collapsible-header-animated-layers/
       use-collapsible-header-animated-layers.hook.ts — internal progress-space animated style/props orchestration
       use-collapsible-header-animated-layers.spec.ts
-    use-collapsible-header-snap-registration.hook.ts — internal snap geometry registration effect
+    use-collapsible-header-snap-registration/
+      use-collapsible-header-snap-registration.hook.ts — internal snap geometry registration effect
+      use-collapsible-header-snap-registration.spec.tsx — shared-slot ownership across mount and unmount order
     use-collapsible-header-progress/
       use-collapsible-header-progress.hook.ts — public slot-facing collapse progress hook
       use-collapsible-header-progress.spec.tsx
@@ -111,8 +113,9 @@ src/
 - `snap` requires the provider **and** a mounted `CollapsibleHeader` — the provider owns the slot, the header fills it,
   so a provider whose snapping header is unmounted (tab switch, `freezeOnBlur`) simply stops snapping until it returns.
   Snapping drives the registered scrollable via `scrollTo`; headers register snap geometry
-  into the provider's shared-value registry on mount and clear it on unmount, but only when the slot still
-  holds the config that header wrote, so unmounting one header never disables a still-mounted one. Snapping is a
+  into the provider's shared-value registry on mount and clear it once the last snapping header unmounts — the provider
+  counts slot owners in a plain ref, so unmounting one header never disables a still-mounted one whatever the mount
+  order, and the count never depends on the context value being re-created to re-run every header's effect. Snapping is a
   property of the scrollable, not the header: `assertVacantCollapsibleHeaderSnapSlot` throws when a second snapping
   header claims the slot with different geometry, and `assertSnappableCollapsibleHeaderScroll` throws when `snap` is
   combined with a caller-owned `scrollY` prop (the two sources could disagree). A keyed registry with a min/max union
@@ -124,7 +127,7 @@ src/
   `(instance: never) => void` call signature. `useAnimatedRef<Component>()` satisfies it with no cast (return-type-void
   assignability), and the extra signature makes it assignable to `React.Ref<T>` for every `T` through `RefCallback`'s
   bivariant parameter — instance refs (`Animated.FlatList`), `createAnimatedComponent` wrappers, and imperative handle
-  refs (FlashList, LegendList) alike. A generic type parameter was rejected: Reanimated 3.17 constrains
+  refs (FlashList, LegendList) alike. A generic type parameter was rejected: Reanimated 3.17, the peer floor at the time, constrains
   `AnimatedRef<T extends Component>`, which handle-shaped refs cannot satisfy. Plain `AnimatedRef<Component>` was
   rejected too: under `@types/react` 19 its call signature returns `ShadowNodeWrapper | HTMLElement`, which no
   `RefCallback` accepts. FlashList and LegendList stay out of `package.json` — the contract is structural, so support is
@@ -166,8 +169,11 @@ src/
   package its own `node_modules/react`; `react-compiler-runtime` then imports that second copy,
   whose dispatcher is null during the host render, and every compiled component throws
   `TypeError: Cannot read property 'useMemoCache' of null` at runtime while unit tests stay green.
-- Runtime animation code uses APIs shared by Reanimated 3.17.2 and 4.x, and only the compiler-safe `.get()`/`.set()`
-  shared-value accessors.
+- The Reanimated peer floor is `4.2.0`, proven by the `Reanimated compatibility` leg in `.github/workflows/pr.yml`
+  (typecheck + full jest suite against the floor minor's latest patch). Reanimated 3 lacks `useScrollOffset` and its
+  `createAnimatedComponent` is not a named export, and 4.0/4.1 type `scrollTo`/`useScrollOffset` refs as
+  `AnimatedRef<T extends Component>`, which `CollapsibleHeaderScrollRef` does not satisfy. Raise the floor and the leg
+  together. Runtime code uses only the compiler-safe `.get()`/`.set()` shared-value accessors.
 - Modern-React posture: the React Compiler owns memoization (no manual `useMemo`/`useCallback`/`React.memo`), state is
   derived during render (worklets are pure functions of `scrollY`), and the only `useEffect` syncs the snap registry —
   an external store, the sanctioned effect use. React 19-only syntax (`use()`, `<Context>` as provider, ref-callback
