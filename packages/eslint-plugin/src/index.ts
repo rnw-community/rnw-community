@@ -8,6 +8,11 @@ interface Plugin extends Omit<ESLint.Plugin, 'rules'> {
 
 const namespace = '@rnw-community';
 
+/**
+ * The `@rnw-community` ESLint plugin, exposing the `no-complex-jsx-logic` rule and `recommended` configs for legacy and flat config.
+ *
+ * @see https://github.com/rnw-community/rnw-community/blob/master/packages/eslint-plugin/readme.md#rnw-eslint-plugin
+ */
 const plugin: Plugin = {
     meta: {
         name: `${namespace}/eslint-plugin`,
