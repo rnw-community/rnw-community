@@ -3,6 +3,11 @@ import { type CombineReturn3, combine } from '@rnw-community/object-field-tree';
 import type { Enum } from '@rnw-community/shared';
 import type { ColorValue, TextStyle } from 'react-native';
 
+/**
+ * Builds a `Font.<family>.<size>.<color>` lookup of `TextStyle` objects from the project's font family, size, and color enums.
+ *
+ * @see https://github.com/rnw-community/rnw-community/blob/master/packages/fast-style/readme.md#font
+ */
 export const getFont = <
     TFamily extends Enum<string | undefined>,
     TSize extends Enum,
