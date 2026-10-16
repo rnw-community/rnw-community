@@ -7,6 +7,7 @@
         "url": "https://github.com/rnw-community/rnw-community.git"
     },
     "scripts": {
+        "assert:docs": "node scripts/assert-root-docs-links.mjs",
         "assert:pack": "node scripts/assert-pack-contents.mjs",
         "build": "turbo run build",
         "build:force": "turbo run build --force",
