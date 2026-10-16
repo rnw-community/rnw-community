@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import {
     useAnimatedRef,
     useAnimatedScrollHandler,
@@ -27,6 +27,7 @@ export const CollapsibleHeaderProvider = ({ children, syncNativeScrollOffset = f
     const scrollY = useSharedValue(0);
     const scrollRef: CollapsibleHeaderScrollRef = useAnimatedRef<Component>();
     const snapConfig = useSharedValue<Maybe<CollapsibleHeaderSnapConfig>>(null);
+    const snapOwnerCount = useRef(0);
     const snapSettleGeneration = useSharedValue(0);
     const snapAnimated = !useReducedMotion();
     const onScroll = useAnimatedScrollHandler(
@@ -40,7 +41,7 @@ export const CollapsibleHeaderProvider = ({ children, syncNativeScrollOffset = f
     useScrollOffset(syncNativeScrollOffset ? scrollRef : null, scrollY);
 
     return (
-        <CollapsibleHeaderScrollContext.Provider value={{ onScroll, scrollRef, scrollY, snapConfig }}>
+        <CollapsibleHeaderScrollContext.Provider value={{ onScroll, scrollRef, scrollY, snapConfig, snapOwnerCount }}>
             {children}
         </CollapsibleHeaderScrollContext.Provider>
     );
