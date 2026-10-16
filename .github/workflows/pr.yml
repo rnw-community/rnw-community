@@ -528,10 +528,60 @@ jobs:
             -   name: Typecheck and test the NestJS packages
                 run: pnpm exec turbo run ts test:coverage --filter='@rnw-community/nestjs-*'
 
+    reanimated-compatibility:
+        name: Reanimated compatibility (react-native-reanimated ${{ matrix.reanimated }}, react-native-worklets ${{ matrix.worklets }})
+        timeout-minutes: 20
+        runs-on: ubuntu-latest
+        permissions:
+            contents: read
+        strategy:
+            fail-fast: false
+            matrix:
+                include:
+                    -   reanimated: 4.2.3
+                        worklets: 0.8.3
+
+        steps:
+            -   name: Checkout repository
+                uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+                with:
+                    persist-credentials: false
+
+            -   name: Setup pnpm
+                uses: pnpm/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1 # v4.3.0
+
+            -   name: Setup Node
+                uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+                with:
+                    node-version: 22.x
+                    cache: pnpm
+
+            -   name: Pin the Reanimated stack under test
+                env:
+                    REANIMATED_VERSION: ${{ matrix.reanimated }}
+                    WORKLETS_VERSION: ${{ matrix.worklets }}
+                run: |
+                    set -euo pipefail
+                    sed -i "s|^overrides:$|overrides:\n  react-native-reanimated: ${REANIMATED_VERSION}\n  react-native-worklets: ${WORKLETS_VERSION}|" pnpm-workspace.yaml
+                    pnpm install --no-frozen-lockfile
+                    resolved="$(pnpm why -r react-native-reanimated react-native-worklets | grep '^react-native-' | sort -u)"
+                    expected="$(printf 'react-native-reanimated@%s\nreact-native-worklets@%s' "${REANIMATED_VERSION}" "${WORKLETS_VERSION}")"
+                    echo "${resolved}"
+                    if [ "${resolved}" != "${expected}" ]; then
+                      echo "::error::Resolved Reanimated stack does not match the pinned versions"
+                      exit 1
+                    fi
+
+            -   name: Build the Reanimated packages and their workspace dependencies
+                run: pnpm exec turbo run build --filter=@rnw-community/react-native-collapsible-header --filter=@rnw-community/react-native-screen-chrome
+
+            -   name: Typecheck and test the Reanimated packages
+                run: pnpm exec turbo run ts test:coverage --force --filter=@rnw-community/react-native-collapsible-header --filter=@rnw-community/react-native-screen-chrome
+
     required-checks:
         name: Required checks
         if: always()
-        needs: [code-quality, package-manager-smoke, workflow-lint, nestjs-compatibility]
+        needs: [code-quality, package-manager-smoke, workflow-lint, nestjs-compatibility, reanimated-compatibility]
         timeout-minutes: 5
         runs-on: ubuntu-latest
         permissions: {}
@@ -543,12 +593,14 @@ jobs:
                     PACKAGE_MANAGER_SMOKE_RESULT: ${{ needs.package-manager-smoke.result }}
                     WORKFLOW_LINT_RESULT: ${{ needs.workflow-lint.result }}
                     NESTJS_COMPATIBILITY_RESULT: ${{ needs.nestjs-compatibility.result }}
+                    REANIMATED_COMPATIBILITY_RESULT: ${{ needs.reanimated-compatibility.result }}
                 run: |
                     echo "code-quality=${CODE_QUALITY_RESULT}"
                     echo "package-manager-smoke=${PACKAGE_MANAGER_SMOKE_RESULT}"
                     echo "workflow-lint=${WORKFLOW_LINT_RESULT}"
                     echo "nestjs-compatibility=${NESTJS_COMPATIBILITY_RESULT}"
-                    if [ "${CODE_QUALITY_RESULT}" != 'success' ] || [ "${PACKAGE_MANAGER_SMOKE_RESULT}" != 'success' ] || [ "${WORKFLOW_LINT_RESULT}" != 'success' ] || [ "${NESTJS_COMPATIBILITY_RESULT}" != 'success' ]; then
+                    echo "reanimated-compatibility=${REANIMATED_COMPATIBILITY_RESULT}"
+                    if [ "${CODE_QUALITY_RESULT}" != 'success' ] || [ "${PACKAGE_MANAGER_SMOKE_RESULT}" != 'success' ] || [ "${WORKFLOW_LINT_RESULT}" != 'success' ] || [ "${NESTJS_COMPATIBILITY_RESULT}" != 'success' ] || [ "${REANIMATED_COMPATIBILITY_RESULT}" != 'success' ]; then
                       echo "Required jobs did not pass"
                       exit 1
                     fi
