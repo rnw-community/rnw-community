@@ -7,6 +7,11 @@ import type { ComponentConfigInterface } from '../type';
 import type { ChainablePromiseArray, ChainablePromiseElement } from 'webdriverio';
 
  
+/**
+ * The page-object base class resolving each selectors-enum key to a `SelectorElement`, created through `createComponent`, `getComponent`, or `getExtendedComponent`.
+ *
+ * @see https://github.com/rnw-community/rnw-community/blob/master/packages/wdio/readme.md#components
+ */
 export class Component<T = any> {
     protected parentComponents: Component[] = [];
 
@@ -23,22 +28,47 @@ export class Component<T = any> {
         });
     }
 
+    /**
+     * Adds a component whose selectors and members this component falls back to when a field is not its own.
+     *
+     * @see https://github.com/rnw-community/rnw-community/blob/master/packages/wdio/readme.md#components
+     */
     addParentComponent(component: Component): void {
         this.parentComponents.push(component);
     }
 
+    /**
+     * Finds the first element matching the selector with the component's element lookup.
+     *
+     * @see https://github.com/rnw-community/rnw-community/blob/master/packages/wdio/readme.md#components
+     */
     getChildEl(selector: string): ChainablePromiseElement {
         return this.config.elSelectorFn(selector);
     }
 
+    /**
+     * Finds all elements matching the selector with the component's element lookup.
+     *
+     * @see https://github.com/rnw-community/rnw-community/blob/master/packages/wdio/readme.md#components
+     */
     getChildEls(selector: string): ChainablePromiseArray {
         return this.config.elsSelectorFn(selector);
     }
 
+    /**
+     * Finds the element at `idx` among all elements matching the selector.
+     *
+     * @see https://github.com/rnw-community/rnw-community/blob/master/packages/wdio/readme.md#components
+     */
     getChildElByIdx(selector: string, idx: number): ChainablePromiseElement {
         return this.config.elsIndexSelectorFn(selector, idx);
     }
 
+    /**
+     * Maps each element matching the selector to a component and returns the first one satisfying the predicate, throwing when none does.
+     *
+     * @see https://github.com/rnw-community/rnw-community/blob/master/packages/wdio/readme.md#components
+     */
     async getComponentFromEls<E>(
         selector: string,
         componentFn: (el: WebdriverIO.Element) => Promise<E>,
