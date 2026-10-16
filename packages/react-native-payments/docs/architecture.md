@@ -1,7 +1,7 @@
 # How it works
 
 `PaymentRequest` is a thin JS state machine (`created` → `interactive` → `closed`) sitting on top of one
-TurboModule, `Payments` (`NativePayments.ts` → `Payments.mm` on iOS, `PaymentsModule.java` on Android). Method
+TurboModule, `Payments` (`NativePayments.ts` → `Payments.mm` on iOS, `PaymentsModule.kt` on Android). Method
 calls (`show`, `abort`, `canMakePayment`) go JS → native directly through the module. Change events flow the
 other way — native → JS — through a `NativeEventEmitter` built over the same module handle, scoped to the
 request that is currently on screen:
@@ -10,7 +10,7 @@ request that is currently on screen:
  JS                                            Native (PassKit / Google Pay)
  ┌────────────────────────┐  show(requestId, …)  ┌───────────────────────────────┐
  │ PaymentRequest          │ ───────────────────▶ │ Payments TurboModule          │
- │ created -> interactive  │                       │ (Payments.mm / …Module.java) │
+ │ created -> interactive  │                       │ (Payments.mm / …Module.kt)   │
  └────────────┬────────────┘                       └───────────────┬───────────────┘
               │ addEventListener(type)                              │
               │ ── setActiveEvents(requestId, types) ──────────────▶│
