@@ -9,6 +9,7 @@ TypeScript packages for NestJS, React, React Native and React Native Web.
 [![iOS Maestro E2E](https://github.com/rnw-community/rnw-community/actions/workflows/ios-maestro.yml/badge.svg?branch=master)](https://github.com/rnw-community/rnw-community/actions/workflows/ios-maestro.yml)
 [![Android Maestro E2E](https://github.com/rnw-community/rnw-community/actions/workflows/android-maestro.yml/badge.svg?branch=master)](https://github.com/rnw-community/rnw-community/actions/workflows/android-maestro.yml)
 [![codecov](https://codecov.io/gh/rnw-community/rnw-community/graph/badge.svg?token=T0THT8I97I)](https://codecov.io/gh/rnw-community/rnw-community)
+[![DeepScan grade](https://deepscan.io/api/teams/11119/projects/14033/branches/251011/badge/grade.svg)](https://deepscan.io/dashboard#view=project&tid=11119&pid=14033&bid=251011)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE.md)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](./CONTRIBUTING.md)
 
