@@ -14,6 +14,6 @@ export interface ScreenChromeContextValueInterface {
     readonly config: ScreenChromeConfigInterface;
     /** App-wide band renderer every `EdgeFade` without its own `renderBand` uses. */
     readonly renderEdgeFadeBand?: EdgeFadeBandRenderer;
-    /** App-owned scroll offset driving the chrome instead of the provider-owned one. */
-    readonly scrollY?: SharedValue<number>;
+    /** App-owned scroll offset passed as the provider's `scrollY`; absent when the provider owns the scroll. */
+    readonly externalScrollY?: SharedValue<number>;
 }

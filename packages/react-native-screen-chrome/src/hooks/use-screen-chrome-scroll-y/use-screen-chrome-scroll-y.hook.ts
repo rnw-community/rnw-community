@@ -9,7 +9,7 @@ import type { SharedValue } from 'react-native-reanimated';
  * @see https://github.com/rnw-community/rnw-community/tree/master/packages/react-native-screen-chrome#usescreenchromescrolly
  */
 export const useScreenChromeScrollY = (): SharedValue<number> => {
-    const { scrollY: externalScrollY } = useScreenChrome();
+    const { externalScrollY } = useScreenChrome();
     const { scrollY: providerScrollY } = useCollapsibleHeaderScroll();
 
     return externalScrollY ?? providerScrollY;

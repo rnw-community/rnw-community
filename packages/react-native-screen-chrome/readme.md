@@ -101,7 +101,7 @@ export const AccountsScreen = () => (
 `ScreenChromeScrollView` connects that wiring automatically; any other animated scrollable spreads
 [`useScreenChromeScrollProps`](#usescreenchromescrollprops) (see [Recipes](#recipes)), and a scrollable that keeps its
 own offset drives the chrome through the provider's [`scrollY`](#external-scroll-offset) prop instead.
-`useScreenChrome` returns `{ colorScheme, config, renderEdgeFadeBand?, scrollY? }`.
+`useScreenChrome` returns `{ colorScheme, config, renderEdgeFadeBand?, externalScrollY? }`.
 
 Mount one `ScreenChromeProvider` per scrollable, inside each screen, and never once around a navigator: a provider owns
 exactly one scroll offset and one snap slot, so a shared provider makes the last-scrolled screen drive every header.
@@ -700,8 +700,13 @@ const TransactionList = () => {
 
 When a scrollable cannot take the provider's `onScroll` — a wrapper that installs its own handler, or a library that
 already exposes its offset as a shared value — pass that offset to the provider's [`scrollY`](#external-scroll-offset)
-instead. Spreading `useScreenChromeScrollProps` and then the scrollable's own `onScroll` keeps the content and
-indicator insets; snapping stays off with an external offset.
+instead. To keep the content and indicator insets, spread `useScreenChromeScrollProps` **before** the scrollable's own
+`onScroll`: props later in the JSX win, so the scrollable's handler must come after the bag or the provider handler
+replaces it and the external offset is never written. Snapping stays off with an external offset.
+
+```tsx
+<AnimatedLegendList data={posts} renderItem={renderPost} {...useScreenChromeScrollProps()} onScroll={onScroll} />
+```
 
 ## Bottom chrome
 
@@ -878,14 +883,19 @@ onto a normalized `[0, 1]` progress once and feed it to as many interpolations a
 opacity share one subscription:
 
 ```tsx
-const progress = useScrollInterpolation([0, 120], [0, 1]);
+const HERO_SCROLL_RANGE = [0, 120] as const;
+const PROGRESS_RANGE = [0, 1] as const;
+
+const progress = useScrollInterpolation(HERO_SCROLL_RANGE, PROGRESS_RANGE);
 const heroStyle = useAnimatedStyle(() => ({
     opacity: 1 - progress.get(),
     transform: [{ translateY: -40 * progress.get() }, { scale: 1 - 0.1 * progress.get() }],
 }));
 ```
 
-Requires a `ScreenChromeProvider` ancestor and follows its [external `scrollY`](#external-scroll-offset) when set.
+Hoist `inputRange` and `outputRange` to module-scope constants as above: the derived-value worklet captures them, so
+inline array literals hand it fresh arrays on every render. Requires a `ScreenChromeProvider` ancestor and follows its
+[external `scrollY`](#external-scroll-offset) when set.
 
 ## useScrollFadeStyle
 
@@ -960,8 +970,9 @@ Overrides selected screen chrome defaults while preserving nested color schemes 
 
 ## ScreenChromeContextValueInterface
 
-The `{ colorScheme, config, renderEdgeFadeBand?, scrollY? }` shape returned by `useScreenChrome`; `scrollY` is the
-provider's [external scroll offset](#external-scroll-offset) when one is passed.
+The `{ colorScheme, config, renderEdgeFadeBand?, externalScrollY? }` shape returned by `useScreenChrome`; `externalScrollY`
+is the provider's [`scrollY` prop](#external-scroll-offset) when one is passed and absent otherwise. Read the offset
+that actually drives the chrome through [`useScreenChromeScrollY`](#usescreenchromescrolly) instead.
 
 ## ScreenChromeMaskStopInterface
 

@@ -28,7 +28,7 @@ jest.mock('react-native-safe-area-context', () => ({
     useSafeAreaInsets: () => ({ top: mockTopInset, right: 0, bottom: 0, left: 0 }),
 }));
 jest.mock('../hooks/use-screen-chrome/use-screen-chrome.hook', () => ({
-    useScreenChrome: () => ({ config: mockConfig, scrollY: mockExternalScrollY }),
+    useScreenChrome: () => ({ config: mockConfig, externalScrollY: mockExternalScrollY }),
 }));
 
 const renderDelegatedProps = (motion?: {

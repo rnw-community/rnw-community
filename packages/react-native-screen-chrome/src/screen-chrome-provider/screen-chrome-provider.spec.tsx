@@ -197,8 +197,8 @@ describe('ScreenChromeProvider external scroll offset', () => {
 
         const scrollY = makeMutable(EXTERNAL_SCROLL_OFFSET);
 
-        expect(captureContext().scrollY).toBeUndefined();
-        expect(captureContext({ scrollY }).scrollY).toBe(scrollY);
+        expect(captureContext().externalScrollY).toBeUndefined();
+        expect(captureContext({ scrollY }).externalScrollY).toBe(scrollY);
     });
 
     it('rejects snapToCollapse combined with an external scroll offset', () => {

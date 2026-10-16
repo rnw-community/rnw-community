@@ -1,8 +1,8 @@
 import React from 'react';
 
 import { CollapsibleHeaderProvider } from '@rnw-community/react-native-collapsible-header';
-import { isDefined } from '@rnw-community/shared';
 
+import { assertScreenChromeScrollSource } from '../assert/assert-screen-chrome-scroll-source/assert-screen-chrome-scroll-source.assert';
 import { ScreenChromeContext } from '../context/screen-chrome.context';
 import { assertValidScreenChromeConfig } from '../util/assert-valid-screen-chrome-config/assert-valid-screen-chrome-config.util';
 import { mergeScreenChromeConfig } from '../util/merge-screen-chrome-config/merge-screen-chrome-config.util';
@@ -38,15 +38,13 @@ export const ScreenChromeProvider = ({
 
     assertValidScreenChromeConfig(resolvedConfig);
 
-    if (resolvedConfig.snapToCollapse && isDefined(scrollY)) {
-        throw new TypeError(
-            'ScreenChromeProvider snapToCollapse scrolls the provider-owned scrollable, so it cannot combine with an external scrollY'
-        );
-    }
+    assertScreenChromeScrollSource(resolvedConfig.snapToCollapse, scrollY);
 
     return (
         <CollapsibleHeaderProvider syncNativeScrollOffset={syncNativeScrollOffset}>
-            <ScreenChromeContext.Provider value={{ colorScheme, config: resolvedConfig, renderEdgeFadeBand, scrollY }}>
+            <ScreenChromeContext.Provider
+                value={{ colorScheme, config: resolvedConfig, renderEdgeFadeBand, externalScrollY: scrollY }}
+            >
                 {children}
             </ScreenChromeContext.Provider>
         </CollapsibleHeaderProvider>
