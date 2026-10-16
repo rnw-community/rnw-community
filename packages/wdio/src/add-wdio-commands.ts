@@ -10,6 +10,11 @@ import { swipeCommand } from './command/swipe.command';
 
 import type { Browser } from 'webdriverio';
 
+/**
+ * Registers the package's custom browser and element commands, such as `testID$`, `openDeepLink`, and `slowInput`, on a WebdriverIO browser.
+ *
+ * @see https://github.com/rnw-community/rnw-community/blob/master/packages/wdio/readme.md#add-wdioconfigjs-to-your-e2e-project
+ */
 export const addWdioCommands = (context: Browser): void => {
     context.addCommand('testID$', testID$, false);
     context.addCommand('testID$$', testID$$, false);

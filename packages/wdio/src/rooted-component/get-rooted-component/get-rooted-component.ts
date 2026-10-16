@@ -9,7 +9,17 @@ import type {
     RootedComponentCtorWithoutDefaultRootSelector,
 } from '../../type/rooted-component-with-selectors-ctor.type';
 
+/**
+ * Returns a testID-based rooted component class for a selectors enum whose constructor requires the root selector or element.
+ *
+ * @see https://github.com/rnw-community/rnw-community/blob/master/packages/wdio/readme.md#getrootedcomponent
+ */
 export function getRootedComponent<T>(selectors: T): RootedComponentCtorWithoutDefaultRootSelector<T>;
+/**
+ * Returns a testID-based rooted component class for a selectors enum that uses `rootSelector` when constructed without a root.
+ *
+ * @see https://github.com/rnw-community/rnw-community/blob/master/packages/wdio/readme.md#getrootedcomponent
+ */
 export function getRootedComponent<T>(selectors: T, rootSelector: T[keyof T]): RootedComponentCtorWithDefaultRootSelector<T>;
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any

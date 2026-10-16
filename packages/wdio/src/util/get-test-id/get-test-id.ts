@@ -8,6 +8,11 @@ import type { AndroidTestIDProps, TestIDProps, WebTestIDProps } from '../../inte
 const isWebTestIDProps = (props: AndroidTestIDProps | TestIDProps | WebTestIDProps): props is Required<WebTestIDProps> =>
     WebSelectorConfig in props && isDefined(props[WebSelectorConfig]);
 
+/**
+ * Reads the platform-specific testID back from props, falling back to `defaultTestID`.
+ *
+ * @see https://github.com/rnw-community/rnw-community/blob/master/packages/wdio/readme.md#gettestid
+ */
 export const getTestID = (props: AndroidTestIDProps | TestIDProps | WebTestIDProps, defaultTestID = ''): string => {
     if (Platform.OS === 'web' && isWebTestIDProps(props)) {
         return props[WebSelectorConfig];
