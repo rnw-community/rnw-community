@@ -70,6 +70,9 @@ jobs:
             -   name: Lint the PR Title
                 run: echo "${PR_TITLE}" | node_modules/.bin/commitlint
 
+            -   name: Root docs link check (llms.txt, README, AGENTS, CONTRIBUTING, RELEASE, SECURITY)
+                run: pnpm assert:docs
+
             -   name: Build packages
                 run: pnpm exec turbo run build --affected
 
