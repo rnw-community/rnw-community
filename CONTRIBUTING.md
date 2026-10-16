@@ -27,6 +27,7 @@ pnpm test           # Jest (pnpm test:coverage for the 99.9% coverage gate)
 pnpm ts:nodenext    # type check under nodenext resolution
 pnpm publint        # publint + @arethetypeswrong/cli on built packages
 pnpm smoke:esm      # pack and import every publishable package under ESM and CommonJS
+pnpm assert:docs    # check relative links and anchors in the root docs and llms.txt
 pnpm deadcode       # knip
 pnpm cpd            # copy-paste detection
 ```
