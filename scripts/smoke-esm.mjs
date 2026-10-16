@@ -144,7 +144,8 @@ function intersectSpecifiers(name, existing, version) {
     if (existing === undefined || existing === version) {
         return version;
     }
-    if (existing.includes('||') || version.includes('||')) {
+    const cannotIntersectByJuxtaposition = specifier => specifier.includes('||') || specifier.includes(' - ');
+    if (cannotIntersectByJuxtaposition(existing) || cannotIntersectByJuxtaposition(version)) {
         throw new Error(`Conflicting '${name}' specifiers: '${existing}' vs '${version}'`);
     }
     const comparators = new Set([...existing.split(/\s+/), ...version.split(/\s+/)]);
