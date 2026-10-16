@@ -57,6 +57,7 @@ allowBuilds:
   edgedriver: false
   geckodriver: false
   nx: false
+  unrs-resolver: false
 
 patchedDependencies:
   redlock@5.0.0-beta2: patches/redlock@5.0.0-beta2.patch

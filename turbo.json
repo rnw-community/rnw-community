@@ -38,11 +38,21 @@
       "dependsOn": [
         "^topo"
       ],
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "$TURBO_ROOT$/eslint.config.mjs",
+        "$TURBO_ROOT$/.oxlintrc.json"
+      ],
       "outputs": []
     },
     "lint:fix": {
       "dependsOn": [
         "^topo"
+      ],
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "$TURBO_ROOT$/eslint.config.mjs",
+        "$TURBO_ROOT$/.oxlintrc.json"
       ],
       "outputs": []
     },
