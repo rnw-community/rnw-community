@@ -15,18 +15,13 @@ import type { ScreenChromeContextValueInterface } from '../interface/screen-chro
 import type { ScreenChromeColorSchemePreference } from '../type/screen-chrome-color-scheme-preference.type';
 import type { ScreenChromeColorScheme } from '../type/screen-chrome-color-scheme.type';
 import type { CollapsibleHeaderScroll } from '@rnw-community/react-native-collapsible-header';
+import type * as ReactNative from 'react-native';
 import type { ColorSchemeName } from 'react-native';
 import type { ScrollHandlerProcessed } from 'react-native-reanimated';
 
 const OVERRIDDEN_HEADER_HEIGHT = 72;
 const CUSTOM_MASK_STOP_POSITION = 0.25;
 const INVALID_HEADER_HEIGHT = -1;
-let mockSystemColorScheme: ColorSchemeName | null = null;
-
-jest.mock('react-native/Libraries/Utilities/useColorScheme', () => ({
-    __esModule: true,
-    default: () => mockSystemColorScheme,
-}));
 
 interface ConsumerProps {
     readonly onValue: (value: ScreenChromeContextValueInterface) => void;
@@ -197,19 +192,25 @@ describe('ScreenChromeProvider context', () => {
     });
 });
 
+const mockSystemColorScheme = (systemColorScheme: ColorSchemeName): void => {
+    jest.spyOn(jest.requireActual<typeof ReactNative>('react-native'), 'useColorScheme').mockReturnValue(
+        systemColorScheme
+    );
+};
+
 describe('ScreenChromeProvider system color scheme', () => {
     afterEach(() => {
-        mockSystemColorScheme = null;
+        jest.restoreAllMocks();
     });
 
-    it.each<[ColorSchemeName | null, ScreenChromeColorScheme]>([
+    it.each<[ColorSchemeName, ScreenChromeColorScheme]>([
         ['dark', 'dark'],
         ['light', 'light'],
-        [null, 'light'],
+        ['unspecified', 'light'],
     ])('resolves system appearance %s to the %s palette at render', (systemScheme, expected) => {
         expect.hasAssertions();
 
-        mockSystemColorScheme = systemScheme;
+        mockSystemColorScheme(systemScheme);
 
         expect(captureContext({ colorScheme: 'system' }).colorScheme).toBe(expected);
     });
@@ -217,7 +218,7 @@ describe('ScreenChromeProvider system color scheme', () => {
     it('keeps an explicit scheme regardless of the system appearance', () => {
         expect.hasAssertions();
 
-        mockSystemColorScheme = 'dark';
+        mockSystemColorScheme('dark');
 
         expect(captureContext({ colorScheme: 'light' }).colorScheme).toBe('light');
         expect(captureContext().colorScheme).toBe('light');

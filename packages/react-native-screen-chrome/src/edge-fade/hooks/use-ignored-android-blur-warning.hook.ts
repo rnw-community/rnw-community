@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { Platform } from 'react-native';
 
 import { isDefined, isPositiveNumber } from '@rnw-community/shared';
@@ -12,18 +12,26 @@ const IGNORED_ANDROID_BLUR_WARNING =
 
 type BlurConfiguration = Pick<EdgeFadePropsInterface, 'blurMethod' | 'blurTarget' | 'intensity' | 'scrollAnimation'>;
 
+const isDevelopmentBuild = (): boolean => typeof __DEV__ !== 'undefined' && __DEV__;
+
 export const useIgnoredAndroidBlurWarning = ({
     blurMethod,
     blurTarget,
     intensity,
     scrollAnimation,
 }: BlurConfiguration): void => {
+    const hasWarned = useRef(false);
     const requestsBlur = isPositiveNumber(intensity) || isDefined(scrollAnimation?.intensityInputRange);
     const isBlurIgnored =
-        __DEV__ && Platform.OS === 'android' && requestsBlur && !isDefined(blurMethod) && !isDefined(blurTarget);
+        Platform.OS === 'android' &&
+        isDevelopmentBuild() &&
+        requestsBlur &&
+        !isDefined(blurMethod) &&
+        !isDefined(blurTarget);
 
     useEffect(() => {
-        if (isBlurIgnored) {
+        if (isBlurIgnored && !hasWarned.current) {
+            hasWarned.current = true;
             // eslint-disable-next-line no-console
             console.warn(IGNORED_ANDROID_BLUR_WARNING);
         }

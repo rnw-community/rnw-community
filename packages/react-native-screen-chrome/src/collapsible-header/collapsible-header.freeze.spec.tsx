@@ -53,8 +53,8 @@ const createSubject =
     (Boundary: LifecycleBoundary, onScrollY: OnEventFn<SharedValue<number>>) =>
     ({ hidden }: { readonly hidden: boolean }) => (
         <ScreenChromeProvider config={SNAP_CONFIG}>
-            <ScrollProbe onScrollY={onScrollY} />
             <Boundary hidden={hidden}>
+                <ScrollProbe onScrollY={onScrollY} />
                 <EdgeFade testID="fade" position="top" scrollAnimation={FADE_SCROLL_ANIMATION} />
                 <CollapsibleHeader testID="header">
                     <CollapsibleHeaderTitleSlot>

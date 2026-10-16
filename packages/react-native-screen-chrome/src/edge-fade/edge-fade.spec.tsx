@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, jest } from '@jest/globals';
 import { render } from '@testing-library/react-native';
-import React from 'react';
+import React, { Activity, StrictMode } from 'react';
 import { Platform, View } from 'react-native';
 
 import { emptyFn } from '@rnw-community/shared';
@@ -264,10 +264,33 @@ describe('EdgeFade ignored Android blur warning', () => {
         expect(warn).not.toHaveBeenCalled();
     });
 
-    it('stays silent in production builds', () => {
+    it('warns once per band across Activity hide and show cycles and StrictMode effect replays', () => {
         expect.hasAssertions();
 
-        jest.replaceProperty(globalThis as unknown as { __DEV__: boolean }, '__DEV__', false);
+        const renderBand = (mode: 'hidden' | 'visible') => (
+            <StrictMode>
+                <Activity mode={mode}>
+                    <EdgeFade position="top" intensity={40} />
+                </Activity>
+            </StrictMode>
+        );
+        const screen = render(renderBand('visible'));
+
+        screen.rerender(renderBand('hidden'));
+        screen.rerender(renderBand('visible'));
+        screen.rerender(renderBand('hidden'));
+        screen.rerender(renderBand('visible'));
+
+        expect(warn).toHaveBeenCalledTimes(1);
+    });
+
+    it.each([
+        ['production builds', false],
+        ['runtimes without a __DEV__ global', void 0],
+    ])('stays silent in %s', (_name, devFlag) => {
+        expect.hasAssertions();
+
+        jest.replaceProperty(globalThis as unknown as { __DEV__: boolean | undefined }, '__DEV__', devFlag);
         render(<EdgeFade position="top" intensity={40} />);
 
         expect(warn).not.toHaveBeenCalled();
