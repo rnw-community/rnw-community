@@ -2,6 +2,7 @@ package com.payments
 
 import android.app.Activity
 import android.content.Intent
+import android.content.IntentSender
 import android.util.Log
 import com.facebook.react.bridge.BaseActivityEventListener
 import com.facebook.react.bridge.Promise
@@ -9,14 +10,19 @@ import com.facebook.react.bridge.ReactApplicationContext
 import com.facebook.react.bridge.ReactMethod
 import com.facebook.react.bridge.ReadableArray
 import com.facebook.react.bridge.ReadableMap
+import com.facebook.react.bridge.WritableMap
+import com.facebook.react.modules.core.DeviceEventManagerModule
 import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.GoogleApiAvailability
-import com.google.android.gms.wallet.AutoResolveHelper
+import com.google.android.gms.common.api.ApiException
+import com.google.android.gms.common.api.ResolvableApiException
+import com.google.android.gms.tasks.Task
 import com.google.android.gms.wallet.IsReadyToPayRequest
 import com.google.android.gms.wallet.PaymentData
 import com.google.android.gms.wallet.PaymentDataRequest
 import com.google.android.gms.wallet.Wallet
 import com.google.android.gms.wallet.WalletConstants
+import com.google.android.gms.wallet.contract.TaskResultContracts
 import org.json.JSONException
 import org.json.JSONObject
 
@@ -26,16 +32,20 @@ class PaymentsModule internal constructor(context: ReactApplicationContext) : Pa
   // TODO: Promise ref, should resolve/reject when the payment is done/cancelled/error
   private var pendingPromise: Promise? = null
 
+  private val changeEventCoordinator = PaymentsChangeEventCoordinator(::emitChangeEvent)
+  private val changeEventsTask = PaymentsChangeEventsTask(context)
+
   // https://reactnative.dev/docs/native-modules-android#getting-activity-result-from-startactivityforresult
   private val activityEventListener = object : BaseActivityEventListener() {
     // https://developers.google.com/pay/api/android/guides/tutorial#java
     override fun onActivityResult(activity: Activity, requestCode: Int, resultCode: Int, data: Intent?) {
       Log.d(NAME, "Received onActivityResult: $requestCode $resultCode")
 
-      // value passed in AutoResolveHelper
       if (requestCode != LOAD_MASKED_WALLET_REQUEST_CODE) {
         return
       }
+
+      closeSheet()
 
       when (resultCode) {
         Activity.RESULT_OK -> {
@@ -47,13 +57,23 @@ class PaymentsModule internal constructor(context: ReactApplicationContext) : Pa
         Activity.RESULT_CANCELED ->
           rejectPromise(E_CANCELLED_BY_USER, "User closed AndroidPay without completing the payment")
 
-        else -> handleError(AutoResolveHelper.getStatusFromIntent(data)!!.statusCode)
+        else -> handleError(TaskResultContracts.GetPaymentDataResult().parseResult(resultCode, data).status.statusCode)
       }
     }
   }
 
   init {
     context.addActivityEventListener(activityEventListener)
+    PaymentsCallbackBridge.attach(changeEventCoordinator)
+  }
+
+  override fun invalidate() {
+    PaymentsCallbackBridge.detach(changeEventCoordinator)
+    changeEventCoordinator.invalidate()
+    changeEventsTask.finish()
+    reactApplicationContext.removeActivityEventListener(activityEventListener)
+
+    super.invalidate()
   }
 
   override fun getName(): String = NAME
@@ -160,6 +180,10 @@ class PaymentsModule internal constructor(context: ReactApplicationContext) : Pa
 
       Log.d(NAME, "Created PaymentDataRequest $request")
 
+      if (changeEventCoordinator.onShow(requestId, paymentMethodData)) {
+        changeEventsTask.start()
+      }
+
       // https://developers.google.com/android/reference/com/google/android/gms/wallet/Wallet.WalletOptions.Builder#setEnvironment(int)
       val options = Wallet.WalletOptions.Builder().setEnvironment(getEnvironment(details)).build()
 
@@ -169,9 +193,11 @@ class PaymentsModule internal constructor(context: ReactApplicationContext) : Pa
       // https://developers.google.com/android/reference/com/google/android/gms/wallet/PaymentsClient#public-taskpaymentdata-loadpaymentdata-paymentdatarequest-request
       val loadPaymentDataTask = paymentsClient.loadPaymentData(request)
 
-      // https://developers.google.com/android/reference/com/google/android/gms/wallet/AutoResolveHelper
-      AutoResolveHelper.resolveTask(loadPaymentDataTask, currentActivity, LOAD_MASKED_WALLET_REQUEST_CODE)
+      loadPaymentDataTask.addOnCompleteListener { completedTask ->
+        handleLoadPaymentDataTask(completedTask, currentActivity)
+      }
     } catch (e: Exception) {
+      closeSheet()
       rejectPromise(E_FAILED_SHOWING_ANDROID_PAY, "Failed showing AndroidPay$e")
     }
   }
@@ -179,6 +205,8 @@ class PaymentsModule internal constructor(context: ReactApplicationContext) : Pa
   @ReactMethod
   override fun abort(promise: Promise) {
     Log.d(NAME, "Aborting AndroidPay for ${requireCurrentActivity()}")
+
+    closeSheet()
 
     promise.resolve("AndroidPay abort is not supported")
   }
@@ -200,7 +228,7 @@ class PaymentsModule internal constructor(context: ReactApplicationContext) : Pa
 
   @ReactMethod
   override fun setActiveEvents(requestId: String, eventNames: ReadableArray, promise: Promise) {
-    Log.d(NAME, "Change events are not supported by AndroidPay, ignoring ${eventNames.size()} event(s) of $requestId")
+    changeEventCoordinator.setActiveEvents(requestId, eventNames)
 
     promise.resolve(null)
   }
@@ -212,19 +240,66 @@ class PaymentsModule internal constructor(context: ReactApplicationContext) : Pa
     shippingOptions: ReadableArray,
     promise: Promise
   ) {
-    Log.d(NAME, "Payment details updates are not supported by AndroidPay")
-
-    promise.resolve(null)
+    changeEventCoordinator.updatePaymentDetails(update, displayItems, shippingOptions, promise)
   }
 
   @ReactMethod
   override fun addListener(eventName: String) {
-    Log.d(NAME, "Added a listener for $eventName, AndroidPay never emits change events")
+    changeEventCoordinator.addListener()
   }
 
   @ReactMethod
   override fun removeListeners(count: Double) {
-    Log.d(NAME, "Removed $count listener(s), AndroidPay never emits change events")
+    changeEventCoordinator.removeListeners(count.toInt())
+  }
+
+  private fun emitChangeEvent(eventName: String, body: WritableMap): Boolean {
+    if (!reactApplicationContext.hasActiveReactInstance()) {
+      Log.w(NAME, "Dropping the '$eventName' change event, the React instance is not active")
+
+      return false
+    }
+
+    reactApplicationContext
+      .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java)
+      .emit(eventName, body)
+
+    return true
+  }
+
+  private fun closeSheet() {
+    changeEventCoordinator.onSheetClosed()
+    changeEventsTask.finish()
+  }
+
+  private fun handleLoadPaymentDataTask(task: Task<PaymentData>, activity: Activity) {
+    if (task.isSuccessful) {
+      closeSheet()
+      handlePaymentSuccess(task.result)
+
+      return
+    }
+
+    when (val exception = task.exception) {
+      is ResolvableApiException -> startPaymentSheet(exception, activity)
+      is ApiException -> {
+        closeSheet()
+        handleError(exception.statusCode)
+      }
+      else -> {
+        closeSheet()
+        rejectPromise(E_FAILED_SHOWING_ANDROID_PAY, "Failed showing AndroidPay$exception")
+      }
+    }
+  }
+
+  private fun startPaymentSheet(exception: ResolvableApiException, activity: Activity) {
+    try {
+      exception.startResolutionForResult(activity, LOAD_MASKED_WALLET_REQUEST_CODE)
+    } catch (e: IntentSender.SendIntentException) {
+      closeSheet()
+      rejectPromise(E_FAILED_SHOWING_ANDROID_PAY, "Failed showing AndroidPay$e")
+    }
   }
 
   private fun requireCurrentActivity(): Activity = reactApplicationContext.currentActivity!!

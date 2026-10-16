@@ -28,6 +28,7 @@ export const getAndroidPaymentMethodData = ({
         requestPayerName,
         requestShipping,
         environment: __DEV__ ? EnvironmentEnum.TEST : EnvironmentEnum.PRODUCTION,
+        countryCode: 'DE',
         currencyCode: 'EUR',
         supportedNetworks: [SupportedNetworkEnum.Visa, SupportedNetworkEnum.Mastercard],
         allowedAuthMethods: [AndroidAllowedAuthMethodsEnum.PAN_ONLY],

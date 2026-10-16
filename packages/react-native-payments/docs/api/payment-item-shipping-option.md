@@ -10,8 +10,8 @@ priced row of the sheet.
 
 | Type | Member | Notes |
 | --- | --- | --- |
-| `PaymentItem` | `label`, `amount`, `pending?` | `pending: true` renders `PKPaymentSummaryItemTypePending` on iOS instead of the amount; Google Pay ignores the flag. |
-| `PaymentShippingOption` | `id`, `label`, `amount`, `detail?`, `selected?` | `id`/`label`/`amount` are required — iOS renders the row from the label and amount and reports the selection back by id. `selected` is **ignored on iOS** (see Pitfalls). |
+| `PaymentItem` | `label`, `amount`, `pending?` | `pending: true` renders `PKPaymentSummaryItemTypePending` on iOS instead of the amount and a `PENDING` display item on Android when change-event callbacks are active. |
+| `PaymentShippingOption` | `id`, `label`, `amount`, `detail?`, `selected?` | `id`/`label`/`amount` are required — iOS renders the row from the label and amount and reports the selection back by id. `selected` is **ignored on iOS** (see Pitfalls); on Android the last `selected` option becomes Google Pay's `defaultSelectedOptionId` and the amount is not rendered. |
 
 ## Example
 

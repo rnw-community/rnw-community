@@ -7,7 +7,8 @@ readme](../readme.md) links here instead of carrying its own TODO ledger.
 
 - [ ] Payment sheet GIFs for iOS and Android — [#469](https://github.com/rnw-community/rnw-community/issues/469),
       capture procedure below.
-- [ ] Shipping options and coupon support on Android — [#438](https://github.com/rnw-community/rnw-community/issues/438).
+- [x] Shipping change events on Android through Google Pay callback intents —
+      [#438](https://github.com/rnw-community/rnw-community/issues/438); coupons stay iOS-only, see below.
 - Rewrite iOS to Swift — **deferred indefinitely**, decision recorded on
   [#442](https://github.com/rnw-community/rnw-community/issues/442).
 - [ ] Rewrite Android to Kotlin — decided, low effort, tracked in
@@ -37,24 +38,21 @@ Capture procedure once the on-device Maestro fleet has capacity:
 
 ## Native
 
-### Android shipping options and coupon support — [#438](https://github.com/rnw-community/rnw-community/issues/438)
+### Android shipping change events — [#438](https://github.com/rnw-community/rnw-community/issues/438)
 
-Google Pay's `loadPaymentData` supports dynamic price updates via `callbackIntents`
-(`SHIPPING_ADDRESS`, `SHIPPING_OPTION`) and `PaymentDataCallbacks`, meaning `shippingaddresschange` /
-`shippingoptionchange` could fire on Android and feed the same `updateWith` contract iOS already uses — but this is
-new infrastructure, not a small tweak to the existing no-op: `AndroidManifest.xml` currently declares no services at
-all, and `PaymentsModule.kt`'s `setActiveEvents`/`updatePaymentDetails` resolve immediately without touching Google
-Pay. Shipping on Android would require registering a `Service` extending `BasePaymentDataCallbacks` in the manifest
-(with the `com.google.android.gms.permission.BIND_PAYMENTS_CALLBACK_SERVICE` permission and a
-`com.google.android.gms.wallet.callback.PAYMENT_DATA_CALLBACKS` intent filter) that overrides
-`onPaymentDataChanged(IntermediatePaymentData, OnCompleteListener<PaymentDataRequestUpdate>)` for the declared
-`SHIPPING_ADDRESS`/`SHIPPING_OPTION` callback intents, adapting the `PaymentDataRequestUpdate` handed to that
-listener into the existing `updatePaymentDetails` call so JS `updateWith` observes it the same way it does on iOS.
-`onPaymentAuthorized` is a second override on that same `BasePaymentDataCallbacks` service — not a separate
-mechanism — required only when `PAYMENT_AUTHORIZATION` is also declared in `callbackIntents` for in-sheet
-authorization review, which is out of scope for the shipping/coupon work here. Coupons are a separate spike:
-investigate the Google Pay offer/promo surface, documenting the outcome either way (`couponcodechange` would stay
-iOS-only if unsupported).
+Done: `shippingaddresschange` / `shippingoptionchange` are delivered on Android through Google Pay's dynamic price
+updates (`play-services-wallet` 20.0.0+): `show()` declares `callbackIntents` for the registered shipping listeners,
+the library manifest declares `PaymentsCallbacksService`, and `updateWith` answers become `PaymentDataRequestUpdate`s —
+see [guides/change-events.md](./guides/change-events.md#android). Outcome of the remaining spikes:
+
+- **Coupons stay iOS-only.** Google Pay's Android `callbackIntents` are limited to `PAYMENT_AUTHORIZATION`,
+  `SHIPPING_ADDRESS` and `SHIPPING_OPTION`; the `OFFER` intent (promo codes) exists on the web API only.
+- **`paymentmethodchange` stays iOS-only.** There is no payment-method callback intent on Android.
+- **In-sheet `complete()` / `retry()` remain future work.** Google Pay requires `PAYMENT_AUTHORIZATION` alongside the
+  shipping intents; it is answered `SUCCESS` immediately today. Routing it to `PaymentResponse.complete()` /
+  `retry()` would give Android an in-sheet authorization result, but changes when `show()` resolves.
+- **On-device verification** with a signed-in Google account and a TEST-environment card is pending the Android
+  Maestro suite ([#393](https://github.com/rnw-community/rnw-community/issues/393)).
 
 ### Native modernization — [#442](https://github.com/rnw-community/rnw-community/issues/442)
 
@@ -69,8 +67,9 @@ Spike findings (decision recorded on the issue):
   of delegate state whose regressions are silent runtime sheet hangs, not compile errors. Effort: L. Risk: high.
   Revisit only as part of an Expo Modules API spike (see #445), not as a standalone plain-Swift TurboModule rewrite.
 - [x] **Android → Kotlin: done.** The former `PaymentsModule.java` (284 lines) was a single activity-result round
-  trip, not a delegate protocol — `abort`/`complete`/`setActiveEvents`/`updatePaymentDetails` are no-ops that resolve
-  immediately, no coupon codes, no in-sheet change events, no teardown state machine. It is now `PaymentsModule.kt`,
+  trip, not a delegate protocol — `abort`/`complete`/`setActiveEvents`/`updatePaymentDetails` were no-ops that resolved
+  immediately, no coupon codes, no in-sheet change events, no teardown state machine (the change events arrived later
+  with #438). It is now `PaymentsModule.kt`,
   `PaymentsPackage.kt` and the two `android/src/*arch/PaymentsSpec.kt` variants, behaviour-identical (same method
   names, promise codes and messages); the newarch spec extends the codegen-generated Java `NativePaymentsSpec`
   directly, with no bridging shim. The library applies the `kotlin-android` plugin, resolving `kotlinVersion` from
@@ -83,10 +82,13 @@ Spike findings (decision recorded on the issue):
 ## W3C compliance checklist
 
 - [x] [PaymentRequestUpdateEvent](https://www.w3.org/TR/payment-request/#dom-paymentrequestupdateevent) — JavaScript
-      layer and iOS PassKit delivery implemented (see [guides/change-events.md](./guides/change-events.md)); on-device
+      layer, iOS PassKit delivery and Android Google Pay callback delivery (shipping events) implemented (see
+      [guides/change-events.md](./guides/change-events.md)); on-device
       verification is tracked in [#393](https://github.com/rnw-community/rnw-community/issues/393)
-- [x] [PaymentMethodChangeEvent](https://www.w3.org/TR/payment-request/#dom-paymentmethodchangeevent) — same
-      implementation and verification status as `PaymentRequestUpdateEvent`
+- [x] [PaymentMethodChangeEvent](https://www.w3.org/TR/payment-request/#dom-paymentmethodchangeevent) — JavaScript
+      layer and iOS PassKit delivery implemented; Android stays silent because Google Pay has no payment-method
+      callback intent; on-device verification is tracked in
+      [#393](https://github.com/rnw-community/rnw-community/issues/393)
 - [x] Implement [PaymentDetailsModifier](https://www.w3.org/TR/payment-request/#dom-paymentdetailsmodifier) — see
       [guides/modifiers.md](./guides/modifiers.md)
 - [x] Improve and unify errors according to the spec — see [guides/errors.md](./guides/errors.md)

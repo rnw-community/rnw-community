@@ -27,7 +27,9 @@ await paymentResponse.retry({
 ## Pitfalls
 
 An unknown field, an empty message, or a coupon error below iOS 15 is dropped and the sheet is answered with the
-updated details only. Android ignores every error because Google Pay never asks the app for an in-sheet update.
+updated details only. On Android the errors passed to `PaymentResponse.retry()` are ignored because Google Pay has
+no in-sheet retry, while a field error answered to a shipping change event reaches Google Pay — a
+`shippingAddressField` error as `SHIPPING_ADDRESS_INVALID`, any other as `OTHER_ERROR`.
 
 ## References
 
