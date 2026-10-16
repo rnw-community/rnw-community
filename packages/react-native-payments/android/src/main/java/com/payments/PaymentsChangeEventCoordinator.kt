@@ -122,11 +122,9 @@ internal class PaymentsChangeEventCoordinator(private val emitEvent: (String, Wr
       return@synchronized
     }
 
-    if (update.hasKey("eventId") && update.getType("eventId") == ReadableType.Number &&
-      update.getDouble("eventId").toInt() != pendingEvent.eventId
-    ) {
-      Log.w(NAME, "Dropping the answer of the superseded '$eventName' event")
-      promise.reject(E_NO_COMPLETION, "The answered change event was superseded by a newer one")
+    if (update.getEventIdOrNull() != pendingEvent.eventId) {
+      Log.w(NAME, "Dropping an answer that does not carry the eventId of the pending '$eventName' event")
+      promise.reject(E_NO_COMPLETION, "The answered change event is not the pending one")
 
       return@synchronized
     }
@@ -228,6 +226,9 @@ internal class PaymentsChangeEventCoordinator(private val emitEvent: (String, Wr
 
   private fun ReadableMap.getStringOrNull(key: String): String? =
     if (hasKey(key) && getType(key) == ReadableType.String) getString(key) else null
+
+  private fun ReadableMap.getEventIdOrNull(): Int? =
+    if (hasKey("eventId") && getType("eventId") == ReadableType.Number) getDouble("eventId").toInt() else null
 
   companion object {
     private const val NAME = "Payments"
