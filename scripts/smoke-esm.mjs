@@ -140,6 +140,18 @@ function packAllInto(destinationScopeDir) {
     }
 }
 
+function intersectSpecifiers(name, existing, version) {
+    if (existing === undefined || existing === version) {
+        return version;
+    }
+    if (existing.includes('||') || version.includes('||')) {
+        throw new Error(`Conflicting '${name}' specifiers: '${existing}' vs '${version}'`);
+    }
+    const comparators = new Set([...existing.split(/\s+/), ...version.split(/\s+/)]);
+
+    return [...comparators].join(' ');
+}
+
 function collectExternalRuntimeDependencies() {
     return ALL_PACKAGE_NAMES.reduce((merged, pkg) => {
         const pkgJson = JSON.parse(fs.readFileSync(path.join(repoRoot, 'packages', pkg, 'package.json'), 'utf8'));
@@ -148,10 +160,7 @@ function collectExternalRuntimeDependencies() {
                 if (name.startsWith('@rnw-community/')) {
                     continue;
                 }
-                if (name in merged && merged[name] !== version) {
-                    throw new Error(`Conflicting '${name}' specifiers: '${merged[name]}' vs '${version}'`);
-                }
-                merged[name] = version;
+                merged[name] = intersectSpecifiers(name, merged[name], version);
             }
         }
 
