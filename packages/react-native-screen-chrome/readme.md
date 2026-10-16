@@ -304,7 +304,10 @@ On web only `scrollAnimation.opacityInputRange` animates: the band's `backdrop-f
 Android blur is opt-in through `blurTarget`. Since `expo-blur@55` the `dimezisBlurView` methods only blur the
 background of a `BlurTargetView`, so `blurMethod` defaults to `'dimezisBlurView'` when a `blurTarget` ref is supplied
 and to `'none'` otherwise — expo-blur itself falls back to `'none'` with a console warning when a targeted method has
-no target, and that fallback is what the default avoids:
+no target, and that fallback is what the default avoids. Because that default is silent, a development build warns
+once per band when an `EdgeFade` on Android asks for blur (a positive `intensity` or a `scrollAnimation.intensityInputRange`)
+with neither a `blurTarget` nor an explicit `blurMethod`; pass `blurMethod="none"` to keep the band blur-free on Android
+without the warning:
 
 ```tsx
 const blurTarget = useRef<View>(null);
@@ -446,6 +449,13 @@ Provides validated configuration and color scheme to screen chrome components ar
     {children}
 </ScreenChromeProvider>
 ```
+
+`colorScheme` defaults to `'light'`; pass `'system'` to follow the device appearance — see
+[`ScreenChromeColorSchemePreference`](#screenchromecolorschemepreference).
+
+The provider and its chrome survive `react-freeze` (`enableFreeze()`) and React 19 `<Activity mode="hidden">`: the
+scroll offset, the collapsed header state, edge-fade scroll subscriptions, and snap registration all persist across a
+hide and show cycle.
 
 `syncNativeScrollOffset` is forwarded to the underlying `CollapsibleHeaderProvider`: it mirrors the native scroll
 offset into the shared scroll value so navigator offset restores without a scroll event keep the header in sync. It is
@@ -751,14 +761,23 @@ const headerTotalHeight = useScreenChromeHeaderMetrics();
 
 ## ScreenChromeColorScheme
 
-Selects the light or dark chrome palette for edge fades and backdrop blur tinting: `'light' | 'dark'`. Being a plain
-union rather than a string enum, React Native's `useColorScheme()` result assigns to it directly — no cast, no mapping
-layer between the platform API and the provider prop.
+Selects the light or dark chrome palette for edge fades and backdrop blur tinting: `'light' | 'dark'`. It is the
+resolved scheme every chrome consumer reads from `useScreenChrome()` and the band renderer receives — never `'system'`.
 
 ```tsx
-const colorScheme: ScreenChromeColorScheme = useColorScheme() ?? 'light';
+const { colorScheme } = useScreenChrome();
+```
 
-<ScreenChromeProvider colorScheme={colorScheme}>{children}</ScreenChromeProvider>;
+## ScreenChromeColorSchemePreference
+
+The `ScreenChromeProvider` `colorScheme` input: a fixed [`ScreenChromeColorScheme`](#screenchromecolorscheme), or
+`'system'` to follow the device appearance. `'system'` is resolved during provider render from React Native's
+`useColorScheme()` (`'dark'` selects the dark palette, anything else — `'light'`, `'unspecified'`, `null` — the light
+one) and never stored in state, so an appearance change re-renders the provider with the new palette and the context
+value stays `'light' | 'dark'`. A fixed value ignores the device appearance entirely.
+
+```tsx
+<ScreenChromeProvider colorScheme="system">{children}</ScreenChromeProvider>
 ```
 
 ## ScreenChromeColorSetInterface

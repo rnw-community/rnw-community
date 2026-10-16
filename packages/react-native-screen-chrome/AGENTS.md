@@ -77,7 +77,20 @@ pnpm test && pnpm test:coverage && pnpm build && pnpm ts && pnpm ts:nodenext && 
   from the collapsible header provider it wraps.
 - `snapToCollapse` only takes effect while a `CollapsibleHeader` is mounted: the header registers the snap geometry
   with the provider. Reduced-motion-aware snapping is upstream scope, not a local reimplementation.
-- Native peer dependencies remain external so applications own native versions and linking.
+- Native peer dependencies remain external so applications own native versions and linking. None of them is marked
+  optional in `peerDependenciesMeta`: `edge-fade.tsx` / `edge-fade-blur.tsx` import `@react-native-masked-view/masked-view`,
+  `expo-linear-gradient`, and `expo-blur` statically and the package index reaches them, so every native consumer
+  loads all three; only the web build (`edge-fade.web.tsx` via the `browser` field) skips them at runtime, and its
+  public types still reference `expo-blur`. Revisit only once the native imports become lazy or injectable.
+- `ScreenChromeProvider` `colorScheme` accepts `'system'`, resolved during render by `resolveScreenChromeColorScheme`
+  from `useColorScheme()` — never mirrored into state — so the context value stays `'light' | 'dark'`. The hook is
+  read unconditionally (rules of hooks) and ignored for fixed schemes.
+- `collapsible-header.freeze.spec.tsx` pins `react-freeze` and React `<Activity>` survival. Reanimated's jest
+  `AnimatedComponent` re-copies `style.initial.value` into `jestAnimatedStyle` when a hidden view re-attaches, so the
+  spec asserts the fade's subscription by scrolling after the cycle instead of reading a stale post-cycle snapshot.
+- `EdgeFadeBlur` warns once (dev only, Android only) when blur is requested — a positive `intensity` or an
+  `intensityInputRange` — while `blurMethod` silently defaults to `'none'` for lack of a `blurTarget`. expo-blur
+  already warns for an explicit targeted method without a target, so that case is not duplicated.
 - `CollapsibleHeader` passes `expandedHeight = safeAreaInsets.top + config.headerHeight` and
   `collapsedHeight = safeAreaInsets.top + (config.collapsedHeaderHeight ?? config.headerHeight)`, and offsets every
   content layer by `top: safeAreaInsets.top`. `collapsedHeaderHeight` is optional and absent from the defaults so an overridden `headerHeight`
@@ -109,7 +122,7 @@ pnpm test && pnpm test:coverage && pnpm build && pnpm ts && pnpm ts:nodenext && 
 - Relative source imports stay extensionless; the build's post-compile rewrite/assert pair enforces extensioned specifiers in `dist/module` and `dist/typescript/module`, and NodeNext validation must pass.
 - No manual `useMemo`, `useCallback`, or `React.memo` in `src` for plain derivations — that is React Compiler's
   job once #601 resolves and compiler output returns. While the compiler is absent (see below), values whose
-  *identity* is behavior — a merged ref callback that React 19 would otherwise detach, clean up, and reattach
+  _identity_ is behavior — a merged ref callback that React 19 would otherwise detach, clean up, and reattach
   on every render — must be manually memoized; nothing else memoizes them today.
 - `EdgeFade` native wraps its blur and wash in `MaskedView` + `expo-linear-gradient` (#640). Do not add further native
   views to the default band while #601 is open — gradient/masked native views have corrupted the Hermes heap on the

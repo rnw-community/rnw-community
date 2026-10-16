@@ -1,7 +1,9 @@
-import { beforeEach, describe, expect, it, jest } from '@jest/globals';
+import { afterEach, beforeEach, describe, expect, it, jest } from '@jest/globals';
 import { render } from '@testing-library/react-native';
 import React from 'react';
-import { View } from 'react-native';
+import { Platform, View } from 'react-native';
+
+import { emptyFn } from '@rnw-community/shared';
 
 import { SCREEN_CHROME_DEFAULT_CONFIG } from '../constant/screen-chrome-default-config.constant';
 
@@ -210,5 +212,64 @@ describe('EdgeFade native band renderer', () => {
 
         expect(overridden.getByTestId('instance-band', { includeHiddenElements: true })).toBeTruthy();
         expect(overridden.queryByTestId('provider-band', { includeHiddenElements: true })).toBeNull();
+    });
+});
+
+describe('EdgeFade ignored Android blur warning', () => {
+    const scrollDrivenBlur = { intensityInputRange: [0, 80] as const };
+    let warn: ReturnType<typeof jest.spyOn>;
+
+    beforeEach(() => {
+        jest.replaceProperty(Platform, 'OS', 'android');
+        warn = jest.spyOn(console, 'warn').mockImplementation(emptyFn);
+    });
+
+    afterEach(() => {
+        jest.restoreAllMocks();
+    });
+
+    it.each([
+        ['a static intensity', { intensity: 40 }],
+        ['a scroll-driven intensity', { scrollAnimation: scrollDrivenBlur }],
+    ])('warns once when %s cannot render without a blur target', (_name, blurProps) => {
+        expect.hasAssertions();
+
+        const screen = render(<EdgeFade position="top" {...blurProps} />);
+
+        screen.rerender(<EdgeFade position="top" {...blurProps} />);
+
+        expect(warn).toHaveBeenCalledTimes(1);
+        expect(warn).toHaveBeenCalledWith(expect.stringContaining('ignored on Android without a blurTarget'));
+    });
+
+    it.each([
+        ['no blur is requested', {}],
+        ['the intensity is zero', { intensity: 0 }],
+        ['a blur target is supplied', { intensity: 40, blurTarget: React.createRef<View>() }],
+        ['the blur method is explicit', { intensity: 40, blurMethod: 'none' as const }],
+    ])('stays silent when %s', (_name, blurProps) => {
+        expect.hasAssertions();
+
+        render(<EdgeFade position="top" {...blurProps} />);
+
+        expect(warn).not.toHaveBeenCalled();
+    });
+
+    it('stays silent on iOS, where the blur renders without a target', () => {
+        expect.hasAssertions();
+
+        jest.replaceProperty(Platform, 'OS', 'ios');
+        render(<EdgeFade position="top" intensity={40} />);
+
+        expect(warn).not.toHaveBeenCalled();
+    });
+
+    it('stays silent in production builds', () => {
+        expect.hasAssertions();
+
+        jest.replaceProperty(globalThis as unknown as { __DEV__: boolean }, '__DEV__', false);
+        render(<EdgeFade position="top" intensity={40} />);
+
+        expect(warn).not.toHaveBeenCalled();
     });
 });
