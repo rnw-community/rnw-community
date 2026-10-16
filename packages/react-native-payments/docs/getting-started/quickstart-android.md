@@ -26,6 +26,9 @@ const paymentResponse = await new PaymentRequest(methodData, {
 }).show();
 ```
 
+6. Pick your gateway: replace the `example` gateway, which only returns a placeholder token, with your payment
+   service provider's `gatewayConfig` from the [gateway recipes](../guides/gateways/index.md).
+
 `environment` defaults to `EnvironmentEnum.TEST` and `supportedNetworks` to Visa and Mastercard. Pass
 `environment: EnvironmentEnum.PRODUCTION` for live payments — see
 [api/create-google-pay-method-data.md](../api/create-google-pay-method-data.md). To write the method data by hand
