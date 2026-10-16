@@ -79,6 +79,12 @@ jobs:
             -   name: Typescript checks (spec files, nodenext resolution)
                 run: pnpm exec turbo run ts:nodenext --affected
 
+            -   name: Oxlint config in sync with ESLint config
+                run: pnpm lint:oxlint:check
+
+            -   name: Oxlint checks
+                run: pnpm lint:fast
+
             -   name: ESLint checks
                 run: pnpm exec turbo run lint --affected
 

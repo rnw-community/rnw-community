@@ -1,15 +1,26 @@
+import { fileURLToPath } from 'node:url';
+
+import { fixupPluginRules } from '@eslint/compat';
 import js from '@eslint/js';
 import rxjs from '@smarttools/eslint-plugin-rxjs';
-import importPlugin from 'eslint-plugin-import';
+import importPlugin, { createNodeResolver } from 'eslint-plugin-import-x';
 import jestPlugin from 'eslint-plugin-jest';
 import nodePlugin from 'eslint-plugin-n';
 import promisePlugin from 'eslint-plugin-promise';
-import reactPlugin from 'eslint-plugin-react';
+import reactPluginLegacy from 'eslint-plugin-react';
 import reactHooksPlugin from 'eslint-plugin-react-hooks';
 import { defineConfig } from 'eslint/config';
+import oxlint from 'eslint-plugin-oxlint';
 import tseslint from 'typescript-eslint';
 
-export default defineConfig(
+export const oxlintConfigPath = fileURLToPath(new URL('.oxlintrc.json', import.meta.url));
+
+const importResolvableExtensions = ['.ts', '.cts', '.mts', '.tsx', '.js', '.jsx', '.mjs', '.cjs'];
+
+const reactPlugin = fixupPluginRules(reactPluginLegacy);
+const reactRecommended = { ...reactPluginLegacy.configs.flat.recommended, plugins: { react: reactPlugin } };
+
+export const eslintConfigWithoutOxlint = defineConfig(
     {
         ignores: [
             '**/node_modules/**',
@@ -245,23 +256,29 @@ export default defineConfig(
     },
     {
         files: ['**/*.{ts,tsx}'],
-        extends: [importPlugin.flatConfigs.recommended, importPlugin.flatConfigs.typescript],
+        extends: [importPlugin.flatConfigs.recommended],
+        settings: {
+            'import-x/extensions': importResolvableExtensions,
+            'import-x/external-module-folders': ['node_modules', 'node_modules/@types'],
+            'import-x/parsers': { '@typescript-eslint/parser': ['.ts', '.cts', '.mts', '.tsx'] },
+            'import-x/resolver-next': [createNodeResolver({ extensions: importResolvableExtensions })],
+        },
         languageOptions: {
             ecmaVersion: 'latest',
             sourceType: 'module',
         },
         rules: {
-            'import/named': 'off',
-            'import/namespace': 'off',
-            'import/default': 'off',
-            'import/no-named-as-default-member': 'off',
-            'import/no-unresolved': 'off',
-            'import/no-named-as-default': 'off',
-            'import/no-cycle': 'off',
-            'import/no-unused-modules': 'off',
-            'import/no-deprecated': 'off',
-            'import/extensions': 'off',
-            'import/order': [
+            'import-x/named': 'off',
+            'import-x/namespace': 'off',
+            'import-x/default': 'off',
+            'import-x/no-named-as-default-member': 'off',
+            'import-x/no-unresolved': 'off',
+            'import-x/no-named-as-default': 'off',
+            'import-x/no-cycle': 'off',
+            'import-x/no-unused-modules': 'off',
+            'import-x/no-deprecated': 'off',
+            'import-x/extensions': 'off',
+            'import-x/order': [
                 'error',
                 {
                     alphabetize: {
@@ -305,7 +322,7 @@ export default defineConfig(
     },
     {
         files: ['**/*.{ts,tsx}'],
-        extends: [reactPlugin.configs.flat.recommended, reactHooksPlugin.configs.flat.recommended],
+        extends: [reactRecommended, reactHooksPlugin.configs.flat.recommended],
         settings: {
             react: { version: 'detect' },
         },
@@ -362,3 +379,32 @@ export default defineConfig(
         },
     }
 );
+
+const oxlintRulesLayer = oxlint.buildFromOxlintConfigFile(oxlintConfigPath);
+const oxlintOwnedRules = new Set(oxlintRulesLayer.flatMap(config => Object.keys(config.rules ?? {})));
+const unusedDirectiveRulePattern =
+    /^Unused eslint-disable directive \(no problems were reported from '(?<rule>[^']+)'\)\.$/u;
+const isUnusedOxlintRuleDirective = message =>
+    message.ruleId === null && oxlintOwnedRules.has(unusedDirectiveRulePattern.exec(message.message)?.groups?.rule);
+
+export default [
+    ...eslintConfigWithoutOxlint,
+    ...oxlintRulesLayer,
+    {
+        files: ['**/*.{ts,tsx}'],
+        plugins: {
+            'oxlint-handoff': {
+                processors: {
+                    'skip-unused-oxlint-directives': {
+                        meta: { name: 'skip-unused-oxlint-directives' },
+                        supportsAutofix: true,
+                        preprocess: text => [text],
+                        postprocess: messageLists =>
+                            messageLists.flat().filter(message => !isUnusedOxlintRuleDirective(message)),
+                    },
+                },
+            },
+        },
+        processor: 'oxlint-handoff/skip-unused-oxlint-directives',
+    },
+];
