@@ -1,7 +1,7 @@
 {
     "name": "@rnw-community/nestjs-webpack-swc",
     "version": "2.28.0",
-    "description": "NestJS typed config",
+    "description": "NestJS webpack and SWC configuration helpers: ready-made dev (HMR) and production webpack configs",
     "keywords": [
         "nestjs",
         "nestjs webpack",
