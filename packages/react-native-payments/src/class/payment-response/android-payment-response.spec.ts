@@ -260,4 +260,24 @@ describe('AndroidPaymentResponse', () => {
 
         expect(details.androidPayToken.intermediateSigningKey).toStrictEqual(emptyAndroidIntermediateSigningKey);
     });
+
+    it.each([
+        ['a gateway JSON token without a Google Pay signed message', JSON.stringify({ id: 'tok_test', object: 'token' })],
+        ['an opaque gateway token that is not JSON', 'examplePaymentMethodToken'],
+        ['a gateway token that parses to null', 'null'],
+    ])('should keep %s as the raw token', (_, gatewayToken) => {
+        expect.hasAssertions();
+
+        const { androidPayToken } = createResponse({
+            ...authorizedPayment,
+            paymentMethodData: {
+                ...authorizedPayment.paymentMethodData,
+                tokenizationData: { type: AndroidPaymentMethodTokenizationType.PAYMENT_GATEWAY, token: gatewayToken },
+            },
+        }).details;
+
+        expect(androidPayToken.rawToken).toBe(gatewayToken);
+        expect(androidPayToken.protocolVersion).toBe('');
+        expect(androidPayToken.cardInfo.cardNetwork).toBe('VISA');
+    });
 });
