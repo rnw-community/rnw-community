@@ -1,5 +1,5 @@
 /**
- * The Google Pay `DisplayItem` request shape used for the line items of a merchant-initiated transaction.
+ * The Google Pay `DisplayItem` request shape used for the line items of a transaction, merchant-initiated or regular.
  *
  * @see https://github.com/rnw-community/rnw-community/blob/master/packages/react-native-payments/docs/api/android-merchant-initiated-transaction-info.md
  * @see https://developers.google.com/pay/api/android/reference/request-objects#DisplayItem

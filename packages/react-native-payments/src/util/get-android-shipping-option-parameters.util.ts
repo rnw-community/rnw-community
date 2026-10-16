@@ -1,6 +1,6 @@
 import { isNotEmptyString } from '@rnw-community/shared';
 
-import type { AndroidShippingOptionParameters } from '../@standard/android/request/android-shipping-option-parameters';
+import type { AndroidShippingOptionParameters } from '../@standard/android/request/android-shipping-option-parameters.interface';
 import type { PaymentShippingOption } from '../@standard/w3c/payment-shipping-option';
 import type { ReadonlyIsNotEmptyArray } from '@rnw-community/shared';
 

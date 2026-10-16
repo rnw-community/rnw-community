@@ -1,14 +1,14 @@
 import { defaultAndroidPaymentMethod } from './android-payment-method';
 
 import type { AndroidAutomaticReloadTransactionInfo } from './android-automatic-reload-transaction-info.interface';
-import type { AndroidCallbackIntent } from './android-callback-intent';
+import type { AndroidCallbackIntent } from './android-callback-intent.type';
 import type { AndroidDeferredTransactionInfo } from './android-deferred-transaction-info.type';
 import type { AndroidMerchantInfo } from './android-merchant-info';
 import type { AndroidMerchantInitiatedTransactionRequest } from './android-merchant-initiated-transaction-request.type';
 import type { AndroidPaymentMethod } from './android-payment-method';
 import type { AndroidRecurringTransactionInfo } from './android-recurring-transaction-info.interface';
 import type { AndroidShippingAddressParameters } from './android-shipping-address-parameters';
-import type { AndroidShippingOptionParameters } from './android-shipping-option-parameters';
+import type { AndroidShippingOptionParameters } from './android-shipping-option-parameters.interface';
 import type { AndroidTransactionInfo } from './android-transaction-info';
 
 /**

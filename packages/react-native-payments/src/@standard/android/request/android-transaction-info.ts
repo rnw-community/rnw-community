@@ -1,4 +1,4 @@
-import type { AndroidDisplayItem } from './android-display-item';
+import type { AndroidDisplayItem } from './android-display-item.interface';
 
 /**
  * The Google Pay `TransactionInfo` request shape.

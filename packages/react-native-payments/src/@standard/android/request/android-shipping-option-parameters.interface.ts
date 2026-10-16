@@ -1,4 +1,4 @@
-import type { AndroidSelectionOption } from './android-selection-option';
+import type { AndroidSelectionOption } from './android-selection-option.interface';
 
 /**
  * The Google Pay `ShippingOptionParameters` request shape.
