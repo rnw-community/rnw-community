@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import {
     useAnimatedRef,
     useAnimatedScrollHandler,
@@ -27,6 +27,7 @@ export const CollapsibleHeaderProvider = ({ children, syncNativeScrollOffset = f
     const scrollY = useSharedValue(0);
     const scrollRef: CollapsibleHeaderScrollRef = useAnimatedRef<Component>();
     const snapConfig = useSharedValue<Maybe<CollapsibleHeaderSnapConfig>>(null);
+    const snapOwnerCount = useRef(0);
     const snapSettleGeneration = useSharedValue(0);
     const snapAnimated = !useReducedMotion();
     const onScroll = useAnimatedScrollHandler(
@@ -37,10 +38,10 @@ export const CollapsibleHeaderProvider = ({ children, syncNativeScrollOffset = f
     // only an imperative handle (a supported attachment) never resolve to one and would throw in observe().
     // With it off, a navigator restoring a scrolled screen without an accompanying scroll event leaves scrollY
     // at its stale value until the next scroll; consumers whose ref always lands on a real scrollable enable it.
-    useScrollOffset(syncNativeScrollOffset ? scrollRef : null, scrollY);
+    useScrollOffset<Component>(syncNativeScrollOffset ? scrollRef : null, scrollY);
 
     return (
-        <CollapsibleHeaderScrollContext.Provider value={{ onScroll, scrollRef, scrollY, snapConfig }}>
+        <CollapsibleHeaderScrollContext.Provider value={{ onScroll, scrollRef, scrollY, snapConfig, snapOwnerCount }}>
             {children}
         </CollapsibleHeaderScrollContext.Provider>
     );

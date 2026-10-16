@@ -11,7 +11,7 @@ import { resolveCollapsibleHeaderMotionConfig } from '../config/resolve-collapsi
 import { CollapsibleHeaderProgressContext } from '../context/collapsible-header-progress.context';
 import { CollapsibleHeaderScrollContext } from '../context/collapsible-header-scroll.context';
 import { useCollapsibleHeaderAnimatedLayers } from '../hooks/use-collapsible-header-animated-layers/use-collapsible-header-animated-layers.hook';
-import { useCollapsibleHeaderSnapRegistration } from '../hooks/use-collapsible-header-snap-registration.hook';
+import { useCollapsibleHeaderSnapRegistration } from '../hooks/use-collapsible-header-snap-registration/use-collapsible-header-snap-registration.hook';
 
 import type { CollapsibleHeaderProps } from '../interface/collapsible-header-props.interface';
 
