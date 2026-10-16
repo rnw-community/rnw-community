@@ -83,6 +83,11 @@ const buildHistogramMiddleware = <TArgs extends readonly unknown[]>(
     return middleware;
 };
 
+/**
+ * Creates a `HistogramMetric` method decorator factory bound to a transport that observes the duration of sync, `Promise`, and `Observable` methods.
+ *
+ * @see https://github.com/rnw-community/rnw-community/blob/master/packages/histogram-metric-decorator/readme.md#createhistogrammetricdecorator
+ */
 export const createHistogramMetricDecorator =
     (options: CreateHistogramMetricOptionsInterface) =>
     <K extends AnyFn, TArgs extends Parameters<K> = Parameters<K>>(
