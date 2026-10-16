@@ -172,7 +172,8 @@ src/
 - The Reanimated peer floor is `4.2.0`, proven by the `Reanimated compatibility` leg in `.github/workflows/pr.yml`
   (typecheck + full jest suite against the floor minor's latest patch). Reanimated 3 lacks `useScrollOffset` and its
   `createAnimatedComponent` is not a named export, and 4.0/4.1 type `scrollTo`/`useScrollOffset` refs as
-  `AnimatedRef<T extends Component>`, which `CollapsibleHeaderScrollRef` does not satisfy. Raise the floor and the leg
+  `AnimatedRef<T extends Component>`, which `CollapsibleHeaderScrollRef` does not satisfy. The `react-native` peer floor is
+  `0.80`, the oldest React Native Reanimated 4.2 supports per its compatibility table. Raise the floors and the leg
   together. Runtime code uses only the compiler-safe `.get()`/`.set()` shared-value accessors.
 - Modern-React posture: the React Compiler owns memoization (no manual `useMemo`/`useCallback`/`React.memo`), state is
   derived during render (worklets are pure functions of `scrollY`), and the only `useEffect` syncs the snap registry —

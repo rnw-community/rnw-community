@@ -20,8 +20,9 @@ npm install @rnw-community/react-native-screen-chrome \
 
 The native libraries and `@rnw-community/react-native-collapsible-header` are peer dependencies and must be installed
 by the host application: the application must resolve exactly one copy of the collapsible header, otherwise its scroll
-context has two identities and the chrome components fail to find their provider. Reanimated 4 applications also
-install `react-native-worklets` and configure `react-native-worklets/plugin`.
+context has two identities and the chrome components fail to find their provider. Supported versions are
+`react-native-reanimated >=4.2.0 <5` on `react-native >=0.80`; Reanimated 4 applications also install
+`react-native-worklets` and configure `react-native-worklets/plugin`.
 
 `expo-blur` must be `>=55 <59`: the `blurMethod` prop and the `BlurMethod` type this package passes and re-exports in
 `EdgeFadePropsInterface` only exist from that release, which renamed `experimentalBlurMethod` to `blurMethod`.
