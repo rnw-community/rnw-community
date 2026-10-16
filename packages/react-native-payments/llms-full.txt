@@ -835,6 +835,7 @@ if (response instanceof AndroidPaymentResponse) {
 ## References
 
 - [Google Pay API for Android — response objects](https://developers.google.com/pay/api/android/reference/response-objects)
+- [Google Pay payment method token structure](https://developers.google.com/pay/api/android/guides/resources/payment-data-cryptography#payment-method-token-structure) and [intermediate signing key](https://developers.google.com/pay/api/android/guides/resources/payment-data-cryptography#intermediate-signing-key) — the raw token this type is parsed from
 - [api/android-payment-response.md](docs/api/android-payment-response.md)
 
 ---
@@ -879,6 +880,8 @@ if (response instanceof AndroidPaymentResponse) {
 - [api/payment-response.md](docs/api/payment-response.md)
 - [api/android-payment-method-token.md](docs/api/android-payment-method-token.md)
 - [Google Pay API for Android — response objects](https://developers.google.com/pay/api/android/reference/response-objects)
+- [Google Pay `PaymentData`](https://developers.google.com/pay/api/android/reference/response-objects#PaymentData) — the payload `AndroidPaymentResponse` parses ([Android SDK `PaymentData`](https://developers.google.com/android/reference/com/google/android/gms/wallet/PaymentData))
+- [Google Pay `PaymentMethodData`](https://developers.google.com/pay/api/android/reference/response-objects#PaymentMethodData) and [`PaymentMethodTokenizationData`](https://developers.google.com/pay/api/android/reference/response-objects#PaymentMethodTokenizationData)
 
 ---
 
@@ -1363,6 +1366,7 @@ if (response instanceof IosPaymentResponse) {
 - [api/payment-response.md](docs/api/payment-response.md)
 - [api/ios-pk-token.md](docs/api/ios-pk-token.md)
 - [Apple Pay payment token reference](https://developer.apple.com/documentation/passkit/apple_pay/payment_token_format_reference?language=objc)
+- [Apple `PKPayment`](https://developer.apple.com/documentation/passkit/pkpayment) — the payload `IosPaymentResponse` parses, with its [`PKContact`](https://developer.apple.com/documentation/passkit/pkcontact?language=objc) and [`PKShippingMethod`](https://developer.apple.com/documentation/passkit/pkshippingmethod?language=objc)
 
 ---
 

@@ -72,6 +72,12 @@ export class PaymentResponse {
         return undefined;
     }
 
+    /**
+     * The W3C `PaymentResponse.toJSON()` serializer, also used by `JSON.stringify(paymentResponse)`.
+     *
+     * @see https://github.com/rnw-community/rnw-community/blob/master/packages/react-native-payments/docs/api/payment-response-json.md
+     * @see https://www.w3.org/TR/payment-request/#idl-def-paymentresponse-tojson
+     */
     toJSON(): PaymentResponseJsonInterface {
         return {
             requestId: this.requestId,

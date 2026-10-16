@@ -257,7 +257,19 @@ export class PaymentRequest {
         this.acceptPromiseRejecter(new DOMException(PaymentsErrorEnum.AbortError));
     }
 
+    /**
+     * Registers a listener for `paymentmethodchange`, which receives a `PaymentMethodChangeEvent`.
+     *
+     * @see https://github.com/rnw-community/rnw-community/blob/master/packages/react-native-payments/docs/api/payment-request.md
+     * @see https://dom.spec.whatwg.org/#dom-eventtarget-addeventlistener
+     */
     addEventListener(type: 'paymentmethodchange', listener: PaymentMethodChangeEventListener): void;
+    /**
+     * Registers a listener for a payment request change event, which receives a `PaymentRequestUpdateEvent`.
+     *
+     * @see https://github.com/rnw-community/rnw-community/blob/master/packages/react-native-payments/docs/api/payment-request.md
+     * @see https://dom.spec.whatwg.org/#dom-eventtarget-addeventlistener
+     */
     addEventListener(type: PaymentRequestEventType, listener: PaymentRequestEventListener): void;
     addEventListener(
         type: PaymentRequestEventType,
@@ -284,7 +296,19 @@ export class PaymentRequest {
         this.syncActiveEvents();
     }
 
+    /**
+     * Removes a listener previously registered for `paymentmethodchange`.
+     *
+     * @see https://github.com/rnw-community/rnw-community/blob/master/packages/react-native-payments/docs/api/payment-request.md
+     * @see https://dom.spec.whatwg.org/#dom-eventtarget-removeeventlistener
+     */
     removeEventListener(type: 'paymentmethodchange', listener: PaymentMethodChangeEventListener): void;
+    /**
+     * Removes a listener previously registered for a payment request change event.
+     *
+     * @see https://github.com/rnw-community/rnw-community/blob/master/packages/react-native-payments/docs/api/payment-request.md
+     * @see https://dom.spec.whatwg.org/#dom-eventtarget-removeeventlistener
+     */
     removeEventListener(type: PaymentRequestEventType, listener: PaymentRequestEventListener): void;
     removeEventListener(
         type: PaymentRequestEventType,
