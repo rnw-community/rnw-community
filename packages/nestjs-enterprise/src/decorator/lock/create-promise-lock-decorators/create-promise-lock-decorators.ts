@@ -46,6 +46,11 @@ const handleLockError = <TResult>(
     throw normalized;
 };
 
+/**
+ * Creates the `SequentialLock` and `ExclusiveLock` decorators for `Promise` methods, bound through NestJS DI to an injectable `LockServiceInterface`.
+ *
+ * @see https://github.com/rnw-community/rnw-community/blob/master/packages/nestjs-enterprise/src/decorator/lock/create-promise-lock-decorators/create-promise-lock-decorators.md
+ */
 export const createPromiseLockDecorators = (
     serviceToken: AbstractConstructor<LockServiceInterface>,
     defaultDuration: number

@@ -60,6 +60,11 @@ const recoverFromMethodError = <TResult>(
     throw error;
 };
 
+/**
+ * Creates the `SequentialLock$` and `ExclusiveLock$` decorators for `Observable` methods, bound through NestJS DI to an injectable `LockServiceInterface`.
+ *
+ * @see https://github.com/rnw-community/rnw-community/blob/master/packages/nestjs-enterprise/src/decorator/lock/create-observable-lock-decorators/create-observable-lock-decorators.md
+ */
 export const createObservableLockDecorators = (
     serviceToken: AbstractConstructor<LockServiceInterface>,
     defaultDuration: number

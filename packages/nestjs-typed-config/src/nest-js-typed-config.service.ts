@@ -7,6 +7,11 @@ import { isNotEmptyString } from '@rnw-community/shared';
 
 import type { EnvType } from './env.type';
 
+/**
+ * The NestJS service reading validated environment variables with per-key value types, obtained from `NestJSTypedConfigModule.create`.
+ *
+ * @see https://github.com/rnw-community/rnw-community/blob/master/packages/nestjs-typed-config/readme.md#nestjstypedconfigservice
+ */
 @Injectable()
 export class NestJSTypedConfigService<
     EnvEnum extends string,
@@ -17,6 +22,11 @@ export class NestJSTypedConfigService<
 
     constructor(private readonly config: ConfigService<EnvTypes>) {}
 
+    /**
+     * Returns the typed, cached value of an environment variable, reading a `*_FILE` variable from the file path it holds or, when that is empty, from the variable without the suffix.
+     *
+     * @see https://github.com/rnw-community/rnw-community/blob/master/packages/nestjs-typed-config/readme.md#reading-values-from-files
+     */
     get<T extends EnvKeys>(envVariable: T): EnvType<EnvTypes, T> {
         if (this.envCache.has(envVariable)) {
             const value = this.envCache.get(envVariable) as EnvType<EnvTypes, T>;
