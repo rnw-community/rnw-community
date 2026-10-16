@@ -6,14 +6,15 @@ import { useScrollFadeStyle } from './use-scroll-fade-style.hook';
 const mockScrollY = { get: jest.fn(() => 0) };
 
 const invokeUpdater = <Result>(updater: () => Result): Result => updater();
+const toDerivedValue = <Result>(updater: () => Result): { get: () => Result } => ({ get: updater });
 
 jest.mock('react-native-reanimated', () => {
     const actual = jest.requireActual<typeof import('react-native-reanimated')>('react-native-reanimated');
 
-    return { ...actual, useAnimatedStyle: jest.fn(invokeUpdater) };
+    return { ...actual, useAnimatedStyle: jest.fn(invokeUpdater), useDerivedValue: jest.fn(toDerivedValue) };
 });
-jest.mock('@rnw-community/react-native-collapsible-header', () => ({
-    useCollapsibleHeaderScroll: () => ({ scrollY: mockScrollY }),
+jest.mock('../use-screen-chrome-scroll-y/use-screen-chrome-scroll-y.hook', () => ({
+    useScreenChromeScrollY: () => mockScrollY,
 }));
 
 describe('useScrollFadeStyle', () => {

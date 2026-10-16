@@ -1,6 +1,7 @@
 import React from 'react';
 
 import { CollapsibleHeaderProvider } from '@rnw-community/react-native-collapsible-header';
+import { isDefined } from '@rnw-community/shared';
 
 import { ScreenChromeContext } from '../context/screen-chrome.context';
 import { assertValidScreenChromeConfig } from '../util/assert-valid-screen-chrome-config/assert-valid-screen-chrome-config.util';
@@ -10,6 +11,7 @@ import type { EdgeFadeBandRenderer } from '../edge-fade/edge-fade-band-renderer.
 import type { ScreenChromeConfigOverridesInterface } from '../interface/screen-chrome-config-overrides.interface';
 import type { ScreenChromeColorScheme } from '../type/screen-chrome-color-scheme.type';
 import type { ReactNode } from 'react';
+import type { SharedValue } from 'react-native-reanimated';
 
 interface Props {
     readonly children: ReactNode;
@@ -17,6 +19,7 @@ interface Props {
     readonly config?: ScreenChromeConfigOverridesInterface;
     readonly syncNativeScrollOffset?: boolean;
     readonly renderEdgeFadeBand?: EdgeFadeBandRenderer;
+    readonly scrollY?: SharedValue<number>;
 }
 
 /**
@@ -29,14 +32,21 @@ export const ScreenChromeProvider = ({
     config,
     syncNativeScrollOffset,
     renderEdgeFadeBand,
+    scrollY,
 }: Props): ReactNode => {
     const resolvedConfig = mergeScreenChromeConfig(config);
 
     assertValidScreenChromeConfig(resolvedConfig);
 
+    if (resolvedConfig.snapToCollapse && isDefined(scrollY)) {
+        throw new TypeError(
+            'ScreenChromeProvider snapToCollapse scrolls the provider-owned scrollable, so it cannot combine with an external scrollY'
+        );
+    }
+
     return (
         <CollapsibleHeaderProvider syncNativeScrollOffset={syncNativeScrollOffset}>
-            <ScreenChromeContext.Provider value={{ colorScheme, config: resolvedConfig, renderEdgeFadeBand }}>
+            <ScreenChromeContext.Provider value={{ colorScheme, config: resolvedConfig, renderEdgeFadeBand, scrollY }}>
                 {children}
             </ScreenChromeContext.Provider>
         </CollapsibleHeaderProvider>

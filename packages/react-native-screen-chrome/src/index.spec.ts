@@ -27,7 +27,9 @@ describe('public API', () => {
                 useBottomChromeInset: expect.any(Function),
                 useScreenChrome: expect.any(Function),
                 useScreenChromeScrollProps: expect.any(Function),
+                useScreenChromeScrollY: expect.any(Function),
                 useScrollFadeStyle: expect.any(Function),
+                useScrollInterpolation: expect.any(Function),
             })
         );
         expect(screenChrome).not.toHaveProperty('CollapsibleHeaderLargeTitle');

@@ -2,6 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, jest } from '@jest/globals
 import { render } from '@testing-library/react-native';
 import React from 'react';
 import { StyleSheet, Text } from 'react-native';
+import { makeMutable } from 'react-native-reanimated';
 
 import { CollapsibleHeader as GenericCollapsibleHeader } from '@rnw-community/react-native-collapsible-header';
 import { isDefined } from '@rnw-community/shared';
@@ -14,18 +15,20 @@ import { CollapsibleHeader } from './collapsible-header';
 
 import type { ExpandedTitleAlignment } from '../type/expanded-title-alignment.type';
 import type { StyleProp, ViewStyle } from 'react-native';
+import type { SharedValue } from 'react-native-reanimated';
 
 const mockConfig = { ...SCREEN_CHROME_DEFAULT_CONFIG, snapToCollapse: true };
 const DEVICE_TOP_INSET = 59;
 const NO_TOP_INSET = 0;
 let mockTopInset = DEVICE_TOP_INSET;
+let mockExternalScrollY: SharedValue<number> | undefined = void 0;
 
 jest.mock('@rnw-community/react-native-collapsible-header', () => ({ CollapsibleHeader: jest.fn(() => null) }));
 jest.mock('react-native-safe-area-context', () => ({
     useSafeAreaInsets: () => ({ top: mockTopInset, right: 0, bottom: 0, left: 0 }),
 }));
 jest.mock('../hooks/use-screen-chrome/use-screen-chrome.hook', () => ({
-    useScreenChrome: () => ({ config: mockConfig }),
+    useScreenChrome: () => ({ config: mockConfig, scrollY: mockExternalScrollY }),
 }));
 
 const renderDelegatedProps = (motion?: {
@@ -98,7 +101,7 @@ describe('CollapsibleHeader', () => {
         const controls = render(<>{props.persistentContent}</>);
 
         expect(GenericCollapsibleHeader).toHaveBeenCalledTimes(1);
-        expect(props).not.toHaveProperty('scrollY');
+        expect(props.scrollY).toBeUndefined();
         expect(props).toEqual(
             expect.objectContaining({
                 testID: 'chrome-header',
@@ -174,6 +177,26 @@ describe('CollapsibleHeader', () => {
         expect(markers.getByText('Expanded')).toBeTruthy();
         expect(markers.getByText('Collapsed')).toBeTruthy();
         expect(markers.getByText('Trailing')).toBeTruthy();
+    });
+});
+
+describe('CollapsibleHeader scroll source', () => {
+    beforeEach(() => {
+        jest.mocked(GenericCollapsibleHeader).mockClear();
+    });
+
+    afterEach(() => {
+        mockExternalScrollY = void 0;
+    });
+
+    it('drives the primitive from the provider external scroll offset when one is supplied', () => {
+        expect.hasAssertions();
+
+        const externalScrollY = makeMutable(0);
+
+        mockExternalScrollY = externalScrollY;
+
+        expect(renderDelegatedProps().scrollY).toBe(externalScrollY);
     });
 });
 

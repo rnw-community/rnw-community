@@ -20,6 +20,12 @@ pnpm test && pnpm test:coverage && pnpm build && pnpm ts && pnpm ts:nodenext && 
   `scrollEventThrottle`, `contentContainerStyle` per `contentInsetMode`, `scrollIndicatorInsets` and
   `automaticallyAdjustsScrollIndicatorInsets: false`) and only adds the animated `ScrollView`; the hook is the single
   place that knowledge lives, so `Animated.FlatList`, FlashList, and LegendList get identical wiring by spreading it.
+- `ScreenChromeProvider` accepts an optional external `scrollY` shared value and exposes it on the context.
+  `useScreenChromeScrollY` (external `scrollY` ?? `useCollapsibleHeaderScroll().scrollY`) is the single place the scroll
+  source is resolved: the edge-fade opacity/blur hooks, `useScrollInterpolation` (and `useScrollFadeStyle` on top of
+  it) read it, and `CollapsibleHeader` forwards the external value to the primitive's `scrollY` prop. Never read
+  `useCollapsibleHeaderScroll().scrollY` directly in a new scroll-driven hook. An external `scrollY` combined with
+  `snapToCollapse` throws in provider render, mirroring the primitive's single-scroll-source assertion.
 - `EdgeFade` has explicit native and web implementations with shared metrics and animation hooks.
 - The band renderer (`EdgeFade` `renderBand`, falling back to `ScreenChromeProvider` `renderEdgeFadeBand` through
   context) only swaps the container's children. The container — absolute positioning, `getEdgeFadeBandMetrics`
@@ -109,7 +115,7 @@ pnpm test && pnpm test:coverage && pnpm build && pnpm ts && pnpm ts:nodenext && 
 - Relative source imports stay extensionless; the build's post-compile rewrite/assert pair enforces extensioned specifiers in `dist/module` and `dist/typescript/module`, and NodeNext validation must pass.
 - No manual `useMemo`, `useCallback`, or `React.memo` in `src` for plain derivations — that is React Compiler's
   job once #601 resolves and compiler output returns. While the compiler is absent (see below), values whose
-  *identity* is behavior — a merged ref callback that React 19 would otherwise detach, clean up, and reattach
+  _identity_ is behavior — a merged ref callback that React 19 would otherwise detach, clean up, and reattach
   on every render — must be manually memoized; nothing else memoizes them today.
 - `EdgeFade` native wraps its blur and wash in `MaskedView` + `expo-linear-gradient` (#640). Do not add further native
   views to the default band while #601 is open — gradient/masked native views have corrupted the Hermes heap on the

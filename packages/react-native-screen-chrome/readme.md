@@ -98,9 +98,10 @@ export const AccountsScreen = () => (
 
 `ScreenChromeProvider` owns the merged and validated configuration plus the color scheme, and mounts a
 `CollapsibleHeaderProvider` that owns the scroll offset, scroll handler, animated scroll ref, and snap registry.
-`ScreenChromeScrollView` connects that wiring automatically; custom animated scrollables read `onScroll`, `scrollRef`,
-and `scrollY` from `useCollapsibleHeaderScroll` (exported by `@rnw-community/react-native-collapsible-header`), while
-`useScreenChrome` returns only `{ colorScheme, config }`.
+`ScreenChromeScrollView` connects that wiring automatically; any other animated scrollable spreads
+[`useScreenChromeScrollProps`](#usescreenchromescrollprops) (see [Recipes](#recipes)), and a scrollable that keeps its
+own offset drives the chrome through the provider's [`scrollY`](#external-scroll-offset) prop instead.
+`useScreenChrome` returns `{ colorScheme, config, renderEdgeFadeBand?, scrollY? }`.
 
 Mount one `ScreenChromeProvider` per scrollable, inside each screen, and never once around a navigator: a provider owns
 exactly one scroll offset and one snap slot, so a shared provider makes the last-scrolled screen drive every header.
@@ -469,6 +470,43 @@ const SCREEN_CHROME_CONFIG = { snapToCollapse: true };
 export const AccountsScreen = () => <ScreenChromeProvider config={SCREEN_CHROME_CONFIG}>{children}</ScreenChromeProvider>;
 ```
 
+### External scroll offset
+
+`scrollY` hands the chrome an app-owned Reanimated `SharedValue<number>` instead of the provider-owned offset. Every
+scroll-driven piece — `CollapsibleHeader`, `EdgeFade` scroll animations, `useScrollInterpolation`, and
+`useScrollFadeStyle` — then reads it, so any scrollable that can write its offset into a shared value drives the chrome
+without attaching the provider's `onScroll` or ref:
+
+```tsx
+export const FeedScreen = () => {
+    const scrollY = useSharedValue(0);
+    const onScroll = useAnimatedScrollHandler(event => {
+        scrollY.set(event.contentOffset.y);
+    });
+
+    return (
+        <ScreenChromeProvider scrollY={scrollY}>
+            <ScreenChromeFrame>
+                <AnimatedLegendList data={posts} renderItem={renderPost} onScroll={onScroll} scrollEventThrottle={16} />
+                <CollapsibleHeader>
+                    <CollapsibleHeaderTitleSlot>
+                        <Text>Feed</Text>
+                        <Text>Feed</Text>
+                    </CollapsibleHeaderTitleSlot>
+                </CollapsibleHeader>
+            </ScreenChromeFrame>
+        </ScreenChromeProvider>
+    );
+};
+```
+
+Write the offset from a worklet (`useAnimatedScrollHandler`, or a library's own shared value) rather than a JS-thread
+`onScroll`, and use `.get()`/`.set()` rather than `.value` so the recipe stays React Compiler safe. Snapping scrolls
+the provider-owned scrollable through its ref, which an external source never attaches, so passing `scrollY` together
+with `snapToCollapse: true` throws during provider render — the same single-scroll-source rule the collapsible-header
+primitive enforces for its own `scrollY` prop. Pass a stable shared value: the provider exposes it through context, so a
+new one per render re-broadcasts the context to every chrome consumer.
+
 ## ScreenChromeScrollView
 
 Connects an animated scroll view to the collapsible-header scroll wiring and safe-area content padding.
@@ -501,10 +539,10 @@ bottom inset; pass either prop to override it.
 Change the event rate through
 `<ScreenChromeProvider config={{ scrollEventThrottle: 8 }}>`. The provider's `onScroll` is one processed Reanimated
 handler that also carries drag and snap events, so it is attached whole rather than wrapped — read the scroll position
-from the shared `scrollY` instead:
+from the shared offset through [`useScreenChromeScrollY`](#usescreenchromescrolly) instead:
 
 ```tsx
-const { scrollY } = useCollapsibleHeaderScroll();
+const scrollY = useScreenChromeScrollY();
 
 useAnimatedReaction(
     () => scrollY.get(),
@@ -567,6 +605,103 @@ a consumer `ref` merged with the chrome scroll ref.
 The `{ ref, onScroll, scrollEventThrottle, contentContainerStyle, scrollIndicatorInsets,
 automaticallyAdjustsScrollIndicatorInsets }` bag returned by `useScreenChromeScrollProps`. `ref` is a memoized merged
 callback ref, stable until the consumer ref changes.
+
+## Recipes
+
+Every recipe spreads [`useScreenChromeScrollProps`](#usescreenchromescrollprops) last, so the list gets the worklet
+`onScroll`, the chrome ref, the provider throttle, and the same content and indicator insets as
+`ScreenChromeScrollView`. They mirror the
+[collapsible-header recipes](https://github.com/rnw-community/rnw-community/blob/master/packages/react-native-collapsible-header/readme.md#recipes);
+FlashList and LegendList are not dependencies of this package — the ref contract is structural.
+
+The worklet handler only stays cheap when rows do not re-render per scroll frame: render memoized item components,
+keep inline object and arrow literals out of `renderItem`, use a stable module-scope `keyExtractor`, and give
+heterogeneous lists item types (`getItemType` on FlashList and LegendList). React Compiler covers the memoization half
+only in applications that enable it.
+
+### FlatList
+
+`Animated.FlatList` ships with Reanimated:
+
+```tsx
+const keyExtractor = (item: Transaction): string => item.id;
+const renderItem = ({ item }: ListRenderItemInfo<Transaction>) => <TransactionRow transaction={item} />;
+
+const TransactionList = () => {
+    const scrollProps = useScreenChromeScrollProps({ contentInsetTop: 96 });
+
+    return <Animated.FlatList data={transactions} keyExtractor={keyExtractor} renderItem={renderItem} {...scrollProps} />;
+};
+```
+
+### SectionList
+
+Reanimated has no animated `SectionList`; wrap it once at module scope so the component identity is stable. This is
+the path off a JS-thread `onScroll` for a sectioned feed:
+
+```tsx
+const AnimatedSectionList = Animated.createAnimatedComponent(SectionList<Transaction>);
+
+const TransactionSections = () => {
+    const scrollProps = useScreenChromeScrollProps({ contentInsetTop: 96 });
+
+    return <AnimatedSectionList sections={sections} keyExtractor={keyExtractor} renderItem={renderItem} {...scrollProps} />;
+};
+```
+
+### FlashList
+
+Wrap `FlashList` the same way and pass a consumer ref through the options so it merges with the chrome ref; the
+imperative handle is a supported ref target:
+
+```tsx
+const AnimatedFlashList = Animated.createAnimatedComponent(FlashList<Transaction>);
+
+const TransactionList = () => {
+    const listRef = useRef<FlashListRef<Transaction>>(null);
+    const scrollProps = useScreenChromeScrollProps({ contentInsetTop: 96, ref: listRef });
+
+    return (
+        <AnimatedFlashList
+            data={transactions}
+            keyExtractor={keyExtractor}
+            renderItem={renderItem}
+            getItemType={getItemType}
+            {...scrollProps}
+        />
+    );
+};
+```
+
+### LegendList
+
+`@legendapp/list` publishes its own Reanimated build. Hand the chrome ref to `refScrollView` — the inner animated
+`ScrollView` that `scrollTo` drives — and keep the list's own `ref` free for imperative calls:
+
+```tsx
+import { AnimatedLegendList } from '@legendapp/list/reanimated';
+
+const TransactionList = () => {
+    const { ref, ...scrollProps } = useScreenChromeScrollProps({ contentInsetTop: 96 });
+
+    return (
+        <AnimatedLegendList
+            refScrollView={ref}
+            data={transactions}
+            keyExtractor={keyExtractor}
+            renderItem={renderItem}
+            {...scrollProps}
+        />
+    );
+};
+```
+
+### Scrollables that own their offset
+
+When a scrollable cannot take the provider's `onScroll` — a wrapper that installs its own handler, or a library that
+already exposes its offset as a shared value — pass that offset to the provider's [`scrollY`](#external-scroll-offset)
+instead. Spreading `useScreenChromeScrollProps` and then the scrollable's own `onScroll` keeps the content and
+indicator insets; snapping stays off with an external offset.
 
 ## Bottom chrome
 
@@ -718,10 +853,44 @@ Reads the nearest `ScreenChromeContext` value and throws when no `ScreenChromePr
 const { colorScheme, config } = useScreenChrome();
 ```
 
+## useScreenChromeScrollY
+
+Returns the `SharedValue<number>` scroll offset that drives the chrome: the provider's
+[external `scrollY`](#external-scroll-offset) when one is passed, otherwise the provider-owned offset. Every
+scroll-driven hook in the package reads it, so custom animations stay in sync with the header and fades regardless of
+the scroll source. Requires a `ScreenChromeProvider` ancestor.
+
+```tsx
+const scrollY = useScreenChromeScrollY();
+
+useAnimatedReaction(
+    () => scrollY.get() > 200,
+    isPastHero => {
+        runOnJS(setShowJumpToTop)(isPastHero);
+    }
+);
+```
+
+## useScrollInterpolation
+
+Derives a clamped value from the chrome scroll offset — the raw driver, never a pre-baked style. Map the scroll range
+onto a normalized `[0, 1]` progress once and feed it to as many interpolations as needed, so translate, scale and
+opacity share one subscription:
+
+```tsx
+const progress = useScrollInterpolation([0, 120], [0, 1]);
+const heroStyle = useAnimatedStyle(() => ({
+    opacity: 1 - progress.get(),
+    transform: [{ translateY: -40 * progress.get() }, { scale: 1 - 0.1 * progress.get() }],
+}));
+```
+
+Requires a `ScreenChromeProvider` ancestor and follows its [external `scrollY`](#external-scroll-offset) when set.
+
 ## useScrollFadeStyle
 
-Creates a clamped opacity style from the collapsible-header provider scroll value and therefore requires a
-`ScreenChromeProvider` ancestor.
+Opacity sugar over [`useScrollInterpolation`](#usescrollinterpolation): a clamped `{ opacity }` animated style mapped
+from the chrome scroll offset. Requires a `ScreenChromeProvider` ancestor.
 
 ```tsx
 const style = useScrollFadeStyle([0, 80], [1, 0]);
@@ -791,7 +960,8 @@ Overrides selected screen chrome defaults while preserving nested color schemes 
 
 ## ScreenChromeContextValueInterface
 
-The `{ colorScheme, config, renderEdgeFadeBand? }` shape returned by `useScreenChrome`.
+The `{ colorScheme, config, renderEdgeFadeBand?, scrollY? }` shape returned by `useScreenChrome`; `scrollY` is the
+provider's [external scroll offset](#external-scroll-offset) when one is passed.
 
 ## ScreenChromeMaskStopInterface
 
@@ -818,7 +988,8 @@ every threshold pair.
 endpoint once a released scroll holds still for three frames — momentum events are never relied on, because a
 worklet-only scroll handler never receives them on Android. Snapping therefore requires a mounted `CollapsibleHeader`:
 the header registers the snap geometry with the provider, so a screen that enables `snapToCollapse` without rendering
-`CollapsibleHeader` scrolls freely. Snap animation currently ignores the reduced-motion setting.
+`CollapsibleHeader` scrolls freely. Snap animation currently ignores the reduced-motion setting. Snapping also requires
+the provider-owned scroll: combining `snapToCollapse` with an [external `scrollY`](#external-scroll-offset) throws.
 
 ## SCREEN_CHROME_DEFAULT_CONFIG
 
@@ -946,8 +1117,8 @@ counterpart to `mergeScrollContentInset`, selected on the scroll view via `conte
 `mergeScrollContentInset` composes safe-area and caller chrome padding while retaining consumer styles last;
 consumer padding is applied after the generated padding, so a consumer `paddingTop` replaces the computed
 safe-area+chrome inset rather than adding to it — in `'replace'` mode only; `'additive'` mode stacks instead.
-`useScrollFadeStyle` creates a clamped opacity style from the collapsible-header provider scroll value and therefore
-requires a `ScreenChromeProvider` ancestor.
+`useScrollInterpolation` derives a clamped value from the chrome scroll offset, and `useScrollFadeStyle` is its
+opacity sugar; both follow the provider's external `scrollY` when set and require a `ScreenChromeProvider` ancestor.
 
 ## License
 
