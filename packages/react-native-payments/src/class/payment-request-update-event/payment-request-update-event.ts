@@ -21,10 +21,21 @@ export class PaymentRequestUpdateEvent {
         this.onUpdateWith = onUpdateWith;
     }
 
+    /**
+     * Whether `updateWith()` was already called for this event, so a later listener can skip an answered one.
+     *
+     * @see https://github.com/rnw-community/rnw-community/blob/master/packages/react-native-payments/docs/api/payment-request-update-event.md
+     */
     get isAnswered(): boolean {
         return this.isUpdated;
     }
 
+    /**
+     * The W3C `PaymentRequestUpdateEvent.updateWith()` method answering the change event with updated details.
+     *
+     * @see https://github.com/rnw-community/rnw-community/blob/master/packages/react-native-payments/docs/api/payment-request-update-event.md
+     * @see https://www.w3.org/TR/payment-request/#dom-paymentrequestupdateevent-updatewith
+     */
     updateWith(detailsUpdate: PaymentDetailsUpdate | Promise<PaymentDetailsUpdate>): void {
         if (this.isUpdated) {
             throw new DOMException(PaymentsErrorEnum.InvalidStateError);

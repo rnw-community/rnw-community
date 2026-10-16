@@ -39,3 +39,5 @@ if (response instanceof AndroidPaymentResponse) {
 - [api/payment-response.md](./payment-response.md)
 - [api/android-payment-method-token.md](./android-payment-method-token.md)
 - [Google Pay API for Android — response objects](https://developers.google.com/pay/api/android/reference/response-objects)
+- [Google Pay `PaymentData`](https://developers.google.com/pay/api/android/reference/response-objects#PaymentData) — the payload `AndroidPaymentResponse` parses ([Android SDK `PaymentData`](https://developers.google.com/android/reference/com/google/android/gms/wallet/PaymentData))
+- [Google Pay `PaymentMethodData`](https://developers.google.com/pay/api/android/reference/response-objects#PaymentMethodData) and [`PaymentMethodTokenizationData`](https://developers.google.com/pay/api/android/reference/response-objects#PaymentMethodTokenizationData)

@@ -1,3 +1,8 @@
+/**
+ * The card networks a `methodData` entry accepts through `supportedNetworks` on either platform.
+ *
+ * @see https://github.com/rnw-community/rnw-community/blob/master/packages/react-native-payments/docs/api/supported-network-enum.md
+ */
 export enum SupportedNetworkEnum {
     Amex = 'amex',
     Bancontact = 'bancontact',
