@@ -48,6 +48,19 @@ describe('getAndroidCallbackPaymentDataRequest', () => {
         ).toBe(request);
     });
 
+    it('should keep the request untouched when its transaction info has no country code', () => {
+        expect.hasAssertions();
+
+        const request: AndroidPaymentDataRequest = {
+            ...shippingRequest,
+            transactionInfo: { currencyCode: 'USD', totalPrice: '10.00', totalPriceStatus: 'FINAL' },
+        };
+
+        expect(
+            getAndroidCallbackPaymentDataRequest(request, ['shippingaddresschange'], displayItems, [standardOption])
+        ).toBe(request);
+    });
+
     it('should keep the request untouched when no shipping listener is active', () => {
         expect.hasAssertions();
 
