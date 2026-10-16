@@ -10,6 +10,11 @@ import type { OperatorFunction } from 'rxjs';
 
 type PassingConditionFn<TInput, TOutput extends TInput> = ((val: TInput) => boolean) | ((val: TInput) => val is TOutput);
 
+/**
+ * RxJS operator passing through values that satisfy the condition and erroring the stream for the first value that does not.
+ *
+ * @see https://github.com/rnw-community/rnw-community/blob/master/packages/rxjs-errors/readme.md#filterwithexception
+ */
 export const filterWithException =
     <TInput, TOutput extends TInput = TInput>(
         passingCondition: PassingConditionFn<TInput, TOutput>,
