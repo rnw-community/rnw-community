@@ -529,7 +529,7 @@ jobs:
                 run: pnpm exec turbo run ts test:coverage --filter='@rnw-community/nestjs-*'
 
     reanimated-compatibility:
-        name: Reanimated compatibility (react-native-reanimated ${{ matrix.reanimated }}, react-native-worklets ${{ matrix.worklets }})
+        name: Reanimated compatibility (react-native-reanimated ${{ matrix.reanimated }}, react-native-worklets ${{ matrix.worklets }}, ${{ matrix.tasks }})
         timeout-minutes: 20
         runs-on: ubuntu-latest
         permissions:
@@ -538,8 +538,12 @@ jobs:
             fail-fast: false
             matrix:
                 include:
+                    -   reanimated: 4.1.7
+                        worklets: 0.8.3
+                        tasks: ts
                     -   reanimated: 4.2.3
                         worklets: 0.8.3
+                        tasks: ts test:coverage
 
         steps:
             -   name: Checkout repository
@@ -576,7 +580,11 @@ jobs:
                 run: pnpm exec turbo run build --filter=@rnw-community/react-native-collapsible-header --filter=@rnw-community/react-native-screen-chrome
 
             -   name: Typecheck and test the Reanimated packages
-                run: pnpm exec turbo run ts test:coverage --force --filter=@rnw-community/react-native-collapsible-header --filter=@rnw-community/react-native-screen-chrome
+                env:
+                    TURBO_TASKS: ${{ matrix.tasks }}
+                run: |
+                    read -ra tasks <<< "${TURBO_TASKS}"
+                    pnpm exec turbo run "${tasks[@]}" --force --filter=@rnw-community/react-native-collapsible-header --filter=@rnw-community/react-native-screen-chrome
 
     required-checks:
         name: Required checks
