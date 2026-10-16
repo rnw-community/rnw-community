@@ -3,6 +3,7 @@
     "compilerOptions": {
         "target": "es2021",
         "module": "esnext",
+        "rootDir": "${configDir}/src",
         "noEmit": false
     }
 }

@@ -107,7 +107,8 @@
             [
                 "typescript",
                 {
-                    "project": "tsconfig.build.json"
+                    "project": "tsconfig.build.json",
+                    "tsc": "../../node_modules/@typescript/native/bin/tsc"
                 }
             ]
         ]

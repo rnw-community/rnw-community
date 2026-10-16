@@ -228,6 +228,20 @@ A package MUST NOT re-export (`export type { X } from '@rnw-community/other'`) a
 
 ### TypeScript — Strict mode with all strict flags enabled, decorators enabled
 
+**Two TypeScript installs, by design** (the split recommended by the TypeScript 7.0 release notes):
+
+- `@typescript/native` (`npm:typescript@^7`) provides the `tsc` binary — the native TypeScript 7 compiler. Every
+  `ts`, `ts:nodenext`, `build:esm` and `build:cjs` script, and bob's `typescript` target (via its explicit `tsc`
+  option), compiles with it, including `.d.ts` emit and `experimentalDecorators`/`emitDecoratorMetadata`.
+- `typescript` (`npm:@typescript/typescript6@^6`) provides the TypeScript 6.0 **JavaScript API** (and a `tsc6`
+  binary) for tools that `import 'typescript'`: typescript-eslint's type-aware lint, knip, bob's declaration rewriter.
+  TypeScript 7.0 ships no JS API yet and typescript-eslint's peer range stops below 7. A root pnpm `overrides` entry
+  pins every `typescript` peer in the graph to this shim; `@arethetypeswrong/core` keeps its own pinned compiler.
+- Collapse both into a single `typescript@^7` once typescript-eslint supports the TypeScript 7 API
+  (typescript-eslint/typescript-eslint#10940).
+- TypeScript 6/7 removed `moduleResolution: "node"` and infer `rootDir` from the tsconfig's own directory: the root
+  build tsconfigs set `"rootDir": "${configDir}/src"` so every package keeps emitting `dist/<format>/index.js`.
+
 ### Formatting (Prettier)
 
 - Single quotes, 125 char width, 4-space indent, semicolons required, trailing commas ES5, no parens on single arrow params
@@ -346,7 +360,8 @@ The monorepo uses dual ESM + CJS output. Key decisions:
   instead of falling through to the CJS default for the ESM build. `eslint-plugin` is the one exception — see below
 - `moduleResolution: "bundler"` in the root type-check tsconfig (matches Metro's actual runtime resolution, so
   `pnpm ts` validates against the same leniency real consumers get); `"esnext"`/inherited `"bundler"` in the ESM build
-  tsconfig (source stays extensionless — see the invariant below); `"node"` in the CJS build tsconfig
+  tsconfig (source stays extensionless — see the invariant below); inherited `"bundler"` with `"module": "commonjs"`
+  in the CJS build tsconfig (TypeScript 6+ removed `"node"`/`"node10"` resolution and allows `bundler` + `commonjs`)
 - `verbatimModuleSyntax: true` enforces explicit `import type` for type-only imports
 - `lib: ["es2021"]` matches the build target
 - Build scripts correctly reference their tsconfig files (`build:esm` → `tsconfig.build-esm.json`)
@@ -377,9 +392,9 @@ The monorepo uses dual ESM + CJS output. Key decisions:
       it (verified: see the PR body for a real "broke one specifier, assertion caught it" run).
       Both scripts share the specifier-matching/extension-classification logic in `scripts/esm-relative-specifier.mjs` so
       the two definitions of "what counts as a relative specifier" and "what counts as already-extensioned" can't drift
-      apart. `tsconfig.build-cjs.json` keeps `"module": "commonjs"` / `"moduleResolution": "node"` untouched — classic
-      Node resolution has always tolerated an extensionless specifier (it already maps `./x` back to the sibling source),
-      so the CJS build was never affected by `#531` and needs no rewrite step.
+      apart. `tsconfig.build-cjs.json` keeps `"module": "commonjs"` — Node's `require()` resolution has always
+      tolerated an extensionless specifier (it already maps `./x` back to the sibling source), so the CJS build was
+      never affected by `#531` and needs no rewrite step.
       `"type": "module"` is **not** set on any dual-format package's root `package.json` — it was only ever load-bearing
       for the compiler-enforcement approach (making `tsc`'s `nodenext` mode see `src/*.ts` as genuine ESM-format so its
       extension mandate activated). With the compiler out of the loop, nothing reads the package root's `"type"` field to
