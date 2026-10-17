@@ -65,7 +65,10 @@ payments. Each one returns the plain `methodData` entry, so you can still write 
 [api/ios-payment-method-data.md](docs/api/ios-payment-method-data.md) and
 [api/android-payment-method-data.md](docs/api/android-payment-method-data.md) for the raw shape.
 
-Only call `complete(PaymentComplete.SUCCESS)` once your backend has actually confirmed the charge. A
+`sendToYourBackend` is where your payment service provider comes in — the
+[gateway recipes](docs/guides/gateways/index.md) give the exact method data, token and server call for Stripe, Adyen,
+Braintree and Checkout.com. Only call `complete(PaymentComplete.SUCCESS)` once your backend has actually confirmed the
+charge. A
 `PaymentRequest` is single-use — build a new one per payment attempt rather than reusing a settled request; see
 [docs/architecture.md](docs/architecture.md).
 [`createPaymentRequestFactory`](docs/api/create-payment-request-factory.md) builds a fresh request per attempt from
@@ -90,6 +93,9 @@ placeholder.
   [Payment details modifiers](docs/guides/modifiers.md) · [Error handling](docs/guides/errors.md) ·
   [Retrying a payment](docs/guides/retry.md) · [Unit testing](docs/guides/testing.md) ·
   [Troubleshooting](docs/guides/troubleshooting.md)
+- **Gateway recipes** — [Pick your gateway](docs/guides/gateways/index.md): [Stripe](docs/guides/gateways/stripe.md) ·
+  [Adyen](docs/guides/gateways/adyen.md) · [Braintree](docs/guides/gateways/braintree.md) ·
+  [Checkout.com](docs/guides/gateways/checkout-com.md) · [Direct tokenization](docs/guides/gateways/direct.md)
 - **Architecture** — [The JS↔native contract, single-use requests, event lifecycle](docs/architecture.md)
 - **Roadmap** — [Open work and the W3C compliance checklist](docs/roadmap.md)
 
