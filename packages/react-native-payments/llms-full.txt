@@ -3358,7 +3358,7 @@ readme](readme.md) links here instead of carrying its own TODO ledger.
       [#438](https://github.com/rnw-community/rnw-community/issues/438); coupons stay iOS-only, see below.
 - Rewrite iOS to Swift — **deferred indefinitely**, decision recorded on
   [#442](https://github.com/rnw-community/rnw-community/issues/442).
-- [ ] Rewrite Android to Kotlin — decided, low effort, tracked in
+- [x] Rewrite Android to Kotlin — done in [#664](https://github.com/rnw-community/rnw-community/pull/664), tracked in
       [#442](https://github.com/rnw-community/rnw-community/issues/442).
 - [x] Drop the `AppDelegate.h` PassKit import requirement — the pod links `PassKit` itself, tracked in
       [#442](https://github.com/rnw-community/rnw-community/issues/442).
