@@ -13,10 +13,10 @@ to your payment gateway.
 | `cardInfo.cardNetwork` | `string` | The card network of the tokenized card. |
 | `cardInfo.cardDetails` | `string` | The last four digits or similar display detail, as returned by Google Pay. |
 | `intermediateSigningKey` | `{ signatures: string[]; signedKey: AndroidSignedKey }` | The intermediate signing key used to verify the token signature. |
-| `protocolVersion` | `string` | The protocol version of the signed message (e.g. `ECv2`). |
+| `protocolVersion` | `string` | The protocol version of the signed message (e.g. `ECv2`); `''` for a gateway-issued token. |
 | `signature` | `string` | The signature over `signedMessage`. |
 | `signedMessage` | `{ encryptedMessage: string; ephemeralPublicKey: string; tag: string }` | The encrypted message envelope — see [Google Pay payment data cryptography](https://developers.google.com/pay/api/android/guides/resources/payment-data-cryptography#signed-message). |
-| `rawToken` | `string` | The raw tokenization payload as returned by Google Pay, before this package's parsing. |
+| `rawToken` | `string` | The untouched `tokenizationData.token` string as returned by Google Pay — the value to send to your gateway. |
 
 ## Example
 
@@ -34,11 +34,19 @@ if (response instanceof AndroidPaymentResponse) {
 
 ## Pitfalls
 
+- `protocolVersion`, `signature`, `signedMessage` and `intermediateSigningKey` are only filled in when the token is
+  Google's signed-message envelope: always for `directConfig` (`DIRECT`) tokenization, and for `gatewayConfig`
+  (`PAYMENT_GATEWAY`) gateways that forward Google's encrypted payload. A gateway that issues its own token instead
+  (Stripe returns a Stripe Token JSON, Braintree a JSON carrying a nonce) leaves them at their empty defaults — send
+  `rawToken` to the gateway and parse it as that gateway documents. You chose the tokenization type yourself through
+  `gatewayConfig` or `directConfig`, so branch on that rather than on empty fields.
+
 - `AndroidPaymentMethodToken` is a plain TypeScript interface with no runtime validation of its own —
   constructing an object that merely matches its shape never throws. `PaymentsError` is thrown by
-  [`AndroidPaymentResponse`](./android-payment-response.md) when it parses a malformed or incomplete native JSON
-  payload (including direct construction of `AndroidPaymentResponse` with malformed tokenization data), not by
-  this token type — see [guides/errors.md](../guides/errors.md).
+  [`AndroidPaymentResponse`](./android-payment-response.md), not by this token type: when the native JSON payload is
+  malformed or incomplete, when the token is missing, when a `DIRECT` token is not a complete signed-message
+  envelope, or when an envelope's `signedMessage` / `signedKey` is not valid JSON. A non-envelope `PAYMENT_GATEWAY`
+  token is not an error — see [guides/errors.md](../guides/errors.md).
 
 ## References
 

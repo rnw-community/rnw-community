@@ -29,7 +29,10 @@ if (response instanceof AndroidPaymentResponse) {
 
 - A native payment response payload that fails to parse (malformed or incomplete JSON from Google Pay, including
   direct construction of `AndroidPaymentResponse` with malformed tokenization data) throws `PaymentsError` — see
-  [guides/errors.md](../guides/errors.md).
+  [guides/errors.md](../guides/errors.md). A missing token, or a `DIRECT` token that is not Google's signed-message
+  envelope, throws `PaymentsError` naming the tokenization type. A `PAYMENT_GATEWAY` token the gateway issued in
+  its own format is kept as `androidPayToken.rawToken` instead — see
+  [api/android-payment-method-token.md](./android-payment-method-token.md).
 
 ## References
 
