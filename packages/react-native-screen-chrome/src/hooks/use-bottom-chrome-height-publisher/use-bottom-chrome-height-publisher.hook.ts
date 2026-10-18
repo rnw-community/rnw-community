@@ -14,6 +14,7 @@ import type { LayoutChangeEvent, View } from 'react-native';
  */
 export const useBottomChromeHeightPublisher = ({
     height,
+    offset = 0,
 }: BottomChromeHeightPublisherOptionsInterface = {}): BottomChromeHeightPublisherInterface => {
     const { publish, withdraw } = useContext(BottomChromeHeightSetterContext);
     const [chromeId] = useState(() => Symbol('bottom-chrome'));
@@ -28,17 +29,17 @@ export const useBottomChromeHeightPublisher = ({
 
     useLayoutEffect(() => {
         if (isDefined(height)) {
-            publish(chromeId, height);
+            publish(chromeId, height + offset);
         } else {
             ref.current?.measure((_x, _y, _width, measuredHeight) => {
-                publish(chromeId, measuredHeight);
+                publish(chromeId, measuredHeight + offset);
             });
         }
-    }, [chromeId, height, publish]);
+    }, [chromeId, height, offset, publish]);
 
     const onLayout = (event: LayoutChangeEvent): void => {
         if (!isDefined(height)) {
-            publish(chromeId, event.nativeEvent.layout.height);
+            publish(chromeId, event.nativeEvent.layout.height + offset);
         }
     };
 

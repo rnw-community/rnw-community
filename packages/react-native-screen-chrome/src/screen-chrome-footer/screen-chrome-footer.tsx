@@ -17,21 +17,24 @@ import type { ReactNode } from 'react';
  * @see https://github.com/rnw-community/rnw-community/tree/master/packages/react-native-screen-chrome#screenchromefooter
  */
 export const ScreenChromeFooter = ({
+    bottomOffset = 0,
     children,
     contentStyle,
     edgeFadeProps,
+    includeBottomSafeArea = true,
     style,
     testID,
     ...viewProps
 }: ScreenChromeFooterPropsInterface): ReactNode => {
     const insets = useSafeAreaInsets();
-    const contentPublisher = useBottomChromeHeightPublisher();
+    const safeAreaPadding = includeBottomSafeArea ? insets.bottom : 0;
+    const contentPublisher = useBottomChromeHeightPublisher({ offset: bottomOffset + safeAreaPadding - insets.bottom });
 
     return (
         <View
             {...viewProps}
             pointerEvents="box-none"
-            style={[screenChromeFooterStyles.container, { paddingBottom: insets.bottom }, style]}
+            style={[screenChromeFooterStyles.container, { bottom: bottomOffset, paddingBottom: safeAreaPadding }, style]}
             testID={testID}
         >
             <EdgeFade position="bottom" {...edgeFadeProps} />

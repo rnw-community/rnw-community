@@ -23,6 +23,7 @@ const INSETS: Metrics = {
 };
 const MEASURED_HEIGHT = 72;
 const UPDATED_HEIGHT = 120;
+const TAB_BAR_HEIGHT = 68;
 
 const InsetProbe = (): ReactNode => {
     const { chromeHeight, inset } = useBottomChromeInset();
@@ -242,6 +243,30 @@ describe('ScreenChromeFooter with several footers under one provider', () => {
 
         expect(screen.getByTestId('inset-probe')).toHaveTextContent(
             `${MEASURED_HEIGHT}/${MEASURED_HEIGHT + INSETS.insets.bottom}`
+        );
+    });
+});
+
+describe('ScreenChromeFooter stacked above other bottom chrome', () => {
+    it('stacks above other bottom chrome without the safe-area padding and publishes the combined footprint', () => {
+        expect.hasAssertions();
+
+        const tabBarFootprint = TAB_BAR_HEIGHT + INSETS.insets.bottom;
+        const screen = renderInChrome(
+            <BottomChromeInsetProvider>
+                <InsetProbe />
+                <ScreenChromeFooter bottomOffset={tabBarFootprint} includeBottomSafeArea={false} testID="footer">
+                    <Text>Search</Text>
+                </ScreenChromeFooter>
+            </BottomChromeInsetProvider>
+        );
+
+        expect(screen.getByTestId('footer')).toHaveStyle({ bottom: tabBarFootprint, paddingBottom: 0 });
+
+        fireEvent(screen.getByTestId('footer-content'), 'layout', layoutEvent(MEASURED_HEIGHT));
+
+        expect(screen.getByTestId('inset-probe')).toHaveTextContent(
+            `${MEASURED_HEIGHT + TAB_BAR_HEIGHT}/${MEASURED_HEIGHT + tabBarFootprint}`
         );
     });
 });

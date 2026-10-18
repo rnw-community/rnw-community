@@ -719,6 +719,7 @@ entry, and the provider keeps publishing the tallest entry.
 | Option   | Type     | Description                                                                                   |
 | -------- | -------- | --------------------------------------------------------------------------------------------- |
 | `height` | `number` | Declared height without the safe area, reserved while mounted instead of the measured height. |
+| `offset` | `number` | Added to the published height for chrome stacked above other bottom chrome. Default `0`.      |
 
 ```tsx
 const options: BottomChromeHeightPublisherOptionsInterface = { height: 68 };
@@ -767,6 +768,23 @@ screen chrome config, so the footer requires a `ScreenChromeProvider` ancestor l
 A `testID` lands on the container and `${testID}-content` on the measured content node; every other `View` prop is
 forwarded to the container.
 
+### Stacked footer
+
+To stack the footer above other bottom chrome, such as a tab bar, pass that chrome's footprint as `bottomOffset`, and
+pass `includeBottomSafeArea={false}` when the chrome below already pads the safe area. The footer publishes
+`bottomOffset` plus its content height, minus the safe area it no longer pads, so `useBottomChromeInset` clears both
+layers. Pass the lower chrome's own height (for example the height declared through
+[`useBottomChromeHeightPublisher`](#usebottomchromeheightpublisher)), not `useBottomChromeInset()`: that value already
+includes this footer's height.
+
+```tsx
+const insets = useSafeAreaInsets();
+
+<ScreenChromeFooter bottomOffset={TAB_BAR_HEIGHT + insets.bottom} includeBottomSafeArea={false}>
+    <SearchInput />
+</ScreenChromeFooter>;
+```
+
 ### Keyboard-sticky footer
 
 Keyboard tracking belongs to [`react-native-keyboard-controller`](https://kirillzyusko.github.io/react-native-keyboard-controller/),
@@ -788,14 +806,30 @@ const insets = useSafeAreaInsets();
 footer's resting height while the keyboard is open; a keyboard-aware scrollable (`KeyboardAwareScrollView`) owns the
 keyboard's own clearance. A composer that grows while typing re-measures and republishes on its next layout.
 
+To keep the fade band static while only the input follows the keyboard, put the `KeyboardStickyView` inside the
+footer instead. The opened offset is the footer's distance from the bottom edge, which for a stacked footer is
+`bottomOffset`:
+
+```tsx
+const footprint = TAB_BAR_HEIGHT + insets.bottom;
+
+<ScreenChromeFooter bottomOffset={footprint} includeBottomSafeArea={false}>
+    <KeyboardStickyView offset={{ closed: 0, opened: footprint }}>
+        <SearchInput />
+    </KeyboardStickyView>
+</ScreenChromeFooter>;
+```
+
 ## ScreenChromeFooterPropsInterface
 
-| Prop            | Type                                       | Description                                                        |
-| --------------- | ------------------------------------------ | ------------------------------------------------------------------ |
-| `children`      | `ReactNode`                                | Consumer-owned footer content, rendered above the fade band.       |
-| `contentStyle`  | `StyleProp<ViewStyle>`                     | Style of the measured content node: max-width caps and padding.    |
-| `edgeFadeProps` | `Omit<EdgeFadePropsInterface, 'position'>` | Props forwarded to the bottom `EdgeFade` behind the content.       |
-| `...ViewProps`  | `ViewProps`                                | Forwarded to the container, except `children` and `pointerEvents`. |
+| Prop                    | Type                                       | Description                                                        |
+| ----------------------- | ------------------------------------------ | ------------------------------------------------------------------ |
+| `children`              | `ReactNode`                                | Consumer-owned footer content, rendered above the fade band.       |
+| `contentStyle`          | `StyleProp<ViewStyle>`                     | Style of the measured content node: max-width caps and padding.    |
+| `edgeFadeProps`         | `Omit<EdgeFadePropsInterface, 'position'>` | Props forwarded to the bottom `EdgeFade` behind the content.       |
+| `bottomOffset`          | `number`                                   | Distance from the bottom edge for a stacked footer. Default `0`.   |
+| `includeBottomSafeArea` | `boolean`                                  | Pads the safe-area bottom; `false` when stacked. Default `true`.   |
+| `...ViewProps`          | `ViewProps`                                | Forwarded to the container, except `children` and `pointerEvents`. |
 
 ```tsx
 const footerProps: ScreenChromeFooterPropsInterface = {
