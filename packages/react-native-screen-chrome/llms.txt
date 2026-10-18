@@ -3,15 +3,15 @@
 > Composable, safe-area-aware screen chrome for React Native and React Native Web: collapsible titles, persistent
 > navigation controls, progressive edge fades, and content insets around one scrollable. Motion, scroll wiring, and
 > snapping are delegated to the peer `@rnw-community/react-native-collapsible-header`; other peers are
-> `react-native-reanimated`, `react-native-safe-area-context`, `@react-native-masked-view/masked-view`, `expo-blur`
-> (>=55 <59), and `expo-linear-gradient`.
+> `react-native-reanimated` and `react-native-safe-area-context`, plus the optional `@react-native-masked-view/masked-view`,
+> `expo-blur` (>=55 <59), and `expo-linear-gradient` for the native blurred edge-fade band.
 
 Mount one `ScreenChromeProvider` per scrollable inside each screen, never once around a navigator, and resolve exactly
 one copy of the collapsible header. Render content first, decorative fades and backdrop second, `CollapsibleHeader` last.
 
 ## Guides
 
-- [Installation](readme.md#installation): Required peer dependencies and why the collapsible header must resolve to a single copy.
+- [Installation](readme.md#installation): Required and optional peer dependencies, the edge-fade fallback without the Expo modules, and why the collapsible header must resolve to a single copy.
 - [Complete example](readme.md#complete-example): Provider, frame, scroll view, fades, and compound header composed into one screen.
 - [Structure and paint order](readme.md#structure-and-paint-order): Provider ownership, one provider per scrollable, and layer ordering.
 - [Styling and NativeWind](readme.md#styling-and-nativewind): Style prop per rendered node, merge order, package-owned props, and the NativeWind `styled` wrapper recipe.

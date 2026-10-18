@@ -82,11 +82,14 @@ pnpm test && pnpm test:coverage && pnpm build && pnpm ts && pnpm ts:nodenext && 
   from the collapsible header provider it wraps.
 - `snapToCollapse` only takes effect while a `CollapsibleHeader` is mounted: the header registers the snap geometry
   with the provider. Reduced-motion-aware snapping is upstream scope, not a local reimplementation.
-- Native peer dependencies remain external so applications own native versions and linking. None of them is marked
-  optional in `peerDependenciesMeta`: `edge-fade.tsx` / `edge-fade-blur.tsx` import `@react-native-masked-view/masked-view`,
-  `expo-linear-gradient`, and `expo-blur` statically and the package index reaches them, so every native consumer
-  loads all three; only the web build (`edge-fade.web.tsx` via the `browser` field) skips them at runtime, and its
-  public types still reference `expo-blur`. Revisit only once the native imports become lazy or injectable.
+- Native peer dependencies remain external so applications own native versions and linking.
+  `@react-native-masked-view/masked-view`, `expo-linear-gradient`, and `expo-blur` are optional in
+  `peerDependenciesMeta`: `edge-fade-native-modules.ts` is the only place that loads them, each through a literal
+  `require` inside its own `try` (Metro's `allowOptionalDependencies` only recognises that exact shape, so never route
+  them through a shared helper with a computed specifier). Without masked view or linear gradient the native default
+  band is a plain `View` with the `buildBackgroundImage` wash as `experimental_backgroundImage`; without `expo-blur`
+  `EdgeFadeBlur` renders nothing. The web build (`edge-fade.web.tsx` via the `browser` field) never loads them; the
+  public types (`BlurMethod`, `BlurTint`) still reference `expo-blur` as type-only imports.
 - `ScreenChromeProvider` `colorScheme` accepts `'system'`, resolved during render by `resolveScreenChromeColorScheme`
   from `useColorScheme()` — never mirrored into state — so the context value stays `'light' | 'dark'`. The hook is
   read unconditionally (rules of hooks) and ignored for fixed schemes.
@@ -136,7 +139,11 @@ pnpm test && pnpm test:coverage && pnpm build && pnpm ts && pnpm ts:nodenext && 
 - `EdgeFade` native wraps its blur and wash in `MaskedView` + `expo-linear-gradient` (#640). Do not add further native
   views to the default band while #601 is open — gradient/masked native views have corrupted the Hermes heap on the
   RN 0.86 / iOS 26 stack. Additional visuals (Liquid Glass, solid colors, custom gradients) belong in a consumer
-  `renderBand`/`renderEdgeFadeBand`, never in the package default.
+  `renderBand`/`renderEdgeFadeBand`, never in the package default. That includes wash stops: a custom wash
+  `locations` is a renderer recipe in the readme, not a prop.
+- Web `EdgeFade` keeps a static `backdrop-filter` radius on purpose: animating the radius re-rasterizes the backdrop on
+  every scroll frame, while the opacity fade over a fixed blur stays compositor-only. `intensityInputRange`,
+  `maxIntensity`, `blurMethod`, and `blurTarget` are documented as no-ops on web.
 - Public exports carry repository-standard scoped TSDoc and package readme links.
 - Tests retain at least 99.9% statements, branches, functions, and lines coverage.
 
