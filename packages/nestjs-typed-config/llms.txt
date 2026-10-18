@@ -7,10 +7,6 @@
 Extend the service class returned by `NestJSTypedConfigModule.create` and wire the returned module into your own
 config module. Variables whose name ends with `_FILE` are read from the file path they contain.
 
-## Landing
-
-- [readme.md](readme.md): Installation, exports, configuration setup, usage, and file-backed variables.
-
 ## Guides
 
 - [Configuration](readme.md#configuration): Defining the variables enum, types interface, joi schema, and the project config module.
@@ -25,7 +21,3 @@ config module. Variables whose name ends with `_FILE` are read from the file pat
 ## Architecture & conventions
 
 - [AGENTS.md](https://github.com/rnw-community/rnw-community/blob/master/packages/nestjs-typed-config/AGENTS.md): Package commands, architecture, key patterns, dependencies, and coverage.
-
-## Optional
-
-- [Source](https://github.com/rnw-community/rnw-community/tree/master/packages/nestjs-typed-config): Package source in the monorepo.

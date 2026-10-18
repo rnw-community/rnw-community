@@ -6,10 +6,6 @@
 Wrap the typed module and service returned by `NestJSRxJSLockModule.registerTypedAsync<E>()` in your own module so lock
 prefixes stay type-safe; lock keys take the form `lock:[prefix]:[name]`, and `lock$` errors when the lock is not acquired.
 
-## Landing
-
-- [readme.md](readme.md): Typed module setup, `registerTypedAsync` options, and `lock$` usage.
-
 ## Guides
 
 - [Configuration](readme.md#configuration): Wrapping the typed module and service with a type-safe lock-code enum.
@@ -24,7 +20,3 @@ prefixes stay type-safe; lock keys take the form `lock:[prefix]:[name]`, and `lo
 ## Architecture & conventions
 
 - [AGENTS.md](https://github.com/rnw-community/rnw-community/blob/master/packages/nestjs-rxjs-lock/AGENTS.md): Source layout, implementation patterns, dependencies, and coverage.
-
-## Optional
-
-- [Source](https://github.com/rnw-community/rnw-community/tree/master/packages/nestjs-rxjs-lock): Package source in the monorepo.

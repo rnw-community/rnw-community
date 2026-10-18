@@ -8,10 +8,6 @@ The webpack configs are consumed through the `@rnw-community/nestjs-webpack-swc/
 `@rnw-community/nestjs-webpack-swc/get-nestjs-webpack-prod.config` subpath entry points. Webpack writes a filesystem
 cache to `.build_cache` in the package root, which should be git-ignored.
 
-## Landing
-
-- [readme.md](readme.md): Installation, webpack and HMR configuration, scripts, and known webpack / SWC issues.
-
 ## Guides
 
 - [Scripts package.json](readme.md#scripts-packagejson): `build` and `start:dev` scripts using `nest build --webpack`.
@@ -31,7 +27,3 @@ cache to `.build_cache` in the package root, which should be git-ignored.
 ## Architecture & conventions
 
 - [AGENTS.md](https://github.com/rnw-community/rnw-community/blob/master/packages/nestjs-webpack-swc/AGENTS.md): Package commands, architecture, subpath exports, key patterns, and dependencies.
-
-## Optional
-
-- [Source](https://github.com/rnw-community/rnw-community/tree/master/packages/nestjs-webpack-swc): Package source in the monorepo.

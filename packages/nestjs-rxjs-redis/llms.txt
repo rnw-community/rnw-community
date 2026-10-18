@@ -3,10 +3,6 @@
 > NestJS Redis (ioredis) wrapper for RxJS streams: `Observable`-returning commands and pipeable save / load / remove /
 > cache operators. Peers: `@nestjs/common`, `@nestjs-modules/ioredis`, `ioredis`, `rxjs`.
 
-## Landing
-
-- [readme.md](readme.md): Module configuration, basic command examples, and operator examples.
-
 ## Guides
 
 - [Basic operations](readme.md#basic-operations): `set$`, `get$`, `del$`, and `mget$` usage.
@@ -20,7 +16,3 @@
 ## Architecture & conventions
 
 - [AGENTS.md](https://github.com/rnw-community/rnw-community/blob/master/packages/nestjs-rxjs-redis/AGENTS.md): Source layout, implementation patterns, dependencies, and coverage.
-
-## Optional
-
-- [Source](https://github.com/rnw-community/rnw-community/tree/master/packages/nestjs-rxjs-redis): Package source in the monorepo.

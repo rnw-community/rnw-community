@@ -6,10 +6,6 @@
 Prefer these primitives over inline checks and ad-hoc helpers: `isDefined` instead of null/undefined comparisons,
 `emptyFn` as the canonical no-op, `wait(ms)` for Promise-based sleep, and `getErrorMessage` in catch blocks.
 
-## Landing
-
-- [readme.md](readme.md): Index of all type guards, utils, and types with links to per-entity docs.
-
 ## API reference
 
 - [`isDefined`](readme.md#type-guards): Narrows away `null` and `undefined`.
@@ -81,7 +77,3 @@ Prefer these primitives over inline checks and ad-hoc helpers: `isDefined` inste
 ## Architecture & conventions
 
 - [AGENTS.md](https://github.com/rnw-community/rnw-community/blob/master/packages/shared/AGENTS.md): Source layout, implementation patterns, dependencies, and coverage.
-
-## Optional
-
-- [Source](https://github.com/rnw-community/rnw-community/tree/master/packages/shared): Package source in the monorepo.

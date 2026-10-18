@@ -7,10 +7,6 @@
 The whole contract is one `(context, next) => result` middleware; it owns result-shape handling (sync, `Promise`,
 `Observable`) and error handling. Stack concerns by stacking decorators at the call site.
 
-## Landing
-
-- [readme.md](readme.md): The `createInterceptor` primitive, exported types, building a custom decorator, execution context, and engine guarantees.
-
 ## Guides
 
 - [The primitive](readme.md#the-primitive): How `createInterceptor` wraps a method and how `next()` invokes the original.
@@ -28,7 +24,3 @@ The whole contract is one `(context, next) => result` middleware; it owns result
 ## Architecture & conventions
 
 - [AGENTS.md](https://github.com/rnw-community/rnw-community/blob/master/packages/decorators-core/AGENTS.md): Source layout, class-name resolution rules, implementation patterns, dependencies, and coverage.
-
-## Optional
-
-- [Source](https://github.com/rnw-community/rnw-community/tree/master/packages/decorators-core): Package source in the monorepo.

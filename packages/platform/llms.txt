@@ -7,10 +7,6 @@
 `getEnv` reads `react-native-config` on native and `process.env` with a `REACT_APP_` prefix on web (resolved via the
 `.web.ts` platform suffix).
 
-## Landing
-
-- [readme.md](readme.md): Platform constants, platform styling helpers, and `getEnv` with usage examples.
-
 ## API reference
 
 - [`isWeb`, `isIOS`, `isAndroid`, `isMobile`](readme.md#platform-constants): Booleans derived once from `Platform.OS`; `isMobile` is iOS or Android.
@@ -20,7 +16,3 @@
 ## Architecture & conventions
 
 - [AGENTS.md](https://github.com/rnw-community/rnw-community/blob/master/packages/platform/AGENTS.md): Source layout, platform-suffix resolution, test mocks, dependencies, and coverage.
-
-## Optional
-
-- [Source](https://github.com/rnw-community/rnw-community/tree/master/packages/platform): Package source in the monorepo.

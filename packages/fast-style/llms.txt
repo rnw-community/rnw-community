@@ -6,10 +6,6 @@
 Index into property chains like `Flex.row.flexEnd.stretch` or `Font.ptSansBold.xs.blue` and spread the result into a
 style object or pass it inline. `getFont` requires string values in the font-size enum and throws otherwise.
 
-## Landing
-
-- [readme.md](readme.md): `Flex` and `getFont` usage in style objects and inline JSX, plus the enums backing `Flex`.
-
 ## API reference
 
 - [`Flex`](readme.md#flex): Constant tree keyed direction -> justifyContent -> alignItems whose leaves are flexbox style objects.
@@ -19,7 +15,3 @@ style object or pass it inline. `getFont` requires string values in the font-siz
 ## Architecture & conventions
 
 - [AGENTS.md](https://github.com/rnw-community/rnw-community/blob/master/packages/fast-style/AGENTS.md): Source layout, `combine()`-based construction, dependencies, and coverage.
-
-## Optional
-
-- [Source](https://github.com/rnw-community/rnw-community/tree/master/packages/fast-style): Package source in the monorepo.

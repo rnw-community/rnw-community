@@ -7,10 +7,6 @@
 Locking semantics are owned by your `LockStoreInterface` implementation; the decorators resolve the key, forward it to
 `store.acquire()`, and release the handle when the Promise settles or the Observable completes, errors, or unsubscribes.
 
-## Landing
-
-- [readme.md](readme.md): The four decorator factories, raw middleware, store contract, errors, and key-argument types.
-
 ## Guides
 
 - [The four decorator factories](readme.md#the-four-decorator-factories): Sequential vs. exclusive and Promise vs. Observable factory matrix.
@@ -41,7 +37,3 @@ Locking semantics are owned by your `LockStoreInterface` implementation; the dec
 ## Architecture & conventions
 
 - [AGENTS.md](https://github.com/rnw-community/rnw-community/blob/master/packages/lock-decorator/AGENTS.md): Source layout, implementation patterns, dependencies, and coverage.
-
-## Optional
-
-- [Source](https://github.com/rnw-community/rnw-community/tree/master/packages/lock-decorator): Package source in the monorepo.

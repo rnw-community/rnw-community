@@ -7,10 +7,6 @@
 The plugin namespace is `@rnw-community`; enable the rule as `@rnw-community/no-complex-jsx-logic` or extend the
 `recommended` (legacy) / `flat/recommended` (flat) config.
 
-## Landing
-
-- [readme.md](readme.md): Rule overview, installation, and legacy and flat configuration.
-
 ## Guides
 
 - [Installation](readme.md#installation): Installing the plugin as a dev dependency.
@@ -31,7 +27,3 @@ The plugin namespace is `@rnw-community`; enable the rule as `@rnw-community/no-
 ## Architecture & conventions
 
 - [AGENTS.md](https://github.com/rnw-community/rnw-community/blob/master/packages/eslint-plugin/AGENTS.md): Package commands, architecture, key patterns, CommonJS-only publication shape, and dependencies.
-
-## Optional
-
-- [Source](https://github.com/rnw-community/rnw-community/tree/master/packages/eslint-plugin): Package source in the monorepo.
