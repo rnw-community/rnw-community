@@ -44,6 +44,29 @@ describe('mergeScrollContentInset', () => {
         });
     });
 
+    it('omits the generated edges a consumer axis shorthand pads so the shorthand is not overridden', () => {
+        expect.hasAssertions();
+
+        const style = mergeScrollContentInset(INSETS, CONTENT_INSET_TOP, CONTENT_INSET_BOTTOM, { paddingHorizontal: 8 });
+
+        expect(StyleSheet.flatten(style)).toStrictEqual({
+            paddingTop: INSETS.top + CONTENT_INSET_TOP,
+            paddingBottom: INSETS.bottom + CONTENT_INSET_BOTTOM,
+            paddingHorizontal: 8,
+        });
+    });
+
+    it('omits every generated edge when the consumer sets the padding shorthand', () => {
+        expect.hasAssertions();
+
+        const style = mergeScrollContentInset(INSETS, CONTENT_INSET_TOP, CONTENT_INSET_BOTTOM, [
+            { padding: 4 },
+            { paddingVertical: 6 },
+        ]);
+
+        expect(StyleSheet.flatten(style)).toStrictEqual({ padding: 4, paddingVertical: 6 });
+    });
+
     it('preserves arrays of consumer styles after generated padding', () => {
         expect.hasAssertions();
 
