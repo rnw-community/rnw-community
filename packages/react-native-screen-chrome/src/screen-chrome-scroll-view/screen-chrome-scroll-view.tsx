@@ -13,6 +13,7 @@ interface Props extends Omit<ComponentProps<typeof ScrollView>, 'onScroll' | 'sc
     readonly contentInsetTop?: number;
     readonly contentInsetBottom?: number;
     readonly contentInsetMode?: ScrollContentInsetMode;
+    readonly includeTopSafeArea?: boolean;
     readonly ref?: Ref<ScrollView>;
 }
 
@@ -25,11 +26,19 @@ export const ScreenChromeScrollView = ({
     contentInsetBottom,
     contentInsetMode,
     contentContainerStyle,
+    includeTopSafeArea,
     ref,
     ...scrollViewProps
 }: Props): ReactNode => {
     const { automaticallyAdjustsScrollIndicatorInsets, scrollIndicatorInsets, ...packageOwnedProps } =
-        useScreenChromeScrollProps({ contentInsetTop, contentInsetBottom, contentInsetMode, contentContainerStyle, ref });
+        useScreenChromeScrollProps({
+            contentInsetTop,
+            contentInsetBottom,
+            contentInsetMode,
+            contentContainerStyle,
+            includeTopSafeArea,
+            ref,
+        });
 
     return (
         <AnimatedScrollView

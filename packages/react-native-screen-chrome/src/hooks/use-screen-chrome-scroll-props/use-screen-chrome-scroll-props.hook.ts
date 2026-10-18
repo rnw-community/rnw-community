@@ -22,11 +22,13 @@ export const useScreenChromeScrollProps = <T = unknown>({
     contentInsetBottom = DEFAULT_CONTENT_INSET,
     contentInsetMode = 'replace',
     contentContainerStyle,
+    includeTopSafeArea = true,
     ref,
 }: ScreenChromeScrollPropsOptionsInterface<T> = {}): ScreenChromeScrollPropsInterface<T> => {
     const { config } = useScreenChrome();
     const { onScroll, scrollRef } = useCollapsibleHeaderScroll();
-    const insets = useSafeAreaInsets();
+    const safeAreaInsets = useSafeAreaInsets();
+    const insets = includeTopSafeArea ? safeAreaInsets : { ...safeAreaInsets, top: 0 };
     const mergedRef = useMemo(() => mergeRefs<T>(scrollRef, ref), [scrollRef, ref]);
 
     return {

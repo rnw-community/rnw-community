@@ -15,6 +15,8 @@ export interface ScreenChromeScrollPropsOptionsInterface<T = unknown> {
     readonly contentInsetMode?: ScrollContentInsetMode;
     /** Consumer content container style composed with the computed padding. */
     readonly contentContainerStyle?: StyleProp<ViewStyle>;
+    /** Whether the top safe-area inset is added, `false` when an in-flow header above the scrollable already pads it. @defaultValue `true` */
+    readonly includeTopSafeArea?: boolean;
     /** Consumer ref attached to the scrollable alongside the chrome scroll ref. */
     readonly ref?: Ref<T>;
 }
