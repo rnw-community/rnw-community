@@ -107,4 +107,18 @@ describe('ScreenChromeHeader', () => {
 
         expect(getByTestId('static-header-row')).toHaveStyle({ height: SCREEN_CHROME_DEFAULT_CONFIG.headerHeight });
     });
+
+    it('lays out in flow with a row that grows past the configured height', () => {
+        expect.hasAssertions();
+
+        const { getByTestId } = renderHeader(
+            <ScreenChromeHeader inFlow testID="static-header">
+                <Text>{TITLE}</Text>
+            </ScreenChromeHeader>
+        );
+
+        expect(getByTestId('static-header')).toHaveStyle({ paddingTop: INSETS.insets.top, position: 'relative' });
+        expect(getByTestId('static-header-row')).toHaveStyle({ minHeight: SCREEN_CHROME_DEFAULT_CONFIG.headerHeight });
+        expect(getByTestId('static-header-row')).not.toHaveStyle({ height: SCREEN_CHROME_DEFAULT_CONFIG.headerHeight });
+    });
 });

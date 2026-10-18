@@ -13,6 +13,7 @@ import type { StyleProp, ViewProps, ViewStyle } from 'react-native';
 
 interface Props extends Omit<ViewProps, 'children' | 'pointerEvents'> {
     readonly children: ReactNode;
+    readonly inFlow?: boolean;
     readonly rowStyle?: StyleProp<ViewStyle>;
     readonly topInset?: number;
 }
@@ -21,20 +22,34 @@ interface Props extends Omit<ViewProps, 'children' | 'pointerEvents'> {
  * Renders a static, non-collapsible header row with the same safe-area and paint-order contract as the collapsible one.
  * @see https://github.com/rnw-community/rnw-community/tree/master/packages/react-native-screen-chrome#screenchromeheader
  */
-export const ScreenChromeHeader = ({ children, rowStyle, style, testID, topInset = 0, ...viewProps }: Props): ReactNode => {
+export const ScreenChromeHeader = ({
+    children,
+    inFlow = false,
+    rowStyle,
+    style,
+    testID,
+    topInset = 0,
+    ...viewProps
+}: Props): ReactNode => {
     const { config } = useScreenChrome();
     const insets = useSafeAreaInsets();
+    const rowHeightStyle = inFlow ? { minHeight: config.headerHeight } : { height: config.headerHeight };
 
     return (
         <View
             {...viewProps}
             pointerEvents="box-none"
-            style={[screenChromeHeaderStyles.container, { paddingTop: insets.top + topInset }, style]}
+            style={[
+                screenChromeHeaderStyles.container,
+                inFlow && screenChromeHeaderStyles.inFlowContainer,
+                { paddingTop: insets.top + topInset },
+                style,
+            ]}
             testID={testID}
         >
             <View
                 pointerEvents="box-none"
-                style={[screenChromeHeaderStyles.row, rowStyle, { height: config.headerHeight }]}
+                style={[screenChromeHeaderStyles.row, rowStyle, rowHeightStyle]}
                 {...(isDefined(testID) ? { testID: `${testID}-row` } : {})}
             >
                 {children}

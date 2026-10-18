@@ -10,6 +10,9 @@ export const screenChromeHeaderStyles = StyleSheet.create({
         top: 0,
         zIndex: 3,
     },
+    inFlowContainer: {
+        position: 'relative',
+    },
     row: {
         alignItems: 'center',
         flexDirection: 'row',
