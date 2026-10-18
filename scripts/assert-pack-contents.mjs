@@ -111,6 +111,28 @@ function checkNestedBrowserMarkers(pkg, pkgDir, manifest, tarballFiles) {
     }
 }
 
+function checkBrowserMap(pkg, manifest, tarballFiles) {
+    if (manifest.browser === null || typeof manifest.browser !== 'object') {
+        return;
+    }
+    const mappedTargets = new Set();
+    for (const [source, target] of Object.entries(manifest.browser)) {
+        for (const file of [source, target].filter(entry => typeof entry === 'string')) {
+            if (!tarballFiles.has(path.posix.normalize(file))) {
+                fail(pkg, `browser field maps a file that is missing from the tarball: ${file}`);
+            }
+        }
+        if (typeof target === 'string') {
+            mappedTargets.add(path.posix.normalize(target));
+        }
+    }
+    for (const file of tarballFiles) {
+        if (file.endsWith('.web.js') && !mappedTargets.has(file)) {
+            fail(pkg, `browser field does not map its native sibling to the shipped web file: ${file}`);
+        }
+    }
+}
+
 function checkLlmsStructure(pkg, manifest, llms) {
     const [firstLine] = llms.split('\n');
     if (firstLine !== `# ${manifest.name}`) {
@@ -155,6 +177,7 @@ function checkPackage({ dir, manifest }) {
     checkForbiddenFiles(dir, tarballFiles);
     checkEntryTargets(dir, manifest, tarballFiles);
     checkNestedBrowserMarkers(dir, pkgDir, manifest, tarballFiles);
+    checkBrowserMap(dir, manifest, tarballFiles);
 
     if (tarballFiles.has('llms.txt')) {
         const llms = fs.readFileSync(path.join(pkgDir, 'llms.txt'), 'utf8');

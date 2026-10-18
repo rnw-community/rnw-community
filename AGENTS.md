@@ -269,7 +269,8 @@ A package MUST NOT re-export (`export type { X } from '@rnw-community/other'`) a
   after `pnpm publint`, which builds every package first) runs `npm pack --dry-run --json` for each non-private
   package and fails if the tarball is missing `package.json`/`readme.md`/`llms.txt`, ships a spec/test/mock file,
   `__tests__`/fixtures/e2e/coverage directory, `*.tsbuildinfo`, or native build output (`ios/build*`, `android/build*`,
-  `.gradle`, `Pods`), lacks any `main`/`module`/`types`/`exports` target, or if `llms.txt` has a wrong H1, no
+  `.gradle`, `Pods`), lacks any `main`/`module`/`types`/`exports` target, has an object `browser` map naming a file
+  the tarball lacks or leaving a shipped `*.web.js` unmapped, or if `llms.txt` has a wrong H1, no
   blockquote, a relative link to a file outside the tarball, or a `readme.md#anchor` with no matching heading. Pass
   package directory names (`pnpm assert:pack shared wdio`) to check a subset
 - **TSDoc `@see` gate** — `pnpm assert:see-anchors` (`scripts/assert-tsdoc-see-anchors.mjs`, run in the `pr.yml`
