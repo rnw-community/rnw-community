@@ -291,8 +291,6 @@ jobs:
         if: needs.detect.outputs.any == 'true'
         permissions:
             contents: read
-        # Time-boxed: see the same flag in ios-maestro.yml and issue #601.
-        continue-on-error: ${{ matrix.package == 'screen-chrome' }}
         # 4x8, not 2x4: only the 4cpu/8GB profile of the amd64 scale set has
         # /dev/kvm. On any other shape the emulator falls back to pure
         # software emulation of x86_64-on-x86_64, which is slow enough that
@@ -816,9 +814,6 @@ jobs:
 
             -   name: Install APK and run Maestro tests
                 id: tests
-                # Step-level flag (the job-level one is not honored for the check
-                # run conclusion on this runner): see the job-level comment.
-                continue-on-error: ${{ matrix.package == 'screen-chrome' }}
                 # The emulator is already booted (previous step) and the APK is
                 # already built (build-apk, a GitHub-hosted x86_64 runner — see the
                 # top-of-file note on why the build stays there). This step is
