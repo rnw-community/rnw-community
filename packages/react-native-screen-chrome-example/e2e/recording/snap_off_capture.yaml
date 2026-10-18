@@ -1,0 +1,27 @@
+appId: ${APP_ID}
+---
+# Recording-only flow for the readme demo GIF: with snapping off, a partial drag
+# leaves the header mid-collapse. Not part of the assertion suite.
+- runFlow: ../subflows/launch_home.yaml
+- tapOn:
+      id: 'home-open-snap-off'
+- extendedWaitUntil:
+      visible:
+          id: 'snap-off-demo-expanded-title'
+      timeout: 15000
+- startRecording: snap-off
+- swipe:
+      start: 50%, 70%
+      end: 50%, 62%
+      duration: 1200
+- waitForAnimationToEnd:
+      timeout: 3000
+- swipe:
+      start: 50%, 62%
+      end: 50%, 30%
+      duration: 1200
+- swipe:
+      start: 50%, 30%
+      end: 50%, 80%
+      duration: 1200
+- stopRecording

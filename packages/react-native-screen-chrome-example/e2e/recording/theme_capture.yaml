@@ -1,0 +1,25 @@
+appId: ${APP_ID}
+---
+# Recording-only flow for the readme demo GIF: switching the chrome between the
+# light and dark palettes. Not part of the assertion suite.
+- runFlow: ../subflows/launch_home.yaml
+- tapOn:
+      id: 'home-open-theme'
+- extendedWaitUntil:
+      visible:
+          id: 'theme-demo-scheme'
+      timeout: 15000
+- startRecording: light-dark
+- swipe:
+      start: 50%, 60%
+      end: 50%, 40%
+      duration: 1000
+- tapOn:
+      id: 'theme-demo-toggle'
+- waitForAnimationToEnd:
+      timeout: 2000
+- tapOn:
+      id: 'theme-demo-toggle'
+- waitForAnimationToEnd:
+      timeout: 2000
+- stopRecording

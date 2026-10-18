@@ -1,0 +1,21 @@
+appId: ${APP_ID}
+---
+# Recording-only flow for the readme demo GIF: the static header and its top fade
+# stay put while the list scrolls underneath. Not part of the assertion suite.
+- runFlow: ../subflows/launch_home.yaml
+- tapOn:
+      id: 'home-open-static-header'
+- extendedWaitUntil:
+      visible:
+          id: 'static-demo-title'
+      timeout: 15000
+- startRecording: static-header
+- swipe:
+      start: 50%, 75%
+      end: 50%, 30%
+      duration: 1200
+- swipe:
+      start: 50%, 30%
+      end: 50%, 75%
+      duration: 1200
+- stopRecording

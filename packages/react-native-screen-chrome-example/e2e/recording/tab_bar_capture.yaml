@@ -1,0 +1,25 @@
+appId: ${APP_ID}
+---
+# Recording-only flow for the readme demo GIF: the floating tab bar over a
+# scrolling list, switching tabs. Not part of the assertion suite.
+- runFlow: ../subflows/launch_home.yaml
+- tapOn:
+      id: 'home-open-tab-bar'
+- extendedWaitUntil:
+      visible:
+          id: 'tab-demo-tab-search'
+      timeout: 15000
+- startRecording: tab-bar
+- swipe:
+      start: 50%, 70%
+      end: 50%, 30%
+      duration: 1200
+- tapOn:
+      id: 'tab-demo-tab-search'
+- tapOn:
+      id: 'tab-demo-tab-profile'
+- swipe:
+      start: 50%, 30%
+      end: 50%, 70%
+      duration: 1200
+- stopRecording

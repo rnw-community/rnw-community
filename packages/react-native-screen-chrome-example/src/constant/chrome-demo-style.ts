@@ -22,8 +22,12 @@ export const CHROME_DEMO_STYLES = StyleSheet.create({
     },
     footerContent: {
         alignItems: 'center',
+        backgroundColor: '#1B4D3E',
+        borderRadius: 16,
         flexDirection: 'row',
         justifyContent: 'space-between',
+        marginHorizontal: 16,
+        marginVertical: 8,
         paddingHorizontal: 16,
         paddingVertical: 12,
     },

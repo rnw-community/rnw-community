@@ -40,8 +40,23 @@ Or directly: `maestro test -e APP_ID=<appId> e2e/flows`.
 - `subflows/launch_collapsible_demo.yaml` — opens the collapsible-header screen and waits for its first frame.
 - `subflows/collapse_then_expand.yaml` — collapses a demo collapsible header and scrolls back until it expands,
   parameterized by the `HEADER` testID prefix (`collapsible-demo`, `snap-off-demo`).
-- `recording/` — capture-only flows for the readme demo GIFs (`collapsible_capture.yaml`, `footer_capture.yaml`);
-  not part of the assertion suite.
+- `recording/` — capture-only flows for the readme demo GIFs, one per demo (`collapsible_capture`,
+  `static_header_capture`, `footer_capture`, `snap_off_capture`, `bottom_fade_capture`, `tab_bar_capture`,
+  `keyboard_capture`, `theme_capture`); not part of the assertion suite. Each opens its screen, then drives the
+  gestures between `startRecording`/`stopRecording`, mirroring the collapsible-header example.
+
+## Recording the readme GIFs
+
+With the app installed on a booted emulator or simulator, run one capture flow at a time:
+
+```bash
+maestro test -e APP_ID=<appId> e2e/recording/static_header_capture.yaml
+```
+
+Maestro writes the clip under its test output directory (`<output>/<flow>/startRecording/<name>.mp4`). Convert it
+with `ffmpeg -i <name>.mp4 -vf "fps=12,scale=320:-2:flags=lanczos,split[a][b];[a]palettegen[p];[b][p]paletteuse"
+<name>.gif` and commit the result to `packages/react-native-screen-chrome/docs/`. A launch that misses the 60s
+first-frame wait is retried rather than recorded.
 
 ## What the demos document
 

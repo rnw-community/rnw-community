@@ -9,9 +9,13 @@ appId: ${APP_ID}
       visible:
           id: 'footer-demo-total'
       timeout: 15000
+- startRecording: header-and-footer
 - swipe:
       start: 50%, 60%
       end: 50%, 20%
-      duration: 900
-- waitForAnimationToEnd:
-      timeout: 5000
+      duration: 1200
+- swipe:
+      start: 50%, 30%
+      end: 50%, 70%
+      duration: 1200
+- stopRecording
