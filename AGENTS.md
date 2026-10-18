@@ -225,6 +225,11 @@ A package MUST NOT re-export (`export type { X } from '@rnw-community/other'`) a
   `.gradle`, `Pods`), lacks any `main`/`module`/`types`/`exports` target, or if `llms.txt` has a wrong H1, no
   blockquote, a relative link to a file outside the tarball, or a `readme.md#anchor` with no matching heading. Pass
   package directory names (`pnpm assert:pack shared wdio`) to check a subset
+- **TSDoc `@see` gate** — `pnpm assert:see-anchors` (`scripts/assert-tsdoc-see-anchors.mjs`, run in the `pr.yml`
+  code-quality job right after the pack-content gate) scans the non-spec `src` files of every non-private package and
+  fails when an `@see` link into this repository (`https://github.com/rnw-community/rnw-community/{blob,tree}/master/...`)
+  targets a missing file, or carries a `#anchor` with no matching heading in the target markdown (a directory link
+  resolves to its `readme.md`). External spec links are not fetched. Pass package directory names to check a subset
 
 ### TypeScript — Strict mode with all strict flags enabled, decorators enabled
 
