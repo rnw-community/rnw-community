@@ -2,6 +2,7 @@ import { describe, expect, it, jest } from '@jest/globals';
 
 import { EnvironmentEnum } from '../enum/environment.enum';
 import { SupportedNetworkEnum } from '../enum/supported-networks.enum';
+import { resolvePaymentsConfig } from '../util/resolve-payments-config/resolve-payments-config.util';
 
 import { withGooglePay } from './with-google-pay';
 
@@ -33,10 +34,14 @@ const createConfig = (metaData: MetaDataItem[] = []) => ({
 });
 
 const runPlugin = (
-    props: { merchantIdentifier: string; supportedNetworks?: SupportedNetworkEnum[]; googlePayEnvironment?: EnvironmentEnum },
+    props: {
+        merchantIdentifier: string;
+        supportedNetworks?: SupportedNetworkEnum[];
+        googlePayEnvironment?: EnvironmentEnum;
+    },
     metaData?: MetaDataItem[]
 ) => {
-    const result = withGooglePay(createConfig(metaData), props) as unknown as {
+    const result = withGooglePay(createConfig(metaData), resolvePaymentsConfig(props)) as unknown as {
         modResults: { manifest: { application: [{ 'meta-data': MetaDataItem[] }] } };
     };
 
@@ -106,28 +111,6 @@ describe('withGooglePay', () => {
         expect(metaData.filter(item => item.$['android:name'] === ENABLED_META_DATA_NAME)).toHaveLength(1);
     });
 
-    it('should throw when supportedNetworks is invalid', () => {
-        expect.assertions(1);
-
-        expect(() =>
-            runPlugin({
-                merchantIdentifier: 'merchant.com.example',
-                supportedNetworks: ['not-a-network'] as never,
-            })
-        ).toThrow('Invalid "supportedNetworks" plugin option value(s): "not-a-network"');
-    });
-
-    it('should throw when googlePayEnvironment is invalid', () => {
-        expect.assertions(1);
-
-        expect(() =>
-            runPlugin({
-                merchantIdentifier: 'merchant.com.example',
-                googlePayEnvironment: 'STAGING' as never,
-            })
-        ).toThrow('Invalid "googlePayEnvironment" plugin option value: "STAGING"');
-    });
-
     it('should throw when the AndroidManifest has no MainApplication', () => {
         expect.assertions(1);
 
@@ -137,8 +120,8 @@ describe('withGooglePay', () => {
             modResults: { manifest: { application: [] } },
         };
 
-        expect(() => withGooglePay(config as never, { merchantIdentifier: 'merchant.com.example' })).toThrow(
-            'AndroidManifest.xml is missing the required MainApplication element'
-        );
+        expect(() =>
+            withGooglePay(config as never, resolvePaymentsConfig({ merchantIdentifier: 'merchant.com.example' }))
+        ).toThrow('AndroidManifest.xml is missing the required MainApplication element');
     });
 });

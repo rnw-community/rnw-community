@@ -19,6 +19,11 @@ remains, prebuild fails with an error:
 
 ## Plugin options reference
 
+The options are a [`PaymentsConfig`](../api/payments-config.md). When the plugin is listed without options, it reads
+them from `payments.config.ts`, `payments.config.js` or `payments.config.json` at the project root, the same file the
+app passes to `resolvePaymentsConfig` for its method data. Every value is validated by `resolvePaymentsConfig`, so
+prebuild fails with the same message the app would throw at runtime.
+
 | Option                 | Type                     | Default                            | What it mutates                                                                                                                                                                                                                                    |
 | ---------------------- | ------------------------ | ---------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `merchantIdentifier`   | `string \| string[]`     | _(required)_                       | iOS entitlements plist: appends every non-empty identifier to `com.apple.developer.in-app-payments`, de-duplicated. Throws at prebuild time if no non-empty identifier is provided.                                                                |

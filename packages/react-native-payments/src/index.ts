@@ -48,6 +48,9 @@ export type { ApplePayMethodDataOptions } from './interface/apple-pay-method-dat
 export type { GooglePayMethodDataOptions } from './type/google-pay-method-data-options.type';
 export type { PaymentRequestFactoryConfig } from './interface/payment-request-factory-config.interface';
 export type { PaymentRequestFactory } from './type/payment-request-factory.type';
+export { resolvePaymentsConfig } from './util/resolve-payments-config/resolve-payments-config.util';
+export type { PaymentsConfig } from './interface/payments-config.interface';
+export type { ResolvedPaymentsConfig } from './interface/resolved-payments-config.interface';
 export { PaymentResponse } from './class/payment-response/payment-response';
 
 export { PaymentRequestUpdateEvent } from './class/payment-request-update-event/payment-request-update-event';

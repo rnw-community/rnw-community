@@ -1,19 +1,13 @@
 import { AndroidConfig, withAndroidManifest } from '@expo/config-plugins';
 
-import { validateGooglePayEnvironment } from './validate-google-pay-environment.util';
-import { validateSupportedNetworks } from './validate-supported-networks.util';
-
-import type { ReactNativePaymentsPluginProps } from './plugin.props';
+import type { ResolvedPaymentsConfig } from '../interface/resolved-payments-config.interface';
 import type { ConfigPlugin } from '@expo/config-plugins';
 
-export const withGooglePay: ConfigPlugin<ReactNativePaymentsPluginProps> = (
+export const withGooglePay: ConfigPlugin<ResolvedPaymentsConfig> = (
     initialConfig,
     { supportedNetworks, googlePayEnvironment }
-) => {
-    const validatedSupportedNetworks = validateSupportedNetworks(supportedNetworks);
-    const validatedGooglePayEnvironment = validateGooglePayEnvironment(googlePayEnvironment);
-
-    return withAndroidManifest(initialConfig, config => {
+) =>
+    withAndroidManifest(initialConfig, config => {
         const mainApplication = AndroidConfig.Manifest.getMainApplicationOrThrow(config.modResults);
 
         AndroidConfig.Manifest.addMetaDataItemToMainApplication(
@@ -24,14 +18,13 @@ export const withGooglePay: ConfigPlugin<ReactNativePaymentsPluginProps> = (
         AndroidConfig.Manifest.addMetaDataItemToMainApplication(
             mainApplication,
             'com.google.android.gms.wallet.api.environment',
-            validatedGooglePayEnvironment
+            googlePayEnvironment
         );
         AndroidConfig.Manifest.addMetaDataItemToMainApplication(
             mainApplication,
             'com.rnw-community.react-native-payments.supported-networks',
-            validatedSupportedNetworks.join(',')
+            supportedNetworks.join(',')
         );
 
         return config;
     });
-};

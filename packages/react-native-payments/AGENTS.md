@@ -67,7 +67,8 @@ src/
   enum/          — PaymentMethodNameEnum, EnvironmentEnum, PaymentComplete, SupportedNetworkEnum,
                    PaymentUpdateErrorTypeEnum + PaymentAddressFieldEnum + PaymentContactFieldEnum (field level errors)
   error/         — ConstructorError, DOMException, PaymentsError
-  expo-plugins/  — withApplePay, withGooglePay, withPayments (Expo config plugin)
+  expo-plugins/  — withApplePay, withGooglePay, withPayments (Expo config plugin), loadPaymentsConfig (reads
+                   payments.config.(ts|js|json) when the plugin has no options)
   interface/     — GenericPaymentMethodDataDataInterface, PaymentResponseAddress, change-event payload/registration/native update
   type/          — AmountValue, PaymentRequestEventType, PaymentDetailsUpdateError, change-event listener types
   util/          — Validation utilities (monetary values, display items, shipping options, payment methods, totals,
@@ -86,7 +87,8 @@ src/
 - `.web.ts` suffix for web platform overrides (browser's native PaymentRequest)
 - `@standard/` separates W3C spec types from platform-specific types
 - TurboModule architecture (React Native New Architecture codegen)
-- Expo plugin (`withPayments`) composes `withApplePay` + `withGooglePay`
+- Expo plugin (`withPayments`) validates its options (or the `payments.config` file) once with `resolvePaymentsConfig`,
+  the same resolver apps call at runtime, then composes `withApplePay` + `withGooglePay` with the resolved config
 - `PaymentRequest` constructor validates per W3C spec, then serializes platform-specific JSON for native bridge; the
   total, the display items and the shipping options run through the same validators on the change-event path, so an
   update that fails them is answered like a failing listener and never reaches the sheet
