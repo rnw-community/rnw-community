@@ -11,8 +11,14 @@ than duplicated files.
 ```
 e2e/
 ├── flows/       one scenario per file, run directly by `maestro test`
+├── recording/   docs-media capture flows, never part of the assertion suite
 └── subflows/    shared steps included via `runFlow`, never run standalone
 ```
+
+`recording/android_sheet_capture.yaml` records the Google Pay sheet loop (tap `action-show`, let the sheet settle,
+dismiss with back) between `startRecording`/`stopRecording`. The dispatch-only `docs-media.yml` workflow runs it on the
+Android emulator fleet and uploads `google-pay-sheet.mp4` plus an ffmpeg-converted GIF for
+`packages/react-native-payments/docs/assets/`.
 
 ## Running
 
