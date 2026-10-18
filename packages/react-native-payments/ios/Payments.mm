@@ -429,6 +429,7 @@ RCT_EXPORT_METHOD(updatePaymentDetails: (NSDictionary *)update
 }
 
 RCT_EXPORT_METHOD(canMakePayments: (NSString *)methodDataString
+                                   details:(NSDictionary *)details
                                    resolve:(RCTPromiseResolveBlock)resolve
                                    reject:(RCTPromiseRejectBlock)reject)
 {
@@ -437,6 +438,7 @@ RCT_EXPORT_METHOD(canMakePayments: (NSString *)methodDataString
 }
 
 RCT_EXPORT_METHOD(hasEnrolledInstrument: (NSString *)methodDataString
+                                        details:(NSDictionary *)details
                                         resolve:(RCTPromiseResolveBlock)resolve
                                         reject:(RCTPromiseRejectBlock)reject)
 {

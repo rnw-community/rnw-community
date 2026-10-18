@@ -41,10 +41,8 @@ dependencies {
 - `transactionId` correlates the payment attempt in Google Pay transaction events.
 - `allowedAuthMethods` (`AndroidAllowedAuthMethodsEnum`) defaults to both `PAN_ONLY` and `CRYPTOGRAM_3DS` when
   omitted. See [api/android-payment-method-data.md](../api/android-payment-method-data.md).
-- `canMakePayment()` calls Google Pay's `isReadyToPay` and always checks against `EnvironmentEnum.TEST` regardless
-  of the `environment` set in `methodData.data`, mirroring the W3C surface (`canMakePayment` only answers "is a
-  payment handler available", not "is this specific environment reachable"). See
-  [#259](https://github.com/rnw-community/rnw-community/issues/259).
+- `canMakePayment()` calls Google Pay's `isReadyToPay` against the `environment` set in `methodData.data`, the same
+  environment `show()` opens the sheet in.
 - `hasEnrolledInstrument()` calls Google Pay's `isReadyToPay` with `existingPaymentMethodRequired: true`. See
   [Known deviations](#known-deviations).
 

@@ -614,9 +614,31 @@ describe('PaymentRequest', () => {
 
             const result = await request.canMakePayment();
 
-            expect(NativePayments.canMakePayments).toHaveBeenCalledWith(expect.any(String));
+            expect(NativePayments.canMakePayments).toHaveBeenCalledWith(expect.any(String), {
+                environment: EnvironmentEnum.TEST,
+            });
             expect(result).toBe(true);
         });
+
+        it.each(['canMakePayments', 'hasEnrolledInstrument'] as const)(
+            'should pass the method data environment to `NativePayments.%s`',
+            async nativeMethodName => {
+                expect.hasAssertions();
+
+                const productionMethodData = {
+                    ...androidMethodData,
+                    data: { ...androidMethodData.data, environment: EnvironmentEnum.PRODUCTION },
+                };
+                const request = new PaymentRequest([productionMethodData], paymentDetails);
+                jest.mocked(NativePayments[nativeMethodName]).mockResolvedValue(true);
+
+                await (nativeMethodName === 'canMakePayments' ? request.canMakePayment() : request.hasEnrolledInstrument());
+
+                expect(NativePayments[nativeMethodName]).toHaveBeenCalledWith(expect.any(String), {
+                    environment: EnvironmentEnum.PRODUCTION,
+                });
+            }
+        );
 
         it('should throw when `hasEnrolledInstrument` is called in invalid state', async () => {
             expect.hasAssertions();
@@ -637,7 +659,9 @@ describe('PaymentRequest', () => {
 
             const result = await request.hasEnrolledInstrument();
 
-            expect(NativePayments.hasEnrolledInstrument).toHaveBeenCalledWith(expect.any(String));
+            expect(NativePayments.hasEnrolledInstrument).toHaveBeenCalledWith(expect.any(String), {
+                environment: EnvironmentEnum.TEST,
+            });
             expect(result).toBe(true);
         });
 
@@ -821,7 +845,8 @@ describe('PaymentRequest', () => {
 
                 const [[serializedMethodData]] = jest.mocked(NativePayments.canMakePayments).mock.calls;
 
-                return (JSON.parse(serializedMethodData) as AndroidPaymentDataRequest).transactionInfo as AndroidTransactionInfo;
+                return (JSON.parse(serializedMethodData) as AndroidPaymentDataRequest)
+                    .transactionInfo as AndroidTransactionInfo;
             };
 
             it('should serialize FINAL totalPriceStatus and no optional fields by default', async () => {
@@ -1110,7 +1135,9 @@ describe('PaymentRequest', () => {
                 };
 
                 expect(() => new PaymentRequest([{ ...androidMethodData, data: invalidData }], zeroTotalDetails)).toThrow(
-                    new ConstructorError('automaticReloadTransactionInfo cannot be combined with checkoutOption or totalPriceStatus')
+                    new ConstructorError(
+                        'automaticReloadTransactionInfo cannot be combined with checkoutOption or totalPriceStatus'
+                    )
                 );
             });
 
@@ -1125,7 +1152,9 @@ describe('PaymentRequest', () => {
                 };
 
                 expect(() => new PaymentRequest([{ ...androidMethodData, data: invalidData }], zeroTotalDetails)).toThrow(
-                    new ConstructorError('deferredTransactionInfo cannot be combined with checkoutOption or totalPriceStatus')
+                    new ConstructorError(
+                        'deferredTransactionInfo cannot be combined with checkoutOption or totalPriceStatus'
+                    )
                 );
             });
 
@@ -1314,7 +1343,7 @@ describe('PaymentRequest', () => {
 
             const result = await request.canMakePayment();
 
-            expect(NativePayments.canMakePayments).toHaveBeenCalledWith(expect.any(String));
+            expect(NativePayments.canMakePayments).toHaveBeenCalledWith(expect.any(String), {});
             expect(result).toBe(true);
         });
 
@@ -1337,7 +1366,7 @@ describe('PaymentRequest', () => {
 
             const result = await request.hasEnrolledInstrument();
 
-            expect(NativePayments.hasEnrolledInstrument).toHaveBeenCalledWith(expect.any(String));
+            expect(NativePayments.hasEnrolledInstrument).toHaveBeenCalledWith(expect.any(String), {});
             expect(result).toBe(true);
         });
 

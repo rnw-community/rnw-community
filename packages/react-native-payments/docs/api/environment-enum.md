@@ -25,12 +25,6 @@ const methodData = [
 ];
 ```
 
-## Pitfalls
-
-`canMakePayment()` on Android always checks against `EnvironmentEnum.TEST` regardless of the `environment` set on
-`methodData.data` — set the real `environment` for `show()` regardless of what `canMakePayment()` reported. See
-[platforms/android.md](../platforms/android.md).
-
 ## References
 
 - [platforms/android.md](../platforms/android.md)

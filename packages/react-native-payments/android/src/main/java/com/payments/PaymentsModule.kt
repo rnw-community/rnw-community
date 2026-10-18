@@ -63,30 +63,35 @@ class PaymentsModule internal constructor(context: ReactApplicationContext) : Pa
   // https://developers.google.com/android/reference/com/google/android/gms/wallet/PaymentsClient#isReadyToPay(com.google.android.gms.wallet.IsReadyToPayRequest)
   // https://developers.google.com/pay/api/android/guides/tutorial#java
   @ReactMethod
-  override fun canMakePayments(paymentMethodData: String, promise: Promise) {
-    checkIsReadyToPay(paymentMethodData, false, promise)
+  override fun canMakePayments(paymentMethodData: String, details: ReadableMap, promise: Promise) {
+    checkIsReadyToPay(paymentMethodData, details, false, promise)
   }
 
   // HINT: existingPaymentMethodRequired is an optimistic signal, not a guarantee a card is enrolled.
   // https://developers.google.com/android/reference/com/google/android/gms/wallet/IsReadyToPayRequest.Builder#setExistingPaymentMethodRequired(boolean)
   @ReactMethod
-  override fun hasEnrolledInstrument(paymentMethodData: String, promise: Promise) {
-    checkIsReadyToPay(paymentMethodData, true, promise)
+  override fun hasEnrolledInstrument(paymentMethodData: String, details: ReadableMap, promise: Promise) {
+    checkIsReadyToPay(paymentMethodData, details, true, promise)
   }
 
-  private fun checkIsReadyToPay(paymentMethodData: String, existingPaymentMethodRequired: Boolean, promise: Promise) {
+  private fun checkIsReadyToPay(
+    paymentMethodData: String,
+    details: ReadableMap,
+    existingPaymentMethodRequired: Boolean,
+    promise: Promise
+  ) {
     val currentActivity = requireCurrentActivity()
     Log.d(NAME, "Checking if AndroidPay is available $currentActivity")
 
-    // HINT: We store promise reference to resolve/reject it later
-    pendingPromise = promise
-
     if (isGooglePlayServicesUnavailable(currentActivity)) {
-      rejectPromise(E_UNSUPPORTED_ANDROID_PAY, "AndroidPay is not supported: Google Play services is unavailable")
+      promise.reject(E_UNSUPPORTED_ANDROID_PAY, "AndroidPay is not supported: Google Play services is unavailable")
       return
     }
 
-    validatePaymentRequestJSON(paymentMethodData)
+    if (!isValidPaymentRequestJSON(paymentMethodData)) {
+      promise.reject(E_FAILED_PARSING_PAYMENT_REQUEST, FAILED_PARSING_PAYMENT_REQUEST_MESSAGE)
+      return
+    }
 
     // https://developers.google.com/android/reference/com/google/android/gms/wallet/PaymentDataRequest#fromJson(java.lang.String)
     val request: IsReadyToPayRequest? =
@@ -97,12 +102,12 @@ class PaymentsModule internal constructor(context: ReactApplicationContext) : Pa
       }
 
     if (request == null) {
-      rejectPromise(E_UNSUPPORTED_ANDROID_PAY, "AndroidPay is not supported")
+      promise.reject(E_UNSUPPORTED_ANDROID_PAY, "AndroidPay is not supported")
       return
     }
 
     // https://developers.google.com/android/reference/com/google/android/gms/wallet/Wallet.WalletOptions.Builder#setEnvironment(int)
-    val options = Wallet.WalletOptions.Builder().setEnvironment(WalletConstants.ENVIRONMENT_TEST).build()
+    val options = Wallet.WalletOptions.Builder().setEnvironment(getEnvironment(details)).build()
 
     // https://developers.google.com/android/reference/com/google/android/gms/wallet/PaymentsClient
     val paymentsClient = Wallet.getPaymentsClient(currentActivity, options)
@@ -147,7 +152,10 @@ class PaymentsModule internal constructor(context: ReactApplicationContext) : Pa
       return
     }
 
-    validatePaymentRequestJSON(paymentMethodData)
+    if (!isValidPaymentRequestJSON(paymentMethodData)) {
+      rejectPromise(E_FAILED_PARSING_PAYMENT_REQUEST, FAILED_PARSING_PAYMENT_REQUEST_MESSAGE)
+      return
+    }
 
     try {
       // https://developers.google.com/android/reference/com/google/android/gms/wallet/PaymentDataRequest#fromJson(java.lang.String)
@@ -260,14 +268,14 @@ class PaymentsModule internal constructor(context: ReactApplicationContext) : Pa
     rejectPromise(E_FAILED_PROCESSING, errorMessage)
   }
 
-  private fun validatePaymentRequestJSON(paymentRequestJSON: String) {
+  private fun isValidPaymentRequestJSON(paymentRequestJSON: String): Boolean =
     try {
-      val jsonObject = JSONObject(paymentRequestJSON)
-      Log.d(NAME, "Successfully validated paymentRequest JSON string $jsonObject")
+      JSONObject(paymentRequestJSON)
+      true
     } catch (e: JSONException) {
-      rejectPromise(E_FAILED_PARSING_PAYMENT_REQUEST, "Failed parsing PaymentRequest JSON string")
+      Log.e(NAME, "$FAILED_PARSING_PAYMENT_REQUEST_MESSAGE $e")
+      false
     }
-  }
 
   private fun getEnvironment(details: ReadableMap): Int =
     if (details.hasKey("environment") && details.getString("environment")!! == "PRODUCTION") {
@@ -293,6 +301,7 @@ class PaymentsModule internal constructor(context: ReactApplicationContext) : Pa
     private const val E_FAILED_PROCESSING = "E_FAILED_PROCESSING"
     private const val E_FAILED_PARSING_PAYMENT_REQUEST = "E_FAILED_PARSING_PAYMENT_REQUEST"
     private const val E_FAILED_PARSING_PAYMENT_RESPONSE = "E_FAILED_PARSING_PAYMENT_RESPONSE"
+    private const val FAILED_PARSING_PAYMENT_REQUEST_MESSAGE = "Failed parsing PaymentRequest JSON string"
 
     // Arbitrarily-picked constant integer you define to track a request for payment data activity.
     private const val LOAD_MASKED_WALLET_REQUEST_CODE = 88

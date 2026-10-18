@@ -226,9 +226,8 @@ instead, pass `{ supportedMethods: PaymentMethodNameEnum.AndroidPay, data: { sup
 countryCode, currencyCode, gatewayConfig } }` — see [api/android-payment-method-data.md](docs/api/android-payment-method-data.md).
 The [readme quickstart](readme.md#quickstart) shows the full flow, including `complete()`.
 
-`canMakePayment()` on Android always checks against `EnvironmentEnum.TEST` regardless of the `environment` set
-on `methodData.data` — set the real `environment` for `show()` regardless of what `canMakePayment()` reported.
-See [Platforms — Android](docs/platforms/android.md#known-deviations).
+`canMakePayment()` and `hasEnrolledInstrument()` on Android check Google Pay readiness against the same
+`environment` set on `methodData.data` that `show()` uses. See [Platforms — Android](docs/platforms/android.md).
 
 ---
 
@@ -372,10 +371,8 @@ dependencies {
 - `transactionId` correlates the payment attempt in Google Pay transaction events.
 - `allowedAuthMethods` (`AndroidAllowedAuthMethodsEnum`) defaults to both `PAN_ONLY` and `CRYPTOGRAM_3DS` when
   omitted. See [api/android-payment-method-data.md](docs/api/android-payment-method-data.md).
-- `canMakePayment()` calls Google Pay's `isReadyToPay` and always checks against `EnvironmentEnum.TEST` regardless
-  of the `environment` set in `methodData.data`, mirroring the W3C surface (`canMakePayment` only answers "is a
-  payment handler available", not "is this specific environment reachable"). See
-  [#259](https://github.com/rnw-community/rnw-community/issues/259).
+- `canMakePayment()` calls Google Pay's `isReadyToPay` against the `environment` set in `methodData.data`, the same
+  environment `show()` opens the sheet in.
 - `hasEnrolledInstrument()` calls Google Pay's `isReadyToPay` with `existingPaymentMethodRequired: true`. See
   [Known deviations](#known-deviations).
 
@@ -1195,12 +1192,6 @@ const methodData = [
     },
 ];
 ```
-
-## Pitfalls
-
-`canMakePayment()` on Android always checks against `EnvironmentEnum.TEST` regardless of the `environment` set on
-`methodData.data` — set the real `environment` for `show()` regardless of what `canMakePayment()` reported. See
-[platforms/android.md](docs/platforms/android.md).
 
 ## References
 
@@ -2912,15 +2903,6 @@ PassKit sheet UI, but `paymentResponse.details.applePayToken` from it is not val
 Apple Pay must be verified end-to-end on a physical device signed into an Apple ID with at least one provisioned
 card before shipping. Conversely, a device-only failure usually means the merchant ID/capabilities/entitlement
 above, not the JS integration.
-
-**Google Pay `canMakePayment()` returns `true` in `EnvironmentEnum.PRODUCTION` you never tested.** This is by
-design, not a bug: `canMakePayment()` on Android always checks against `ENVIRONMENT_TEST` regardless of the
-`environment` set in `methodData.data`, mirroring the W3C surface (`canMakePayment` only answers "is a payment
-handler available", not "is this specific environment reachable") — see
-[#259](https://github.com/rnw-community/rnw-community/issues/259). Set the real `environment` for `show()`
-regardless of what `canMakePayment()` reported, and use accounts from the
-[Test Cards Allowlist](https://groups.google.com/g/googlepay-test-mode-stub-data) documented in
-[platforms/android.md](docs/platforms/android.md) when testing.
 
 **Metro reload doesn't pick up a fix, or the app red-screens / white-screens after bumping `react-native`.** A
 JS-only Metro reload never re-runs native linking or codegen — after bumping `react-native`, this package's

@@ -34,15 +34,6 @@ Apple Pay must be verified end-to-end on a physical device signed into an Apple 
 card before shipping. Conversely, a device-only failure usually means the merchant ID/capabilities/entitlement
 above, not the JS integration.
 
-**Google Pay `canMakePayment()` returns `true` in `EnvironmentEnum.PRODUCTION` you never tested.** This is by
-design, not a bug: `canMakePayment()` on Android always checks against `ENVIRONMENT_TEST` regardless of the
-`environment` set in `methodData.data`, mirroring the W3C surface (`canMakePayment` only answers "is a payment
-handler available", not "is this specific environment reachable") — see
-[#259](https://github.com/rnw-community/rnw-community/issues/259). Set the real `environment` for `show()`
-regardless of what `canMakePayment()` reported, and use accounts from the
-[Test Cards Allowlist](https://groups.google.com/g/googlepay-test-mode-stub-data) documented in
-[platforms/android.md](./../platforms/android.md) when testing.
-
 **Metro reload doesn't pick up a fix, or the app red-screens / white-screens after bumping `react-native`.** A
 JS-only Metro reload never re-runs native linking or codegen — after bumping `react-native`, this package's
 major version (see [migrate-from-v2.md](./migrate-from-v2.md)), or Xcode/Gradle toolchain versions, do a full
