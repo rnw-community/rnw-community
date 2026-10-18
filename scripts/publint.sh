@@ -1,50 +1,27 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-packages=(
-    decorators-core
-    eslint-plugin
-    fast-style
-    histogram-metric-decorator
-    lock-decorator
-    log-decorator
-    nestjs-enterprise
-    nestjs-rxjs-lock
-    nestjs-rxjs-logger
-    nestjs-rxjs-metrics
-    nestjs-rxjs-redis
-    nestjs-typed-config
-    nestjs-webpack-swc
-    object-field-tree
-    platform
-    react-native-collapsible-header
-    react-native-screen-chrome
-    react-native-payments
-    redux-loadable
-    rxjs-errors
-    shared
-    wdio
-)
+mapfile -t package_dirs < <(pnpm ls -r --depth -1 --json | node -e '
+    for (const pkg of JSON.parse(require("node:fs").readFileSync(0, "utf8"))) {
+        if (!pkg.private) console.log(require("node:path").relative(process.cwd(), pkg.path));
+    }
+')
+if [ "${#package_dirs[@]}" -eq 0 ]; then
+    echo "no publishable packages found" >&2
+    exit 1
+fi
 
-build_filters=()
-for pkg in "${packages[@]}"; do
-    build_filters+=("--filter=@rnw-community/${pkg}")
-done
-turbo run build "${build_filters[@]}"
+turbo run build "${package_dirs[@]/#/--filter=./}"
 
-for pkg in "${packages[@]}"; do
+for dir in "${package_dirs[@]}"; do
     echo ""
-    echo "── @rnw-community/${pkg} ──"
+    echo "── ${dir} ──"
 
-    ignore_rules=()
-    if [ "${pkg}" = "eslint-plugin" ]; then
-        ignore_rules+=(named-exports)
+    attw_args=(--pack "${dir}" --profile node16)
+    if [ "${dir}" = "packages/eslint-plugin" ]; then
+        attw_args+=(--ignore-rules named-exports)
     fi
 
-    publint run "packages/${pkg}"
-    if [ "${#ignore_rules[@]}" -gt 0 ]; then
-        attw --pack "packages/${pkg}" --profile node16 --ignore-rules "${ignore_rules[@]}"
-    else
-        attw --pack "packages/${pkg}" --profile node16
-    fi
+    publint run "${dir}"
+    attw "${attw_args[@]}"
 done
