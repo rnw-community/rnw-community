@@ -3,16 +3,10 @@ description: A published package behaves incorrectly, fails to install, or fails
 title: '[<package>] '
 labels: ['bug']
 body:
-    - type: markdown
-      attributes:
-          value: |
-              Thanks for reporting. A minimal reproduction and the exact environment below are what make a defect actionable.
-              Security issues must be reported privately via [GitHub Security Advisories](https://github.com/rnw-community/rnw-community/security/advisories/new).
     - type: dropdown
       id: package
       attributes:
           label: Package
-          description: The affected `@rnw-community/*` package.
           options:
               - decorators-core
               - eslint-plugin
@@ -43,21 +37,14 @@ body:
       id: package-version
       attributes:
           label: Package version
-          description: Output of `npm ls @rnw-community/<package>` (or the version in your lockfile).
-          placeholder: 2.19.3
+          placeholder: 2.28.3
       validations:
           required: true
     - type: textarea
       id: description
       attributes:
           label: What happened
-          description: The observed behaviour, including the full error message and stack trace.
-      validations:
-          required: true
-    - type: textarea
-      id: expected
-      attributes:
-          label: Expected behaviour
+          description: Observed versus expected behaviour, with the full error message and stack trace.
       validations:
           required: true
     - type: textarea
@@ -65,58 +52,11 @@ body:
       attributes:
           label: Minimal reproduction
           description: A repository link or the smallest code snippet plus steps that reproduce the defect.
-          render: ts
-      validations:
-          required: true
-    - type: dropdown
-      id: module-system
-      attributes:
-          label: Module system
-          description: How the package is consumed.
-          options:
-              - ESM (import)
-              - CommonJS (require)
-              - Bundler (Metro / webpack / Vite / esbuild)
-              - Not applicable
-      validations:
-          required: true
-    - type: input
-      id: module-resolution
-      attributes:
-          label: TypeScript version and moduleResolution
-          description: Relevant for type-check or resolution failures.
-          placeholder: 'TypeScript 5.9.3, moduleResolution: nodenext'
-    - type: input
-      id: node-version
-      attributes:
-          label: Node.js version
-          description: Output of `node --version`. Supported floor is Node 22.
-          placeholder: v22.12.0
-      validations:
-          required: true
-    - type: dropdown
-      id: package-manager
-      attributes:
-          label: Package manager
-          options:
-              - npm
-              - pnpm
-              - yarn
-              - bun
       validations:
           required: true
     - type: textarea
-      id: runtime
+      id: environment
       attributes:
-          label: Runtime environment
-          description: For React Native packages, the React Native / Expo / Reanimated versions, architecture, and platform (iOS / Android / web, device or simulator, OS version). For NestJS packages, the NestJS and RxJS versions.
-          placeholder: 'react-native 0.86.2, expo 57, reanimated 4.2, iOS 26 simulator'
-    - type: checkboxes
-      id: checks
-      attributes:
-          label: Checks
-          options:
-              - label: I reproduced this on the latest published version of the package.
-                required: true
-              - label: I searched existing issues and this is not a duplicate.
-                required: true
+          label: Environment
+          description: Node.js, package manager, TypeScript and `moduleResolution`, ESM or CommonJS, and the React Native / Expo / NestJS versions and platform where relevant.
+          placeholder: 'Node 22.12, pnpm 11, TypeScript 5.9 (nodenext), react-native 0.86.2, iOS 26 simulator'
