@@ -46,6 +46,19 @@ describe('CollapsibleHeaderSlot', () => {
         expect(getByTestId('wide-slot')).toHaveStyle({ minWidth: 88, minHeight: 44, marginLeft: 8 });
     });
 
+    it('forwards view props to the slot node while keeping touches passing through it', () => {
+        expect.hasAssertions();
+
+        const { getByTestId } = render(
+            <CollapsibleHeaderSlot testID="slot" collapsable={false} accessibilityLabel="Navigation" nativeID="slot-node" />
+        );
+
+        expect(getByTestId('slot')).toHaveProp('collapsable', false);
+        expect(getByTestId('slot')).toHaveProp('accessibilityLabel', 'Navigation');
+        expect(getByTestId('slot')).toHaveProp('nativeID', 'slot-node');
+        expect(getByTestId('slot')).toHaveProp('pointerEvents', 'box-none');
+    });
+
     it('still delivers presses to the control inside the slot', () => {
         expect.hasAssertions();
 

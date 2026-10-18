@@ -23,6 +23,7 @@ interface Props extends Omit<ViewProps, 'children'> {
     readonly expandedContentContainerStyle?: StyleProp<ViewStyle>;
     readonly collapsedContentContainerStyle?: StyleProp<ViewStyle>;
     readonly persistentContentContainerStyle?: StyleProp<ViewStyle>;
+    readonly persistentRowStyle?: StyleProp<ViewStyle>;
 }
 
 /**
@@ -33,6 +34,7 @@ export const CollapsibleHeader = ({
     children,
     motion,
     expandedTitleAlignment = 'center',
+    persistentRowStyle,
     style,
     expandedContentContainerStyle,
     collapsedContentContainerStyle,
@@ -45,7 +47,7 @@ export const CollapsibleHeader = ({
     const contentLayerStyle = { top: insets.top };
     const vacantSlot = <View pointerEvents="none" />;
     const persistentContent = (
-        <View style={collapsibleHeaderStyles.persistentRow} pointerEvents="box-none">
+        <View style={[collapsibleHeaderStyles.persistentRow, persistentRowStyle]} pointerEvents="box-none">
             {leading ?? vacantSlot}
             {trailing ?? vacantSlot}
         </View>

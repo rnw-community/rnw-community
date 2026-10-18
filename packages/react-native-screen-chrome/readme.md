@@ -112,6 +112,44 @@ Render content first, decorative `EdgeFade` and `CollapsibleHeaderBackdrop` laye
 layers. `ScreenChromeScrollView` adds safe-area padding and caller-provided content insets; explicit consumer padding in
 `contentContainerStyle` remains last and wins.
 
+## Styling and NativeWind
+
+The package bundles no theme and parses no class names. Every rendered node takes plain style objects or arrays
+(including unistyles-sanitized objects), merged after the package defaults so the consumer value wins:
+
+| Node                                    | Style prop                                                                             | Other props                                         |
+| --------------------------------------- | -------------------------------------------------------------------------------------- | --------------------------------------------------- |
+| `ScreenChromeFrame`                     | `style`                                                                                | every `ViewProps` prop                              |
+| `ScreenChromeScrollView`                | `style`, `contentContainerStyle` (see `contentInsetMode`)                              | every `ScrollView` prop except the scroll wiring    |
+| `CollapsibleHeader` container           | `style`                                                                                | every `ViewProps` prop except `pointerEvents`       |
+| `CollapsibleHeader` title layers        | `expandedContentContainerStyle`, `collapsedContentContainerStyle`                      | —                                                   |
+| `CollapsibleHeader` control row         | `persistentContentContainerStyle` (layer), `persistentRowStyle` (row inside the layer) | —                                                   |
+| `CollapsibleHeaderSlot`                 | `style`                                                                                | every `ViewProps` prop except `pointerEvents`       |
+| `ScreenChromeHeader`                    | `style` (container), `rowStyle` (row)                                                  | every `ViewProps` prop except `pointerEvents`       |
+| `EdgeFade`, `CollapsibleHeaderBackdrop` | `style`                                                                                | every `ViewProps` prop except the inert props below |
+| `ScreenChromeFooter`                    | `style` (container), `contentStyle` (measured content)                                 | every `ViewProps` prop except `pointerEvents`       |
+
+`CollapsibleHeaderTitleSlot` is a grouping marker whose own node is never mounted — its two children become the title
+layers — so title layers are styled through `expandedContentContainerStyle` and `collapsedContentContainerStyle`.
+Package-owned props are applied after the spread on purpose: `pointerEvents="box-none"` on the header, slots and
+footer keeps empty chrome from swallowing touches, and `pointerEvents="none"` plus the hidden-accessibility props on
+edge fades keep decorative bands out of hit testing and screen readers.
+
+NativeWind resolves `className` at the JSX call site, and this package ships precompiled output, so a `className`
+string forwarded into the package would reach a native view unresolved. Wrap the components you style with classes
+once at module scope instead — NativeWind v5 `styled`, or `cssInterop` with the same mapping on v4. NativeWind v5 has
+no global registration, so the package ships no side-effect `className` entry point; the wrapper is the supported path:
+
+```tsx
+import { styled } from 'nativewind';
+
+const ChromeScrollView = styled(ScreenChromeScrollView, {
+    className: 'style',
+    contentContainerClassName: 'contentContainerStyle',
+});
+const ChromeHeaderSlot = styled(CollapsibleHeaderSlot, { className: 'style' });
+```
+
 ## CollapsibleHeader
 
 Composes the optional persistent leading/trailing controls and the expanded/collapsed title layers of its compound
@@ -187,8 +225,9 @@ const { rowPadding } = SCREEN_CHROME_HEADER_LAYOUT_METRICS;
 ```
 
 `expandedContentContainerStyle`, `collapsedContentContainerStyle` and `persistentContentContainerStyle` are forwarded to
-the primitive and merged after those defaults, so a consumer style always wins. Derive custom offsets from
-[`SCREEN_CHROME_HEADER_LAYOUT_METRICS`](#screen_chrome_header_layout_metrics) instead of copying the numbers.
+the primitive and merged after those defaults, so a consumer style always wins. `persistentRowStyle` merges after the
+control row's own defaults (`space-between`, row padding), for example to change the row's horizontal padding.
+Derive custom offsets from [`SCREEN_CHROME_HEADER_LAYOUT_METRICS`](#screen_chrome_header_layout_metrics) instead of copying the numbers.
 
 ## Compound header contract
 
@@ -229,7 +268,8 @@ transition layers.
 
 The slot is `pointerEvents="box-none"`, so an empty or narrow slot never swallows taps while its children stay
 pressable. It defaults to a 44pt minimum; `style` merges last to adjust size or spacing, so overriding
-`minWidth`/`minHeight` makes the rendered control responsible for its own touch target.
+`minWidth`/`minHeight` makes the rendered control responsible for its own touch target. Every other `ViewProps` prop
+(`testID`, `collapsable`, accessibility props, `onLayout`, …) is forwarded to the slot node.
 
 ## CollapsibleHeaderTitleSlot
 
@@ -242,6 +282,9 @@ handoff between them are delegated to `@rnw-community/react-native-collapsible-h
     <Text>Accounts</Text>
 </CollapsibleHeaderTitleSlot>
 ```
+
+Inside `CollapsibleHeader` the slot itself is not mounted — its two children become the title layers — so style those
+layers through `expandedContentContainerStyle` and `collapsedContentContainerStyle`.
 
 ## CollapsibleHeaderSlotKind
 
@@ -460,10 +503,12 @@ edge, and the native sheet clips the chrome to its corner radius. Space for a gr
 Renders a static, non-collapsible header row with the same safe-area and paint-order contract as the collapsible one:
 absolute at the top, `zIndex: 3`, `box-none`, sized to `insets.top + topInset + headerHeight` so
 `getScreenChromeHeaderMetrics` predicts its footprint exactly. `topInset` adds app-owned padding beyond the safe area
-for screens that nest under an already-padded container. Requires a `ScreenChromeProvider` ancestor.
+for screens that nest under an already-padded container. Requires a `ScreenChromeProvider` ancestor. `style` and every
+other `ViewProps` prop except `pointerEvents` go to the container; `rowStyle` merges after the row defaults (height,
+`space-between`, row padding).
 
 ```tsx
-<ScreenChromeHeader testID="header" topInset={10} style={styles.headerBackground}>
+<ScreenChromeHeader testID="header" topInset={10} style={styles.headerBackground} rowStyle={{ paddingHorizontal: 8 }}>
     <Button onPress={goBack} title="Back" />
     <Text>{title}</Text>
 </ScreenChromeHeader>

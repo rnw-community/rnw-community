@@ -79,4 +79,20 @@ describe('ScreenChromeHeader', () => {
 
         expect(getByTestId('static-header')).toHaveStyle({ paddingTop: 99 });
     });
+
+    it('forwards view props to the container and merges the row style after the row defaults', () => {
+        expect.hasAssertions();
+
+        const { getByTestId } = renderHeader(
+            <ScreenChromeHeader testID="static-header" accessibilityRole="header" rowStyle={{ paddingHorizontal: 4 }}>
+                <Text>{TITLE}</Text>
+            </ScreenChromeHeader>
+        );
+
+        expect(getByTestId('static-header')).toHaveProp('accessibilityRole', 'header');
+        expect(getByTestId('static-header-row')).toHaveStyle({
+            height: SCREEN_CHROME_DEFAULT_CONFIG.headerHeight,
+            paddingHorizontal: 4,
+        });
+    });
 });
