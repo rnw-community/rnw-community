@@ -1,0 +1,25 @@
+{
+    "name": "@rnw-community/react-native-payments-docs",
+    "version": "2.28.3",
+    "private": true,
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/rnw-community/rnw-community.git",
+        "directory": "packages/react-native-payments-docs"
+    },
+    "license": "MIT",
+    "type": "module",
+    "scripts": {
+        "clear": "rm -rf .vitepress/cache .vitepress/dist",
+        "clear:deps": "rm -rf ./node_modules .vitepress/cache .vitepress/dist",
+        "docs:build": "vitepress build",
+        "docs:dev": "vitepress dev",
+        "docs:preview": "vitepress preview"
+    },
+    "devDependencies": {
+        "vitepress": "^1.6.4"
+    },
+    "engines": {
+        "node": ">=22.13.0"
+    }
+}

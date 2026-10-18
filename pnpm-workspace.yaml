@@ -62,6 +62,7 @@ minimumReleaseAge: 1440
 allowBuilds:
   "@swc/core": false
   edgedriver: false
+  esbuild: false
   geckodriver: false
   nx: false
   unrs-resolver: false
