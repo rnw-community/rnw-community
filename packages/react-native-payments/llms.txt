@@ -38,6 +38,7 @@ handshake without a repo-wide search.
 - [docs/guides/errors.md](docs/guides/errors.md): The `ConstructorError` / `DOMException` / `PaymentsError` mapping table.
 - [docs/guides/retry.md](docs/guides/retry.md): `PaymentResponse.retry()` semantics and platform limits.
 - [docs/guides/testing.md](docs/guides/testing.md): Jest `NativeModules.Payments` mock and example apps.
+- [docs/guides/setup-doctor.md](docs/guides/setup-doctor.md): `npx rnw-payments doctor [--fix]` — checks and patches a bare app's entitlements and Android manifest against `payments.config`.
 - [docs/guides/troubleshooting.md](docs/guides/troubleshooting.md): Real reported issues and their fixes.
 - [docs/guides/gateways/index.md](docs/guides/gateways/index.md): Pick your gateway — the shared sheet-to-backend flow and where each wallet token lives on the `PaymentResponse`.
 - [docs/guides/gateways/stripe.md](docs/guides/gateways/stripe.md), [docs/guides/gateways/adyen.md](docs/guides/gateways/adyen.md), [docs/guides/gateways/braintree.md](docs/guides/gateways/braintree.md), [docs/guides/gateways/checkout-com.md](docs/guides/gateways/checkout-com.md): Per-PSP recipes — Google Pay `gatewayConfig` values, Apple Pay certificate setup, token forwarding and the server call, each value with its source link and verification date.

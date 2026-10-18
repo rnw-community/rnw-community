@@ -69,6 +69,9 @@ src/
   enum/          — PaymentMethodNameEnum, EnvironmentEnum, PaymentComplete, SupportedNetworkEnum,
                    PaymentUpdateErrorTypeEnum + PaymentAddressFieldEnum + PaymentContactFieldEnum (field level errors)
   error/         — ConstructorError, DOMException, PaymentsError
+  doctor/        — runPaymentsDoctor + runPaymentsCli behind the `rnw-payments` bin (bin/rnw-payments.js): registers a
+                   provider per native file that runs the withPayments mods on the file on disk, reports drift, and
+                   writes it on --fix
   expo-plugins/  — withApplePay, withGooglePay, withPayments (Expo config plugin), loadPaymentsConfig (reads
                    payments.config.(ts|js|json) when the plugin has no options)
   interface/     — GenericPaymentMethodDataDataInterface, PaymentResponseAddress, change-event payload/registration/native update
