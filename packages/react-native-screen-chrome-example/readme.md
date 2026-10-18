@@ -14,6 +14,13 @@ targets (`apps/bare` React Native CLI with committed native projects, `apps/expo
 - **Header and footer** — static header with a sticky footer band recipe (absolute container + bottom `EdgeFade` +
   safe-area padding), `contentInsetBottom` reserving space for the bar. GIF pending #601 (this screen carries two
   blur bands and trips the native crash most reliably).
+- **Snap off** — the collapsible header with `snapToCollapse: false`; with the system reduce-motion setting on, the
+  snap-enabled collapsible demo snaps instantly instead.
+- **Scroll-driven bottom fade** — a bottom `EdgeFade` whose opacity and blur ramp in with `scrollAnimation`.
+- **Floating tab bar** — a pill tab row in `ScreenChromeFooter`, cleared by `useBottomChromeInset().chromeHeight`.
+- **Keyboard-sticky footer** — `ScreenChromeFooter` in `react-native-keyboard-controller`'s `KeyboardStickyView` with
+  a `TextInput` composer.
+- **Light and dark** — `ScreenChromeProvider colorScheme` switched from app state.
 
 Each screen mounts its own `ScreenChromeProvider`; the navigator mounts none.
 

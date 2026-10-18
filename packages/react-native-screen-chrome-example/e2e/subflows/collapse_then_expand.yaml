@@ -1,0 +1,36 @@
+appId: ${APP_ID}
+---
+# Shared "collapse fully, then scroll back to the top" gesture for a screen rendering
+# the demo collapsible header under the `HEADER` testID prefix. Two slow full drags
+# reach the collapsed endpoint unambiguously. Slow drags carry no fling momentum, so
+# one drag back cannot undo two: keep dragging back until the list is near the top
+# again, where the expanded title layer must return.
+- repeat:
+      times: 2
+      commands:
+          - swipe:
+                start: 50%, 80%
+                end: 50%, 30%
+                duration: 900
+- waitForAnimationToEnd:
+      timeout: 5000
+- extendedWaitUntil:
+      visible:
+          id: '${HEADER}-collapsed-title'
+      timeout: 15000
+- repeat:
+      while:
+          notVisible:
+              id: '${HEADER}-expanded-title'
+      times: 4
+      commands:
+          - swipe:
+                start: 50%, 30%
+                end: 50%, 85%
+                duration: 900
+          - waitForAnimationToEnd:
+                timeout: 5000
+- extendedWaitUntil:
+      visible:
+          id: '${HEADER}-expanded-title'
+      timeout: 15000
