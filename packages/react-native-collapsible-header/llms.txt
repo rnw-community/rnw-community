@@ -1,78 +1,39 @@
 # @rnw-community/react-native-collapsible-header
 
-> Generic slot-based collapsible header for React Native and react-native-web, driven by a Reanimated shared scroll
-> value. Ships ESM + CJS, precompiled with the React Compiler (React 18+), peer-depends on react-native-reanimated
-> >=4.1.0 <5 on react-native >=0.78. Works with ScrollView, FlatList, SectionList, FlashList, and LegendList.
+> Generic slot-based collapsible header for React Native and React Native Web, driven by a Reanimated shared scroll
+> value. Works with `ScrollView`, `FlatList`, `SectionList`, FlashList, and LegendList; ships ESM + CJS precompiled
+> with the React Compiler (React 18+) and peer-depends on `react-native-reanimated` (>=4.1.0 <5) on `react-native`
+> (>=0.78).
 
-## Exports
+Mount one `CollapsibleHeaderProvider` per scrollable inside each screen, never once around a navigator. Snapping needs
+a mounted `CollapsibleHeader`, and only one header per provider may snap.
 
-- `CollapsibleHeader` — component rendering expanded/collapsed/persistent slots in animated layers; props: scrollY?,
-  expandedHeight, collapsedHeight, collapseDistance? (default expandedHeight - collapsedHeight), collapseStart? (0),
-  mode? ('flow' | 'overlay'), snap? (false), stretchOnOverscroll? (false), collapsedTransition? ('fade' | 'roll',
-  default 'fade'), motion?, per-layer styles, plus ViewProps.
-- `CollapsibleHeaderProvider` — context provider owning scrollY, onScroll handler, and animated scroll ref; enables
-  prop-less header wiring and snap-to-endpoint.
-- `useCollapsibleHeaderScroll()` — returns `{ scrollY, onScroll, scrollRef }` for attaching a scrollable; throws
-  without a provider ancestor. `scrollRef` (type `CollapsibleHeaderScrollRef`) attaches to any list ref shape —
-  component instances (Animated.FlatList), createAnimatedComponent wrappers, or imperative handles (FlashList,
-  LegendList) — with no cast; LegendList takes it through `refScrollView`.
-- `useCollapsibleHeaderProgress()` — returns collapse progress SharedValue (0 expanded → 1 collapsed) inside header
-  slots for custom slot animations; throws without a header ancestor.
-- `getCollapsibleHeaderContentInsetStyle(expandedHeight)` — `{ paddingTop }` style for overlay-mode scroll content.
-- `DefaultCollapsibleHeaderMotionConfig` — baseline motion preset for building custom presets.
-- Types: `CollapsibleHeaderProps`, `CollapsibleHeaderMotionConfig`, `CollapsibleHeaderScroll`, `CollapsibleHeaderMode`,
-  `CollapsibleHeaderCollapsedTransition`, `CollapsibleHeaderScrollRef`.
+## Guides
 
-## Use cases
+- [Installation](readme.md#installation): Reanimated peer dependency and its Babel plugin setup.
+- [React Compiler](readme.md#react-compiler): Precompiled output and the bundled `react-compiler-runtime`.
+- [Quick start](readme.md#quick-start): Provider, header, and scrollable wired through context, plus manual `scrollY` wiring.
+- [One provider per scrollable](readme.md#one-provider-per-scrollable): Provider scope and the shared-provider-across-screens mistake.
+- [Snap requires a mounted CollapsibleHeader](readme.md#snap-requires-a-mounted-collapsibleheader): Why a provider alone never snaps.
+- [Recipes](readme.md#recipes): `FlatList`, `SectionList`, FlashList, LegendList, other scrollables, and react-native-web wiring.
+- [Testing consumers](readme.md#testing-consumers): Reanimated Jest setup and queries for the hidden layer.
 
-1. Hero header — a rich summary (balance, profile, hero) in expandedContent crossfades into a compact row in
-   collapsedContent as the list scrolls; persistent actions stay tappable in both states.
-2. Navigation chrome — a large screen title (expandedContent) collapses into a small centered title
-   (collapsedContent) between persistent leading/trailing icon buttons (persistentContent), the iOS large-title
-   pattern. Both are implemented in packages/react-native-collapsible-header-example (header-demo-screen.tsx and
-   settings-demo-screen.tsx) with GIFs in this package's docs/ directory.
+## API reference
 
-## Provider scope (common mistake)
+- [`CollapsibleHeader`](readme.md#collapsibleheader): Renders expanded, collapsed, and persistent slots in animated layers driven by the scroll offset.
+- [`CollapsibleHeaderProps`](readme.md#collapsibleheaderprops): Geometry, mode, snap, overscroll, transition, motion, and per-layer style props of `CollapsibleHeader`.
+- [`CollapsibleHeaderProvider`](readme.md#collapsibleheaderprovider): Owns `scrollY`, the scroll handler, the scroll ref, and the snap slot of one scrollable.
+- [`useCollapsibleHeaderScroll`](readme.md#usecollapsibleheaderscroll): Returns the provider wiring `{ scrollY, onScroll, scrollRef }` for a scrollable.
+- [`CollapsibleHeaderScroll`](readme.md#usecollapsibleheaderscroll): The `{ scrollY, onScroll, scrollRef }` shape returned by `useCollapsibleHeaderScroll`.
+- [`CollapsibleHeaderScrollRef`](readme.md#collapsibleheaderscrollref): Animated ref type that attaches to any list ref shape without a cast.
+- [`useCollapsibleHeaderProgress`](readme.md#usecollapsibleheaderprogress): Collapse progress shared value (0 expanded, 1 collapsed) for custom slot animations.
+- [`getCollapsibleHeaderContentInsetStyle`](readme.md#getcollapsibleheadercontentinsetstyle): `{ paddingTop }` style for overlay-mode scroll content.
+- [`DefaultCollapsibleHeaderMotionConfig`](readme.md#defaultcollapsibleheadermotionconfig): Baseline motion preset to spread into custom presets.
+- [`CollapsibleHeaderMotionConfig`](readme.md#collapsibleheadermotionconfig): Normalized-progress thresholds and offsets of the header motion.
+- [`CollapsibleHeaderCollapsedTransition`](readme.md#collapsibleheadercollapsedtransition): `'fade' | 'roll'` entrance of the collapsed layer.
+- [`CollapsibleHeaderMode`](readme.md#collapsibleheadermode): `'flow' | 'overlay'` placement of the header relative to the scroll content.
 
-One CollapsibleHeaderProvider per scrollable, mounted INSIDE each screen — never once around a navigator. A provider
-holds one scrollY, one scroll handler, one scroll ref, and one snap slot. Per-screen providers give sibling screens
-independent scroll state (safe with react-native-screens freezeOnBlur); one provider shared across screens makes the
-last-scrolled screen drive every header. Multiple headers in ONE screen may share a provider (same offset, e.g. hero
-plus sticky sub-header), but only one may set snap: a second snapping header with different geometry throws, and
-combining snap with a scrollY prop throws. Snap also needs a mounted CollapsibleHeader — the provider owns the snap
-slot, the header registers the geometry that fills it, so a provider alone never snaps. Snapping follows the system
-reduce-motion setting: instant instead of animated when it is on.
+## Architecture & conventions
 
-## Behavior contract
-
-- Consumer owns scroll (or delegates to the provider), safe-area, typography, and colors; package owns geometry
-  animation, crossfade, pointer-event and accessibility switching between layers, and clamping.
-- `CollapsibleHeaderProvider syncNativeScrollOffset` (default false) mirrors the native scroll offset into
-  `scrollY`, covering navigator offset restores that emit no scroll event; it requires the provider ref to
-  resolve to a real host scrollable and throws for imperative-handle-only attachments, hence opt-in.
-- Motion thresholds are normalized progress values in [0, 1] over [collapseStart, collapseStart + collapseDistance].
-- `collapsedTransition='roll'` clips the collapsed layer to a collapsedHeight band at the top of the header and rolls
-  its content up from below that band while it fades in; an omitted motion.collapsedTranslateY resolves to
-  collapsedHeight under 'roll' (explicit values win). With testID the band is {testID}-collapsed-clip.
-- Pointer events and accessibility focus switch at `pointerEventsSwitchProgress`, which defaults to the cross-fade
-  midpoint `(collapsedOpacityStartProgress + expandedOpacityEndProgress) / 2`.
-- The expanded layer never owns pointer events or accessibility focus once it has faded to zero opacity, even when the
-  configured thresholds leave no cross-fade window for the derived midpoint to sit inside.
-- The invisible layer is removed from the accessibility tree (accessibilityElementsHidden /
-  importantForAccessibility='no-hide-descendants' / aria-hidden on web).
-- Every layer is transparent to touches it does not own: background 'none', persistent and visible transition layer
-  'box-none', and the height-animated shell 'box-none' — taps on empty header space reach the scrollable beneath.
-  Descendants stay tappable; headerStyle={{ pointerEvents: 'auto' }} overrides the shell default.
-- Testing-library queries for content in the hidden layer require `{ includeHiddenElements: true }`.
-- When testID is set, layers derive their own: {testID}-background/-header/-expanded/-collapsed/-persistent —
-  usable from RNTL, Maestro, or Detox.
-
-## Example app and E2E
-
-A runnable example (Expo + bare React Native targets, Maestro e2e suite, demo-GIF recording flow) lives in the
-monorepo at packages/react-native-collapsible-header-example — copy its src/component screens as integration
-templates.
-
-## Docs
-
-https://github.com/rnw-community/rnw-community/tree/master/packages/react-native-collapsible-header#readme
+- [AGENTS.md](https://github.com/rnw-community/rnw-community/blob/master/packages/react-native-collapsible-header/AGENTS.md): Architecture, invariants, build, and coverage.
+- [Example app](https://github.com/rnw-community/rnw-community/tree/master/packages/react-native-collapsible-header-example): Expo and bare targets, Maestro e2e suite, and integration-template screens.
