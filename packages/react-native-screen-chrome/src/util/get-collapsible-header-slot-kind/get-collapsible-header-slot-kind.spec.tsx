@@ -26,7 +26,7 @@ describe('getCollapsibleHeaderSlotKind', () => {
         expect(CollapsibleHeaderTitleSlot.screenChromeSlotKind).toBe('title');
     });
 
-    it('resolves the public slot components through the identity fast path', () => {
+    it('resolves the public slot components through their marker', () => {
         expect.hasAssertions();
 
         expect(getCollapsibleHeaderSlotKind(<CollapsibleHeaderSlot />)).toBe('control');

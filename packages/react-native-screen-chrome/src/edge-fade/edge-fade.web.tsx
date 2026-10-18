@@ -44,15 +44,6 @@ export const EdgeFade = ({
         config,
         getDefined(intensity, () => config.intensity)
     );
-    const positionalStyle: WebEdgeFadeStyleInterface = {
-        position: 'absolute',
-        left: 0,
-        right: 0,
-        zIndex: 2,
-        height: metrics.height,
-        top: metrics.top,
-        bottom: metrics.bottom,
-    };
     const renderResolvedBand = renderBand ?? renderEdgeFadeBand;
 
     if (!isDefined(renderResolvedBand)) {
@@ -61,7 +52,7 @@ export const EdgeFade = ({
                 {...viewProps}
                 pointerEvents="none"
                 aria-hidden
-                style={[{ ...positionalStyle, ...visualStyle }, animatedStyle, style]}
+                style={[edgeFadeStyles.band, metrics, visualStyle, animatedStyle, style]}
             />
         );
     }
@@ -72,7 +63,12 @@ export const EdgeFade = ({
     };
 
     return (
-        <AnimatedView {...viewProps} pointerEvents="none" aria-hidden style={[positionalStyle, animatedStyle, style]}>
+        <AnimatedView
+            {...viewProps}
+            pointerEvents="none"
+            aria-hidden
+            style={[edgeFadeStyles.band, metrics, animatedStyle, style]}
+        >
             {renderResolvedBand({
                 position,
                 colorScheme,

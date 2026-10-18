@@ -35,8 +35,8 @@ pnpm test && pnpm test:coverage && pnpm build && pnpm ts && pnpm ts:nodenext && 
   Both are optional; a missing one is replaced by an empty `pointerEvents="none"` placeholder so the `space-between`
   row keeps a lone trailing control right-aligned.
 - Slot discovery (`getCollapsibleHeaderSlots`) classifies direct children through `getCollapsibleHeaderSlotKind`: the
-  static string marker `screenChromeSlotKind` (`'control'`/`'title'`) on the element type, with component identity as
-  a fast path only. Identity alone breaks when a bundle resolves two copies of this package (`dist/module` +
+  static string marker `screenChromeSlotKind` (`'control'`/`'title'`) on the element type, never component identity:
+  identity breaks when a bundle resolves two copies of this package (`dist/module` +
   `dist/commonjs`). Exactly one title slot is required; a control slot before it is leading, after it trailing, at
   most one each; unknown types, a missing title slot, and duplicates throw a `TypeError`. Context registration was
   rejected because it renders an empty header on the first frame.
@@ -109,7 +109,7 @@ pnpm test && pnpm test:coverage && pnpm build && pnpm ts && pnpm ts:nodenext && 
 - Relative source imports stay extensionless; the build's post-compile rewrite/assert pair enforces extensioned specifiers in `dist/module` and `dist/typescript/module`, and NodeNext validation must pass.
 - No manual `useMemo`, `useCallback`, or `React.memo` in `src` for plain derivations — that is React Compiler's
   job once #601 resolves and compiler output returns. While the compiler is absent (see below), values whose
-  *identity* is behavior — a merged ref callback that React 19 would otherwise detach, clean up, and reattach
+  _identity_ is behavior — a merged ref callback that React 19 would otherwise detach, clean up, and reattach
   on every render — must be manually memoized; nothing else memoizes them today.
 - `EdgeFade` native wraps its blur and wash in `MaskedView` + `expo-linear-gradient` (#640). Do not add further native
   views to the default band while #601 is open — gradient/masked native views have corrupted the Hermes heap on the

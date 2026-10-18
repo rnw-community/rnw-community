@@ -28,13 +28,9 @@ const takeVacantSlot = <T extends ReactElement>(current: T | undefined, next: T,
 };
 
 const assignSlot = (slots: DiscoveredSlots, child: ReactNode): DiscoveredSlots => {
-    if (!isValidElement<SlotProps>(child)) {
-        throw new TypeError('CollapsibleHeader direct children must be CollapsibleHeaderSlot or CollapsibleHeaderTitleSlot');
-    }
+    const kind = isValidElement(child) ? getCollapsibleHeaderSlotKind(child) : void 0;
 
-    const kind = getCollapsibleHeaderSlotKind(child);
-
-    if (!isDefined(kind)) {
+    if (!isValidElement<SlotProps>(child) || !isDefined(kind)) {
         throw new TypeError('CollapsibleHeader direct children must be CollapsibleHeaderSlot or CollapsibleHeaderTitleSlot');
     }
 

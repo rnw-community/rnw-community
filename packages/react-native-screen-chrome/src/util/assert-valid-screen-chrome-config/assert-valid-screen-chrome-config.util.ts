@@ -50,7 +50,7 @@ const assertCollapsedHeaderHeight = (config: ScreenChromeConfigInterface): void 
     }
 };
 
-const assertThresholdOrder =(config: ScreenChromeConfigInterface): void => {
+const assertThresholdOrder = (config: ScreenChromeConfigInterface): void => {
     const hasValidOrder =
         config.collapseStart <= config.smallTitleStart &&
         config.smallTitleStart <= config.largeTitleEnd &&
