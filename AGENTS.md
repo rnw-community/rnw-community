@@ -269,12 +269,13 @@ Groups: builtin → external → `@rnw-community/*` → parent → sibling → i
 
 ### Lint toolchain — ESLint 10 + oxlint
 
-`eslint.config.mjs` is the single source of truth for every lint rule. `scripts/generate-oxlintrc.mjs` derives
-`.oxlintrc.json` from it: each rule ESLint enables that oxlint implements without type information, with identical
-options, and with matching results on a third-party parity corpus, moves to oxlint; `eslint-plugin-oxlint` then turns
-exactly those rules off in ESLint, so nothing is reported twice and nothing is dropped. The generator keeps a rule in
-ESLint when oxlint rejects its options or diverges from ESLint (its `rulesKeptInEslint` / `pluginsKeptInEslint` maps
-list each reason), and fails if the handoff would disable an ESLint rule that oxlint does not take over.
+`eslint.config.mjs` is the single source of truth for every lint rule. `scripts/generate-oxlintrc.mjs` resolves the
+ESLint rules per file kind (`.ts`, `.tsx`, `.spec.ts`, `.spec.tsx`) and converts them with `@oxlint/migrate`: each rule
+oxlint implements without type information moves to oxlint with identical options; `eslint-plugin-oxlint` then turns
+exactly those rules off in ESLint, so nothing is reported twice and nothing is dropped. Rules whose options oxlint
+rejects, or whose results diverge from ESLint on a third-party parity corpus, stay in ESLint (the
+`rulesKeptInEslint` / `pluginsKeptInEslint` maps list each reason). The generator fails if the handoff would replace
+an ESLint rule with different options.
 
 - After changing `eslint.config.mjs`, run `pnpm lint:oxlint:generate` and commit `.oxlintrc.json`; CI runs
   `pnpm lint:oxlint:check` and fails on drift
