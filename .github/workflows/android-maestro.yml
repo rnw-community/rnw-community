@@ -4,31 +4,20 @@ name: Android Maestro E2E
 # APK and running it against a device happen on two different runner pools, and
 # that split is load-bearing, not stylistic:
 #
-# - build-apk runs on a free GitHub-hosted ubuntu-24.04 (x86_64) runner. Native
-#   Android builds need the NDK's host clang, and Google publishes
-#   linux-x86_64 prebuilts only — no NDK release has ever shipped a
-#   linux-aarch64 host toolchain. That reasoning is unchanged by the runner
-#   move below: the self-hosted amd64 node could host a Gradle build now, but
-#   this repo is public, so the GitHub-hosted runner costs nothing and keeps
-#   fleet capacity for the part that actually needs a device.
+# - build-apk runs on a free GitHub-hosted ubuntu-24.04 (x86_64) runner. This
+#   repo is public, so the hosted runner costs nothing and keeps fleet capacity
+#   for the part that actually needs a device.
 # - maestro runs on the self-hosted x86_64 Linux fleet (tart-runner-fleet
 #   scale set trf-rnw-linux-amd64-4x8) purely to install the prebuilt APK into
 #   a KVM-accelerated Android emulator and drive Maestro. No Gradle, SDK, or
-#   NDK step belongs in this job.
+#   NDK step belongs in this job. The runner is an ephemeral rootless Podman
+#   container with /dev/kvm passed through and the SDK plus the
+#   system-images;android-34;google_apis;x86_64 image baked in — Google's own
+#   image, with the Google Play services the payments suite needs.
 #
-#   This used to say "arm64-native Redroid is the fleet's only way to run
-#   Android at all", and on the Apple-silicon Linux VMs that was true: no
-#   x86_64 host, no /dev/kvm, so the only option was Android-in-a-privileged-
-#   container on the host kernel. The amd64 node retires that constraint. It
-#   runs jobs in an ephemeral rootless Podman container with /dev/kvm passed
-#   through (`emulator -accel-check` reports accel 0, KVM version 12), so the
-#   real AOSP emulator boots — measured 23s cold, headless, for
-#   system-images;android-34;google_apis;x86_64. That is Google's own image
-#   with Google Play services present, which is what the payments suite needs
-#   and what forced the community GMS Redroid image before. It is also why
-#   Redroid cannot run here even as a fallback: no sudo, no privileged mode,
-#   no docker daemon, so binderfs can never be mounted. The arm64 Redroid path
-#   still exists on the macOS fleet if this ever needs reverting.
+# The emulator lifecycle, the Maestro install and the suite run come from
+# rnw-community/mobile-ci's run-maestro-android action, which also fails closed
+# when the runner has no usable KVM acceleration.
 #
 # The package/target matrix comes from .github/scripts/maestro-matrix.mjs,
 # which also decides which suites a pull request actually needs; add new
@@ -103,99 +92,17 @@ jobs:
                   fi
                   node .github/scripts/maestro-matrix.mjs affected.json | tee -a "$GITHUB_OUTPUT"
 
-    seed-pnpm-store:
-        name: Seed pnpm store cache (self-hosted Linux)
-        needs: detect
-        if: needs.detect.outputs.any == 'true'
-        permissions:
-            contents: read
-        # The maestro job restores the pnpm store but never saves it: uploads
-        # from the self-hosted fleet crawl at ~0.2 MB/s, so its implicit
-        # setup-node save timed out after the suite had already passed and left
-        # the key reserved for every other job. This hosted job is the only
-        # writer. It is deliberately not a `needs` of maestro: it finishes in a
-        # minute or two while build-apk takes ten or more, and a miss only costs
-        # a cold install (~25s on the fleet), so it must never gate the suite.
-        runs-on: ubuntu-24.04
-        timeout-minutes: 15
-        steps:
-            -   name: Checkout repository
-                uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-                timeout-minutes: 10
-                with:
-                    persist-credentials: false
-
-            -   name: Setup pnpm
-                uses: pnpm/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1 # v4.3.0
-
-            -   name: Setup Node
-                uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
-                timeout-minutes: 10
-                with:
-                    node-version: 22.x
-                    package-manager-cache: false
-
-            -   name: Force gzip cache archives
-                # actions/cache folds the compression method into the cache
-                # version, and picks zstd whenever a `zstd` binary answers on
-                # PATH. The rootless self-hosted container has no zstd (its
-                # archives are cache.tgz) and no sudo to install one, so a
-                # zstd entry saved here would never be visible to it. A silent
-                # `zstd` shim ahead of /usr/bin makes this job write gzip.
-                shell: bash
-                run: |
-                    set -euo pipefail
-                    shim_dir="${RUNNER_TEMP}/gzip-only-cache"
-                    mkdir -p "$shim_dir"
-                    printf '#!/bin/sh\nexit 1\n' > "$shim_dir/zstd"
-                    chmod +x "$shim_dir/zstd"
-                    echo "$shim_dir" >> "$GITHUB_PATH"
-
-            -   name: Resolve pnpm store path
-                id: pnpm-store
-                # Both runners resolve this to the same absolute path
-                # (/home/runner/setup-pnpm/node_modules/.bin/store/v11), which
-                # is part of the cache version and must match byte for byte.
-                shell: bash
-                run: echo "path=$(pnpm store path --silent)" >> "$GITHUB_OUTPUT"
-
-            -   name: Look up pnpm store cache
-                id: pnpm-cache
-                uses: actions/cache/restore@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
-                timeout-minutes: 5
-                with:
-                    path: ${{ steps.pnpm-store.outputs.path }}
-                    key: pnpm-store-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('pnpm-lock.yaml') }}
-                    lookup-only: true
-
-            -   name: Populate pnpm store
-                if: steps.pnpm-cache.outputs.cache-hit != 'true'
-                timeout-minutes: 15
-                run: pnpm install --frozen-lockfile --ignore-scripts
-
-            -   name: Save pnpm store cache
-                if: steps.pnpm-cache.outputs.cache-hit != 'true'
-                uses: actions/cache/save@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
-                timeout-minutes: 10
-                with:
-                    path: ${{ steps.pnpm-store.outputs.path }}
-                    key: ${{ steps.pnpm-cache.outputs.cache-primary-key }}
-
     build-apk:
         name: Build APK (${{ matrix.package }}, ${{ matrix.target }})
         needs: detect
         if: needs.detect.outputs.any == 'true'
         permissions:
             contents: read
-        # x86_64: the NDK's host clang has no arm64-Linux build, so this cannot
-        # run on the self-hosted fleet. See the top-of-file note.
         runs-on: ubuntu-24.04
         # collapsible-header/expo's native build (react-native-reanimated,
-        # 4-ABI CMake) measured at ~18 minutes on a clean run and blew the old
-        # 20-minute step timeout on a slower one (share-hosted infra varies) —
-        # confirmed live, not theoretical. Setup steps before the build measure
-        # under 2 minutes, so this still has real margin against the step
-        # timeout below.
+        # 4-ABI CMake) measured at ~18 minutes on a clean run and blew a
+        # 20-minute step timeout on a slower one, so the build step has 28
+        # minutes and the job keeps real margin on top of it.
         timeout-minutes: 35
         strategy:
             fail-fast: false
@@ -203,6 +110,7 @@ jobs:
                 include: ${{ fromJSON(needs.detect.outputs.matrix) }}
         env:
             APP_DIR: ${{ matrix.example_dir }}/apps/${{ matrix.target }}
+            APK_DIR: ${{ matrix.example_dir }}/apps/${{ matrix.target }}/android/app/build/outputs/apk/release
         steps:
             -   name: Checkout repository
                 uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -224,19 +132,53 @@ jobs:
                 timeout-minutes: 15
                 run: pnpm install --frozen-lockfile
 
+            -   name: Fingerprint the native surface
+                id: fingerprint
+                uses: rnw-community/mobile-ci/actions/native-fingerprint@3e9afaf1888bce8a3e4a70818d457ffa9de11d8d # v4.0.0
+                timeout-minutes: 10
+                with:
+                    platform: android
+                    working-directory: ${{ env.APP_DIR }}
+
+            # The release APK embeds its JavaScript bundle, so a cached APK is
+            # only this commit's APK when the JS that goes into the bundle is
+            # unchanged too. The JS hash is computed once here, before any build
+            # output exists, and reused verbatim by the save step.
+            -   name: Compute the APK cache key
+                id: app-key
+                shell: bash
+                env:
+                    NATIVE_FINGERPRINT: ${{ steps.fingerprint.outputs.hash }}
+                    JS_HASH: ${{ hashFiles('pnpm-lock.yaml', 'packages/*/package.json', 'packages/*/*.js', 'packages/*/src/**', format('{0}/apps/{1}/*', matrix.example_dir, matrix.target), format('{0}/apps/{1}/assets/**', matrix.example_dir, matrix.target)) }}
+                run: echo "fingerprint=${NATIVE_FINGERPRINT}-${JS_HASH:0:16}" >> "$GITHUB_OUTPUT"
+
+            -   name: Restore the built APK
+                id: app-cache
+                uses: rnw-community/mobile-ci/actions/native-app-cache@3e9afaf1888bce8a3e4a70818d457ffa9de11d8d # v4.0.0
+                timeout-minutes: 10
+                with:
+                    mode: restore
+                    path: ${{ env.APK_DIR }}
+                    profile: android-${{ matrix.package }}-${{ matrix.target }}
+                    arch: universal
+                    toolchain: ubuntu-24.04
+                    fingerprint: ${{ steps.app-key.outputs.fingerprint }}
+
             -   name: Build workspace JS dependencies
+                if: steps.app-cache.outputs.cache-hit != 'true'
                 timeout-minutes: 10
                 env:
                     BUILD_FILTER: ${{ matrix.build_filter }}
                 run: pnpm build --filter="${BUILD_FILTER}"
 
             -   name: Generate native project (expo)
-                if: matrix.target == 'expo'
+                if: steps.app-cache.outputs.cache-hit != 'true' && matrix.target == 'expo'
                 timeout-minutes: 10
                 working-directory: ${{ matrix.example_dir }}
                 run: pnpm prebuild:expo
 
             -   name: Set up Android SDK
+                if: steps.app-cache.outputs.cache-hit != 'true'
                 uses: android-actions/setup-android@9fc6c4e9069bf8d3d10b2204b1fb8f6ef7065407 # v3.2.2
                 timeout-minutes: 15
                 with:
@@ -244,12 +186,12 @@ jobs:
                     # obsolete "tools" package was withdrawn from the Google SDK
                     # repository, so sdkmanager exits 1 with "Dependant package with
                     # key emulator not found!". Gradle resolves the build tools,
-                    # platform, and NDK/cmake it needs on its own on this
-                    # x86_64 host, so platform-tools is the only package this
-                    # workflow has to request.
+                    # platform, and NDK/cmake it needs on its own, so platform-tools
+                    # is the only package this job has to request.
                     packages: platform-tools
 
             -   name: Restore Gradle cache
+                if: steps.app-cache.outputs.cache-hit != 'true'
                 uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
                 timeout-minutes: 10
                 with:
@@ -261,27 +203,34 @@ jobs:
                         gradle-${{ matrix.package }}-${{ matrix.target }}-${{ runner.os }}-
 
             -   name: Build release APK
+                id: build
+                if: steps.app-cache.outputs.cache-hit != 'true'
                 # release, not debug: both example apps sign release with the
-                # checked-in debug keystore (see app/build.gradle,
-                # "Caution! In production, you need to generate your own keystore
-                # file."), so no signing secret is needed here.
-                # 28, not 20: collapsible-header/expo's native build (4-ABI
-                # CMake for react-native-reanimated) measured ~18 minutes on
-                # one run and blew a 20-minute budget outright on the next —
-                # confirmed live, not a guess.
+                # checked-in debug keystore (see app/build.gradle), so no signing
+                # secret is needed here.
                 timeout-minutes: 28
-                shell: bash
-                run: |
-                    set -euo pipefail
-                    set -x
-                    (cd "${APP_DIR}/android" && ./gradlew assembleRelease)
+                working-directory: ${{ env.APP_DIR }}/android
+                run: ./gradlew assembleRelease
+
+            -   name: Save the built APK
+                if: steps.build.outcome == 'success'
+                uses: rnw-community/mobile-ci/actions/native-app-cache@3e9afaf1888bce8a3e4a70818d457ffa9de11d8d # v4.0.0
+                continue-on-error: true
+                timeout-minutes: 10
+                with:
+                    mode: save
+                    path: ${{ env.APK_DIR }}
+                    profile: android-${{ matrix.package }}-${{ matrix.target }}
+                    arch: universal
+                    toolchain: ubuntu-24.04
+                    fingerprint: ${{ steps.app-key.outputs.fingerprint }}
 
             -   name: Upload APK artifact
                 uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
                 timeout-minutes: 5
                 with:
                     name: apk-${{ matrix.package }}-${{ matrix.target }}
-                    path: ${{ env.APP_DIR }}/android/app/build/outputs/apk/release/*.apk
+                    path: ${{ env.APK_DIR }}/app-release.apk
                     if-no-files-found: error
                     retention-days: 1
 
@@ -299,35 +248,19 @@ jobs:
         # pinned harder than the shape.
         runs-on: [self-hosted, trf-linux-amd64-4x8]
         # Self-hosted fleet capacity is shared with other repositories, so both the
-        # job and every step below carry an explicit bound. See the step comments
-        # for how each number was sized. No Gradle/SDK/NDK step runs here anymore
-        # (see build-apk), so this budget is boot + settle + install + test only.
-        # 35, not 30: the boot step now waits for the device to settle as well as
-        # to boot, and a full suite measured ~3 minutes of Maestro on top.
+        # job and every step below carry an explicit bound. This budget is
+        # boot + settle + install + test only.
         timeout-minutes: 35
         strategy:
             fail-fast: false
-            # One device at a time, for a different reason than before. The old
-            # redroid limit was about privileged containers sharing the host
-            # kernel's binder devices; nothing about an ephemeral rootless
-            # container running its own emulator process is shared that way.
-            # What is shared is the host: a booted API-34 AVD measured ~4.2 GB
-            # RSS in the 4x8 shape, so a handful of concurrent legs landing on
-            # one node would contend for RAM and KVM before they contend for
-            # anything else. The serialization stays until that headroom is
-            # measured rather than assumed.
+            # One device at a time: a booted API-34 AVD measured ~4.2 GB RSS in
+            # the 4x8 shape, so a handful of concurrent legs landing on one node
+            # would contend for RAM and KVM before they contend for anything
+            # else. The serialization stays until that headroom is measured
+            # rather than assumed.
             max-parallel: 1
             matrix:
                 include: ${{ fromJSON(needs.detect.outputs.matrix) }}
-        env:
-            MAESTRO_DEBUG_OUTPUT_DIRECTORY: ${{ github.workspace }}/${{ matrix.example_dir }}/artifacts/maestro-android-${{ matrix.package }}-${{ matrix.target }}
-            # The runner container is ephemeral and holds exactly one AVD, so a
-            # fixed name is unambiguous — no per-leg suffix is needed the way the
-            # shared-host redroid container needed one. The system image is named
-            # here so the create, the fallback SDK install, and the diagnostics
-            # can never disagree about which one this job wants.
-            AVD_NAME: e2e
-            ANDROID_SYSTEM_IMAGE: 'system-images;android-34;google_apis;x86_64'
 
         steps:
             -   name: Checkout repository
@@ -336,40 +269,6 @@ jobs:
                 with:
                     persist-credentials: false
 
-            -   name: Setup pnpm
-                uses: pnpm/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1 # v4.3.0
-
-            -   name: Setup Node
-                uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
-                timeout-minutes: 10
-                with:
-                    node-version: 22.x
-                    package-manager-cache: false
-
-            -   name: Resolve pnpm store path
-                id: pnpm-store
-                shell: bash
-                run: echo "path=$(pnpm store path --silent)" >> "$GITHUB_OUTPUT"
-
-            -   name: Restore pnpm store cache
-                # Restore-only: seed-pnpm-store is the sole writer of this key,
-                # so no cache upload post step runs on the self-hosted fleet.
-                uses: actions/cache/restore@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
-                timeout-minutes: 5
-                with:
-                    path: ${{ steps.pnpm-store.outputs.path }}
-                    key: pnpm-store-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('pnpm-lock.yaml') }}
-                    restore-keys: |
-                        pnpm-store-${{ runner.os }}-${{ runner.arch }}-
-
-            -   name: Install dependencies
-                # Needed only so `pnpm e2e:android:<target>` (a thin wrapper around
-                # `maestro test`, see the last step) can resolve at all; nothing
-                # here builds or bundles JS for the app itself — that already
-                # happened, if at all, in build-apk.
-                timeout-minutes: 15
-                run: pnpm install --frozen-lockfile
-
             -   name: Download APK artifact
                 uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
                 timeout-minutes: 10
@@ -377,527 +276,47 @@ jobs:
                     name: apk-${{ matrix.package }}-${{ matrix.target }}
                     path: .ci-artifacts/apk
 
-            -   name: Locate the preinstalled Android SDK
-                id: sdk
-                # The runner image bakes an SDK layer (cmdline-tools,
-                # platform-tools, emulator, platforms;android-34 and the x86_64
-                # system image), but nothing in the contract says ANDROID_HOME is
-                # exported into the job environment, and a future image revision
-                # may move it. So the location is probed instead of assumed, and a
-                # candidate only counts when it can do all three things this job
-                # needs: create an AVD, boot it, and talk to it. Anything short of
-                # that hands over to the setup-android fallback below rather than
-                # failing halfway through `avdmanager create`.
-                timeout-minutes: 3
-                shell: bash
-                run: |
-                    set -euo pipefail
-                    image_dir="system-images/android-34/google_apis/x86_64"
-                    sdk=''
-                    cli_bin=''
-                    for candidate in "${ANDROID_HOME:-}" "${ANDROID_SDK_ROOT:-}" /opt/android-sdk /usr/local/lib/android/sdk "$HOME/Android/Sdk"; do
-                      if [ -z "$candidate" ] || [ ! -d "$candidate" ]; then continue; fi
-                      [ -x "$candidate/emulator/emulator" ] || continue
-                      [ -x "$candidate/platform-tools/adb" ] || continue
-                      [ -d "$candidate/$image_dir" ] || continue
-                      cli_bin=''
-                      for bin in "$candidate/cmdline-tools/latest/bin" "$candidate/cmdline-tools/bin" "$candidate/tools/bin"; do
-                        if [ -x "$bin/avdmanager" ]; then cli_bin="$bin"; break; fi
-                      done
-                      [ -n "$cli_bin" ] || continue
-                      sdk="$candidate"
-                      break
-                    done
-                    if [ -z "$sdk" ]; then
-                      echo "sdk=" >> "$GITHUB_OUTPUT"
-                      echo "::warning::No Android SDK on this runner carries all of cmdline-tools, platform-tools, emulator and $ANDROID_SYSTEM_IMAGE; installing one with android-actions/setup-android instead. That still works, it just costs a download this image is supposed to have baked in."
-                      exit 0
-                    fi
-                    echo "Using the preinstalled Android SDK at $sdk"
-                    {
-                      echo "ANDROID_HOME=$sdk"
-                      echo "ANDROID_SDK_ROOT=$sdk"
-                    } >> "$GITHUB_ENV"
-                    {
-                      echo "$cli_bin"
-                      echo "$sdk/platform-tools"
-                      echo "$sdk/emulator"
-                    } >> "$GITHUB_PATH"
-                    echo "sdk=$sdk" >> "$GITHUB_OUTPUT"
-
-            -   name: Set up Android SDK (fallback)
-                # Only when the probe above found nothing usable, so the job keeps
-                # working across runner image revisions instead of depending on one.
-                if: steps.sdk.outputs.sdk == ''
-                uses: android-actions/setup-android@9fc6c4e9069bf8d3d10b2204b1fb8f6ef7065407 # v3.2.2
-                timeout-minutes: 25
-                with:
-                    # Explicit, because the action still defaults to
-                    # "tools platform-tools" and the obsolete "tools" package was
-                    # withdrawn from the Google SDK repository — see the same note
-                    # in build-apk. Unlike build-apk, this job needs the emulator
-                    # and a system image, and no Gradle run is here to resolve them.
-                    packages: 'platform-tools emulator platforms;android-34 ${{ env.ANDROID_SYSTEM_IMAGE }}'
-
-            -   name: Verify the Android SDK and KVM acceleration
-                timeout-minutes: 5
-                shell: bash
-                run: |
-                    set -euo pipefail
-                    sdk="${ANDROID_HOME:-${ANDROID_SDK_ROOT:-}}"
-                    if [ -z "$sdk" ] || [ ! -d "$sdk" ]; then
-                      echo "::error::Neither the probe nor android-actions/setup-android left a usable Android SDK on this runner."
-                      exit 1
-                    fi
-                    # setup-android puts cmdline-tools and platform-tools on PATH
-                    # but not emulator/, and on the probe path GITHUB_PATH only
-                    # takes effect for later steps — this one included. Both routes
-                    # converge here.
-                    for dir in "$sdk/cmdline-tools/latest/bin" "$sdk/platform-tools" "$sdk/emulator"; do
-                      [ -d "$dir" ] || continue
-                      case ":$PATH:" in
-                        *":$dir:"*) ;;
-                        *) echo "$dir" >> "$GITHUB_PATH"; PATH="$dir:$PATH" ;;
-                      esac
-                    done
-                    adb version
-                    # sed -n '1p', not `head -n 1`: head exits at the first line
-                    # and the still-writing emulator then dies of SIGPIPE, which
-                    # under pipefail fails this step over a log line.
-                    emulator -version 2>&1 | sed -n '1p'
-                    # The one hard precondition of this job, checked rather than
-                    # assumed. /dev/kvm is passed into the runner container only on
-                    # the 4x8 profile of the scale set; anywhere else the emulator
-                    # still starts, at software-emulation speed, and every timeout
-                    # below becomes wrong for reasons no log would explain.
-                    # The exit status is checked *and* the message is matched:
-                    # accel-check has shipped builds that report a negative accel
-                    # code and still exit 0, and a precondition that only looks at
-                    # one of the two is a false positive on exactly the host it
-                    # exists to catch. A healthy node prints
-                    # "accel: 0 KVM (version 12) is installed and usable".
-                    accel_status=0
-                    accel_output="$(emulator -accel-check 2>&1)" || accel_status=$?
-                    echo "$accel_output"
-                    if [ "$accel_status" -ne 0 ] || ! grep -q 'is installed and usable' <<<"$accel_output"; then
-                      echo "::error::This runner has no usable KVM acceleration. The maestro job must run on the trf-linux-amd64-4x8 profile — it is the only one of the amd64 scale set's shapes that passes /dev/kvm into the job container."
-                      exit 1
-                    fi
-
-            -   name: Create the AVD
-                id: avd
-                # The display is pinned to 720x1280 @ 320dpi because that is the
-                # display redroid presented, and the suite's flows are calibrated
-                # against it — not because it is a nice round number.
-                #
-                # The first amd64 run created this AVD from the `pixel_6` device
-                # profile (1080x2400 @ 420dpi) and three legs failed. Two proofs
-                # that the display was the cause:
-                #
-                #  1. snap_to_nearest_endpoint documents its own calibration:
-                #     the Android swipe releases between "the snap midpoint
-                #     (78dp) and the snap end (156dp)", with "offset =
-                #     travel/2". Its swipe travels 75%->37% = 38% of the
-                #     viewport height. At redroid's 640dp viewport that is
-                #     243dp of travel and a 122dp release — inside the window.
-                #     At pixel_6's 914dp viewport it is 347dp of travel and a
-                #     174dp release — past the snap end, so the flow no longer
-                #     tests a snap at all. The collapsible-header legs failed on
-                #     exactly the two flows that depend on where the release
-                #     lands.
-                #  2. pixel_6 has a punch-hole cutout redroid never had:
-                #     `displayCutoutSafeInsets=Rect(0, 128 - 0, 0)` in the
-                #     captured logcat of both failing collapsible-header legs.
-                #     128px at 420dpi is a 49dp top inset instead of the plain
-                #     24dp status bar, which moves every safe-area-inset layout —
-                #     and the expo apps render edge-to-edge, which is why the
-                #     expo leg lost its header buttons on all 7 flows.
-                #
-                # So no --device profile is used at all: a profile is exactly the
-                # thing that reintroduces a cutout and a resolution this suite is
-                # not written for. The geometry is stated outright instead.
-                timeout-minutes: 5
-                shell: bash
-                run: |
-                    set -euo pipefail
-                    echo "Creating AVD '$AVD_NAME' from $ANDROID_SYSTEM_IMAGE"
-                    # `echo no`: avdmanager prompts for a custom hardware profile,
-                    # and an unanswered prompt is a hang, not an error.
-                    echo no | avdmanager create avd --force -n "$AVD_NAME" -k "$ANDROID_SYSTEM_IMAGE"
-                    # ANDROID_AVD_HOME wins if the image sets it: avdmanager and
-                    # the emulator both honour it, so hardcoding ~/.android/avd
-                    # would edit a config.ini neither of them reads.
-                    config="${ANDROID_AVD_HOME:-$HOME/.android/avd}/$AVD_NAME.avd/config.ini"
-                    test -f "$config"
-                    # Appended, not edited: the AVD config parser keeps the last
-                    # occurrence of a key, so this overrides the generated values
-                    # without having to rewrite a file avdmanager owns.
-                    {
-                      # 720x1280 @ 320dpi = a 360x640dp viewport, density 2.0.
-                      # See the step comment: this is redroid's default display,
-                      # which is the display every flow in this suite was
-                      # calibrated on.
-                      echo "hw.lcd.width=720"
-                      echo "hw.lcd.height=1280"
-                      echo "hw.lcd.density=320"
-                      # No skin file and no cutout. skin.name doubles as the
-                      # emulator's window geometry, so it has to agree with
-                      # hw.lcd.* or the guest is letterboxed into a display the
-                      # flows' percentages no longer describe.
-                      echo "skin.name=720x1280"
-                      echo "skin.path=_no_skin"
-                      echo "hw.displayCutout=none"
-                      echo "hw.ramSize=2048"
-                      # Maestro's driver types through the hardware keyboard; a
-                      # soft-keyboard-only AVD turns text input into flake.
-                      echo "hw.keyboard=yes"
-                      echo "hw.gpu.enabled=yes"
-                      echo "hw.gpu.mode=swiftshader_indirect"
-                    } >> "$config"
-                    avdmanager list avd
-
-            -   name: Boot the emulator
-                id: emulator
-                # 12 minutes against a 23s measured cold boot on this node: the
-                # budget is here to catch a wedged boot, not to bound a healthy
-                # one, and it has to cover the two bounded settling waits at the
-                # end of the step as well. The redroid step it replaces needed 20
-                # because it could cold-pull a 1.1 GB image and then pay Android's
-                # plus GMS's first boot; a baked system image pays neither.
-                timeout-minutes: 12
-                shell: bash
-                run: |
-                    set -euo pipefail
-                    emulator_log="$RUNNER_TEMP/emulator.log"
-                    echo "EMULATOR_LOG=$emulator_log" >> "$GITHUB_ENV"
-                    # Every wait below can only fail as a timeout, which says
-                    # nothing about why Android did not come up. The emulator's own
-                    # stdout does — a refused /dev/kvm, a corrupt AVD, and a guest
-                    # kernel panic all look identical from the outside.
-                    dump_emulator_state() {
-                      echo "::group::emulator diagnostics"
-                      tail -n 200 "$emulator_log" 2>/dev/null || echo "no emulator log at $emulator_log"
-                      adb devices -l || true
-                      echo "::endgroup::"
-                    }
-                    trap dump_emulator_state ERR
-                    # -no-window and swiftshader_indirect because the runner
-                    # container is headless with no GPU to pass through;
-                    # -no-snapshot so every leg boots the same way instead of
-                    # resuming whatever the previous one left behind.
-                    nohup emulator -avd "$AVD_NAME" \
-                      -no-window -no-audio -no-boot-anim \
-                      -gpu swiftshader_indirect \
-                      -no-snapshot -no-metrics \
-                      -netdelay none -netspeed full \
-                      > "$emulator_log" 2>&1 &
-                    echo "EMULATOR_PID=$!" >> "$GITHUB_ENV"
-                    adb start-server
-                    timeout 120 adb wait-for-device
-                    # Derived, not assumed to be emulator-5554: the console port is
-                    # whatever was free when the emulator claimed it. The device
-                    # list is captured first because an awk that exits at the first
-                    # match would SIGPIPE adb, and under pipefail that is a step
-                    # failure rather than a match.
-                    devices="$(adb devices)"
-                    serial="$(awk '/^emulator-[0-9]+/ { print $1; exit }' <<<"$devices")"
-                    test -n "$serial"
-                    echo "ANDROID_SERIAL=$serial" >> "$GITHUB_ENV"
-                    # The export is load-bearing: the wait loop below runs in a
-                    # child `bash -c` whose single quotes defer expansion to that
-                    # child, and $GITHUB_ENV only reaches later steps.
-                    export ANDROID_SERIAL="$serial"
-                    # 300s against a measured 23s — generous on purpose. It
-                    # narrates itself as it goes because a killed runner uploads no
-                    # artifact at all, so the boot has to be readable in the live
-                    # log: load average beside the boot properties is what
-                    # separates "starved" from "stuck".
-                    # shellcheck disable=SC2016
-                    timeout 300 bash -c 'until [ "$(adb shell getprop sys.boot_completed 2>/dev/null | tr -d "\r")" = "1" ]; do
-                      echo "booting: bootanim=$(adb shell getprop init.svc.bootanim 2>/dev/null | tr -d "\r") load=$(cut -d" " -f1-3 /proc/loadavg)"
-                      sleep 5
-                    done'
-                    # The stock 256K ring buffer holds about six seconds of this
-                    # image's GMS chatter, so the logcat captured after a failed
-                    # suite never reached back to the flow that failed. 16M keeps
-                    # the whole suite.
-                    adb logcat -G 16M || echo "::warning::could not resize the logcat ring buffer; the captured logcat will only cover the last few seconds."
-                    # Dismiss the lock screen the stock image boots into, then turn
-                    # animations off — the same property the prewarmed redroid
-                    # /data volume used to carry, and one Maestro's waits depend on
-                    # more than anything else here.
-                    adb shell input keyevent 82 || true
-                    for scale in window_animation_scale transition_animation_scale animator_duration_scale; do
-                      adb shell settings put global "$scale" 0 || true
-                    done
-                    # sys.boot_completed flips well before the device is settled:
-                    # the launcher is still starting and GMS has not finished its
-                    # first-run initialization. The redroid path never saw this
-                    # because it booted a prewarmed /data volume that had already
-                    # been through both. On the first amd64 run one payments flow
-                    # burned its whole 60s launch budget waiting for an app that
-                    # was competing with that background work, while the seven
-                    # flows around it passed. These are the device's own readiness
-                    # signals, not a sleep: bootanim stopping means the launcher is
-                    # up, and broadcast-idle means the boot broadcast queue (GMS
-                    # first-run receivers included) has drained.
-                    # shellcheck disable=SC2016
-                    timeout 180 bash -c 'until [ "$(adb shell getprop init.svc.bootanim | tr -d "\r")" = "stopped" ]; do sleep 5; done' \
-                      || echo "::warning::init.svc.bootanim never reported 'stopped'; continuing, but the device may still be starting its launcher."
-                    # Non-fatal and bounded: `am wait-for-broadcast-idle` is the
-                    # right signal but it is a debug command, so an image that does
-                    # not implement it must not fail the job over a settling hint.
-                    timeout 180 adb shell am wait-for-broadcast-idle \
-                      || echo "::warning::'am wait-for-broadcast-idle' did not complete within 180s; continuing with a device that may still be draining boot broadcasts."
-                    # The flows are calibrated against a 360x640dp viewport (see
-                    # the AVD step). A config.ini key that stopped being honoured
-                    # would otherwise surface as a handful of unrelated-looking
-                    # flow failures twenty minutes later, so the geometry is
-                    # asserted here, where the cause is still obvious.
-                    size="$(adb shell wm size | tr -d '\r')"
-                    density="$(adb shell wm density | tr -d '\r')"
-                    echo "$size"
-                    echo "$density"
-                    if ! grep -q '720x1280' <<<"$size" || ! grep -q '320' <<<"$density"; then
-                      echo "::error::The emulator came up as '$size' / '$density', not the 720x1280 @ 320dpi display this suite's Maestro flows are calibrated against. Check the hw.lcd.* keys in the Create the AVD step."
-                      exit 1
-                    fi
-                    adb devices -l
-
-            -   name: Install Maestro
-                timeout-minutes: 10
-                shell: bash
-                # A maestro already on PATH (package-manager-managed or any other host
-                # provisioning) is only trusted when it reports exactly the pinned
-                # version: accepting a mismatched host binary with a warning made the
-                # same flow pass on the leg that fresh-installed the pin and fail on
-                # the leg that ran the host's stale CLI. Any other version is shadowed
-                # by installing the pinned GitHub release into a private prefix that is
-                # prepended to PATH, which also sidesteps get.maestro.mobile.dev's
-                # refusal to install beside a package-manager-managed maestro. Every
-                # failure mode of the download, checksum, extraction, or version probe
-                # fails the step — the suite never runs against an unverified CLI.
-                run: |
-                    set -euo pipefail
-                    if ! printf '%s' "$MAESTRO_VERSION" | grep -qE '^[0-9]+\.[0-9]+\.[0-9]+$'; then
-                      echo "::error::MAESTRO_VERSION '$MAESTRO_VERSION' must be a plain X.Y.Z version (digits and dots only) to be used safely in a local path and release URL."
-                      exit 1
-                    fi
-                    existing_bin="$(command -v maestro || true)"
-                    if [ -n "$existing_bin" ]; then
-                      existing_version="$("$existing_bin" --version 2>/dev/null | tail -n 1 | tr -d '\r' || true)"
-                      if [ "$existing_version" = "$MAESTRO_VERSION" ]; then
-                        echo "Using existing maestro $MAESTRO_VERSION already on PATH: $existing_bin"
-                        exit 0
-                      fi
-                      echo "Host maestro at $existing_bin reports '$existing_version', not the pinned $MAESTRO_VERSION; installing the pinned release into a private prefix."
-                    fi
-                    command -v unzip >/dev/null 2>&1 || { echo "::error::'unzip' is required to install the pinned Maestro release but is not on PATH."; exit 1; }
-
-                    pinned_root="$HOME/.maestro-pinned"
-                    pinned_dir="$pinned_root/$MAESTRO_VERSION"
-                    pinned_bin="$pinned_dir/maestro/bin/maestro"
-                    lock_dir="$pinned_root/.lock-$MAESTRO_VERSION"
-                    mkdir -p "$pinned_root"
-
-                    version_matches() {
-                      [ -x "$pinned_bin" ] && [ "$("$pinned_bin" --version 2>/dev/null | tail -n 1 | tr -d '\r' || true)" = "$MAESTRO_VERSION" ]
-                    }
-
-                    if ! version_matches; then
-                      # Concurrent legs on the same self-hosted host share $HOME, so two
-                      # jobs installing the same not-yet-cached MAESTRO_VERSION could
-                      # otherwise race rm -rf/unzip against each other or against a
-                      # sibling's in-flight `maestro` invocation. A per-version
-                      # mkdir-as-mutex lock serializes that; a losing waiter re-checks
-                      # version_matches so it can skip straight past once the winner
-                      # finishes instead of installing a second time.
-                      lock_acquired=''
-                      lock_deadline=$((SECONDS + 300))
-                      while :; do
-                        if mkdir "$lock_dir" 2>/dev/null; then
-                          lock_acquired=1
-                          break
-                        fi
-                        if version_matches; then
-                          break
-                        fi
-                        # A winner hard-killed before its EXIT trap runs (runner
-                        # reboot, forced shutdown mid-install) leaves lock_dir
-                        # behind with nobody left to remove it. A live owner is
-                        # bounded by this step's 10-minute timeout, so a lock
-                        # directory older than 15 minutes provably has no owner;
-                        # reclaiming it keeps one crashed install from wedging
-                        # every later job on this host.
-                        if [ -n "$(find "$lock_dir" -maxdepth 0 -mmin +15 2>/dev/null)" ]; then
-                          echo "Removing stale Maestro install lock '$lock_dir' left by a crashed installer."
-                          rmdir "$lock_dir" 2>/dev/null || true
-                        fi
-                        if [ "$SECONDS" -ge "$lock_deadline" ]; then
-                          echo "::error::Timed out waiting for the Maestro install lock '$lock_dir'; a concurrent install on this host may be stuck."
-                          exit 1
-                        fi
-                        sleep 2
-                      done
-
-                      if [ -n "$lock_acquired" ]; then
-                        cleanup() {
-                          [ -n "${scratch_dir:-}" ] && rm -rf "$scratch_dir"
-                          [ -n "${staging_dir:-}" ] && rm -rf "$staging_dir"
-                          rmdir "$lock_dir" 2>/dev/null || true
-                        }
-                        trap cleanup EXIT
-
-                        if ! version_matches; then
-                          download_url="https://github.com/mobile-dev-inc/Maestro/releases/download/cli-${MAESTRO_VERSION}/maestro.zip"
-                          checksum_url="https://github.com/mobile-dev-inc/Maestro/releases/download/cli-${MAESTRO_VERSION}/checksums_sha256.txt"
-                          scratch_dir="$(mktemp -d)"
-                          zip_path="$scratch_dir/maestro.zip"
-
-                          curl_exit=0
-                          http_status="$(curl -sSL --retry 3 --retry-connrefused --max-time 300 -w '%{http_code}' -o "$zip_path" "$download_url")" || curl_exit=$?
-                          if [ "$curl_exit" -ne 0 ] || [ "$http_status" != "200" ]; then
-                            echo "::error::Download of MAESTRO_VERSION '$MAESTRO_VERSION' from '$download_url' failed (curl exit $curl_exit, HTTP status '$http_status'). Confirm a 'cli-$MAESTRO_VERSION' release publishing a maestro.zip asset exists at https://github.com/mobile-dev-inc/Maestro/releases."
-                            exit 1
-                          fi
-
-                          checksum_curl_exit=0
-                          checksum_status="$(curl -sSL --retry 3 --retry-connrefused --max-time 60 -w '%{http_code}' -o "$scratch_dir/checksums_sha256.txt" "$checksum_url")" || checksum_curl_exit=$?
-                          if [ "$checksum_curl_exit" -eq 0 ] && [ "$checksum_status" = "200" ]; then
-                            expected_sha="$(awk '$2 == "maestro.zip" { print $1 }' "$scratch_dir/checksums_sha256.txt")"
-                            if [ -z "$expected_sha" ]; then
-                              echo "::error::checksums_sha256.txt for cli-$MAESTRO_VERSION has no maestro.zip entry; refusing to install an unverifiable download."
-                              exit 1
-                            fi
-                            if command -v sha256sum >/dev/null 2>&1; then
-                              actual_sha="$(sha256sum "$zip_path" | awk '{print $1}')"
-                            else
-                              actual_sha="$(shasum -a 256 "$zip_path" | awk '{print $1}')"
-                            fi
-                            if [ "$actual_sha" != "$expected_sha" ]; then
-                              echo "::error::maestro.zip checksum mismatch for cli-$MAESTRO_VERSION: expected $expected_sha, got $actual_sha."
-                              exit 1
-                            fi
-                          elif [ "$checksum_status" = "404" ]; then
-                            echo "::warning::mobile-dev-inc/Maestro cli-$MAESTRO_VERSION did not publish checksums_sha256.txt (404); proceeding on the TLS-verified download from the official GitHub release only."
-                          else
-                            echo "::error::Failed to retrieve checksums_sha256.txt for cli-$MAESTRO_VERSION from '$checksum_url' (curl exit $checksum_curl_exit, HTTP status '$checksum_status'). Refusing to install an unverifiable download."
-                            exit 1
-                          fi
-
-                          staging_dir="$(mktemp -d "$pinned_root/.staging-XXXXXX")"
-                          unzip -q "$zip_path" -d "$staging_dir"
-                          chmod +x "$staging_dir/maestro/bin/maestro" 2>/dev/null || true
-                          staged_version="$("$staging_dir/maestro/bin/maestro" --version | tail -n 1 | tr -d '\r')"
-                          if [ "$staged_version" != "$MAESTRO_VERSION" ]; then
-                            echo "::error::Extracted maestro from cli-$MAESTRO_VERSION's maestro.zip reports version '$staged_version', not the pinned $MAESTRO_VERSION; the release archive layout may have changed."
-                            exit 1
-                          fi
-                          rm -rf "$pinned_dir"
-                          mkdir -p "$pinned_dir"
-                          mv "$staging_dir/maestro" "$pinned_dir/maestro"
-                        fi
-                      fi
-                    fi
-
-                    if [ ! -x "$pinned_bin" ]; then
-                      echo "::error::Expected a maestro binary at '$pinned_bin' after installing cli-$MAESTRO_VERSION; the install may have failed or been interrupted."
-                      exit 1
-                    fi
-                    resolved_version="$("$pinned_bin" --version | tail -n 1 | tr -d '\r')"
-                    if [ "$resolved_version" != "$MAESTRO_VERSION" ]; then
-                      echo "::error::maestro at '$pinned_bin' reports version '$resolved_version', not the pinned $MAESTRO_VERSION."
-                      exit 1
-                    fi
-                    echo "$pinned_dir/maestro/bin" >> "$GITHUB_PATH"
-                    echo "Installed and using maestro $MAESTRO_VERSION at $pinned_bin"
-
             -   name: Install APK and run Maestro tests
                 id: tests
-                # The emulator is already booted (previous step) and the APK is
-                # already built (build-apk, a GitHub-hosted x86_64 runner — see the
-                # top-of-file note on why the build stays there). This step is
-                # install + test only.
-                timeout-minutes: 20
-                shell: bash
-                env:
-                    EXAMPLE_DIR: ${{ matrix.example_dir }}
-                    TARGET: ${{ matrix.target }}
-                run: |
-                    set -euo pipefail
-                    set -x
-                    apk=$(find .ci-artifacts/apk -name '*.apk' | head -1)
-                    test -n "$apk"
-                    # The APK is universal (all four reactNativeArchitectures), so
-                    # the x86_64 slice this emulator needs is in the same artifact
-                    # the arm64 redroid path used to install.
-                    timeout 300 adb -s "$ANDROID_SERIAL" install -r "$apk"
-                    cd "${EXAMPLE_DIR}"
-                    pnpm "e2e:android:${TARGET}" --debug-output "$MAESTRO_DEBUG_OUTPUT_DIRECTORY"
-
-            -   name: Capture final device state
-                # Only meaningful when the emulator booted and the test step then
-                # failed. If setup failed earlier, this is skipped instead of
-                # talking to an adb server that has no device.
-                if: failure() || steps.tests.outcome == 'failure' || steps.emulator.outcome == 'failure'
-                # A diagnostic must never outlive the test it is diagnosing.
-                timeout-minutes: 3
-                shell: bash
-                run: |
-                    out="${MAESTRO_DEBUG_OUTPUT_DIRECTORY}"
-                    mkdir -p "$out"
-                    # The emulator's own stdout is what `docker logs` used to be
-                    # here: it is the only place a refused /dev/kvm, a corrupt AVD,
-                    # or a guest kernel panic is reported.
-                    if [ -n "${EMULATOR_LOG:-}" ] && [ -f "$EMULATOR_LOG" ]; then
-                      cp "$EMULATOR_LOG" "$out/emulator.log" || true
-                    fi
-                    # ANDROID_SERIAL is only set once the emulator has registered
-                    # with adb; a boot that failed before that leaves it unset, and
-                    # an empty -s argument is not a parseable adb target.
-                    if [ -z "${ANDROID_SERIAL:-}" ]; then
-                      echo "No emulator serial was recorded; skipping device state capture."
-                      exit 0
-                    fi
-                    if ! timeout 30 adb -s "$ANDROID_SERIAL" wait-for-device; then
-                      echo "No device attached after 30s; skipping device state capture."
-                      exit 0
-                    fi
-                    timeout 30 adb -s "$ANDROID_SERIAL" exec-out screencap -p > "$out/final-screen.png" || true
-                    timeout 60 adb -s "$ANDROID_SERIAL" logcat -d > "$out/logcat-full.txt" 2>&1 || true
-                    timeout 30 adb -s "$ANDROID_SERIAL" logcat -d -b crash > "$out/logcat-crash.txt" 2>&1 || true
-                    # The events buffer is where ActivityTaskManager records which
-                    # activity was resumed and focused, which is what separates a
-                    # launch that never reached the foreground from one that did.
-                    timeout 30 adb -s "$ANDROID_SERIAL" logcat -d -b events > "$out/logcat-events.txt" 2>&1 || true
-
-            -   name: Stop the emulator
-                # The runner container is ephemeral, so this is not the leak guard
-                # the redroid teardown had to be — but a live emulator holds
-                # /dev/kvm and a lock on the AVD, and shutting it down cleanly is
-                # cheaper than making the container teardown do it by force.
-                if: always()
-                timeout-minutes: 3
-                shell: bash
-                run: |
-                    if [ -n "${ANDROID_SERIAL:-}" ]; then
-                      adb -s "$ANDROID_SERIAL" emu kill || true
-                    fi
-                    adb kill-server || true
-                    if [ -n "${EMULATOR_PID:-}" ]; then kill "$EMULATOR_PID" 2>/dev/null || true; fi
-
-            -   name: Upload Maestro artifacts
-                # Matches the capture step's condition — gating this on the test step
-                # alone discarded the emulator log whenever setup was what failed.
-                if: failure() || steps.tests.outcome == 'failure' || steps.emulator.outcome == 'failure'
-                uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
-                timeout-minutes: 5
+                # Boot, install, warm-up, suite, capture and shutdown all live in
+                # this one action, so its budget covers the old boot (12) and
+                # install + suite (20) step budgets together.
+                timeout-minutes: 32
+                uses: rnw-community/mobile-ci/actions/run-maestro-android@3e9afaf1888bce8a3e4a70818d457ffa9de11d8d # v4.0.0
                 with:
-                    name: maestro-android-${{ matrix.package }}-${{ matrix.target }}
-                    path: ${{ env.MAESTRO_DEBUG_OUTPUT_DIRECTORY }}/**
-                    include-hidden-files: true
-                    if-no-files-found: warn
-                    retention-days: 7
+                    apk-path: .ci-artifacts/apk/app-release.apk
+                    app-id: ${{ matrix.android_app_id }}
+                    flows-dir: ${{ matrix.example_dir }}/e2e/flows
+                    flows-name-pattern: '*.yaml'
+                    shard-index: 0
+                    shard-count: 1
+                    maestro-version: ${{ env.MAESTRO_VERSION }}
+                    # 720x1280 @ 320dpi with no display cutout: the 360x640dp
+                    # viewport every flow's swipe percentages are calibrated
+                    # against. pixel_6 (1080x2400 @ 420dpi with a punch-hole
+                    # cutout) moves both the snap release point and every
+                    # safe-area inset, and failed the collapsible-header suite.
+                    profile: Galaxy Nexus
+                    # sys.boot_completed flips before the launcher and Google Play
+                    # services finish their first-run work, and the stock 256K
+                    # logcat ring buffer only holds seconds of it. The geometry is
+                    # asserted here because a profile that stopped being honoured
+                    # would otherwise surface as unrelated-looking flow failures.
+                    pre-test-command: |
+                        adb logcat -G 16M || echo "::warning::could not resize the logcat ring buffer; the captured logcat will only cover the last few seconds."
+                        timeout 180 bash -c 'until [ "$(adb shell getprop init.svc.bootanim | tr -d "\r")" = "stopped" ]; do sleep 5; done' \
+                          || echo "::warning::init.svc.bootanim never reported 'stopped'; continuing, but the device may still be starting its launcher."
+                        timeout 180 adb shell am wait-for-broadcast-idle \
+                          || echo "::warning::'am wait-for-broadcast-idle' did not complete within 180s; continuing with a device that may still be draining boot broadcasts."
+                        display_size="$(adb shell wm size | tr -d '\r')"
+                        display_density="$(adb shell wm density | tr -d '\r')"
+                        echo "$display_size / $display_density"
+                        if ! grep -q '720x1280' <<<"$display_size" || ! grep -q '320' <<<"$display_density"; then
+                          echo "::error::The emulator came up as '$display_size' / '$display_density', not the 720x1280 @ 320dpi display this suite's Maestro flows are calibrated against."
+                          exit 1
+                        fi
+                    artifacts-dir: ${{ github.workspace }}/${{ matrix.example_dir }}/artifacts/maestro-android-${{ matrix.package }}-${{ matrix.target }}
+                    artifact-name: maestro-android-${{ matrix.package }}-${{ matrix.target }}
 
     status:
         name: Android Maestro E2E result
