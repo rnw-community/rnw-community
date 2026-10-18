@@ -79,13 +79,14 @@ jobs:
                   # skip every leg on exactly the changes that need testing most.
                   : > affected.json
                   if [ "$EVENT_NAME" = "pull_request" ]; then
-                    # grep without -q: under pipefail, -q exits at the first match
-                    # and a still-writing git diff then dies of SIGPIPE (status
-                    # 141), which flips a real plumbing match into the turbo
-                    # branch on diffs large enough to fill the pipe buffer.
-                    if git diff --name-only "$TURBO_SCM_BASE" HEAD \
-                      | grep -E '^\.github/(workflows/(ios|android)-maestro\.yml|scripts/maestro-matrix\.mjs)$'; then
+                    changed_files="$(git diff --name-only "$TURBO_SCM_BASE" HEAD)"
+                    if grep -E '^\.github/(workflows/(ios|android)-maestro\.yml|scripts/maestro-matrix\.mjs)$' <<<"$changed_files"; then
                       echo "Maestro CI plumbing changed; every suite runs."
+                    elif ! grep -vE '\.md$|(^|/)llms[^/]*\.txt$|(^|/)docs/' <<<"$changed_files" > /dev/null; then
+                      # Turbo maps a readme or docs edit to its package, which would
+                      # run that package's suites although no app input changed.
+                      echo "Documentation-only change; no suite runs."
+                      echo '{"packages":{"items":[]}}' > affected.json
                     else
                       npx -y turbo@2.10.8 ls --affected --output=json > affected.json
                     fi
