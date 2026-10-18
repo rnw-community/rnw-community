@@ -5,8 +5,8 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { isDefined } from '@rnw-community/shared';
 
 import { EdgeFade } from '../edge-fade/edge-fade';
+import { useBottomChromeHeightPublisher } from '../hooks/use-bottom-chrome-height-publisher/use-bottom-chrome-height-publisher.hook';
 
-import { useBottomChromeHeightPublisher } from './hooks/use-bottom-chrome-height-publisher.hook';
 import { screenChromeFooterStyles } from './screen-chrome-footer.styles';
 
 import type { ScreenChromeFooterPropsInterface } from './screen-chrome-footer-props.interface';
@@ -25,7 +25,7 @@ export const ScreenChromeFooter = ({
     ...viewProps
 }: ScreenChromeFooterPropsInterface): ReactNode => {
     const insets = useSafeAreaInsets();
-    const { contentRef, onContentLayout } = useBottomChromeHeightPublisher();
+    const contentPublisher = useBottomChromeHeightPublisher();
 
     return (
         <View
@@ -36,9 +36,8 @@ export const ScreenChromeFooter = ({
         >
             <EdgeFade position="bottom" {...edgeFadeProps} />
             <View
-                ref={contentRef}
+                {...contentPublisher}
                 collapsable={false}
-                onLayout={onContentLayout}
                 style={[screenChromeFooterStyles.content, contentStyle]}
                 {...(isDefined(testID) ? { testID: `${testID}-content` } : {})}
             >

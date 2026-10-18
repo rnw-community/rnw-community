@@ -37,6 +37,9 @@ one copy of the collapsible header. Render content first, decorative fades and b
 - [`ScreenChromeHeader`](readme.md#screenchromeheader): Static, non-collapsible header row with the same safe-area and paint-order contract.
 - [`ScreenChromeProvider`](readme.md#screenchromeprovider): Provides validated configuration and color scheme around one scrollable and mounts the collapsible-header provider.
 - [`ScreenChromeScrollView`](readme.md#screenchromescrollview): Animated scroll view wired to the collapsible-header scroll handling with safe-area content padding and `contentInsetMode`.
+- [`useBottomChromeHeightPublisher`](readme.md#usebottomchromeheightpublisher): Publishes a measured or declared bottom chrome height, such as a custom tab bar's, for `useBottomChromeInset`.
+- [`BottomChromeHeightPublisherOptionsInterface`](readme.md#bottomchromeheightpublisheroptionsinterface): Declared `height` that replaces measurement and survives hidden chrome.
+- [`BottomChromeHeightPublisherInterface`](readme.md#bottomchromeheightpublisherinterface): `{ ref, onLayout }` view props that measure the bottom chrome node.
 - [`ScreenChromeContext`](readme.md#screenchromecontext): React context carrying the resolved `{ colorScheme, config }` value.
 - [`useScreenChrome`](readme.md#usescreenchrome): Reads the nearest screen chrome context and throws without a provider.
 - [`useScrollFadeStyle`](readme.md#usescrollfadestyle): Clamped opacity style interpolated from the provider scroll value.
