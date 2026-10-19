@@ -1,26 +1,20 @@
-import { EnvironmentEnum } from '@rnw-community/react-native-payments';
 import {
     AndroidAllowedAuthMethodsEnum,
     type AndroidPaymentMethodDataInterface,
+    EnvironmentEnum,
     PaymentMethodNameEnum,
     SupportedNetworkEnum,
 } from '@rnw-community/react-native-payments';
 
-interface GetAndroidPaymentMethodDataProps {
-    requestBillingAddress?: boolean;
-    requestPayerEmail?: boolean;
-    requestPayerName?: boolean;
-    requestPayerPhone?: boolean;
-    requestShipping?: boolean;
-}
+import type { RequestOptionsInterface } from '../../interface/request-options.interface';
 
 export const getAndroidPaymentMethodData = ({
-    requestBillingAddress = false,
-    requestPayerEmail = false,
-    requestPayerPhone = false,
-    requestPayerName = false,
-    requestShipping = false,
-}: GetAndroidPaymentMethodDataProps = {}): AndroidPaymentMethodDataInterface => ({
+    requestBillingAddress,
+    requestPayerEmail,
+    requestPayerPhone,
+    requestPayerName,
+    requestShipping,
+}: RequestOptionsInterface): AndroidPaymentMethodDataInterface => ({
     data: {
         requestBillingAddress,
         requestPayerEmail,
