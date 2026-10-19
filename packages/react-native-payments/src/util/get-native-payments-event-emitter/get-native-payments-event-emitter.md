@@ -81,7 +81,9 @@ as a `NaN` amount. A `PaymentItem` becomes a `PKPaymentSummaryItem` under the sa
 
 Native resolves the completion only when the answered `eventId` is still the pending one: a second change event of the
 same type supersedes the first, and the answer of the superseded event is rejected with `no_completion` instead of being
-applied to the newer handler. An update without an `eventId` is accepted, which is what keeps an older JS bundle working.
+applied to the newer handler. On iOS an update without an `eventId` is accepted, which is what keeps an older JS bundle
+working; Android requires it, because only a bundle that emits `eventId` can declare the callback intents that start
+an Android change event, and an answer without it could otherwise land on a newer event of the same type.
 
 `addListener`/`removeListeners` are the `NativeEventEmitter` bookkeeping methods and carry no request semantics; their
 presence is what tells JS that the native module can emit change events at all.
@@ -135,6 +137,25 @@ field or an empty message resolves the event without an error. `shippingoptionch
 
 ## Android semantics
 
-Google Pay renders its sheet in its own activity and never asks the app for an in-sheet update, so `setActiveEvents`,
-`updatePaymentDetails`, `addListener` and `removeListeners` exist to satisfy the shared spec and are documented no-ops:
-`updatePaymentDetails` resolves right away and no change event is ever emitted.
+Google Pay asks the app for in-sheet updates through `PaymentsCallbacksService` (a `BasePaymentDataCallbacksService`
+declared in the library manifest) for the `callbackIntents` that `show()` declared — `SHIPPING_ADDRESS` and
+`SHIPPING_OPTION`, so only `shippingaddresschange` and `shippingoptionchange` are ever emitted. The callbacks reach the
+live module through a weak reference, and `PaymentsChangeEventCoordinator` applies the iOS rules above: `setActiveEvents`
+adopts and releases the request the same way, an `onPaymentDataChanged` of an inactive event type (or with no JS
+observer, no active request, no live module) is completed at once with an empty `PaymentDataRequestUpdate`, a newer
+event of the same type supersedes the pending one under a new `eventId`, and `show()`, the activity result, `abort()`,
+`removeListeners` down to zero and `invalidate` flush every pending listener. `INITIALIZE` is delivered as
+`shippingaddresschange` with the default address (or as `shippingoptionchange` when only that type is active); the
+payload carries `shippingAddress` (`IntermediateAddress` mapped onto `locality`, `administrativeArea`, `postalCode`,
+`countryCode`, the rest empty) and, when the sheet reports one, `shippingOption`.
+
+`updatePaymentDetails` completes the pending listener with a `PaymentDataRequestUpdate`: `newTransactionInfo` (sent only
+for a request with regular `transactionInfo`, never for a merchant-initiated one) is the shown request's
+`transactionInfo`, `countryCode` included, with `totalPrice`/`totalPriceLabel` from `update.total` and `displayItems` as
+`LINE_ITEM`s (`PENDING` for a `pending` item); `newShippingOptionParameters` is only sent for `shippingaddresschange`
+and only when the request declared `SHIPPING_OPTION`, with the last `selected` option, else the sheet's current option,
+else the first one as `defaultSelectedOptionId`; a string `error` becomes `SHIPPING_ADDRESS_UNSERVICEABLE` /
+`SHIPPING_OPTION_INVALID`, a `shippingAddressField` error `SHIPPING_ADDRESS_INVALID` and any other field error
+`OTHER_ERROR`, always with the event's own `intent`. The same `no_completion` rejections as on iOS apply. A pending
+event is completed unchanged after 25 seconds, ahead of Google Pay's 30 second `CALLBACK_TIMED_OUT`, and
+`onPaymentAuthorized` is answered `SUCCESS` at once so the activity result keeps settling `show()`.

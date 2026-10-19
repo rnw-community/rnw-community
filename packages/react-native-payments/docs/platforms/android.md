@@ -14,15 +14,16 @@ Setup, capabilities, and how this package's `PaymentRequest` maps onto the Googl
 
 ### Native setup
 
-This package's own `android/build.gradle` depends on `com.google.android.gms:play-services-wallet:18.0.0` — match
-or exceed that in your application if you pin the wallet dependency yourself:
+This package's own `android/build.gradle` depends on `com.google.android.gms:play-services-wallet:20.0.0` — the
+first release with the payment data callbacks that deliver in-sheet change events — match or exceed that in your
+application if you pin the wallet dependency yourself:
 
 ```groovy
 dependencies {
     // The version of react-native is set by the React Native Gradle Plugin
     implementation("com.facebook.react:react-android")
 
-    implementation 'com.google.android.gms:play-services-wallet:18.0.0'
+    implementation 'com.google.android.gms:play-services-wallet:20.0.0'
 }
 ```
 
@@ -47,6 +48,15 @@ dependencies {
   [#259](https://github.com/rnw-community/rnw-community/issues/259).
 - `hasEnrolledInstrument()` calls Google Pay's `isReadyToPay` with `existingPaymentMethodRequired: true`. See
   [Known deviations](#known-deviations).
+- `shippingaddresschange` / `shippingoptionchange` fire while the Google Pay sheet is open and their `updateWith`
+  answers update the total and the display items (regular `transactionInfo` requests only — a merchant-initiated
+  request gets no price update), the shipping options and the error in place, through Google Pay's
+  [dynamic price updates](https://developers.google.com/pay/api/android/guides/tutorial#enable-callbacks):
+  `show()` declares the `callbackIntents` of the shipping listeners registered before it, and the library manifest
+  declares the `PaymentsCallbacksService` Google Pay binds to (`BIND_PAYMENTS_CALLBACK_SERVICE` permission,
+  `PAYMENT_DATA_CALLBACKS` action) — no app-side manifest or Expo plugin change is needed. Both require
+  `requestShipping`, and a regular `transactionInfo` request also needs `countryCode`. See
+  [guides/change-events.md](../guides/change-events.md#android).
 
 ### Merchant-initiated transactions
 
@@ -67,20 +77,28 @@ place of `transactionInfo`, with `details.total` as the `immediateTotalPrice` du
   unrecoverable system dialog over the whole screen instead of failing the promise; the guard
   reports AndroidPay as unsupported instead, so `canMakePayment()`/`hasEnrolledInstrument()`
   resolve `false` and `show()` rejects like any other unsupported configuration.
-- **Change events are a no-op.** Google Pay renders its sheet in its own activity and never asks the app for an
-  in-sheet update, so `addEventListener` can be called but a registered listener never fires on Android. See
-  [guides/change-events.md](../guides/change-events.md).
+- **`paymentmethodchange` and `couponcodechange` never fire.** Google Pay's Android `callbackIntents` only cover
+  `SHIPPING_ADDRESS`, `SHIPPING_OPTION` and `PAYMENT_AUTHORIZATION` — there is no payment-method intent and the
+  `OFFER` (promo code) intent exists on the web API only — so these listeners can be registered but stay silent.
+- **A change event has 25 seconds, not 30.** Google Pay fails the sheet with `CALLBACK_TIMED_OUT` after 30 seconds,
+  so the module answers a pending event with the unchanged details after 25 seconds on its own. JS timers keep
+  running behind the sheet through a headless JS task (`RNPaymentsChangeEvents`) the package registers itself.
+  Shipping options render from `label`/`detail` only — Google Pay has no price column. See
+  [guides/change-events.md](../guides/change-events.md#android).
+- **`onPaymentAuthorized` is answered with `SUCCESS` immediately.** Google Pay requires the `PAYMENT_AUTHORIZATION`
+  intent alongside the shipping intents; the payment still settles `show()` through the activity result, so
+  `complete()` keeps its no-op behaviour below.
 - **`complete()` and `abort()` have no effect** — an artifact of the Google Pay activity-result flow, which has
   no in-sheet dismiss/complete call to make.
 - **`retry()` is a documented no-op.** It resolves without any visual effect, consistent with the `complete()`/
-  `abort()` no-op boundary above — Google Pay's sheet is a separate activity with no in-sheet update mechanism at
-  all. See [guides/retry.md](../guides/retry.md).
+  `abort()` no-op boundary above — Google Pay's sheet is a separate activity with no retry or dismiss call; its
+  only in-sheet update path is the shipping change-event callbacks above, which `retry()` cannot reach. See
+  [guides/retry.md](../guides/retry.md).
 - **`methodData.data.shippingType` is a no-op.** Google Pay has no `PKShippingType`-equivalent concept; the value
   is validated but not forwarded to native.
 - **`hasEnrolledInstrument()` is an optimistic signal, not a guarantee.** `isReadyToPay` with
   `existingPaymentMethodRequired: true` is the closest reachable equivalent of "an instrument is enrolled" the API
   exposes; Google documents this as best-effort and it can still resolve `true` without a fully usable card in
   some configurations.
-- **Shipping options and coupon support are not yet implemented** — tracked in
-  [#438](https://github.com/rnw-community/rnw-community/issues/438), spike notes in
-  [roadmap.md](../roadmap.md#android-shipping-options-and-coupon-support--438).
+- **The address of a change event is redacted** by Google Pay to `locality`, `administrativeArea`, `postalCode` and
+  `countryCode` (`IntermediateAddress`); the full address arrives with the payment response.

@@ -32,7 +32,7 @@ handshake without a repo-wide search.
 
 ## Guides
 
-- [docs/guides/change-events.md](docs/guides/change-events.md): `addEventListener`/`removeEventListener`, `updateWith`, sheet errors, `PaymentMethodChangeEvent`.
+- [docs/guides/change-events.md](docs/guides/change-events.md): `addEventListener`/`removeEventListener`, `updateWith`, sheet errors, `PaymentMethodChangeEvent`, Android Google Pay callback intents.
 - [docs/guides/modifiers.md](docs/guides/modifiers.md): Per-method `PaymentDetailsModifier` resolution.
 - [docs/guides/errors.md](docs/guides/errors.md): The `ConstructorError` / `DOMException` / `PaymentsError` mapping table.
 - [docs/guides/retry.md](docs/guides/retry.md): `PaymentResponse.retry()` semantics and platform limits.

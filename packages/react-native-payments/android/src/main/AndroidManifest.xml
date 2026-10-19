@@ -1,2 +1,13 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+  <application>
+    <service
+      android:name="com.payments.PaymentsCallbacksService"
+      android:enabled="true"
+      android:exported="true"
+      android:permission="com.google.android.gms.permission.BIND_PAYMENTS_CALLBACK_SERVICE">
+      <intent-filter>
+        <action android:name="com.google.android.gms.wallet.callback.PAYMENT_DATA_CALLBACKS" />
+      </intent-filter>
+    </service>
+  </application>
 </manifest>

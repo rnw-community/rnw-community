@@ -119,7 +119,18 @@ src/
   into a per-event-type registry, is taken out of it before being invoked (single fire), completes immediately with a
   no-change update when its event type is not active for the current request, and is flushed on every teardown path
   (`didFinish`, `didAuthorizePayment`, `complete`, `abort`, `stopObserving`, `invalidate`) so the sheet cannot hang.
-  Android answers the same contract with documented no-ops. The semantics live in
+  Android delivers `shippingaddresschange`/`shippingoptionchange` from Google Pay's payment data callbacks:
+  `PaymentsCallbacksService` (library manifest) -> `PaymentsDataCallbacks` -> `PaymentsCallbackBridge` (weak ref to the
+  live module) -> `PaymentsChangeEventCoordinator`, which mirrors the iOS registry (per-event pending
+  `OnCompleteListener`, `eventId` supersede, flush on every teardown path) plus a 25 s native deadline under Google's
+  30 s callback limit. React Native pauses JS timers while the Google Pay activity covers the app, so
+  `PaymentsChangeEventsTask` runs the `RNPaymentsChangeEvents` headless JS task (registered from `show()` by
+  `registerAndroidChangeEventsTask`) for as long as a callback-enabled sheet is open.
+  `PaymentDataRequestUpdateFactory` turns the `updatePaymentDetails` arguments into a `PaymentDataRequestUpdate`.
+  `show()` adds the `callbackIntents` in JS (`getAndroidCallbackPaymentDataRequest`) for the shipping listeners
+  registered at that moment, and only when a regular `transactionInfo` carries `countryCode` (Google Pay requires it in
+  every callback `newTransactionInfo`); `canMakePayment()`/`hasEnrolledInstrument()` keep the base request. The
+  semantics live in
   [get-native-payments-event-emitter.md](src/util/get-native-payments-event-emitter/get-native-payments-event-emitter.md)
 - Change events are request-scoped: `show()` passes the request `id` to native so `activeRequestId` is adopted at
   presentation time regardless of whether any listener was ever registered, `setActiveEvents(requestId, eventNames)`
@@ -136,7 +147,8 @@ src/
   races **one** `changeEventTimeoutMs` deadline over the listener bodies and their answer together, so a listener
   awaiting a request that never settles cannot pin a native completion
 - Native events carry a monotonic `eventId` that JS echoes back in the update, and native resolves a completion only for
-  the `eventId` it is still waiting for, so the answer of a superseded event can never be applied to the newer one
+  the `eventId` it is still waiting for, so the answer of a superseded event can never be applied to the newer one;
+  Android additionally rejects an update without `eventId`, since only an `eventId`-emitting bundle can enable its callbacks
 - A dispatch is bound to an event generation bumped on every terminal path, so a response that arrives after the sheet
   finished is dropped instead of reaching native, and an event arriving while another one is processed is answered
   immediately with the unchanged details — its selection is still recorded on the request first, so
