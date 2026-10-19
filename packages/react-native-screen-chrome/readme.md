@@ -534,6 +534,13 @@ horizontal padding:
 <ScreenChromeScrollView contentInsetMode="additive" contentInsetTop={96} contentContainerStyle={{ paddingTop: 8 }} />
 ```
 
+`includeTopSafeArea={false}` drops the top safe-area inset from the content padding and indicator insets for a
+scrollable laid out below an in-flow header that already pads the notch:
+
+```tsx
+<ScreenChromeScrollView includeTopSafeArea={false} />
+```
+
 The scroll view also sets `scrollIndicatorInsets` to the same safe-area+chrome top and bottom insets (with
 `automaticallyAdjustsScrollIndicatorInsets={false}`), so the iOS scroll indicator never runs under the header or the
 bottom inset; pass either prop to override it.
@@ -599,8 +606,9 @@ inline object or arrow literals, and give the list a stable module-scope `keyExt
 ## ScreenChromeScrollPropsOptionsInterface
 
 Configures `useScreenChromeScrollProps`: `contentInsetTop`/`contentInsetBottom` (default `0`), `contentInsetMode`
-(default `'replace'`, see [`ScrollContentInsetMode`](#scrollcontentinsetmode)), a consumer `contentContainerStyle`, and
-a consumer `ref` merged with the chrome scroll ref.
+(default `'replace'`, see [`ScrollContentInsetMode`](#scrollcontentinsetmode)), a consumer `contentContainerStyle`,
+`includeTopSafeArea` (default `true`; `false` under an in-flow header), and a consumer `ref` merged with the chrome
+scroll ref.
 
 ## ScreenChromeScrollPropsInterface
 
@@ -981,11 +989,17 @@ consumer implementations this util replaces have shipped with.
 
 ## mergeScrollContentInset
 
-Prepends safe-area and chrome content padding while preserving consumer styles after generated padding.
+Prepends safe-area and chrome content padding to every edge the consumer style leaves unpadded, so consumer padding
+wins.
 
 ```ts
 const contentContainerStyle = mergeScrollContentInset(insets, 96, 48, { paddingHorizontal: 16 });
+// paddingTop: insets.top + 96, paddingBottom: insets.bottom + 48, paddingHorizontal: 16
 ```
+
+An edge counts as consumer-padded when its longhand, its axis shorthand (`paddingVertical`/`paddingHorizontal`), or
+`padding` is set; the generated longhand for that edge is then omitted, because a longhand outranks a shorthand no
+matter the merge order.
 
 ## Public utilities
 

@@ -102,6 +102,34 @@ describe('useScreenChromeScrollProps', () => {
         });
     });
 
+    it('lets a consumer horizontal shorthand win over the safe-area edges in replace mode', () => {
+        expect.hasAssertions();
+
+        const { result } = renderHook(() =>
+            useScreenChromeScrollProps({ contentContainerStyle: { paddingHorizontal: 16 } })
+        );
+
+        expect(StyleSheet.flatten(result.current.contentContainerStyle)).toStrictEqual({
+            paddingTop: 10,
+            paddingBottom: 30,
+            paddingHorizontal: 16,
+        });
+    });
+
+    it('skips the top safe-area inset when the header above the scrollable is laid out in flow', () => {
+        expect.hasAssertions();
+
+        const { result } = renderHook(() =>
+            useScreenChromeScrollProps({ includeTopSafeArea: false, contentInsetTop: CONTENT_INSET_TOP })
+        );
+
+        expect(result.current.scrollIndicatorInsets).toStrictEqual({ top: CONTENT_INSET_TOP, bottom: 30 });
+        expect(StyleSheet.flatten(result.current.contentContainerStyle)).toMatchObject({
+            paddingTop: CONTENT_INSET_TOP,
+            paddingBottom: 30,
+        });
+    });
+
     it('stacks the computed insets on consumer padding in additive mode', () => {
         expect.hasAssertions();
 

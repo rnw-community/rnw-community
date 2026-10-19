@@ -58,6 +58,19 @@ describe('ScreenChromeScrollView', () => {
         });
     });
 
+    it('drops the top safe-area inset below an in-flow header', () => {
+        expect.hasAssertions();
+
+        const screen = render(
+            <ScreenChromeScrollView testID="in-flow-scroll" includeTopSafeArea={false} contentInsetTop={CONTENT_INSET_TOP} />
+        );
+        const scrollView = screen.getByTestId('in-flow-scroll');
+        const { contentContainerStyle } = scrollView.props;
+
+        expect(StyleSheet.flatten(contentContainerStyle)).toMatchObject({ paddingTop: CONTENT_INSET_TOP });
+        expect(scrollView).toHaveProp('scrollIndicatorInsets', { top: CONTENT_INSET_TOP, bottom: 30 });
+    });
+
     it('forwards scroll props and connects provider scroll state', () => {
         expect.hasAssertions();
 
