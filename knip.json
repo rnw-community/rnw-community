@@ -2,38 +2,23 @@
     "$schema": "https://unpkg.com/knip@5/schema.json",
     "workspaces": {
         ".": {
-            "entry": [
-                ".github/scripts/*.mjs",
-                "scripts/*.mjs"
-            ]
+            "entry": [".github/scripts/*.mjs", "scripts/*.mjs"]
         },
         "packages/decorators-core": {
-            "entry": [
-                "src/index.ts"
-            ]
+            "entry": ["src/index.ts"]
         },
         "packages/histogram-metric-decorator": {
-            "entry": [
-                "src/index.ts"
-            ]
+            "entry": ["src/index.ts"]
         },
         "packages/lock-decorator": {
-            "entry": [
-                "src/index.ts"
-            ]
+            "entry": ["src/index.ts"]
         },
         "packages/log-decorator": {
-            "entry": [
-                "src/index.ts"
-            ]
+            "entry": ["src/index.ts"]
         },
         "packages/react-native-collapsible-header": {
-            "ignore": [
-                "babel.config.bob.js"
-            ],
-            "ignoreDependencies": [
-                "react-compiler-runtime"
-            ]
+            "ignore": ["babel.config.bob.js"],
+            "ignoreDependencies": ["react-compiler-runtime"]
         },
         "packages/react-native-collapsible-header-example/apps/bare": {
             "ignoreDependencies": [
@@ -44,9 +29,7 @@
             ]
         },
         "packages/react-native-screen-chrome-example": {
-            "ignoreDependencies": [
-                "react-native-worklets"
-            ]
+            "ignoreDependencies": ["react-native-worklets"]
         },
         "packages/react-native-screen-chrome-example/apps/bare": {
             "ignoreDependencies": [
@@ -64,9 +47,7 @@
             ]
         },
         "packages/react-native-collapsible-header-example/apps/expo": {
-            "ignore": [
-                "metro.config.js"
-            ],
+            "ignore": ["metro.config.js"],
             "ignoreDependencies": [
                 "@rnw-community/react-native-collapsible-header",
                 "expo-updates",
@@ -77,9 +58,7 @@
             ]
         },
         "packages/react-native-screen-chrome-example/apps/expo": {
-            "ignore": [
-                "metro.config.js"
-            ],
+            "ignore": ["metro.config.js"],
             "ignoreDependencies": [
                 "@react-native-masked-view/masked-view",
                 "@rnw-community/react-native-collapsible-header",
@@ -95,27 +74,18 @@
             ]
         },
         "packages/react-native-payments": {
-            "entry": [
-                "src/index.ts",
-                "src/**/*.web.ts",
-                "bin/rnw-payments.js"
-            ]
+            "entry": ["src/index.ts", "src/**/*.web.ts", "bin/rnw-payments.js"]
         },
         "packages/wdio": {
-            "entry": [
-                "src/index.ts",
-                "src/**/*.native.ts"
-            ]
+            "entry": ["src/index.ts", "src/**/*.native.ts"]
         },
         "packages/react-native-payments-example/apps/bare": {
-            "ignoreDependencies": [
-                "@rnw-community/react-native-payments"
-            ]
+            "ignoreDependencies": ["@rnw-community/react-native-payments"]
         },
         "packages/react-native-screen-chrome": {
-            "ignore": [
-                "babel.config.bob.js"
-            ]
+            "entry": ["src/index.ts", "web-e2e/build-harness.mjs", "web-e2e/edge-fade-harness.tsx"],
+            "ignore": ["babel.config.bob.js"],
+            "ignoreDependencies": ["react-native-web"]
         }
     },
     "ignore": [
@@ -130,9 +100,7 @@
         "packages/wdio/src/component/mocks/**",
         "packages/wdio/src/rooted-component/mocks/**"
     ],
-    "ignoreBinaries": [
-        "maestro"
-    ],
+    "ignoreBinaries": ["maestro"],
     "ignoreDependencies": [
         "@arethetypeswrong/cli",
         "@babel/runtime",
