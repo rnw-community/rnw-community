@@ -2,9 +2,16 @@ appId: ${APP_ID}
 ---
 # A liveness bound, not a startup budget: a cold release build on a shared
 # self-hosted host has been observed taking ~13s to its first frame.
-- launchApp:
-      clearState: true
-- extendedWaitUntil:
-      visible:
-          id: 'header-demo-expanded-amount'
-      timeout: 60000
+# The launch is retried because clearing app data removes the previous task,
+# and when Android's remove-task destroy timeout fires after the relaunch has
+# started it kills the new process by uid ("Killing <pid>: remove task"),
+# leaving a blank window that never renders. A relaunch is unaffected.
+- retry:
+      maxRetries: 2
+      commands:
+          - launchApp:
+                clearState: true
+          - extendedWaitUntil:
+                visible:
+                    id: 'header-demo-expanded-amount'
+                timeout: 60000
