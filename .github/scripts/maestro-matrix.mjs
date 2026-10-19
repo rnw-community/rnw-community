@@ -78,6 +78,19 @@ const EXAMPLES = [
     },
 ];
 
+// The app ids come from the example's own `e2e:<platform>:<target>` scripts, so the
+// workflows and a local `pnpm e2e:*` run can never disagree about which app the
+// suite drives.
+const readAppId = (exampleDir, platform, target) => {
+    const { scripts } = JSON.parse(readFileSync(`${exampleDir}/package.json`, 'utf8'));
+    const appId = /-e APP_ID=(\S+)/u.exec(scripts?.[`e2e:${platform}:${target}`] ?? '')?.[1];
+    if (appId === undefined) {
+        throw new Error(`${exampleDir}/package.json has no e2e:${platform}:${target} script passing -e APP_ID=<id>`);
+    }
+
+    return appId;
+};
+
 const [, , affectedFilePath] = process.argv;
 const raw = affectedFilePath === undefined ? '' : readFileSync(affectedFilePath, 'utf8').trim();
 // An empty file means "not a pull request", where every suite runs.
@@ -94,6 +107,8 @@ const include = EXAMPLES.flatMap(example =>
             example_dir: example.exampleDir,
             build_filter: `...${members[members.length - 1]}`,
             ios_scheme: iosScheme,
+            ios_app_id: readAppId(example.exampleDir, 'ios', target),
+            android_app_id: readAppId(example.exampleDir, 'android', target),
         }))
 );
 

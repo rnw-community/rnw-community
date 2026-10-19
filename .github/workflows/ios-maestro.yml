@@ -27,6 +27,8 @@ permissions: {}
 
 env:
     MAESTRO_VERSION: '2.8.0'
+    XCODE_VERSION: '26.4.1'
+    XCODE_BUILD: '17E202'
     MAESTRO_CLI_NO_ANALYTICS: true
     MAESTRO_CLI_ANALYSIS_NOTIFICATION_DISABLED: true
 
@@ -61,13 +63,14 @@ jobs:
                   # skip every leg on exactly the changes that need testing most.
                   : > affected.json
                   if [ "$EVENT_NAME" = "pull_request" ]; then
-                    # grep without -q: under pipefail, -q exits at the first match
-                    # and a still-writing git diff then dies of SIGPIPE (status
-                    # 141), which flips a real plumbing match into the turbo
-                    # branch on diffs large enough to fill the pipe buffer.
-                    if git diff --name-only "$TURBO_SCM_BASE" HEAD \
-                      | grep -E '^\.github/(workflows/(ios|android)-maestro\.yml|scripts/maestro-matrix\.mjs)$'; then
+                    changed_files="$(git diff --name-only "$TURBO_SCM_BASE" HEAD)"
+                    if grep -E '^\.github/(workflows/(ios|android)-maestro\.yml|scripts/maestro-matrix\.mjs)$' <<<"$changed_files"; then
                       echo "Maestro CI plumbing changed; every suite runs."
+                    elif ! grep -vE '\.md$|(^|/)llms[^/]*\.txt$|(^|/)docs/' <<<"$changed_files" > /dev/null; then
+                      # Turbo maps a readme or docs edit to its package, which would
+                      # run that package's suites although no app input changed.
+                      echo "Documentation-only change; no suite runs."
+                      echo '{"packages":{"items":[]}}' > affected.json
                     else
                       npx -y turbo@2.10.8 ls --affected --output=json > affected.json
                     fi
@@ -86,10 +89,8 @@ jobs:
         continue-on-error: ${{ matrix.package == 'screen-chrome' }}
         runs-on: [self-hosted, macOS, ARM64, macos-maestro]
         # Self-hosted fleet capacity is shared with other repositories, so both the
-        # job and every step below carry an explicit bound. See the step comments
-        # for how each number was sized. The cache saves at the end of the job
-        # used to run as implicit post steps inside this same budget; they are
-        # explicit, bounded steps now, so the total is unchanged.
+        # job and every step below carry an explicit bound. The cache saves run
+        # as explicit, bounded steps after the suite inside this same budget.
         timeout-minutes: 60
         strategy:
             fail-fast: false
@@ -97,7 +98,7 @@ jobs:
                 include: ${{ fromJSON(needs.detect.outputs.matrix) }}
         env:
             APP_DIR: ${{ matrix.example_dir }}/apps/${{ matrix.target }}
-            MAESTRO_DEBUG_OUTPUT_DIRECTORY: ${{ github.workspace }}/${{ matrix.example_dir }}/artifacts/maestro-ios-${{ matrix.package }}-${{ matrix.target }}
+            APP_PATH: ${{ matrix.example_dir }}/apps/${{ matrix.target }}/ios/build/Build/Products/Release-iphonesimulator/${{ matrix.ios_scheme }}.app
 
         steps:
             -   name: Checkout repository
@@ -122,13 +123,9 @@ jobs:
                 run: echo "path=$(pnpm store path --silent)" >> "$GITHUB_OUTPUT"
 
             # Every cache in this job is restore-only up front and saved by an
-            # explicit step at the very end, only on a primary-key miss. Uploads
-            # from this fleet run at ~0.6 MB/s, and the implicit post-step saves
-            # of actions/cache and setup-node's `cache: pnpm` timed out after the
-            # suite had already passed, failing green runs. There is no
-            # GitHub-hosted macOS job whose paths ($HOME is /Users/admin here)
-            # would produce a restorable entry, so the save stays on this
-            # runner, but as a bounded, non-fatal step after the suite.
+            # explicit step at the very end. Uploads from this fleet run at
+            # ~0.6 MB/s, and implicit post-step saves timed out after the suite
+            # had already passed, failing green runs.
             -   name: Restore pnpm store cache
                 id: pnpm-cache
                 uses: actions/cache/restore@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
@@ -144,12 +141,62 @@ jobs:
                 timeout-minutes: 15
                 run: pnpm install --frozen-lockfile
 
-            -   name: Verify Xcode toolchain
+            -   name: Select the pinned Xcode
+                id: xcode
+                uses: rnw-community/mobile-ci/actions/setup-xcode-pinned@3e9afaf1888bce8a3e4a70818d457ffa9de11d8d # v4.0.0
                 timeout-minutes: 5
-                run: xcodebuild -version
+                with:
+                    version: ${{ env.XCODE_VERSION }}
+                    build: ${{ env.XCODE_BUILD }}
+
+            -   name: Fingerprint the native surface
+                id: fingerprint
+                uses: rnw-community/mobile-ci/actions/native-fingerprint@3e9afaf1888bce8a3e4a70818d457ffa9de11d8d # v4.0.0
+                timeout-minutes: 10
+                with:
+                    platform: ios
+                    working-directory: ${{ env.APP_DIR }}
+
+            # The release .app embeds its JavaScript bundle, so a cached app is
+            # only this commit's app when the JS that goes into the bundle is
+            # unchanged too. The JS hash is computed once here, before any build
+            # output exists, and reused verbatim by the save step.
+            -   name: Compute the app cache key
+                id: app-key
+                shell: bash
+                env:
+                    NATIVE_FINGERPRINT: ${{ steps.fingerprint.outputs.hash }}
+                    JS_HASH: ${{ hashFiles('pnpm-lock.yaml', 'packages/*/package.json', 'packages/*/*.js', 'packages/*/src/**', format('{0}/apps/{1}/*', matrix.example_dir, matrix.target), format('{0}/apps/{1}/assets/**', matrix.example_dir, matrix.target)) }}
+                run: echo "fingerprint=${NATIVE_FINGERPRINT}-${JS_HASH:0:16}" >> "$GITHUB_OUTPUT"
+
+            -   name: Restore the built app
+                id: app-cache
+                uses: rnw-community/mobile-ci/actions/native-app-cache@3e9afaf1888bce8a3e4a70818d457ffa9de11d8d # v4.0.0
+                timeout-minutes: 10
+                with:
+                    mode: restore
+                    path: ${{ env.APP_PATH }}
+                    profile: ios-${{ matrix.package }}-${{ matrix.target }}
+                    arch: ${{ runner.arch }}
+                    toolchain: ${{ steps.xcode.outputs.toolchain-key }}
+                    fingerprint: ${{ steps.app-key.outputs.fingerprint }}
+
+            -   name: Build workspace JS dependencies
+                if: steps.app-cache.outputs.cache-hit != 'true'
+                timeout-minutes: 10
+                env:
+                    BUILD_FILTER: ${{ matrix.build_filter }}
+                run: pnpm build --filter="${BUILD_FILTER}"
+
+            -   name: Generate native project (expo)
+                if: steps.app-cache.outputs.cache-hit != 'true' && matrix.target == 'expo'
+                timeout-minutes: 10
+                working-directory: ${{ matrix.example_dir }}
+                run: pnpm prebuild:expo
 
             -   name: Restore CocoaPods global cache
                 id: pods-global-cache
+                if: steps.app-cache.outputs.cache-hit != 'true'
                 uses: actions/cache/restore@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
                 timeout-minutes: 10
                 with:
@@ -160,58 +207,33 @@ jobs:
                     restore-keys: |
                         pods-global-${{ runner.os }}-
 
-            -   name: Restore project Pods and DerivedData cache
-                id: pods-project-cache
-                uses: actions/cache/restore@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
+            # Before `pod install`: both the bare Podfiles and the expo template
+            # turn on React Native's ccache compiler wrappers from USE_CCACHE,
+            # which this step exports.
+            -   name: Set up ccache
+                id: ccache
+                if: steps.app-cache.outputs.cache-hit != 'true'
+                uses: rnw-community/mobile-ci/actions/setup-ccache-ios@3e9afaf1888bce8a3e4a70818d457ffa9de11d8d # v4.0.0
                 timeout-minutes: 15
                 with:
-                    path: |
-                        ${{ env.APP_DIR }}/ios/Pods
-                        ${{ env.APP_DIR }}/ios/build
-                    key: pods-project-ios-${{ matrix.package }}-${{ matrix.target }}-${{ runner.os }}-${{ hashFiles(format('{0}/ios/Podfile.lock', env.APP_DIR), format('{0}/package.json', env.APP_DIR), format('{0}/app.json', env.APP_DIR), 'pnpm-lock.yaml') }}
+                    mode: restore
+                    ccache-dir: ${{ runner.temp }}/ccache
+                    max-size: 1G
+                    key: ccache-ios-${{ steps.xcode.outputs.toolchain-key }}-${{ matrix.package }}-${{ matrix.target }}-${{ steps.app-key.outputs.fingerprint }}
                     restore-keys: |
-                        pods-project-ios-${{ matrix.package }}-${{ matrix.target }}-${{ runner.os }}-
-
-            -   name: Build workspace JS dependencies
-                timeout-minutes: 10
-                env:
-                    BUILD_FILTER: ${{ matrix.build_filter }}
-                run: pnpm build --filter="${BUILD_FILTER}"
-
-            -   name: Generate native project (expo)
-                if: matrix.target == 'expo'
-                timeout-minutes: 10
-                working-directory: ${{ matrix.example_dir }}
-                run: pnpm prebuild:expo
+                        ccache-ios-${{ steps.xcode.outputs.toolchain-key }}-${{ matrix.package }}-${{ matrix.target }}-
+                        ccache-ios-${{ steps.xcode.outputs.toolchain-key }}-
 
             -   name: Install CocoaPods dependencies
                 id: pod-install
+                if: steps.app-cache.outputs.cache-hit != 'true'
                 timeout-minutes: 20
                 working-directory: ${{ env.APP_DIR }}/ios
                 run: pod install --repo-update
 
-            -   name: Boot iOS Simulator
-                id: simulator
-                # Observed 34-39s across recent runs; 10 minutes is generous headroom
-                # for a cold simulator runtime.
-                timeout-minutes: 10
-                shell: bash
-                run: |
-                    set -euo pipefail
-                    device_line=$(xcrun simctl list devices available | grep -E '^\s+iPhone.*\(' | tail -1)
-                    test -n "$device_line"
-                    device_udid=$(grep -oE '[0-9A-Fa-f]{8}(-[0-9A-Fa-f]{4}){3}-[0-9A-Fa-f]{12}' <<< "$device_line")
-                    test -n "$device_udid"
-                    echo "Booting simulator: $device_line"
-                    xcrun simctl boot "$device_udid" || true
-                    # `bootstatus -b` blocks forever on a wedged simulator, and macOS
-                    # ships no timeout(1), so bound it with a perl alarm (pending
-                    # alarms survive exec, so SIGALRM kills simctl on expiry).
-                    perl -e 'alarm 300; exec @ARGV' xcrun simctl bootstatus "$device_udid" -b
-                    echo "SIMULATOR_UDID=$device_udid" >> "$GITHUB_ENV"
-
             -   name: Build app
                 id: build
+                if: steps.app-cache.outputs.cache-hit != 'true'
                 # The workspace and scheme are the same name for both target kinds:
                 # the bare template names them after app.json, and expo prebuild
                 # derives them from the slug. The matrix carries that name.
@@ -230,224 +252,33 @@ jobs:
                         -derivedDataPath build \
                         CODE_SIGNING_ALLOWED=NO \
                         build
-                    echo "APP_PATH=${APP_DIR}/ios/build/Build/Products/Release-iphonesimulator/${IOS_SCHEME}.app" >> "$GITHUB_ENV"
-
-            -   name: Install app on simulator
-                timeout-minutes: 10
-                run: xcrun simctl install "$SIMULATOR_UDID" "$APP_PATH"
-
-            -   name: Warm the freshly installed app
-                # Whichever flow Maestro happens to run first pays for the very first
-                # launch of a just-installed app — dyld work, first-run caches, and on
-                # this fleet the first PassKit presentation — and that flow is the one
-                # that keeps failing, in both suites, on whatever it waits for first.
-                # Absorbing that cost once here makes every flow the warm case, instead
-                # of raising another timeout for whichever flow drew the short straw.
-                timeout-minutes: 5
-                shell: bash
-                run: |
-                    set -euo pipefail
-                    bundle_id=$(plutil -extract CFBundleIdentifier raw "$APP_PATH/Info.plist")
-                    test -n "$bundle_id"
-                    xcrun simctl launch "$SIMULATOR_UDID" "$bundle_id"
-                    # Long enough for the first frame and the app's own startup probes;
-                    # the suite relaunches with clearState anyway, so nothing is carried
-                    # over except the caches this exists to populate.
-                    sleep 20
-                    xcrun simctl terminate "$SIMULATOR_UDID" "$bundle_id" || true
-
-            -   name: Install Maestro
-                timeout-minutes: 10
-                shell: bash
-                # A maestro already on PATH (Homebrew or any other host provisioning)
-                # is only trusted when it reports exactly the pinned version: accepting
-                # a mismatched host binary with a warning made the same flow pass on
-                # the leg that fresh-installed the pin and fail on the leg that ran the
-                # host's stale CLI. Any other version is shadowed by installing the
-                # pinned GitHub release into a private prefix that is prepended to
-                # PATH, which also sidesteps get.maestro.mobile.dev's refusal to
-                # install beside a package-manager-managed maestro. Every failure mode
-                # of the download, checksum, extraction, or version probe fails the
-                # step — the suite never runs against an unverified CLI.
-                run: |
-                    set -euo pipefail
-                    if ! printf '%s' "$MAESTRO_VERSION" | grep -qE '^[0-9]+\.[0-9]+\.[0-9]+$'; then
-                      echo "::error::MAESTRO_VERSION '$MAESTRO_VERSION' must be a plain X.Y.Z version (digits and dots only) to be used safely in a local path and release URL."
-                      exit 1
-                    fi
-                    existing_bin="$(command -v maestro || true)"
-                    if [ -n "$existing_bin" ]; then
-                      existing_version="$("$existing_bin" --version 2>/dev/null | tail -n 1 | tr -d '\r' || true)"
-                      if [ "$existing_version" = "$MAESTRO_VERSION" ]; then
-                        echo "Using existing maestro $MAESTRO_VERSION already on PATH: $existing_bin"
-                        exit 0
-                      fi
-                      echo "Host maestro at $existing_bin reports '$existing_version', not the pinned $MAESTRO_VERSION; installing the pinned release into a private prefix."
-                    fi
-                    command -v unzip >/dev/null 2>&1 || { echo "::error::'unzip' is required to install the pinned Maestro release but is not on PATH."; exit 1; }
-
-                    pinned_root="$HOME/.maestro-pinned"
-                    pinned_dir="$pinned_root/$MAESTRO_VERSION"
-                    pinned_bin="$pinned_dir/maestro/bin/maestro"
-                    lock_dir="$pinned_root/.lock-$MAESTRO_VERSION"
-                    mkdir -p "$pinned_root"
-
-                    version_matches() {
-                      [ -x "$pinned_bin" ] && [ "$("$pinned_bin" --version 2>/dev/null | tail -n 1 | tr -d '\r' || true)" = "$MAESTRO_VERSION" ]
-                    }
-
-                    if ! version_matches; then
-                      # Concurrent legs on the same self-hosted host share $HOME, so two
-                      # jobs installing the same not-yet-cached MAESTRO_VERSION could
-                      # otherwise race rm -rf/unzip against each other or against a
-                      # sibling's in-flight `maestro` invocation. A per-version
-                      # mkdir-as-mutex lock serializes that; a losing waiter re-checks
-                      # version_matches so it can skip straight past once the winner
-                      # finishes instead of installing a second time.
-                      lock_acquired=''
-                      lock_deadline=$((SECONDS + 300))
-                      while :; do
-                        if mkdir "$lock_dir" 2>/dev/null; then
-                          lock_acquired=1
-                          break
-                        fi
-                        if version_matches; then
-                          break
-                        fi
-                        # A winner hard-killed before its EXIT trap runs (runner
-                        # reboot, forced shutdown mid-install) leaves lock_dir
-                        # behind with nobody left to remove it. A live owner is
-                        # bounded by this step's 10-minute timeout, so a lock
-                        # directory older than 15 minutes provably has no owner;
-                        # reclaiming it keeps one crashed install from wedging
-                        # every later job on this host.
-                        if [ -n "$(find "$lock_dir" -maxdepth 0 -mmin +15 2>/dev/null)" ]; then
-                          echo "Removing stale Maestro install lock '$lock_dir' left by a crashed installer."
-                          rmdir "$lock_dir" 2>/dev/null || true
-                        fi
-                        if [ "$SECONDS" -ge "$lock_deadline" ]; then
-                          echo "::error::Timed out waiting for the Maestro install lock '$lock_dir'; a concurrent install on this host may be stuck."
-                          exit 1
-                        fi
-                        sleep 2
-                      done
-
-                      if [ -n "$lock_acquired" ]; then
-                        cleanup() {
-                          [ -n "${scratch_dir:-}" ] && rm -rf "$scratch_dir"
-                          [ -n "${staging_dir:-}" ] && rm -rf "$staging_dir"
-                          rmdir "$lock_dir" 2>/dev/null || true
-                        }
-                        trap cleanup EXIT
-
-                        if ! version_matches; then
-                          download_url="https://github.com/mobile-dev-inc/Maestro/releases/download/cli-${MAESTRO_VERSION}/maestro.zip"
-                          checksum_url="https://github.com/mobile-dev-inc/Maestro/releases/download/cli-${MAESTRO_VERSION}/checksums_sha256.txt"
-                          scratch_dir="$(mktemp -d)"
-                          zip_path="$scratch_dir/maestro.zip"
-
-                          curl_exit=0
-                          http_status="$(curl -sSL --retry 3 --retry-connrefused --max-time 300 -w '%{http_code}' -o "$zip_path" "$download_url")" || curl_exit=$?
-                          if [ "$curl_exit" -ne 0 ] || [ "$http_status" != "200" ]; then
-                            echo "::error::Download of MAESTRO_VERSION '$MAESTRO_VERSION' from '$download_url' failed (curl exit $curl_exit, HTTP status '$http_status'). Confirm a 'cli-$MAESTRO_VERSION' release publishing a maestro.zip asset exists at https://github.com/mobile-dev-inc/Maestro/releases."
-                            exit 1
-                          fi
-
-                          checksum_curl_exit=0
-                          checksum_status="$(curl -sSL --retry 3 --retry-connrefused --max-time 60 -w '%{http_code}' -o "$scratch_dir/checksums_sha256.txt" "$checksum_url")" || checksum_curl_exit=$?
-                          if [ "$checksum_curl_exit" -eq 0 ] && [ "$checksum_status" = "200" ]; then
-                            expected_sha="$(awk '$2 == "maestro.zip" { print $1 }' "$scratch_dir/checksums_sha256.txt")"
-                            if [ -z "$expected_sha" ]; then
-                              echo "::error::checksums_sha256.txt for cli-$MAESTRO_VERSION has no maestro.zip entry; refusing to install an unverifiable download."
-                              exit 1
-                            fi
-                            if command -v sha256sum >/dev/null 2>&1; then
-                              actual_sha="$(sha256sum "$zip_path" | awk '{print $1}')"
-                            else
-                              actual_sha="$(shasum -a 256 "$zip_path" | awk '{print $1}')"
-                            fi
-                            if [ "$actual_sha" != "$expected_sha" ]; then
-                              echo "::error::maestro.zip checksum mismatch for cli-$MAESTRO_VERSION: expected $expected_sha, got $actual_sha."
-                              exit 1
-                            fi
-                          elif [ "$checksum_status" = "404" ]; then
-                            echo "::warning::mobile-dev-inc/Maestro cli-$MAESTRO_VERSION did not publish checksums_sha256.txt (404); proceeding on the TLS-verified download from the official GitHub release only."
-                          else
-                            echo "::error::Failed to retrieve checksums_sha256.txt for cli-$MAESTRO_VERSION from '$checksum_url' (curl exit $checksum_curl_exit, HTTP status '$checksum_status'). Refusing to install an unverifiable download."
-                            exit 1
-                          fi
-
-                          staging_dir="$(mktemp -d "$pinned_root/.staging-XXXXXX")"
-                          unzip -q "$zip_path" -d "$staging_dir"
-                          chmod +x "$staging_dir/maestro/bin/maestro" 2>/dev/null || true
-                          staged_version="$("$staging_dir/maestro/bin/maestro" --version | tail -n 1 | tr -d '\r')"
-                          if [ "$staged_version" != "$MAESTRO_VERSION" ]; then
-                            echo "::error::Extracted maestro from cli-$MAESTRO_VERSION's maestro.zip reports version '$staged_version', not the pinned $MAESTRO_VERSION; the release archive layout may have changed."
-                            exit 1
-                          fi
-                          rm -rf "$pinned_dir"
-                          mkdir -p "$pinned_dir"
-                          mv "$staging_dir/maestro" "$pinned_dir/maestro"
-                        fi
-                      fi
-                    fi
-
-                    if [ ! -x "$pinned_bin" ]; then
-                      echo "::error::Expected a maestro binary at '$pinned_bin' after installing cli-$MAESTRO_VERSION; the install may have failed or been interrupted."
-                      exit 1
-                    fi
-                    resolved_version="$("$pinned_bin" --version | tail -n 1 | tr -d '\r')"
-                    if [ "$resolved_version" != "$MAESTRO_VERSION" ]; then
-                      echo "::error::maestro at '$pinned_bin' reports version '$resolved_version', not the pinned $MAESTRO_VERSION."
-                      exit 1
-                    fi
-                    echo "$pinned_dir/maestro/bin" >> "$GITHUB_PATH"
-                    echo "Installed and using maestro $MAESTRO_VERSION at $pinned_bin"
+                    test -d "${GITHUB_WORKSPACE}/${APP_PATH}"
 
             -   name: Run Maestro suite
                 id: maestro
                 # Step-level flag (the job-level one is not honored for the check
                 # run conclusion on this runner): see the job-level comment.
                 continue-on-error: ${{ matrix.package == 'screen-chrome' }}
-                # The suite itself took ~85s per shard on the Redroid prototype runs;
-                # 25 minutes covers a slow retry loop without holding the fleet.
-                timeout-minutes: 25
-                working-directory: ${{ matrix.example_dir }}
-                env:
-                    TARGET: ${{ matrix.target }}
-                run: pnpm "e2e:ios:${TARGET}" --debug-output "$MAESTRO_DEBUG_OUTPUT_DIRECTORY"
-
-            -   name: Capture final simulator state
-                # Pointless unless a simulator actually booted: without it
-                # SIMULATOR_UDID is unset and simctl has nothing to talk to.
-                if: failure() || (steps.maestro.outcome == 'failure' && steps.simulator.outcome == 'success')
-                timeout-minutes: 3
-                shell: bash
-                run: |
-                    mkdir -p "${MAESTRO_DEBUG_OUTPUT_DIRECTORY}"
-                    xcrun simctl io "$SIMULATOR_UDID" screenshot "${MAESTRO_DEBUG_OUTPUT_DIRECTORY}/final-screen.png" || true
-
-            -   name: Shutdown simulator
-                # always() is right here (the simulator must be released even when the
-                # job is cancelled) but only once a boot actually happened.
-                if: always() && steps.simulator.outcome == 'success'
-                timeout-minutes: 3
-                run: xcrun simctl shutdown "$SIMULATOR_UDID" || true
-
-            -   name: Upload Maestro artifacts
-                if: failure() || (steps.maestro.outcome == 'failure' && steps.simulator.outcome == 'success')
-                uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
-                timeout-minutes: 5
+                # Boot, install, warm-up, suite, capture and shutdown all live in
+                # this one action, so its budget covers the old boot (10), warm-up
+                # (5) and suite (25) step budgets together.
+                timeout-minutes: 40
+                uses: rnw-community/mobile-ci/actions/run-maestro-ios@3e9afaf1888bce8a3e4a70818d457ffa9de11d8d # v4.0.0
                 with:
-                    name: maestro-ios-${{ matrix.package }}-${{ matrix.target }}
-                    path: ${{ env.MAESTRO_DEBUG_OUTPUT_DIRECTORY }}/**
-                    include-hidden-files: true
-                    if-no-files-found: warn
-                    retention-days: 7
+                    app-path: ${{ env.APP_PATH }}
+                    app-id: ${{ matrix.ios_app_id }}
+                    flows-dir: ${{ matrix.example_dir }}/e2e/flows
+                    flows-name-pattern: '*.yaml'
+                    shard-index: 0
+                    shard-count: 1
+                    maestro-version: ${{ env.MAESTRO_VERSION }}
+                    # The shared fleet simulators stay stock: the payments suite
+                    # needs the PassKit services a slim profile switches off.
+                    simulator-slim-profile: ''
+                    artifacts-dir: ${{ github.workspace }}/${{ matrix.example_dir }}/artifacts/maestro-ios-${{ matrix.package }}-${{ matrix.target }}
+                    artifact-name: maestro-ios-${{ matrix.package }}-${{ matrix.target }}
 
-            # Each save reuses the restore step's computed primary key rather than
-            # re-hashing: Podfile.lock only exists after `pod install`, so a key
-            # recomputed here would never match the one the next run looks up.
+            # Each save reuses the restore step's key rather than re-hashing, and
             # continue-on-error is confined to these steps: a slow or failed
             # upload must never turn a finished suite red.
             -   name: Save pnpm store cache
@@ -470,18 +301,28 @@ jobs:
                         ~/.cocoapods
                     key: ${{ steps.pods-global-cache.outputs.cache-primary-key }}
 
-            -   name: Save project Pods and DerivedData cache
-                # A full DerivedData tree measured ~20 minutes to upload from this
-                # fleet (860 MB at ~0.7 MB/s).
-                if: ${{ !cancelled() && steps.build.outcome == 'success' && steps.pods-project-cache.outputs.cache-hit != 'true' }}
-                uses: actions/cache/save@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
+            -   name: Save the built app
+                if: ${{ !cancelled() && steps.build.outcome == 'success' }}
+                uses: rnw-community/mobile-ci/actions/native-app-cache@3e9afaf1888bce8a3e4a70818d457ffa9de11d8d # v4.0.0
                 continue-on-error: true
-                timeout-minutes: 25
+                timeout-minutes: 10
                 with:
-                    path: |
-                        ${{ env.APP_DIR }}/ios/Pods
-                        ${{ env.APP_DIR }}/ios/build
-                    key: ${{ steps.pods-project-cache.outputs.cache-primary-key }}
+                    mode: save
+                    path: ${{ env.APP_PATH }}
+                    profile: ios-${{ matrix.package }}-${{ matrix.target }}
+                    arch: ${{ runner.arch }}
+                    toolchain: ${{ steps.xcode.outputs.toolchain-key }}
+                    fingerprint: ${{ steps.app-key.outputs.fingerprint }}
+
+            -   name: Save ccache
+                if: ${{ !cancelled() && steps.build.outcome == 'success' && steps.ccache.outputs.cache-hit != 'true' }}
+                uses: rnw-community/mobile-ci/actions/setup-ccache-ios@3e9afaf1888bce8a3e4a70818d457ffa9de11d8d # v4.0.0
+                continue-on-error: true
+                timeout-minutes: 20
+                with:
+                    mode: save
+                    ccache-dir: ${{ runner.temp }}/ccache
+                    key: ccache-ios-${{ steps.xcode.outputs.toolchain-key }}-${{ matrix.package }}-${{ matrix.target }}-${{ steps.app-key.outputs.fingerprint }}
 
     status:
         name: iOS Maestro E2E result
