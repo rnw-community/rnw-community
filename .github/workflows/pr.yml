@@ -94,6 +94,9 @@ jobs:
             -   name: Pack-content gate (llms.txt, no test/build artifacts, entry targets)
                 run: pnpm assert:pack
 
+            -   name: TSDoc @see links resolve to real files and readme headings
+                run: pnpm assert:see-anchors
+
             -   name: Find dead code
                 run: pnpm deadcode
 

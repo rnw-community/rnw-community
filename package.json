@@ -8,6 +8,7 @@
     },
     "scripts": {
         "assert:pack": "node scripts/assert-pack-contents.mjs",
+        "assert:see-anchors": "node scripts/assert-tsdoc-see-anchors.mjs",
         "build": "turbo run build",
         "build:force": "turbo run build --force",
         "clear": "turbo run clear",
