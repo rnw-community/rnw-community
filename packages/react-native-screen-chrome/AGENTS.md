@@ -57,6 +57,8 @@ pnpm test && pnpm test:coverage && pnpm build && pnpm ts && pnpm ts:nodenext && 
 - **No custom tab bar and no hide-on-scroll bottom bar.** Expo Router `NativeTabs` renders the platform tab bar
   (Liquid Glass on iOS 26, with native minimize-on-scroll) and owns its insets, so a JS tab bar here would only trail
   the platform. Do not re-add one; bottom chrome in this package is screen-level (`ScreenChromeFooter`).
+- Bottom chrome the app owns (a custom tab bar) publishes through the exported `useBottomChromeHeightPublisher`, the same
+  hook the footer uses; a declared `height` skips measurement so hidden chrome keeps its reservation.
 - **No keyboard dependency.** `react-native-keyboard-controller` is the standard; the readme documents wrapping
   `ScreenChromeFooter` in its `KeyboardStickyView`. Transforms never fire `onLayout`, so the published inset is the
   footer's resting height while the keyboard is open — keep the inset measurement-driven, never keyboard- or

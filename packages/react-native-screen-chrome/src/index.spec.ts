@@ -24,6 +24,7 @@ describe('public API', () => {
                 ScreenChromeProvider: expect.any(Function),
                 ScreenChromeScrollView: expect.any(Function),
                 SCREEN_CHROME_HEADER_LAYOUT_METRICS: { rowPadding: 16, slotSize: 44, titleInset: 72 },
+                useBottomChromeHeightPublisher: expect.any(Function),
                 useBottomChromeInset: expect.any(Function),
                 useScreenChrome: expect.any(Function),
                 useScreenChromeScrollProps: expect.any(Function),

@@ -31,6 +31,9 @@ export { ScreenChromeFooter } from './screen-chrome-footer/screen-chrome-footer'
 export type { ScreenChromeFooterPropsInterface } from './screen-chrome-footer/screen-chrome-footer-props.interface';
 export { BottomChromeInsetProvider } from './bottom-chrome-inset-provider/bottom-chrome-inset-provider';
 export { useBottomChromeInset } from './hooks/use-bottom-chrome-inset/use-bottom-chrome-inset.hook';
+export { useBottomChromeHeightPublisher } from './hooks/use-bottom-chrome-height-publisher/use-bottom-chrome-height-publisher.hook';
+export type { BottomChromeHeightPublisherInterface } from './interface/bottom-chrome-height-publisher.interface';
+export type { BottomChromeHeightPublisherOptionsInterface } from './interface/bottom-chrome-height-publisher-options.interface';
 export type { BottomChromeInsetInterface } from './interface/bottom-chrome-inset.interface';
 export type { ScreenChromeColorScheme } from './type/screen-chrome-color-scheme.type';
 export type { ScreenChromeColorSchemePreference } from './type/screen-chrome-color-scheme-preference.type';

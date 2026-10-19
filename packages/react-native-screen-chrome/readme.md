@@ -650,7 +650,8 @@ export const AccountsScreen = () => (
 The package ships no tab bar and no hide-on-scroll bottom bar. Expo Router's
 [`NativeTabs`](https://docs.expo.dev/router/advanced/native-tabs/) renders the platform tab bar — the Liquid Glass bar
 with native minimize-on-scroll on iOS 26 — and owns its insets, so a JavaScript re-implementation would only lag
-behind the platform. Use `ScreenChromeFooter` for screen-level action and summary bars.
+behind the platform. Use `ScreenChromeFooter` for screen-level action and summary bars; a custom bottom bar the app
+already owns publishes its height through [`useBottomChromeHeightPublisher`](#usebottomchromeheightpublisher).
 
 ## BottomChromeInsetProvider
 
@@ -681,6 +682,60 @@ const { chromeHeight } = useBottomChromeInset();
 
 The value changes only when the footer's measured height changes — never per scroll frame and never when the footer
 is moved by a transform — so pairing it with the scroll view relayouts content only on real footer resizes.
+
+## useBottomChromeHeightPublisher
+
+Publishes one bottom chrome height into the nearest `BottomChromeInsetProvider` — the publisher `ScreenChromeFooter`
+uses internally — for bottom chrome the app renders itself, such as a custom floating tab bar. Spread the returned
+[`BottomChromeHeightPublisherInterface`](#bottomchromeheightpublisherinterface) onto the node to measure it on mount and
+on every layout:
+
+```tsx
+const TabBar = () => (
+    <View collapsable={false} style={styles.tabBar} {...useBottomChromeHeightPublisher()}>
+        {tabs}
+    </View>
+);
+```
+
+Pass a declared `height` (see [`BottomChromeHeightPublisherOptionsInterface`](#bottomchromeheightpublisheroptionsinterface))
+to reserve a fixed height instead: layout events are then ignored, so the reservation survives the bar being hidden by
+a transform, `opacity`, or `display: 'none'`. Call the hook from a component that stays mounted, such as the tab
+layout, to keep the reservation while the bar itself unmounts, so `useBottomChromeInset` consumers never jump:
+
+```tsx
+const TabLayout = () => {
+    useBottomChromeHeightPublisher({ height: TAB_BAR_HEIGHT });
+
+    return <Tabs>{isTabBarVisible ? <TabBar /> : null}</Tabs>;
+};
+```
+
+The height excludes the safe-area bottom, like every published height. Unmounting the publisher withdraws only its own
+entry, and the provider keeps publishing the tallest entry.
+
+## BottomChromeHeightPublisherOptionsInterface
+
+| Option   | Type     | Description                                                                                   |
+| -------- | -------- | --------------------------------------------------------------------------------------------- |
+| `height` | `number` | Declared height without the safe area, reserved while mounted instead of the measured height. |
+
+```tsx
+const options: BottomChromeHeightPublisherOptionsInterface = { height: 68 };
+
+useBottomChromeHeightPublisher(options);
+```
+
+## BottomChromeHeightPublisherInterface
+
+The `{ ref, onLayout }` view props returned by `useBottomChromeHeightPublisher`: `ref` is measured synchronously on mount
+and `onLayout` republishes every resize. Keep `collapsable={false}` on the node so Android does not flatten it away.
+
+```tsx
+const { ref, onLayout }: BottomChromeHeightPublisherInterface = useBottomChromeHeightPublisher();
+
+<View collapsable={false} onLayout={onLayout} ref={ref} />;
+```
 
 ## BottomChromeInsetInterface
 
