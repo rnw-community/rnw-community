@@ -5,4 +5,6 @@
 export interface BottomChromeHeightPublisherOptionsInterface {
     /** Declared height, without the safe area, reserved while the publisher is mounted instead of the measured one. */
     readonly height?: number;
+    /** Height added to the published one, for chrome stacked above other bottom chrome. @defaultValue `0` */
+    readonly offset?: number;
 }

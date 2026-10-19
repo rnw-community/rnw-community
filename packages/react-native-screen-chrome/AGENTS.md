@@ -59,6 +59,9 @@ pnpm test && pnpm test:coverage && pnpm build && pnpm ts && pnpm ts:nodenext && 
   the platform. Do not re-add one; bottom chrome in this package is screen-level (`ScreenChromeFooter`).
 - Bottom chrome the app owns (a custom tab bar) publishes through the exported `useBottomChromeHeightPublisher`, the same
   hook the footer uses; a declared `height` skips measurement so hidden chrome keeps its reservation.
+- A footer stacked above other bottom chrome takes an explicit `bottomOffset` (folded into its published height through
+  the publisher `offset`) rather than reading `useBottomChromeInset`, which already includes the footer and would feed
+  back into itself.
 - **No keyboard dependency.** `react-native-keyboard-controller` is the standard; the readme documents wrapping
   `ScreenChromeFooter` in its `KeyboardStickyView`. Transforms never fire `onLayout`, so the published inset is the
   footer's resting height while the keyboard is open — keep the inset measurement-driven, never keyboard- or

@@ -80,6 +80,24 @@ describe('useBottomChromeHeightPublisher', () => {
         expect(screen.getByTestId('inset-probe')).toHaveTextContent(`${TAB_BAR_HEIGHT}`);
     });
 
+    it('adds the offset of chrome stacked above other bottom chrome to the declared height', () => {
+        expect.hasAssertions();
+
+        const OffsetChrome = (): ReactNode => {
+            useBottomChromeHeightPublisher({ height: MEASURED_HEIGHT, offset: TAB_BAR_HEIGHT });
+
+            return null;
+        };
+        const screen = render(
+            <BottomChromeInsetProvider>
+                <InsetProbe />
+                <OffsetChrome />
+            </BottomChromeInsetProvider>
+        );
+
+        expect(screen.getByTestId('inset-probe')).toHaveTextContent(`${MEASURED_HEIGHT + TAB_BAR_HEIGHT}`);
+    });
+
     it('republishes a changed declared height and withdraws it on unmount', () => {
         expect.hasAssertions();
 
