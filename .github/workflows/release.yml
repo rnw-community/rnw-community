@@ -77,9 +77,19 @@ jobs:
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
 
+      - name: Check this commit is still the tip of master
+        id: tip
+        run: |
+          git fetch origin master
+          if [ "$(git rev-parse origin/master)" = "$GITHUB_SHA" ]; then
+            echo "latest=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "::notice::master moved past $GITHUB_SHA; the run for the newer commit releases these changes"
+          fi
+
       - name: Publish a release
         id: publish
-        if: github.event_name == 'push' || inputs.mode == 'conventional'
+        if: steps.tip.outputs.latest == 'true' && (github.event_name == 'push' || inputs.mode == 'conventional')
         env:
           GH_TOKEN: ${{ secrets.GH_PAT_TOKEN }}
           NPM_CONFIG_PROVENANCE: true
