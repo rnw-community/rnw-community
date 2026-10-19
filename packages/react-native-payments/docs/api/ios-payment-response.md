@@ -38,3 +38,4 @@ if (response instanceof IosPaymentResponse) {
 - [api/payment-response.md](./payment-response.md)
 - [api/ios-pk-token.md](./ios-pk-token.md)
 - [Apple Pay payment token reference](https://developer.apple.com/documentation/passkit/apple_pay/payment_token_format_reference?language=objc)
+- [Apple `PKPayment`](https://developer.apple.com/documentation/passkit/pkpayment) — the payload `IosPaymentResponse` parses, with its [`PKContact`](https://developer.apple.com/documentation/passkit/pkcontact?language=objc) and [`PKShippingMethod`](https://developer.apple.com/documentation/passkit/pkshippingmethod?language=objc)

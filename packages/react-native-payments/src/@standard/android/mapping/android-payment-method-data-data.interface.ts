@@ -19,6 +19,12 @@ interface AndroidGenericPaymentMethodDataInterface extends GenericPaymentMethodD
     transactionId?: AndroidTransactionInfo['transactionId'];
 }
 
+/**
+ * The `data` dictionary of the Android `methodData` entry, carrying the Google Pay environment, tokenization config and transaction options.
+ *
+ * @see https://github.com/rnw-community/rnw-community/blob/master/packages/react-native-payments/docs/api/android-payment-method-data.md
+ * @see https://developers.google.com/pay/api/android/reference/request-objects#PaymentDataRequest
+ */
 export type AndroidPaymentMethodDataDataInterface = AndroidGenericPaymentMethodDataInterface &
     (
         | {
