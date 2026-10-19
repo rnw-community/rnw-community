@@ -20,6 +20,14 @@ pnpm test && pnpm test:coverage && pnpm build && pnpm ts && pnpm ts:nodenext && 
   `scrollEventThrottle`, `contentContainerStyle` per `contentInsetMode`, `scrollIndicatorInsets` and
   `automaticallyAdjustsScrollIndicatorInsets: false`) and only adds the animated `ScrollView`; the hook is the single
   place that knowledge lives, so `Animated.FlatList`, FlashList, and LegendList get identical wiring by spreading it.
+- `ScreenChromeProvider` accepts an optional external `scrollY` shared value and exposes it on the context as
+  `externalScrollY` (named so a consumer of `useScreenChrome()` cannot mistake it for the driving offset, which is
+  absent in the default mode). `useScreenChromeScrollY` (`externalScrollY` ?? `useCollapsibleHeaderScroll().scrollY`)
+  is the single place the scroll source is resolved: the edge-fade opacity/blur hooks, `useScrollInterpolation` (and
+  `useScrollFadeStyle` on top of it) read it, and `CollapsibleHeader` forwards the external value to the primitive's
+  `scrollY` prop. Never read `useCollapsibleHeaderScroll().scrollY` directly in a new scroll-driven hook. An external
+  `scrollY` combined with `snapToCollapse` throws an `Error` from `assertScreenChromeScrollSource` during provider
+  render, matching the primitive's own single-scroll-source assertion and error class.
 - `EdgeFade` has explicit native and web implementations with shared metrics and animation hooks.
 - The band renderer (`EdgeFade` `renderBand`, falling back to `ScreenChromeProvider` `renderEdgeFadeBand` through
   context) only swaps the container's children. The container — absolute positioning, `getEdgeFadeBandMetrics`

@@ -18,6 +18,8 @@ one copy of the collapsible header. Render content first, decorative fades and b
 - [Compound header contract](readme.md#compound-header-contract): Required direct-child slot order and the render-time `TypeError` on violations.
 - [Edge fades](readme.md#edge-fades): Native masked-gradient blur versus web CSS mask and backdrop-filter behavior.
 - [Configuration and snapping](readme.md#configuration-and-snapping): Deep-merge rules, threshold ordering, and `snapToCollapse` requirements.
+- [External scroll offset](readme.md#external-scroll-offset): Driving the chrome from an app-owned `scrollY` shared value, and why it excludes snapping.
+- [Recipes](readme.md#recipes): FlatList, SectionList, FlashList, and LegendList wiring plus list-performance obligations.
 
 ## API reference
 
@@ -39,7 +41,12 @@ one copy of the collapsible header. Render content first, decorative fades and b
 - [`BottomChromeHeightPublisherInterface`](readme.md#bottomchromeheightpublisherinterface): `{ ref, onLayout }` view props that measure the bottom chrome node.
 - [`ScreenChromeContext`](readme.md#screenchromecontext): React context carrying the resolved `{ colorScheme, config }` value.
 - [`useScreenChrome`](readme.md#usescreenchrome): Reads the nearest screen chrome context and throws without a provider.
-- [`useScrollFadeStyle`](readme.md#usescrollfadestyle): Clamped opacity style interpolated from the provider scroll value.
+- [`useScreenChromeScrollProps`](readme.md#usescreenchromescrollprops): Scroll handler, merged ref, throttle, content padding, and indicator insets to spread onto any animated scrollable.
+- [`ScreenChromeScrollPropsOptionsInterface`](readme.md#screenchromescrollpropsoptionsinterface): Options accepted by `useScreenChromeScrollProps`.
+- [`ScreenChromeScrollPropsInterface`](readme.md#screenchromescrollpropsinterface): The scroll-props bag returned by `useScreenChromeScrollProps`.
+- [`useScreenChromeScrollY`](readme.md#usescreenchromescrolly): The scroll offset driving the chrome — the provider's external `scrollY` when passed, otherwise the provider-owned one.
+- [`useScrollInterpolation`](readme.md#usescrollinterpolation): Clamped derived value from the chrome scroll offset, the raw driver for custom translate/scale/opacity effects.
+- [`useScrollFadeStyle`](readme.md#usescrollfadestyle): Opacity sugar over `useScrollInterpolation`.
 - [`getScreenChromeHeaderMetrics`](readme.md#getscreenchromeheadermetrics): Pure computation of the rendered header footprint from header height, device top inset, and optional extra inset.
 - [`useScreenChromeHeaderMetrics`](readme.md#usescreenchromeheadermetrics): Header footprint for the live provider config and device insets.
 - [`ScreenChromeColorScheme`](readme.md#screenchromecolorscheme): Resolved `'light' | 'dark'` palette every chrome consumer reads from the context.
@@ -47,7 +54,7 @@ one copy of the collapsible header. Render content first, decorative fades and b
 - [`ScreenChromeColorSetInterface`](readme.md#screenchromecolorsetinterface): Solid and translucent wash colors for one color scheme.
 - [`ScreenChromeConfigInterface`](readme.md#screenchromeconfiginterface): Full chrome geometry, colors, fade masks, scroll throttling, and collapse thresholds.
 - [`ScreenChromeConfigOverridesInterface`](readme.md#screenchromeconfigoverridesinterface): Partial overrides accepted by the provider `config` prop, preserving nested colors and mask stops.
-- [`ScreenChromeContextValueInterface`](readme.md#screenchromecontextvalueinterface): The `{ colorScheme, config }` shape returned by `useScreenChrome`.
+- [`ScreenChromeContextValueInterface`](readme.md#screenchromecontextvalueinterface): The `{ colorScheme, config, renderEdgeFadeBand?, externalScrollY? }` shape returned by `useScreenChrome`.
 - [`SCREEN_CHROME_DEFAULT_CONFIG`](readme.md#screen_chrome_default_config): Platform default config (native and web variants) that `mergeScreenChromeConfig` starts from.
 - [`SCREEN_CHROME_SHARED_DEFAULT_CONFIG`](readme.md#screen_chrome_shared_default_config): Platform-independent subset of the default config shared by native and web.
 - [`assertValidScreenChromeConfig`](readme.md#assertvalidscreenchromeconfig): Throws a property-specific error for configs that cannot drive stable scroll animations.
