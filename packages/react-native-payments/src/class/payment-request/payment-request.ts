@@ -176,7 +176,7 @@ export class PaymentRequest {
             throw new DOMException(PaymentsErrorEnum.InvalidStateError);
         }
 
-        return NativePayments.canMakePayments(this.serializedMethodData);
+        return NativePayments.canMakePayments(this.serializedMethodData, this.getReadyToPayDetails());
     }
 
     /**
@@ -189,7 +189,7 @@ export class PaymentRequest {
             throw new DOMException(PaymentsErrorEnum.InvalidStateError);
         }
 
-        return NativePayments.hasEnrolledInstrument(this.serializedMethodData);
+        return NativePayments.hasEnrolledInstrument(this.serializedMethodData, this.getReadyToPayDetails());
     }
 
     /**
@@ -617,6 +617,12 @@ export class PaymentRequest {
         }
 
         return platformMethod.data;
+    }
+
+    private getReadyToPayDetails(): Partial<Pick<AndroidPaymentMethodDataDataInterface, 'environment'>> {
+        return Platform.OS === 'android'
+            ? { environment: (this.platformMethodData as AndroidPaymentMethodDataDataInterface).environment }
+            : {};
     }
 
     private getAndroidPaymentMethodData(

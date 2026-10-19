@@ -33,6 +33,5 @@ instead, pass `{ supportedMethods: PaymentMethodNameEnum.AndroidPay, data: { sup
 countryCode, currencyCode, gatewayConfig } }` — see [api/android-payment-method-data.md](../api/android-payment-method-data.md).
 The [readme quickstart](../../readme.md#quickstart) shows the full flow, including `complete()`.
 
-`canMakePayment()` on Android always checks against `EnvironmentEnum.TEST` regardless of the `environment` set
-on `methodData.data` — set the real `environment` for `show()` regardless of what `canMakePayment()` reported.
-See [Platforms — Android](../platforms/android.md#known-deviations).
+`canMakePayment()` and `hasEnrolledInstrument()` on Android check Google Pay readiness against the same
+`environment` set on `methodData.data` that `show()` uses. See [Platforms — Android](../platforms/android.md).

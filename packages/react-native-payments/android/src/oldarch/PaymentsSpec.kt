@@ -8,8 +8,8 @@ import com.facebook.react.bridge.ReadableMap
 
 abstract class PaymentsSpec internal constructor(context: ReactApplicationContext) : ReactContextBaseJavaModule(context) {
   abstract fun show(requestId: String, paymentMethodData: String, details: ReadableMap, promise: Promise)
-  abstract fun canMakePayments(paymentMethodData: String, promise: Promise)
-  abstract fun hasEnrolledInstrument(paymentMethodData: String, promise: Promise)
+  abstract fun canMakePayments(paymentMethodData: String, details: ReadableMap, promise: Promise)
+  abstract fun hasEnrolledInstrument(paymentMethodData: String, details: ReadableMap, promise: Promise)
   abstract fun abort(promise: Promise)
   abstract fun complete(paymentComplete: String, promise: Promise)
   abstract fun retry(requestId: String, errorFields: ReadableMap, promise: Promise)

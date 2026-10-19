@@ -619,9 +619,31 @@ describe('PaymentRequest', () => {
 
             const result = await request.canMakePayment();
 
-            expect(NativePayments.canMakePayments).toHaveBeenCalledWith(expect.any(String));
+            expect(NativePayments.canMakePayments).toHaveBeenCalledWith(expect.any(String), {
+                environment: EnvironmentEnum.TEST,
+            });
             expect(result).toBe(true);
         });
+
+        it.each(['canMakePayments', 'hasEnrolledInstrument'] as const)(
+            'should pass the method data environment to `NativePayments.%s`',
+            async nativeMethodName => {
+                expect.hasAssertions();
+
+                const productionMethodData = {
+                    ...androidMethodData,
+                    data: { ...androidMethodData.data, environment: EnvironmentEnum.PRODUCTION },
+                };
+                const request = new PaymentRequest([productionMethodData], paymentDetails);
+                jest.mocked(NativePayments[nativeMethodName]).mockResolvedValue(true);
+
+                await (nativeMethodName === 'canMakePayments' ? request.canMakePayment() : request.hasEnrolledInstrument());
+
+                expect(NativePayments[nativeMethodName]).toHaveBeenCalledWith(expect.any(String), {
+                    environment: EnvironmentEnum.PRODUCTION,
+                });
+            }
+        );
 
         it('should throw when `hasEnrolledInstrument` is called in invalid state', async () => {
             expect.hasAssertions();
@@ -642,7 +664,9 @@ describe('PaymentRequest', () => {
 
             const result = await request.hasEnrolledInstrument();
 
-            expect(NativePayments.hasEnrolledInstrument).toHaveBeenCalledWith(expect.any(String));
+            expect(NativePayments.hasEnrolledInstrument).toHaveBeenCalledWith(expect.any(String), {
+                environment: EnvironmentEnum.TEST,
+            });
             expect(result).toBe(true);
         });
 
@@ -1410,7 +1434,7 @@ describe('PaymentRequest', () => {
 
             const result = await request.canMakePayment();
 
-            expect(NativePayments.canMakePayments).toHaveBeenCalledWith(expect.any(String));
+            expect(NativePayments.canMakePayments).toHaveBeenCalledWith(expect.any(String), {});
             expect(result).toBe(true);
         });
 
@@ -1433,7 +1457,7 @@ describe('PaymentRequest', () => {
 
             const result = await request.hasEnrolledInstrument();
 
-            expect(NativePayments.hasEnrolledInstrument).toHaveBeenCalledWith(expect.any(String));
+            expect(NativePayments.hasEnrolledInstrument).toHaveBeenCalledWith(expect.any(String), {});
             expect(result).toBe(true);
         });
 
