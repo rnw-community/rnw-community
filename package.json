@@ -50,6 +50,7 @@
         "@eslint/compat": "^2.1.1",
         "@eslint/js": "^10.0.1",
         "@jest/globals": "^29.7.0",
+        "@oxlint/migrate": "^1.88.0",
         "@smarttools/eslint-plugin-rxjs": "^1.0.22",
         "@types/node": "^26.2.0",
         "@types/react": "19.2.18",
