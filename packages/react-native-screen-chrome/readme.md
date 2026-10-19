@@ -505,13 +505,28 @@ absolute at the top, `zIndex: 3`, `box-none`, sized to `insets.top + topInset + 
 `getScreenChromeHeaderMetrics` predicts its footprint exactly. `topInset` adds app-owned padding beyond the safe area
 for screens that nest under an already-padded container. Requires a `ScreenChromeProvider` ancestor. `style` and every
 other `ViewProps` prop except `pointerEvents` go to the container; `rowStyle` merges after the row defaults
-(`space-between`, row padding) but never overrides the configured `headerHeight`, so the metrics stay exact.
+(`space-between`, row padding), so `rowStyle={{ paddingHorizontal }}` replaces the default 16pt row padding; it never
+overrides the configured `headerHeight`, so the metrics stay exact.
 
 ```tsx
 <ScreenChromeHeader testID="header" topInset={10} style={styles.headerBackground} rowStyle={{ paddingHorizontal: 8 }}>
     <Button onPress={goBack} title="Back" />
     <Text>{title}</Text>
 </ScreenChromeHeader>
+```
+
+`inFlow` lays the header out in the normal flow instead of floating it over the content: the container is
+`position: 'relative'` and the row takes `headerHeight` as a `minHeight`, so a multi-line title or a bottom row grows
+the header and pushes the content down instead of being clipped. The header still pads the safe area, so give the
+scrollable below it `includeTopSafeArea={false}` and no header content inset:
+
+```tsx
+<ScreenChromeFrame>
+    <ScreenChromeHeader inFlow>
+        <Text>{title}</Text>
+    </ScreenChromeHeader>
+    <ScreenChromeScrollView includeTopSafeArea={false}>{rows}</ScreenChromeScrollView>
+</ScreenChromeFrame>
 ```
 
 ## ScreenChromeProvider
