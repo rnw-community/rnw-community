@@ -26,9 +26,8 @@ Capture procedure once the on-device Maestro fleet has capacity:
 2. Run `maestro test --test-output-dir "$MAESTRO_DEBUG_OUTPUT_DIRECTORY" -e APP_ID=... e2e/flows` from
    `packages/react-native-payments-example` (the `e2e:ios:bare` / `e2e:android:bare` / `:expo` scripts in
    `package.json` don't pass `--test-output-dir` today — add it for the capture run), with
-   `MAESTRO_DEBUG_OUTPUT_DIRECTORY` set to an **absolute** path the same way `ios-maestro.yml` / `android-maestro.yml`
-   do for their post-run screenshot/artifact upload (`${{ github.workspace }}/packages/react-native-payments-example/artifacts/maestro-<platform>-<target>`
-   in CI; locally, `$(git rev-parse --show-toplevel)/packages/react-native-payments-example/artifacts/maestro-<platform>-<target>`) —
+   `MAESTRO_DEBUG_OUTPUT_DIRECTORY` set to an **absolute** path (e.g.
+   `$(git rev-parse --show-toplevel)/packages/react-native-payments-example/artifacts/maestro-<platform>-<target>`) —
    a relative value resolves under the current directory, which is already `packages/react-native-payments-example`,
    and would nest a duplicate `packages/react-native-payments-example/` segment. This makes the `.mp4` land there
    instead of Maestro's default `~/.maestro/tests/<datetime>/`.

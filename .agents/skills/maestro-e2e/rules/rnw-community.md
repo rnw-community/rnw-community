@@ -46,43 +46,32 @@ emulator — do not assert a real Google Pay sheet on Android.
 
 ## Local run scripts
 
-Issue #393 adds package-level scripts on `packages/react-native-payments-example/package.json`
-following the existing `<action>:<target>` naming already used for `ios:bare` / `android:bare` /
-`ios:expo` / `android:expo` (see the package's `AGENTS.md`):
+Each example package carries `e2e:<platform>:<target>` scripts that run its top-level `e2e/flows/*.yaml` against an
+already installed app; they are also where CI reads each target's `APP_ID`:
 
 ```bash
 pnpm --filter @rnw-community/react-native-payments-example e2e:ios:bare
-pnpm --filter @rnw-community/react-native-payments-example e2e:ios:expo
-pnpm --filter @rnw-community/react-native-payments-example e2e:android:bare
 pnpm --filter @rnw-community/react-native-payments-example e2e:android:expo
 pnpm --filter @rnw-community/react-native-collapsible-header-example e2e:ios:expo
-pnpm --filter @rnw-community/react-native-collapsible-header-example e2e:ios:bare
+pnpm --filter @rnw-community/react-native-screen-chrome-example e2e:android:bare
 ```
 
-These scripts do not exist yet on this branch — treat the names above as the documented interface
-to implement, not a confirmed present-day command. Until #393 lands, drive Maestro directly against
-a running simulator/emulator instead:
+## CI pipeline
 
-```bash
-maestro test -e APP_ID=<appId> packages/react-native-payments-example/e2e/
-```
+`.github/workflows/ios-maestro.yml` and `android-maestro.yml` run every example's suite per `bare`/`expo` target. The
+package/target matrix (scheme, app ids, build filter) comes from `.github/scripts/maestro-matrix.mjs`, fed by a detect
+job that runs only the packages a pull request affects (turbo `--affected`) and nothing for a documentation-only pull
+request (`*.md`, `llms*.txt`, `docs/**`). Both workflows compose `rnw-community/mobile-ci` actions pinned by commit SHA:
 
-## Fleet labels (CI, issue #395)
+- iOS runs on `[self-hosted, macOS, ARM64, macos-maestro]`: `setup-xcode-pinned` asserts the pinned Xcode,
+  `native-fingerprint` + `native-app-cache` restore the release `.app` when neither its native surface nor the
+  JavaScript it embeds changed, `setup-ccache-ios` caches C/C++ compilation for a rebuild, and `run-maestro-ios`
+  boots a stock (not slimmed) simulator, installs, warms the app and runs the flows.
+- Android builds the release APK on GitHub-hosted `ubuntu-24.04` (same fingerprint cache) and tests on
+  `[self-hosted, trf-linux-amd64-4x8]`, the KVM-enabled shape: `run-maestro-android` boots Google's
+  `android-34;google_apis;x86_64` emulator with the `Galaxy Nexus` profile — 720x1280 @ 320dpi, no cutout, the
+  360x640dp viewport the flows' swipe percentages are calibrated against — and the workflow asserts that geometry
+  before the suite runs.
 
-- iOS workflow (`ios-maestro.yml`): `runs-on: [self-hosted, macOS, ARM64, macos-maestro]`
-- Android workflow (`android-maestro.yml`): `runs-on: [self-hosted, linux-tiered, linux-xl]`
-
-Both workflows are planned to build the example app across the bare/expo matrix with derived-data
-and Gradle/pod caching keyed on lockfiles + native dirs (mirroring the `ios-native-cache.yml`
-pattern), triggered on paths touching `packages/react-native-payments`,
-`packages/react-native-payments-example/**`, or the workflow files themselves, plus a nightly
-schedule. Neither workflow exists on this branch yet, and issue #396 must register this repository
-in the runner fleet before these labels can pick up any job.
-
-## Artifacts on failure (issue #395)
-
-On failure, upload screenshots, videos, and Maestro logs as CI artifacts — the `maestro_output/`
-directory produced locally per [../screenshots.md](../screenshots.md) and
-[../debugging.md](../debugging.md). On success, no artifacts are retained. This is the evidence bar
-behind #395's "cold vs warm build time documented in the PR" requirement; until #395 lands there is
-no CI artifact upload configured for this repository.
+Every leg uploads a `maestro-<platform>-<package>-<target>` artifact: the final screenshot, logcat on Android, and the
+Maestro debug output of any failing flow.
