@@ -34,8 +34,8 @@ the package is first loaded, so an application that does not install them still 
 
 | Installed                            | Native default band                                                              |
 | ------------------------------------ | -------------------------------------------------------------------------------- |
-| all three                            | blur and color wash faded out through the gradient mask                          |
-| no masked view or no linear gradient | color wash fading to transparent as a CSS gradient, no blur                      |
+| all three                            | stepped blur under a color wash faded out through the gradient mask              |
+| no masked view or no linear gradient | stepped blur under a color wash painted as a CSS gradient                        |
 | no `expo-blur`                       | masked color wash without blur; a band renderer's `blur` element renders nothing |
 
 The CSS-gradient fallback uses `experimental_backgroundImage`, which React Native renders from 0.76 on the New
@@ -351,7 +351,10 @@ const backdropProps: CollapsibleHeaderBackdropPropsInterface = { testID: 'header
 ## Edge fades
 
 Native edge fades use Masked View, Expo Linear Gradient, and Expo Blur when they are installed, and a CSS-gradient
-wash otherwise (see [Installation](#installation)). They ignore pointer events and accessibility traversal. Web edge fades stack four `backdrop-filter` layers whose radius doubles toward the screen edge,
+wash otherwise (see [Installation](#installation)). The native blur is four stacked Expo Blur slices, each a quarter of
+the band, whose intensity halves away from the edge (1, 1/2, 1/4, 1/8 of the resolved intensity), and only the wash is
+masked: UIKit stops rendering a `UIVisualEffectView` whose superview carries a mask, so a blur inside the mask shows
+the wash over unblurred content. They ignore pointer events and accessibility traversal. Web edge fades stack four `backdrop-filter` layers whose radius doubles toward the screen edge,
 each masked to an overlapping band, under a separate masked wash, so the blur ramps progressively instead of ending in
 a hard edge; scroll animation changes opacity while the radii stay static. Native defaults use 150-point top and bottom bands, while web defaults use 76-pixel bands.
 
@@ -410,17 +413,20 @@ const renderSolidBand: EdgeFadeBandRenderer = ({ colorScheme }) => (
 ```
 
 The default wash is a two-stop gradient. For a wash with its own stops (for example a knee at 45%), redraw the wash
-around the package's animated `blur` with your own `locations` — no extra prop is needed:
+next to the package's animated `blur` with your own `locations` — no extra prop is needed. Keep `blur` outside any
+`MaskedView`: on iOS a masked ancestor stops the blur from rendering.
 
 ```tsx
 const renderKneeBand: EdgeFadeBandRenderer = ({ blur, washColors, maskColors, maskLocations }) => (
-    <MaskedView
-        style={{ flex: 1 }}
-        maskElement={<LinearGradient colors={maskColors} locations={maskLocations} style={{ flex: 1 }} />}
-    >
+    <View style={{ flex: 1 }}>
         {blur}
-        <LinearGradient colors={washColors} locations={[0.45, 1]} style={StyleSheet.absoluteFill} />
-    </MaskedView>
+        <MaskedView
+            style={StyleSheet.absoluteFill}
+            maskElement={<LinearGradient colors={maskColors} locations={maskLocations} style={{ flex: 1 }} />}
+        >
+            <LinearGradient colors={washColors} locations={[0.45, 1]} style={StyleSheet.absoluteFill} />
+        </MaskedView>
+    </View>
 );
 ```
 
@@ -476,20 +482,23 @@ const renderGlassBand: EdgeFadeBandRenderer = ({ defaultBand }) =>
 | `maskColors`    | `readonly [string, string, ...]` | Mask colors from the config's `maskStops` for this position, sorted.   |
 | `maskLocations` | `readonly [number, number, ...]` | Mask locations matching `maskColors`.                                  |
 | `blur`          | `ReactNode`                      | The package's blur element with its static or scroll-driven intensity. |
-| `defaultBand`   | `ReactNode`                      | The package's complete default band (masked blur and wash on native).  |
+| `defaultBand`   | `ReactNode`                      | The package's complete default band (blur under the masked wash).      |
 
-Recompose the mask and wash around the package's animated blur, for example with an extra overlay layer:
+Recompose the masked wash next to the package's animated blur, for example with an extra overlay layer; the blur stays
+outside the `MaskedView` because a masked ancestor stops the iOS blur from rendering:
 
 ```tsx
 const renderTintedBand: EdgeFadeBandRenderer = ({ blur, washColors, maskColors, maskLocations }) => (
-    <MaskedView
-        style={{ flex: 1 }}
-        maskElement={<LinearGradient colors={maskColors} locations={maskLocations} style={{ flex: 1 }} />}
-    >
+    <View style={{ flex: 1 }}>
         {blur}
-        <LinearGradient colors={washColors} style={StyleSheet.absoluteFill} />
-        <View style={[StyleSheet.absoluteFill, { backgroundColor: 'rgba(0,122,255,0.08)' }]} />
-    </MaskedView>
+        <MaskedView
+            style={StyleSheet.absoluteFill}
+            maskElement={<LinearGradient colors={maskColors} locations={maskLocations} style={{ flex: 1 }} />}
+        >
+            <LinearGradient colors={washColors} style={StyleSheet.absoluteFill} />
+            <View style={[StyleSheet.absoluteFill, { backgroundColor: 'rgba(0,122,255,0.08)' }]} />
+        </MaskedView>
+    </View>
 );
 ```
 

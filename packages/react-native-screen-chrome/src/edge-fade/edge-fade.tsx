@@ -46,6 +46,7 @@ export const EdgeFade = ({
     const renderResolvedBand = renderBand ?? renderEdgeFadeBand;
     const blur = (
         <EdgeFadeBlur
+            position={position}
             tint={visuals.tint}
             intensity={intensity}
             scrollAnimation={scrollAnimation}
@@ -53,10 +54,10 @@ export const EdgeFade = ({
             blurTarget={blurTarget}
         />
     );
-    const defaultBand =
+    const wash =
         isDefined(MaskedView) && isDefined(LinearGradient) ? (
             <MaskedView
-                style={edgeFadeStyles.fill}
+                style={StyleSheet.absoluteFill}
                 maskElement={
                     <LinearGradient
                         colors={visuals.maskColors}
@@ -67,7 +68,6 @@ export const EdgeFade = ({
                     />
                 }
             >
-                {blur}
                 <LinearGradient
                     colors={visuals.washColors}
                     start={GRADIENT_START}
@@ -78,11 +78,17 @@ export const EdgeFade = ({
         ) : (
             <View
                 style={[
-                    edgeFadeStyles.fill,
+                    StyleSheet.absoluteFill,
                     { experimental_backgroundImage: buildBackgroundImage(config.colors[colorScheme], position) },
                 ]}
             />
         );
+    const defaultBand = (
+        <View style={edgeFadeStyles.fill}>
+            {blur}
+            {wash}
+        </View>
+    );
 
     return (
         <AnimatedView

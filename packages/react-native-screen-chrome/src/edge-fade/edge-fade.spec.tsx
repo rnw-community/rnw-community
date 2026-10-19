@@ -85,7 +85,7 @@ describe('EdgeFade native', () => {
         expect.hasAssertions();
 
         const screen = render(<EdgeFade testID="top-fade" position="top" intensity={0} blurMethod="none" />);
-        const blur = screen.getByTestId('edge-fade-blur', { includeHiddenElements: true });
+        const [blur] = screen.getAllByTestId('edge-fade-blur', { includeHiddenElements: true });
 
         expect(blur).toHaveProp('intensity', 0);
         expect(blur).toHaveProp('tint', 'systemChromeMaterialLight');
@@ -106,7 +106,7 @@ describe('EdgeFade native', () => {
             />
         );
         const fade = screen.getByTestId('bottom-fade', { includeHiddenElements: true });
-        const blur = screen.getByTestId('edge-fade-blur', { includeHiddenElements: true });
+        const [blur] = screen.getAllByTestId('edge-fade-blur', { includeHiddenElements: true });
 
         expect(fade).toHaveStyle({ height: 180, bottom: -30, opacity: 0.5 });
         expect(blur).toHaveProp('intensity', 30);
@@ -118,19 +118,20 @@ describe('EdgeFade native', () => {
         expect.hasAssertions();
 
         const blurTarget = React.createRef<View>();
-        const targeted = render(<EdgeFade position="top" blurTarget={blurTarget} />);
+        const [targetedBlur] = render(<EdgeFade position="top" blurTarget={blurTarget} />).getAllByTestId('edge-fade-blur', {
+            includeHiddenElements: true,
+        });
 
-        expect(targeted.getByTestId('edge-fade-blur', { includeHiddenElements: true })).toHaveProp(
-            'blurMethod',
-            'dimezisBlurView'
-        );
+        expect(targetedBlur).toHaveProp('blurMethod', 'dimezisBlurView');
 
-        const untargeted = render(<EdgeFade position="top" />);
+        const [untargetedBlur] = render(<EdgeFade position="top" />).getAllByTestId('edge-fade-blur', {
+            includeHiddenElements: true,
+        });
 
-        expect(untargeted.getByTestId('edge-fade-blur', { includeHiddenElements: true })).toHaveProp('blurMethod', 'none');
+        expect(untargetedBlur).toHaveProp('blurMethod', 'none');
     });
 
-    it('fades the blur and color wash out through the configured edge mask', () => {
+    it('fades the color wash out through the configured edge mask', () => {
         expect.hasAssertions();
 
         const screen = render(<EdgeFade position="top" />);
@@ -173,7 +174,7 @@ describe('EdgeFade native band renderer', () => {
         expect(fade).toHaveProp('pointerEvents', 'none');
         expect(fade).toHaveStyle({ height: 160, top: -10, opacity: 0.5 });
         expect(screen.getByTestId('custom-band', { includeHiddenElements: true })).toBeTruthy();
-        expect(screen.getByTestId('edge-fade-blur', { includeHiddenElements: true })).toHaveProp('intensity', 30);
+        expect(screen.getAllByTestId('edge-fade-blur', { includeHiddenElements: true })[0]).toHaveProp('intensity', 30);
         expect(screen.queryByTestId('edge-fade-mask', { includeHiddenElements: true })).toBeNull();
         expect(screen.queryByTestId('edge-fade-gradient', { includeHiddenElements: true })).toBeNull();
     });
