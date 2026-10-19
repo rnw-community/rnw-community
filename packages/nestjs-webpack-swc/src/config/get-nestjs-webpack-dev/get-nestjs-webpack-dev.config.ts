@@ -21,6 +21,11 @@ const getHotReloadEntry = (entry: Configuration['entry']): string[] => {
     throw new TypeError('getNestJSWebpackDevConfig requires a string or string[] entry to prepend the hot-reload poll');
 };
 
+/**
+ * Builds the development webpack configuration for a NestJS app, compiling with SWC and adding hot reload and an auto-run of the bundle.
+ *
+ * @see https://github.com/rnw-community/rnw-community/blob/master/packages/nestjs-webpack-swc/readme.md#development-webpack-configuration
+ */
 export const getNestJSWebpackDevConfig = (options: Configuration, webpack: typeof Webpack): Configuration => ({
     ...getNestJSWebpackGenericConfig(options),
     entry: getHotReloadEntry(options.entry),

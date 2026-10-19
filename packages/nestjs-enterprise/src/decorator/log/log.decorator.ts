@@ -15,4 +15,9 @@ const nestLogTransport: LogTransportInterface = {
     },
 };
 
+/**
+ * Method decorator logging the start, result, and failure of sync, `Promise`, and `Observable` methods through the NestJS `Logger`.
+ *
+ * @see https://github.com/rnw-community/rnw-community/blob/master/packages/nestjs-enterprise/src/decorator/log/log-decorator.md
+ */
 export const Log = createLogDecorator({ transport: nestLogTransport });

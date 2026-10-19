@@ -10,8 +10,18 @@ import type { LabelsConfig } from './type/labels-config.type';
 import type { MetricConfig as MC } from './type/metrics-config.type';
 import type { DynamicModule, Type } from '@nestjs/common';
 
+/**
+ * The NestJS module factory registering typed Prometheus counter, gauge, histogram, and summary metrics.
+ *
+ * @see https://github.com/rnw-community/rnw-community/blob/master/packages/nestjs-rxjs-metrics/readme.md#nestjsrxjsmetricsmodule
+ */
 @Module({})
 export class NestJSRxJSMetricsModule {
+    /**
+     * Returns a `[module, service]` tuple that registers the Prometheus module and a `NestJSRxJSMetricsService` subclass typed by the configured metric names.
+     *
+     * @see https://github.com/rnw-community/rnw-community/blob/master/packages/nestjs-rxjs-metrics/readme.md#nestjsrxjsmetricsmodule
+     */
     static create<
         C extends MC,
         G extends MC,

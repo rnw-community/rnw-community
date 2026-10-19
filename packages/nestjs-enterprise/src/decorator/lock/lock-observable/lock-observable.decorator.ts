@@ -6,6 +6,11 @@ import type { PreDecoratorFunction } from '../../../type/pre-decorator-function.
 import type { MethodDecoratorType } from '@rnw-community/shared';
 import type { Observable } from 'rxjs';
 
+/**
+ * Deprecated Redlock-based lock decorator for `Observable` methods of `LockableService` subclasses; use `createObservableLockDecorators` instead.
+ *
+ * @see https://github.com/rnw-community/rnw-community/blob/master/packages/nestjs-enterprise/src/decorator/lock/lock-observable/lock-observable-decorator.md
+ */
 export const LockObservable =
     <
         // eslint-disable-next-line @typescript-eslint/no-explicit-any

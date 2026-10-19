@@ -99,6 +99,11 @@ const createPromClientTransport = <M extends string>(
     };
 };
 
+/**
+ * Method decorator recording the duration of sync, `Promise`, and `Observable` methods in seconds into a `prom-client` `Histogram`.
+ *
+ * @see https://github.com/rnw-community/rnw-community/blob/master/packages/nestjs-enterprise/src/decorator/histogram-metric/histogram-metric-decorator.md
+ */
 export const HistogramMetric = <M extends string, TArgs extends readonly unknown[] = readonly unknown[]>(
     metricName: string,
     configuration?: HistogramMetricConfig<M, TArgs>
