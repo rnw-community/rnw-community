@@ -12,6 +12,11 @@ import type { MonoTypeOperatorFunction } from 'rxjs';
 
 type LogFn = (msg: string) => void;
 
+/**
+ * RxJS operator logging a stream error and rethrowing it as an `ErrorCtor` instance, keeping errors that already are one.
+ *
+ * @see https://github.com/rnw-community/rnw-community/blob/master/packages/rxjs-errors/readme.md#rethrowexception
+ */
 export const rethrowException =
     <T>(
         errStringOrMessageFn: ErrorCodeOrMsgFn<unknown>,
