@@ -95,4 +95,16 @@ describe('ScreenChromeHeader', () => {
             paddingHorizontal: 4,
         });
     });
+
+    it('keeps the configured header height authoritative over a row style height', () => {
+        expect.hasAssertions();
+
+        const { getByTestId } = renderHeader(
+            <ScreenChromeHeader testID="static-header" rowStyle={{ height: 80 }}>
+                <Text>{TITLE}</Text>
+            </ScreenChromeHeader>
+        );
+
+        expect(getByTestId('static-header-row')).toHaveStyle({ height: SCREEN_CHROME_DEFAULT_CONFIG.headerHeight });
+    });
 });

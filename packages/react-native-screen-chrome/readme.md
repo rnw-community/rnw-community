@@ -504,8 +504,8 @@ Renders a static, non-collapsible header row with the same safe-area and paint-o
 absolute at the top, `zIndex: 3`, `box-none`, sized to `insets.top + topInset + headerHeight` so
 `getScreenChromeHeaderMetrics` predicts its footprint exactly. `topInset` adds app-owned padding beyond the safe area
 for screens that nest under an already-padded container. Requires a `ScreenChromeProvider` ancestor. `style` and every
-other `ViewProps` prop except `pointerEvents` go to the container; `rowStyle` merges after the row defaults (height,
-`space-between`, row padding).
+other `ViewProps` prop except `pointerEvents` go to the container; `rowStyle` merges after the row defaults
+(`space-between`, row padding) but never overrides the configured `headerHeight`, so the metrics stay exact.
 
 ```tsx
 <ScreenChromeHeader testID="header" topInset={10} style={styles.headerBackground} rowStyle={{ paddingHorizontal: 8 }}>

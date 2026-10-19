@@ -34,7 +34,7 @@ export const ScreenChromeHeader = ({ children, rowStyle, style, testID, topInset
         >
             <View
                 pointerEvents="box-none"
-                style={[screenChromeHeaderStyles.row, { height: config.headerHeight }, rowStyle]}
+                style={[screenChromeHeaderStyles.row, rowStyle, { height: config.headerHeight }]}
                 {...(isDefined(testID) ? { testID: `${testID}-row` } : {})}
             >
                 {children}
