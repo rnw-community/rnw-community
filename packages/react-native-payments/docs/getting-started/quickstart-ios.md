@@ -6,9 +6,12 @@ The fastest path to an Apple Pay sheet. See [Platforms — iOS](../platforms/ios
 1. Create an [Apple developer account](https://developer.apple.com/programs/enroll/) and a merchant ID.
 2. Follow Apple's [Apple Pay configuration guide](https://developer.apple.com/library/archive/ApplePay_Guide/Configuration.html)
    to enable the capability and register the merchant ID.
-3. Run `pod install` — the pod links `PassKit` itself, no `AppDelegate` import is needed (see
+3. Declare the merchant ID in a [`payments.config.ts`](../api/payments-config.md) and run
+   `npx rnw-payments doctor --fix` to write it into the app's entitlements — see
+   [Setup doctor](../guides/setup-doctor.md).
+4. Run `pod install` — the pod links `PassKit` itself, no `AppDelegate` import is needed (see
    [Platforms — iOS](../platforms/ios.md#native-setup)).
-4. Build the Apple Pay method data with `createApplePayMethodData`, construct a `PaymentRequest` and call `show()`:
+5. Build the Apple Pay method data with `createApplePayMethodData`, construct a `PaymentRequest` and call `show()`:
 
 ```ts
 import { PaymentRequest, createApplePayMethodData } from '@rnw-community/react-native-payments';

@@ -92,6 +92,7 @@ placeholder.
 - **Guides** — [Payment change events](docs/guides/change-events.md) ·
   [Payment details modifiers](docs/guides/modifiers.md) · [Error handling](docs/guides/errors.md) ·
   [Retrying a payment](docs/guides/retry.md) · [Unit testing](docs/guides/testing.md) ·
+  [Setup doctor](docs/guides/setup-doctor.md) ·
   [Troubleshooting](docs/guides/troubleshooting.md)
 - **Gateway recipes** — [Pick your gateway](docs/guides/gateways/index.md): [Stripe](docs/guides/gateways/stripe.md) ·
   [Adyen](docs/guides/gateways/adyen.md) · [Braintree](docs/guides/gateways/braintree.md) ·

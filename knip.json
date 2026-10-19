@@ -95,7 +95,8 @@
         "packages/react-native-payments": {
             "entry": [
                 "src/index.ts",
-                "src/**/*.web.ts"
+                "src/**/*.web.ts",
+                "bin/rnw-payments.js"
             ]
         },
         "packages/wdio": {
@@ -122,6 +123,7 @@
         "packages/nestjs-webpack-swc/src/config/**",
         "packages/react-native-payments-example/apps/*/app.json",
         "packages/react-native-payments-example/apps/*/metro.config.js",
+        "packages/react-native-payments-example/apps/bare/payments.config.ts",
         "packages/react-native-payments/src/app.plugin.ts",
         "packages/wdio/src/component/mocks/**",
         "packages/wdio/src/rooted-component/mocks/**"
