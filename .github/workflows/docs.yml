@@ -1,0 +1,92 @@
+name: Docs site
+
+on:
+    pull_request:
+        paths:
+            - .github/workflows/docs.yml
+            - packages/react-native-payments/**
+            - packages/react-native-payments-docs/**
+            - packages/react-native-payments-example/**/*.md
+            - pnpm-lock.yaml
+    push:
+        branches: [master]
+        paths:
+            - .github/workflows/docs.yml
+            - packages/react-native-payments/**
+            - packages/react-native-payments-docs/**
+            - packages/react-native-payments-example/**/*.md
+            - pnpm-lock.yaml
+    workflow_dispatch:
+
+concurrency:
+    group: docs-${{ github.ref }}
+    cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+permissions: {}
+
+jobs:
+    build:
+        name: Build docs site
+        timeout-minutes: 10
+        runs-on: ubuntu-latest
+        permissions:
+            contents: read
+
+        steps:
+            -   name: Checkout repository
+                uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+                with:
+                    fetch-depth: 0
+                    persist-credentials: false
+
+            -   name: Setup pnpm
+                uses: pnpm/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1 # v4.3.0
+
+            -   name: Setup Node
+                uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+                with:
+                    node-version: 24.x
+                    cache: pnpm
+
+            -   name: Install docs site dependencies
+                run: pnpm install --frozen-lockfile --filter @rnw-community/react-native-payments-docs
+
+            -   name: Build docs site (fails on dead links)
+                run: pnpm --filter @rnw-community/react-native-payments-docs docs:build
+
+            -   name: Upload Pages artifact
+                if: github.event_name != 'pull_request' && github.ref == 'refs/heads/master'
+                uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
+                with:
+                    path: packages/react-native-payments-docs/.vitepress/dist
+
+    deploy:
+        name: Deploy docs site to GitHub Pages
+        needs: build
+        if: github.event_name != 'pull_request' && github.ref == 'refs/heads/master'
+        timeout-minutes: 10
+        runs-on: ubuntu-latest
+        permissions:
+            pages: write # reads the Pages source setting and publishes the deployment
+            id-token: write # deploy-pages OIDC authentication
+        environment:
+            name: github-pages
+            url: ${{ steps.deployment.outputs.page_url }}
+
+        steps:
+            -   name: Check that the Pages source is GitHub Actions
+                id: pages
+                env:
+                    GH_TOKEN: ${{ github.token }}
+                run: |
+                    build_type=$(gh api "repos/${GITHUB_REPOSITORY}/pages" --jq .build_type 2>/dev/null || true)
+                    if [ "$build_type" = "workflow" ]; then
+                      echo "enabled=true" >> "$GITHUB_OUTPUT"
+                    else
+                      echo "::warning::GitHub Pages source is not set to \"GitHub Actions\" (Settings > Pages); skipping deploy."
+                    fi
+
+            -   name: Deploy to GitHub Pages
+                id: deployment
+                if: steps.pages.outputs.enabled == 'true'
+                uses: actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346 # v5.0.1
