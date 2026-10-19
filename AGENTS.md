@@ -26,6 +26,7 @@ pnpm format             # Prettier format all
 pnpm cpd                # Copy-paste detection
 pnpm deadcode           # Find unused code (knip)
 pnpm assert:pack        # Pack-content gate: llms.txt shipped, no specs/build junk, entry targets present (needs build)
+pnpm assert:docs        # Root llms.txt/README/AGENTS/CONTRIBUTING/RELEASE/SECURITY: relative links and #anchors resolve
 
 # Single package (cd into package first)
 cd packages/shared
@@ -52,6 +53,7 @@ pnpm lint:fix           # Fix lint issues in this package (ESLint share only; ru
 - **react-native-collapsible-header** — Generic slot-based Reanimated header transition with provider-based scroll wiring, snap, overlay mode, and React Compiler precompiled output
 - **react-native-collapsible-header-example** — private example package: shared `src/` demo screen plus `apps/bare` and `apps/expo` app targets, carries the Maestro e2e suite and readme demo-GIF recording flow
 - **react-native-screen-chrome** — Safe-area screen structure, progressive edge fades, and compound collapsible chrome
+- **react-native-screen-chrome-example** — private example package: `apps/bare` and `apps/expo` app targets plus a Maestro e2e suite
 - **platform, fast-style, redux-loadable** — React Native/Web utilities
 - **object-field-tree** — Object field combination trees
 - **wdio** — WebDriverIO page objects and commands
@@ -64,6 +66,50 @@ All packages publish dual format via `exports` field:
 - `dist/esm/` — ES Modules (ES2021)
 - `dist/cjs/` — CommonJS (ES2021)
 - Type declarations at `dist/esm/index.d.ts`
+
+## How an agent works in this repo
+
+This list links to the sections that define each rule instead of repeating them.
+
+1. **Orient.** The root [`llms.txt`](llms.txt) links to every package's `llms.txt`, `readme.md` and `AGENTS.md`. Read
+   the target package's `AGENTS.md` before you edit it.
+2. **Plan.** Write a plan in `.plans/` before any multi-step change (see [Planning Convention](#planning-convention)).
+3. **Branch from an up-to-date master.** Run `git fetch origin && git switch -c <type>/<topic> origin/master`. Never
+   commit directly to `master`.
+4. **Reuse before writing.** Look in [`@rnw-community/shared`](#always-use-rnw-communityshared-primitives) for guards,
+   types and helpers first. Follow the file organization, comment and test-only-code rules in
+   [Code Style & Conventions](#code-style--conventions).
+5. **Run the checks that apply to your change:**
+    - for every change: `pnpm ts && pnpm lint && pnpm test` ([Pre-commit Checks](#pre-commit-checks))
+    - if you changed `package.json`, `exports`, build config or dependencies, also run
+      `pnpm build && pnpm publint && pnpm ts:nodenext && pnpm smoke:esm`
+    - if you changed headings in a package's `readme.md` or its `llms.txt`: `pnpm build && pnpm assert:pack <package-dir>`
+    - if you changed a root doc (`README.md`, `llms.txt`, `AGENTS.md`, …): `pnpm assert:docs`
+6. **Commit and open the PR.** Use Conventional Commits. The scope is the package directory name, or `deps`/`deps-dev`
+   for dependency bumps; changes that only touch the repository root can leave the scope out. The PR title becomes the
+   squash commit, and that commit decides the release version bump ([RELEASE.md](RELEASE.md)). Fill in
+   [the PR template](.github/PULL_REQUEST_TEMPLATE.md).
+7. **Resolve every review thread** using the steps in [PR Review & Merge Policy](#pr-review--merge-policy). The PR cannot
+   merge until each thread is resolved.
+
+**Adding a package:** copy the layout of the most similar existing package. React Native libraries build with bob;
+Node and NestJS packages use the tsc dual build. Then register the new package everywhere CI and the docs list
+packages:
+
+- `codecov.yml` (a flag and a coverage target)
+- a coverage upload step in `.github/workflows/pr.yml`
+- `scripts/smoke-esm.mjs` (`scripts/publint.sh` discovers publishable packages on its own)
+- the package dropdown in `.github/ISSUE_TEMPLATE/bug_report.yml`
+- `knip.json`, if the package needs entry overrides
+- the root `llms.txt`, the `README.md` package tables and [Package Categories](#package-categories)
+
+Commitlint reads the allowed scopes from the workspace, so it needs no change.
+
+**Adding a method decorator:** build it on `createInterceptor` from `@rnw-community/decorators-core`. The "Build your own
+decorator" section of that package's readme shows how. Follow the rules for
+[`experimentalDecorators`](#decorator-factories--experimentaldecorators-only),
+[decorators without paren wrapping](#decorator-application--no-paren-wrapping) and
+[automatic type narrowing](#automatic-type-narrowing--core-feature).
 
 ## Code Style & Conventions
 
@@ -398,6 +444,41 @@ The monorepo uses dual ESM + CJS output. Rules:
   crash at runtime" finding is exactly the CJS-via-`import`-statement default-interop pattern this package's own
   readme documents as its supported usage (`import rnwcPlugin from '@rnw-community/eslint-plugin'`), never named
   imports of individual properties
+
+## Mobile CI (Maestro E2E)
+
+Two workflows, `.github/workflows/ios-maestro.yml` and `.github/workflows/android-maestro.yml`, run Maestro end-to-end
+suites. They cover every example package listed in `.github/scripts/maestro-matrix.mjs` (payments, collapsible-header
+and screen-chrome), for both the `bare` and `expo` app targets. Each suite lives in the example package's `e2e/flows`.
+To add an example package, register it in the matrix script, not in the workflows. Booting the device, installing the
+app, installing Maestro, running the suite and uploading the debug artifacts are done by the pinned
+[`rnw-community/mobile-ci`](https://github.com/rnw-community/mobile-ci) actions (`run-maestro-ios`,
+`run-maestro-android`), not by inline workflow steps.
+
+- **When they run:** on every pull request; on pushes to `master` that touch the payments or collapsible-header packages
+  or the Maestro CI files; nightly (iOS at 03:17 UTC, Android at 03:47 UTC); and on manual dispatch.
+- **Which suites run:** on a pull request, a `detect` job runs `turbo ls --affected` and passes the result to the matrix
+  script, so a suite runs only when its package or app dependencies changed. A documentation-only change (`*.md`,
+  `llms*.txt`, `docs/`) runs no suite. If either workflow or the matrix script changed, every suite runs. Every other
+  trigger runs every suite.
+- **Build cache:** the `native-fingerprint` and `native-app-cache` actions key the built app on the native fingerprint
+  plus a hash of the JavaScript that goes into the bundle. On a cache hit the job skips the JS build, prebuild,
+  CocoaPods/Gradle and the native build, and runs the suite against the cached app.
+- **iOS:** each package and target gets one job on the self-hosted macOS ARM64 runners (label `macos-maestro`). The job
+  selects the pinned Xcode (`setup-xcode-pinned`), and on a cache miss runs CocoaPods with ccache (`setup-ccache-ios`)
+  and builds a Release simulator app with `xcodebuild`. `run-maestro-ios` then boots a simulator, installs the app and
+  runs the suite.
+- **Android:** a free GitHub-hosted `ubuntu-24.04` runner builds the release APK, keeping the self-hosted fleet for
+  the device step, and uploads it as an artifact. The Maestro job then runs on the self-hosted `trf-linux-amd64-4x8` runner,
+  one device at a time: `run-maestro-android` boots a KVM-accelerated `android-34` Google APIs x86_64 emulator with the
+  `Galaxy Nexus` profile (720x1280 at 320dpi, the geometry the flows are calibrated against), installs the APK and runs
+  the suite. Gradle and SDK builds do not belong in that job.
+- **Pinning and results:** `MAESTRO_VERSION` pins the Maestro CLI, and every `mobile-ci` action is pinned to a commit
+  SHA. When a suite fails, the action uploads the Maestro debug output as an artifact. Each workflow ends with a
+  `status` job that reports a single pass or fail. The iOS screen-chrome jobs use `continue-on-error`, so their
+  failures do not fail the workflow, until the Hermes heap corruption tracked in #601 is fixed.
+- **Running locally:** build the example app and install it on a simulator or emulator. Then run `pnpm e2e:ios:bare`
+  (or another `e2e:<platform>:<target>` script) from the example package directory.
 
 ## PR Review & Merge Policy
 

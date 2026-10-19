@@ -4,6 +4,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
+import { EXTERNAL_LINK, MARKDOWN_LINK, collectAnchors } from './markdown-links.mjs';
 import { collectNestedBrowserMaps } from './nested-browser-maps.mjs';
 
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
@@ -22,9 +23,6 @@ const FORBIDDEN_PATTERNS = [
     { pattern: /(^|\/)(Pods|DerivedData|xcuserdata)\//u, reason: 'native build artifact' },
     { pattern: /(^|\/)node_modules\//u, reason: 'node_modules' },
 ];
-
-const MARKDOWN_LINK = /\[[^\]]*\]\(([^)\s]+)\)/gu;
-const EXTERNAL_LINK = /^[a-z][a-z0-9+.-]*:/iu;
 
 const requestedPackages = new Set(process.argv.slice(2));
 const failures = [];
@@ -72,37 +70,6 @@ function collectEntryTargets(manifest) {
     return [...new Set([...fieldTargets, ...collectExportTargets(manifest.exports)])]
         .filter(target => !target.includes('*'))
         .map(target => path.posix.normalize(target));
-}
-
-function githubSlug(heading) {
-    return heading
-        .replace(/\[([^\]]*)\]\([^)]*\)/gu, '$1')
-        .trim()
-        .toLowerCase()
-        .replace(/[^\p{L}\p{M}\p{N}\p{Pc} -]/gu, '')
-        .replace(/ /gu, '-');
-}
-
-function collectAnchors(markdown) {
-    const anchors = new Set();
-    const occurrences = new Map();
-    let inFence = false;
-
-    for (const line of markdown.split('\n')) {
-        if (/^\s*(```|~~~)/u.test(line)) {
-            inFence = !inFence;
-            continue;
-        }
-        const heading = inFence ? null : /^#{1,6}\s+(.+?)\s*#*\s*$/u.exec(line);
-        if (heading) {
-            const base = githubSlug(heading[1]);
-            const seen = occurrences.get(base) ?? 0;
-            anchors.add(seen === 0 ? base : `${base}-${seen}`);
-            occurrences.set(base, seen + 1);
-        }
-    }
-
-    return anchors;
 }
 
 function checkForbiddenFiles(pkg, tarballFiles) {
