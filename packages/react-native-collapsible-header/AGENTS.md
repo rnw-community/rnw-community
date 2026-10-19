@@ -157,6 +157,9 @@ src/
   that component; the `.web.ts` variant emits `aria-hidden`, the only one of these props react-native-web forwards to
   the DOM. The `.web` file is mapped through the `package.json` `browser` field for both dist trees, and the `build`
   script runs `rewrite-esm-extensions.mjs` because bob leaves specifiers with platform variants extensionless.
+  Resolvers read `browser` replacements from the nearest `package.json`, which inside `dist` is bob's per-tree
+  `{"type": ...}` marker, so `build` also runs `write-browser-field-markers.mjs` to mirror the root map, rebased, into
+  `dist/module/package.json` and `dist/commonjs/package.json`; `pnpm assert:pack` checks the markers.
 - Worklet bodies use plain `=== null` checks — `@rnw-community/shared` guards are not workletized and must not be
   called on the UI runtime.
 - `react`, `react-native`, and `react-native-reanimated` remain peer dependencies. Never bundle a second Reanimated copy.
