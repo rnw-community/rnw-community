@@ -6,6 +6,11 @@ import type { CreateLockOptionsInterface } from '../../interface/create-lock-opt
 import type { SequentialLockArgumentType } from '../../type/sequential-lock-argument.type';
 import type { MethodDecoratorType } from '@rnw-community/shared';
 
+/**
+ * Creates a sequential (FIFO-queued per key) lock decorator factory for `Promise`-returning methods.
+ *
+ * @see https://github.com/rnw-community/rnw-community/blob/master/packages/lock-decorator/readme.md#createsequentiallockdecorator
+ */
 export const createSequentialLockDecorator =
     (options: CreateLockOptionsInterface) =>
     // eslint-disable-next-line @typescript-eslint/no-explicit-any -- decorator generic must accept any-parameter method

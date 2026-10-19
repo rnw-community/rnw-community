@@ -88,6 +88,11 @@ const buildLogMiddleware = <TArgs extends readonly unknown[], TResult>(
     return middleware;
 };
 
+/**
+ * Creates a `Log` method decorator factory bound to a transport that logs before, after, and on failure of sync, `Promise`, and `Observable` methods.
+ *
+ * @see https://github.com/rnw-community/rnw-community/blob/master/packages/log-decorator/readme.md#createlogdecorator
+ */
 export const createLogDecorator =
     (options: CreateLogOptionsInterface) =>
     <K extends AnyFn, TResult extends GetResultType<ReturnType<K>>, TArgs extends Parameters<K>>(

@@ -73,6 +73,11 @@ const acquireHandle$ = <TArgs extends readonly unknown[]>(
         };
     });
 
+/**
+ * Builds the raw `InterceptorMiddleware` that acquires a store lock around an `Observable`-returning method and bridges an external `AbortSignal`, for composing custom lock decorators.
+ *
+ * @see https://github.com/rnw-community/rnw-community/blob/master/packages/lock-decorator/readme.md#createlockmiddleware-1
+ */
 export const createLockMiddleware$ = <TArgs extends readonly unknown[]>(
     store: LockStoreInterface,
     mode: LockModeType,
