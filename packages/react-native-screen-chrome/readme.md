@@ -348,8 +348,9 @@ const backdropProps: CollapsibleHeaderBackdropPropsInterface = { testID: 'header
 ## Edge fades
 
 Native edge fades use Masked View, Expo Linear Gradient, and Expo Blur when they are installed, and a CSS-gradient
-wash otherwise (see [Installation](#installation)). They ignore pointer events and accessibility traversal. Web edge fades use CSS mask images and backdrop filtering; scroll animation changes opacity while blur stays
-static. Native defaults use 150-point top and bottom bands, while web defaults use 76-pixel bands.
+wash otherwise (see [Installation](#installation)). They ignore pointer events and accessibility traversal. Web edge fades stack four `backdrop-filter` layers whose radius doubles toward the screen edge,
+each masked to an overlapping band, under a separate masked wash, so the blur ramps progressively instead of ending in
+a hard edge; scroll animation changes opacity while the radii stay static. Native defaults use 150-point top and bottom bands, while web defaults use 76-pixel bands.
 
 ## EdgeFade
 
@@ -359,10 +360,14 @@ Renders a decorative top or bottom blur band, scroll-animatable through `scrollA
 <EdgeFade position="bottom" height={96} scrollAnimation={{ opacityInputRange: [0, 80] }} />
 ```
 
-On web only `scrollAnimation.opacityInputRange` animates: the band's `backdrop-filter` is a static blur derived from
-`intensity`, so `intensityInputRange` and `maxIntensity` have no effect there, and `blurMethod`/`blurTarget` are
-Android-only and ignored. The static radius is deliberate: changing a `backdrop-filter` radius re-rasterizes the
-blurred backdrop on every scroll frame, while the opacity fade over a fixed blur stays on the compositor.
+On web the band is a progressive blur: four stacked layers with `backdrop-filter` radii of 1/8, 1/4, 1/2 and 1× the
+`intensity`-derived edge radius (`max(8, intensity × 0.45)` pixels), each masked to an overlapping band so the radius
+ramps up toward the screen edge, intersected with the `maskStops` mask, under a separately masked wash. Only
+`scrollAnimation.opacityInputRange` animates, and it fades each layer rather than the container — an ancestor with
+`opacity` below 1 or a mask becomes the backdrop root, and a `backdrop-filter` beneath it has nothing left to blur.
+`intensityInputRange` and `maxIntensity` have no effect on web, and `blurMethod`/`blurTarget` are Android-only and
+ignored. The static radii are deliberate: changing a `backdrop-filter` radius re-rasterizes the blurred backdrop on
+every scroll frame, while the opacity fade over fixed blurs stays on the compositor.
 
 Android blur is opt-in through `blurTarget`. Since `expo-blur@55` the `dimezisBlurView` methods only blur the
 background of a `BlurTargetView`, so `blurMethod` defaults to `'dimezisBlurView'` when a `blurTarget` ref is supplied
@@ -388,8 +393,10 @@ offset, scroll-driven opacity, and the inert pointer/accessibility props on the 
 resolved visuals (`EdgeFadeBandRenderPropsInterface`), including the animated `blur` element and the complete
 `defaultBand`, so a renderer can wrap, compose, or conditionally fall back to the package output. Pass it per
 instance, or once on `ScreenChromeProvider` as `renderEdgeFadeBand`; the per-instance prop wins. Without either, the
-output is unchanged. Web honours the same contract: the CSS backdrop filter, mask, and wash move off the container
-into `blur` (backdrop filter only) and `defaultBand` (everything) when a renderer is set.
+output is unchanged. Web honours the same contract: the progressive blur layers and the wash move off the container
+into `blur` (blur layers only) and `defaultBand` (blur layers and wash) when a renderer is set, and the container keeps
+the scroll-driven opacity. In Chromium a container opacity below 1 is a backdrop root, so the web `blur` renders
+unblurred while a renderer band is mid-fade.
 
 ```tsx
 const renderSolidBand: EdgeFadeBandRenderer = ({ colorScheme }) => (
