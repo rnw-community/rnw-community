@@ -2,13 +2,15 @@ import { describe, expect, it } from '@jest/globals';
 import { render, screen } from '@testing-library/react-native';
 import React from 'react';
 import { Text } from 'react-native';
-import { getAnimatedStyle, useSharedValue } from 'react-native-reanimated';
+import { getAnimatedStyle as getReanimatedAnimatedStyle, useSharedValue } from 'react-native-reanimated';
 
 import { CollapsibleHeader } from './collapsible-header';
 
 import type { CollapsibleHeaderMotionConfig } from '../interface/collapsible-header-motion-config.interface';
 import type { CollapsibleHeaderProps } from '../interface/collapsible-header-props.interface';
 import type { ViewStyle } from 'react-native';
+
+const getAnimatedStyle = getReanimatedAnimatedStyle as unknown as (component: { readonly props: object }) => ViewStyle;
 
 const EXPANDED_HEIGHT = 156;
 const COLLAPSED_HEIGHT = 40;

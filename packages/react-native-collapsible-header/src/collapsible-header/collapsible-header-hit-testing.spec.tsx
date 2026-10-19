@@ -36,7 +36,7 @@ const Subject = ({ headerStyle, persistentContent }: SubjectProps) => {
 const getShellProps = (): Pick<ViewProps, 'style'> =>
     screen.getByTestId('header-header', { includeHiddenElements: true }).props;
 const getShellPointerEvents = (): ViewStyle['pointerEvents'] =>
-    StyleSheet.flatten<ViewStyle>(getShellProps().style).pointerEvents;
+    (StyleSheet.flatten(getShellProps().style) ?? {}).pointerEvents;
 
 describe('CollapsibleHeader shell hit testing', () => {
     it('leaves empty header space transparent so touches reach the content beneath', () => {

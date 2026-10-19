@@ -129,9 +129,9 @@ describe('CollapsibleHeader', () => {
         expect.hasAssertions();
 
         const props = renderDelegatedProps();
-        const expandedTop = Number(StyleSheet.flatten(props.expandedContentContainerStyle).top);
-        const collapsedTop = Number(StyleSheet.flatten(props.collapsedContentContainerStyle).top);
-        const persistentTop = Number(StyleSheet.flatten(props.persistentContentContainerStyle).top);
+        const expandedTop = Number(StyleSheet.flatten(props.expandedContentContainerStyle)?.top);
+        const collapsedTop = Number(StyleSheet.flatten(props.collapsedContentContainerStyle)?.top);
+        const persistentTop = Number(StyleSheet.flatten(props.persistentContentContainerStyle)?.top);
 
         expect(expandedTop).toBe(mockTopInset);
         expect(collapsedTop).toBe(mockTopInset);
@@ -231,12 +231,12 @@ describe('CollapsibleHeader content container styles', () => {
         const props = renderWithContainerStyles({
             expandedContentContainerStyle: { alignItems: 'flex-start', paddingHorizontal: 16 },
         });
-        const expanded = StyleSheet.flatten(props.expandedContentContainerStyle);
+        const expanded = StyleSheet.flatten(props.expandedContentContainerStyle) ?? {};
 
         expect(expanded.alignItems).toBe('flex-start');
         expect(expanded.paddingHorizontal).toBe(16);
         expect(expanded.justifyContent).toBe('center');
-        expect(StyleSheet.flatten(props.collapsedContentContainerStyle).alignItems).toBe('center');
+        expect(StyleSheet.flatten(props.collapsedContentContainerStyle)?.alignItems).toBe('center');
     });
 
     it('aligns the expanded title beside the slots without changing the collapsed title', () => {
@@ -285,8 +285,8 @@ describe('CollapsibleHeader without a safe-area top inset', () => {
         const props = renderDelegatedProps();
 
         expect(props.expandedHeight).toBe(mockConfig.headerHeight);
-        expect(StyleSheet.flatten(props.expandedContentContainerStyle).top).toBe(NO_TOP_INSET);
-        expect(StyleSheet.flatten(props.collapsedContentContainerStyle).top).toBe(NO_TOP_INSET);
-        expect(StyleSheet.flatten(props.persistentContentContainerStyle).top).toBe(NO_TOP_INSET);
+        expect(StyleSheet.flatten(props.expandedContentContainerStyle)?.top).toBe(NO_TOP_INSET);
+        expect(StyleSheet.flatten(props.collapsedContentContainerStyle)?.top).toBe(NO_TOP_INSET);
+        expect(StyleSheet.flatten(props.persistentContentContainerStyle)?.top).toBe(NO_TOP_INSET);
     });
 });

@@ -5,7 +5,7 @@ import { createAnimatedComponent } from 'react-native-reanimated';
 import { useScreenChromeScrollProps } from '../hooks/use-screen-chrome-scroll-props/use-screen-chrome-scroll-props.hook';
 
 import type { ScrollContentInsetMode } from '../type/scroll-content-inset-mode.type';
-import type { ComponentProps, ReactNode, Ref } from 'react';
+import type { ComponentProps, ComponentRef, ReactNode, Ref } from 'react';
 
 const AnimatedScrollView = createAnimatedComponent(ScrollView);
 
@@ -14,7 +14,7 @@ interface Props extends Omit<ComponentProps<typeof ScrollView>, 'onScroll' | 'sc
     readonly contentInsetBottom?: number;
     readonly contentInsetMode?: ScrollContentInsetMode;
     readonly includeTopSafeArea?: boolean;
-    readonly ref?: Ref<ScrollView>;
+    readonly ref?: Ref<ComponentRef<typeof ScrollView>>;
 }
 
 /**

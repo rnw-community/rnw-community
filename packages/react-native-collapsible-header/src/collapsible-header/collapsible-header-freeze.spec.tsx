@@ -3,7 +3,7 @@ import { render, screen } from '@testing-library/react-native';
 import React, { useContext, useEffect } from 'react';
 import { Freeze } from 'react-freeze';
 import { Text } from 'react-native';
-import { getAnimatedStyle, makeMutable } from 'react-native-reanimated';
+import { getAnimatedStyle as getReanimatedAnimatedStyle, makeMutable } from 'react-native-reanimated';
 
 import { getDefined } from '@rnw-community/shared';
 
@@ -14,8 +14,10 @@ import { CollapsibleHeader } from './collapsible-header';
 
 import type { CollapsibleHeaderScrollContextValue } from '../interface/collapsible-header-scroll-context-value.interface';
 import type { Maybe, OnEventFn } from '@rnw-community/shared';
-import type { ViewProps } from 'react-native';
+import type { ViewProps, ViewStyle } from 'react-native';
 import type { SharedValue } from 'react-native-reanimated';
+
+const getAnimatedStyle = getReanimatedAnimatedStyle as unknown as (component: { readonly props: object }) => ViewStyle;
 
 const EXPANDED_HEIGHT = 156;
 const COLLAPSED_HEIGHT = 40;

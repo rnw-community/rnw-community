@@ -6,6 +6,7 @@ import { BottomChromeHeightSetterContext } from '../../context/bottom-chrome-hei
 
 import type { BottomChromeHeightPublisherOptionsInterface } from '../../interface/bottom-chrome-height-publisher-options.interface';
 import type { BottomChromeHeightPublisherInterface } from '../../interface/bottom-chrome-height-publisher.interface';
+import type { ComponentRef } from 'react';
 import type { LayoutChangeEvent, View } from 'react-native';
 
 /**
@@ -18,7 +19,7 @@ export const useBottomChromeHeightPublisher = ({
 }: BottomChromeHeightPublisherOptionsInterface = {}): BottomChromeHeightPublisherInterface => {
     const { publish, withdraw } = useContext(BottomChromeHeightSetterContext);
     const [chromeId] = useState(() => Symbol('bottom-chrome'));
-    const ref = useRef<View>(null);
+    const ref = useRef<ComponentRef<typeof View>>(null);
 
     useLayoutEffect(
         () => () => {

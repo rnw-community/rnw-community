@@ -1,3 +1,11 @@
+const resolveReanimatedJestResolver = () => {
+    try {
+        return require.resolve('react-native-reanimated/jest/resolver');
+    } catch {
+        return require.resolve('react-native-worklets/jest/resolver');
+    }
+};
+
 module.exports = {
     ...require('../../get-jest.config.js')('react-native-collapsible-header', '@react-native/jest-preset', [
         '(jest-)?react-native',
@@ -6,6 +14,6 @@ module.exports = {
         'react-native-worklets',
     ]),
     collectCoverageFrom: ['<rootDir>/src/**/*.{ts,tsx}', '!<rootDir>/src/**/*.spec.{ts,tsx}', '!<rootDir>/src/**/*.d.ts'],
-    resolver: 'react-native-worklets/jest/resolver',
+    resolver: resolveReanimatedJestResolver(),
     setupFilesAfterEnv: ['<rootDir>/jest-setup.js'],
 };

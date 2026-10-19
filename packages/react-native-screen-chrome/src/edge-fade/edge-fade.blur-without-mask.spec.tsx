@@ -51,7 +51,7 @@ describe('EdgeFade with expo-blur but without the mask and gradient modules', ()
         const hosts = screen.UNSAFE_root.findAll(node => typeof node.type === 'string');
         const blurHosts = hosts.filter(host => hostProps(host).testID === 'blur-host');
         const washIndex = hosts.findIndex(host =>
-            isDefined(StyleSheet.flatten([hostProps(host).style]).experimental_backgroundImage)
+            isDefined(StyleSheet.flatten([hostProps(host).style])?.experimental_backgroundImage)
         );
 
         expect(blurHosts.map(blurHost => hostProps(blurHost).intensity)).toStrictEqual(

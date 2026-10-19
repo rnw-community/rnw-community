@@ -194,6 +194,8 @@ describe('ScreenChromeProvider context', () => {
     });
 });
 
+const UNSPECIFIED_COLOR_SCHEME = 'unspecified' as string as ColorSchemeName;
+
 const mockSystemColorScheme = (systemColorScheme: ColorSchemeName): void => {
     jest.spyOn(jest.requireActual<typeof ReactNative>('react-native'), 'useColorScheme').mockReturnValue(systemColorScheme);
 };
@@ -206,7 +208,7 @@ describe('ScreenChromeProvider system color scheme', () => {
     it.each<[ColorSchemeName, ScreenChromeColorScheme]>([
         ['dark', 'dark'],
         ['light', 'light'],
-        ['unspecified', 'light'],
+        [UNSPECIFIED_COLOR_SCHEME, 'light'],
     ])('resolves system appearance %s to the %s palette at render', (systemScheme, expected) => {
         expect.hasAssertions();
 

@@ -367,6 +367,12 @@ Describe **what changed and why** in code-intrinsic terms. A regression fix is d
   `babel-plugin-transform-import-meta` (`module: 'ES6'`) for their `import.meta.url` usages. The `nestjs-compatibility`
   PR job re-runs their `ts` + `test:coverage` with `pnpm-workspace.yaml` overrides pinning the minimum supported stacks
   (`@nestjs/*` 11.1.28 + `@nestjs/config` 4.0.4, and 12.0.0 + 12.0.1)
+- The Reanimated packages (`react-native-collapsible-header`, `react-native-screen-chrome`) run Jest through
+  `react-native-reanimated/jest/resolver` (Reanimated 4.7+, falling back to `react-native-worklets/jest/resolver` for the
+  older versions the `reanimated-compatibility` job pins). `patches/react-native-worklets.patch` makes the worklets
+  resolver decide by the package that owns the requesting file instead of a substring match on its path: pnpm's
+  virtual-store directory for Reanimated (`react-native-reanimated@x_react-native-worklets@y…`) contains the worklets
+  name, which made every Reanimated module resolve its web build and broke `setUpTests` (`window.matchMedia`)
 - Mock files matching `*.mock.ts` are excluded from coverage (`coveragePathIgnorePatterns`) — legacy `wdio` scaffolding only; see the next subsection
 - Test the BEHAVIOR, not the comments — behavior is self-documenting when a comment would otherwise be needed
 

@@ -58,7 +58,7 @@ Spike findings (decision recorded on the issue):
 - **iOS → Swift: deferred indefinitely.** `Payments.mm`/`Payments.h` (1079 + 24 lines, ObjC++) implement a hardened
   PassKit delegate lifecycle — per-event pending-completion tracking with superseded-event detection, a teardown
   state machine invoked from five call sites, iOS 15+ conditional coupon-code support, and ~30 delegate
-  callbacks/helpers. Codegen (React Native 0.86.2, the version this monorepo is pinned to) has no Swift TurboModule
+  callbacks/helpers. Codegen (React Native 0.88.0, the version this monorepo is pinned to) has no Swift TurboModule
   support — it only emits Objective-C++ glue — so a Swift rewrite would still sit behind an Objective-C++ spec surface,
   adding a bridging layer without removing the interop this module already has, while asking to re-verify ~1100 lines
   of delegate state whose regressions are silent runtime sheet hangs, not compile errors. Effort: L. Risk: high.

@@ -2,12 +2,14 @@ import { describe, expect, it } from '@jest/globals';
 import { render, screen, within } from '@testing-library/react-native';
 import React from 'react';
 import { StyleSheet, Text } from 'react-native';
-import { getAnimatedStyle, useSharedValue } from 'react-native-reanimated';
+import { getAnimatedStyle as getReanimatedAnimatedStyle, useSharedValue } from 'react-native-reanimated';
 
 import { CollapsibleHeader } from './collapsible-header';
 
 import type { CollapsibleHeaderProps } from '../interface/collapsible-header-props.interface';
 import type { StyleProp, ViewStyle } from 'react-native';
+
+const getAnimatedStyle = getReanimatedAnimatedStyle as unknown as (component: { readonly props: object }) => ViewStyle;
 
 const EXPANDED_HEIGHT = 156;
 const COLLAPSED_HEIGHT = 40;
@@ -94,7 +96,7 @@ describe('CollapsibleHeader collapsed transition', () => {
         render(<Subject collapsedTransition="roll" />);
 
         const clip = screen.getByTestId('header-collapsed-clip', { includeHiddenElements: true });
-        const clipStyle = StyleSheet.flatten((clip.props as { readonly style: StyleProp<ViewStyle> }).style);
+        const clipStyle = StyleSheet.flatten((clip.props as { readonly style: StyleProp<ViewStyle> }).style) ?? {};
 
         expect(clipStyle).toMatchObject({
             position: 'absolute',

@@ -2,13 +2,15 @@ import { describe, expect, it } from '@jest/globals';
 import { render, screen } from '@testing-library/react-native';
 import React from 'react';
 import { Text } from 'react-native';
-import { getAnimatedStyle, useSharedValue } from 'react-native-reanimated';
+import { getAnimatedStyle as getReanimatedAnimatedStyle, useSharedValue } from 'react-native-reanimated';
 
 import { CollapsibleHeader } from './collapsible-header';
 
 import type { CollapsibleHeaderMotionConfig } from '../interface/collapsible-header-motion-config.interface';
 import type { CollapsibleHeaderProps } from '../interface/collapsible-header-props.interface';
 import type { ViewProps, ViewStyle } from 'react-native';
+
+const getAnimatedStyle = getReanimatedAnimatedStyle as unknown as (component: { readonly props: object }) => ViewStyle;
 
 const EXPANDED_HEIGHT = 156;
 const COLLAPSED_HEIGHT = 40;
@@ -149,7 +151,6 @@ describe('CollapsibleHeader accessibility handoff', () => {
 });
 
 describe('CollapsibleHeader interaction ownership without a cross-fade window', () => {
-
     it.each([
         {
             name: 'both fades end at the collapsed endpoint',
@@ -161,19 +162,19 @@ describe('CollapsibleHeader interaction ownership without a cross-fade window', 
             motion: HARD_CUT_MIDWAY_MOTION,
             scrollOffset: HARD_CUT_MIDWAY_SCROLL_OFFSET,
         },
-    ])('hands interaction to the collapsed layer once the expanded layer is fully faded, when $name', ({
-        motion,
-        scrollOffset,
-    }) => {
-        expect.hasAssertions();
-        render(<Subject scrollOffset={scrollOffset} motion={motion} />);
+    ])(
+        'hands interaction to the collapsed layer once the expanded layer is fully faded, when $name',
+        ({ motion, scrollOffset }) => {
+            expect.hasAssertions();
+            render(<Subject scrollOffset={scrollOffset} motion={motion} />);
 
-        expect(getLayerStyle('expanded').opacity).toBe(0);
-        expect(getLayerStyle('expanded').pointerEvents).toBe('none');
-        expect(getLayerStyle('collapsed').pointerEvents).toBe('box-none');
-        expect(getLayerAccessibility('expanded')).toMatchObject({ accessibilityElementsHidden: true });
-        expect(getLayerAccessibility('collapsed')).toMatchObject({ accessibilityElementsHidden: false });
-    });
+            expect(getLayerStyle('expanded').opacity).toBe(0);
+            expect(getLayerStyle('expanded').pointerEvents).toBe('none');
+            expect(getLayerStyle('collapsed').pointerEvents).toBe('box-none');
+            expect(getLayerAccessibility('expanded')).toMatchObject({ accessibilityElementsHidden: true });
+            expect(getLayerAccessibility('collapsed')).toMatchObject({ accessibilityElementsHidden: false });
+        }
+    );
 
     it('keeps the visible expanded layer interactive right up to the point it fades out', () => {
         expect.hasAssertions();

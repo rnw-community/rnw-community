@@ -2,7 +2,7 @@ import type { EdgeFadeBandRenderer } from './edge-fade-band-renderer.type';
 import type { EdgeFadePosition } from './edge-fade-position.type';
 import type { EdgeFadeScrollAnimationInterface } from './edge-fade-scroll-animation.interface';
 import type { BlurMethod } from 'expo-blur';
-import type { RefObject } from 'react';
+import type { ComponentRef, RefObject } from 'react';
 import type { View, ViewProps } from 'react-native';
 
 /**
@@ -21,7 +21,7 @@ export interface EdgeFadePropsInterface extends Omit<ViewProps, 'children'> {
     /** Android Expo Blur rendering method. @defaultValue `'dimezisBlurView'` when `blurTarget` is set, otherwise `'none'` */
     readonly blurMethod?: BlurMethod;
     /** Ref to the Android `BlurTargetView` whose background the band blurs; required by `dimezisBlurView` methods. */
-    readonly blurTarget?: RefObject<View | null>;
+    readonly blurTarget?: RefObject<ComponentRef<typeof View> | null>;
     /** Custom band content renderer. @defaultValue the provider's `renderEdgeFadeBand`, else the package's default band */
     readonly renderBand?: EdgeFadeBandRenderer;
 }

@@ -1,0 +1,21 @@
+diff --git a/jest/resolver.js b/jest/resolver.js
+index cd1a80635294eb3c66a00bd4fda2432842091f28..6c1cbfc17a9a8b180dbaa3528ddf470578115f4b 100644
+--- a/jest/resolver.js
++++ b/jest/resolver.js
+@@ -1,10 +1,15 @@
+ const path = require('path');
+ 
++const isWorkletsPackageDir = (basedir) => {
++  const segments = basedir.split(path.sep);
++  return segments[segments.lastIndexOf('node_modules') + 1] === 'react-native-worklets';
++};
++
+ /** @type {import('jest-resolve').SyncResolver} */
+ module.exports = (request, options) => {
+   const { defaultResolver } = options;
+   if (
+-    options.basedir.includes('react-native-worklets') ||
++    isWorkletsPackageDir(options.basedir) ||
+     request.includes('react-native-worklets')
+   ) {
+     const workletOptions = { ...options };
