@@ -8,7 +8,7 @@ import type { AndroidPaymentMethodTokenizationType } from '../enum/android-payme
 export interface AndroidTokenizationGatewaySpecification {
     parameters: Record<string, string> & {
         gateway: string;
-        gatewayMerchantId: string;
+        gatewayMerchantId?: string;
     };
     type: AndroidPaymentMethodTokenizationType.PAYMENT_GATEWAY;
 }

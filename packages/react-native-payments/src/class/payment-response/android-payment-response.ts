@@ -1,5 +1,6 @@
-import { isDefined } from '@rnw-community/shared';
+import { isDefined, isNotEmptyString } from '@rnw-community/shared';
 
+import { AndroidPaymentMethodTokenizationType } from '../../@standard/android/enum/android-payment-method-tokenization-type.enum';
 import { type AndroidCardInfo, emptyAndroidCardInfo } from '../../@standard/android/response/android-card-info';
 import { emptyAndroidIntermediateSigningKey } from '../../@standard/android/response/android-intermediate-signing-key';
 import { emptyAndroidPaymentMethodToken } from '../../@standard/android/response/android-payment-method-token';
@@ -12,6 +13,7 @@ import type { AndroidFullAddress } from '../../@standard/android/response/androi
 import type { AndroidMinAddress } from '../../@standard/android/response/android-min-address';
 import type { AndroidPaymentData } from '../../@standard/android/response/android-payment-data';
 import type { AndroidPaymentMethodToken } from '../../@standard/android/response/android-payment-method-token';
+import type { AndroidPaymentMethodTokenizationData } from '../../@standard/android/response/android-payment-method-tokenization-data';
 import type { AndroidRawPaymentMethodToken } from '../../@standard/android/response/android-raw-payment-method-token';
 import type { AndroidSignedKey } from '../../@standard/android/response/android-signed-key';
 import type { AndroidSignedMessage } from '../../@standard/android/response/android-signed-message';
@@ -31,7 +33,7 @@ export class AndroidPaymentResponse extends PaymentResponse {
             return {
                 billingAddress: AndroidPaymentResponse.parseFullAddress(data.paymentMethodData.info.billingAddress),
                 androidPayToken: {
-                    ...AndroidPaymentResponse.parseToken(data.paymentMethodData.tokenizationData.token),
+                    ...AndroidPaymentResponse.parseToken(data.paymentMethodData.tokenizationData),
                     cardInfo: AndroidPaymentResponse.parseCardInfo(data.paymentMethodData.info),
                 },
                 applePayToken: emptyIosPKToken,
@@ -46,22 +48,33 @@ export class AndroidPaymentResponse extends PaymentResponse {
                 }),
                 shippingAddress: AndroidPaymentResponse.parseFullAddress(data.shippingAddress),
             };
-        } catch {
-            throw new PaymentsError(`Failed parsing PaymentRequest details`);
+        } catch (error) {
+            throw error instanceof PaymentsError ? error : new PaymentsError(`Failed parsing PaymentRequest details`);
         }
     }
 
-    private static parseToken(input = '{}'): AndroidPaymentMethodToken {
-        if (input === 'examplePaymentMethodToken') {
-            return emptyAndroidPaymentMethodToken;
+    private static parseToken({ token = '', type }: AndroidPaymentMethodTokenizationData): AndroidPaymentMethodToken {
+        const parsedToken = AndroidPaymentResponse.parseGooglePaymentMethodToken(token);
+
+        if (isDefined(parsedToken)) {
+            return AndroidPaymentResponse.toPaymentMethodToken(token, parsedToken);
         }
 
-        const parsedToken = JSON.parse(input) as AndroidRawPaymentMethodToken;
+        if (type === AndroidPaymentMethodTokenizationType.PAYMENT_GATEWAY && isNotEmptyString(token)) {
+            return { ...emptyAndroidPaymentMethodToken, rawToken: token };
+        }
 
+        throw new PaymentsError(`Invalid Google Pay ${type} payment method token`);
+    }
+
+    private static toPaymentMethodToken(
+        rawToken: string,
+        parsedToken: AndroidRawPaymentMethodToken
+    ): AndroidPaymentMethodToken {
         return {
             ...emptyAndroidPaymentMethodToken,
             ...parsedToken,
-            rawToken: input,
+            rawToken,
             intermediateSigningKey: {
                 ...(isDefined(parsedToken.intermediateSigningKey)
                     ? {
@@ -72,6 +85,18 @@ export class AndroidPaymentResponse extends PaymentResponse {
             },
             signedMessage: JSON.parse(parsedToken.signedMessage) as AndroidSignedMessage,
         };
+    }
+
+    private static parseGooglePaymentMethodToken(token: string): Maybe<AndroidRawPaymentMethodToken> {
+        try {
+            const parsedToken = JSON.parse(token) as Maybe<Partial<AndroidRawPaymentMethodToken>>;
+
+            return [parsedToken?.protocolVersion, parsedToken?.signature, parsedToken?.signedMessage].every(isNotEmptyString)
+                ? (parsedToken as AndroidRawPaymentMethodToken)
+                : null;
+        } catch {
+            return null;
+        }
     }
 
     private static parseFullAddress(input?: AndroidFullAddress): PaymentResponseAddressInterface {

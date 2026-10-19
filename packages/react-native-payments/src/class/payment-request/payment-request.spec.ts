@@ -702,7 +702,7 @@ describe('PaymentRequest', () => {
             const result = await request.show();
 
             expect(NativePayments.show).toHaveBeenCalledWith(request.id, expect.any(String), expect.any(Object));
-            expect(result).toBeDefined();
+            expect(result.details.androidPayToken.rawToken).toBe('examplePaymentMethodToken');
             expect(request.state).toBe('closed');
         });
 

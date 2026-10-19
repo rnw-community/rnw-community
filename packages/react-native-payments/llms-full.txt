@@ -777,7 +777,7 @@ your `methodData` array.
 | Type                                    | Notes                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
 | --------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `AndroidPaymentMethodDataInterface`     | `supportedMethods: PaymentMethodNameEnum.AndroidPay` paired with an `AndroidPaymentMethodDataDataInterface` `data`.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
-| `AndroidPaymentMethodDataDataInterface` | `supportedNetworks`, `environment`, `countryCode?`, `currencyCode`, exactly one of `gatewayConfig` (`{ gateway, gatewayMerchantId }`) or `directConfig` (`{ protocolVersion, publicKey }`) — the type forbids supplying both, `allowedAuthMethods?` ([`AndroidAllowedAuthMethodsEnum`](docs/api/android-allowed-auth-methods-enum.md)), `totalPriceStatus?`, `checkoutOption?`, `transactionId?`, at most one of `deferredTransactionInfo?` / `recurringTransactionInfo?` / `automaticReloadTransactionInfo?` ([merchant-initiated transactions](docs/api/android-merchant-initiated-transaction-info.md)) — see [platforms/android.md](docs/platforms/android.md) for every field. |
+| `AndroidPaymentMethodDataDataInterface` | `supportedNetworks`, `environment`, `countryCode?`, `currencyCode`, exactly one of `gatewayConfig` (`{ gateway, gatewayMerchantId?, ...gateway-specific keys }`) or `directConfig` (`{ protocolVersion, publicKey }`) — the type forbids supplying both, `allowedAuthMethods?` ([`AndroidAllowedAuthMethodsEnum`](docs/api/android-allowed-auth-methods-enum.md)), `totalPriceStatus?`, `checkoutOption?`, `transactionId?`, at most one of `deferredTransactionInfo?` / `recurringTransactionInfo?` / `automaticReloadTransactionInfo?` ([merchant-initiated transactions](docs/api/android-merchant-initiated-transaction-info.md)) — see [platforms/android.md](docs/platforms/android.md) for every field. |
 
 `requestBillingAddress`, `requestPayerEmail`, `requestPayerName`, `requestPayerPhone` and `requestShipping` are
 shared with [`IosPaymentMethodDataDataInterface`](docs/api/ios-payment-method-data.md) (both extend the package's
@@ -811,6 +811,11 @@ const androidMethod: AndroidPaymentMethodDataInterface = {
 - `countryCode` is optional on this interface (unlike the required `countryCode` on the iOS side) — omitting it
   is valid TypeScript, but Google Pay's own requirements for your merchant configuration may still need it set.
 - `gatewayConfig` and `directConfig` are mutually exclusive at the type level (`{ directConfig; gatewayConfig?: never } | { directConfig?: never; gatewayConfig }`) — providing both, or neither, is a type error.
+- `gatewayConfig` is passed verbatim as the Google Pay `tokenizationSpecification.parameters`, so gateway-specific
+  keys (`stripe:publishableKey`, `braintree:clientKey`, …) go straight into it. `gatewayMerchantId` is optional
+  because not every gateway takes it — Google's
+  [processor table](https://developers.google.com/pay/api/android/guides/tutorial#tokenization) lists none for
+  Stripe or Braintree.
 
 ## References
 
@@ -838,10 +843,10 @@ to your payment gateway.
 | `cardInfo.cardNetwork` | `string` | The card network of the tokenized card. |
 | `cardInfo.cardDetails` | `string` | The last four digits or similar display detail, as returned by Google Pay. |
 | `intermediateSigningKey` | `{ signatures: string[]; signedKey: AndroidSignedKey }` | The intermediate signing key used to verify the token signature. |
-| `protocolVersion` | `string` | The protocol version of the signed message (e.g. `ECv2`). |
+| `protocolVersion` | `string` | The protocol version of the signed message (e.g. `ECv2`); `''` for a gateway-issued token. |
 | `signature` | `string` | The signature over `signedMessage`. |
 | `signedMessage` | `{ encryptedMessage: string; ephemeralPublicKey: string; tag: string }` | The encrypted message envelope — see [Google Pay payment data cryptography](https://developers.google.com/pay/api/android/guides/resources/payment-data-cryptography#signed-message). |
-| `rawToken` | `string` | The raw tokenization payload as returned by Google Pay, before this package's parsing. |
+| `rawToken` | `string` | The untouched `tokenizationData.token` string as returned by Google Pay — the value to send to your gateway. |
 
 ## Example
 
@@ -859,11 +864,19 @@ if (response instanceof AndroidPaymentResponse) {
 
 ## Pitfalls
 
+- `protocolVersion`, `signature`, `signedMessage` and `intermediateSigningKey` are only filled in when the token is
+  Google's signed-message envelope: always for `directConfig` (`DIRECT`) tokenization, and for `gatewayConfig`
+  (`PAYMENT_GATEWAY`) gateways that forward Google's encrypted payload. A gateway that issues its own token instead
+  (Stripe returns a Stripe Token JSON, Braintree a JSON carrying a nonce) leaves them at their empty defaults — send
+  `rawToken` to the gateway and parse it as that gateway documents. You chose the tokenization type yourself through
+  `gatewayConfig` or `directConfig`, so branch on that rather than on empty fields.
+
 - `AndroidPaymentMethodToken` is a plain TypeScript interface with no runtime validation of its own —
   constructing an object that merely matches its shape never throws. `PaymentsError` is thrown by
-  [`AndroidPaymentResponse`](docs/api/android-payment-response.md) when it parses a malformed or incomplete native JSON
-  payload (including direct construction of `AndroidPaymentResponse` with malformed tokenization data), not by
-  this token type — see [guides/errors.md](docs/guides/errors.md).
+  [`AndroidPaymentResponse`](docs/api/android-payment-response.md), not by this token type: when the native JSON payload is
+  malformed or incomplete, when the token is missing, when a `DIRECT` token is not a complete signed-message
+  envelope, or when an envelope's `signedMessage` / `signedKey` is not valid JSON. A non-envelope `PAYMENT_GATEWAY`
+  token is not an error — see [guides/errors.md](docs/guides/errors.md).
 
 ## References
 
@@ -905,7 +918,10 @@ if (response instanceof AndroidPaymentResponse) {
 
 - A native payment response payload that fails to parse (malformed or incomplete JSON from Google Pay, including
   direct construction of `AndroidPaymentResponse` with malformed tokenization data) throws `PaymentsError` — see
-  [guides/errors.md](docs/guides/errors.md).
+  [guides/errors.md](docs/guides/errors.md). A missing token, or a `DIRECT` token that is not Google's signed-message
+  envelope, throws `PaymentsError` naming the tokenization type. A `PAYMENT_GATEWAY` token the gateway issued in
+  its own format is kept as `androidPayToken.rawToken` instead — see
+  [api/android-payment-method-token.md](docs/api/android-payment-method-token.md).
 
 ## References
 
@@ -3342,7 +3358,7 @@ readme](readme.md) links here instead of carrying its own TODO ledger.
       [#438](https://github.com/rnw-community/rnw-community/issues/438); coupons stay iOS-only, see below.
 - Rewrite iOS to Swift — **deferred indefinitely**, decision recorded on
   [#442](https://github.com/rnw-community/rnw-community/issues/442).
-- [ ] Rewrite Android to Kotlin — decided, low effort, tracked in
+- [x] Rewrite Android to Kotlin — done in [#664](https://github.com/rnw-community/rnw-community/pull/664), tracked in
       [#442](https://github.com/rnw-community/rnw-community/issues/442).
 - [x] Drop the `AppDelegate.h` PassKit import requirement — the pod links `PassKit` itself, tracked in
       [#442](https://github.com/rnw-community/rnw-community/issues/442).
