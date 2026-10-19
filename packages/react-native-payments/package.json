@@ -1,6 +1,6 @@
 {
     "name": "@rnw-community/react-native-payments",
-    "version": "2.29.0",
+    "version": "2.29.2",
     "description": "W3C Payment Request API for React Native: Apple Pay (iOS) and Google Pay (Android), with an Expo config plugin",
     "keywords": [
         "react",
