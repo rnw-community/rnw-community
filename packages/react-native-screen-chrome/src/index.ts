@@ -33,6 +33,7 @@ export { BottomChromeInsetProvider } from './bottom-chrome-inset-provider/bottom
 export { useBottomChromeInset } from './hooks/use-bottom-chrome-inset/use-bottom-chrome-inset.hook';
 export type { BottomChromeInsetInterface } from './interface/bottom-chrome-inset.interface';
 export type { ScreenChromeColorScheme } from './type/screen-chrome-color-scheme.type';
+export type { ScreenChromeColorSchemePreference } from './type/screen-chrome-color-scheme-preference.type';
 export type { ScreenChromeColorSetInterface } from './interface/screen-chrome-color-set.interface';
 export type { ScreenChromeConfigInterface } from './interface/screen-chrome-config.interface';
 export type { ScreenChromeConfigOverridesInterface } from './interface/screen-chrome-config-overrides.interface';

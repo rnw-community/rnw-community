@@ -42,7 +42,8 @@ one copy of the collapsible header. Render content first, decorative fades and b
 - [`useScrollFadeStyle`](readme.md#usescrollfadestyle): Clamped opacity style interpolated from the provider scroll value.
 - [`getScreenChromeHeaderMetrics`](readme.md#getscreenchromeheadermetrics): Pure computation of the rendered header footprint from header height, device top inset, and optional extra inset.
 - [`useScreenChromeHeaderMetrics`](readme.md#usescreenchromeheadermetrics): Header footprint for the live provider config and device insets.
-- [`ScreenChromeColorScheme`](readme.md#screenchromecolorscheme): `'light' | 'dark'` palette selector, assignable from `useColorScheme()`.
+- [`ScreenChromeColorScheme`](readme.md#screenchromecolorscheme): Resolved `'light' | 'dark'` palette every chrome consumer reads from the context.
+- [`ScreenChromeColorSchemePreference`](readme.md#screenchromecolorschemepreference): Provider `colorScheme` input — a fixed scheme or `'system'`, resolved at render from `useColorScheme()`.
 - [`ScreenChromeColorSetInterface`](readme.md#screenchromecolorsetinterface): Solid and translucent wash colors for one color scheme.
 - [`ScreenChromeConfigInterface`](readme.md#screenchromeconfiginterface): Full chrome geometry, colors, fade masks, scroll throttling, and collapse thresholds.
 - [`ScreenChromeConfigOverridesInterface`](readme.md#screenchromeconfigoverridesinterface): Partial overrides accepted by the provider `config` prop, preserving nested colors and mask stops.
