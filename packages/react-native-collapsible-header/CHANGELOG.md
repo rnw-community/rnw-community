@@ -3,6 +3,13 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [2.29.0](https://github.com/rnw-community/rnw-community/compare/v2.28.3...v2.29.0) (2026-10-19)
+
+### Bug Fixes
+
+- **react-native-collapsible-header,react-native-screen-chrome:** resolve web files from dist ([#719](https://github.com/rnw-community/rnw-community/issues/719)) ([149da14](https://github.com/rnw-community/rnw-community/commit/149da14f1b40c268aeddf622f5daf10df368fc49))
+- **react-native-collapsible-header:** check the reanimated peer floor in CI and narrow it to 4.1 ([#685](https://github.com/rnw-community/rnw-community/issues/685)) ([5da168e](https://github.com/rnw-community/rnw-community/commit/5da168ea9aa9eda13c681db444d19d1ce789acc1))
+
 ## [2.28.2](https://github.com/rnw-community/rnw-community/compare/v2.28.1...v2.28.2) (2026-10-16)
 
 **Note:** Version bump only for package @rnw-community/react-native-collapsible-header

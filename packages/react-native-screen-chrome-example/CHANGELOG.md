@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [2.29.0](https://github.com/rnw-community/rnw-community/compare/v2.28.3...v2.29.0) (2026-10-19)
+
+### Features
+
+- **react-native-screen-chrome-example:** add snap-off, bottom fade, tab bar, keyboard, theme demos ([#702](https://github.com/rnw-community/rnw-community/issues/702)) ([87d7d71](https://github.com/rnw-community/rnw-community/commit/87d7d71354b20512317d7f2ad613955abdd1c9d1))
+
 ## [2.28.2](https://github.com/rnw-community/rnw-community/compare/v2.28.1...v2.28.2) (2026-10-16)
 
 **Note:** Version bump only for package @rnw-community/react-native-screen-chrome-example

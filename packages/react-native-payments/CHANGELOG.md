@@ -3,6 +3,20 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [2.29.0](https://github.com/rnw-community/rnw-community/compare/v2.28.3...v2.29.0) (2026-10-19)
+
+### Bug Fixes
+
+- correct the npm descriptions of nestjs-webpack-swc and react-native-payments ([#690](https://github.com/rnw-community/rnw-community/issues/690)) ([ad6cc95](https://github.com/rnw-community/rnw-community/commit/ad6cc9562a9b8b82e59aa41596c469670e649399))
+- **react-native-payments:** check Android readiness in the request environment ([#698](https://github.com/rnw-community/rnw-community/issues/698)) ([9b8b121](https://github.com/rnw-community/rnw-community/commit/9b8b1212706ea40f20c5b24a4bc167e5fed26e1d))
+- **react-native-payments:** keep PSP-specific Google Pay tokens instead of rejecting show() ([#689](https://github.com/rnw-community/rnw-community/issues/689)) ([941b597](https://github.com/rnw-community/rnw-community/commit/941b59781e568a503eeaf928591b00532baa6655)), closes [#664](https://github.com/rnw-community/rnw-community/issues/664)
+
+### Features
+
+- **react-native-payments:** add a typed payments config shared by the Expo plugin and runtime ([#705](https://github.com/rnw-community/rnw-community/issues/705)) ([ec2aabd](https://github.com/rnw-community/rnw-community/commit/ec2aabde4f5060d455c45ac9ea4a6401f04e6f9f))
+- **react-native-payments:** add the rnw-payments doctor to check and fix bare native setup ([#711](https://github.com/rnw-community/rnw-community/issues/711)) ([655b523](https://github.com/rnw-community/rnw-community/commit/655b5239726398b558cf8cfa72d47d86ae182a67))
+- **react-native-payments:** deliver shipping change events on Android via Google Pay callbacks ([#675](https://github.com/rnw-community/rnw-community/issues/675)) ([8acc865](https://github.com/rnw-community/rnw-community/commit/8acc86548f0d0fbf0f40f5c4e83106387ecf1da1)), closes [#438](https://github.com/rnw-community/rnw-community/issues/438)
+
 ## [2.28.3](https://github.com/rnw-community/rnw-community/compare/v2.28.2...v2.28.3) (2026-10-16)
 
 **Note:** Version bump only for package @rnw-community/react-native-payments

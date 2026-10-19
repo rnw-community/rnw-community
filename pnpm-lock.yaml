@@ -225,10 +225,10 @@ importers:
     packages/fast-style:
         dependencies:
             '@rnw-community/object-field-tree':
-                specifier: ^2.28.1
+                specifier: ^2.29.0
                 version: link:../object-field-tree
             '@rnw-community/shared':
-                specifier: ^2.28.0
+                specifier: ^2.29.0
                 version: link:../shared
             react:
                 specifier: 19.2.3
@@ -329,7 +329,7 @@ importers:
                 specifier: ^11.1.28 || ^12.0.0
                 version: 11.2.1(@nestjs/common@11.2.1(reflect-metadata@0.2.2)(rxjs@7.8.2)(supports-color@8.1.1))(reflect-metadata@0.2.2)(rxjs@7.8.2)
             '@rnw-community/shared':
-                specifier: ^2.28.0
+                specifier: ^2.29.0
                 version: link:../shared
             ioredis:
                 specifier: ^5.11.1 || ^6.0.0
@@ -344,7 +344,7 @@ importers:
     packages/nestjs-rxjs-logger:
         dependencies:
             '@rnw-community/shared':
-                specifier: ^2.28.0
+                specifier: ^2.29.0
                 version: link:../shared
         devDependencies:
             '@nestjs/common':
@@ -357,7 +357,7 @@ importers:
     packages/nestjs-rxjs-metrics:
         dependencies:
             '@rnw-community/shared':
-                specifier: ^2.28.0
+                specifier: ^2.29.0
                 version: link:../shared
         devDependencies:
             '@nestjs/common':
@@ -376,7 +376,7 @@ importers:
     packages/nestjs-rxjs-redis:
         dependencies:
             '@rnw-community/shared':
-                specifier: ^2.28.0
+                specifier: ^2.29.0
                 version: link:../shared
         devDependencies:
             '@nestjs-modules/ioredis':
@@ -395,7 +395,7 @@ importers:
     packages/nestjs-typed-config:
         dependencies:
             '@rnw-community/shared':
-                specifier: ^2.28.0
+                specifier: ^2.29.0
                 version: link:../shared
         devDependencies:
             '@nestjs/common':
@@ -417,7 +417,7 @@ importers:
     packages/nestjs-webpack-swc:
         dependencies:
             '@rnw-community/shared':
-                specifier: ^2.28.0
+                specifier: ^2.29.0
                 version: link:../shared
             '@swc/cli':
                 specifier: ^0.1.57
@@ -457,7 +457,7 @@ importers:
     packages/object-field-tree:
         dependencies:
             '@rnw-community/shared':
-                specifier: ^2.28.0
+                specifier: ^2.29.0
                 version: link:../shared
 
     packages/platform:
@@ -481,7 +481,7 @@ importers:
     packages/react-native-collapsible-header:
         dependencies:
             '@rnw-community/shared':
-                specifier: ^2.28.0
+                specifier: ^2.29.0
                 version: link:../shared
             react-compiler-runtime:
                 specifier: ^1.0.0
@@ -665,7 +665,7 @@ importers:
                 specifier: ^57.0.3
                 version: 57.0.8(supports-color@8.1.1)(typescript@6.0.3)
             '@rnw-community/shared':
-                specifier: ^2.28.0
+                specifier: ^2.29.0
                 version: link:../shared
             expo:
                 specifier: 57.0.4
@@ -777,7 +777,7 @@ importers:
     packages/react-native-screen-chrome:
         dependencies:
             '@rnw-community/shared':
-                specifier: ^2.28.0
+                specifier: ^2.29.0
                 version: link:../shared
         devDependencies:
             '@babel/core':
@@ -1005,7 +1005,7 @@ importers:
     packages/rxjs-errors:
         dependencies:
             '@rnw-community/shared':
-                specifier: ^2.28.0
+                specifier: ^2.29.0
                 version: link:../shared
         devDependencies:
             expect-type:
@@ -1020,7 +1020,7 @@ importers:
     packages/wdio:
         dependencies:
             '@rnw-community/shared':
-                specifier: ^2.28.0
+                specifier: ^2.29.0
                 version: link:../shared
             '@wdio/globals':
                 specifier: ^9.29.1

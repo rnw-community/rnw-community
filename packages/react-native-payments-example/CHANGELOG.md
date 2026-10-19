@@ -3,6 +3,13 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [2.29.0](https://github.com/rnw-community/rnw-community/compare/v2.28.3...v2.29.0) (2026-10-19)
+
+### Features
+
+- **react-native-payments:** add the rnw-payments doctor to check and fix bare native setup ([#711](https://github.com/rnw-community/rnw-community/issues/711)) ([655b523](https://github.com/rnw-community/rnw-community/commit/655b5239726398b558cf8cfa72d47d86ae182a67))
+- **react-native-payments:** deliver shipping change events on Android via Google Pay callbacks ([#675](https://github.com/rnw-community/rnw-community/issues/675)) ([8acc865](https://github.com/rnw-community/rnw-community/commit/8acc86548f0d0fbf0f40f5c4e83106387ecf1da1)), closes [#438](https://github.com/rnw-community/rnw-community/issues/438)
+
 ## [2.28.3](https://github.com/rnw-community/rnw-community/compare/v2.28.2...v2.28.3) (2026-10-16)
 
 **Note:** Version bump only for package @rnw-community/react-native-payments-example

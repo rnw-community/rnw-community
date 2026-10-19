@@ -3,6 +3,34 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [2.29.0](https://github.com/rnw-community/rnw-community/compare/v2.28.3...v2.29.0) (2026-10-19)
+
+### Bug Fixes
+
+- correct the npm descriptions of nestjs-webpack-swc and react-native-payments ([#690](https://github.com/rnw-community/rnw-community/issues/690)) ([ad6cc95](https://github.com/rnw-community/rnw-community/commit/ad6cc9562a9b8b82e59aa41596c469670e649399))
+- **deps:** patch vulnerable transitive dependencies ([#676](https://github.com/rnw-community/rnw-community/issues/676)) ([1939307](https://github.com/rnw-community/rnw-community/commit/1939307d993c18d014cf5d5da8566c55b6c30668))
+- **react-native-collapsible-header,react-native-screen-chrome:** resolve web files from dist ([#719](https://github.com/rnw-community/rnw-community/issues/719)) ([149da14](https://github.com/rnw-community/rnw-community/commit/149da14f1b40c268aeddf622f5daf10df368fc49))
+- **react-native-collapsible-header:** check the reanimated peer floor in CI and narrow it to 4.1 ([#685](https://github.com/rnw-community/rnw-community/issues/685)) ([5da168e](https://github.com/rnw-community/rnw-community/commit/5da168ea9aa9eda13c681db444d19d1ce789acc1))
+- **react-native-payments:** check Android readiness in the request environment ([#698](https://github.com/rnw-community/rnw-community/issues/698)) ([9b8b121](https://github.com/rnw-community/rnw-community/commit/9b8b1212706ea40f20c5b24a4bc167e5fed26e1d))
+- **react-native-payments:** keep PSP-specific Google Pay tokens instead of rejecting show() ([#689](https://github.com/rnw-community/rnw-community/issues/689)) ([941b597](https://github.com/rnw-community/rnw-community/commit/941b59781e568a503eeaf928591b00532baa6655)), closes [#664](https://github.com/rnw-community/rnw-community/issues/664)
+- **react-native-screen-chrome:** consumer padding shorthands win; add includeTopSafeArea ([#712](https://github.com/rnw-community/rnw-community/issues/712)) ([364c199](https://github.com/rnw-community/rnw-community/commit/364c199f9f52f989a4b858489ceb53a358aa90bb)), closes [#595](https://github.com/rnw-community/rnw-community/issues/595)
+- **react-native-screen-chrome:** ramp the web edge-fade blur progressively toward the edge ([#718](https://github.com/rnw-community/rnw-community/issues/718)) ([cd9cf75](https://github.com/rnw-community/rnw-community/commit/cd9cf75ccc14a57cd3e95e40c90d56c56699b4a6)), closes [#709](https://github.com/rnw-community/rnw-community/issues/709)
+
+### Features
+
+- **eslint-plugin:** add the type-aware public-api-tsdoc rule ([#687](https://github.com/rnw-community/rnw-community/issues/687)) ([071fa3b](https://github.com/rnw-community/rnw-community/commit/071fa3bc520bf7e2374b4d5a973842ef0a9c893f))
+- **react-native-payments:** add a typed payments config shared by the Expo plugin and runtime ([#705](https://github.com/rnw-community/rnw-community/issues/705)) ([ec2aabd](https://github.com/rnw-community/rnw-community/commit/ec2aabde4f5060d455c45ac9ea4a6401f04e6f9f))
+- **react-native-payments:** add the rnw-payments doctor to check and fix bare native setup ([#711](https://github.com/rnw-community/rnw-community/issues/711)) ([655b523](https://github.com/rnw-community/rnw-community/commit/655b5239726398b558cf8cfa72d47d86ae182a67))
+- **react-native-payments:** deliver shipping change events on Android via Google Pay callbacks ([#675](https://github.com/rnw-community/rnw-community/issues/675)) ([8acc865](https://github.com/rnw-community/rnw-community/commit/8acc86548f0d0fbf0f40f5c4e83106387ecf1da1)), closes [#438](https://github.com/rnw-community/rnw-community/issues/438)
+- **react-native-screen-chrome-example:** add snap-off, bottom fade, tab bar, keyboard, theme demos ([#702](https://github.com/rnw-community/rnw-community/issues/702)) ([87d7d71](https://github.com/rnw-community/rnw-community/commit/87d7d71354b20512317d7f2ad613955abdd1c9d1))
+- **react-native-screen-chrome:** export useBottomChromeHeightPublisher with a declared height ([#713](https://github.com/rnw-community/rnw-community/issues/713)) ([8a330a9](https://github.com/rnw-community/rnw-community/commit/8a330a99a774b4ec6c618920c9125ac93d428684)), closes [#595](https://github.com/rnw-community/rnw-community/issues/595)
+- **react-native-screen-chrome:** external scrollY source and useScrollInterpolation ([#680](https://github.com/rnw-community/rnw-community/issues/680)) ([cbefadc](https://github.com/rnw-community/rnw-community/commit/cbefadc2b84f8588e29f2a20b3a052b640eda67f))
+- **react-native-screen-chrome:** forward view props and add named row styles ([#703](https://github.com/rnw-community/rnw-community/issues/703)) ([17f1340](https://github.com/rnw-community/rnw-community/commit/17f13402d84f6eb32f5a4fcefdf54e5e65973933)), closes [#591](https://github.com/rnw-community/rnw-community/issues/591)
+- **react-native-screen-chrome:** lay ScreenChromeHeader out in flow with a growing row ([#715](https://github.com/rnw-community/rnw-community/issues/715)) ([2eeb5d7](https://github.com/rnw-community/rnw-community/commit/2eeb5d79d118b8e8cb7107c5a4ab9ef42ef2a156)), closes [#595](https://github.com/rnw-community/rnw-community/issues/595) [#589](https://github.com/rnw-community/rnw-community/issues/589)
+- **react-native-screen-chrome:** render edge fades without the optional native modules ([#708](https://github.com/rnw-community/rnw-community/issues/708)) ([ae4af4e](https://github.com/rnw-community/rnw-community/commit/ae4af4ebb2a8380b3dc745e117604dede39a613d)), closes [#591](https://github.com/rnw-community/rnw-community/issues/591)
+- **react-native-screen-chrome:** stack ScreenChromeFooter above other bottom chrome ([#714](https://github.com/rnw-community/rnw-community/issues/714)) ([6bba5dd](https://github.com/rnw-community/rnw-community/commit/6bba5dd64bf685ad165e1fc1d0ae08efc5ca02b5)), closes [#595](https://github.com/rnw-community/rnw-community/issues/595)
+- **react-native-screen-chrome:** system color scheme, freeze spec, Android blur warning ([#686](https://github.com/rnw-community/rnw-community/issues/686)) ([059c813](https://github.com/rnw-community/rnw-community/commit/059c813ecd4fa770610f88817ba7ddf17dc2cf10))
+
 ## [2.28.3](https://github.com/rnw-community/rnw-community/compare/v2.28.2...v2.28.3) (2026-10-16)
 
 **Note:** Version bump only for package rnw-community

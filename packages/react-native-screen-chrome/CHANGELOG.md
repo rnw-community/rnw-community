@@ -3,6 +3,25 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [2.29.0](https://github.com/rnw-community/rnw-community/compare/v2.28.3...v2.29.0) (2026-10-19)
+
+### Bug Fixes
+
+- **react-native-collapsible-header,react-native-screen-chrome:** resolve web files from dist ([#719](https://github.com/rnw-community/rnw-community/issues/719)) ([149da14](https://github.com/rnw-community/rnw-community/commit/149da14f1b40c268aeddf622f5daf10df368fc49))
+- **react-native-collapsible-header:** check the reanimated peer floor in CI and narrow it to 4.1 ([#685](https://github.com/rnw-community/rnw-community/issues/685)) ([5da168e](https://github.com/rnw-community/rnw-community/commit/5da168ea9aa9eda13c681db444d19d1ce789acc1))
+- **react-native-screen-chrome:** consumer padding shorthands win; add includeTopSafeArea ([#712](https://github.com/rnw-community/rnw-community/issues/712)) ([364c199](https://github.com/rnw-community/rnw-community/commit/364c199f9f52f989a4b858489ceb53a358aa90bb)), closes [#595](https://github.com/rnw-community/rnw-community/issues/595)
+- **react-native-screen-chrome:** ramp the web edge-fade blur progressively toward the edge ([#718](https://github.com/rnw-community/rnw-community/issues/718)) ([cd9cf75](https://github.com/rnw-community/rnw-community/commit/cd9cf75ccc14a57cd3e95e40c90d56c56699b4a6)), closes [#709](https://github.com/rnw-community/rnw-community/issues/709)
+
+### Features
+
+- **react-native-screen-chrome:** export useBottomChromeHeightPublisher with a declared height ([#713](https://github.com/rnw-community/rnw-community/issues/713)) ([8a330a9](https://github.com/rnw-community/rnw-community/commit/8a330a99a774b4ec6c618920c9125ac93d428684)), closes [#595](https://github.com/rnw-community/rnw-community/issues/595)
+- **react-native-screen-chrome:** external scrollY source and useScrollInterpolation ([#680](https://github.com/rnw-community/rnw-community/issues/680)) ([cbefadc](https://github.com/rnw-community/rnw-community/commit/cbefadc2b84f8588e29f2a20b3a052b640eda67f))
+- **react-native-screen-chrome:** forward view props and add named row styles ([#703](https://github.com/rnw-community/rnw-community/issues/703)) ([17f1340](https://github.com/rnw-community/rnw-community/commit/17f13402d84f6eb32f5a4fcefdf54e5e65973933)), closes [#591](https://github.com/rnw-community/rnw-community/issues/591)
+- **react-native-screen-chrome:** lay ScreenChromeHeader out in flow with a growing row ([#715](https://github.com/rnw-community/rnw-community/issues/715)) ([2eeb5d7](https://github.com/rnw-community/rnw-community/commit/2eeb5d79d118b8e8cb7107c5a4ab9ef42ef2a156)), closes [#595](https://github.com/rnw-community/rnw-community/issues/595) [#589](https://github.com/rnw-community/rnw-community/issues/589)
+- **react-native-screen-chrome:** render edge fades without the optional native modules ([#708](https://github.com/rnw-community/rnw-community/issues/708)) ([ae4af4e](https://github.com/rnw-community/rnw-community/commit/ae4af4ebb2a8380b3dc745e117604dede39a613d)), closes [#591](https://github.com/rnw-community/rnw-community/issues/591)
+- **react-native-screen-chrome:** stack ScreenChromeFooter above other bottom chrome ([#714](https://github.com/rnw-community/rnw-community/issues/714)) ([6bba5dd](https://github.com/rnw-community/rnw-community/commit/6bba5dd64bf685ad165e1fc1d0ae08efc5ca02b5)), closes [#595](https://github.com/rnw-community/rnw-community/issues/595)
+- **react-native-screen-chrome:** system color scheme, freeze spec, Android blur warning ([#686](https://github.com/rnw-community/rnw-community/issues/686)) ([059c813](https://github.com/rnw-community/rnw-community/commit/059c813ecd4fa770610f88817ba7ddf17dc2cf10))
+
 ## [2.28.2](https://github.com/rnw-community/rnw-community/compare/v2.28.1...v2.28.2) (2026-10-16)
 
 **Note:** Version bump only for package @rnw-community/react-native-screen-chrome

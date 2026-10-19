@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [2.29.0](https://github.com/rnw-community/rnw-community/compare/v2.28.3...v2.29.0) (2026-10-19)
+
+### Features
+
+- **eslint-plugin:** add the type-aware public-api-tsdoc rule ([#687](https://github.com/rnw-community/rnw-community/issues/687)) ([071fa3b](https://github.com/rnw-community/rnw-community/commit/071fa3bc520bf7e2374b4d5a973842ef0a9c893f))
+
 ## [2.28.1](https://github.com/rnw-community/rnw-community/compare/v2.28.0...v2.28.1) (2026-10-16)
 
 **Note:** Version bump only for package @rnw-community/eslint-plugin
