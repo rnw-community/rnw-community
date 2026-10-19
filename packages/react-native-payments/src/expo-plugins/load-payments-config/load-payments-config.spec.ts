@@ -55,4 +55,20 @@ describe('loadPaymentsConfig', () => {
             `Please provide the payments config: none of payments.config.ts, payments.config.js, payments.config.json found in "${projectRoot}"`
         );
     });
+
+    it.each([
+        ['payments.config.json', 'null'],
+        ['payments.config.json', '"merchant.json"'],
+        ['payments.config.json', '["merchant.json"]'],
+        ['payments.config.js', 'module.exports = 42;'],
+        ['payments.config.ts', 'exports.default = null;'],
+    ])('should throw naming the file when %s exports %s instead of an object', (fileName, contents) => {
+        expect.hasAssertions();
+
+        const projectRoot = createProjectRoot({ [fileName]: contents });
+
+        expect(() => loadPaymentsConfig(projectRoot)).toThrow(
+            `Invalid payments config in "${join(projectRoot, fileName)}": expected an object export`
+        );
+    });
 });
