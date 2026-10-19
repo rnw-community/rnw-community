@@ -14,8 +14,9 @@ content and product behavior stay consumer-owned.
 ```bash
 npm install @rnw-community/react-native-screen-chrome \
     @rnw-community/react-native-collapsible-header \
-    @react-native-masked-view/masked-view expo-blur expo-linear-gradient \
     react-native-reanimated react-native-safe-area-context
+# optional: the native blurred, masked edge-fade band
+npm install @react-native-masked-view/masked-view expo-blur expo-linear-gradient
 ```
 
 The native libraries and `@rnw-community/react-native-collapsible-header` are peer dependencies and must be installed
@@ -24,11 +25,28 @@ context has two identities and the chrome components fail to find their provider
 `react-native-reanimated >=4.1.0 <5` on `react-native >=0.78`; Reanimated 4 applications also install
 `react-native-worklets` and configure `react-native-worklets/plugin`.
 
-`expo-blur` must be `>=55 <59`: the `blurMethod` prop and the `BlurMethod` type this package passes and re-exports in
+When installed, `expo-blur` must be `>=55 <59`: the `blurMethod` prop and the `BlurMethod` type this package passes and re-exports in
 `EdgeFadePropsInterface` only exist from that release, which renamed `experimentalBlurMethod` to `blurMethod`.
 
+`@react-native-masked-view/masked-view`, `expo-blur`, and `expo-linear-gradient` are optional peers that only the
+native default edge-fade band uses; web never loads them. The band resolves each one with a guarded `require` when
+the package is first loaded, so an application that does not install them still renders:
+
+| Installed                            | Native default band                                                              |
+| ------------------------------------ | -------------------------------------------------------------------------------- |
+| all three                            | blur and color wash faded out through the gradient mask                          |
+| no masked view or no linear gradient | color wash fading to transparent as a CSS gradient, no blur                      |
+| no `expo-blur`                       | masked color wash without blur; a band renderer's `blur` element renders nothing |
+
+The CSS-gradient fallback uses `experimental_backgroundImage`, which React Native renders from 0.76 on the New
+Architecture; on older setups the fallback band is empty. To use another blur library (for example
+`@react-native-community/blur`) without the Expo modules, draw the band yourself through
+[`renderEdgeFadeBand`](#custom-band-content): the package still owns the band position, height, scroll-driven opacity,
+and inert props. A missing module inside the guard does not fail the Metro build because `@react-native/metro-config`
+enables `allowOptionalDependencies`; a custom Metro config must keep it enabled to omit these peers.
+
 `expo-blur` and `expo-linear-gradient` are Expo modules, so a bare React Native application (one created with the
-React Native CLI rather than Expo) must install Expo Modules support before it can render this package's components:
+React Native CLI rather than Expo) that installs them must also install Expo Modules support:
 
 ```bash
 npx install-expo-modules@latest
@@ -329,8 +347,8 @@ const backdropProps: CollapsibleHeaderBackdropPropsInterface = { testID: 'header
 
 ## Edge fades
 
-Native edge fades use Masked View, Expo Linear Gradient, and Expo Blur. They ignore pointer events and accessibility
-traversal. Web edge fades use CSS mask images and backdrop filtering; scroll animation changes opacity while blur stays
+Native edge fades use Masked View, Expo Linear Gradient, and Expo Blur when they are installed, and a CSS-gradient
+wash otherwise (see [Installation](#installation)). They ignore pointer events and accessibility traversal. Web edge fades use CSS mask images and backdrop filtering; scroll animation changes opacity while blur stays
 static. Native defaults use 150-point top and bottom bands, while web defaults use 76-pixel bands.
 
 ## EdgeFade
@@ -342,8 +360,9 @@ Renders a decorative top or bottom blur band, scroll-animatable through `scrollA
 ```
 
 On web only `scrollAnimation.opacityInputRange` animates: the band's `backdrop-filter` is a static blur derived from
-`intensity`, so `intensityInputRange` and `maxIntensity` have no effect there. Animated web blur is tracked in
-[#591](https://github.com/rnw-community/rnw-community/issues/591).
+`intensity`, so `intensityInputRange` and `maxIntensity` have no effect there, and `blurMethod`/`blurTarget` are
+Android-only and ignored. The static radius is deliberate: changing a `backdrop-filter` radius re-rasterizes the
+blurred backdrop on every scroll frame, while the opacity fade over a fixed blur stays on the compositor.
 
 Android blur is opt-in through `blurTarget`. Since `expo-blur@55` the `dimezisBlurView` methods only blur the
 background of a `BlurTargetView`, so `blurMethod` defaults to `'dimezisBlurView'` when a `blurTarget` ref is supplied
@@ -378,6 +397,21 @@ const renderSolidBand: EdgeFadeBandRenderer = ({ colorScheme }) => (
 );
 
 <EdgeFade position="bottom" renderBand={renderSolidBand} />;
+```
+
+The default wash is a two-stop gradient. For a wash with its own stops (for example a knee at 45%), redraw the wash
+around the package's animated `blur` with your own `locations` — no extra prop is needed:
+
+```tsx
+const renderKneeBand: EdgeFadeBandRenderer = ({ blur, washColors, maskColors, maskLocations }) => (
+    <MaskedView
+        style={{ flex: 1 }}
+        maskElement={<LinearGradient colors={maskColors} locations={maskLocations} style={{ flex: 1 }} />}
+    >
+        {blur}
+        <LinearGradient colors={washColors} locations={[0.45, 1]} style={StyleSheet.absoluteFill} />
+    </MaskedView>
+);
 ```
 
 ## EdgeFadePropsInterface

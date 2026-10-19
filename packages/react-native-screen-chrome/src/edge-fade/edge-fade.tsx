@@ -1,5 +1,3 @@
-import MaskedView from '@react-native-masked-view/masked-view';
-import { LinearGradient } from 'expo-linear-gradient';
 import React from 'react';
 import { Platform, StyleSheet, View } from 'react-native';
 import { createAnimatedComponent } from 'react-native-reanimated';
@@ -10,14 +8,17 @@ import { isDefined } from '@rnw-community/shared';
 import { useScreenChrome } from '../hooks/use-screen-chrome/use-screen-chrome.hook';
 
 import { EdgeFadeBlur } from './edge-fade-blur';
+import { edgeFadeNativeModules } from './edge-fade-native-modules';
 import { edgeFadeStyles } from './edge-fade.styles';
 import { useEdgeFadeOpacityStyle } from './hooks/use-edge-fade-opacity-style.hook';
+import { buildBackgroundImage } from './util/build-background-image/build-background-image.util';
 import { getEdgeFadeBandMetrics } from './util/edge-fade-get-band-metrics/edge-fade-get-band-metrics.util';
 import { getEdgeFadeVisuals } from './util/get-edge-fade-visuals/get-edge-fade-visuals.util';
 
 import type { EdgeFadePropsInterface } from './edge-fade-props.interface';
 import type { ReactNode } from 'react';
 
+const { LinearGradient, MaskedView } = edgeFadeNativeModules;
 const AnimatedView = createAnimatedComponent(View);
 const GRADIENT_START = { x: 0, y: 0 };
 const GRADIENT_END = { x: 0, y: 1 };
@@ -52,28 +53,36 @@ export const EdgeFade = ({
             blurTarget={blurTarget}
         />
     );
-    const defaultBand = (
-        <MaskedView
-            style={edgeFadeStyles.fill}
-            maskElement={
+    const defaultBand =
+        isDefined(MaskedView) && isDefined(LinearGradient) ? (
+            <MaskedView
+                style={edgeFadeStyles.fill}
+                maskElement={
+                    <LinearGradient
+                        colors={visuals.maskColors}
+                        locations={visuals.maskLocations}
+                        start={GRADIENT_START}
+                        end={GRADIENT_END}
+                        style={edgeFadeStyles.fill}
+                    />
+                }
+            >
+                {blur}
                 <LinearGradient
-                    colors={visuals.maskColors}
-                    locations={visuals.maskLocations}
+                    colors={visuals.washColors}
                     start={GRADIENT_START}
                     end={GRADIENT_END}
-                    style={edgeFadeStyles.fill}
+                    style={StyleSheet.absoluteFill}
                 />
-            }
-        >
-            {blur}
-            <LinearGradient
-                colors={visuals.washColors}
-                start={GRADIENT_START}
-                end={GRADIENT_END}
-                style={StyleSheet.absoluteFill}
+            </MaskedView>
+        ) : (
+            <View
+                style={[
+                    edgeFadeStyles.fill,
+                    { experimental_backgroundImage: buildBackgroundImage(config.colors[colorScheme], position) },
+                ]}
             />
-        </MaskedView>
-    );
+        );
 
     return (
         <AnimatedView
