@@ -4,6 +4,8 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
+import { collectNestedBrowserMaps } from './nested-browser-maps.mjs';
+
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const packagesDir = path.join(repoRoot, 'packages');
 
@@ -120,6 +122,28 @@ function checkEntryTargets(pkg, manifest, tarballFiles) {
     }
 }
 
+function checkNestedBrowserMarkers(pkg, pkgDir, manifest, tarballFiles) {
+    const { markerMaps, unmatchedSources } = collectNestedBrowserMaps(pkgDir, manifest.browser);
+    for (const source of unmatchedSources) {
+        fail(pkg, `browser field maps ${source}, but no nested package.json marker covers it`);
+    }
+    for (const [markerDir, expected] of markerMaps) {
+        if (!tarballFiles.has(`${markerDir}/package.json`)) {
+            fail(pkg, `${markerDir}/package.json is missing from the tarball`);
+            continue;
+        }
+        const marker = JSON.parse(fs.readFileSync(path.join(pkgDir, markerDir, 'package.json'), 'utf8'));
+        for (const [source, target] of Object.entries(expected)) {
+            if (marker.browser?.[source] !== target) {
+                fail(
+                    pkg,
+                    `${markerDir}/package.json does not map ${source} to ${target}; resolvers read the nearest package.json`
+                );
+            }
+        }
+    }
+}
+
 function checkLlmsStructure(pkg, manifest, llms) {
     const [firstLine] = llms.split('\n');
     if (firstLine !== `# ${manifest.name}`) {
@@ -163,6 +187,7 @@ function checkPackage({ dir, manifest }) {
     }
     checkForbiddenFiles(dir, tarballFiles);
     checkEntryTargets(dir, manifest, tarballFiles);
+    checkNestedBrowserMarkers(dir, pkgDir, manifest, tarballFiles);
 
     if (tarballFiles.has('llms.txt')) {
         const llms = fs.readFileSync(path.join(pkgDir, 'llms.txt'), 'utf8');

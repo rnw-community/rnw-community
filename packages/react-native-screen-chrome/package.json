@@ -44,7 +44,7 @@
         "!dist/**/*.tsbuildinfo"
     ],
     "scripts": {
-        "build": "rm -rf ./dist && bob build && pnpm run build:esm-extensions",
+        "build": "rm -rf ./dist && bob build && pnpm run build:esm-extensions && node ../../scripts/write-browser-field-markers.mjs .",
         "build:esm-extensions": "node ../../scripts/rewrite-esm-extensions.mjs ./dist/module && node ../../scripts/rewrite-esm-extensions.mjs ./dist/typescript/module && node ../../scripts/assert-esm-extensions.mjs ./dist/module && node ../../scripts/assert-esm-extensions.mjs ./dist/typescript/module",
         "clear": "rm -rf coverage && rm -rf dist && rm -f *.tsbuildinfo",
         "clear:deps": "rm -rf ./node_modules && rm -rf ./dist",
