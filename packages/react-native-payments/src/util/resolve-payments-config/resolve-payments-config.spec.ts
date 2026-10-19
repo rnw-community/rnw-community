@@ -50,6 +50,17 @@ describe('resolvePaymentsConfig', () => {
         expect(() => resolvePaymentsConfig({} as never)).toThrow(missingMerchantMessage);
     });
 
+    it('should throw naming a merchant identifier that is not a string or an array of strings', () => {
+        expect.hasAssertions();
+
+        expect(() => resolvePaymentsConfig({ merchantIdentifier: true } as never)).toThrow(
+            'Invalid "merchantIdentifier" payments config value: true. Expected a string or an array of strings'
+        );
+        expect(() => resolvePaymentsConfig({ merchantIdentifier: [true, 'merchant.com.example'] } as never)).toThrow(
+            'Invalid "merchantIdentifier" payments config value: [true,"merchant.com.example"]'
+        );
+    });
+
     it('should throw naming the invalid supported networks and Google Pay environment', () => {
         expect.hasAssertions();
 

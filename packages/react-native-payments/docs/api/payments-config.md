@@ -12,17 +12,18 @@ changing a merchant identifier in one place updates the entitlement and the requ
 Put it in `payments.config.ts`, `payments.config.js` or `payments.config.json` at the app root (looked up in that
 order; a `.ts` file needs Node 22.18+ to be loaded by the Expo plugin and the doctor):
 
-| Field                  | Type                                             | Default                            |
-| ---------------------- | ------------------------------------------------ | ---------------------------------- |
-| `merchantIdentifier`   | `string \| string[]`                             | _(required)_                       |
-| `supportedNetworks`    | `SupportedNetworkEnum[]` or their string values  | every `SupportedNetworkEnum` value |
-| `googlePayEnvironment` | `EnvironmentEnum` or its string value            | `EnvironmentEnum.PRODUCTION`       |
+| Field                  | Type                                            | Default                            |
+| ---------------------- | ----------------------------------------------- | ---------------------------------- |
+| `merchantIdentifier`   | `string \| string[]`                            | _(required)_                       |
+| `supportedNetworks`    | `SupportedNetworkEnum[]` or their string values | every `SupportedNetworkEnum` value |
+| `googlePayEnvironment` | `EnvironmentEnum` or its string value           | `EnvironmentEnum.PRODUCTION`       |
 
 ```ts
 resolvePaymentsConfig(config: PaymentsConfig): ResolvedPaymentsConfig
 ```
 
-`resolvePaymentsConfig` drops empty and duplicated merchant identifiers, applies the defaults and throws the same error
+`resolvePaymentsConfig` rejects a `merchantIdentifier` that is not a string or an array of strings, drops empty and
+duplicated merchant identifiers, applies the defaults and throws the same error
 in every consumer (prebuild, doctor, app) when no merchant identifier is left, the network list is empty, or a network
 or environment is unknown. `ResolvedPaymentsConfig` carries `merchantIdentifiers` (non-empty tuple),
 `supportedNetworks` and `googlePayEnvironment`.
@@ -43,7 +44,11 @@ export default {
 ```
 
 ```ts
-import { createApplePayMethodData, createGooglePayMethodData, resolvePaymentsConfig } from '@rnw-community/react-native-payments';
+import {
+    createApplePayMethodData,
+    createGooglePayMethodData,
+    resolvePaymentsConfig,
+} from '@rnw-community/react-native-payments';
 
 import paymentsConfig from './payments.config';
 
