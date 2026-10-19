@@ -3,6 +3,7 @@ import { scrollTo } from 'react-native-reanimated';
 import { getCollapsibleHeaderSnapOffset } from '../get-collapsible-header-snap-offset/get-collapsible-header-snap-offset';
 
 import type { CollapsibleHeaderScrollWorkletsConfig } from '../../interface/collapsible-header-scroll-worklets-config.interface';
+import type { Component } from 'react';
 import type { NativeScrollEvent } from 'react-native';
 
 const SNAP_SETTLE_FRAME_COUNT = 3;
@@ -19,7 +20,7 @@ export const createCollapsibleHeaderScrollWorklets = ({
 
         const snapOffset = getCollapsibleHeaderSnapOffset(offsetY, snapConfig.get());
         if (snapOffset !== null) {
-            scrollTo(scrollRef, 0, snapOffset, snapAnimated);
+            scrollTo<Component>(scrollRef, 0, snapOffset, snapAnimated);
         }
     };
 

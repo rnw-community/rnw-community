@@ -5,4 +5,5 @@ import type { SharedValue } from 'react-native-reanimated';
 
 export interface CollapsibleHeaderScrollContextValue extends CollapsibleHeaderScroll {
     readonly snapConfig: SharedValue<Maybe<CollapsibleHeaderSnapConfig>>;
+    readonly snapOwnerCount: { current: number };
 }
