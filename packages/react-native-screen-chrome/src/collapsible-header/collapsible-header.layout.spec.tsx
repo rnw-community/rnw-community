@@ -54,7 +54,9 @@ const renderWithChildren = (children: ReactNode) => {
     return props;
 };
 
-const getPersistentRow = (persistentContent: ReactNode): ReactElement<{ children: ReactNode; style: StyleProp<ViewStyle> }> =>
+const getPersistentRow = (
+    persistentContent: ReactNode
+): ReactElement<{ children: ReactNode; style: StyleProp<ViewStyle> }> =>
     persistentContent as ReactElement<{ children: ReactNode; style: StyleProp<ViewStyle> }>;
 
 describe('CollapsibleHeader split heights', () => {
@@ -142,5 +144,25 @@ describe('CollapsibleHeader optional control slots', () => {
 
         expect(leading.props.testID).toBe('leading');
         expect(placeholder).toEqual(expect.objectContaining({ type: View, props: { pointerEvents: 'none' } }));
+    });
+});
+
+describe('CollapsibleHeader persistent row style', () => {
+    beforeEach(() => {
+        jest.mocked(GenericCollapsibleHeader).mockClear();
+    });
+
+    it('merges the consumer row style after the row defaults so it can replace the row padding', () => {
+        expect.hasAssertions();
+
+        render(<CollapsibleHeader persistentRowStyle={{ paddingHorizontal: 4 }}>{fullHeaderChildren}</CollapsibleHeader>);
+
+        const [[props]] = jest.mocked(GenericCollapsibleHeader).mock.calls;
+        const row = getPersistentRow(props.persistentContent);
+
+        expect(StyleSheet.flatten(row.props.style)).toMatchObject({
+            justifyContent: 'space-between',
+            paddingHorizontal: 4,
+        });
     });
 });

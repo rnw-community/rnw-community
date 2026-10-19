@@ -14,6 +14,7 @@ one copy of the collapsible header. Render content first, decorative fades and b
 - [Installation](readme.md#installation): Required peer dependencies and why the collapsible header must resolve to a single copy.
 - [Complete example](readme.md#complete-example): Provider, frame, scroll view, fades, and compound header composed into one screen.
 - [Structure and paint order](readme.md#structure-and-paint-order): Provider ownership, one provider per scrollable, and layer ordering.
+- [Styling and NativeWind](readme.md#styling-and-nativewind): Style prop per rendered node, merge order, package-owned props, and the NativeWind `styled` wrapper recipe.
 - [Compound header contract](readme.md#compound-header-contract): Required direct-child slot order and the render-time `TypeError` on violations.
 - [Edge fades](readme.md#edge-fades): Native masked-gradient blur versus web CSS mask and backdrop-filter behavior.
 - [Configuration and snapping](readme.md#configuration-and-snapping): Deep-merge rules, threshold ordering, and `snapToCollapse` requirements.
