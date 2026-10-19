@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it, jest } from '@jest/globals';
 import { render } from '@testing-library/react-native';
 import React, { forwardRef, useEffect, useImperativeHandle } from 'react';
-import Animated from 'react-native-reanimated';
+import Animated, { makeMutable } from 'react-native-reanimated';
 
 import { useCollapsibleHeaderScroll } from '@rnw-community/react-native-collapsible-header';
 import { emptyFn } from '@rnw-community/shared';
@@ -22,6 +22,7 @@ import type { ScrollHandlerProcessed } from 'react-native-reanimated';
 const OVERRIDDEN_HEADER_HEIGHT = 72;
 const CUSTOM_MASK_STOP_POSITION = 0.25;
 const INVALID_HEADER_HEIGHT = -1;
+const EXTERNAL_SCROLL_OFFSET = 24;
 
 interface ConsumerProps {
     readonly onValue: (value: ScreenChromeContextValueInterface) => void;
@@ -35,6 +36,7 @@ interface ProviderProps {
     readonly colorScheme?: ScreenChromeColorSchemePreference;
     readonly config?: Parameters<typeof ScreenChromeProvider>[0]['config'];
     readonly renderEdgeFadeBand?: Parameters<typeof ScreenChromeProvider>[0]['renderEdgeFadeBand'];
+    readonly scrollY?: Parameters<typeof ScreenChromeProvider>[0]['scrollY'];
 }
 
 interface ScrollableListHandle {
@@ -193,9 +195,7 @@ describe('ScreenChromeProvider context', () => {
 });
 
 const mockSystemColorScheme = (systemColorScheme: ColorSchemeName): void => {
-    jest.spyOn(jest.requireActual<typeof ReactNative>('react-native'), 'useColorScheme').mockReturnValue(
-        systemColorScheme
-    );
+    jest.spyOn(jest.requireActual<typeof ReactNative>('react-native'), 'useColorScheme').mockReturnValue(systemColorScheme);
 };
 
 describe('ScreenChromeProvider system color scheme', () => {
@@ -222,6 +222,28 @@ describe('ScreenChromeProvider system color scheme', () => {
 
         expect(captureContext({ colorScheme: 'light' }).colorScheme).toBe('light');
         expect(captureContext().colorScheme).toBe('light');
+    });
+});
+
+describe('ScreenChromeProvider external scroll offset', () => {
+    it('provides an external scroll offset only when one is supplied', () => {
+        expect.hasAssertions();
+
+        const scrollY = makeMutable(EXTERNAL_SCROLL_OFFSET);
+
+        expect(captureContext().externalScrollY).toBeUndefined();
+        expect(captureContext({ scrollY }).externalScrollY).toBe(scrollY);
+    });
+
+    it('rejects snapToCollapse combined with an external scroll offset', () => {
+        expect.hasAssertions();
+
+        const scrollY = makeMutable(EXTERNAL_SCROLL_OFFSET);
+
+        expect(() => captureContext({ scrollY, config: { snapToCollapse: true } })).toThrow(
+            'snapToCollapse scrolls the provider-owned scrollable, so it cannot combine with an external scrollY'
+        );
+        expect(captureContext({ config: { snapToCollapse: true } }).config.snapToCollapse).toBe(true);
     });
 });
 

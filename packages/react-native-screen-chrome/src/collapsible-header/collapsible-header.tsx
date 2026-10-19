@@ -41,7 +41,7 @@ export const CollapsibleHeader = ({
     persistentContentContainerStyle,
     ...viewProps
 }: Props): ReactNode => {
-    const { config } = useScreenChrome();
+    const { config, externalScrollY } = useScreenChrome();
     const insets = useSafeAreaInsets();
     const { leading, expandedTitle, collapsedTitle, trailing } = getCollapsibleHeaderSlots(children);
     const contentLayerStyle = { top: insets.top };
@@ -60,6 +60,7 @@ export const CollapsibleHeader = ({
             style={[collapsibleHeaderStyles.container, style]}
             mode="overlay"
             snap={config.snapToCollapse}
+            scrollY={externalScrollY}
             expandedHeight={insets.top + config.headerHeight}
             collapsedHeight={insets.top + (config.collapsedHeaderHeight ?? config.headerHeight)}
             collapseStart={config.collapseStart}

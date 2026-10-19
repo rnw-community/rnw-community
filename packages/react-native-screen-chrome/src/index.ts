@@ -21,7 +21,9 @@ export { getEdgeFadeBandMetrics } from './edge-fade/util/edge-fade-get-band-metr
 export { useScreenChrome } from './hooks/use-screen-chrome/use-screen-chrome.hook';
 export { useScreenChromeHeaderMetrics } from './hooks/use-screen-chrome-header-metrics/use-screen-chrome-header-metrics.hook';
 export { useScreenChromeScrollProps } from './hooks/use-screen-chrome-scroll-props/use-screen-chrome-scroll-props.hook';
+export { useScreenChromeScrollY } from './hooks/use-screen-chrome-scroll-y/use-screen-chrome-scroll-y.hook';
 export { useScrollFadeStyle } from './hooks/use-scroll-fade-style/use-scroll-fade-style.hook';
+export { useScrollInterpolation } from './hooks/use-scroll-interpolation/use-scroll-interpolation.hook';
 export { ScreenChromeFrame } from './screen-chrome-frame/screen-chrome-frame';
 export { ScreenChromeHeader } from './screen-chrome-header/screen-chrome-header';
 export { ScreenChromeProvider } from './screen-chrome-provider/screen-chrome-provider';
