@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.29.1](https://github.com/rnw-community/rnw-community/compare/v2.29.0...v2.29.1) (2026-10-19)
+
+### Bug Fixes
+
+- **react-native-screen-chrome:** render the native edge-fade blur outside the wash mask ([#722](https://github.com/rnw-community/rnw-community/issues/722)) ([e053833](https://github.com/rnw-community/rnw-community/commit/e0538332291c02d55b7e30e38ecd1aa29584c554)), closes [#640](https://github.com/rnw-community/rnw-community/issues/640)
+
 # [2.29.0](https://github.com/rnw-community/rnw-community/compare/v2.28.3...v2.29.0) (2026-10-19)
 
 ### Bug Fixes
