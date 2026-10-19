@@ -122,8 +122,16 @@ function checkEntryTargets(pkg, manifest, tarballFiles) {
     }
 }
 
-function checkNestedBrowserMarkers(pkg, pkgDir, manifest) {
-    for (const [markerDir, expected] of collectNestedBrowserMaps(pkgDir, manifest.browser)) {
+function checkNestedBrowserMarkers(pkg, pkgDir, manifest, tarballFiles) {
+    const { markerMaps, unmatchedSources } = collectNestedBrowserMaps(pkgDir, manifest.browser);
+    for (const source of unmatchedSources) {
+        fail(pkg, `browser field maps ${source}, but no nested package.json marker covers it`);
+    }
+    for (const [markerDir, expected] of markerMaps) {
+        if (!tarballFiles.has(`${markerDir}/package.json`)) {
+            fail(pkg, `${markerDir}/package.json is missing from the tarball`);
+            continue;
+        }
         const marker = JSON.parse(fs.readFileSync(path.join(pkgDir, markerDir, 'package.json'), 'utf8'));
         for (const [source, target] of Object.entries(expected)) {
             if (marker.browser?.[source] !== target) {
@@ -179,7 +187,7 @@ function checkPackage({ dir, manifest }) {
     }
     checkForbiddenFiles(dir, tarballFiles);
     checkEntryTargets(dir, manifest, tarballFiles);
-    checkNestedBrowserMarkers(dir, pkgDir, manifest);
+    checkNestedBrowserMarkers(dir, pkgDir, manifest, tarballFiles);
 
     if (tarballFiles.has('llms.txt')) {
         const llms = fs.readFileSync(path.join(pkgDir, 'llms.txt'), 'utf8');

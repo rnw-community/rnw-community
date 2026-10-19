@@ -13,7 +13,13 @@ if (packageDir === undefined) {
 const packageRoot = path.resolve(packageDir);
 const manifest = JSON.parse(fs.readFileSync(path.join(packageRoot, 'package.json'), 'utf8'));
 
-for (const [markerDir, browser] of collectNestedBrowserMaps(packageRoot, manifest.browser)) {
+const { markerMaps, unmatchedSources } = collectNestedBrowserMaps(packageRoot, manifest.browser);
+if (unmatchedSources.length > 0) {
+    console.error(`no nested package.json marker found for browser sources: ${unmatchedSources.join(', ')}`);
+    process.exit(1);
+}
+
+for (const [markerDir, browser] of markerMaps) {
     const markerPath = path.join(packageRoot, markerDir, 'package.json');
     const marker = JSON.parse(fs.readFileSync(markerPath, 'utf8'));
     fs.writeFileSync(markerPath, `${JSON.stringify({ ...marker, browser })}\n`);

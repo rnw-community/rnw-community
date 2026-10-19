@@ -13,18 +13,25 @@ function findNestedMarkerDir(packageRoot, file) {
 
 export function collectNestedBrowserMaps(packageRoot, browser) {
     const markerMaps = new Map();
+    const unmatchedSources = [];
     if (browser === null || typeof browser !== 'object') {
-        return markerMaps;
+        return { markerMaps, unmatchedSources };
     }
     for (const [source, target] of Object.entries(browser)) {
+        if (typeof target !== 'string') {
+            continue;
+        }
         const normalizedSource = path.posix.normalize(source);
         const markerDir = findNestedMarkerDir(packageRoot, normalizedSource);
-        if (markerDir === null || typeof target !== 'string') {
+        if (markerDir === null) {
+            if (normalizedSource.startsWith('dist/')) {
+                unmatchedSources.push(source);
+            }
             continue;
         }
         const rebase = file => `./${path.posix.relative(markerDir, path.posix.normalize(file))}`;
         markerMaps.set(markerDir, { ...markerMaps.get(markerDir), [rebase(source)]: rebase(target) });
     }
 
-    return markerMaps;
+    return { markerMaps, unmatchedSources };
 }
