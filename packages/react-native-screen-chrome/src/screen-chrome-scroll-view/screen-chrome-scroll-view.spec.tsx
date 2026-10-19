@@ -7,7 +7,7 @@ import { SCREEN_CHROME_DEFAULT_CONFIG } from '../constant/screen-chrome-default-
 
 import { ScreenChromeScrollView } from './screen-chrome-scroll-view';
 
-import type { ComponentProps } from 'react';
+import type { ComponentProps, ComponentRef } from 'react';
 import type { ScrollView } from 'react-native';
 
 type ScreenChromeScrollViewProps = ComponentProps<typeof ScreenChromeScrollView>;
@@ -173,7 +173,7 @@ describe('ScreenChromeScrollView additive insets and consumer ref', () => {
         expect.hasAssertions();
         mockScrollRef.mockClear();
 
-        const consumerRef: { current: ScrollView | null } = { current: null };
+        const consumerRef: { current: ComponentRef<typeof ScrollView> | null } = { current: null };
         render(<ScreenChromeScrollView testID="ref-scroll" ref={consumerRef} />);
 
         expect(consumerRef.current).not.toBeNull();

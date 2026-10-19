@@ -11,7 +11,7 @@ import { EdgeFade } from './edge-fade';
 
 import type { EdgeFadeBandRenderer } from './edge-fade-band-renderer.type';
 import type { ScreenChromeColorScheme } from '../type/screen-chrome-color-scheme.type';
-import type { ReactNode } from 'react';
+import type { ComponentRef, ReactNode } from 'react';
 
 const mockScrollY = { get: jest.fn(() => 0) };
 const mockConfig = SCREEN_CHROME_DEFAULT_CONFIG;
@@ -117,7 +117,7 @@ describe('EdgeFade native', () => {
     it('opts into the Android blur method only once a blur target is supplied', () => {
         expect.hasAssertions();
 
-        const blurTarget = React.createRef<View>();
+        const blurTarget = React.createRef<ComponentRef<typeof View>>();
         const [targetedBlur] = render(<EdgeFade position="top" blurTarget={blurTarget} />).getAllByTestId('edge-fade-blur', {
             includeHiddenElements: true,
         });
@@ -246,7 +246,7 @@ describe('EdgeFade ignored Android blur warning', () => {
     it.each([
         ['no blur is requested', {}],
         ['the intensity is zero', { intensity: 0 }],
-        ['a blur target is supplied', { intensity: 40, blurTarget: React.createRef<View>() }],
+        ['a blur target is supplied', { intensity: 40, blurTarget: React.createRef<ComponentRef<typeof View>>() }],
         ['the blur method is explicit', { intensity: 40, blurMethod: 'none' as const }],
     ])('stays silent when %s', (_name, blurProps) => {
         expect.hasAssertions();

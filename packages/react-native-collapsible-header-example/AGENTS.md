@@ -94,7 +94,7 @@ installed (`ios:bare`/`android:bare`/`ios:expo`/`android:expo`, or `prebuild:exp
 
 ## Expo version pins (root `overrides`)
 
-The `overrides:` block in the root `pnpm-workspace.yaml` pins the expo family (`expo` 57.0.4, `expo-modules-core` 57.0.3, `expo-modules-jsi` 57.0.1,
+The `overrides:` block in the root `pnpm-workspace.yaml` pins the expo family (`expo` 58.0.14, `expo-modules-core` 58.0.22, `expo-modules-jsi` 58.0.15,
 `expo-asset`/`expo-constants`/`expo-file-system`/`expo-font`/`expo-keep-awake`, `@expo/cli`, `@expo/metro-runtime`) to
 one coherent, locally-proven set. Two failure modes forced this, both observed on Xcode 26.x:
 

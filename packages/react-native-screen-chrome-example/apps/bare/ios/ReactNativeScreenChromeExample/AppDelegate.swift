@@ -5,11 +5,15 @@ import React_RCTAppDelegate
 import ReactAppDependencyProvider
 
 @main
-class AppDelegate: ExpoAppDelegate {
+class AppDelegate: ExpoAppDelegate, ExpoReactNativeFactoryProvider {
   var window: UIWindow?
 
   var reactNativeDelegate: ReactNativeDelegate?
   var reactNativeFactory: RCTReactNativeFactory?
+
+  var reactNativeFactoryModuleName: String {
+    "ReactNativeScreenChromeExample"
+  }
 
   override func application(
     _ application: UIApplication,
@@ -21,14 +25,6 @@ class AppDelegate: ExpoAppDelegate {
 
     reactNativeDelegate = delegate
     reactNativeFactory = factory
-
-    window = UIWindow(frame: UIScreen.main.bounds)
-
-    factory.startReactNative(
-      withModuleName: "ReactNativeScreenChromeExample",
-      in: window,
-      launchOptions: launchOptions
-    )
 
     return super.application(application, didFinishLaunchingWithOptions: launchOptions)
   }

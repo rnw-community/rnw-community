@@ -11,6 +11,11 @@ import { useBottomChromeInset } from '../use-bottom-chrome-inset/use-bottom-chro
 import { useBottomChromeHeightPublisher } from './use-bottom-chrome-height-publisher.hook';
 
 import type { ReactElement, ReactNode } from 'react';
+import type { MeasureOnSuccessCallback } from 'react-native';
+
+interface MeasurableInterface {
+    measure: (callback: MeasureOnSuccessCallback) => void;
+}
 
 jest.mock('react-native-safe-area-context', () => ({
     useSafeAreaInsets: () => ({ top: 0, right: 0, bottom: 34, left: 0 }),
@@ -40,7 +45,7 @@ describe('useBottomChromeHeightPublisher', () => {
     it('publishes the height measured on mount and on every layout of the node it is spread on', () => {
         expect.hasAssertions();
 
-        jest.spyOn(View.prototype, 'measure').mockImplementation(callback => {
+        jest.spyOn(View.prototype as MeasurableInterface, 'measure').mockImplementation(callback => {
             callback(0, 0, SCREEN_WIDTH, MEASURED_HEIGHT, 0, 0);
         });
 

@@ -59,4 +59,4 @@ body:
       attributes:
           label: Environment
           description: Node.js, package manager, TypeScript and `moduleResolution`, ESM or CommonJS, and the React Native / Expo / NestJS versions and platform where relevant.
-          placeholder: 'Node 22.12, pnpm 11, TypeScript 5.9 (nodenext), react-native 0.86.2, iOS 26 simulator'
+          placeholder: 'Node 22.12, pnpm 11, TypeScript 5.9 (nodenext), react-native 0.88.0, iOS 26 simulator'

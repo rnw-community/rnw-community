@@ -1,6 +1,9 @@
-import type MaskedViewModule from '@react-native-masked-view/masked-view';
 import type * as ExpoBlurModule from 'expo-blur';
 import type * as ExpoLinearGradientModule from 'expo-linear-gradient';
+import type { ComponentType, ReactElement } from 'react';
+import type { ViewProps } from 'react-native';
+
+type MaskedViewComponent = ComponentType<ViewProps & { readonly maskElement: ReactElement }>;
 
 const requireExpoBlur = (): typeof ExpoBlurModule | undefined => {
     try {
@@ -20,10 +23,10 @@ const requireExpoLinearGradient = (): typeof ExpoLinearGradientModule | undefine
     }
 };
 
-const requireMaskedView = (): { readonly default: typeof MaskedViewModule } | undefined => {
+const requireMaskedView = (): { readonly default: MaskedViewComponent } | undefined => {
     try {
         // eslint-disable-next-line @typescript-eslint/no-require-imports
-        return require('@react-native-masked-view/masked-view') as { readonly default: typeof MaskedViewModule };
+        return require('@react-native-masked-view/masked-view') as { readonly default: MaskedViewComponent };
     } catch {
         return void 0;
     }

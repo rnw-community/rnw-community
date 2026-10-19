@@ -13,7 +13,7 @@ import type { EdgeFadePropsInterface } from './edge-fade-props.interface';
 import type { ScreenChromeConfigInterface } from '../interface/screen-chrome-config.interface';
 import type { ScreenChromeColorScheme } from '../type/screen-chrome-color-scheme.type';
 import type { RenderResult } from '@testing-library/react-native';
-import type { ReactNode } from 'react';
+import type { ComponentRef, ReactNode } from 'react';
 import type { StyleProp, ViewStyle } from 'react-native';
 import type { ReactTestInstance } from 'react-test-renderer';
 
@@ -186,7 +186,7 @@ describe.each(['top', 'bottom'] as const)('EdgeFade native %s blur configuration
 
     it.each([
         ['no blur target or method', {}, 'none', false],
-        ['a blur target', { blurTarget: React.createRef<View>() }, 'dimezisBlurView', true],
+        ['a blur target', { blurTarget: React.createRef<ComponentRef<typeof View>>() }, 'dimezisBlurView', true],
         ['an explicit blur method', { blurMethod: 'dimezisBlurViewSdk31Plus' as const }, 'dimezisBlurViewSdk31Plus', false],
     ])('resolves the blur method on every slice with %s', (_name, blurProps, blurMethod, hasBlurTarget) => {
         expect.hasAssertions();

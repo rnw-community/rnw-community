@@ -42,7 +42,7 @@ const TOP_WASH = 'linear-gradient(to bottom, rgba(255,255,255,0.42) 0%, rgba(255
 type HostInstance = ReturnType<ReturnType<typeof render>['getByTestId']>;
 
 const flattenStyle = ({ props: { style } }: HostInstance): WebEdgeFadeStyleInterface =>
-    StyleSheet.flatten(style as StyleProp<WebEdgeFadeStyleInterface>);
+    StyleSheet.flatten(style as StyleProp<WebEdgeFadeStyleInterface>) ?? {};
 
 const getLayerStyles = (root: HostInstance): WebEdgeFadeStyleInterface[] =>
     root.findAll(node => typeof node.type === 'string' && node !== root).map(flattenStyle);

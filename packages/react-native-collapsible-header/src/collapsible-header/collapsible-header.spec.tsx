@@ -2,13 +2,15 @@ import { describe, expect, it } from '@jest/globals';
 import { render, screen } from '@testing-library/react-native';
 import React from 'react';
 import { StyleSheet, Text } from 'react-native';
-import { getAnimatedStyle, makeMutable, useSharedValue } from 'react-native-reanimated';
+import { getAnimatedStyle as getReanimatedAnimatedStyle, makeMutable, useSharedValue } from 'react-native-reanimated';
 
 import { CollapsibleHeader } from './collapsible-header';
 
 import type { CollapsibleHeaderMotionConfig } from '../interface/collapsible-header-motion-config.interface';
 import type { CollapsibleHeaderProps } from '../interface/collapsible-header-props.interface';
 import type { StyleProp, ViewProps, ViewStyle } from 'react-native';
+
+const getAnimatedStyle = getReanimatedAnimatedStyle as unknown as (component: { readonly props: object }) => ViewStyle;
 
 const EXPANDED_HEIGHT = 156;
 const COLLAPSED_HEIGHT = 40;
@@ -143,7 +145,7 @@ describe('CollapsibleHeader rendering', () => {
         expect.hasAssertions();
         render(<Subject />);
         const getContainerStyle = (): ViewStyle =>
-            StyleSheet.flatten((screen.getByTestId('header').props as { style: StyleProp<ViewStyle> }).style);
+            StyleSheet.flatten((screen.getByTestId('header').props as { style: StyleProp<ViewStyle> }).style) ?? {};
 
         expect(getContainerStyle().position).toBeUndefined();
 

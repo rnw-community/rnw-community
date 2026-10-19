@@ -2,7 +2,7 @@ import { afterEach, describe, expect, it, jest } from '@jest/globals';
 import { render, screen } from '@testing-library/react-native';
 import React from 'react';
 import { StyleSheet, Text } from 'react-native';
-import { getAnimatedStyle } from 'react-native-reanimated';
+import { getAnimatedStyle as getReanimatedAnimatedStyle } from 'react-native-reanimated';
 
 import { CollapsibleHeaderProvider } from '@rnw-community/react-native-collapsible-header';
 
@@ -14,6 +14,8 @@ import { CollapsibleHeader } from './collapsible-header';
 
 import type { ScreenChromeConfigInterface } from '../interface/screen-chrome-config.interface';
 import type { StyleProp, ViewStyle } from 'react-native';
+
+const getAnimatedStyle = getReanimatedAnimatedStyle as unknown as (component: { readonly props: object }) => ViewStyle;
 
 const DEFAULT_MOCK_CONFIG: ScreenChromeConfigInterface = { ...SCREEN_CHROME_DEFAULT_CONFIG, snapToCollapse: true };
 const COLLAPSED_HEADER_HEIGHT = 44;
@@ -80,7 +82,7 @@ describe('CollapsibleHeader integration', () => {
                         style: StyleProp<ViewStyle>;
                     }
                 ).style
-            );
+            ) ?? {};
 
         expect(getAnimatedStyle(screen.getByTestId('chrome-header-header')).height).toBe(
             mockTopInset + mockConfig.headerHeight

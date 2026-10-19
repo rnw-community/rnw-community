@@ -1,4 +1,4 @@
-import type { RefObject } from 'react';
+import type { ComponentRef, RefObject } from 'react';
 import type { LayoutChangeEvent, View } from 'react-native';
 
 /**
@@ -7,7 +7,7 @@ import type { LayoutChangeEvent, View } from 'react-native';
  */
 export interface BottomChromeHeightPublisherInterface {
     /** Ref measured synchronously on mount, so the first frame already reserves the height. */
-    readonly ref: RefObject<View | null>;
+    readonly ref: RefObject<ComponentRef<typeof View> | null>;
     /** Layout handler that republishes the measured height on every resize. */
     readonly onLayout: (event: LayoutChangeEvent) => void;
 }

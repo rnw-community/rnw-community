@@ -11,7 +11,12 @@ import { ScreenChromeProvider } from '../screen-chrome-provider/screen-chrome-pr
 import { ScreenChromeFooter } from './screen-chrome-footer';
 
 import type { ReactElement, ReactNode } from 'react';
+import type { MeasureOnSuccessCallback } from 'react-native';
 import type { Metrics } from 'react-native-safe-area-context';
+
+interface MeasurableInterface {
+    measure: (callback: MeasureOnSuccessCallback) => void;
+}
 
 jest.mock('expo-blur', () => ({ BlurView: jest.fn(() => null) }));
 jest.mock('expo-linear-gradient', () => ({ LinearGradient: jest.fn(() => null) }));
@@ -127,7 +132,7 @@ describe('ScreenChromeFooter bottom chrome inset publication', () => {
     it('publishes a synchronous mount measurement before the first layout event', () => {
         expect.hasAssertions();
 
-        jest.spyOn(View.prototype, 'measure').mockImplementation(callback => {
+        jest.spyOn(View.prototype as MeasurableInterface, 'measure').mockImplementation(callback => {
             callback(0, 0, INSETS.frame.width, MEASURED_HEIGHT, 0, 0);
         });
 

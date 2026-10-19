@@ -57,7 +57,7 @@
         "@rnw-community/shared": "^2.29.0"
     },
     "devDependencies": {
-        "react-native": "0.86.2"
+        "react-native": "0.88.0"
     },
     "peerDependencies": {
         "react": ">=18",

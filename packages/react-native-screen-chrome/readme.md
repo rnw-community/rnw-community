@@ -57,7 +57,7 @@ React Native CLI (`--non-interactive` answers Yes and switches Babel, Metro and 
 
 The tool picks the Expo SDK from the application's React Native version; if it reports
 `Unable to find compatible Expo SDK version`, run a newer release explicitly with the matching SDK, for example
-`npx install-expo-modules@next --sdk-version 57.0.0` for React Native 0.86. See
+`npx install-expo-modules@next --sdk-version 58.0.0` for React Native 0.88. See
 [Install Expo modules in an existing React Native project](https://docs.expo.dev/bare/installing-expo-modules/).
 
 Without it no Expo view manager is registered and the application crashes on launch with
@@ -386,7 +386,7 @@ is always present after merging with the defaults, so it cannot signal an explic
 keep the band blur-free on Android without the warning:
 
 ```tsx
-const blurTarget = useRef<View>(null);
+const blurTarget = useRef<ComponentRef<typeof View>>(null);
 
 <BlurTargetView ref={blurTarget}>{content}</BlurTargetView>
 <EdgeFade position="top" blurTarget={blurTarget} />;
@@ -432,15 +432,15 @@ const renderKneeBand: EdgeFadeBandRenderer = ({ blur, washColors, maskColors, ma
 
 ## EdgeFadePropsInterface
 
-| Prop              | Type                               | Description                                                                          |
-| ----------------- | ---------------------------------- | ------------------------------------------------------------------------------------ |
-| `position`        | `EdgeFadePosition`                 | Screen edge the band renders at.                                                     |
-| `height`          | `number`                           | Band height; defaults to the provider config's fade height.                          |
-| `intensity`       | `number`                           | Static blur intensity; ignored while `scrollAnimation` drives it.                    |
-| `scrollAnimation` | `EdgeFadeScrollAnimationInterface` | Optional scroll-driven opacity and blur intensity ranges.                            |
-| `blurMethod`      | `BlurMethod`                       | Android Expo Blur rendering method; defaults from `blurTarget`.                      |
-| `blurTarget`      | `RefObject<View \| null>`          | Android `BlurTargetView` ref the band blurs; required by `dimezisBlurView` methods.  |
-| `renderBand`      | `EdgeFadeBandRenderer`             | Custom band content; defaults to the provider's `renderEdgeFadeBand`, then built-in. |
+| Prop              | Type                                           | Description                                                                          |
+| ----------------- | ---------------------------------------------- | ------------------------------------------------------------------------------------ |
+| `position`        | `EdgeFadePosition`                             | Screen edge the band renders at.                                                     |
+| `height`          | `number`                                       | Band height; defaults to the provider config's fade height.                          |
+| `intensity`       | `number`                                       | Static blur intensity; ignored while `scrollAnimation` drives it.                    |
+| `scrollAnimation` | `EdgeFadeScrollAnimationInterface`             | Optional scroll-driven opacity and blur intensity ranges.                            |
+| `blurMethod`      | `BlurMethod`                                   | Android Expo Blur rendering method; defaults from `blurTarget`.                      |
+| `blurTarget`      | `RefObject<ComponentRef<typeof View> \| null>` | Android `BlurTargetView` ref the band blurs; required by `dimezisBlurView` methods.  |
+| `renderBand`      | `EdgeFadeBandRenderer`                         | Custom band content; defaults to the provider's `renderEdgeFadeBand`, then built-in. |
 
 ## EdgeFadeScrollAnimationInterface
 

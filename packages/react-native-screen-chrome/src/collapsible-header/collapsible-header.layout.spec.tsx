@@ -77,7 +77,7 @@ describe('CollapsibleHeader split heights', () => {
         expect(props.expandedHeight).toBe(mockTopInset + mockConfig.headerHeight);
         expect(props.collapsedHeight).toBe(mockTopInset + COLLAPSED_HEADER_HEIGHT);
         expect(props.collapseDistance).toBe(mockConfig.collapseEnd - mockConfig.collapseStart);
-        expect(StyleSheet.flatten(props.collapsedContentContainerStyle).top).toBe(mockTopInset);
+        expect(StyleSheet.flatten(props.collapsedContentContainerStyle)?.top).toBe(mockTopInset);
     });
 });
 
@@ -101,7 +101,7 @@ describe('CollapsibleHeader optional control slots', () => {
         const row = getPersistentRow(props.persistentContent);
         const [placeholder, trailing] = Children.toArray(row.props.children) as ReactElement<{ testID?: string }>[];
 
-        expect(StyleSheet.flatten(row.props.style).justifyContent).toBe('space-between');
+        expect(StyleSheet.flatten(row.props.style)?.justifyContent).toBe('space-between');
         expect(placeholder).toEqual(expect.objectContaining({ type: View, props: { pointerEvents: 'none' } }));
         expect(trailing.props.testID).toBe('trailing');
     });

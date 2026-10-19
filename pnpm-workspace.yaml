@@ -7,9 +7,9 @@ packages:
 linkWorkspacePackages: true
 
 overrides:
-  "@expo/cli": 57.0.6
-  "@expo/metro-runtime": 57.0.3
-  "@types/react": 19.2.18
+  "@expo/cli": 58.1.11
+  "@expo/metro-runtime": 58.0.14
+  "@types/react": 19.3.0
   axios: ^1.20.0
   babel-jest: ^29.7.0
   basic-ftp@<6.2.1: ^6.2.1
@@ -19,15 +19,15 @@ overrides:
   compression@<1.8.2: ^1.8.2
   cross-spawn@<6.0.6: ^6.0.6
   deepmerge-ts@<8.0.0: ^8.0.2
-  expo: 57.0.4
-  expo-asset: 57.0.3
-  expo-constants: 57.0.3
-  expo-file-system: 57.0.0
-  expo-font: 57.0.0
-  expo-keep-awake: 57.0.0
-  expo-modules-autolinking: 57.0.5
-  expo-modules-core: 57.0.3
-  expo-modules-jsi: 57.0.1
+  expo: 58.0.14
+  expo-asset: 58.0.16
+  expo-constants: 58.0.12
+  expo-file-system: 58.0.9
+  expo-font: 58.0.8
+  expo-keep-awake: 58.0.3
+  expo-modules-autolinking: 58.0.13
+  expo-modules-core: 58.0.22
+  expo-modules-jsi: 58.0.15
   fast-uri@>=3.0.0 <3.1.7: ^3.1.7
   file-type@>=13.0.0 <21.3.1: ^21.3.1
   handlebars@<4.7.10: ^4.7.10
@@ -41,9 +41,9 @@ overrides:
   nx@>=23.0.0 <23.2.1: ^23.2.1
   postcss-selector-parser@>=7.0.0 <7.1.6: ^7.1.6
   qs@<6.16.0: ^6.16.0
-  react: 19.2.3
-  react-dom: 19.2.3
-  react-native: 0.86.2
+  react: 19.3.0
+  react-dom: 19.3.0
+  react-native: 0.88.0
   shell-quote@<1.11.0: ^1.11.0
   smol-toml@<1.9.0: ^1.9.0
   source-map-js@<1.2.2: ^1.2.2
@@ -68,4 +68,5 @@ allowBuilds:
   unrs-resolver: false
 
 patchedDependencies:
+  react-native-worklets: patches/react-native-worklets.patch
   redlock@5.0.0-beta2: patches/redlock@5.0.0-beta2.patch
