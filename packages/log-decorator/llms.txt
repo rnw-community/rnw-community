@@ -7,10 +7,6 @@
 Callback params narrow from annotated callback arguments — never spell out factory generics. The decorator is
 timing-free; compose with `@rnw-community/histogram-metric-decorator` for latency metrics.
 
-## Landing
-
-- [readme.md](readme.md): Hook timing table, type-narrowing rules, full public API, and Observable support.
-
 ## Guides
 
 - [When each hook fires](readme.md#when-each-hook-fires): `preLog` / `postLog` / `errorLog` timing for sync, `Promise`, and `Observable` returns.
@@ -31,7 +27,3 @@ timing-free; compose with `@rnw-community/histogram-metric-decorator` for latenc
 ## Architecture & conventions
 
 - [AGENTS.md](https://github.com/rnw-community/rnw-community/blob/master/packages/log-decorator/AGENTS.md): Source layout, implementation patterns, dependencies, and coverage.
-
-## Optional
-
-- [Source](https://github.com/rnw-community/rnw-community/tree/master/packages/log-decorator): Package source in the monorepo.

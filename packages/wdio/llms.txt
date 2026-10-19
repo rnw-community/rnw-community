@@ -7,10 +7,6 @@
 Call `addWdioCommands(browser)` once in the WDIO config `before` hook and copy the two ambient `.d.ts` files into the
 e2e project so the custom commands type-check. Use `setTestID` in app code so the same testID resolves on web and mobile.
 
-## Landing
-
-- [readme.md](readme.md): testID utils, command setup and usage, component page objects, and selector recommendations.
-
 ## Guides
 
 - [Command setup](readme.md#setup): Ambient `.d.ts` files and registering commands in the WDIO config.
@@ -50,7 +46,3 @@ e2e project so the custom commands type-check. Use `setTestID` in app code so th
 ## Architecture & conventions
 
 - [AGENTS.md](https://github.com/rnw-community/rnw-community/blob/master/packages/wdio/AGENTS.md): Source layout, Proxy-based page-object patterns, selector resolution, dependencies, and coverage.
-
-## Optional
-
-- [Source](https://github.com/rnw-community/rnw-community/tree/master/packages/wdio): Package source in the monorepo.

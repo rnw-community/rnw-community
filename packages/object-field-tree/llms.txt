@@ -6,10 +6,6 @@
 `combine((...keys) => data, ...objects)` produces one nesting level per collection, with each leaf computed from the
 keys along its path. `@rnw-community/fast-style` is a real-world consumer.
 
-## Landing
-
-- [readme.md](readme.md): Exports, return types, and enum / component generation examples.
-
 ## Guides
 
 - [Typescript enum and object usage example](readme.md#typescript-enum-and-object-usage-example): Combining TypeScript enums and plain objects into a typed tree.
@@ -28,7 +24,3 @@ keys along its path. `@rnw-community/fast-style` is a real-world consumer.
 ## Architecture & conventions
 
 - [AGENTS.md](https://github.com/rnw-community/rnw-community/blob/master/packages/object-field-tree/AGENTS.md): Package commands, architecture, key patterns, dependencies, and coverage.
-
-## Optional
-
-- [Source](https://github.com/rnw-community/rnw-community/tree/master/packages/object-field-tree): Package source in the monorepo.

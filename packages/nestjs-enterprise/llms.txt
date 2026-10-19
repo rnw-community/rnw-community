@@ -7,10 +7,6 @@
 Each decorator is also available as a subpath entry point: `@rnw-community/nestjs-enterprise/Log`, `/HistogramMetric`,
 `/LockPromise`, `/LockObservable`, `/CreatePromiseLockDecorators`, `/CreateObservableLockDecorators`.
 
-## Landing
-
-- [readme.md](readme.md): Installation, decorator index, DI-based distributed locking, lock types, and deprecated APIs.
-
 ## Guides
 
 - [Distributed Locking](readme.md#distributed-locking): Binding `SequentialLock` / `ExclusiveLock` (and `$` variants) to any injectable `LockServiceInterface`.
@@ -41,7 +37,3 @@ Each decorator is also available as a subpath entry point: `@rnw-community/nestj
 ## Architecture & conventions
 
 - [AGENTS.md](https://github.com/rnw-community/rnw-community/blob/master/packages/nestjs-enterprise/AGENTS.md): Source layout, adapter patterns over the universal decorators, dependencies, and coverage.
-
-## Optional
-
-- [Source](https://github.com/rnw-community/rnw-community/tree/master/packages/nestjs-enterprise): Package source in the monorepo.

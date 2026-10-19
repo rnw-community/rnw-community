@@ -9,10 +9,6 @@
 Mount one `ScreenChromeProvider` per scrollable inside each screen, never once around a navigator, and resolve exactly
 one copy of the collapsible header. Render content first, decorative fades and backdrop second, `CollapsibleHeader` last.
 
-## Landing
-
-- [readme.md](readme.md): Installation, complete example, paint order, compound header contract, and full public API.
-
 ## Guides
 
 - [Installation](readme.md#installation): Required peer dependencies and why the collapsible header must resolve to a single copy.
@@ -63,7 +59,3 @@ one copy of the collapsible header. Render content first, decorative fades and b
 ## Architecture & conventions
 
 - [AGENTS.md](https://github.com/rnw-community/rnw-community/blob/master/packages/react-native-screen-chrome/AGENTS.md): Architecture, invariants, provider and scroll ownership, build, and coverage.
-
-## Optional
-
-- [Source](https://github.com/rnw-community/rnw-community/tree/master/packages/react-native-screen-chrome): Package source in the monorepo.

@@ -6,10 +6,6 @@
 The reducer utils mutate the given state and return a shallow copy, so they can be returned directly from a Redux
 Toolkit `createSlice` reducer.
 
-## Landing
-
-- [readme.md](readme.md): Supported loading states, state shape, reducer utils, and the slice selector.
-
 ## Guides
 
 - [Utils](readme.md#utils): How the reducer helpers are meant to be used inside `createSlice` reducers.
@@ -27,7 +23,3 @@ Toolkit `createSlice` reducer.
 ## Architecture & conventions
 
 - [AGENTS.md](https://github.com/rnw-community/rnw-community/blob/master/packages/redux-loadable/AGENTS.md): Package commands, architecture, key patterns, and coverage.
-
-## Optional
-
-- [Source](https://github.com/rnw-community/rnw-community/tree/master/packages/redux-loadable): Package source in the monorepo.

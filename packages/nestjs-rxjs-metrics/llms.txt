@@ -5,10 +5,6 @@
 
 Declare metric and label config objects (labels `as const`) so operator metric names and label values are type-checked.
 
-## Landing
-
-- [readme.md](readme.md): Installation, typed module configuration, and per-metric-type operator usage.
-
 ## Guides
 
 - [Configuration](readme.md#configuration): Declaring metric and label objects and wrapping the generated module and service.
@@ -25,7 +21,3 @@ Declare metric and label config objects (labels `as const`) so operator metric n
 ## Architecture & conventions
 
 - [AGENTS.md](https://github.com/rnw-community/rnw-community/blob/master/packages/nestjs-rxjs-metrics/AGENTS.md): Source layout, implementation patterns, dependencies, and coverage.
-
-## Optional
-
-- [Source](https://github.com/rnw-community/rnw-community/tree/master/packages/nestjs-rxjs-metrics): Package source in the monorepo.

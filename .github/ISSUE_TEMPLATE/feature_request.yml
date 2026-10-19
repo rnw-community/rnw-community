@@ -3,14 +3,6 @@ description: Propose a new export, option, or package.
 title: '[<package>] '
 labels: ['enhancement']
 body:
-    - type: input
-      id: package
-      attributes:
-          label: Package
-          description: The `@rnw-community/*` package this belongs to, or "new package".
-          placeholder: shared
-      validations:
-          required: true
     - type: textarea
       id: problem
       attributes:
@@ -24,19 +16,3 @@ body:
           label: Proposed API
           description: The call shape you want to write as a consumer, including types.
           render: ts
-      validations:
-          required: true
-    - type: textarea
-      id: alternatives
-      attributes:
-          label: Alternatives considered
-          description: Workarounds you use today or other designs you evaluated.
-    - type: dropdown
-      id: contribution
-      attributes:
-          label: Willing to open a pull request?
-          options:
-              - 'Yes'
-              - 'No'
-      validations:
-          required: true

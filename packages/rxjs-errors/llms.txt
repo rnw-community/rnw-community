@@ -6,10 +6,6 @@
 Both operators default to `RxJSFilterError`; `rethrowException` rethrows errors that are already instances of the
 target error class as is.
 
-## Landing
-
-- [readme.md](readme.md): Error class, available operators, and usage examples.
-
 ## Guides
 
 - [Available operators](readme.md#available-operators): Overview of what each operator does.
@@ -23,7 +19,3 @@ target error class as is.
 ## Architecture & conventions
 
 - [AGENTS.md](https://github.com/rnw-community/rnw-community/blob/master/packages/rxjs-errors/AGENTS.md): Package commands, architecture, key patterns, dependencies, and coverage.
-
-## Optional
-
-- [Source](https://github.com/rnw-community/rnw-community/tree/master/packages/rxjs-errors): Package source in the monorepo.
