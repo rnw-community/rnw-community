@@ -4,6 +4,11 @@ import { isAndroidCapability } from '../capability';
 
 const DEFAULT_INPUT_DELAY = 300;
 
+/**
+ * Element command typing a value one character at a time with a delay between characters, setting it at once on Android.
+ *
+ * @see https://github.com/rnw-community/rnw-community/blob/master/packages/wdio/readme.md#slowinput
+ */
 export const slowInputCommand = async function slowInputCommand(
     this: WebdriverIO.Element,
     value: string,

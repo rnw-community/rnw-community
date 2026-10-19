@@ -7,6 +7,11 @@ import { isAndroidCapability, isIOSCapability } from '../../capability';
 const getPackageNameFromCapabilities = (context: WebdriverIO.Browser): string =>
     'appPackage' in context.capabilities ? (context.capabilities.appPackage as string) : '';
 
+/**
+ * Browser command opening a deep link through `mobile:deepLink` on Android or by typing it into Safari's address bar on iOS.
+ *
+ * @see https://github.com/rnw-community/rnw-community/blob/master/packages/wdio/readme.md#opendeeplink
+ */
 export const openDeepLinkCommand = async (
     url: string,
     androidPackageName: string = getPackageNameFromCapabilities(browser)
