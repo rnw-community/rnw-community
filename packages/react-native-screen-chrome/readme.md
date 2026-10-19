@@ -248,6 +248,8 @@ the primitive and merged after those defaults, so a consumer style always wins. 
 control row's own defaults (`space-between`, row padding), for example to change the row's horizontal padding.
 Derive custom offsets from [`SCREEN_CHROME_HEADER_LAYOUT_METRICS`](#screen_chrome_header_layout_metrics) instead of copying the numbers.
 
+<img src="https://raw.githubusercontent.com/rnw-community/rnw-community/master/packages/react-native-screen-chrome/docs/collapsible-header.gif" alt="Collapsible header: the large title collapses into the small title row between persistent controls while the list scrolls" width="280" />
+
 ## Compound header contract
 
 `CollapsibleHeader` requires exactly one `CollapsibleHeaderTitleSlot` direct child and accepts at most one
@@ -446,6 +448,8 @@ const scrollAnimation: EdgeFadeScrollAnimationInterface = {
 };
 ```
 
+<img src="https://raw.githubusercontent.com/rnw-community/rnw-community/master/packages/react-native-screen-chrome/docs/bottom-fade.gif" alt="Scroll-driven bottom edge fade ramping in as the list scrolls and out again at the top" width="280" />
+
 ## EdgeFadePosition
 
 Identifies the screen edge where a fade band is rendered: `'top' | 'bottom'`.
@@ -556,6 +560,8 @@ overrides the configured `headerHeight`, so the metrics stay exact.
     <Text>{title}</Text>
 </ScreenChromeHeader>
 ```
+
+<img src="https://raw.githubusercontent.com/rnw-community/rnw-community/master/packages/react-native-screen-chrome/docs/static-header.gif" alt="Static header and top edge fade staying fixed while the list scrolls underneath" width="280" />
 
 `inFlow` lays the header out in the normal flow instead of floating it over the content: the container is
 `position: 'relative'` and the row takes `headerHeight` as a `minHeight`, so a multi-line title or a bottom row grows
@@ -924,6 +930,8 @@ const { chromeHeight } = useBottomChromeInset();
 The value changes only when the footer's measured height changes — never per scroll frame and never when the footer
 is moved by a transform — so pairing it with the scroll view relayouts content only on real footer resizes.
 
+<img src="https://raw.githubusercontent.com/rnw-community/rnw-community/master/packages/react-native-screen-chrome/docs/tab-bar.gif" alt="Floating tab bar built on ScreenChromeFooter, with the list clearing it through useBottomChromeInset" width="280" />
+
 ## useBottomChromeHeightPublisher
 
 Publishes one bottom chrome height into the nearest `BottomChromeInsetProvider` — the publisher `ScreenChromeFooter`
@@ -1009,6 +1017,8 @@ screen chrome config, so the footer requires a `ScreenChromeProvider` ancestor l
 A `testID` lands on the container and `${testID}-content` on the measured content node; every other `View` prop is
 forwarded to the container.
 
+<img src="https://raw.githubusercontent.com/rnw-community/rnw-community/master/packages/react-native-screen-chrome/docs/header-and-footer.gif" alt="Static header with a ScreenChromeFooter total bar over a bottom edge fade while the list scrolls" width="280" />
+
 ### Stacked footer
 
 To stack the footer above other bottom chrome, such as a tab bar, pass that chrome's footprint as `bottomOffset`, and
@@ -1046,6 +1056,8 @@ const insets = useSafeAreaInsets();
 `KeyboardStickyView` moves the footer with a transform, which never fires `onLayout`, so the published inset keeps the
 footer's resting height while the keyboard is open; a keyboard-aware scrollable (`KeyboardAwareScrollView`) owns the
 keyboard's own clearance. A composer that grows while typing re-measures and republishes on its next layout.
+
+<img src="https://raw.githubusercontent.com/rnw-community/rnw-community/master/packages/react-native-screen-chrome/docs/keyboard-footer.gif" alt="Message composer footer riding above the keyboard inside KeyboardStickyView" width="280" />
 
 To keep the fade band static while only the input follows the keyboard, put the `KeyboardStickyView` inside the
 footer instead. The opened offset is the footer's distance from the bottom edge, which for a stacked footer is
@@ -1187,6 +1199,8 @@ value stays `'light' | 'dark'`. A fixed value ignores the device appearance enti
 <ScreenChromeProvider colorScheme="system">{children}</ScreenChromeProvider>
 ```
 
+<img src="https://raw.githubusercontent.com/rnw-community/rnw-community/master/packages/react-native-screen-chrome/docs/light-dark.gif" alt="Switching the provider colorScheme between the light and dark palettes" width="280" />
+
 ## ScreenChromeColorSetInterface
 
 Defines the solid and translucent wash colors used by a chrome color scheme.
@@ -1249,6 +1263,8 @@ the header registers the snap geometry with the provider, so a screen that enabl
 `CollapsibleHeader` scrolls freely. With reduced motion enabled the snap jumps to its endpoint instead of animating.
 Snapping also requires the provider-owned scroll: combining `snapToCollapse` with an
 [external `scrollY`](#external-scroll-offset) throws.
+
+<img src="https://raw.githubusercontent.com/rnw-community/rnw-community/master/packages/react-native-screen-chrome/docs/snap-off.gif" alt="Collapsible header with snapToCollapse off resting mid-collapse where the drag ends" width="280" />
 
 ## SCREEN_CHROME_DEFAULT_CONFIG
 
