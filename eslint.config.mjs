@@ -13,6 +13,8 @@ import { defineConfig } from 'eslint/config';
 import oxlint from 'eslint-plugin-oxlint';
 import tseslint from 'typescript-eslint';
 
+import rnwPlugin from '@rnw-community/eslint-plugin';
+
 export const oxlintConfigPath = fileURLToPath(new URL('.oxlintrc.json', import.meta.url));
 
 const importResolvableExtensions = ['.ts', '.cts', '.mts', '.tsx', '.js', '.jsx', '.mjs', '.cjs'];
@@ -377,6 +379,11 @@ export const eslintConfigWithoutOxlint = defineConfig(
             'dot-notation': 'off',
             'require-unicode-regexp': 'off',
         },
+    },
+    {
+        files: ['packages/*/src/**/*.{ts,tsx}'],
+        plugins: { '@rnw-community': rnwPlugin },
+        rules: { '@rnw-community/public-api-tsdoc': 'error' },
     }
 );
 
