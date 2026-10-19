@@ -1,31 +1,18 @@
 import { withEntitlementsPlist } from '@expo/config-plugins';
 
-import { isDefined, isEmptyArray, isNotEmptyString } from '@rnw-community/shared';
+import { isArray, isString } from '@rnw-community/shared';
 
-import type { ReactNativePaymentsPluginProps } from './plugin.props';
+import type { ResolvedPaymentsConfig } from '../interface/resolved-payments-config.interface';
 import type { ConfigPlugin } from '@expo/config-plugins';
 
-export const withApplePay: ConfigPlugin<ReactNativePaymentsPluginProps> = (initialConfig, { merchantIdentifier }) => {
-    const merchantIdentifiers = (Array.isArray(merchantIdentifier) ? merchantIdentifier : [merchantIdentifier]).filter(
-        isNotEmptyString
-    );
+const inAppPaymentsEntitlement = 'com.apple.developer.in-app-payments';
 
-    if (isEmptyArray(merchantIdentifiers)) {
-        throw new Error(`Please provide "@rnw-community/react-native-payments" plugin option "merchantIdentifier"`);
-    }
+export const withApplePay: ConfigPlugin<ResolvedPaymentsConfig> = (initialConfig, { merchantIdentifiers }) =>
+    withEntitlementsPlist(initialConfig, config => {
+        const declaredIdentifiers: unknown = config.modResults[inAppPaymentsEntitlement];
+        const existingIdentifiers = isArray(declaredIdentifiers) ? declaredIdentifiers.filter(isString) : [];
 
-    return withEntitlementsPlist(initialConfig, configWithEntitlements => {
-        if (!isDefined(configWithEntitlements.modResults['com.apple.developer.in-app-payments'])) {
-            configWithEntitlements.modResults['com.apple.developer.in-app-payments'] = [];
-        }
+        config.modResults[inAppPaymentsEntitlement] = [...new Set([...existingIdentifiers, ...merchantIdentifiers])];
 
-        const applePayArray = configWithEntitlements.modResults['com.apple.developer.in-app-payments'] as string[];
-        for (const identifier of merchantIdentifiers) {
-            if (!applePayArray.includes(identifier)) {
-                applePayArray.push(identifier);
-            }
-        }
-
-        return configWithEntitlements;
+        return config;
     });
-};

@@ -8,7 +8,6 @@ describe('validateGooglePayEnvironment', () => {
     it('should default to PRODUCTION when undefined', () => {
         expect.assertions(1);
 
-         
         expect(validateGooglePayEnvironment(undefined)).toBe(EnvironmentEnum.PRODUCTION);
     });
 
@@ -21,8 +20,8 @@ describe('validateGooglePayEnvironment', () => {
     it('should throw naming the valid environments when given an invalid value', () => {
         expect.assertions(1);
 
-        expect(() => validateGooglePayEnvironment('STAGING' as never)).toThrow(
-            'Invalid "googlePayEnvironment" plugin option value: "STAGING". Valid values: "PRODUCTION", "TEST"'
+        expect(() => validateGooglePayEnvironment('STAGING')).toThrow(
+            'Invalid "googlePayEnvironment" payments config value: "STAGING". Valid values: "PRODUCTION", "TEST"'
         );
     });
 });

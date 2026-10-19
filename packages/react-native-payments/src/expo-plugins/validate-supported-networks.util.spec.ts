@@ -8,7 +8,6 @@ describe('validateSupportedNetworks', () => {
     it('should default to every supported network when undefined', () => {
         expect.assertions(1);
 
-         
         expect(validateSupportedNetworks(undefined)).toStrictEqual(Object.values(SupportedNetworkEnum));
     });
 
@@ -25,7 +24,7 @@ describe('validateSupportedNetworks', () => {
         expect.assertions(1);
 
         expect(() => validateSupportedNetworks([])).toThrow(
-            'Please provide at least one "supportedNetworks" plugin option value'
+            'Please provide at least one "supportedNetworks" payments config value'
         );
     });
 
@@ -33,7 +32,7 @@ describe('validateSupportedNetworks', () => {
         expect.assertions(1);
 
         expect(() => validateSupportedNetworks(['visa', 'unknown-network', 'another-unknown'] as never)).toThrow(
-            'Invalid "supportedNetworks" plugin option value(s): "unknown-network", "another-unknown"'
+            'Invalid "supportedNetworks" payments config value(s): "unknown-network", "another-unknown"'
         );
     });
 });

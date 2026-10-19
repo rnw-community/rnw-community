@@ -33,3 +33,12 @@ linking it locally rather than installing it from npm.
 
 See [Platforms — Expo](../platforms/expo.md#plugin-options-reference) for every plugin option
 (`merchantIdentifier`, `supportedNetworks`, `googlePayEnvironment`).
+
+To keep the native setup and the runtime method data in sync, list the plugin without options and declare them once in
+a `payments.config.ts` at the app root instead — see [api/payments-config.md](../api/payments-config.md):
+
+```js
+export default {
+    plugins: ['@rnw-community/react-native-payments/app.plugin'],
+};
+```
