@@ -1,13 +1,15 @@
 import { beforeEach, describe, expect, it, jest } from '@jest/globals';
 import { render } from '@testing-library/react-native';
 import React from 'react';
-import { View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 
 import { SCREEN_CHROME_DEFAULT_CONFIG } from '../constant/screen-chrome-default-config.constant.web';
 
 import { EdgeFade } from './edge-fade.web';
 
 import type { EdgeFadeBandRenderer } from './edge-fade-band-renderer.type';
+import type { WebEdgeFadeStyleInterface } from './web-edge-fade-style.interface';
+import type { StyleProp } from 'react-native';
 
 const mockScrollY = { get: jest.fn(() => 0) };
 const mockContext: {
@@ -32,8 +34,19 @@ beforeEach(() => {
     mockScrollY.get.mockReturnValue(0);
 });
 
+const TOP_EDGE_MASK = 'linear-gradient(to bottom, rgba(0,0,0,0.99) 0%, #000000 50%, transparent 100%)';
+const TOP_WASH = 'linear-gradient(to bottom, rgba(255,255,255,0.42) 0%, rgba(255,255,255,0.08) 72%, transparent 100%)';
+
+type HostInstance = ReturnType<ReturnType<typeof render>['getByTestId']>;
+
+const flattenStyle = ({ props: { style } }: HostInstance): WebEdgeFadeStyleInterface =>
+    StyleSheet.flatten(style as StyleProp<WebEdgeFadeStyleInterface>);
+
+const getLayerStyles = (root: HostInstance): WebEdgeFadeStyleInterface[] =>
+    root.findAll(node => typeof node.type === 'string' && node !== root).map(flattenStyle);
+
 describe('EdgeFade web', () => {
-    it('renders the web defaults with ordered CSS masks and a static top blur', () => {
+    it('renders the web defaults as progressive blur layers under a masked wash', () => {
         expect.hasAssertions();
 
         const screen = render(<EdgeFade testID="top-fade" position="top" blurMethod="dimezisBlurView" />);
@@ -43,23 +56,34 @@ describe('EdgeFade web', () => {
         expect(fade.props).not.toHaveProperty('blurTarget');
         expect(fade).toHaveProp('pointerEvents', 'none');
         expect(fade).toHaveProp('aria-hidden', true);
-        expect(fade).toHaveStyle({ height: 86, top: -10 });
-        expect(fade).toHaveProp(
-            'style',
-            expect.arrayContaining([
-                expect.objectContaining({
-                    backdropFilter: 'blur(22.5px) saturate(1.08)',
-                    WebkitBackdropFilter: 'blur(22.5px) saturate(1.08)',
-                    maskImage: 'linear-gradient(to bottom, rgba(0,0,0,0.99) 0%, #000000 50%, transparent 100%)',
-                    WebkitMaskImage: 'linear-gradient(to bottom, rgba(0,0,0,0.99) 0%, #000000 50%, transparent 100%)',
-                    backgroundImage:
-                        'linear-gradient(to bottom, rgba(255,255,255,0.42) 0%, rgba(255,255,255,0.08) 72%, transparent 100%)',
-                }),
-            ])
-        );
+        expect(flattenStyle(fade)).toEqual({
+            position: 'absolute',
+            left: 0,
+            right: 0,
+            zIndex: 2,
+            height: 86,
+            top: -10,
+        });
+        expect(getLayerStyles(fade).map(({ backdropFilter }) => backdropFilter)).toEqual([
+            'blur(2.8125px) saturate(1.08)',
+            'blur(5.625px) saturate(1.08)',
+            'blur(11.25px) saturate(1.08)',
+            'blur(22.5px) saturate(1.08)',
+            void 0,
+        ]);
+        expect(getLayerStyles(fade)[4]).toEqual({
+            position: 'absolute',
+            left: 0,
+            right: 0,
+            top: 0,
+            bottom: 0,
+            maskImage: TOP_EDGE_MASK,
+            WebkitMaskImage: TOP_EDGE_MASK,
+            backgroundImage: TOP_WASH,
+        });
     });
 
-    it('animates only bottom opacity while preserving explicit zero blur and consumer styles', () => {
+    it('fades every band layer by scroll instead of the container, keeping explicit zero blur and consumer styles', () => {
         expect.hasAssertions();
 
         mockScrollY.get.mockReturnValue(10);
@@ -75,18 +99,16 @@ describe('EdgeFade web', () => {
             />
         );
         const fade = screen.getByTestId('bottom-fade', { includeHiddenElements: true });
+        const layers = getLayerStyles(fade);
 
-        expect(fade).toHaveStyle({ height: 80, bottom: -30, opacity: 0.5, zIndex: 9 });
-        expect(fade).toHaveProp(
-            'style',
-            expect.arrayContaining([
-                expect.objectContaining({
-                    backdropFilter: 'blur(8px) saturate(1.08)',
-                    backgroundImage:
-                        'linear-gradient(to bottom, transparent 0%, rgba(255,255,255,0.08) 28%, rgba(255,255,255,0.42) 100%)',
-                }),
-            ])
-        );
+        expect(fade).toHaveStyle({ height: 80, bottom: -30, zIndex: 9 });
+        expect(flattenStyle(fade)).not.toHaveProperty('opacity');
+        expect(layers.map(({ opacity }) => opacity)).toEqual([0.5, 0.5, 0.5, 0.5, 0.5]);
+        expect(layers[3]).toHaveProperty('backdropFilter', 'blur(8px) saturate(1.08)');
+        expect(layers[4]).toMatchObject({
+            backgroundImage:
+                'linear-gradient(to bottom, transparent 0%, rgba(255,255,255,0.08) 28%, rgba(255,255,255,0.42) 100%)',
+        });
     });
 });
 
@@ -135,7 +157,7 @@ describe('EdgeFade web band renderer', () => {
         expect(screen.getByTestId('custom-band', { includeHiddenElements: true }).children).toHaveLength(2);
     });
 
-    it('builds a backdrop-only blur and a complete default band for the renderer', () => {
+    it('builds a blur-layers-only element and a complete default band for the renderer', () => {
         expect.hasAssertions();
 
         const renderBand = jest.fn<EdgeFadeBandRenderer>(() => null);
@@ -143,18 +165,17 @@ describe('EdgeFade web band renderer', () => {
         render(<EdgeFade position="top" renderBand={renderBand} />);
 
         const [[{ blur, defaultBand }]] = renderBand.mock.calls;
+        const blurLayers = getLayerStyles(render(<View testID="blur">{blur}</View>).getByTestId('blur'));
+        const defaultBandLayers = getLayerStyles(
+            render(<View testID="default-band">{defaultBand}</View>).getByTestId('default-band')
+        );
 
-        expect(blur).toHaveProperty('props.style', [
-            { flex: 1 },
-            { backdropFilter: 'blur(22.5px) saturate(1.08)', WebkitBackdropFilter: 'blur(22.5px) saturate(1.08)' },
-        ]);
-        expect(defaultBand).toHaveProperty('props.style', [
-            { flex: 1 },
-            expect.objectContaining({
-                backdropFilter: 'blur(22.5px) saturate(1.08)',
-                maskImage: 'linear-gradient(to bottom, rgba(0,0,0,0.99) 0%, #000000 50%, transparent 100%)',
-            }),
-        ]);
+        expect(blurLayers).toHaveLength(5);
+        expect(blurLayers[0]).toEqual({ flex: 1 });
+        expect(blurLayers[4]).toHaveProperty('backdropFilter', 'blur(22.5px) saturate(1.08)');
+        expect(defaultBandLayers).toHaveLength(6);
+        expect(defaultBandLayers[4]).toHaveProperty('backdropFilter', 'blur(22.5px) saturate(1.08)');
+        expect(defaultBandLayers[5]).toMatchObject({ maskImage: TOP_EDGE_MASK, backgroundImage: TOP_WASH });
     });
 
     it('inherits the provider renderer and prefers the per-instance renderer over it', () => {

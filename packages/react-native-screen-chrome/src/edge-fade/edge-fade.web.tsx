@@ -7,20 +7,21 @@ import { getDefined, isDefined } from '@rnw-community/shared';
 
 import { useScreenChrome } from '../hooks/use-screen-chrome/use-screen-chrome.hook';
 
+import { EdgeFadeWebBand } from './edge-fade-web-band';
 import { edgeFadeStyles } from './edge-fade.styles';
 import { useEdgeFadeOpacityStyle } from './hooks/use-edge-fade-opacity-style.hook';
 import { getEdgeFadeBandMetrics } from './util/edge-fade-get-band-metrics/edge-fade-get-band-metrics.util';
 import { getEdgeFadeVisuals } from './util/get-edge-fade-visuals/get-edge-fade-visuals.util';
+import { getWebEdgeFadeBlurLayers } from './util/get-web-edge-fade-blur-layers/get-web-edge-fade-blur-layers.util';
 import { getWebEdgeFadeVisualStyle } from './util/get-web-edge-fade-visual-style/get-web-edge-fade-visual-style.util';
 
 import type { EdgeFadePropsInterface } from './edge-fade-props.interface';
-import type { WebEdgeFadeStyleInterface } from './web-edge-fade-style.interface';
 import type { ReactNode } from 'react';
 
 const AnimatedView = createAnimatedComponent(View);
 
 /**
- * Renders a decorative web backdrop blur and color wash at one screen edge.
+ * Renders a decorative web progressive backdrop blur and color wash at one screen edge.
  * @see https://github.com/rnw-community/rnw-community/tree/master/packages/react-native-screen-chrome#edgefade
  */
 export const EdgeFade = ({
@@ -38,9 +39,9 @@ export const EdgeFade = ({
     const insets = useSafeAreaInsets();
     const animatedStyle = useEdgeFadeOpacityStyle(scrollAnimation?.opacityInputRange);
     const metrics = getEdgeFadeBandMetrics(position, height, config, insets);
-    const visualStyle = getWebEdgeFadeVisualStyle(
+    const washStyle = getWebEdgeFadeVisualStyle(position, colorScheme, config);
+    const blurLayers = getWebEdgeFadeBlurLayers(
         position,
-        colorScheme,
         config,
         getDefined(intensity, () => config.intensity)
     );
@@ -48,19 +49,11 @@ export const EdgeFade = ({
 
     if (!isDefined(renderResolvedBand)) {
         return (
-            <AnimatedView
-                {...viewProps}
-                pointerEvents="none"
-                aria-hidden
-                style={[edgeFadeStyles.band, metrics, visualStyle, animatedStyle, style]}
-            />
+            <View {...viewProps} pointerEvents="none" aria-hidden style={[edgeFadeStyles.band, metrics, style]}>
+                <EdgeFadeWebBand blurLayers={blurLayers} washStyle={washStyle} opacityStyle={animatedStyle} />
+            </View>
         );
     }
-
-    const blurStyle: WebEdgeFadeStyleInterface = {
-        backdropFilter: visualStyle.backdropFilter,
-        WebkitBackdropFilter: visualStyle.WebkitBackdropFilter,
-    };
 
     return (
         <AnimatedView
@@ -74,8 +67,16 @@ export const EdgeFade = ({
                 colorScheme,
                 height: metrics.height,
                 ...getEdgeFadeVisuals(position, colorScheme, config, false),
-                blur: <View style={[edgeFadeStyles.fill, blurStyle]} />,
-                defaultBand: <View style={[edgeFadeStyles.fill, visualStyle]} />,
+                blur: (
+                    <View style={edgeFadeStyles.fill}>
+                        <EdgeFadeWebBand blurLayers={blurLayers} />
+                    </View>
+                ),
+                defaultBand: (
+                    <View style={edgeFadeStyles.fill}>
+                        <EdgeFadeWebBand blurLayers={blurLayers} washStyle={washStyle} />
+                    </View>
+                ),
             })}
         </AnimatedView>
     );

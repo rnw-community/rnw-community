@@ -141,9 +141,15 @@ pnpm test && pnpm test:coverage && pnpm build && pnpm ts && pnpm ts:nodenext && 
   RN 0.86 / iOS 26 stack. Additional visuals (Liquid Glass, solid colors, custom gradients) belong in a consumer
   `renderBand`/`renderEdgeFadeBand`, never in the package default. That includes wash stops: a custom wash
   `locations` is a renderer recipe in the readme, not a prop.
-- Web `EdgeFade` keeps a static `backdrop-filter` radius on purpose: animating the radius re-rasterizes the backdrop on
-  every scroll frame, while the opacity fade over a fixed blur stays compositor-only. `intensityInputRange`,
-  `maxIntensity`, `blurMethod`, and `blurTarget` are documented as no-ops on web.
+- Web `EdgeFade` is a progressive blur (`getWebEdgeFadeBlurLayers`): four `backdrop-filter` layers whose radius doubles
+  toward the edge, each masked to an overlapping band intersected (`mask-composite`) with the `maskStops` mask, plus a
+  separate masked wash (`EdgeFadeWebBand`). A single blur with a gradient mask cross-fades sharp content into a
+  full-radius smear and reads as a hard edge. Never put `opacity` below 1, a mask, or a filter on an ancestor of the
+  layers: per the Filter Effects backdrop-root rule the ancestor becomes the backdrop root and the layers blur nothing
+  (verified in Chromium), so the default band fades each layer with the scroll opacity and the container carries
+  positioning only. The renderer path keeps the documented container opacity. The radii stay static on purpose:
+  animating them re-rasterizes the backdrop on every scroll frame, while the opacity fade stays compositor-only.
+  `intensityInputRange`, `maxIntensity`, `blurMethod`, and `blurTarget` are documented as no-ops on web.
 - Public exports carry repository-standard scoped TSDoc and package readme links.
 - Tests retain at least 99.9% statements, branches, functions, and lines coverage.
 
@@ -167,6 +173,11 @@ The package builds with `react-native-builder-bob`, configured in `package.json`
   `scripts/rewrite-esm-extensions.mjs` over `dist/module` and `dist/typescript/module` and re-asserts both trees with
   `scripts/assert-esm-extensions.mjs`; web resolution stays intact because the `browser` field, not platform-extension
   probing, is what selects the web file in published output.
+- Resolvers (Metro, webpack, Vite, esbuild) read `browser` replacements from the `package.json` nearest the importing
+  file, and inside `dist` that is bob's per-tree `{"type": ...}` marker, not the package root — Expo web bundled the
+  native `edge-fade.js` while only the root carried the map. `scripts/write-browser-field-markers.mjs` therefore mirrors
+  every root `browser` entry, rebased, into `dist/module/package.json` and `dist/commonjs/package.json` as the last build
+  step, and `pnpm assert:pack` fails when a marker lacks a root mapping.
 
 `exports` points `import` at `dist/module` (+ `dist/typescript/module` types) and `require` at `dist/commonjs`
 (+ `dist/typescript/commonjs` types), types-first in each condition. The NodeNext check must pass before publishing.
