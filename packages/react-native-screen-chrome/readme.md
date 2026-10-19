@@ -429,6 +429,32 @@ Provides the relative full-screen layout root for content, fades, and header chr
 <ScreenChromeFrame>{children}</ScreenChromeFrame>
 ```
 
+### Sheets, modals, and nested navigators
+
+The chrome never reads the native header, the window size, or the status bar: every inset comes from
+`useSafeAreaInsets()` of the nearest `SafeAreaProvider`, and every layer is positioned inside `ScreenChromeFrame`. A
+screen therefore needs no special handling inside Expo Router `screenLayout` wrappers, nested stacks, or
+`headerShown: false` navigators — only the provider that feeds it the insets must describe the screen's own frame.
+
+An iOS `formSheet` or `pageSheet` (and a native modal in general) starts below the status bar, while a provider at the
+app root still reports the full-screen top inset. Mount a `SafeAreaProvider` at the root of the sheet screen, as
+react-native-safe-area-context recommends for modals, so it measures the sheet itself; the header then gets a `0` top
+inset instead of a phantom notch gap:
+
+```tsx
+export const EditSheet = () => (
+    <SafeAreaProvider>
+        <ScreenChromeProvider>
+            <ScreenChromeFrame>{/* content, fades, header */}</ScreenChromeFrame>
+        </ScreenChromeProvider>
+    </SafeAreaProvider>
+);
+```
+
+Detents only change the frame height: the bottom fade and `ScreenChromeFooter` stay anchored to the frame's bottom
+edge, and the native sheet clips the chrome to its corner radius. Space for a grabber is app-owned — pass
+`ScreenChromeHeader` `topInset`, or a larger `config.headerHeight` for `CollapsibleHeader`.
+
 ## ScreenChromeHeader
 
 Renders a static, non-collapsible header row with the same safe-area and paint-order contract as the collapsible one:
