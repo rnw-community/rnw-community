@@ -135,7 +135,7 @@ jobs:
 
             -   name: Fingerprint the native surface
                 id: fingerprint
-                uses: rnw-community/mobile-ci/actions/native-fingerprint@3e9afaf1888bce8a3e4a70818d457ffa9de11d8d # v4.0.0
+                uses: rnw-community/mobile-ci/actions/native-fingerprint@85f0985c18f295f0e380a91370130905eeef997e # v4.2.0
                 timeout-minutes: 10
                 with:
                     platform: android
@@ -155,7 +155,7 @@ jobs:
 
             -   name: Restore the built APK
                 id: app-cache
-                uses: rnw-community/mobile-ci/actions/native-app-cache@3e9afaf1888bce8a3e4a70818d457ffa9de11d8d # v4.0.0
+                uses: rnw-community/mobile-ci/actions/native-app-cache@85f0985c18f295f0e380a91370130905eeef997e # v4.2.0
                 timeout-minutes: 10
                 with:
                     mode: restore
@@ -215,7 +215,7 @@ jobs:
 
             -   name: Save the built APK
                 if: steps.build.outcome == 'success'
-                uses: rnw-community/mobile-ci/actions/native-app-cache@3e9afaf1888bce8a3e4a70818d457ffa9de11d8d # v4.0.0
+                uses: rnw-community/mobile-ci/actions/native-app-cache@85f0985c18f295f0e380a91370130905eeef997e # v4.2.0
                 continue-on-error: true
                 timeout-minutes: 10
                 with:
@@ -283,7 +283,7 @@ jobs:
                 # this one action, so its budget covers the old boot (12) and
                 # install + suite (20) step budgets together.
                 timeout-minutes: 32
-                uses: rnw-community/mobile-ci/actions/run-maestro-android@3e9afaf1888bce8a3e4a70818d457ffa9de11d8d # v4.0.0
+                uses: rnw-community/mobile-ci/actions/run-maestro-android@85f0985c18f295f0e380a91370130905eeef997e # v4.2.0
                 with:
                     apk-path: .ci-artifacts/apk/app-release.apk
                     app-id: ${{ matrix.android_app_id }}

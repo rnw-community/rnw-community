@@ -487,9 +487,14 @@ app, installing Maestro, running the suite and uploading the debug artifacts are
   `Galaxy Nexus` profile (720x1280 at 320dpi, the geometry the flows are calibrated against), installs the APK and runs
   the suite. Gradle and SDK builds do not belong in that job.
 - **Pinning and results:** `MAESTRO_VERSION` pins the Maestro CLI, and every `mobile-ci` action is pinned to a commit
-  SHA. When a suite fails, the action uploads the Maestro debug output as an artifact. Each workflow ends with a
-  `status` job that reports a single pass or fail. The iOS screen-chrome jobs use `continue-on-error`, so their
-  failures do not fail the workflow, until the Hermes heap corruption tracked in #601 is fixed.
+  SHA. Every run uploads a Maestro artifact holding one JUnit report per flow (`junit/<flow>.xml`), plus the debug
+  output of any failing flow. Each workflow ends with a `status` job that reports a single pass or fail. The iOS
+  screen-chrome jobs use `continue-on-error` and report a failure as a warning, so their failures do not fail the
+  workflow, until the Hermes heap corruption tracked in #601 is fixed.
+- **Why the workflows compose actions:** the reusable `ios-maestro.yml` / `android-maestro.yml` workflows from
+  `mobile-ci` take one `flows-dir`, one `build-strategy` and one `tolerate-test-failures` per call, and two calls in
+  one workflow run collide on their plan artifacts, so they cannot yet express three example packages with their own
+  suites, bare targets that cannot be repacked, and a quarantine of one package.
 - **Running locally:** build the example app and install it on a simulator or emulator. Then run `pnpm e2e:ios:bare`
   (or another `e2e:<platform>:<target>` script) from the example package directory.
 

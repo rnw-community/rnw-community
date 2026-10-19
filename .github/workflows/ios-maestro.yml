@@ -143,7 +143,7 @@ jobs:
 
             -   name: Select the pinned Xcode
                 id: xcode
-                uses: rnw-community/mobile-ci/actions/setup-xcode-pinned@3e9afaf1888bce8a3e4a70818d457ffa9de11d8d # v4.0.0
+                uses: rnw-community/mobile-ci/actions/setup-xcode-pinned@85f0985c18f295f0e380a91370130905eeef997e # v4.2.0
                 timeout-minutes: 5
                 with:
                     version: ${{ env.XCODE_VERSION }}
@@ -151,7 +151,7 @@ jobs:
 
             -   name: Fingerprint the native surface
                 id: fingerprint
-                uses: rnw-community/mobile-ci/actions/native-fingerprint@3e9afaf1888bce8a3e4a70818d457ffa9de11d8d # v4.0.0
+                uses: rnw-community/mobile-ci/actions/native-fingerprint@85f0985c18f295f0e380a91370130905eeef997e # v4.2.0
                 timeout-minutes: 10
                 with:
                     platform: ios
@@ -171,7 +171,7 @@ jobs:
 
             -   name: Restore the built app
                 id: app-cache
-                uses: rnw-community/mobile-ci/actions/native-app-cache@3e9afaf1888bce8a3e4a70818d457ffa9de11d8d # v4.0.0
+                uses: rnw-community/mobile-ci/actions/native-app-cache@85f0985c18f295f0e380a91370130905eeef997e # v4.2.0
                 timeout-minutes: 10
                 with:
                     mode: restore
@@ -213,7 +213,7 @@ jobs:
             -   name: Set up ccache
                 id: ccache
                 if: steps.app-cache.outputs.cache-hit != 'true'
-                uses: rnw-community/mobile-ci/actions/setup-ccache-ios@3e9afaf1888bce8a3e4a70818d457ffa9de11d8d # v4.0.0
+                uses: rnw-community/mobile-ci/actions/setup-ccache-ios@85f0985c18f295f0e380a91370130905eeef997e # v4.2.0
                 timeout-minutes: 15
                 with:
                     mode: restore
@@ -263,7 +263,7 @@ jobs:
                 # this one action, so its budget covers the old boot (10), warm-up
                 # (5) and suite (25) step budgets together.
                 timeout-minutes: 40
-                uses: rnw-community/mobile-ci/actions/run-maestro-ios@3e9afaf1888bce8a3e4a70818d457ffa9de11d8d # v4.0.0
+                uses: rnw-community/mobile-ci/actions/run-maestro-ios@85f0985c18f295f0e380a91370130905eeef997e # v4.2.0
                 with:
                     app-path: ${{ env.APP_PATH }}
                     app-id: ${{ matrix.ios_app_id }}
@@ -277,6 +277,14 @@ jobs:
                     simulator-slim-profile: ''
                     artifacts-dir: ${{ github.workspace }}/${{ matrix.example_dir }}/artifacts/maestro-ios-${{ matrix.package }}-${{ matrix.target }}
                     artifact-name: maestro-ios-${{ matrix.package }}-${{ matrix.target }}
+
+            -   name: Report a tolerated Maestro failure
+                if: steps.maestro.outcome == 'failure'
+                env:
+                    PACKAGE: ${{ matrix.package }}
+                    TARGET: ${{ matrix.target }}
+                run: |
+                    echo "::warning::Maestro failed for ${PACKAGE} (${TARGET}); the suite is quarantined (issue #601), so the job stays green. This failure is tolerated, not fixed."
 
             # Each save reuses the restore step's key rather than re-hashing, and
             # continue-on-error is confined to these steps: a slow or failed
@@ -303,7 +311,7 @@ jobs:
 
             -   name: Save the built app
                 if: ${{ !cancelled() && steps.build.outcome == 'success' }}
-                uses: rnw-community/mobile-ci/actions/native-app-cache@3e9afaf1888bce8a3e4a70818d457ffa9de11d8d # v4.0.0
+                uses: rnw-community/mobile-ci/actions/native-app-cache@85f0985c18f295f0e380a91370130905eeef997e # v4.2.0
                 continue-on-error: true
                 timeout-minutes: 10
                 with:
@@ -316,7 +324,7 @@ jobs:
 
             -   name: Save ccache
                 if: ${{ !cancelled() && steps.build.outcome == 'success' && steps.ccache.outputs.cache-hit != 'true' }}
-                uses: rnw-community/mobile-ci/actions/setup-ccache-ios@3e9afaf1888bce8a3e4a70818d457ffa9de11d8d # v4.0.0
+                uses: rnw-community/mobile-ci/actions/setup-ccache-ios@85f0985c18f295f0e380a91370130905eeef997e # v4.2.0
                 continue-on-error: true
                 timeout-minutes: 20
                 with:
