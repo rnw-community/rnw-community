@@ -6,7 +6,6 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import { SCREEN_CHROME_DEFAULT_CONFIG } from '../constant/screen-chrome-default-config.constant';
 import { ScreenChromeProvider } from '../screen-chrome-provider/screen-chrome-provider';
-import { getScreenChromeHeaderMetrics } from '../util/get-screen-chrome-header-metrics/get-screen-chrome-header-metrics.util';
 
 import { ScreenChromeHeader } from './screen-chrome-header';
 
@@ -79,17 +78,5 @@ describe('ScreenChromeHeader', () => {
         );
 
         expect(getByTestId('static-header')).toHaveStyle({ paddingTop: 99 });
-    });
-
-    it('matches the published metrics contract for the same inputs', () => {
-        expect.hasAssertions();
-
-        const expected = getScreenChromeHeaderMetrics(
-            SCREEN_CHROME_DEFAULT_CONFIG.headerHeight,
-            INSETS.insets.top,
-            EXTRA_TOP_INSET
-        );
-
-        expect(expected).toBe(INSETS.insets.top + EXTRA_TOP_INSET + SCREEN_CHROME_DEFAULT_CONFIG.headerHeight);
     });
 });

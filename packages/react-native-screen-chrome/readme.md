@@ -200,7 +200,7 @@ unmarked wrapper components are rejected so slot discovery stays deterministic.
 
 Slots are recognized by a stable string marker, `screenChromeSlotKind` (a [`CollapsibleHeaderSlotKind`](#collapsibleheaderslotkind)),
 that each slot component carries as a static property — `'control'` for `CollapsibleHeaderSlot`, `'title'` for
-`CollapsibleHeaderTitleSlot` — with component identity used only as a fast path. Two resolved copies of this package in
+`CollapsibleHeaderTitleSlot` — never by component identity. Two resolved copies of this package in
 one bundle (for example `dist/module` for one importer and `dist/commonjs` for another) produce two distinct function
 identities for the same slot; the marker still matches both, so such a bundle renders instead of throwing.
 
