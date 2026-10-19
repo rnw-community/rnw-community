@@ -16,7 +16,6 @@ src/
   assert/
     assert-collapsible-header-progress.assert.ts — normalized progress validation
     assert-finite-collapsible-header-motion-value.assert.ts — finite translation validation
-    assert-valid-collapsible-header-config.assert.ts — geometry and motion validation orchestration
     assert-valid-collapsible-header-geometry.assert.ts — header geometry validation
     assert-valid-collapsible-header-motion-config.assert.ts — normalized motion validation
   collapsible-header/
@@ -64,7 +63,6 @@ src/
       collapsible-header-provider-scrollables.spec.tsx — snap wiring across every supported scrollable shape
   type/
     collapsible-header-collapsed-transition.type.ts — public 'fade' | 'roll' collapsed-content entry style
-    collapsible-header-geometry.type.ts — normalized geometry validation input
     collapsible-header-mode.type.ts — public 'flow' | 'overlay' layout strategy
     collapsible-header-scroll-ref.type.ts — public animated scroll ref attachable to any scrollable
   util/

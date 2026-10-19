@@ -1,21 +1,24 @@
 import { isPositiveNumber } from '@rnw-community/shared';
 
-import type { CollapsibleHeaderGeometry } from '../type/collapsible-header-geometry.type';
-
-export const assertValidCollapsibleHeaderGeometry = (geometry: CollapsibleHeaderGeometry) => {
-    if (!Number.isFinite(geometry.expandedHeight) || !isPositiveNumber(geometry.expandedHeight)) {
+export const assertValidCollapsibleHeaderGeometry = (
+    expandedHeight: number,
+    collapsedHeight: number,
+    collapseDistance: number,
+    collapseStart: number
+) => {
+    if (!Number.isFinite(expandedHeight) || !isPositiveNumber(expandedHeight)) {
         throw new Error('expandedHeight must be a finite number greater than zero');
     }
-    if (!Number.isFinite(geometry.collapsedHeight) || !isPositiveNumber(geometry.collapsedHeight)) {
+    if (!Number.isFinite(collapsedHeight) || !isPositiveNumber(collapsedHeight)) {
         throw new Error('collapsedHeight must be a finite number greater than zero');
     }
-    if (!Number.isFinite(geometry.collapseDistance) || !isPositiveNumber(geometry.collapseDistance)) {
+    if (!Number.isFinite(collapseDistance) || !isPositiveNumber(collapseDistance)) {
         throw new Error('collapseDistance must be a finite number greater than zero');
     }
-    if (!Number.isFinite(geometry.collapseStart) || geometry.collapseStart < 0) {
+    if (!Number.isFinite(collapseStart) || collapseStart < 0) {
         throw new Error('collapseStart must be a finite number greater than or equal to zero');
     }
-    if (geometry.expandedHeight < geometry.collapsedHeight) {
+    if (expandedHeight < collapsedHeight) {
         throw new Error('expandedHeight must be greater than or equal to collapsedHeight');
     }
 };

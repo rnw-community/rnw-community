@@ -12,44 +12,22 @@ import { getCollapsibleHeaderLayerAccessibilityProps } from '../../util/get-coll
 import type { CollapsibleHeaderAnimationConfig } from '../../interface/collapsible-header-animation-config.interface';
 import type { ViewProps } from 'react-native';
 
-const interpolateProgressFadeOut = (progressValue: number, fadeEndProgress: number): number => {
+type ProgressRange = readonly [number, number];
+
+const interpolateProgress = (progressValue: number, [start, end]: ProgressRange, [from, to]: ProgressRange): number => {
     'worklet';
 
-    if (fadeEndProgress === 0) {
-        return 0;
+    if (start === end) {
+        return progressValue >= end ? to : from;
     }
 
-    return interpolate(progressValue, [0, fadeEndProgress], [1, 0], Extrapolation.CLAMP);
-};
-
-const interpolateProgressFadeIn = (progressValue: number, fadeStartProgress: number): number => {
-    'worklet';
-
-    if (fadeStartProgress === 1) {
-        return Number(progressValue >= 1);
-    }
-
-    return interpolate(progressValue, [fadeStartProgress, 1], [0, 1], Extrapolation.CLAMP);
+    return interpolate(progressValue, [start, end], [from, to], Extrapolation.CLAMP);
 };
 
 const isExpandedLayerVisible = (progressValue: number, fadeEndProgress: number): boolean => {
     'worklet';
 
     return fadeEndProgress > 0 && progressValue < fadeEndProgress;
-};
-
-const interpolateCollapsedProgressTranslateY = (
-    progressValue: number,
-    fadeStartProgress: number,
-    collapsedTranslateY: number
-): number => {
-    'worklet';
-
-    if (fadeStartProgress === 1) {
-        return progressValue < 1 ? collapsedTranslateY : 0;
-    }
-
-    return interpolate(progressValue, [fadeStartProgress, 1], [collapsedTranslateY, 0], Extrapolation.CLAMP);
 };
 
 export const useCollapsibleHeaderAnimatedLayers = ({
@@ -63,42 +41,33 @@ export const useCollapsibleHeaderAnimatedLayers = ({
 }: CollapsibleHeaderAnimationConfig) => {
     const progress = useDerivedValue(() => clamp((scrollY.get() - collapseStart) / collapseDistance, 0, 1));
     const pointerEventsSwitchOffset = collapseStart + collapseDistance * motionConfig.pointerEventsSwitchProgress;
-    // The expanded layer only owns hit testing and accessibility focus while it is still painted. A motion
-    // config whose fades do not overlap (equal or inverted thresholds) puts the derived switch exactly where
-    // the expanded layer reaches zero opacity, and without this guard the invisible layer would keep both.
     const expandedOwnsInteraction = useDerivedValue(
         () =>
             scrollY.get() <= pointerEventsSwitchOffset &&
             isExpandedLayerVisible(progress.get(), motionConfig.expandedOpacityEndProgress)
     );
     const expandedAnimatedStyle = useAnimatedStyle(() => ({
-        opacity: interpolateProgressFadeOut(progress.get(), motionConfig.expandedOpacityEndProgress),
+        opacity: interpolateProgress(progress.get(), [0, motionConfig.expandedOpacityEndProgress], [1, 0]),
         pointerEvents: expandedOwnsInteraction.get() ? 'box-none' : 'none',
         transform: [
-            { translateY: interpolate(progress.get(), [0, 1], [0, motionConfig.expandedTranslateY], Extrapolation.CLAMP) },
-            { scale: interpolate(progress.get(), [0, 1], [1, motionConfig.expandedScale], Extrapolation.CLAMP) },
+            { translateY: interpolateProgress(progress.get(), [0, 1], [0, motionConfig.expandedTranslateY]) },
+            { scale: interpolateProgress(progress.get(), [0, 1], [1, motionConfig.expandedScale]) },
         ],
     }));
-    const collapsedTranslateY = (): number => {
-        'worklet';
-
-        return interpolateCollapsedProgressTranslateY(
-            progress.get(),
-            motionConfig.collapsedOpacityStartProgress,
-            motionConfig.collapsedTranslateY
-        );
-    };
+    const collapsedFadeRange: ProgressRange = [motionConfig.collapsedOpacityStartProgress, 1];
     const collapsedAnimatedStyle = useAnimatedStyle(() => ({
-        opacity: interpolateProgressFadeIn(progress.get(), motionConfig.collapsedOpacityStartProgress),
+        opacity: interpolateProgress(progress.get(), collapsedFadeRange, [0, 1]),
         pointerEvents: expandedOwnsInteraction.get() ? 'none' : 'box-none',
-        transform: [{ translateY: collapsedTranslateY() }],
+        transform: [
+            { translateY: interpolateProgress(progress.get(), collapsedFadeRange, [motionConfig.collapsedTranslateY, 0]) },
+        ],
     }));
     const backgroundAnimatedStyle = useAnimatedStyle(() => ({
-        opacity: interpolateProgressFadeIn(progress.get(), motionConfig.backgroundOpacityStartProgress),
+        opacity: interpolateProgress(progress.get(), [motionConfig.backgroundOpacityStartProgress, 1], [0, 1]),
     }));
     const headerAnimatedStyle = useAnimatedStyle(() => ({
         height:
-            interpolate(progress.get(), [0, 1], [expandedHeight, collapsedHeight], Extrapolation.CLAMP) +
+            interpolateProgress(progress.get(), [0, 1], [expandedHeight, collapsedHeight]) +
             (stretchOnOverscroll && scrollY.get() < 0 ? -scrollY.get() : 0),
     }));
     const expandedAnimatedProps = useAnimatedProps<ViewProps>(() =>
