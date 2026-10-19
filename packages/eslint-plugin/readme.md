@@ -12,6 +12,29 @@ Our plugin features the no-complex-jsx-logic rule, specifically designed to stre
 It ensures simplicity in JSX by restricting complex expressions, thus enhancing readability and maintainability.
 For a comprehensive guide on this rule, see our [detailed documentation](https://github.com/rnw-community/rnw-community/blob/master/packages/eslint-plugin/src/rules/no-complex-jsx-logic/no-complex-jsx-logic.md).
 
+## Rule: public-api-tsdoc
+
+The `public-api-tsdoc` rule requires a one-sentence TSDoc block with `@see` links on every declaration reachable from a
+package's entry points (`src/index.ts` plus the `types`/`exports` targets of its `package.json`), and forbids TSDoc
+everywhere else. It needs type information, and it is not part of the `recommended` configs:
+
+```js
+import rnwcPlugin from '@rnw-community/eslint-plugin';
+
+export default [
+    {
+        files: ['packages/*/src/**/*.{ts,tsx}'],
+        ignores: ['**/*.spec.{ts,tsx}'],
+        plugins: { '@rnw-community': rnwcPlugin },
+        languageOptions: { parserOptions: { projectService: true } },
+        rules: { '@rnw-community/public-api-tsdoc': 'error' },
+    },
+];
+```
+
+See the [rule documentation](https://github.com/rnw-community/rnw-community/blob/master/packages/eslint-plugin/src/rules/public-api-tsdoc/public-api-tsdoc.md)
+for what counts as public and which tags are allowed.
+
 ## Installation
 
 Incorporating our plugin into your project is straightforward. Follow these simple steps:

@@ -1,8 +1,9 @@
 # @rnw-community/eslint-plugin
 
 > ESLint plugin for React / React Native projects with the `no-complex-jsx-logic` rule, which restricts complex
-> expressions inside JSX. Ships CommonJS only and supports both legacy `.eslintrc` and flat config. Peer dependency:
-> `eslint` 9 or 10.
+> expressions inside JSX, and the opt-in type-aware `public-api-tsdoc` rule, which enforces scoped TSDoc on a package's
+> public API. Ships CommonJS only and supports both legacy `.eslintrc` and flat config. Peer dependencies: `eslint` 9 or
+> 10 and `typescript` 5.2 or newer.
 
 The plugin namespace is `@rnw-community`; enable the rule as `@rnw-community/no-complex-jsx-logic` or extend the
 `recommended` (legacy) / `flat/recommended` (flat) config.
@@ -17,12 +18,14 @@ The plugin namespace is `@rnw-community`; enable the rule as `@rnw-community/no-
 
 - [Plugin default export](readme.md#configurationnew-eslintconfigjs): The plugin object (`export =`) with `meta`, `rules`, and `configs`.
 - [`no-complex-jsx-logic`](readme.md#notable-rule-no-complex-jsx-logic): Rule restricting complex logic expressions directly inside JSX.
+- [`public-api-tsdoc`](readme.md#rule-public-api-tsdoc): Type-aware rule requiring scoped TSDoc on every declaration reachable from the package entry points and forbidding it elsewhere.
 - [`configs.recommended`](readme.md#extending-recommended): Legacy config enabling `@rnw-community/no-complex-jsx-logic` as an error with JSX parsing.
 - [`configs['flat/recommended']`](readme.md#extending-recommended-1): Flat config registering the plugin and enabling `@rnw-community/no-complex-jsx-logic` as an error.
 
 ## Entity docs
 
 - [no-complex-jsx-logic.md](https://github.com/rnw-community/rnw-community/blob/master/packages/eslint-plugin/src/rules/no-complex-jsx-logic/no-complex-jsx-logic.md): Rationale and valid / invalid patterns for the `no-complex-jsx-logic` rule.
+- [public-api-tsdoc.md](https://github.com/rnw-community/rnw-community/blob/master/packages/eslint-plugin/src/rules/public-api-tsdoc/public-api-tsdoc.md): What counts as public API, which TSDoc tags are allowed, and valid / invalid patterns for the `public-api-tsdoc` rule.
 
 ## Architecture & conventions
 

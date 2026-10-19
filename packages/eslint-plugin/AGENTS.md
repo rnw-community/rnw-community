@@ -1,6 +1,7 @@
 # @rnw-community/eslint-plugin
 
-Custom ESLint plugin with JSX code-quality rules. Currently ships exactly one rule: `no-complex-jsx-logic`.
+Custom ESLint plugin. Ships two rules: `no-complex-jsx-logic` (JSX code quality, in the `recommended` configs) and
+`public-api-tsdoc` (type-aware scoped-TSDoc enforcement, opt-in only).
 
 ## Package Commands
 
@@ -14,12 +15,27 @@ pnpm test && pnpm test:coverage && pnpm build && pnpm ts && pnpm lint:fix
 src/
   index.ts       — plugin object (meta, configs.recommended, configs['flat/recommended'], rules); `export = plugin`
   rules/
-    index.ts     — rules = { 'no-complex-jsx-logic': noComplexJsxLogicRule } satisfies Record<string, TSESLint.RuleModule<...>>
+    index.ts     — rules = { 'no-complex-jsx-logic', 'public-api-tsdoc' } satisfies Record<string, TSESLint.RuleModule<...>>
     no-complex-jsx-logic/
       no-complex-jsx-logic.rule.ts   — the AST visitor, built with ESLintUtils.RuleCreator
       no-complex-jsx-logic.spec.ts   — @typescript-eslint/rule-tester RuleTester valid/invalid cases
       no-complex-jsx-logic.md        — human-facing rule documentation (overview, rationale, valid/invalid examples)
+    public-api-tsdoc/
+      public-api-tsdoc.rule.ts       — visitor classifying each declaration as exported / referenced / internal
+      collect-public-api.ts          — walks the TS program from the entry points; cached per program + package dir
+      resolve-entry-files.ts         — src/index.ts(x) plus package.json `types`/`exports` .d.ts targets mapped to src
+      find-package.ts                — nearest package.json lookup, cached per directory
+      get-tsdoc-comment.ts           — the `/** */` block attached to a node (skips eslint pragmas, handles decorators)
+      get-tsdoc-tags.ts / is-tsdoc-comment.ts / *.interface.ts — small helpers and shapes
+      public-api-tsdoc.spec.ts       — typed RuleTester cases against fixture packages written to the OS temp dir
+      public-api-tsdoc.md            — rule documentation (what counts as public, allowed tags)
 ```
+
+- `public-api-tsdoc` needs `parserServices.program` (typed linting). It classifies declarations as **exported**
+  (reachable from an entry point: TSDoc required, `@see` required, no other tags), **referenced** (only reachable through
+  the types of exported declarations: TSDoc optional) or **internal** (TSDoc forbidden). Members of exported/referenced
+  interfaces, types, enums, and public class fields may carry TSDoc with `@defaultValue`/`@see`. Platform variants
+  (`x.web.ts`, …) inherit the exported status of the same-named declaration in `x.ts`
 
 ### Key Patterns
 
@@ -63,9 +79,8 @@ Modernization Status for the full reasoning). `package.json` reflects this with 
 - `@typescript-eslint/utils` — `ESLintUtils.RuleCreator` and `TSESLint`/`AST_NODE_TYPES` used by the rule
 - `@typescript-eslint/rule-tester` — `RuleTester` used in the spec (listed as a production dependency, not a
   devDependency, in this package's package.json)
-- Peers: `eslint` (^9), `typescript-eslint` (^8)
+- Peers: `eslint` (^9 || ^10), `typescript` (>=5.2.0, used by `public-api-tsdoc` for symbol resolution)
 
 ### Coverage
 
-This package overrides the monorepo default in its own `jest.config.js`:
-statements **94.4%**, branches **88.8%**, functions **99.9%**, lines **94.1%**.
+Uses the monorepo default from `get-jest.config.js`: 99.9% statements, branches, functions, and lines.
