@@ -1,0 +1,17 @@
+appId: ${APP_ID}
+---
+- runFlow: ../subflows/launch_and_wait_for_probe.yaml
+- startRecording: google-pay-sheet
+- tapOn:
+      id: 'action-show'
+- waitForAnimationToEnd:
+      timeout: 8000
+- takeScreenshot: google-pay-sheet
+- pressKey: back
+- extendedWaitUntil:
+      visible:
+          id: 'payments-flow-state'
+          text: 'rejected'
+      timeout: 15000
+      optional: true
+- stopRecording

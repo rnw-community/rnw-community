@@ -4019,20 +4019,18 @@ readme](readme.md) links here instead of carrying its own TODO ledger.
 
 ### Payment sheet GIFs — [#469](https://github.com/rnw-community/rnw-community/issues/469)
 
-Capture procedure once the on-device Maestro fleet has capacity:
+Android capture is automated: dispatch the `docs-media.yml` workflow. It builds the bare example APK, runs
+[`e2e/recording/android_sheet_capture.yaml`](../react-native-payments-example/e2e/readme.md#layout) on the
+self-hosted Android emulator fleet, and uploads `google-pay-sheet.mp4` plus an ffmpeg-converted GIF as the
+`docs-media-payments` artifact.
 
-1. Add `startRecording: "sheet"` / `stopRecording` around the sheet-presenting step of the `sheet_opens_on_show.yaml`
-   flow documented in [e2e/readme.md](../react-native-payments-example/e2e/readme.md#flows).
-2. Run `maestro test --test-output-dir "$MAESTRO_DEBUG_OUTPUT_DIRECTORY" -e APP_ID=... e2e/flows` from
-   `packages/react-native-payments-example` (the `e2e:ios:bare` / `e2e:android:bare` / `:expo` scripts in
-   `package.json` don't pass `--test-output-dir` today — add it for the capture run), with
-   `MAESTRO_DEBUG_OUTPUT_DIRECTORY` set to an **absolute** path (e.g.
-   `$(git rev-parse --show-toplevel)/packages/react-native-payments-example/artifacts/maestro-<platform>-<target>`) —
-   a relative value resolves under the current directory, which is already `packages/react-native-payments-example`,
-   and would nest a duplicate `packages/react-native-payments-example/` segment. This makes the `.mp4` land there
-   instead of Maestro's default `~/.maestro/tests/<datetime>/`.
-3. Convert with `ffmpeg -i sheet.mp4 -vf "fps=12,scale=320:-1" sheet.gif`.
-4. Embed the result under [Screenshots](readme.md#screenshots), replacing the placeholder.
+Remaining before the GIFs replace the [Screenshots](readme.md#screenshots) placeholder:
+
+- **Android**: the CI emulator has no Google account, so Google Pay answers `show()` with its "Google Pay requires a
+  Google account to be set up on this device" dialog instead of the payment sheet. A recording of the real sheet
+  needs an emulator image signed into a test Google account.
+- **iOS**: the Apple Pay loop needs the macOS Maestro fleet; add an iOS job to `docs-media.yml` once that fleet is
+  available.
 
 ## Native
 
