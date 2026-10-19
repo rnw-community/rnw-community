@@ -819,7 +819,7 @@ every threshold pair.
 endpoint once a released scroll holds still for three frames — momentum events are never relied on, because a
 worklet-only scroll handler never receives them on Android. Snapping therefore requires a mounted `CollapsibleHeader`:
 the header registers the snap geometry with the provider, so a screen that enables `snapToCollapse` without rendering
-`CollapsibleHeader` scrolls freely. Snap animation currently ignores the reduced-motion setting.
+`CollapsibleHeader` scrolls freely. With reduced motion enabled the snap jumps to its endpoint instead of animating.
 
 ## SCREEN_CHROME_DEFAULT_CONFIG
 
