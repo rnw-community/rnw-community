@@ -1,0 +1,15 @@
+appId: ${APP_ID}
+---
+# With `snapToCollapse: false` the header still tracks the scroll offset: it collapses
+# under a full page of scrolling and expands again once the list is back at the top.
+- runFlow: ../subflows/launch_home.yaml
+- tapOn:
+      id: 'home-open-snap-off'
+- extendedWaitUntil:
+      visible:
+          id: 'snap-off-demo-expanded-title'
+      timeout: 15000
+- runFlow:
+      file: ../subflows/collapse_then_expand.yaml
+      env:
+          HEADER: snap-off-demo

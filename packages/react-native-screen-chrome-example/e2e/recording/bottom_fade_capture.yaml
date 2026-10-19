@@ -1,0 +1,21 @@
+appId: ${APP_ID}
+---
+# Recording-only flow for the readme demo GIF: the bottom fade ramps in as the
+# list scrolls and out again at the top. Not part of the assertion suite.
+- runFlow: ../subflows/launch_home.yaml
+- tapOn:
+      id: 'home-open-bottom-fade'
+- extendedWaitUntil:
+      visible:
+          id: 'bottom-fade-demo-title'
+      timeout: 15000
+- startRecording: bottom-fade
+- swipe:
+      start: 50%, 70%
+      end: 50%, 40%
+      duration: 1500
+- swipe:
+      start: 50%, 40%
+      end: 50%, 75%
+      duration: 1500
+- stopRecording

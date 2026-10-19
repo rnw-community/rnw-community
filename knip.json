@@ -57,6 +57,7 @@
                 "expo-blur",
                 "expo-linear-gradient",
                 "expo-updates",
+                "react-native-keyboard-controller",
                 "react-native-reanimated",
                 "react-native-safe-area-context",
                 "react-native-screens"
@@ -86,6 +87,7 @@
                 "expo-blur",
                 "expo-linear-gradient",
                 "expo-updates",
+                "react-native-keyboard-controller",
                 "react-native-reanimated",
                 "react-native-safe-area-context",
                 "react-native-screens",

@@ -1,0 +1,21 @@
+appId: ${APP_ID}
+---
+# Recording-only flow for the readme demo GIF: the composer footer rides up with
+# the keyboard and back down. Not part of the assertion suite.
+- runFlow: ../subflows/launch_home.yaml
+- tapOn:
+      id: 'home-open-keyboard'
+- extendedWaitUntil:
+      visible:
+          id: 'keyboard-demo-input'
+      timeout: 15000
+- startRecording: keyboard-footer
+- tapOn:
+      id: 'keyboard-demo-input'
+- inputText: 'hello'
+- tapOn:
+      id: 'keyboard-demo-send'
+- hideKeyboard
+- waitForAnimationToEnd:
+      timeout: 3000
+- stopRecording

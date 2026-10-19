@@ -1,0 +1,27 @@
+appId: ${APP_ID}
+---
+# The floating tab bar's tap targets stay reachable above the scrolled content and
+# each tap selects its tab.
+- runFlow: ../subflows/launch_home.yaml
+- tapOn:
+      id: 'home-open-tab-bar'
+- extendedWaitUntil:
+      visible:
+          id: 'tab-demo-tab-search'
+      timeout: 15000
+- tapOn:
+      id: 'tab-demo-tab-search'
+- assertVisible:
+      id: 'tab-demo-title'
+      text: 'Search'
+- swipe:
+      start: 50%, 70%
+      end: 50%, 30%
+      duration: 900
+- waitForAnimationToEnd:
+      timeout: 5000
+- tapOn:
+      id: 'tab-demo-tab-profile'
+- assertVisible:
+      id: 'tab-demo-title'
+      text: 'Profile'

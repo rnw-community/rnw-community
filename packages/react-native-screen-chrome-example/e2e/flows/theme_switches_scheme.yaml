@@ -1,0 +1,24 @@
+appId: ${APP_ID}
+---
+# The provider color scheme follows app state: the header toggle flips the chrome
+# between the light and dark palettes and back.
+- runFlow: ../subflows/launch_home.yaml
+- tapOn:
+      id: 'home-open-theme'
+- extendedWaitUntil:
+      visible:
+          id: 'theme-demo-scheme'
+          text: 'Light'
+      timeout: 15000
+- tapOn:
+      id: 'theme-demo-toggle'
+- assertVisible:
+      id: 'theme-demo-scheme'
+      text: 'Dark'
+- assertVisible:
+      id: 'theme-demo-top-fade'
+- tapOn:
+      id: 'theme-demo-toggle'
+- assertVisible:
+      id: 'theme-demo-scheme'
+      text: 'Light'

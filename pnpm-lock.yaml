@@ -855,6 +855,9 @@ importers:
             react-native:
                 specifier: 0.86.2
                 version: 0.86.2(@babel/core@7.29.7(supports-color@8.1.1))(@react-native-community/cli@20.2.0(supports-color@8.1.1)(typescript@6.0.3))(@react-native/jest-preset@0.86.2(@babel/core@7.29.7(supports-color@8.1.1))(react@19.2.3)(supports-color@8.1.1))(@react-native/metro-config@0.86.2(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.2.18)(react@19.2.3)(supports-color@8.1.1)
+            react-native-keyboard-controller:
+                specifier: 1.21.9
+                version: 1.21.9(react-native-reanimated@4.5.3(af862ac093e3460672941671aab4baf4))(react-native@0.86.2(@babel/core@7.29.7(supports-color@8.1.1))(@react-native-community/cli@20.2.0(supports-color@8.1.1)(typescript@6.0.3))(@react-native/jest-preset@0.86.2(@babel/core@7.29.7(supports-color@8.1.1))(react@19.2.3)(supports-color@8.1.1))(@react-native/metro-config@0.86.2(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.2.18)(react@19.2.3)(supports-color@8.1.1))(react@19.2.3)
             react-native-reanimated:
                 specifier: 4.5.3
                 version: 4.5.3(af862ac093e3460672941671aab4baf4)
@@ -901,6 +904,9 @@ importers:
             react-native:
                 specifier: 0.86.2
                 version: 0.86.2(@babel/core@7.29.7(supports-color@8.1.1))(@react-native-community/cli@20.2.0(supports-color@8.1.1)(typescript@6.0.3))(@react-native/jest-preset@0.86.2(@babel/core@7.29.7(supports-color@8.1.1))(react@19.2.3)(supports-color@8.1.1))(@react-native/metro-config@0.86.2(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.2.18)(react@19.2.3)(supports-color@8.1.1)
+            react-native-keyboard-controller:
+                specifier: 1.21.9
+                version: 1.21.9(react-native-reanimated@4.5.3(af862ac093e3460672941671aab4baf4))(react-native@0.86.2(@babel/core@7.29.7(supports-color@8.1.1))(@react-native-community/cli@20.2.0(supports-color@8.1.1)(typescript@6.0.3))(@react-native/jest-preset@0.86.2(@babel/core@7.29.7(supports-color@8.1.1))(react@19.2.3)(supports-color@8.1.1))(@react-native/metro-config@0.86.2(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.2.18)(react@19.2.3)(supports-color@8.1.1))(react@19.2.3)
             react-native-reanimated:
                 specifier: 4.5.3
                 version: 4.5.3(af862ac093e3460672941671aab4baf4)
@@ -968,6 +974,9 @@ importers:
             react-native:
                 specifier: 0.86.2
                 version: 0.86.2(@babel/core@7.29.7(supports-color@8.1.1))(@react-native-community/cli@20.2.0(supports-color@8.1.1)(typescript@6.0.3))(@react-native/jest-preset@0.86.2(@babel/core@7.29.7(supports-color@8.1.1))(react@19.2.3)(supports-color@8.1.1))(@react-native/metro-config@0.86.2(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.2.18)(react@19.2.3)(supports-color@8.1.1)
+            react-native-keyboard-controller:
+                specifier: 1.21.9
+                version: 1.21.9(react-native-reanimated@4.5.3(af862ac093e3460672941671aab4baf4))(react-native@0.86.2(@babel/core@7.29.7(supports-color@8.1.1))(@react-native-community/cli@20.2.0(supports-color@8.1.1)(typescript@6.0.3))(@react-native/jest-preset@0.86.2(@babel/core@7.29.7(supports-color@8.1.1))(react@19.2.3)(supports-color@8.1.1))(@react-native/metro-config@0.86.2(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.2.18)(react@19.2.3)(supports-color@8.1.1))(react@19.2.3)
             react-native-reanimated:
                 specifier: 4.5.3
                 version: 4.5.3(af862ac093e3460672941671aab4baf4)
@@ -10357,6 +10366,14 @@ packages:
         peerDependencies:
             react: 19.2.3
             react-native: 0.86.2
+
+    react-native-keyboard-controller@1.21.9:
+        resolution:
+            { integrity: sha512-+TkkFldht4+AXBQeDy1hLE7iqiW8/NkY/ekhcFsKIiRdI9qC5JDzx0TfAg1iYZB2IeOXppmURIy2jFCUjOcV1w== }
+        peerDependencies:
+            react: 19.2.3
+            react-native: 0.86.2
+            react-native-reanimated: '>=3.0.0'
 
     react-native-reanimated@4.5.3:
         resolution:
@@ -20301,7 +20318,7 @@ snapshots:
             '@babel/code-frame': 7.29.7
             '@babel/core': 7.29.7(supports-color@8.1.1)
             '@babel/generator': 7.29.8
-            '@babel/parser': 7.29.8
+            '@babel/parser': 7.29.9
             '@babel/template': 7.29.7
             '@babel/traverse': 7.29.8(supports-color@8.1.1)
             '@babel/types': 7.29.8
@@ -21402,6 +21419,13 @@ snapshots:
         dependencies:
             react: 19.2.3
             react-native: 0.86.2(@babel/core@7.29.7(supports-color@8.1.1))(@react-native-community/cli@20.2.0(supports-color@8.1.1)(typescript@6.0.3))(@react-native/jest-preset@0.86.2(@babel/core@7.29.7(supports-color@8.1.1))(react@19.2.3)(supports-color@8.1.1))(@react-native/metro-config@0.86.2(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.2.18)(react@19.2.3)(supports-color@8.1.1)
+
+    react-native-keyboard-controller@1.21.9(react-native-reanimated@4.5.3(af862ac093e3460672941671aab4baf4))(react-native@0.86.2(@babel/core@7.29.7(supports-color@8.1.1))(@react-native-community/cli@20.2.0(supports-color@8.1.1)(typescript@6.0.3))(@react-native/jest-preset@0.86.2(@babel/core@7.29.7(supports-color@8.1.1))(react@19.2.3)(supports-color@8.1.1))(@react-native/metro-config@0.86.2(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.2.18)(react@19.2.3)(supports-color@8.1.1))(react@19.2.3):
+        dependencies:
+            react: 19.2.3
+            react-native: 0.86.2(@babel/core@7.29.7(supports-color@8.1.1))(@react-native-community/cli@20.2.0(supports-color@8.1.1)(typescript@6.0.3))(@react-native/jest-preset@0.86.2(@babel/core@7.29.7(supports-color@8.1.1))(react@19.2.3)(supports-color@8.1.1))(@react-native/metro-config@0.86.2(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.2.18)(react@19.2.3)(supports-color@8.1.1)
+            react-native-is-edge-to-edge: 1.3.1(react-native@0.86.2(@babel/core@7.29.7(supports-color@8.1.1))(@react-native-community/cli@20.2.0(supports-color@8.1.1)(typescript@6.0.3))(@react-native/jest-preset@0.86.2(@babel/core@7.29.7(supports-color@8.1.1))(react@19.2.3)(supports-color@8.1.1))(@react-native/metro-config@0.86.2(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.2.18)(react@19.2.3)(supports-color@8.1.1))(react@19.2.3)
+            react-native-reanimated: 4.5.3(af862ac093e3460672941671aab4baf4)
 
     react-native-reanimated@4.5.3(af862ac093e3460672941671aab4baf4):
         dependencies:

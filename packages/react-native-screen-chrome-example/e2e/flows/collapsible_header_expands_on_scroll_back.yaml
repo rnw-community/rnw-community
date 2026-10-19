@@ -1,35 +1,9 @@
 appId: ${APP_ID}
 ---
-# Two slow full drags reach the collapsed endpoint unambiguously. Slow drags carry no
-# fling momentum, so one drag back cannot undo two: keep dragging back until the list
-# is near the top again, where the expanded title layer must return.
+# The collapsed endpoint is reached by scrolling, and scrolling back to the top
+# restores the expanded title layer.
 - runFlow: ../subflows/launch_collapsible_demo.yaml
-- repeat:
-      times: 2
-      commands:
-          - swipe:
-                start: 50%, 80%
-                end: 50%, 30%
-                duration: 900
-- waitForAnimationToEnd:
-      timeout: 5000
-- extendedWaitUntil:
-      visible:
-          id: 'collapsible-demo-collapsed-title'
-      timeout: 15000
-- repeat:
-      while:
-          notVisible:
-              id: 'collapsible-demo-expanded-title'
-      times: 4
-      commands:
-          - swipe:
-                start: 50%, 30%
-                end: 50%, 85%
-                duration: 900
-          - waitForAnimationToEnd:
-                timeout: 5000
-- extendedWaitUntil:
-      visible:
-          id: 'collapsible-demo-expanded-title'
-      timeout: 15000
+- runFlow:
+      file: ../subflows/collapse_then_expand.yaml
+      env:
+          HEADER: collapsible-demo

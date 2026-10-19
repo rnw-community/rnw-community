@@ -1,0 +1,23 @@
+appId: ${APP_ID}
+---
+# The composer footer rides above the open keyboard: Send is tapped while the
+# keyboard is up, which only lands on the button when the footer moved with it.
+- runFlow: ../subflows/launch_home.yaml
+- tapOn:
+      id: 'home-open-keyboard'
+- extendedWaitUntil:
+      visible:
+          id: 'keyboard-demo-input'
+      timeout: 15000
+- tapOn:
+      id: 'keyboard-demo-input'
+- inputText: 'hello'
+- waitForAnimationToEnd:
+      timeout: 5000
+- tapOn:
+      id: 'keyboard-demo-send'
+- extendedWaitUntil:
+      visible:
+          id: 'keyboard-demo-last-sent'
+          text: 'Sent: hello'
+      timeout: 15000

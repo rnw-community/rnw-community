@@ -1,0 +1,21 @@
+appId: ${APP_ID}
+---
+# The scroll-driven bottom fade stays mounted above the content while the list
+# scrolls, and the static header above it does not move.
+- runFlow: ../subflows/launch_home.yaml
+- tapOn:
+      id: 'home-open-bottom-fade'
+- extendedWaitUntil:
+      visible:
+          id: 'bottom-fade-demo-title'
+      timeout: 15000
+- swipe:
+      start: 50%, 70%
+      end: 50%, 30%
+      duration: 900
+- waitForAnimationToEnd:
+      timeout: 5000
+- assertVisible:
+      id: 'bottom-fade-demo-fade'
+- assertVisible:
+      id: 'bottom-fade-demo-title'
