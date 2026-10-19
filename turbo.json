@@ -36,7 +36,8 @@
     },
     "lint": {
       "dependsOn": [
-        "^topo"
+        "^topo",
+        "@rnw-community/eslint-plugin#build"
       ],
       "inputs": [
         "$TURBO_DEFAULT$",
@@ -47,7 +48,8 @@
     },
     "lint:fix": {
       "dependsOn": [
-        "^topo"
+        "^topo",
+        "@rnw-community/eslint-plugin#build"
       ],
       "inputs": [
         "$TURBO_DEFAULT$",

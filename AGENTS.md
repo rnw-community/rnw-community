@@ -181,8 +181,10 @@ sentence, no `@example`, no prose paragraphs.
 Still forbidden everywhere, including on public API: `@example` (examples live in the docs), narrative/multi-paragraph
 blocks, `@param`/`@returns` prose that restates the types, TSDoc on non-exported or private declarations, and all other
 inline comments per the rules above. Rationale: consumers' IDEs and AI agents read the published `.d.ts` — the
-one-liner + `@see` gives them the entry point without duplicating the docs. Enforced by lint (required on exports,
-banned elsewhere) once the public surface is annotated.
+one-liner + `@see` gives them the entry point without duplicating the docs. Enforced by the type-aware
+`@rnw-community/public-api-tsdoc` ESLint rule (`packages/eslint-plugin`), enabled for every `packages/*/src` file in
+`eslint.config.mjs`: TSDoc is required on exports reachable from a package entry point and reported everywhere else,
+including every file of a private package.
 
 No JSDoc usage examples in source. Examples live in the docs tree and per-entity `.md` files.
 
@@ -333,6 +335,10 @@ an ESLint rule with different options.
   unused-directive report skips directives that name oxlint-owned rules (the `oxlint-handoff` processor), so those
   are not checked for staleness
 - Type-aware rules stay in ESLint/typescript-eslint; oxlint's type-aware mode (`oxlint-tsgolint`) is not adopted yet
+- `eslint.config.mjs` loads `@rnw-community/eslint-plugin` from its built `dist`, so the turbo `lint`/`lint:fix` tasks
+  depend on `@rnw-community/eslint-plugin#build`, and `pnpm lint:oxlint:*` and the pre-commit hook run
+  `pnpm lint:plugin:build` first. Run `pnpm lint:plugin:build` before invoking `eslint` directly (editor integration
+  included) in a fresh checkout
 
 ### Commit Messages (Conventional Commits, enforced by commitlint + husky)
 
