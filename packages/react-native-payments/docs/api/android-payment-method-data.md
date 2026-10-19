@@ -48,7 +48,7 @@ const androidMethod: AndroidPaymentMethodDataInterface = {
   keys (`stripe:publishableKey`, `braintree:clientKey`, …) go straight into it. `gatewayMerchantId` is optional
   because not every gateway takes it — Google's
   [processor table](https://developers.google.com/pay/api/android/guides/tutorial#tokenization) lists none for
-  Stripe or Braintree.
+  Stripe or Braintree. See [guides/gateways/](../guides/gateways/index.md) for each PSP's exact parameters.
 
 ## References
 

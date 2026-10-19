@@ -18,6 +18,8 @@ docs/
   api/                             index.md + one file per entity group, mirroring src/index.ts
   guides/                          change-events, modifiers, errors, retry, testing, troubleshooting, migrate-from-v2,
                                     migrate-from-upstream
+    gateways/                      index.md (pick your gateway) + one recipe per PSP (stripe, adyen, braintree,
+                                    checkout-com) + direct.md; every PSP value carries a source link + verified date
   architecture.md                  the WHY — JS<->native contract, single-use requests, event lifecycle
   roadmap.md                       W3C compliance checklist + open work as issue links (no bare TODOs elsewhere)
 ```
