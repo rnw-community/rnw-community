@@ -53,6 +53,7 @@
         "lint:fix": "eslint --fix src",
         "test": "jest",
         "test:coverage": "jest --coverage",
+        "test:web": "node web-e2e/build-harness.mjs && playwright test",
         "ts": "tsc --pretty -p tsconfig.json",
         "ts:nodenext": "tsc --pretty -p tsconfig.nodenext-check.json"
     },
@@ -61,6 +62,7 @@
     },
     "devDependencies": {
         "@babel/core": "^7.29.7",
+        "@playwright/test": "1.64.1",
         "@react-native-masked-view/masked-view": "^0.3.2",
         "@react-native/babel-preset": "0.86.2",
         "@react-native/jest-preset": "0.86.2",
@@ -69,14 +71,17 @@
         "@testing-library/react-native": "^13.3.3",
         "@types/react": "19.2.18",
         "@types/react-test-renderer": "19.1.0",
+        "esbuild": "0.21.5",
         "expo-blur": "~57.0.0",
         "expo-linear-gradient": "~57.0.0",
         "react": "19.2.3",
+        "react-dom": "19.2.3",
         "react-freeze": "^1.0.3",
         "react-native": "0.86.2",
         "react-native-builder-bob": "^0.43.0",
         "react-native-reanimated": "4.5.3",
         "react-native-safe-area-context": "~5.7.0",
+        "react-native-web": "0.21.2",
         "react-native-worklets": "0.11.3",
         "react-test-renderer": "19.2.3"
     },

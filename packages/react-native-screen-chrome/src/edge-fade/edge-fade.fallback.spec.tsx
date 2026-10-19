@@ -44,7 +44,11 @@ describe('EdgeFade without the optional blur, gradient, and mask modules', () =>
 
         expect(fade).toHaveStyle({ height: mockConfig.bottomFadeHeight + 30, bottom: -30 });
         expect(bandStyles).toContainEqual({
-            flex: 1,
+            position: 'absolute',
+            left: 0,
+            right: 0,
+            top: 0,
+            bottom: 0,
             experimental_backgroundImage: buildBackgroundImage(mockConfig.colors.dark, 'bottom'),
         });
     });
@@ -62,6 +66,6 @@ describe('EdgeFade without the optional blur, gradient, and mask modules', () =>
         const [[{ blur }]] = renderBand.mock.calls;
 
         expect(blur).toBeDefined();
-        expect(screen.getByTestId('custom-band', { includeHiddenElements: true }).findAllByType(View)).toHaveLength(1);
+        expect(screen.getByTestId('custom-band', { includeHiddenElements: true }).findAllByType(View)).toHaveLength(2);
     });
 });

@@ -52,6 +52,6 @@ describe('EdgeFade native with an external scroll offset', () => {
         );
 
         expect(screen.getByTestId('external-fade', { includeHiddenElements: true })).toHaveStyle({ opacity: 0.5 });
-        expect(screen.getByTestId('edge-fade-blur', { includeHiddenElements: true })).toHaveProp('intensity', 30);
+        expect(screen.getAllByTestId('edge-fade-blur', { includeHiddenElements: true })[0]).toHaveProp('intensity', 30);
     });
 });

@@ -144,8 +144,14 @@ pnpm test && pnpm test:coverage && pnpm build && pnpm ts && pnpm ts:nodenext && 
   job once #601 resolves and compiler output returns. While the compiler is absent (see below), values whose
   _identity_ is behavior — a merged ref callback that React 19 would otherwise detach, clean up, and reattach
   on every render — must be manually memoized; nothing else memoizes them today.
-- `EdgeFade` native wraps its blur and wash in `MaskedView` + `expo-linear-gradient` (#640). Do not add further native
-  views to the default band while #601 is open — gradient/masked native views have corrupted the Hermes heap on the
+- `EdgeFade` native masks only its wash (`MaskedView` + `expo-linear-gradient`, #640); the blur (`EdgeFadeBlur`) is a
+  sibling painted beneath the masked wash, never a descendant of the mask. UIKit documents that a mask on a superview
+  of a `UIVisualEffectView` makes the effect fail, and `RNCMaskedView` sets `maskView` on itself, so a blur inside it
+  renders the wash over unblurred content. The blur is four non-overlapping Expo Blur slices, each a quarter of the
+  band, whose intensity halves away from the edge, so it steps down instead of ending in one hard edge. Specs assert no
+  blur host has a mask ancestor; `web-e2e` (`pnpm test:web`, Playwright over an esbuild + react-native-web harness)
+  asserts the web band's computed CSS and measures that content under it is really blurred. Do not add further
+  gradient or masked native views to the default band while #601 is open — they have corrupted the Hermes heap on the
   RN 0.86 / iOS 26 stack. Additional visuals (Liquid Glass, solid colors, custom gradients) belong in a consumer
   `renderBand`/`renderEdgeFadeBand`, never in the package default. That includes wash stops: a custom wash
   `locations` is a renderer recipe in the readme, not a prop.

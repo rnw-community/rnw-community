@@ -592,10 +592,44 @@ jobs:
                     read -ra tasks <<< "${TURBO_TASKS}"
                     pnpm exec turbo run "${tasks[@]}" --force --filter=@rnw-community/react-native-collapsible-header --filter=@rnw-community/react-native-screen-chrome
 
+    screen-chrome-web-e2e:
+        name: Screen chrome web edge fade (Playwright, Chromium)
+        timeout-minutes: 15
+        runs-on: ubuntu-latest
+        permissions:
+            contents: read
+
+        steps:
+            -   name: Checkout repository
+                uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+                with:
+                    persist-credentials: false
+
+            -   name: Setup pnpm
+                uses: pnpm/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1 # v4.3.0
+
+            -   name: Setup Node
+                uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+                with:
+                    node-version: 24.x
+                    cache: pnpm
+
+            -   name: Install dependencies
+                run: pnpm install --frozen-lockfile
+
+            -   name: Build the screen chrome workspace dependencies
+                run: pnpm exec turbo run build --filter=@rnw-community/react-native-screen-chrome^...
+
+            -   name: Install Chromium
+                run: pnpm --filter @rnw-community/react-native-screen-chrome exec playwright install --with-deps chromium
+
+            -   name: Edge fade computed CSS and rendered blur
+                run: pnpm --filter @rnw-community/react-native-screen-chrome test:web
+
     required-checks:
         name: Required checks
         if: always()
-        needs: [code-quality, package-manager-smoke, workflow-lint, nestjs-compatibility, reanimated-compatibility]
+        needs: [code-quality, package-manager-smoke, workflow-lint, nestjs-compatibility, reanimated-compatibility, screen-chrome-web-e2e]
         timeout-minutes: 5
         runs-on: ubuntu-latest
         permissions: {}
@@ -608,13 +642,15 @@ jobs:
                     WORKFLOW_LINT_RESULT: ${{ needs.workflow-lint.result }}
                     NESTJS_COMPATIBILITY_RESULT: ${{ needs.nestjs-compatibility.result }}
                     REANIMATED_COMPATIBILITY_RESULT: ${{ needs.reanimated-compatibility.result }}
+                    SCREEN_CHROME_WEB_E2E_RESULT: ${{ needs.screen-chrome-web-e2e.result }}
                 run: |
                     echo "code-quality=${CODE_QUALITY_RESULT}"
                     echo "package-manager-smoke=${PACKAGE_MANAGER_SMOKE_RESULT}"
                     echo "workflow-lint=${WORKFLOW_LINT_RESULT}"
                     echo "nestjs-compatibility=${NESTJS_COMPATIBILITY_RESULT}"
                     echo "reanimated-compatibility=${REANIMATED_COMPATIBILITY_RESULT}"
-                    if [ "${CODE_QUALITY_RESULT}" != 'success' ] || [ "${PACKAGE_MANAGER_SMOKE_RESULT}" != 'success' ] || [ "${WORKFLOW_LINT_RESULT}" != 'success' ] || [ "${NESTJS_COMPATIBILITY_RESULT}" != 'success' ] || [ "${REANIMATED_COMPATIBILITY_RESULT}" != 'success' ]; then
+                    echo "screen-chrome-web-e2e=${SCREEN_CHROME_WEB_E2E_RESULT}"
+                    if [ "${CODE_QUALITY_RESULT}" != 'success' ] || [ "${PACKAGE_MANAGER_SMOKE_RESULT}" != 'success' ] || [ "${WORKFLOW_LINT_RESULT}" != 'success' ] || [ "${NESTJS_COMPATIBILITY_RESULT}" != 'success' ] || [ "${REANIMATED_COMPATIBILITY_RESULT}" != 'success' ] || [ "${SCREEN_CHROME_WEB_E2E_RESULT}" != 'success' ]; then
                       echo "Required jobs did not pass"
                       exit 1
                     fi
