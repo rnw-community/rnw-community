@@ -27,7 +27,7 @@ jobs:
             contents: read
             packages: write
             actions: read
-        uses: rnw-community/mobile-ci/.github/workflows/ios-maestro.yml@240cad0f6ba43da17e42f9aefc8637567941cb58 # v4.3.0
+        uses: rnw-community/mobile-ci/.github/workflows/ios-maestro.yml@c45b9b0e1cc8e841a9d1f1df5f8a9acaa422ce19 # v4.3.1
         with:
             targets: >-
                 [
