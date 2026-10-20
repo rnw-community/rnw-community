@@ -85,9 +85,9 @@ published.
   labels, never native dialogs directly — except six iOS flows, which briefly assert against the PassKit sheet's own
   accessibility tree (via `subflows/dismiss_ios_sheet.yaml`) purely to dismiss it, since iOS blocks UI-test tooling from
   querying the app's own tree while that sheet is presented.
-- `.github/workflows/ios-maestro.yml` and `android-maestro.yml` at the repo root run this suite per matrix target
+- `.github/workflows/ios-maestro.yml` and `android-maestro.yml` at the repo root run this suite per target
   (`bare`/`expo`) on `[self-hosted, macOS, ARM64, macos-maestro]` / an equivalent Android runner, gated by a
-  turbo-`--affected` check against this package and its two app workspaces. As of this writing the workflows are wired but
+  turbo-`--affected` check against every target's app workspace. As of this writing the workflows are wired but
   queue rather than execute — the self-hosted fleet label is not yet registered (tracked separately) — so treat CI as
   configured, not as a currently green signal. The `maestro-e2e` agent skill (`.claude/skills/maestro-e2e`) documents how to
   drive and extend the suite locally.

@@ -4,7 +4,7 @@ name: Docs media
 # is not code churn, so this never runs on push or schedule. The pull_request
 # trigger only fires when the capture plumbing itself changes, which is also the
 # only way to exercise a new version of this workflow before it reaches master.
-# The APK build / emulator split mirrors android-maestro.yml: Gradle on a
+# The APK build / emulator split: Gradle on a
 # GitHub-hosted x86_64 runner, the KVM emulator on the self-hosted amd64 fleet,
 # and the ffmpeg conversion back on a GitHub-hosted runner.
 # iOS is not captured here yet: the Apple Pay loop needs the macOS fleet.
