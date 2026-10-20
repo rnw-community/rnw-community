@@ -21,7 +21,7 @@ import type { ReactNode } from 'react';
 const AnimatedView = createAnimatedComponent(View);
 
 /**
- * Renders a decorative web progressive backdrop blur and color wash at one screen edge.
+ * Renders a decorative web edge-stepped backdrop blur and color wash at one screen edge.
  * @see https://github.com/rnw-community/rnw-community/tree/master/packages/react-native-screen-chrome#edgefade
  */
 export const EdgeFade = ({

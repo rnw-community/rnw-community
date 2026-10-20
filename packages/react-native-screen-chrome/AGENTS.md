@@ -155,10 +155,12 @@ pnpm test && pnpm test:coverage && pnpm build && pnpm ts && pnpm ts:nodenext && 
   RN 0.86 / iOS 26 stack. Additional visuals (Liquid Glass, solid colors, custom gradients) belong in a consumer
   `renderBand`/`renderEdgeFadeBand`, never in the package default. That includes wash stops: a custom wash
   `locations` is a renderer recipe in the readme, not a prop.
-- Web `EdgeFade` is a progressive blur (`getWebEdgeFadeBlurLayers`): four `backdrop-filter` layers whose radius doubles
-  toward the edge, each masked to an overlapping band intersected (`mask-composite`) with the `maskStops` mask, plus a
-  separate masked wash (`EdgeFadeWebBand`). A single blur with a gradient mask cross-fades sharp content into a
-  full-radius smear and reads as a hard edge. Never put `opacity` below 1, a mask, or a filter on an ancestor of the
+- Web `EdgeFade` mirrors the native slices (`getWebEdgeFadeBlurLayers`): four non-overlapping quarter-band
+  `backdrop-filter` slices whose radius halves away from the edge, each carrying the `maskStops` mask sized to 400% and
+  positioned on its own quarter, plus a separate masked wash (`EdgeFadeWebBand`). A single blur with a gradient mask
+  cross-fades sharp content into a full-radius smear and reads as a hard edge. Never let blur layers overlap: each
+  overlapping `backdrop-filter` re-blurs the layers below it, and four full-band layers made headless WebKit about 7×
+  slower to render a screen (a consumer's mobile-webkit e2e timed out); the web e2e asserts the slices never overlap. Never put `opacity` below 1, a mask, or a filter on an ancestor of the
   layers: per the Filter Effects backdrop-root rule the ancestor becomes the backdrop root and the layers blur nothing
   (verified in Chromium), so the default band fades each layer with the scroll opacity and the container carries
   positioning only. The renderer path keeps the documented container opacity. The radii stay static on purpose:

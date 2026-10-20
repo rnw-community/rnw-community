@@ -8,13 +8,18 @@ const HARNESS_URL = pathToFileURL(join(__dirname, '..', 'node_modules', '.cache'
 const BAND_HEIGHT = 76;
 const SCREEN_HEIGHT = 600;
 const EDGE_STRIP_HEIGHT = 12;
-const BLUR_RADII = ['2.8125px', '5.625px', '11.25px', '22.5px'];
+const BLUR_RADII = ['22.5px', '11.25px', '5.625px', '2.8125px'];
+const SLICE_HEIGHT = BAND_HEIGHT / 4;
 
 type Position = 'top' | 'bottom';
 
 interface LayerStyle {
+    readonly top: number;
+    readonly height: number;
     readonly backdropFilter: string;
     readonly maskImage: string;
+    readonly maskSize: string;
+    readonly maskPosition: string;
     readonly backgroundImage: string;
     readonly opacity: string;
 }
@@ -30,10 +35,15 @@ const readBand = async (page: Page, position: Position) =>
         const { top, height } = band.getBoundingClientRect();
         const layers = [...band.children].map(child => {
             const style = getComputedStyle(child);
+            const rect = child.getBoundingClientRect();
 
             return {
+                top: rect.top,
+                height: rect.height,
                 backdropFilter: style.backdropFilter,
                 maskImage: style.maskImage,
+                maskSize: style.maskSize,
+                maskPosition: style.maskPosition,
                 backgroundImage: style.backgroundImage,
                 opacity: style.opacity,
             };
@@ -98,8 +108,6 @@ const setScrollY = async (page: Page, offset: number): Promise<void> => {
 const getBlurLayers = (layers: readonly LayerStyle[]): LayerStyle[] =>
     layers.filter(layer => layer.backdropFilter !== 'none');
 
-const getBandMask = (layer: LayerStyle): string => layer.maskImage.split('), linear-gradient(')[0];
-
 test.beforeEach(async ({ page }) => {
     await page.goto(HARNESS_URL);
     await expect(page.getByTestId('top-fade')).toBeAttached();
@@ -114,7 +122,7 @@ for (const position of ['top', 'bottom'] as const) {
             expect(band.top).toBe(position === 'top' ? 0 : SCREEN_HEIGHT - BAND_HEIGHT);
         });
 
-        test('stacks four backdrop blurs whose radius doubles toward the edge', async ({ page }) => {
+        test('steps four backdrop blurs whose radius halves away from the edge', async ({ page }) => {
             const blurLayers = getBlurLayers((await readBand(page, position)).layers);
 
             expect(blurLayers.map(layer => layer.backdropFilter)).toStrictEqual(
@@ -122,27 +130,28 @@ for (const position of ['top', 'bottom'] as const) {
             );
         });
 
-        test('feathers every blur band in and out so no layer ends in a hard edge', async ({ page }) => {
-            const blurLayers = getBlurLayers((await readBand(page, position)).layers);
-            const direction = position === 'top' ? 'linear-gradient(to top, ' : 'linear-gradient(';
+        test('lays the blurs out as edge-to-inside quarter slices that never overlap', async ({ page }) => {
+            const band = await readBand(page, position);
+            const sliceTops = getBlurLayers(band.layers).map(layer => layer.top - band.top);
 
-            blurLayers.forEach((layer, layerIndex) => {
-                const start = layerIndex * 20;
-
-                expect(getBandMask(layer)).toBe(
-                    `${direction}rgba(0, 0, 0, 0) ${start}%, rgb(0, 0, 0) ${start + 20}%, rgb(0, 0, 0) ${start + 40}%, rgba(0, 0, 0, 0) ${start + 60}%`
-                );
-            });
+            expect(getBlurLayers(band.layers).map(layer => layer.height)).toStrictEqual(Array(4).fill(SLICE_HEIGHT));
+            expect(sliceTops).toStrictEqual([0, 1, 2, 3].map(step => (position === 'top' ? step : 3 - step) * SLICE_HEIGHT));
         });
 
-        test('intersects every blur layer with the same edge mask as the wash', async ({ page }) => {
+        test('masks every blur slice with its own quarter of the wash edge mask', async ({ page }) => {
             const { layers } = await readBand(page, position);
             const wash = layers[layers.length - 1];
+            const blurLayers = getBlurLayers(layers);
+            const quarterPositions = ['0% 0%', '0% 33.3333%', '0% 66.6667%', '0% 100%'];
 
-            for (const layer of getBlurLayers(layers)) {
-                expect(layer.maskImage.endsWith(wash.maskImage)).toBe(true);
+            for (const layer of blurLayers) {
+                expect(layer.maskImage).toBe(wash.maskImage);
+                expect(layer.maskSize).toBe('100% 400%');
             }
 
+            expect(blurLayers.map(layer => layer.maskPosition)).toStrictEqual(
+                position === 'top' ? quarterPositions : [...quarterPositions].reverse()
+            );
             expect(wash.maskImage).toBe(
                 position === 'top'
                     ? 'linear-gradient(rgba(0, 0, 0, 0.99) 0%, rgb(0, 0, 0) 50%, rgba(0, 0, 0, 0) 100%)'
