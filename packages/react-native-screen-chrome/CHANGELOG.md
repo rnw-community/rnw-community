@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.29.3](https://github.com/rnw-community/rnw-community/compare/v2.29.2...v2.29.3) (2026-10-20)
+
+### Bug Fixes
+
+- **react-native-screen-chrome:** render the web edge-fade blur as non-overlapping slices ([#725](https://github.com/rnw-community/rnw-community/issues/725)) ([1ecb93f](https://github.com/rnw-community/rnw-community/commit/1ecb93f711c03bb3b8c1d24d60c804d2e00c4de7))
+
 ## [2.29.2](https://github.com/rnw-community/rnw-community/compare/v2.29.1...v2.29.2) (2026-10-19)
 
 **Note:** Version bump only for package @rnw-community/react-native-screen-chrome
