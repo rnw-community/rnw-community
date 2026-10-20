@@ -5,8 +5,12 @@ interface WebEdgeFadePropertiesInterface {
     readonly WebkitBackdropFilter?: string;
     readonly maskImage?: string;
     readonly WebkitMaskImage?: string;
-    readonly maskComposite?: string;
-    readonly WebkitMaskComposite?: string;
+    readonly maskSize?: string;
+    readonly WebkitMaskSize?: string;
+    readonly maskPosition?: string;
+    readonly WebkitMaskPosition?: string;
+    readonly maskRepeat?: string;
+    readonly WebkitMaskRepeat?: string;
     readonly backgroundImage?: string;
 }
 
