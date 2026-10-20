@@ -49,6 +49,10 @@ jobs:
                 .github/workflows/android-maestro.yml
             maestro-version: '2.8.0'
             build-timeout-minutes: 120
+            # The expo apps keep the template's 512 MiB Gradle metaspace, which in-process Kotlin
+            # compilation exhausts, so Kotlin keeps compiling in its own daemon.
+            build-env: |
+                GRADLE_OPTS=-Dorg.gradle.project.kotlin.compiler.execution.strategy=daemon
             # 720x1280 @ 320dpi, the viewport every flow's swipe percentages are calibrated against.
             emulator-profile: Galaxy Nexus
             emulator-slots-dir: /var/lib/mobile-ci/emulator-slots
