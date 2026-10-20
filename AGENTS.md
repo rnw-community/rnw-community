@@ -461,40 +461,36 @@ The monorepo uses dual ESM + CJS output. Rules:
 ## Mobile CI (Maestro E2E)
 
 Two workflows, `.github/workflows/ios-maestro.yml` and `.github/workflows/android-maestro.yml`, run Maestro end-to-end
-suites. They cover every example package listed in `.github/scripts/maestro-matrix.mjs` (payments, collapsible-header
-and screen-chrome), for both the `bare` and `expo` app targets. Each suite lives in the example package's `e2e/flows`.
-To add an example package, register it in the matrix script, not in the workflows. Booting the device, installing the
-app, installing Maestro, running the suite and uploading the debug artifacts are done by the pinned
-[`rnw-community/mobile-ci`](https://github.com/rnw-community/mobile-ci) actions (`run-maestro-ios`,
-`run-maestro-android`), not by inline workflow steps.
+suites. Each is a thin caller of the [`rnw-community/mobile-ci`](https://github.com/rnw-community/mobile-ci) reusable
+workflow of the same name, pinned to a commit SHA, with one call per platform. Its `targets` list covers every example
+package (payments, collapsible-header and screen-chrome) for both the `bare` and `expo` app targets, and each target
+names its own suite with `flowsDir` (the example package's `e2e/flows`). To add an example package, add its targets to
+both workflows. Planning, building, booting the device, installing the app, running the suite and uploading the
+debug artifacts all happen inside the reusable workflows.
 
 - **When they run:** on every pull request; on pushes to `master` that touch the payments or collapsible-header packages
-  or the Maestro CI files; nightly (iOS at 03:17 UTC, Android at 03:47 UTC); and on manual dispatch.
-- **Which suites run:** on a pull request, a `detect` job runs `turbo ls --affected` and passes the result to the matrix
-  script, so a suite runs only when its package or app dependencies changed. A documentation-only change (`*.md`,
-  `llms*.txt`, `docs/`) runs no suite. If either workflow or the matrix script changed, every suite runs. Every other
-  trigger runs every suite.
-- **Build cache:** the `native-fingerprint` and `native-app-cache` actions key the built app on the native fingerprint
-  plus a hash of the JavaScript that goes into the bundle. On a cache hit the job skips the JS build, prebuild,
-  CocoaPods/Gradle and the native build, and runs the suite against the cached app.
-- **iOS:** each package and target gets one job on the self-hosted macOS ARM64 runners (label `macos-maestro`). The job
-  selects the pinned Xcode (`setup-xcode-pinned`), and on a cache miss runs CocoaPods with ccache (`setup-ccache-ios`)
-  and builds a Release simulator app with `xcodebuild`. `run-maestro-ios` then boots a simulator, installs the app and
-  runs the suite.
-- **Android:** a free GitHub-hosted `ubuntu-24.04` runner builds the release APK, keeping the self-hosted fleet for
-  the device step, and uploads it as an artifact. The Maestro job then runs on the self-hosted `trf-linux-amd64-4x8` runner,
-  one device at a time: `run-maestro-android` boots a KVM-accelerated `android-34` Google APIs x86_64 emulator with the
-  `Galaxy Nexus` profile (720x1280 at 320dpi, the geometry the flows are calibrated against), installs the APK and runs
-  the suite. Gradle and SDK builds do not belong in that job.
-- **Pinning and results:** `MAESTRO_VERSION` pins the Maestro CLI, and every `mobile-ci` action is pinned to a commit
-  SHA. Every run uploads a Maestro artifact holding one JUnit report per flow (`junit/<flow>.xml`), plus the debug
-  output of any failing flow. Each workflow ends with a `status` job that reports a single pass or fail. The iOS
-  screen-chrome jobs use `continue-on-error` and report a failure as a warning, so their failures do not fail the
-  workflow, until the Hermes heap corruption tracked in #601 is fixed.
-- **Why the workflows compose actions:** the reusable `ios-maestro.yml` / `android-maestro.yml` workflows from
-  `mobile-ci` take one `flows-dir`, one `build-strategy` and one `tolerate-test-failures` per call, and two calls in
-  one workflow run collide on their plan artifacts, so they cannot yet express three example packages with their own
-  suites, bare targets that cannot be repacked, and a quarantine of one package.
+  or the workflow itself; nightly (iOS at 03:17 UTC, Android at 03:47 UTC); and on manual dispatch.
+- **Which suites run:** on a pull request, mobile-ci runs `turbo ls --affected` against every target's app package and
+  runs every suite when any of them is affected. A documentation-only change (`*.md`, `llms*.txt`, `docs/`) runs no
+  suite, and a change to either workflow runs every suite. Every other trigger runs every suite.
+- **Builds:** the `bare` targets set `buildStrategy: native`, because only an Expo app can be repacked, so they always
+  compile. The `expo` targets repack a published base binary with this commit's JavaScript when one exists for their
+  native fingerprint, and compile otherwise. A cold native build gets `build-timeout-minutes: 120`.
+- **iOS:** builds and tests run on the self-hosted macOS ARM64 runners (label `macos-maestro`) with the pinned Xcode.
+  The simulators stay stock (`simulator-slim-profile: ''`), because the payments suite needs the PassKit services a
+  slim profile switches off.
+- **Android:** builds and tests run on the self-hosted x86_64 Linux KVM pool. The suite runs on a KVM-accelerated
+  `android-34` Google APIs x86_64 emulator with the `Galaxy Nexus` profile (720x1280 at 320dpi, the geometry the flows
+  are calibrated against), and `emulator-slots-dir` caps how many emulators share a host.
+- **Pinning and results:** `maestro-version` pins the Maestro CLI, and the reusable workflows are pinned to a commit SHA.
+  Every run uploads a Maestro artifact per shard with one JUnit report per flow, plus the debug output of any failing
+  flow, and each workflow ends with a status job that reports a single pass or fail. The screen-chrome targets set
+  `tolerateTestFailures` on iOS, so their Maestro failures are reported as warnings and do not fail the workflow, until
+  the Hermes heap corruption tracked in #601 is fixed.
+- **Why one call per platform:** mobile-ci v4.3.0 takes `flowsDir`, `tolerateTestFailures` and `buildStrategy` per
+  target, so a single call expresses three example packages with their own suites, bare targets that cannot be
+  repacked, and a quarantine of one package. Before that release these workflows composed the individual mobile-ci
+  actions instead.
 - **Running locally:** build the example app and install it on a simulator or emulator. Then run `pnpm e2e:ios:bare`
   (or another `e2e:<platform>:<target>` script) from the example package directory.
 

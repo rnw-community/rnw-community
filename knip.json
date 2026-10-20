@@ -2,7 +2,7 @@
     "$schema": "https://unpkg.com/knip@5/schema.json",
     "workspaces": {
         ".": {
-            "entry": [".github/scripts/*.mjs", "scripts/*.mjs"]
+            "entry": ["scripts/*.mjs"]
         },
         "packages/decorators-core": {
             "entry": ["src/index.ts"]

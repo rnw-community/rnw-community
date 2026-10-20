@@ -1,9 +1,10 @@
 name: iOS Maestro E2E
 
-# Runs the Maestro suite of every example package that carries one, on the
-# self-hosted macOS fleet (issue #395, epic #372). The package/target matrix comes
-# from .github/scripts/maestro-matrix.mjs, which also decides which suites a pull
-# request actually needs; add new example packages there, not here.
+# Thin caller of rnw-community/mobile-ci's ios-maestro.yml: one call runs every
+# example package's suite, each target with its own flowsDir. Bare apps cannot be
+# repacked, so they always build natively. The screen-chrome suites are
+# quarantined (tolerateTestFailures) until the Hermes heap corruption tracked in
+# #601 is fixed.
 on:
     workflow_dispatch:
     pull_request:
@@ -14,347 +15,43 @@ on:
             - packages/react-native-payments-example/**
             - packages/react-native-collapsible-header/**
             - packages/react-native-collapsible-header-example/**
-            - .github/scripts/maestro-matrix.mjs
             - .github/workflows/ios-maestro.yml
     schedule:
         - cron: '17 3 * * *'
 
-concurrency:
-    group: ios-maestro-${{ github.ref }}
-    cancel-in-progress: true
-
 permissions: {}
 
-env:
-    MAESTRO_VERSION: '2.8.0'
-    XCODE_VERSION: '26.4.1'
-    XCODE_BUILD: '17E202'
-    MAESTRO_CLI_NO_ANALYTICS: true
-    MAESTRO_CLI_ANALYSIS_NOTIFICATION_DISABLED: true
-
 jobs:
-    detect:
-        name: Detect affected packages
-        runs-on: ubuntu-latest
+    e2e:
         permissions:
             contents: read
-        outputs:
-            matrix: ${{ steps.affected.outputs.matrix }}
-            any: ${{ steps.affected.outputs.any }}
-        steps:
-            - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-              with:
-                  fetch-depth: 0
-                  persist-credentials: false
-            - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
-              with:
-                  node-version: 22.x
-                  package-manager-cache: false
-            - name: Compute affected example packages
-              id: affected
-              env:
-                  TURBO_SCM_BASE: ${{ github.event.pull_request.base.sha }}
-                  EVENT_NAME: ${{ github.event_name }}
-              run: |
-                  set -euo pipefail
-                  # An empty file means "run every suite", which is the right answer both
-                  # off pull requests and when the suites' own CI plumbing changed: turbo
-                  # maps those files to no package, so package-based detection alone would
-                  # skip every leg on exactly the changes that need testing most.
-                  : > affected.json
-                  if [ "$EVENT_NAME" = "pull_request" ]; then
-                    changed_files="$(git diff --name-only "$TURBO_SCM_BASE" HEAD)"
-                    if grep -E '^\.github/(workflows/(ios|android)-maestro\.yml|scripts/maestro-matrix\.mjs)$' <<<"$changed_files"; then
-                      echo "Maestro CI plumbing changed; every suite runs."
-                    elif ! grep -vE '\.md$|(^|/)llms[^/]*\.txt$|(^|/)docs/' <<<"$changed_files" > /dev/null; then
-                      # Turbo maps a readme or docs edit to its package, which would
-                      # run that package's suites although no app input changed.
-                      echo "Documentation-only change; no suite runs."
-                      echo '{"packages":{"items":[]}}' > affected.json
-                    else
-                      npx -y turbo@2.10.8 ls --affected --output=json > affected.json
-                    fi
-                  fi
-                  node .github/scripts/maestro-matrix.mjs affected.json | tee -a "$GITHUB_OUTPUT"
-    maestro:
-        name: Maestro (${{ matrix.package }}, ${{ matrix.target }})
-        needs: detect
-        if: needs.detect.outputs.any == 'true'
-        permissions:
-            contents: read
-        # Time-boxed: the screen-chrome demo screens crash with a Hermes heap
-        # corruption under the current expo native modules on the iOS 26
-        # simulator (investigation log on issue #601). Tolerated, not silenced —
-        # remove this flag as soon as the upstream triage lands.
-        continue-on-error: ${{ matrix.package == 'screen-chrome' }}
-        runs-on: [self-hosted, macOS, ARM64, macos-maestro]
-        # Self-hosted fleet capacity is shared with other repositories, so both the
-        # job and every step below carry an explicit bound. The cache saves run
-        # as explicit, bounded steps after the suite inside this same budget.
-        timeout-minutes: 60
-        strategy:
-            fail-fast: false
-            matrix:
-                include: ${{ fromJSON(needs.detect.outputs.matrix) }}
-        env:
-            APP_DIR: ${{ matrix.example_dir }}/apps/${{ matrix.target }}
-            APP_PATH: ${{ matrix.example_dir }}/apps/${{ matrix.target }}/ios/build/Build/Products/Release-iphonesimulator/${{ matrix.ios_scheme }}.app
-
-        steps:
-            -   name: Checkout repository
-                uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-                timeout-minutes: 10
-                with:
-                    persist-credentials: false
-
-            -   name: Setup pnpm
-                uses: pnpm/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1 # v4.3.0
-
-            -   name: Setup Node
-                uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
-                timeout-minutes: 10
-                with:
-                    node-version: 22.x
-                    package-manager-cache: false
-
-            -   name: Resolve pnpm store path
-                id: pnpm-store
-                shell: bash
-                run: echo "path=$(pnpm store path --silent)" >> "$GITHUB_OUTPUT"
-
-            # Every cache in this job is restore-only up front and saved by an
-            # explicit step at the very end. Uploads from this fleet run at
-            # ~0.6 MB/s, and implicit post-step saves timed out after the suite
-            # had already passed, failing green runs.
-            -   name: Restore pnpm store cache
-                id: pnpm-cache
-                uses: actions/cache/restore@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
-                timeout-minutes: 5
-                with:
-                    path: ${{ steps.pnpm-store.outputs.path }}
-                    key: pnpm-store-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('pnpm-lock.yaml') }}
-                    restore-keys: |
-                        pnpm-store-${{ runner.os }}-${{ runner.arch }}-
-
-            -   name: Install dependencies
-                id: install
-                timeout-minutes: 15
-                run: pnpm install --frozen-lockfile
-
-            -   name: Select the pinned Xcode
-                id: xcode
-                uses: rnw-community/mobile-ci/actions/setup-xcode-pinned@85f0985c18f295f0e380a91370130905eeef997e # v4.2.0
-                timeout-minutes: 5
-                with:
-                    version: ${{ env.XCODE_VERSION }}
-                    build: ${{ env.XCODE_BUILD }}
-
-            -   name: Fingerprint the native surface
-                id: fingerprint
-                uses: rnw-community/mobile-ci/actions/native-fingerprint@85f0985c18f295f0e380a91370130905eeef997e # v4.2.0
-                timeout-minutes: 10
-                with:
-                    platform: ios
-                    working-directory: ${{ env.APP_DIR }}
-
-            # The release .app embeds its JavaScript bundle, so a cached app is
-            # only this commit's app when the JS that goes into the bundle is
-            # unchanged too. The JS hash is computed once here, before any build
-            # output exists, and reused verbatim by the save step.
-            -   name: Compute the app cache key
-                id: app-key
-                shell: bash
-                env:
-                    NATIVE_FINGERPRINT: ${{ steps.fingerprint.outputs.hash }}
-                    JS_HASH: ${{ hashFiles('pnpm-lock.yaml', 'packages/*/package.json', 'packages/*/*.js', 'packages/*/src/**', format('{0}/apps/{1}/*', matrix.example_dir, matrix.target), format('{0}/apps/{1}/assets/**', matrix.example_dir, matrix.target)) }}
-                run: echo "fingerprint=${NATIVE_FINGERPRINT}-${JS_HASH:0:16}" >> "$GITHUB_OUTPUT"
-
-            -   name: Restore the built app
-                id: app-cache
-                uses: rnw-community/mobile-ci/actions/native-app-cache@85f0985c18f295f0e380a91370130905eeef997e # v4.2.0
-                timeout-minutes: 10
-                with:
-                    mode: restore
-                    path: ${{ env.APP_PATH }}
-                    profile: ios-${{ matrix.package }}-${{ matrix.target }}
-                    arch: ${{ runner.arch }}
-                    toolchain: ${{ steps.xcode.outputs.toolchain-key }}
-                    fingerprint: ${{ steps.app-key.outputs.fingerprint }}
-
-            -   name: Build workspace JS dependencies
-                if: steps.app-cache.outputs.cache-hit != 'true'
-                timeout-minutes: 10
-                env:
-                    BUILD_FILTER: ${{ matrix.build_filter }}
-                run: pnpm build --filter="${BUILD_FILTER}"
-
-            -   name: Generate native project (expo)
-                if: steps.app-cache.outputs.cache-hit != 'true' && matrix.target == 'expo'
-                timeout-minutes: 10
-                working-directory: ${{ matrix.example_dir }}
-                run: pnpm prebuild:expo
-
-            -   name: Restore CocoaPods global cache
-                id: pods-global-cache
-                if: steps.app-cache.outputs.cache-hit != 'true'
-                uses: actions/cache/restore@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
-                timeout-minutes: 10
-                with:
-                    path: |
-                        ~/Library/Caches/CocoaPods
-                        ~/.cocoapods
-                    key: pods-global-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
-                    restore-keys: |
-                        pods-global-${{ runner.os }}-
-
-            # Before `pod install`: both the bare Podfiles and the expo template
-            # turn on React Native's ccache compiler wrappers from USE_CCACHE,
-            # which this step exports.
-            -   name: Set up ccache
-                id: ccache
-                if: steps.app-cache.outputs.cache-hit != 'true'
-                uses: rnw-community/mobile-ci/actions/setup-ccache-ios@85f0985c18f295f0e380a91370130905eeef997e # v4.2.0
-                timeout-minutes: 15
-                with:
-                    mode: restore
-                    ccache-dir: ${{ runner.temp }}/ccache
-                    max-size: 1G
-                    key: ccache-ios-${{ steps.xcode.outputs.toolchain-key }}-${{ matrix.package }}-${{ matrix.target }}-${{ steps.app-key.outputs.fingerprint }}
-                    restore-keys: |
-                        ccache-ios-${{ steps.xcode.outputs.toolchain-key }}-${{ matrix.package }}-${{ matrix.target }}-
-                        ccache-ios-${{ steps.xcode.outputs.toolchain-key }}-
-
-            -   name: Install CocoaPods dependencies
-                id: pod-install
-                if: steps.app-cache.outputs.cache-hit != 'true'
-                timeout-minutes: 20
-                working-directory: ${{ env.APP_DIR }}/ios
-                run: pod install --repo-update
-
-            -   name: Build app
-                id: build
-                if: steps.app-cache.outputs.cache-hit != 'true'
-                # The workspace and scheme are the same name for both target kinds:
-                # the bare template names them after app.json, and expo prebuild
-                # derives them from the slug. The matrix carries that name.
-                timeout-minutes: 45
-                working-directory: ${{ env.APP_DIR }}/ios
-                env:
-                    IOS_SCHEME: ${{ matrix.ios_scheme }}
-                run: |
-                    set -euo pipefail
-                    xcodebuild \
-                        -workspace "${IOS_SCHEME}.xcworkspace" \
-                        -scheme "${IOS_SCHEME}" \
-                        -configuration Release \
-                        -sdk iphonesimulator \
-                        -destination 'generic/platform=iOS Simulator' \
-                        -derivedDataPath build \
-                        CODE_SIGNING_ALLOWED=NO \
-                        build
-                    test -d "${GITHUB_WORKSPACE}/${APP_PATH}"
-
-            -   name: Run Maestro suite
-                id: maestro
-                # Step-level flag (the job-level one is not honored for the check
-                # run conclusion on this runner): see the job-level comment.
-                continue-on-error: ${{ matrix.package == 'screen-chrome' }}
-                # Boot, install, warm-up, suite, capture and shutdown all live in
-                # this one action, so its budget covers the old boot (10), warm-up
-                # (5) and suite (25) step budgets together.
-                timeout-minutes: 40
-                uses: rnw-community/mobile-ci/actions/run-maestro-ios@85f0985c18f295f0e380a91370130905eeef997e # v4.2.0
-                with:
-                    app-path: ${{ env.APP_PATH }}
-                    app-id: ${{ matrix.ios_app_id }}
-                    flows-dir: ${{ matrix.example_dir }}/e2e/flows
-                    flows-name-pattern: '*.yaml'
-                    shard-index: 0
-                    shard-count: 1
-                    maestro-version: ${{ env.MAESTRO_VERSION }}
-                    # The shared fleet simulators stay stock: the payments suite
-                    # needs the PassKit services a slim profile switches off.
-                    simulator-slim-profile: ''
-                    artifacts-dir: ${{ github.workspace }}/${{ matrix.example_dir }}/artifacts/maestro-ios-${{ matrix.package }}-${{ matrix.target }}
-                    artifact-name: maestro-ios-${{ matrix.package }}-${{ matrix.target }}
-
-            -   name: Report a tolerated Maestro failure
-                if: steps.maestro.outcome == 'failure'
-                env:
-                    PACKAGE: ${{ matrix.package }}
-                    TARGET: ${{ matrix.target }}
-                run: |
-                    echo "::warning::Maestro failed for ${PACKAGE} (${TARGET}); the suite is quarantined (issue #601), so the job stays green. This failure is tolerated, not fixed."
-
-            # Each save reuses the restore step's key rather than re-hashing, and
-            # continue-on-error is confined to these steps: a slow or failed
-            # upload must never turn a finished suite red.
-            -   name: Save pnpm store cache
-                if: ${{ !cancelled() && steps.install.outcome == 'success' && steps.pnpm-cache.outputs.cache-hit != 'true' }}
-                uses: actions/cache/save@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
-                continue-on-error: true
-                timeout-minutes: 10
-                with:
-                    path: ${{ steps.pnpm-store.outputs.path }}
-                    key: ${{ steps.pnpm-cache.outputs.cache-primary-key }}
-
-            -   name: Save CocoaPods global cache
-                if: ${{ !cancelled() && steps.pod-install.outcome == 'success' && steps.pods-global-cache.outputs.cache-hit != 'true' }}
-                uses: actions/cache/save@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
-                continue-on-error: true
-                timeout-minutes: 5
-                with:
-                    path: |
-                        ~/Library/Caches/CocoaPods
-                        ~/.cocoapods
-                    key: ${{ steps.pods-global-cache.outputs.cache-primary-key }}
-
-            -   name: Save the built app
-                if: ${{ !cancelled() && steps.build.outcome == 'success' }}
-                uses: rnw-community/mobile-ci/actions/native-app-cache@85f0985c18f295f0e380a91370130905eeef997e # v4.2.0
-                continue-on-error: true
-                timeout-minutes: 10
-                with:
-                    mode: save
-                    path: ${{ env.APP_PATH }}
-                    profile: ios-${{ matrix.package }}-${{ matrix.target }}
-                    arch: ${{ runner.arch }}
-                    toolchain: ${{ steps.xcode.outputs.toolchain-key }}
-                    fingerprint: ${{ steps.app-key.outputs.fingerprint }}
-
-            -   name: Save ccache
-                if: ${{ !cancelled() && steps.build.outcome == 'success' && steps.ccache.outputs.cache-hit != 'true' }}
-                uses: rnw-community/mobile-ci/actions/setup-ccache-ios@85f0985c18f295f0e380a91370130905eeef997e # v4.2.0
-                continue-on-error: true
-                timeout-minutes: 20
-                with:
-                    mode: save
-                    ccache-dir: ${{ runner.temp }}/ccache
-                    key: ccache-ios-${{ steps.xcode.outputs.toolchain-key }}-${{ matrix.package }}-${{ matrix.target }}-${{ steps.app-key.outputs.fingerprint }}
-
-    status:
-        name: iOS Maestro E2E result
-        needs: [detect, maestro]
-        if: always()
-        runs-on: ubuntu-latest
-        permissions: {}
-        steps:
-            - name: Report
-              env:
-                  NEEDS_DETECT_RESULT: ${{ needs.detect.result }}
-                  NEEDS_DETECT_OUTPUTS_ANY: ${{ needs.detect.outputs.any }}
-                  NEEDS_MAESTRO_RESULT: ${{ needs.maestro.result }}
-              run: |
-                  if [ "${NEEDS_DETECT_RESULT}" != "success" ]; then
-                    echo "Detection job did not succeed."
-                    exit 1
-                  fi
-                  if [ "${NEEDS_DETECT_OUTPUTS_ANY}" != "true" ]; then
-                    echo "Skipped: no example package dependency tree was touched."
-                    exit 0
-                  fi
-                  if [ "${NEEDS_MAESTRO_RESULT}" != "success" ]; then
-                    echo "Maestro suite failed."
-                    exit 1
-                  fi
-                  echo "Maestro suite passed."
+            packages: write
+            actions: read
+        uses: rnw-community/mobile-ci/.github/workflows/ios-maestro.yml@240cad0f6ba43da17e42f9aefc8637567941cb58 # v4.3.0
+        with:
+            targets: >-
+                [
+                  {"name":"payments-bare","appDir":"packages/react-native-payments-example/apps/bare","workspace":"ReactNativePaymentsExample.xcworkspace","scheme":"ReactNativePaymentsExample","appId":"org.reactjs.native.example.ReactNativePaymentsExample","prebuildCommand":"","flowsDir":"packages/react-native-payments-example/e2e/flows","buildStrategy":"native"},
+                  {"name":"payments-expo","appDir":"packages/react-native-payments-example/apps/expo","workspace":"reactnativepaymentsexpoexample.xcworkspace","scheme":"reactnativepaymentsexpoexample","appId":"com.reactnativepaymentsexpoexample","prebuildCommand":"pnpm prebuild","flowsDir":"packages/react-native-payments-example/e2e/flows"},
+                  {"name":"collapsible-header-bare","appDir":"packages/react-native-collapsible-header-example/apps/bare","workspace":"ReactNativeCollapsibleHeaderExample.xcworkspace","scheme":"ReactNativeCollapsibleHeaderExample","appId":"org.reactjs.native.example.ReactNativeCollapsibleHeaderExample","prebuildCommand":"","flowsDir":"packages/react-native-collapsible-header-example/e2e/flows","buildStrategy":"native"},
+                  {"name":"collapsible-header-expo","appDir":"packages/react-native-collapsible-header-example/apps/expo","workspace":"reactnativecollapsibleheaderexpoexample.xcworkspace","scheme":"reactnativecollapsibleheaderexpoexample","appId":"com.reactnativecollapsibleheaderexpoexample","prebuildCommand":"pnpm prebuild","flowsDir":"packages/react-native-collapsible-header-example/e2e/flows"},
+                  {"name":"screen-chrome-bare","appDir":"packages/react-native-screen-chrome-example/apps/bare","workspace":"ReactNativeScreenChromeExample.xcworkspace","scheme":"ReactNativeScreenChromeExample","appId":"org.reactjs.native.example.ReactNativeScreenChromeExample","prebuildCommand":"","flowsDir":"packages/react-native-screen-chrome-example/e2e/flows","buildStrategy":"native","tolerateTestFailures":true},
+                  {"name":"screen-chrome-expo","appDir":"packages/react-native-screen-chrome-example/apps/expo","workspace":"reactnativescreenchromeexpoexample.xcworkspace","scheme":"reactnativescreenchromeexpoexample","appId":"com.reactnativescreenchromeexpoexample","prebuildCommand":"pnpm prebuild","flowsDir":"packages/react-native-screen-chrome-example/e2e/flows","tolerateTestFailures":true}
+                ]
+            flows-name-pattern: '*.yaml'
+            install-command: pnpm install --frozen-lockfile
+            build-command: pnpm build --filter=...@rnw-community/react-native-payments-example-bare --filter=...@rnw-community/react-native-payments-example-expo --filter=...@rnw-community/react-native-collapsible-header-example-bare --filter=...@rnw-community/react-native-collapsible-header-example-expo --filter=...@rnw-community/react-native-screen-chrome-example-bare --filter=...@rnw-community/react-native-screen-chrome-example-expo
+            exempt-paths: |
+                **/*.md
+                **/llms*.txt
+                **/docs/**
+            trigger-paths: |
+                .github/workflows/ios-maestro.yml
+                .github/workflows/android-maestro.yml
+            maestro-version: '2.8.0'
+            build-timeout-minutes: 120
+            xcode-version: '26.4.1'
+            xcode-build: '17E202'
+            # The payments suite needs the PassKit services a slim profile switches off.
+            simulator-slim-profile: ''
+            runner-labels: '["self-hosted","macOS","ARM64","macos-maestro"]'

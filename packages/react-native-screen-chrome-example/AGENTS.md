@@ -57,6 +57,6 @@ e2e/
 
 ## CI coverage
 
-Both Maestro workflows run this package via `.github/scripts/maestro-matrix.mjs` under `package: 'screen-chrome'`;
-the matrix members include the library, this package, and both app shells, so changes confined to one target do not
-run the other target's suite.
+Both Maestro workflows run this package's `screen-chrome-bare` and `screen-chrome-expo` targets, and run every
+example package's suite when any target's app package is affected. On iOS both targets set `tolerateTestFailures`
+until #601 is fixed.

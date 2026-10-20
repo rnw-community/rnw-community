@@ -11,4 +11,4 @@ jobs:
         name: Cancel queued/in-progress runs for the closed PR branch
         permissions:
             actions: write # cancels superseded runs of the closed PR
-        uses: rnw-community/mobile-ci/.github/workflows/pr-closed-cleanup-reusable.yml@85f0985c18f295f0e380a91370130905eeef997e # v4.2.0
+        uses: rnw-community/mobile-ci/.github/workflows/pr-closed-cleanup-reusable.yml@240cad0f6ba43da17e42f9aefc8637567941cb58 # v4.3.0

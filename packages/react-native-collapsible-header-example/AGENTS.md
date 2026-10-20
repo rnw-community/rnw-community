@@ -58,13 +58,13 @@ e2e/
 The Android legs run on an x86_64 emulator whose display is pinned to 720x1280 @ 320dpi with no cutout (a 360x640dp
 viewport). `snap_to_nearest_endpoint` and the other gesture flows express swipes in viewport percentages, and their
 release points are calibrated against that viewport: a `pixel_6` profile (1080x2400 @ 420dpi with a punch-hole cutout)
-moves the snap release past the snap end and shifts every safe-area inset, which failed this suite. The workflow
-asserts the geometry before the suite runs, so a profile change fails loudly instead of as unrelated flow failures.
+moves the snap release past the snap end and shifts every safe-area inset, which failed this suite. The
+`emulator-profile` input of `.github/workflows/android-maestro.yml` pins it.
 
 ## CI coverage
 
-Both Maestro workflows (`.github/workflows/ios-maestro.yml`, `android-maestro.yml`) run this package's suite. The
-package/target matrix lives in `.github/scripts/maestro-matrix.mjs` — register new example packages and targets there.
+Both Maestro workflows (`.github/workflows/ios-maestro.yml`, `android-maestro.yml`) run this package's suite. Each
+workflow lists every example package's targets in its `targets` input — register new example packages and targets there.
 The `expo` target is wired for both platforms. Like the payments example, the `bare` target commits its own `ios/` and
 `android/` projects (copied from the payments example with the product, bundle, and Kotlin package identifiers renamed;
 the expo target generates its own with `expo prebuild`), and the bare `MainActivity` drops Android state restoration
