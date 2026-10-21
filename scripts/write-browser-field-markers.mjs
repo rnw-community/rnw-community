@@ -22,5 +22,6 @@ if (unmatchedSources.length > 0) {
 for (const [markerDir, browser] of markerMaps) {
     const markerPath = path.join(packageRoot, markerDir, 'package.json');
     const marker = JSON.parse(fs.readFileSync(markerPath, 'utf8'));
-    fs.writeFileSync(markerPath, `${JSON.stringify({ ...marker, browser })}\n`);
+    const reactNative = Object.fromEntries(Object.keys(browser).map(source => [source, source]));
+    fs.writeFileSync(markerPath, `${JSON.stringify({ ...marker, browser, 'react-native': reactNative })}\n`);
 }

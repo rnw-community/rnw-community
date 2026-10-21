@@ -107,6 +107,12 @@ function checkNestedBrowserMarkers(pkg, pkgDir, manifest, tarballFiles) {
                     `${markerDir}/package.json does not map ${source} to ${target}; resolvers read the nearest package.json`
                 );
             }
+            if (marker['react-native']?.[source] !== source) {
+                fail(
+                    pkg,
+                    `${markerDir}/package.json does not pin ${source} in its react-native map; Expo's Metro reads browser on iOS and Android`
+                );
+            }
         }
     }
 }
