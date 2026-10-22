@@ -21,6 +21,7 @@ export const THRESHOLDS = {
 
 const BAND_HEIGHT = 128;
 const CHROME_HEIGHT = 32;
+const TEXT_LINE_HEIGHT = 24;
 const RULER_POINTS = 6;
 const PATTERN_MARGIN_POINTS = 14;
 const GOLDEN_WIDTH = 200;
@@ -77,16 +78,29 @@ const rowStats = ({ width, data }, row, patternWidth) => {
     return { energy: energy / (patternWidth - 2), mean: sums.map(sum => sum / patternWidth) };
 };
 
-const profile = (capture, reference, rows, patternWidth) =>
-    rows.map(row => {
-        const captured = rowStats(capture, row, patternWidth);
-        const original = rowStats(reference, row, patternWidth);
+const profile = (capture, reference, rows, patternWidth) => {
+    const captured = rows.map(row => rowStats(capture, row, patternWidth));
+    const original = rows.map(row => rowStats(reference, row, patternWidth));
+    const window = Math.round(TEXT_LINE_HEIGHT * readRuler(reference).scale);
+    const washes = [0, 1, 2].map(channel => {
+        const capturedMeans = smooth(
+            captured.map(row => row.mean[channel]),
+            window
+        );
+        const originalMeans = smooth(
+            original.map(row => row.mean[channel]),
+            window
+        );
 
-        return {
-            energy: captured.energy / Math.max(original.energy, 1),
-            wash: Math.max(...captured.mean.map((channel, index) => Math.abs(channel - original.mean[index]))),
-        };
+        return capturedMeans.map((value, index) => Math.abs(value - originalMeans[index]));
     });
+
+    return captured.map((row, index) => ({
+        energy: row.energy / Math.max(original[index].energy, 1),
+        wash: Math.max(...row.mean.map((value, channel) => Math.abs(value - original[index].mean[channel]))),
+        averageWash: Math.max(...washes.map(channel => channel[index])),
+    }));
+};
 
 const range = (from, to) => Array.from({ length: Math.max(0, to - from) }, (_, index) => from + index);
 const mean = values => values.reduce((sum, value) => sum + value, 0) / values.length;
@@ -106,6 +120,7 @@ const checkBand = (name, chrome, ramp, scale, failures) => {
         (value, index) => index >= step && value - energy[index - step] > THRESHOLDS.rampStepPerPointMax
     );
     const washes = [...chrome, ...ramp].map(({ wash }) => wash);
+    const maximumWash = Math.max(...[...chrome, ...ramp].map(({ averageWash }) => averageWash));
     const at = index => `${(index / scale).toFixed(0)}pt into the ramp`;
 
     if (chromeEnergy > THRESHOLDS.chromeEnergyMax) {
@@ -120,8 +135,8 @@ const checkBand = (name, chrome, ramp, scale, failures) => {
     if (jump >= 0) {
         failures.push(`${name}: a visible blur edge ${at(jump)}`);
     }
-    if (Math.max(...washes) > THRESHOLDS.washMax) {
-        failures.push(`${name}: the wash is an opaque slab (${Math.max(...washes).toFixed(0)} levels)`);
+    if (maximumWash > THRESHOLDS.washMax) {
+        failures.push(`${name}: the wash is an opaque slab (${maximumWash.toFixed(0)} levels)`);
     }
     if (mean(washes.slice(-2 * step)) > THRESHOLDS.washInnerEdgeMax) {
         failures.push(`${name}: the wash does not fade out at the inner edge`);
@@ -178,7 +193,19 @@ export const checkScrolledCapture = (capture, reference) => {
 export const checkRestCapture = (capture, reference) => {
     const { patternWidth } = readRuler(reference);
     const worstRow = Math.max(
-        ...range(0, capture.height).map(row => profile(capture, reference, [row], patternWidth)[0].wash)
+        ...range(0, capture.height).map(row => {
+            const difference = [0, 0, 0];
+
+            for (let x = 0; x < patternWidth; x++) {
+                for (let channel = 0; channel < 3; channel++) {
+                    const index = (row * capture.width + x) * 4 + channel;
+
+                    difference[channel] += Math.abs(capture.data[index] - reference.data[index]);
+                }
+            }
+
+            return Math.max(...difference) / patternWidth;
+        })
     );
 
     return worstRow > THRESHOLDS.restDiffMax ? [`the band is visible at rest (${worstRow.toFixed(1)} levels)`] : [];
@@ -231,8 +258,12 @@ export const checkCaptureDir = (captureDir, baselineDir, update = false) => {
         .filter(file => file.endsWith('-reference.png'))
         .map(file => file.replace('-reference.png', ''));
 
-    if (cells.length !== 6) {
-        return [`expected 6 scheme and background cells, found ${cells.length}`];
+    const expectedCells = ['dark', 'light'].flatMap(scheme =>
+        ['dark', 'light', 'vivid'].map(background => `${scheme}-${background}`)
+    );
+
+    if (cells.length !== expectedCells.length || expectedCells.some(cell => !cells.includes(cell))) {
+        return [`expected the complete scheme and background matrix, found: ${cells.join(', ')}`];
     }
 
     return cells.flatMap(cell => {

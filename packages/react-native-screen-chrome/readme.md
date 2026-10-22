@@ -30,6 +30,38 @@ or `pod install`) after installing it. Expo Go does not include the view. On iOS
 blur if a future iOS removes it. On Android it eases a QmBlurView blur out through a gradient mask. The wash is a
 `experimental_backgroundImage` gradient. Web uses CSS `backdrop-filter` layers and never loads the native view.
 
+## Migrating to 3.0
+
+3.0 replaces the optional blur stack with this package's required Expo native view. Remove `blurMethod` and
+`blurTarget` from `EdgeFade` and `CollapsibleHeaderBackdrop`. Custom `renderBand` / `renderEdgeFadeBand` callbacks
+no longer receive `tint`; render the supplied `blur` or `defaultBand` element instead.
+
+Before (2.x):
+
+```tsx
+<BlurTargetView ref={blurTarget}>{content}</BlurTargetView>
+<EdgeFade position="bottom" blurMethod="dimezisBlurView" blurTarget={blurTarget} />
+```
+
+After (3.0):
+
+```tsx
+<View>{content}</View>
+<EdgeFade position="bottom" chromeHeight={48} />
+```
+
+`chromeHeight` is the height of your chrome beyond the safe-area inset: the blur holds its full radius there, then
+fades across the remaining band. The default is `0`. Bands now start at the screen edge; the native default header
+backdrop height is 128 points instead of 220. `intensityInputRange` now fades a fixed-radius native blur through opacity,
+with the radius set by `maxIntensity`, rather than animating the radius.
+
+Remove `expo-blur`, `@react-native-masked-view/masked-view`, `expo-linear-gradient`, and
+`@sbaiahmed1/react-native-blur` if nothing else in your app uses them. None is a peer or fallback in 3.0. Install the
+new required `expo` peer (`>=55 <59`); bare React Native apps must configure Expo modules too. Build a new native
+binary after upgrading (`npx expo run:ios` / `npx expo run:android`, or your native build pipeline). An OTA update alone
+cannot install the view. Expo Go is unsupported; use a development or production build. A missing native module is
+an error. Web continues to use CSS `backdrop-filter`.
+
 ## Complete example
 
 ```tsx
@@ -316,8 +348,8 @@ const backdropProps: CollapsibleHeaderBackdropPropsInterface = { testID: 'header
 ## Edge fades
 
 Every band starts at the screen edge and covers the safe-area inset plus its configured height. A native band holds
-its full blur radius behind the chrome it sits under (the inset plus `chromeHeight`) and eases the radius continuously
-to zero at the inner edge; web cross-fades four fixed-radius layers. The blur sits under a color wash that eases from
+its full blur radius behind the chrome it sits under (the inset plus `chromeHeight`), easing the radius to zero on
+iOS and the blur opacity to zero on Android; web cross-fades four fixed-radius layers. The blur sits under a color wash that eases from
 solid at the edge to transparent inward. Bands ignore pointer events and accessibility traversal, and scroll animation
 changes opacity while the radii stay static. Native defaults use 150-point top and bottom bands, while web defaults use
 76-pixel bands.
@@ -331,7 +363,7 @@ Renders a decorative top or bottom blur band, scroll-animatable through `scrollA
 ```
 
 Native bands hold the full blur radius over the safe-area inset plus `chromeHeight` (the bar the band sits behind) and
-ease it to zero across the rest of the band, so the chrome stays legible while content fades into the blur without a
+fade it across the rest of the band (variable radius on iOS, a masked uniform blur on Android), so the chrome stays legible while content fades into the blur without a
 visible start line. Web bands hold the full radius over the larger of that zone and the inset plus the edge half of
 the band height before easing out. The edge radius is `max(8, intensity × 0.45)` points, using `scrollAnimation.maxIntensity` while an
 `intensityInputRange` is set, which fades the native view in through opacity, so scrolling never rebuilds the blur.

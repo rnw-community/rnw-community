@@ -11,7 +11,8 @@ one copy of the collapsible header. Render content first, decorative fades and b
 
 ## Guides
 
-- [Installation](readme.md#installation): Required and optional peer dependencies, the edge-fade fallback without the Expo modules, and why the collapsible header must resolve to a single copy.
+- [Installation](readme.md#installation): Required peers, the Expo native rebuild requirement (no Expo Go or missing-module fallback), and why the collapsible header must resolve to a single copy.
+- [Migrating to 3.0](readme.md#migrating-to-30): Removed `blurMethod`, `blurTarget`, renderer `tint`, and external blur peers; required Expo native view, rebuild, geometry and intensity changes.
 - [Complete example](readme.md#complete-example): Provider, frame, scroll view, fades, and compound header composed into one screen.
 - [Structure and paint order](readme.md#structure-and-paint-order): Provider ownership, one provider per scrollable, and layer ordering.
 - [Styling and NativeWind](readme.md#styling-and-nativewind): Style prop per rendered node, merge order, package-owned props, and the NativeWind `styled` wrapper recipe.

@@ -92,7 +92,7 @@ pnpm test && pnpm test:coverage && pnpm build && pnpm ts && pnpm ts:nodenext && 
   with the provider. Reduced-motion-aware snapping is upstream scope, not a local reimplementation.
 - Native peer dependencies remain external so applications own native versions and linking. The package itself is an
   Expo module (`expo-module.config.json`, `ios/`, `android/`) with one view, `ScreenChromeProgressiveBlurView`
-  (`position`, `radius`, `plateau`, `colorScheme`), required on iOS and Android: there is no fallback blur and no
+  (`position`, `radius`, `plateau`), required on iOS and Android: there is no fallback blur and no
   optional loading. The web build (`edge-fade.web.tsx` via the `browser` field) never imports it.
 - `ScreenChromeProvider` `colorScheme` accepts `'system'`, resolved during render by `resolveScreenChromeColorScheme`
   from `useColorScheme()` — never mirrored into state — so the context value stays `'light' | 'dark'`. The hook is
@@ -147,7 +147,9 @@ pnpm test && pnpm test:coverage && pnpm build && pnpm ts && pnpm ts:nodenext && 
   `e2e/harness/edge_fade_harness.yaml` on iOS and Android (required `Edge-fade harness (iOS|Android)` jobs) and by
   `web-e2e/edge-fade-matrix.e2e.ts` in Chromium (headless Linux WebKit renders no `backdrop-filter`, so it is not a
   lane). One script, `e2e/harness/edge-fade-metrics.mjs`, measures each capture against its reference: per-row
-  Laplacian energy and mean color. Thresholds (`THRESHOLDS`, the only place they live): chrome zone keeps at most
+  Laplacian energy and mean color. Tint-slab measurements average row colors over the 24-point text-line interval
+  before comparing them, so vertical text blur is not mistaken for tint; inner-edge and outside checks keep raw row means; rest checks use absolute pixel differences
+  and cannot miss a mean-preserving blur. Thresholds (`THRESHOLDS`, the only place they live): chrome zone keeps at most
   0.2 of the reference detail; the ramp returns to at least 0.8 by its inner edge, never loses more than 0.12 on the
   way and rises at most 0.165 per point (iOS measures 0.137 for the 96-point ramp and 0.218 for the old half-band
   plateau); content outside the bands keeps at least 0.85; the wash shifts the row mean by at most 120 levels and at
@@ -174,6 +176,17 @@ pnpm test && pnpm test:coverage && pnpm build && pnpm ts && pnpm ts:nodenext && 
   On web `intensityInputRange` only selects `maxIntensity` for the radius.
 - Public exports carry repository-standard scoped TSDoc and package readme links.
 - Tests retain at least 99.9% statements, branches, functions, and lines coverage.
+
+## 3.0 migration contract
+
+- This is a breaking release: `blurMethod`, `blurTarget` (including on `CollapsibleHeaderBackdrop`) and renderer `tint`
+  are removed without shims. The optional external blur stack is gone: `expo-blur`,
+  `@react-native-masked-view/masked-view`, `expo-linear-gradient`, and `@sbaiahmed1/react-native-blur` are unnecessary.
+- `expo >=55 <59` and a rebuilt native binary containing this package's module are required. No Expo Go and no
+  missing-module fallback. Bare apps configure Expo modules. Web keeps CSS backdrop filtering.
+- Native `intensityInputRange` fades a fixed radius using `maxIntensity`; bands begin at the screen edge and the
+  native header-backdrop default is 128 points. `chromeHeight` specifies the full-strength region beyond the safe-area inset.
+- Keep [Migrating to 3.0](readme.md#migrating-to-30) and `llms.txt` aligned with the public surface.
 
 ## Publication pipeline (react-native-builder-bob)
 

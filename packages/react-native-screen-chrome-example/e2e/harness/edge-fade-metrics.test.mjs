@@ -128,10 +128,22 @@ describe('edge-fade harness metrics', () => {
         assert.match(checkScrolledCapture(capture, original).join('\n'), /visible blur edge/u);
     });
 
+    it('fails an opaque tint slab', () => {
+        const { capture, reference: original } = band({ wash: () => 1 });
+
+        assert.match(checkScrolledCapture(capture, original).join('\n'), /opaque slab/u);
+    });
+
     it('fails a wash that ends in a hard edge', () => {
         const { capture, reference: original } = band({ wash: progress => (progress < 1 ? WASH / 2 : 0) });
 
         assert.match(checkScrolledCapture(capture, original).join('\n'), /does not fade out/u);
+    });
+
+    it('fails a blur visible at rest even when the row mean stays unchanged', () => {
+        const { capture, reference: original } = band({ wash: () => 0 });
+
+        assert.match(checkRestCapture(capture, original).join('\n'), /visible at rest/u);
     });
 
     it('fails a band that is visible at rest', () => {

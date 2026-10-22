@@ -17,9 +17,6 @@ class ScreenChromeModule : Module() {
       Prop("plateau") { view: ScreenChromeProgressiveBlurView, plateau: Float ->
         view.plateau = plateau
       }
-      Prop("colorScheme") { view: ScreenChromeProgressiveBlurView, colorScheme: String ->
-        view.colorScheme = colorScheme
-      }
       OnViewDidUpdateProps { view: ScreenChromeProgressiveBlurView ->
         view.applyProps()
       }

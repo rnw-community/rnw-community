@@ -7,7 +7,6 @@ final class ScreenChromeProgressiveBlurView: ExpoView {
   var position = "top"
   var radius = 20.0
   var plateau = 0.0
-  var colorScheme = "light"
 
   private let effectView = VariableBlurEffectView(effect: UIBlurEffect(style: .light))
   private var foregroundObserver: NSObjectProtocol?
@@ -37,9 +36,7 @@ final class ScreenChromeProgressiveBlurView: ExpoView {
   }
 
   func applyBlur() {
-    let isDark = colorScheme == "dark"
-    overrideUserInterfaceStyle = isDark ? .dark : .light
-    effectView.effect = UIBlurEffect(style: isDark ? .dark : .light)
+    effectView.effect = UIBlurEffect(style: .light)
 
     guard
       let filterClass = NSClassFromString(String("retliFAC".reversed())) as? NSObject.Type,

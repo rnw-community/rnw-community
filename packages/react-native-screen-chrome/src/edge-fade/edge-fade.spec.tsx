@@ -46,7 +46,6 @@ interface BlurProps {
     readonly position: string;
     readonly radius: number;
     readonly plateau: number;
-    readonly colorScheme: string;
 }
 
 const getBlur = (screen: RenderResult) => screen.UNSAFE_getByType('ScreenChromeProgressiveBlurView' as never);
@@ -88,7 +87,6 @@ describe('EdgeFade native', () => {
             position,
             radius: 18,
             plateau: inset / band,
-            colorScheme: 'dark',
         });
     });
 

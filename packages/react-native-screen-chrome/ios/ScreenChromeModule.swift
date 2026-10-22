@@ -14,9 +14,6 @@ public class ScreenChromeModule: Module {
       Prop("plateau") { (view, plateau: Double) in
         view.plateau = plateau
       }
-      Prop("colorScheme") { (view, colorScheme: String) in
-        view.colorScheme = colorScheme
-      }
       OnViewDidUpdateProps { view in
         view.applyBlur()
       }

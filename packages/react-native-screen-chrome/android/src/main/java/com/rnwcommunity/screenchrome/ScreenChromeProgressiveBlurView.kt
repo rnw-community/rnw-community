@@ -22,11 +22,11 @@ class ScreenChromeProgressiveBlurView(context: Context, appContext: AppContext) 
   var position = "top"
   var radius = 20f
   var plateau = 0f
-  var colorScheme = "light"
 
   private val blurView = BlurView(context, null).apply {
     setDownsampleFactor(DOWNSAMPLE_FACTOR)
     blurRounds = BLUR_ROUNDS
+    overlayColor = Color.TRANSPARENT
   }
   private val maskPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
     xfermode = PorterDuffXfermode(PorterDuff.Mode.DST_IN)
@@ -39,7 +39,6 @@ class ScreenChromeProgressiveBlurView(context: Context, appContext: AppContext) 
 
   fun applyProps() {
     blurView.setBlurRadius(radius)
-    blurView.overlayColor = if (colorScheme == "dark") DARK_OVERLAY else LIGHT_OVERLAY
     updateMask()
   }
 
@@ -122,8 +121,6 @@ class ScreenChromeProgressiveBlurView(context: Context, appContext: AppContext) 
     const val BLUR_ROUNDS = 5
     const val SCREEN_CLASS = "com.swmansion.rnscreens.Screen"
     const val REACT_ROOT_CLASS = "com.facebook.react.ReactRootView"
-    val LIGHT_OVERLAY = Color.argb(42, 255, 255, 255)
-    val DARK_OVERLAY = Color.argb(120, 26, 22, 22)
     val RAMP_POSITIONS = floatArrayOf(0f, 0.15f, 0.3f, 0.45f, 0.6f, 0.75f, 1f)
     val RAMP_COLORS = floatArrayOf(0f, 0.08f, 0.3f, 0.52f, 0.75f, 0.9f, 1f)
       .map { alpha -> Color.argb((alpha * 255f).roundToInt(), 255, 255, 255) }

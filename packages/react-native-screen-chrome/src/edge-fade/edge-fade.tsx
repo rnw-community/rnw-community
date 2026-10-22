@@ -45,7 +45,6 @@ export const EdgeFade = ({
     const blur = (
         <EdgeFadeProgressiveBlur
             position={position}
-            colorScheme={colorScheme}
             radius={getEdgeFadeBlurRadius(intensity, scrollAnimation, config)}
             plateau={getEdgeFadeChromePlateau(positionalStyle.height, insets[position], chromeHeight)}
             scrollAnimation={scrollAnimation}

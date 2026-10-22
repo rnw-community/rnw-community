@@ -4,6 +4,7 @@ plugins {
 }
 
 group = 'com.rnwcommunity.screenchrome'
+version = '0.0.0'
 
 android {
   namespace 'com.rnwcommunity.screenchrome'
