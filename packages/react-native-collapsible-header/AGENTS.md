@@ -160,7 +160,8 @@ src/
   script runs `rewrite-esm-extensions.mjs` because bob leaves specifiers with platform variants extensionless.
   Resolvers read `browser` replacements from the nearest `package.json`, which inside `dist` is bob's per-tree
   `{"type": ...}` marker, so `build` also runs `write-browser-field-markers.mjs` to mirror the root map, rebased, into
-  `dist/module/package.json` and `dist/commonjs/package.json`; `pnpm assert:pack` checks the markers.
+  `dist/module/package.json` and `dist/commonjs/package.json`, plus a `react-native` map pinning each source to itself
+  because Expo's Metro reads `browser` on iOS and Android too; `pnpm assert:pack` checks the markers.
 - Worklet bodies use plain `=== null` checks — `@rnw-community/shared` guards are not workletized and must not be
   called on the UI runtime.
 - `react`, `react-native`, and `react-native-reanimated` remain peer dependencies. Never bundle a second Reanimated copy.

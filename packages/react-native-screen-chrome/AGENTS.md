@@ -194,6 +194,12 @@ The package builds with `react-native-builder-bob`, configured in `package.json`
   native `edge-fade.js` while only the root carried the map. `scripts/write-browser-field-markers.mjs` therefore mirrors
   every root `browser` entry, rebased, into `dist/module/package.json` and `dist/commonjs/package.json` as the last build
   step, and `pnpm assert:pack` fails when a marker lacks a root mapping.
+- Expo's Metro resolves iOS and Android with `resolverMainFields` `['react-native', 'browser', 'main']`, so a `browser`
+  map alone swaps the web `EdgeFade` and web default config into native bundles (no `BlurView`, 108 px backdrop). The
+  marker writer therefore also writes a `react-native` map pinning every `browser` source to itself; Metro merges
+  object main fields with the earliest field winning, so native keeps the native file, while Expo web
+  (`['browser', 'module', 'main']`), webpack, Vite and esbuild never read `react-native`. `pnpm assert:pack` fails when
+  a marker lacks the pin.
 
 `exports` points `import` at `dist/module` (+ `dist/typescript/module` types) and `require` at `dist/commonjs`
 (+ `dist/typescript/commonjs` types), types-first in each condition. The NodeNext check must pass before publishing.
