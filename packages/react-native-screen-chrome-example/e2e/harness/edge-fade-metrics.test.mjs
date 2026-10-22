@@ -109,6 +109,15 @@ describe('edge-fade harness metrics', () => {
         assert.deepEqual(checkRestCapture(original, original), []);
     });
 
+    it('rejects rest and scrolled captures with different dimensions', () => {
+        const original = reference();
+        const capture = new PNG({ width: WIDTH + 1, height: HEIGHT + 1 });
+
+        for (const check of [checkRestCapture, checkScrolledCapture]) {
+            assert.match(check(capture, original).join('\n'), /size differs/u);
+        }
+    });
+
     it('fails a blur that never renders, as inside a MaskedView on iOS', () => {
         const { capture, reference: original } = band({ radius: () => 0, chromeRadius: 0 });
 

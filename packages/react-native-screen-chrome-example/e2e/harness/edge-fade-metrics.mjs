@@ -149,6 +149,10 @@ const resample = (values, length) =>
     Array.from({ length }, (_, index) => values[Math.floor((index * values.length) / length)]);
 
 export const checkScrolledCapture = (capture, reference) => {
+    if (capture.width !== reference.width || capture.height !== reference.height) {
+        return ['capture size differs from the reference'];
+    }
+
     const failures = [];
     const geometry = readRuler(reference);
     const { topChromeEnd, topBandEnd, bottomBandStart, bottomChromeStart, scale, patternWidth } = geometry;
@@ -191,6 +195,10 @@ export const checkScrolledCapture = (capture, reference) => {
 };
 
 export const checkRestCapture = (capture, reference) => {
+    if (capture.width !== reference.width || capture.height !== reference.height) {
+        return ['capture size differs from the reference'];
+    }
+
     const { patternWidth } = readRuler(reference);
     const worstRow = Math.max(
         ...range(0, capture.height).map(row => {

@@ -183,7 +183,9 @@ pnpm test && pnpm test:coverage && pnpm build && pnpm ts && pnpm ts:nodenext && 
   are removed without shims. The optional external blur stack is gone: `expo-blur`,
   `@react-native-masked-view/masked-view`, `expo-linear-gradient`, and `@sbaiahmed1/react-native-blur` are unnecessary.
 - `expo >=55 <59` and a rebuilt native binary containing this package's module are required. No Expo Go and no
-  missing-module fallback. Bare apps configure Expo modules. Web keeps CSS backdrop filtering.
+  missing-module fallback. Bare apps configure Expo modules with `npx install-expo-modules@latest` or the manual setup.
+  If iOS removes its private variable-blur filter, hide the effect view instead of showing a uniform hard-edged blur.
+  Web keeps CSS backdrop filtering.
 - Native `intensityInputRange` fades a fixed radius using `maxIntensity`; bands begin at the screen edge and the
   native header-backdrop default is 128 points. `chromeHeight` specifies the full-strength region beyond the safe-area inset.
 - Keep [Migrating to 3.0](readme.md#migrating-to-30) and `llms.txt` aligned with the public surface.

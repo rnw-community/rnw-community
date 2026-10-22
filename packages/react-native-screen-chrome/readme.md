@@ -25,9 +25,11 @@ context has two identities and the chrome components fail to find their provider
 
 The package is an Expo module: its native `ScreenChromeProgressiveBlurView` draws the edge-fade blur on iOS and
 Android, so the application needs `expo` (`>=55 <59`), the New Architecture, and a native rebuild (`npx expo prebuild`
-or `pod install`) after installing it. Expo Go does not include the view. On iOS the view applies Core Animation's
-`variableBlur` filter, which UIKit does not expose publicly; it is reached by runtime lookup and degrades to a uniform
-blur if a future iOS removes it. On Android it eases a QmBlurView blur out through a gradient mask. The wash is a
+or `pod install`) after installing it. Existing bare React Native apps without Expo modules must first run
+`npx install-expo-modules@latest` or follow the [manual Expo modules setup](https://docs.expo.dev/bare/installing-expo-modules/).
+Expo Go does not include the view. On iOS the view applies Core Animation's
+`variableBlur` filter, which UIKit does not expose publicly; it is reached by runtime lookup. If a future iOS removes
+it, the blur view hides rather than drawing a hard-edged uniform blur. On Android it eases a QmBlurView blur out through a gradient mask. The wash is a
 `experimental_backgroundImage` gradient. Web uses CSS `backdrop-filter` layers and never loads the native view.
 
 ## Migrating to 3.0
@@ -57,7 +59,8 @@ with the radius set by `maxIntensity`, rather than animating the radius.
 
 Remove `expo-blur`, `@react-native-masked-view/masked-view`, `expo-linear-gradient`, and
 `@sbaiahmed1/react-native-blur` if nothing else in your app uses them. None is a peer or fallback in 3.0. Install the
-new required `expo` peer (`>=55 <59`); bare React Native apps must configure Expo modules too. Build a new native
+new required `expo` peer (`>=55 <59`); bare React Native apps without Expo modules first run
+`npx install-expo-modules@latest` or follow the [manual setup](https://docs.expo.dev/bare/installing-expo-modules/). Build a new native
 binary after upgrading (`npx expo run:ios` / `npx expo run:android`, or your native build pipeline). An OTA update alone
 cannot install the view. Expo Go is unsupported; use a development or production build. A missing native module is
 an error. Web continues to use CSS `backdrop-filter`.

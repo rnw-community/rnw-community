@@ -45,8 +45,12 @@ final class ScreenChromeProgressiveBlurView: ExpoView {
         with: "variableBlur"
       )?.takeUnretainedValue() as? NSObject,
       let maskImage = makeMaskImage()
-    else { return }
+    else {
+      effectView.isHidden = true
+      return
+    }
 
+    effectView.isHidden = false
     filter.setValue(radius, forKey: "inputRadius")
     filter.setValue(maskImage, forKey: "inputMaskImage")
     filter.setValue(true, forKey: "inputNormalizeEdges")
