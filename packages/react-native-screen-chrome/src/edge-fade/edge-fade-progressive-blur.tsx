@@ -10,6 +10,7 @@ import type { ScreenChromeColorScheme } from '../type/screen-chrome-color-scheme
 import type { ReactNode } from 'react';
 
 const AnimatedView = createAnimatedComponent(View);
+const styles = StyleSheet.create({ fill: { flex: 1 } });
 
 interface Props extends Pick<EdgeFadePropsInterface, 'position' | 'scrollAnimation'> {
     readonly colorScheme: ScreenChromeColorScheme;
@@ -23,7 +24,7 @@ export const EdgeFadeProgressiveBlur = ({ position, colorScheme, radius, plateau
     return (
         <AnimatedView pointerEvents="none" style={[StyleSheet.absoluteFill, opacityStyle]}>
             <ScreenChromeProgressiveBlurView
-                style={StyleSheet.absoluteFill}
+                style={styles.fill}
                 position={position}
                 radius={radius}
                 plateau={plateau}

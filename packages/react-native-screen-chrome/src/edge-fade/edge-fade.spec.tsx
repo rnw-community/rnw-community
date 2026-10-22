@@ -84,7 +84,7 @@ describe('EdgeFade native', () => {
         mockColorScheme = 'dark';
 
         expect(getBlurProps(render(<EdgeFade position={position} intensity={40} />))).toStrictEqual({
-            style: StyleSheet.absoluteFill,
+            style: { flex: 1 },
             position,
             radius: 18,
             plateau: inset / band,

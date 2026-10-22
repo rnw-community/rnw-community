@@ -9,12 +9,15 @@ final class ScreenChromeProgressiveBlurView: ExpoView {
   var plateau = 0.0
   var colorScheme = "light"
 
-  private let effectView = UIVisualEffectView(effect: UIBlurEffect(style: .light))
+  private let effectView = VariableBlurEffectView(effect: UIBlurEffect(style: .light))
   private var foregroundObserver: NSObjectProtocol?
 
   required init(appContext: AppContext? = nil) {
     super.init(appContext: appContext)
     isUserInteractionEnabled = false
+    effectView.onWindow = { [weak self] in
+      self?.applyBlur()
+    }
     effectView.frame = bounds
     effectView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
     addSubview(effectView)
@@ -30,18 +33,6 @@ final class ScreenChromeProgressiveBlurView: ExpoView {
   deinit {
     if let foregroundObserver {
       NotificationCenter.default.removeObserver(foregroundObserver)
-    }
-  }
-
-  override func didMoveToWindow() {
-    super.didMoveToWindow()
-    guard let window, let backdropLayer = effectView.subviews.first?.layer else { return }
-
-    applyBlur()
-
-    let scale = window.traitCollection.displayScale
-    if backdropLayer.value(forKey: "scale") as? CGFloat != scale {
-      backdropLayer.setValue(scale, forKey: "scale")
     }
   }
 
@@ -66,6 +57,12 @@ final class ScreenChromeProgressiveBlurView: ExpoView {
 
     for overlay in effectView.subviews.dropFirst() {
       overlay.alpha = 0
+    }
+
+    if let scale = effectView.window?.traitCollection.displayScale,
+       let backdropLayer = effectView.subviews.first?.layer,
+       backdropLayer.value(forKey: "scale") as? CGFloat != scale {
+      backdropLayer.setValue(scale, forKey: "scale")
     }
   }
 
@@ -94,7 +91,7 @@ final class ScreenChromeProgressiveBlurView: ExpoView {
       alphas.append(1)
     }
 
-    let components = alphas.flatMap { [0, 0, 0, $0] }
+    let components: [CGFloat] = alphas.flatMap { [0, 0, 0, $0] }
     let size = 100
 
     guard
@@ -123,5 +120,17 @@ final class ScreenChromeProgressiveBlurView: ExpoView {
     )
 
     return context.makeImage()
+  }
+}
+
+private final class VariableBlurEffectView: UIVisualEffectView {
+  var onWindow: (() -> Void)?
+
+  override func didMoveToWindow() {
+    super.didMoveToWindow()
+
+    if window != nil {
+      onWindow?()
+    }
   }
 }
