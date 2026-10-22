@@ -32,7 +32,7 @@ pnpm test && pnpm test:coverage && pnpm build && pnpm ts && pnpm ts:nodenext && 
 - The band renderer (`EdgeFade` `renderBand`, falling back to `ScreenChromeProvider` `renderEdgeFadeBand` through
   context) only swaps the container's children. The container — absolute positioning, `getEdgeFadeBandMetrics`
   geometry, scroll-driven opacity, and the inert pointer/accessibility props — stays package-owned in both
-  implementations, and the native blur (with its intensity animation) lives in the internal `EdgeFadeBlur` so the
+  implementations, and the native blur (with its intensity animation) lives in the internal `EdgeFadeProgressiveBlur` so the
   renderer receives it as a ready element. With no renderer the rendered tree is identical to the pre-renderer output;
   on web the CSS visuals stay on the container in that case and move into the `blur`/`defaultBand` children only when a
   renderer is set. `CollapsibleHeaderBackdrop` forwards every `EdgeFade` prop except `position`.
@@ -90,28 +90,16 @@ pnpm test && pnpm test:coverage && pnpm build && pnpm ts && pnpm ts:nodenext && 
   from the collapsible header provider it wraps.
 - `snapToCollapse` only takes effect while a `CollapsibleHeader` is mounted: the header registers the snap geometry
   with the provider. Reduced-motion-aware snapping is upstream scope, not a local reimplementation.
-- Native peer dependencies remain external so applications own native versions and linking.
-  `@sbaiahmed1/react-native-blur`, `@react-native-masked-view/masked-view`, `expo-linear-gradient`, and `expo-blur` are
-  optional in `peerDependenciesMeta`: `edge-fade-native-modules.ts` is the only place that loads them, each through a literal
-  `require` inside its own `try` (Metro's `allowOptionalDependencies` only recognises that exact shape, so never route
-  them through a shared helper with a computed specifier). Without masked view or linear gradient the native default
-  band is a plain `View` with the `buildBackgroundImage` wash as `experimental_backgroundImage`. `EdgeFadeBlur` prefers
-  `@sbaiahmed1/react-native-blur`'s `ProgressiveBlurView` and falls back to the `expo-blur` slices
-  (`EdgeFadeSlicedBlur`); with neither it renders nothing. The web build (`edge-fade.web.tsx` via the `browser` field) never loads them; the
-  public types (`BlurMethod`, `BlurTint`) still reference `expo-blur` as type-only imports.
+- Native peer dependencies remain external so applications own native versions and linking. The package itself is an
+  Expo module (`expo-module.config.json`, `ios/`, `android/`) with one view, `ScreenChromeProgressiveBlurView`
+  (`position`, `radius`, `plateau`, `colorScheme`), required on iOS and Android: there is no fallback blur and no
+  optional loading. The web build (`edge-fade.web.tsx` via the `browser` field) never imports it.
 - `ScreenChromeProvider` `colorScheme` accepts `'system'`, resolved during render by `resolveScreenChromeColorScheme`
   from `useColorScheme()` — never mirrored into state — so the context value stays `'light' | 'dark'`. The hook is
   read unconditionally (rules of hooks) and ignored for fixed schemes.
 - `collapsible-header.freeze.spec.tsx` pins `react-freeze` and React `<Activity>` survival. Reanimated's jest
   `AnimatedComponent` re-copies `style.initial.value` into `jestAnimatedStyle` when a hidden view re-attaches, so the
   spec asserts the fade's subscription by scrolling after the cycle instead of reading a stale post-cycle snapshot.
-- `EdgeFadeBlur` warns once per mounted band (dev only, Android only) when blur is requested through the band's own
-  props — a positive `intensity` or an `intensityInputRange` — while `blurMethod` silently defaults to `'none'` for lack
-  of a `blurTarget`. A `useRef` flag (not the effect deps) enforces "once", because `<Activity>` and StrictMode re-run
-  effects. The provider `config.intensity` is not checked: after the merge it is indistinguishable from the default.
-  The dev check is `typeof __DEV__ !== 'undefined' && __DEV__`, evaluated after the platform check, so runtimes without
-  the global never throw. expo-blur already warns for an explicit targeted method without a target, so that case is
-  not duplicated.
 - `CollapsibleHeader` passes `expandedHeight = safeAreaInsets.top + config.headerHeight` and
   `collapsedHeight = safeAreaInsets.top + (config.collapsedHeaderHeight ?? config.headerHeight)`, and offsets every
   content layer by `top: safeAreaInsets.top`. `collapsedHeaderHeight` is optional and absent from the defaults so an overridden `headerHeight`
@@ -135,9 +123,6 @@ pnpm test && pnpm test:coverage && pnpm build && pnpm ts && pnpm ts:nodenext && 
   children receive touches, so an empty or narrow slot never swallows taps meant for the layers underneath. The
   consumer `style` merges last on purpose — it is the sizing escape hatch, so a consumer that overrides `minWidth`/
   `minHeight` owns the touch-target size of the control it renders.
-- The `expo-blur` peer floor is `>=55`: `blurMethod` and the `BlurMethod` type only exist from that release (it renamed
-  `experimentalBlurMethod`), and the same release made `dimezisBlurView` require a `BlurTargetView`. `EdgeFade`
-  therefore defaults `blurMethod` from `blurTarget` presence rather than hard-coding a targeted method.
 - Configuration is validated during provider render, before any chrome component reads it.
 - React 19-only syntax (`use()`) stays absent while the `react` peer floor is `>=18`.
 - Relative source imports stay extensionless; the build's post-compile rewrite/assert pair enforces extensioned specifiers in `dist/module` and `dist/typescript/module`, and NodeNext validation must pass.
@@ -145,24 +130,17 @@ pnpm test && pnpm test:coverage && pnpm build && pnpm ts && pnpm ts:nodenext && 
   job once #601 resolves and compiler output returns. While the compiler is absent (see below), values whose
   _identity_ is behavior — a merged ref callback that React 19 would otherwise detach, clean up, and reattach
   on every render — must be manually memoized; nothing else memoizes them today.
-- `EdgeFade` native masks only its wash (`MaskedView` + `expo-linear-gradient`, #640); the blur (`EdgeFadeBlur`) is a
-  sibling painted beneath the masked wash, never a descendant of the mask. UIKit documents that a mask on a superview
-  of a `UIVisualEffectView` makes the effect fail, and `RNCMaskedView` sets `maskView` on itself, so a blur inside it
-  renders the wash over unblurred content. The blur is one `ProgressiveBlurView` (Core Animation `variableBlur` on iOS,
-  a masked QmBlurView on Android) whose `startOffset` (`getEdgeFadeChromePlateau`) holds the full radius only behind
-  the chrome itself, the safe-area inset plus `chromeHeight`, then eases to zero at the inner edge. Never derive the
-  plateau from the band height: a plateau reaching past the chrome compresses the ramp and reads as a line where the
-  blur starts. The default `maskStops` ease the wash out the same way, reaching zero with zero slope at the inner edge;
-  `intensityInputRange` fades the blur through opacity,
-  never by changing its radius, which would rebuild the native filter every frame. Masking a superview cannot feather
-  a `UIVisualEffectView`, so constant-intensity Expo Blur slices always end in a visible edge; they remain only as the
-  fallback without the progressive package. Specs assert no
-  blur host has a mask ancestor; `web-e2e` (`pnpm test:web`, Playwright over an esbuild + react-native-web harness)
-  asserts the web band's computed CSS and measures that content under it is really blurred. Do not add further
-  gradient or masked native views to the default band while #601 is open — they have corrupted the Hermes heap on the
-  RN 0.86 / iOS 26 stack. Additional visuals (Liquid Glass, solid colors, custom gradients) belong in a consumer
-  `renderBand`/`renderEdgeFadeBand`, never in the package default. That includes wash stops: a custom wash
-  `locations` is a renderer recipe in the readme, not a prop.
+- Native `EdgeFade` is the native blur view under a wash `View` whose `experimental_backgroundImage`
+  (`buildNativeWashImage`) multiplies the wash gradient by the `maskStops` alpha at each stop; nothing is masked,
+  because a mask on a superview of a `UIVisualEffectView` stops the blur rendering. The view holds the full radius
+  (`plateau`, from `getEdgeFadeChromePlateau`) only behind the chrome itself, the safe-area inset plus `chromeHeight`,
+  then eases to zero at the inner edge (Core Animation `variableBlur` with a cubic mask on iOS; a QmBlurView eased out
+  through a `DST_IN` gradient on Android; both ported from `@sbaiahmed1/react-native-blur`, see
+  `THIRD_PARTY_NOTICES.md`). Never derive the plateau from the band height: a plateau reaching past the chrome
+  compresses the ramp and reads as a line where the blur starts. `intensityInputRange` fades the view through opacity,
+  never by changing its radius, which would rebuild the native filter every frame. The edge-fade harness (below) is
+  the regression gate for the look on every platform. Additional visuals belong in a consumer
+  `renderBand`/`renderEdgeFadeBand`, never in the package default.
 - Web `EdgeFade` matches the native ramp (`getWebEdgeFadeBlurLayers`): four `backdrop-filter` layers whose radius
   halves away from the edge, chained as cross-fades — each weaker layer fades in while the previous one is still
   opaque, then holds while that one fades out — plus a separate masked wash (`EdgeFadeWebBand`). A `backdrop-filter`
@@ -176,7 +154,7 @@ pnpm test && pnpm test:coverage && pnpm build && pnpm ts && pnpm ts:nodenext && 
   carries positioning only. The renderer path keeps the documented container opacity. The radii stay static on
   purpose: animating them re-rasterizes the backdrop on every scroll frame, while the opacity fade stays
   compositor-only.
-  `blurMethod` and `blurTarget` are no-ops on web; `intensityInputRange` only selects `maxIntensity` for the radius.
+  On web `intensityInputRange` only selects `maxIntensity` for the radius.
 - Public exports carry repository-standard scoped TSDoc and package readme links.
 - Tests retain at least 99.9% statements, branches, functions, and lines coverage.
 

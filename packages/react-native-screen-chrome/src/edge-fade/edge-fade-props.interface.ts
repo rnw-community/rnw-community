@@ -1,9 +1,7 @@
 import type { EdgeFadeBandRenderer } from './edge-fade-band-renderer.type';
 import type { EdgeFadePosition } from './edge-fade-position.type';
 import type { EdgeFadeScrollAnimationInterface } from './edge-fade-scroll-animation.interface';
-import type { BlurMethod } from 'expo-blur';
-import type { ComponentRef, RefObject } from 'react';
-import type { View, ViewProps } from 'react-native';
+import type { ViewProps } from 'react-native';
 
 /**
  * Configures a decorative top or bottom blur-and-wash band.
@@ -22,12 +20,8 @@ export interface EdgeFadePropsInterface extends Omit<ViewProps, 'children'> {
     readonly chromeHeight?: number;
     /** Static blur intensity, ignored while `scrollAnimation` drives it. @defaultValue the provider config's `intensity` */
     readonly intensity?: number;
-    /** Scroll-driven opacity and blur-intensity ranges; on web only opacity animates and the blur stays static. */
+    /** Scroll-driven opacity and blur-intensity ranges; the blur radius stays static and `intensityInputRange` fades it in. */
     readonly scrollAnimation?: EdgeFadeScrollAnimationInterface;
-    /** Android Expo Blur rendering method. @defaultValue `'dimezisBlurView'` when `blurTarget` is set, otherwise `'none'` */
-    readonly blurMethod?: BlurMethod;
-    /** Ref to the Android `BlurTargetView` whose background the band blurs; required by `dimezisBlurView` methods. */
-    readonly blurTarget?: RefObject<ComponentRef<typeof View> | null>;
     /** Custom band content renderer. @defaultValue the provider's `renderEdgeFadeBand`, else the package's default band */
     readonly renderBand?: EdgeFadeBandRenderer;
 }

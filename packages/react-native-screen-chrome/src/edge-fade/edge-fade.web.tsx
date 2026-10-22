@@ -33,8 +33,6 @@ export const EdgeFade = ({
     chromeHeight = 0,
     intensity,
     scrollAnimation,
-    blurMethod: _blurMethod,
-    blurTarget: _blurTarget,
     renderBand,
     style,
     ...viewProps
@@ -74,7 +72,7 @@ export const EdgeFade = ({
                 position,
                 colorScheme,
                 height: metrics.height,
-                ...getEdgeFadeVisuals(position, colorScheme, config, false),
+                ...getEdgeFadeVisuals(position, colorScheme, config),
                 blur: (
                     <View style={edgeFadeStyles.fill}>
                         <EdgeFadeWebBand blurLayers={blurLayers} />

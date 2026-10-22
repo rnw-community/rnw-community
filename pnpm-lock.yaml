@@ -787,9 +787,6 @@ importers:
             '@playwright/test':
                 specifier: 1.64.1
                 version: 1.64.1
-            '@react-native-masked-view/masked-view':
-                specifier: ^0.3.2
-                version: 0.3.2(react-native@0.88.0(@babel/core@7.29.7(supports-color@8.1.1))(@react-native-community/cli@20.2.0(supports-color@8.1.1)(typescript@6.0.3))(@react-native/metro-config@0.88.0(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.3.0)(supports-color@8.1.1))(react@19.3.0)
             '@react-native/babel-preset':
                 specifier: 0.88.0
                 version: 0.88.0(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1)
@@ -802,9 +799,6 @@ importers:
             '@rnw-community/react-native-collapsible-header':
                 specifier: workspace:^
                 version: link:../react-native-collapsible-header
-            '@sbaiahmed1/react-native-blur':
-                specifier: ^6.0.2
-                version: 6.0.2(react-native@0.88.0(@babel/core@7.29.7(supports-color@8.1.1))(@react-native-community/cli@20.2.0(supports-color@8.1.1)(typescript@6.0.3))(@react-native/metro-config@0.88.0(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.3.0)(supports-color@8.1.1))(react@19.3.0)
             '@testing-library/react-native':
                 specifier: ^13.3.3
                 version: 13.3.3(jest@29.7.0(@types/node@26.3.0)(supports-color@8.1.1))(react-native@0.88.0(@babel/core@7.29.7(supports-color@8.1.1))(@react-native-community/cli@20.2.0(supports-color@8.1.1)(typescript@6.0.3))(@react-native/metro-config@0.88.0(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.3.0)(supports-color@8.1.1))(react-test-renderer@19.3.0(react@19.3.0))(react@19.3.0)
@@ -817,12 +811,9 @@ importers:
             esbuild:
                 specifier: 0.21.5
                 version: 0.21.5
-            expo-blur:
-                specifier: ~58.0.4
-                version: 58.0.4(expo@58.0.14)(react-native@0.88.0(@babel/core@7.29.7(supports-color@8.1.1))(@react-native-community/cli@20.2.0(supports-color@8.1.1)(typescript@6.0.3))(@react-native/metro-config@0.88.0(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.3.0)(supports-color@8.1.1))(react@19.3.0)
-            expo-linear-gradient:
-                specifier: ~58.0.3
-                version: 58.0.3(expo@58.0.14)(react-native@0.88.0(@babel/core@7.29.7(supports-color@8.1.1))(@react-native-community/cli@20.2.0(supports-color@8.1.1)(typescript@6.0.3))(@react-native/metro-config@0.88.0(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.3.0)(supports-color@8.1.1))(react@19.3.0)
+            expo:
+                specifier: 58.0.14
+                version: 58.0.14(7a1540b68924352560a9bdc3b36f45c1)
             react:
                 specifier: 19.3.0
                 version: 19.3.0
@@ -896,9 +887,6 @@ importers:
 
     packages/react-native-screen-chrome-example/apps/bare:
         dependencies:
-            '@react-native-masked-view/masked-view':
-                specifier: ^0.3.2
-                version: 0.3.2(react-native@0.88.0(@babel/core@7.29.7(supports-color@8.1.1))(@react-native-community/cli@20.2.0(supports-color@8.1.1)(typescript@6.0.3))(@react-native/metro-config@0.88.0(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.3.0)(supports-color@8.1.1))(react@19.3.0)
             '@rnw-community/react-native-collapsible-header':
                 specifier: workspace:*
                 version: link:../../../react-native-collapsible-header
@@ -911,12 +899,6 @@ importers:
             expo:
                 specifier: 58.0.14
                 version: 58.0.14(7a1540b68924352560a9bdc3b36f45c1)
-            expo-blur:
-                specifier: ~58.0.4
-                version: 58.0.4(expo@58.0.14)(react-native@0.88.0(@babel/core@7.29.7(supports-color@8.1.1))(@react-native-community/cli@20.2.0(supports-color@8.1.1)(typescript@6.0.3))(@react-native/metro-config@0.88.0(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.3.0)(supports-color@8.1.1))(react@19.3.0)
-            expo-linear-gradient:
-                specifier: ~58.0.3
-                version: 58.0.3(expo@58.0.14)(react-native@0.88.0(@babel/core@7.29.7(supports-color@8.1.1))(@react-native-community/cli@20.2.0(supports-color@8.1.1)(typescript@6.0.3))(@react-native/metro-config@0.88.0(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.3.0)(supports-color@8.1.1))(react@19.3.0)
             react:
                 specifier: 19.3.0
                 version: 19.3.0
@@ -963,9 +945,6 @@ importers:
             '@expo/metro-runtime':
                 specifier: 58.0.14
                 version: 58.0.14(@expo/log-box@58.0.12)(expo@58.0.14)(react-dom@19.3.0(react@19.3.0))(react-native@0.88.0(@babel/core@7.29.7(supports-color@8.1.1))(@react-native-community/cli@20.2.0(supports-color@8.1.1)(typescript@6.0.3))(@react-native/metro-config@0.88.0(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.3.0)(supports-color@8.1.1))(react@19.3.0)
-            '@react-native-masked-view/masked-view':
-                specifier: ^0.3.2
-                version: 0.3.2(react-native@0.88.0(@babel/core@7.29.7(supports-color@8.1.1))(@react-native-community/cli@20.2.0(supports-color@8.1.1)(typescript@6.0.3))(@react-native/metro-config@0.88.0(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.3.0)(supports-color@8.1.1))(react@19.3.0)
             '@rnw-community/react-native-collapsible-header':
                 specifier: workspace:*
                 version: link:../../../react-native-collapsible-header
@@ -975,18 +954,9 @@ importers:
             '@rnw-community/react-native-screen-chrome-example':
                 specifier: workspace:*
                 version: link:../..
-            '@sbaiahmed1/react-native-blur':
-                specifier: ^6.0.2
-                version: 6.0.2(react-native@0.88.0(@babel/core@7.29.7(supports-color@8.1.1))(@react-native-community/cli@20.2.0(supports-color@8.1.1)(typescript@6.0.3))(@react-native/metro-config@0.88.0(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.3.0)(supports-color@8.1.1))(react@19.3.0)
             expo:
                 specifier: 58.0.14
                 version: 58.0.14(7a1540b68924352560a9bdc3b36f45c1)
-            expo-blur:
-                specifier: ~58.0.4
-                version: 58.0.4(expo@58.0.14)(react-native@0.88.0(@babel/core@7.29.7(supports-color@8.1.1))(@react-native-community/cli@20.2.0(supports-color@8.1.1)(typescript@6.0.3))(@react-native/metro-config@0.88.0(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.3.0)(supports-color@8.1.1))(react@19.3.0)
-            expo-linear-gradient:
-                specifier: ~58.0.3
-                version: 58.0.3(expo@58.0.14)(react-native@0.88.0(@babel/core@7.29.7(supports-color@8.1.1))(@react-native-community/cli@20.2.0(supports-color@8.1.1)(typescript@6.0.3))(@react-native/metro-config@0.88.0(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.3.0)(supports-color@8.1.1))(react@19.3.0)
             react:
                 specifier: 19.3.0
                 version: 19.3.0
@@ -4390,13 +4360,6 @@ packages:
         cpu: [x64]
         os: [win32]
 
-    '@sbaiahmed1/react-native-blur@6.0.2':
-        resolution:
-            { integrity: sha512-qGmZYUBvejUK+9+B09CQS4MxljjO0/po2GpcY6cgG++dBWcgSgoPFP6ZfkFmfHsPOCyAncJDKd2nklWws6TvvA== }
-        peerDependencies:
-            react: 19.3.0
-            react-native: 0.88.0
-
     '@shikijs/core@2.5.0':
         resolution:
             { integrity: sha512-uu/8RExTKtavlpH7XqnVYBrfBkUc20ngXiX9NSrBhOVZYv/7XQRKUyhtkeflY5QsxC0GbJThCerruZfsUaSldg== }
@@ -7404,14 +7367,6 @@ packages:
             react: 19.3.0
             react-native: 0.88.0
 
-    expo-blur@58.0.4:
-        resolution:
-            { integrity: sha512-GtRPQ+w2SGNiDUTtwLaVHuFnP+aGjYVjbD7kPEPhXWLmyT+Nan1J5/KbbGLJ14LXJezIqShS42JXXcRDfXuU+w== }
-        peerDependencies:
-            expo: 58.0.14
-            react: 19.3.0
-            react-native: 0.88.0
-
     expo-constants@58.0.12:
         resolution:
             { integrity: sha512-d3/dsps32nU4m6YJQbXQ1dIfn58GxfmJjTnZ0WtnhdSHTdG/oVsOakLqYRlX/FaLUKkQOSHXMf7hyCx+2a/HSQ== }
@@ -7440,14 +7395,6 @@ packages:
         peerDependencies:
             expo: 58.0.14
             react: 19.3.0
-
-    expo-linear-gradient@58.0.3:
-        resolution:
-            { integrity: sha512-sh6LXrlaCtlDlZ1CPPFRJWd3bl9lAr8e0hT61PvzMmkxd5sd3POe9QuWtct58wpp7PgOH2okB3iw4tq3ICA4Sg== }
-        peerDependencies:
-            expo: 58.0.14
-            react: 19.3.0
-            react-native: 0.88.0
 
     expo-modules-autolinking@58.0.13:
         resolution:
@@ -15325,6 +15272,7 @@ snapshots:
         dependencies:
             react: 19.3.0
             react-native: 0.88.0(@babel/core@7.29.7(supports-color@8.1.1))(@react-native-community/cli@20.2.0(supports-color@8.1.1)(typescript@6.0.3))(@react-native/metro-config@0.88.0(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.3.0)(supports-color@8.1.1)
+        optional: true
 
     '@react-native/asset-utils@0.88.0': {}
 
@@ -15605,11 +15553,6 @@ snapshots:
 
     '@rollup/rollup-win32-x64-msvc@4.64.9':
         optional: true
-
-    '@sbaiahmed1/react-native-blur@6.0.2(react-native@0.88.0(@babel/core@7.29.7(supports-color@8.1.1))(@react-native-community/cli@20.2.0(supports-color@8.1.1)(typescript@6.0.3))(@react-native/metro-config@0.88.0(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.3.0)(supports-color@8.1.1))(react@19.3.0)':
-        dependencies:
-            react: 19.3.0
-            react-native: 0.88.0(@babel/core@7.29.7(supports-color@8.1.1))(@react-native-community/cli@20.2.0(supports-color@8.1.1)(typescript@6.0.3))(@react-native/metro-config@0.88.0(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.3.0)(supports-color@8.1.1)
 
     '@shikijs/core@2.5.0':
         dependencies:
@@ -18402,12 +18345,6 @@ snapshots:
             - supports-color
             - typescript
 
-    expo-blur@58.0.4(expo@58.0.14)(react-native@0.88.0(@babel/core@7.29.7(supports-color@8.1.1))(@react-native-community/cli@20.2.0(supports-color@8.1.1)(typescript@6.0.3))(@react-native/metro-config@0.88.0(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.3.0)(supports-color@8.1.1))(react@19.3.0):
-        dependencies:
-            expo: 58.0.14(7a1540b68924352560a9bdc3b36f45c1)
-            react: 19.3.0
-            react-native: 0.88.0(@babel/core@7.29.7(supports-color@8.1.1))(@react-native-community/cli@20.2.0(supports-color@8.1.1)(typescript@6.0.3))(@react-native/metro-config@0.88.0(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.3.0)(supports-color@8.1.1)
-
     expo-constants@58.0.12(expo@58.0.14)(react-native@0.88.0(@babel/core@7.29.7(supports-color@8.1.1))(@react-native-community/cli@20.2.0(supports-color@8.1.1)(typescript@6.0.3))(@react-native/metro-config@0.88.0(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.3.0)(supports-color@8.1.1))(supports-color@8.1.1)(typescript@6.0.3):
         dependencies:
             '@expo/env': 2.5.2(supports-color@8.1.1)
@@ -18433,12 +18370,6 @@ snapshots:
         dependencies:
             expo: 58.0.14(7a1540b68924352560a9bdc3b36f45c1)
             react: 19.3.0
-
-    expo-linear-gradient@58.0.3(expo@58.0.14)(react-native@0.88.0(@babel/core@7.29.7(supports-color@8.1.1))(@react-native-community/cli@20.2.0(supports-color@8.1.1)(typescript@6.0.3))(@react-native/metro-config@0.88.0(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.3.0)(supports-color@8.1.1))(react@19.3.0):
-        dependencies:
-            expo: 58.0.14(7a1540b68924352560a9bdc3b36f45c1)
-            react: 19.3.0
-            react-native: 0.88.0(@babel/core@7.29.7(supports-color@8.1.1))(@react-native-community/cli@20.2.0(supports-color@8.1.1)(typescript@6.0.3))(@react-native/metro-config@0.88.0(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.3.0)(supports-color@8.1.1)
 
     expo-modules-autolinking@58.0.13(supports-color@8.1.1)(typescript@6.0.3):
         dependencies:

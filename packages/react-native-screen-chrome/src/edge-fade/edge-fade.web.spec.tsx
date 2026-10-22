@@ -57,11 +57,9 @@ describe('EdgeFade web', () => {
     it('renders the web defaults as edge-anchored progressive blur layers under a masked wash', () => {
         expect.hasAssertions();
 
-        const screen = render(<EdgeFade testID="top-fade" position="top" blurMethod="dimezisBlurView" />);
+        const screen = render(<EdgeFade testID="top-fade" position="top" />);
         const fade = screen.getByTestId('top-fade', { includeHiddenElements: true });
 
-        expect(fade.props).not.toHaveProperty('blurMethod');
-        expect(fade.props).not.toHaveProperty('blurTarget');
         expect(fade).toHaveProp('pointerEvents', 'none');
         expect(fade).toHaveProp('aria-hidden', true);
         expect(flattenStyle(fade)).toEqual({
@@ -161,7 +159,6 @@ describe('EdgeFade web band renderer', () => {
                 position: 'top',
                 colorScheme: 'light',
                 height: 86,
-                tint: 'systemMaterialLight',
                 washColors: [
                     SCREEN_CHROME_DEFAULT_CONFIG.colors.light.solid,
                     SCREEN_CHROME_DEFAULT_CONFIG.colors.light.wash,

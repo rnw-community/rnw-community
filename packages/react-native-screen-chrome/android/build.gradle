@@ -1,0 +1,18 @@
+plugins {
+  id 'com.android.library'
+  id 'expo-module-gradle-plugin'
+}
+
+group = 'com.rnwcommunity.screenchrome'
+
+android {
+  namespace 'com.rnwcommunity.screenchrome'
+}
+
+repositories {
+  maven { url 'https://jitpack.io' }
+}
+
+dependencies {
+  implementation 'com.github.qmdeve:qmblurview:v1.3.0'
+}

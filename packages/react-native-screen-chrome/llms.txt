@@ -3,9 +3,8 @@
 > Composable, safe-area-aware screen chrome for React Native and React Native Web: collapsible titles, persistent
 > navigation controls, progressive edge fades, and content insets around one scrollable. Motion, scroll wiring, and
 > snapping are delegated to the peer `@rnw-community/react-native-collapsible-header`; other peers are
-> `react-native-reanimated` and `react-native-safe-area-context`, plus the optional `@react-native-masked-view/masked-view`,
-> `expo-blur` (>=55 <59), and `expo-linear-gradient` for the native blurred edge-fade band, and the optional
-> `@sbaiahmed1/react-native-blur` (>=6 <7) for its progressive native blur.
+> `react-native-reanimated`, `react-native-safe-area-context`, and `expo` (>=55 <59): the package is an Expo module whose
+> native progressive blur view draws the edge-fade bands on iOS and Android.
 
 Mount one `ScreenChromeProvider` per scrollable inside each screen, never once around a navigator, and resolve exactly
 one copy of the collapsible header. Render content first, decorative fades and backdrop second, `CollapsibleHeader` last.
@@ -28,7 +27,7 @@ one copy of the collapsible header. Render content first, decorative fades and b
 - [`CollapsibleHeaderSlot`](readme.md#collapsibleheaderslot): Persistent leading or trailing control slot mounted once above both title layers.
 - [`CollapsibleHeaderTitleSlot`](readme.md#collapsibleheadertitleslot): Groups the expanded and collapsed title layers of a compound header.
 - [`CollapsibleHeaderBackdrop`](readme.md#collapsibleheaderbackdrop): Top `EdgeFade` sized to `headerBackdropHeight` and aligned with the title-collapse thresholds.
-- [`EdgeFade`](readme.md#edgefade): Decorative top or bottom blur band, scroll-animatable through `scrollAnimation`, with opt-in Android blur via `blurTarget`.
+- [`EdgeFade`](readme.md#edgefade): Decorative top or bottom blur band, scroll-animatable through `scrollAnimation`.
 - [`EdgeFadePropsInterface`](readme.md#edgefadepropsinterface): Props accepted by `EdgeFade`.
 - [`EdgeFadeScrollAnimationInterface`](readme.md#edgefadescrollanimationinterface): Scroll-driven opacity and blur intensity ranges for an edge fade.
 - [`EdgeFadePosition`](readme.md#edgefadeposition): `'top' | 'bottom'` screen edge of a fade band.
