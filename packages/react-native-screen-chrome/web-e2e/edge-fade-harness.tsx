@@ -23,6 +23,14 @@ const CONTENT_LINES = Array.from({ length: 40 }, (_, index) => `Scrolled content
 const styles = StyleSheet.create({
     screen: { width: 400, height: 600, overflow: 'hidden', backgroundColor: '#ffffff' },
     line: { fontSize: 18, lineHeight: 24, color: '#000000' },
+    stripes: {
+        position: 'absolute',
+        top: 0,
+        bottom: 0,
+        right: 0,
+        width: 200,
+        backgroundImage: 'repeating-linear-gradient(to right, #000000 0px 20px, #ffffff 20px 40px)',
+    },
 });
 
 const Harness = (): ReactNode => {
@@ -34,6 +42,7 @@ const Harness = (): ReactNode => {
         <SafeAreaProvider initialMetrics={SAFE_AREA_METRICS}>
             <ScreenChromeProvider scrollY={scrollY}>
                 <View testID="screen" style={styles.screen}>
+                    <View testID="stripes" style={styles.stripes} />
                     {CONTENT_LINES.map(line => (
                         <Text key={line} style={styles.line}>
                             {line}

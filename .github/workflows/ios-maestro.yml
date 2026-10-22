@@ -56,3 +56,6 @@ jobs:
             # The payments suite needs the PassKit services a slim profile switches off.
             simulator-slim-profile: ''
             runner-labels: '["self-hosted","macOS","ARM64","macos-maestro"]'
+
+    # The edge-fade harness is a required gate: one deterministic screen, captured per
+    # scheme, background and state, measured by e2e/harness/edge-fade-metrics.mjs.

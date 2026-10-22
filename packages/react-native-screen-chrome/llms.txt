@@ -3,20 +3,21 @@
 > Composable, safe-area-aware screen chrome for React Native and React Native Web: collapsible titles, persistent
 > navigation controls, progressive edge fades, and content insets around one scrollable. Motion, scroll wiring, and
 > snapping are delegated to the peer `@rnw-community/react-native-collapsible-header`; other peers are
-> `react-native-reanimated` and `react-native-safe-area-context`, plus the optional `@react-native-masked-view/masked-view`,
-> `expo-blur` (>=55 <59), and `expo-linear-gradient` for the native blurred edge-fade band.
+> `react-native-reanimated`, `react-native-safe-area-context`, and `expo` (>=55 <59): the package is an Expo module whose
+> native progressive blur view draws the edge-fade bands on iOS and Android.
 
 Mount one `ScreenChromeProvider` per scrollable inside each screen, never once around a navigator, and resolve exactly
 one copy of the collapsible header. Render content first, decorative fades and backdrop second, `CollapsibleHeader` last.
 
 ## Guides
 
-- [Installation](readme.md#installation): Required and optional peer dependencies, the edge-fade fallback without the Expo modules, and why the collapsible header must resolve to a single copy.
+- [Installation](readme.md#installation): Required peers, the Expo native rebuild requirement (no Expo Go or missing-module fallback), and why the collapsible header must resolve to a single copy.
+- [Migrating to 3.0](readme.md#migrating-to-30): Removed `blurMethod`, `blurTarget`, renderer `tint`, and external blur peers; required Expo native view, rebuild, geometry and intensity changes.
 - [Complete example](readme.md#complete-example): Provider, frame, scroll view, fades, and compound header composed into one screen.
 - [Structure and paint order](readme.md#structure-and-paint-order): Provider ownership, one provider per scrollable, and layer ordering.
 - [Styling and NativeWind](readme.md#styling-and-nativewind): Style prop per rendered node, merge order, package-owned props, and the NativeWind `styled` wrapper recipe.
 - [Compound header contract](readme.md#compound-header-contract): Required direct-child slot order and the render-time `TypeError` on violations.
-- [Edge fades](readme.md#edge-fades): Native masked-gradient blur versus web CSS mask and backdrop-filter behavior.
+- [Edge fades](readme.md#edge-fades): Progressive native blur versus web cross-faded backdrop-filter layers.
 - [Configuration and snapping](readme.md#configuration-and-snapping): Deep-merge rules, threshold ordering, and `snapToCollapse` requirements.
 - [External scroll offset](readme.md#external-scroll-offset): Driving the chrome from an app-owned `scrollY` shared value, and why it excludes snapping.
 - [Recipes](readme.md#recipes): FlatList, SectionList, FlashList, and LegendList wiring plus list-performance obligations.
@@ -27,7 +28,7 @@ one copy of the collapsible header. Render content first, decorative fades and b
 - [`CollapsibleHeaderSlot`](readme.md#collapsibleheaderslot): Persistent leading or trailing control slot mounted once above both title layers.
 - [`CollapsibleHeaderTitleSlot`](readme.md#collapsibleheadertitleslot): Groups the expanded and collapsed title layers of a compound header.
 - [`CollapsibleHeaderBackdrop`](readme.md#collapsibleheaderbackdrop): Top `EdgeFade` sized to `headerBackdropHeight` and aligned with the title-collapse thresholds.
-- [`EdgeFade`](readme.md#edgefade): Decorative top or bottom blur band, scroll-animatable through `scrollAnimation`, with opt-in Android blur via `blurTarget`.
+- [`EdgeFade`](readme.md#edgefade): Decorative top or bottom blur band, scroll-animatable through `scrollAnimation`.
 - [`EdgeFadePropsInterface`](readme.md#edgefadepropsinterface): Props accepted by `EdgeFade`.
 - [`EdgeFadeScrollAnimationInterface`](readme.md#edgefadescrollanimationinterface): Scroll-driven opacity and blur intensity ranges for an edge fade.
 - [`EdgeFadePosition`](readme.md#edgefadeposition): `'top' | 'bottom'` screen edge of a fade band.

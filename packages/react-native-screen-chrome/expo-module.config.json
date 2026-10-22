@@ -1,0 +1,9 @@
+{
+    "platforms": ["apple", "android"],
+    "apple": {
+        "modules": ["ScreenChromeModule"]
+    },
+    "android": {
+        "modules": ["com.rnwcommunity.screenchrome.ScreenChromeModule"]
+    }
+}

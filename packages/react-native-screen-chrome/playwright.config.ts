@@ -7,6 +7,10 @@ export default defineConfig({
     forbidOnly: true,
     retries: 0,
     reporter: 'list',
-    use: { ...devices['Desktop Chrome'], viewport: { width: 400, height: 600 } },
+    use: {
+        ...devices['Desktop Chrome'],
+        viewport: { width: 400, height: 600 },
+        launchOptions: { args: ['--disable-lcd-text'] },
+    },
     projects: [{ name: 'chromium', use: { browserName: 'chromium' } }],
 });

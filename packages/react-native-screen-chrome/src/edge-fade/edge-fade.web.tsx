@@ -3,7 +3,7 @@ import { View } from 'react-native';
 import { createAnimatedComponent } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { getDefined, isDefined } from '@rnw-community/shared';
+import { isDefined } from '@rnw-community/shared';
 
 import { useScreenChrome } from '../hooks/use-screen-chrome/use-screen-chrome.hook';
 
@@ -11,6 +11,9 @@ import { EdgeFadeWebBand } from './edge-fade-web-band';
 import { edgeFadeStyles } from './edge-fade.styles';
 import { useEdgeFadeOpacityStyle } from './hooks/use-edge-fade-opacity-style.hook';
 import { getEdgeFadeBandMetrics } from './util/edge-fade-get-band-metrics/edge-fade-get-band-metrics.util';
+import { getEdgeFadeBlurPlateau } from './util/get-edge-fade-blur-plateau/get-edge-fade-blur-plateau.util';
+import { getEdgeFadeBlurRadius } from './util/get-edge-fade-blur-radius/get-edge-fade-blur-radius.util';
+import { getEdgeFadeChromePlateau } from './util/get-edge-fade-chrome-plateau/get-edge-fade-chrome-plateau.util';
 import { getEdgeFadeVisuals } from './util/get-edge-fade-visuals/get-edge-fade-visuals.util';
 import { getWebEdgeFadeBlurLayers } from './util/get-web-edge-fade-blur-layers/get-web-edge-fade-blur-layers.util';
 import { getWebEdgeFadeVisualStyle } from './util/get-web-edge-fade-visual-style/get-web-edge-fade-visual-style.util';
@@ -21,16 +24,15 @@ import type { ReactNode } from 'react';
 const AnimatedView = createAnimatedComponent(View);
 
 /**
- * Renders a decorative web edge-stepped backdrop blur and color wash at one screen edge.
+ * Renders a decorative web progressive backdrop blur and color wash at one screen edge.
  * @see https://github.com/rnw-community/rnw-community/tree/master/packages/react-native-screen-chrome#edgefade
  */
 export const EdgeFade = ({
     position,
     height,
+    chromeHeight = 0,
     intensity,
     scrollAnimation,
-    blurMethod: _blurMethod,
-    blurTarget: _blurTarget,
     renderBand,
     style,
     ...viewProps
@@ -42,8 +44,12 @@ export const EdgeFade = ({
     const washStyle = getWebEdgeFadeVisualStyle(position, colorScheme, config);
     const blurLayers = getWebEdgeFadeBlurLayers(
         position,
-        config,
-        getDefined(intensity, () => config.intensity)
+        getEdgeFadeBlurRadius(intensity, scrollAnimation, config),
+        metrics.height,
+        Math.max(
+            getEdgeFadeBlurPlateau(metrics.height, insets[position]),
+            getEdgeFadeChromePlateau(metrics.height, insets[position], chromeHeight)
+        )
     );
     const renderResolvedBand = renderBand ?? renderEdgeFadeBand;
 
@@ -66,7 +72,7 @@ export const EdgeFade = ({
                 position,
                 colorScheme,
                 height: metrics.height,
-                ...getEdgeFadeVisuals(position, colorScheme, config, false),
+                ...getEdgeFadeVisuals(position, colorScheme, config),
                 blur: (
                     <View style={edgeFadeStyles.fill}>
                         <EdgeFadeWebBand blurLayers={blurLayers} />

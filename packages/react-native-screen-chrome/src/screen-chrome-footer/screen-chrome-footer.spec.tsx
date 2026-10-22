@@ -18,10 +18,6 @@ interface MeasurableInterface {
     measure: (callback: MeasureOnSuccessCallback) => void;
 }
 
-jest.mock('expo-blur', () => ({ BlurView: jest.fn(() => null) }));
-jest.mock('expo-linear-gradient', () => ({ LinearGradient: jest.fn(() => null) }));
-jest.mock('@react-native-masked-view/masked-view', () => ({ __esModule: true, default: jest.fn(() => null) }));
-
 const INSETS: Metrics = {
     insets: { top: 59, bottom: 34, left: 0, right: 0 },
     frame: { x: 0, y: 0, width: 390, height: 844 },

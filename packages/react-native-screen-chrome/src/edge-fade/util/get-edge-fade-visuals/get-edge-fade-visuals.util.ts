@@ -1,5 +1,3 @@
-import { getBlurTint } from '../get-blur-tint/get-blur-tint.util';
-
 import type { ScreenChromeConfigInterface } from '../../../interface/screen-chrome-config.interface';
 import type { ScreenChromeColorScheme } from '../../../type/screen-chrome-color-scheme.type';
 import type { EdgeFadePosition } from '../../edge-fade-position.type';
@@ -11,8 +9,7 @@ const toGradientTuple = <T>([first, second, ...rest]: readonly T[]): GradientTup
 export const getEdgeFadeVisuals = (
     position: EdgeFadePosition,
     colorScheme: ScreenChromeColorScheme,
-    config: ScreenChromeConfigInterface,
-    isIos: boolean
+    config: ScreenChromeConfigInterface
 ) => {
     const colorSet = config.colors[colorScheme];
     const washColors: readonly [string, string] =
@@ -25,6 +22,5 @@ export const getEdgeFadeVisuals = (
         washColors,
         maskColors: toGradientTuple(maskStops.map(({ color }) => color)),
         maskLocations: toGradientTuple(maskStops.map(({ location }) => location)),
-        tint: getBlurTint(colorScheme, isIos),
     };
 };

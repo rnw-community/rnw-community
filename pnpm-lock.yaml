@@ -787,9 +787,6 @@ importers:
             '@playwright/test':
                 specifier: 1.64.1
                 version: 1.64.1
-            '@react-native-masked-view/masked-view':
-                specifier: ^0.3.2
-                version: 0.3.2(react-native@0.88.0(@babel/core@7.29.7(supports-color@8.1.1))(@react-native-community/cli@20.2.0(supports-color@8.1.1)(typescript@6.0.3))(@react-native/metro-config@0.88.0(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.3.0)(supports-color@8.1.1))(react@19.3.0)
             '@react-native/babel-preset':
                 specifier: 0.88.0
                 version: 0.88.0(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1)
@@ -814,12 +811,9 @@ importers:
             esbuild:
                 specifier: 0.21.5
                 version: 0.21.5
-            expo-blur:
-                specifier: ~58.0.4
-                version: 58.0.4(expo@58.0.14)(react-native@0.88.0(@babel/core@7.29.7(supports-color@8.1.1))(@react-native-community/cli@20.2.0(supports-color@8.1.1)(typescript@6.0.3))(@react-native/metro-config@0.88.0(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.3.0)(supports-color@8.1.1))(react@19.3.0)
-            expo-linear-gradient:
-                specifier: ~58.0.3
-                version: 58.0.3(expo@58.0.14)(react-native@0.88.0(@babel/core@7.29.7(supports-color@8.1.1))(@react-native-community/cli@20.2.0(supports-color@8.1.1)(typescript@6.0.3))(@react-native/metro-config@0.88.0(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.3.0)(supports-color@8.1.1))(react@19.3.0)
+            expo:
+                specifier: 58.0.14
+                version: 58.0.14(7a1540b68924352560a9bdc3b36f45c1)
             react:
                 specifier: 19.3.0
                 version: 19.3.0
@@ -890,12 +884,15 @@ importers:
             '@types/react':
                 specifier: 19.3.0
                 version: 19.3.0
+            pixelmatch:
+                specifier: ^8.0.0
+                version: 8.0.0
+            pngjs:
+                specifier: ^7.0.0
+                version: 7.0.0
 
     packages/react-native-screen-chrome-example/apps/bare:
         dependencies:
-            '@react-native-masked-view/masked-view':
-                specifier: ^0.3.2
-                version: 0.3.2(react-native@0.88.0(@babel/core@7.29.7(supports-color@8.1.1))(@react-native-community/cli@20.2.0(supports-color@8.1.1)(typescript@6.0.3))(@react-native/metro-config@0.88.0(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.3.0)(supports-color@8.1.1))(react@19.3.0)
             '@rnw-community/react-native-collapsible-header':
                 specifier: workspace:*
                 version: link:../../../react-native-collapsible-header
@@ -908,12 +905,6 @@ importers:
             expo:
                 specifier: 58.0.14
                 version: 58.0.14(7a1540b68924352560a9bdc3b36f45c1)
-            expo-blur:
-                specifier: ~58.0.4
-                version: 58.0.4(expo@58.0.14)(react-native@0.88.0(@babel/core@7.29.7(supports-color@8.1.1))(@react-native-community/cli@20.2.0(supports-color@8.1.1)(typescript@6.0.3))(@react-native/metro-config@0.88.0(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.3.0)(supports-color@8.1.1))(react@19.3.0)
-            expo-linear-gradient:
-                specifier: ~58.0.3
-                version: 58.0.3(expo@58.0.14)(react-native@0.88.0(@babel/core@7.29.7(supports-color@8.1.1))(@react-native-community/cli@20.2.0(supports-color@8.1.1)(typescript@6.0.3))(@react-native/metro-config@0.88.0(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.3.0)(supports-color@8.1.1))(react@19.3.0)
             react:
                 specifier: 19.3.0
                 version: 19.3.0
@@ -960,9 +951,6 @@ importers:
             '@expo/metro-runtime':
                 specifier: 58.0.14
                 version: 58.0.14(@expo/log-box@58.0.12)(expo@58.0.14)(react-dom@19.3.0(react@19.3.0))(react-native@0.88.0(@babel/core@7.29.7(supports-color@8.1.1))(@react-native-community/cli@20.2.0(supports-color@8.1.1)(typescript@6.0.3))(@react-native/metro-config@0.88.0(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.3.0)(supports-color@8.1.1))(react@19.3.0)
-            '@react-native-masked-view/masked-view':
-                specifier: ^0.3.2
-                version: 0.3.2(react-native@0.88.0(@babel/core@7.29.7(supports-color@8.1.1))(@react-native-community/cli@20.2.0(supports-color@8.1.1)(typescript@6.0.3))(@react-native/metro-config@0.88.0(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.3.0)(supports-color@8.1.1))(react@19.3.0)
             '@rnw-community/react-native-collapsible-header':
                 specifier: workspace:*
                 version: link:../../../react-native-collapsible-header
@@ -975,12 +963,6 @@ importers:
             expo:
                 specifier: 58.0.14
                 version: 58.0.14(7a1540b68924352560a9bdc3b36f45c1)
-            expo-blur:
-                specifier: ~58.0.4
-                version: 58.0.4(expo@58.0.14)(react-native@0.88.0(@babel/core@7.29.7(supports-color@8.1.1))(@react-native-community/cli@20.2.0(supports-color@8.1.1)(typescript@6.0.3))(@react-native/metro-config@0.88.0(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.3.0)(supports-color@8.1.1))(react@19.3.0)
-            expo-linear-gradient:
-                specifier: ~58.0.3
-                version: 58.0.3(expo@58.0.14)(react-native@0.88.0(@babel/core@7.29.7(supports-color@8.1.1))(@react-native-community/cli@20.2.0(supports-color@8.1.1)(typescript@6.0.3))(@react-native/metro-config@0.88.0(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.3.0)(supports-color@8.1.1))(react@19.3.0)
             react:
                 specifier: 19.3.0
                 version: 19.3.0
@@ -7391,14 +7373,6 @@ packages:
             react: 19.3.0
             react-native: 0.88.0
 
-    expo-blur@58.0.4:
-        resolution:
-            { integrity: sha512-GtRPQ+w2SGNiDUTtwLaVHuFnP+aGjYVjbD7kPEPhXWLmyT+Nan1J5/KbbGLJ14LXJezIqShS42JXXcRDfXuU+w== }
-        peerDependencies:
-            expo: 58.0.14
-            react: 19.3.0
-            react-native: 0.88.0
-
     expo-constants@58.0.12:
         resolution:
             { integrity: sha512-d3/dsps32nU4m6YJQbXQ1dIfn58GxfmJjTnZ0WtnhdSHTdG/oVsOakLqYRlX/FaLUKkQOSHXMf7hyCx+2a/HSQ== }
@@ -7427,14 +7401,6 @@ packages:
         peerDependencies:
             expo: 58.0.14
             react: 19.3.0
-
-    expo-linear-gradient@58.0.3:
-        resolution:
-            { integrity: sha512-sh6LXrlaCtlDlZ1CPPFRJWd3bl9lAr8e0hT61PvzMmkxd5sd3POe9QuWtct58wpp7PgOH2okB3iw4tq3ICA4Sg== }
-        peerDependencies:
-            expo: 58.0.14
-            react: 19.3.0
-            react-native: 0.88.0
 
     expo-modules-autolinking@58.0.13:
         resolution:
@@ -10162,6 +10128,11 @@ packages:
             { integrity: sha512-TfySrs/5nm8fQJDcBDuUng3VOUKsd7S+zqvbOTiGXHfxX4wK31ard+hoNuvkicM/2YFzlpDgABOevKSsB4G/FA== }
         engines: { node: '>= 6' }
 
+    pixelmatch@8.0.0:
+        resolution:
+            { integrity: sha512-cIqOLfh5k52us715qf3B3+kTOxZv+WDv77HN7xokLScYQGYQHi4m/ynoDIPpvF2LvCyUJGyvzY64i0QCXtzu1g== }
+        hasBin: true
+
     pkg-dir@4.2.0:
         resolution:
             { integrity: sha512-HRDzbaKjC+AOWVXxAU/x54COGeIv9eb+6CkDSQoNTt4XyWoIJvuPsXizxu/Fr23EiekbtZwmh1IcIG/l/a10GQ== }
@@ -10188,6 +10159,11 @@ packages:
         resolution:
             { integrity: sha512-NCrCHhWmnQklfH4MtJMRjZ2a8c80qXeMlQMv2uVp9ISJMTt562SbGd6n2oq0PaPgKm7Z6pL9E2UlLIhC+SHL3w== }
         engines: { node: '>=4.0.0' }
+
+    pngjs@7.0.0:
+        resolution:
+            { integrity: sha512-LKWqWJRhstyYo9pGvgor/ivk2w94eSjE3RGVuzLGlr3NmD8bf7RcYGze1mNdEHRP6TRP6rMuDHk5t44hnTRyow== }
+        engines: { node: '>=14.19.0' }
 
     possible-typed-array-names@1.1.0:
         resolution:
@@ -12464,13 +12440,13 @@ snapshots:
             '@babel/helper-compilation-targets': 7.29.7
             '@babel/helper-module-transforms': 7.29.7(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1)
             '@babel/helpers': 7.29.7
-            '@babel/parser': 7.29.8
+            '@babel/parser': 7.29.9
             '@babel/template': 7.29.7
-            '@babel/traverse': 7.29.8(supports-color@7.2.0)
+            '@babel/traverse': 7.29.8(supports-color@8.1.1)
             '@babel/types': 7.29.8
             '@jridgewell/remapping': 2.3.5
             convert-source-map: 2.0.0
-            debug: 4.4.3(supports-color@7.2.0)
+            debug: 4.4.3(supports-color@8.1.1)
             gensync: 1.0.0-beta.2
             json5: 2.2.3
             semver: 6.3.1
@@ -12479,7 +12455,7 @@ snapshots:
 
     '@babel/generator@7.29.8':
         dependencies:
-            '@babel/parser': 7.29.8
+            '@babel/parser': 7.29.9
             '@babel/types': 7.29.8
             '@jridgewell/gen-mapping': 0.3.13
             '@jridgewell/trace-mapping': 0.3.31
@@ -12516,17 +12492,6 @@ snapshots:
             '@babel/helper-annotate-as-pure': 7.29.7
             regexpu-core: 6.4.0
             semver: 6.3.1
-
-    '@babel/helper-define-polyfill-provider@0.6.8(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@7.2.0)':
-        dependencies:
-            '@babel/core': 7.29.7(supports-color@8.1.1)
-            '@babel/helper-compilation-targets': 7.29.7
-            '@babel/helper-plugin-utils': 7.29.7
-            debug: 4.4.3(supports-color@7.2.0)
-            lodash.debounce: 4.0.8
-            resolve: 1.22.12
-        transitivePeerDependencies:
-            - supports-color
 
     '@babel/helper-define-polyfill-provider@0.6.8(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1)':
         dependencies:
@@ -13274,7 +13239,7 @@ snapshots:
             '@babel/plugin-transform-unicode-regex': 7.29.7(@babel/core@7.29.7(supports-color@8.1.1))
             '@babel/plugin-transform-unicode-sets-regex': 7.29.7(@babel/core@7.29.7(supports-color@8.1.1))
             '@babel/preset-modules': 0.1.6-no-external-plugins(@babel/core@7.29.7(supports-color@8.1.1))
-            babel-plugin-polyfill-corejs2: 0.4.17(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@7.2.0)
+            babel-plugin-polyfill-corejs2: 0.4.17(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1)
             babel-plugin-polyfill-corejs3: 0.14.2(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1)
             babel-plugin-polyfill-regenerator: 0.6.8(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1)
             core-js-compat: 3.50.0
@@ -13317,27 +13282,15 @@ snapshots:
     '@babel/template@7.29.7':
         dependencies:
             '@babel/code-frame': 7.29.7
-            '@babel/parser': 7.29.8
+            '@babel/parser': 7.29.9
             '@babel/types': 7.29.8
-
-    '@babel/traverse@7.29.8(supports-color@7.2.0)':
-        dependencies:
-            '@babel/code-frame': 7.29.7
-            '@babel/generator': 7.29.8
-            '@babel/helper-globals': 7.29.7
-            '@babel/parser': 7.29.8
-            '@babel/template': 7.29.7
-            '@babel/types': 7.29.8
-            debug: 4.4.3(supports-color@7.2.0)
-        transitivePeerDependencies:
-            - supports-color
 
     '@babel/traverse@7.29.8(supports-color@8.1.1)':
         dependencies:
             '@babel/code-frame': 7.29.7
             '@babel/generator': 7.29.8
             '@babel/helper-globals': 7.29.7
-            '@babel/parser': 7.29.8
+            '@babel/parser': 7.29.9
             '@babel/template': 7.29.7
             '@babel/types': 7.29.8
             debug: 4.4.3(supports-color@8.1.1)
@@ -15335,6 +15288,7 @@ snapshots:
         dependencies:
             react: 19.3.0
             react-native: 0.88.0(@babel/core@7.29.7(supports-color@8.1.1))(@react-native-community/cli@20.2.0(supports-color@8.1.1)(typescript@6.0.3))(@react-native/metro-config@0.88.0(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.3.0)(supports-color@8.1.1)
+        optional: true
 
     '@react-native/asset-utils@0.88.0': {}
 
@@ -16898,15 +16852,6 @@ snapshots:
             '@types/babel__core': 7.20.5
             '@types/babel__traverse': 7.28.0
 
-    babel-plugin-polyfill-corejs2@0.4.17(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@7.2.0):
-        dependencies:
-            '@babel/compat-data': 7.29.7
-            '@babel/core': 7.29.7(supports-color@8.1.1)
-            '@babel/helper-define-polyfill-provider': 0.6.8(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@7.2.0)
-            semver: 6.3.1
-        transitivePeerDependencies:
-            - supports-color
-
     babel-plugin-polyfill-corejs2@0.4.17(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1):
         dependencies:
             '@babel/compat-data': 7.29.7
@@ -18416,12 +18361,6 @@ snapshots:
             - supports-color
             - typescript
 
-    expo-blur@58.0.4(expo@58.0.14)(react-native@0.88.0(@babel/core@7.29.7(supports-color@8.1.1))(@react-native-community/cli@20.2.0(supports-color@8.1.1)(typescript@6.0.3))(@react-native/metro-config@0.88.0(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.3.0)(supports-color@8.1.1))(react@19.3.0):
-        dependencies:
-            expo: 58.0.14(7a1540b68924352560a9bdc3b36f45c1)
-            react: 19.3.0
-            react-native: 0.88.0(@babel/core@7.29.7(supports-color@8.1.1))(@react-native-community/cli@20.2.0(supports-color@8.1.1)(typescript@6.0.3))(@react-native/metro-config@0.88.0(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.3.0)(supports-color@8.1.1)
-
     expo-constants@58.0.12(expo@58.0.14)(react-native@0.88.0(@babel/core@7.29.7(supports-color@8.1.1))(@react-native-community/cli@20.2.0(supports-color@8.1.1)(typescript@6.0.3))(@react-native/metro-config@0.88.0(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.3.0)(supports-color@8.1.1))(supports-color@8.1.1)(typescript@6.0.3):
         dependencies:
             '@expo/env': 2.5.2(supports-color@8.1.1)
@@ -18447,12 +18386,6 @@ snapshots:
         dependencies:
             expo: 58.0.14(7a1540b68924352560a9bdc3b36f45c1)
             react: 19.3.0
-
-    expo-linear-gradient@58.0.3(expo@58.0.14)(react-native@0.88.0(@babel/core@7.29.7(supports-color@8.1.1))(@react-native-community/cli@20.2.0(supports-color@8.1.1)(typescript@6.0.3))(@react-native/metro-config@0.88.0(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.3.0)(supports-color@8.1.1))(react@19.3.0):
-        dependencies:
-            expo: 58.0.14(7a1540b68924352560a9bdc3b36f45c1)
-            react: 19.3.0
-            react-native: 0.88.0(@babel/core@7.29.7(supports-color@8.1.1))(@react-native-community/cli@20.2.0(supports-color@8.1.1)(typescript@6.0.3))(@react-native/metro-config@0.88.0(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.3.0)(supports-color@8.1.1)
 
     expo-modules-autolinking@58.0.13(supports-color@8.1.1)(typescript@6.0.3):
         dependencies:
@@ -21269,6 +21202,10 @@ snapshots:
 
     pirates@4.0.7: {}
 
+    pixelmatch@8.0.0:
+        dependencies:
+            pngjs: 7.0.0
+
     pkg-dir@4.2.0:
         dependencies:
             find-up: 4.1.0
@@ -21286,6 +21223,8 @@ snapshots:
             xmlbuilder: 15.1.1
 
     pngjs@3.4.0: {}
+
+    pngjs@7.0.0: {}
 
     possible-typed-array-names@1.1.0: {}
 

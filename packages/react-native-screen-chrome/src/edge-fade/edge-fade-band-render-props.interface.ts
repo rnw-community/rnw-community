@@ -1,6 +1,5 @@
 import type { EdgeFadePosition } from './edge-fade-position.type';
 import type { ScreenChromeColorScheme } from '../type/screen-chrome-color-scheme.type';
-import type { BlurTint } from 'expo-blur';
 import type { ReactNode } from 'react';
 
 /**
@@ -14,8 +13,6 @@ export interface EdgeFadeBandRenderPropsInterface {
     readonly colorScheme: ScreenChromeColorScheme;
     /** Resolved band height in points, safe-area inset included. */
     readonly height: number;
-    /** Expo Blur tint the default band uses for the active color scheme. */
-    readonly tint: BlurTint;
     /** Wash gradient colors from the top of the band to its bottom, solid at the screen edge. */
     readonly washColors: readonly [string, string];
     /** Mask gradient colors resolved from the provider config's `maskStops` for this position, sorted by offset. */

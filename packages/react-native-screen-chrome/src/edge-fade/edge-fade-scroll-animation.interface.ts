@@ -5,8 +5,8 @@
 export interface EdgeFadeScrollAnimationInterface {
     /** Scroll offsets the band fades in across, on every platform. */
     readonly opacityInputRange?: readonly [number, number];
-    /** Scroll offsets the blur intensity ramps across; native only, because web applies a static backdrop blur. */
+    /** Scroll offsets the blur ramps in across; native only, because web applies a static backdrop blur. */
     readonly intensityInputRange?: readonly [number, number];
-    /** Blur intensity reached at the end of `intensityInputRange`; native only. @defaultValue the provider config's `maxBlurIntensity` */
+    /** Blur intensity reached at the end of `intensityInputRange`, and the web blur intensity while that range is set. @defaultValue the provider config's `maxBlurIntensity` */
     readonly maxIntensity?: number;
 }

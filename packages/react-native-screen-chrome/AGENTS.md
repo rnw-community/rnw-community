@@ -32,7 +32,7 @@ pnpm test && pnpm test:coverage && pnpm build && pnpm ts && pnpm ts:nodenext && 
 - The band renderer (`EdgeFade` `renderBand`, falling back to `ScreenChromeProvider` `renderEdgeFadeBand` through
   context) only swaps the container's children. The container — absolute positioning, `getEdgeFadeBandMetrics`
   geometry, scroll-driven opacity, and the inert pointer/accessibility props — stays package-owned in both
-  implementations, and the native blur (with its intensity animation) lives in the internal `EdgeFadeBlur` so the
+  implementations, and the native blur (with its intensity animation) lives in the internal `EdgeFadeProgressiveBlur` so the
   renderer receives it as a ready element. With no renderer the rendered tree is identical to the pre-renderer output;
   on web the CSS visuals stay on the container in that case and move into the `blur`/`defaultBand` children only when a
   renderer is set. `CollapsibleHeaderBackdrop` forwards every `EdgeFade` prop except `position`.
@@ -90,27 +90,16 @@ pnpm test && pnpm test:coverage && pnpm build && pnpm ts && pnpm ts:nodenext && 
   from the collapsible header provider it wraps.
 - `snapToCollapse` only takes effect while a `CollapsibleHeader` is mounted: the header registers the snap geometry
   with the provider. Reduced-motion-aware snapping is upstream scope, not a local reimplementation.
-- Native peer dependencies remain external so applications own native versions and linking.
-  `@react-native-masked-view/masked-view`, `expo-linear-gradient`, and `expo-blur` are optional in
-  `peerDependenciesMeta`: `edge-fade-native-modules.ts` is the only place that loads them, each through a literal
-  `require` inside its own `try` (Metro's `allowOptionalDependencies` only recognises that exact shape, so never route
-  them through a shared helper with a computed specifier). Without masked view or linear gradient the native default
-  band is a plain `View` with the `buildBackgroundImage` wash as `experimental_backgroundImage`; without `expo-blur`
-  `EdgeFadeBlur` renders nothing. The web build (`edge-fade.web.tsx` via the `browser` field) never loads them; the
-  public types (`BlurMethod`, `BlurTint`) still reference `expo-blur` as type-only imports.
+- Native peer dependencies remain external so applications own native versions and linking. The package itself is an
+  Expo module (`expo-module.config.json`, `ios/`, `android/`) with one view, `ScreenChromeProgressiveBlurView`
+  (`position`, `radius`, `plateau`), required on iOS and Android: there is no fallback blur and no
+  optional loading. The web build (`edge-fade.web.tsx` via the `browser` field) never imports it.
 - `ScreenChromeProvider` `colorScheme` accepts `'system'`, resolved during render by `resolveScreenChromeColorScheme`
   from `useColorScheme()` — never mirrored into state — so the context value stays `'light' | 'dark'`. The hook is
   read unconditionally (rules of hooks) and ignored for fixed schemes.
 - `collapsible-header.freeze.spec.tsx` pins `react-freeze` and React `<Activity>` survival. Reanimated's jest
   `AnimatedComponent` re-copies `style.initial.value` into `jestAnimatedStyle` when a hidden view re-attaches, so the
   spec asserts the fade's subscription by scrolling after the cycle instead of reading a stale post-cycle snapshot.
-- `EdgeFadeBlur` warns once per mounted band (dev only, Android only) when blur is requested through the band's own
-  props — a positive `intensity` or an `intensityInputRange` — while `blurMethod` silently defaults to `'none'` for lack
-  of a `blurTarget`. A `useRef` flag (not the effect deps) enforces "once", because `<Activity>` and StrictMode re-run
-  effects. The provider `config.intensity` is not checked: after the merge it is indistinguishable from the default.
-  The dev check is `typeof __DEV__ !== 'undefined' && __DEV__`, evaluated after the platform check, so runtimes without
-  the global never throw. expo-blur already warns for an explicit targeted method without a target, so that case is
-  not duplicated.
 - `CollapsibleHeader` passes `expandedHeight = safeAreaInsets.top + config.headerHeight` and
   `collapsedHeight = safeAreaInsets.top + (config.collapsedHeaderHeight ?? config.headerHeight)`, and offsets every
   content layer by `top: safeAreaInsets.top`. `collapsedHeaderHeight` is optional and absent from the defaults so an overridden `headerHeight`
@@ -134,9 +123,6 @@ pnpm test && pnpm test:coverage && pnpm build && pnpm ts && pnpm ts:nodenext && 
   children receive touches, so an empty or narrow slot never swallows taps meant for the layers underneath. The
   consumer `style` merges last on purpose — it is the sizing escape hatch, so a consumer that overrides `minWidth`/
   `minHeight` owns the touch-target size of the control it renders.
-- The `expo-blur` peer floor is `>=55`: `blurMethod` and the `BlurMethod` type only exist from that release (it renamed
-  `experimentalBlurMethod`), and the same release made `dimezisBlurView` require a `BlurTargetView`. `EdgeFade`
-  therefore defaults `blurMethod` from `blurTarget` presence rather than hard-coding a targeted method.
 - Configuration is validated during provider render, before any chrome component reads it.
 - React 19-only syntax (`use()`) stays absent while the `react` peer floor is `>=18`.
 - Relative source imports stay extensionless; the build's post-compile rewrite/assert pair enforces extensioned specifiers in `dist/module` and `dist/typescript/module`, and NodeNext validation must pass.
@@ -144,30 +130,65 @@ pnpm test && pnpm test:coverage && pnpm build && pnpm ts && pnpm ts:nodenext && 
   job once #601 resolves and compiler output returns. While the compiler is absent (see below), values whose
   _identity_ is behavior — a merged ref callback that React 19 would otherwise detach, clean up, and reattach
   on every render — must be manually memoized; nothing else memoizes them today.
-- `EdgeFade` native masks only its wash (`MaskedView` + `expo-linear-gradient`, #640); the blur (`EdgeFadeBlur`) is a
-  sibling painted beneath the masked wash, never a descendant of the mask. UIKit documents that a mask on a superview
-  of a `UIVisualEffectView` makes the effect fail, and `RNCMaskedView` sets `maskView` on itself, so a blur inside it
-  renders the wash over unblurred content. The blur is four non-overlapping Expo Blur slices, each a quarter of the
-  band, whose intensity halves away from the edge, so it steps down instead of ending in one hard edge. Specs assert no
-  blur host has a mask ancestor; `web-e2e` (`pnpm test:web`, Playwright over an esbuild + react-native-web harness)
-  asserts the web band's computed CSS and measures that content under it is really blurred. Do not add further
-  gradient or masked native views to the default band while #601 is open — they have corrupted the Hermes heap on the
-  RN 0.86 / iOS 26 stack. Additional visuals (Liquid Glass, solid colors, custom gradients) belong in a consumer
-  `renderBand`/`renderEdgeFadeBand`, never in the package default. That includes wash stops: a custom wash
-  `locations` is a renderer recipe in the readme, not a prop.
-- Web `EdgeFade` mirrors the native slices (`getWebEdgeFadeBlurLayers`): four non-overlapping quarter-band
-  `backdrop-filter` slices whose radius halves away from the edge, each carrying the `maskStops` mask sized to 400% and
-  positioned on its own quarter, plus a separate masked wash (`EdgeFadeWebBand`). A single blur with a gradient mask
-  cross-fades sharp content into a full-radius smear and reads as a hard edge. Never let blur layers overlap: each
-  overlapping `backdrop-filter` re-blurs the layers below it, and four full-band layers made headless WebKit about 7×
-  slower to render a screen (a consumer's mobile-webkit e2e timed out); the web e2e asserts the slices never overlap. Never put `opacity` below 1, a mask, or a filter on an ancestor of the
-  layers: per the Filter Effects backdrop-root rule the ancestor becomes the backdrop root and the layers blur nothing
-  (verified in Chromium), so the default band fades each layer with the scroll opacity and the container carries
-  positioning only. The renderer path keeps the documented container opacity. The radii stay static on purpose:
-  animating them re-rasterizes the backdrop on every scroll frame, while the opacity fade stays compositor-only.
-  `intensityInputRange`, `maxIntensity`, `blurMethod`, and `blurTarget` are documented as no-ops on web.
+- Native `EdgeFade` is the native blur view under a wash `View` whose `experimental_backgroundImage`
+  (`buildNativeWashImage`) multiplies the wash gradient by the `maskStops` alpha at each stop; nothing is masked,
+  because a mask on a superview of a `UIVisualEffectView` stops the blur rendering. The view holds the full radius
+  (`plateau`, from `getEdgeFadeChromePlateau`) only behind the chrome itself, the safe-area inset plus `chromeHeight`,
+  then eases to zero at the inner edge (Core Animation `variableBlur` with a cubic mask on iOS; a QmBlurView eased out
+  through a `DST_IN` gradient on Android; both ported from `@sbaiahmed1/react-native-blur`, see
+  `THIRD_PARTY_NOTICES.md`). Never derive the plateau from the band height: a plateau reaching past the chrome
+  compresses the ramp and reads as a line where the blur starts. `intensityInputRange` fades the view through opacity,
+  never by changing its radius, which would rebuild the native filter every frame. The edge-fade harness (below) is
+  the regression gate for the look on every platform. Additional visuals belong in a consumer
+  `renderBand`/`renderEdgeFadeBand`, never in the package default.
+- The edge-fade harness is the regression gate for the blur look on every platform. The example's
+  `EdgeFadeDemoScreen` renders a fixed 3-point stripe and text pattern with both bands (`height` 128, `chromeHeight` 32) at a fixed scroll offset, and a ruler column marking the chrome and ramp rows. Its Scheme, Background (dark,
+  light, vivid) and State (reference without bands, rest, scrolled) controls are driven by
+  `e2e/harness/edge_fade_harness.yaml` on iOS and Android (required `Edge-fade harness (iOS|Android)` jobs) and by
+  `web-e2e/edge-fade-matrix.e2e.ts` in Chromium (headless Linux WebKit renders no `backdrop-filter`, so it is not a
+  lane). One script, `e2e/harness/edge-fade-metrics.mjs`, measures each capture against its reference: per-row
+  Laplacian energy and mean color. Tint-slab measurements average row colors over the 24-point text-line interval
+  before comparing them, so vertical text blur is not mistaken for tint; inner-edge and outside checks keep raw row means; rest checks use absolute pixel differences
+  and cannot miss a mean-preserving blur. Thresholds (`THRESHOLDS`, the only place they live): chrome zone keeps at most
+  0.2 of the reference detail; the ramp returns to at least 0.8 by its inner edge, never loses more than 0.12 on the
+  way and rises at most 0.165 per point (iOS measures 0.137 for the 96-point ramp and 0.218 for the old half-band
+  plateau); content outside the bands keeps at least 0.85; the wash shifts the row mean by at most 120 levels and at
+  most 6 at the inner edge (3 outside); top and bottom ramps differ by at most 0.25; at rest no row differs from the
+  reference by more than 2 levels; downscaled goldens (`e2e/harness/baselines/<platform>`) differ in at most 3% of
+  pixels. `edge-fade-metrics.test.mjs` proves the checks fail for a blur that never renders (inside a `MaskedView`),
+  four stepped slices, a half-band plateau, a wash ending in a hard edge and a band visible at rest. To update the
+  goldens after an intended visual change, run the metric script with `--update` on the CI captures (the
+  `maestro-*-screen-chrome-harness-*` artifacts' `edge-fade` folder) or `UPDATE_EDGE_FADE_BASELINES=1 pnpm test:web`,
+  and commit the PNGs with the change.
+- Web `EdgeFade` matches the native ramp (`getWebEdgeFadeBlurLayers`): four `backdrop-filter` layers whose radius
+  halves away from the edge, chained as cross-fades — each weaker layer fades in while the previous one is still
+  opaque, then holds while that one fades out — plus a separate masked wash (`EdgeFadeWebBand`). A `backdrop-filter`
+  box edge draws a seam (non-overlapping slices showed one per slice boundary; in Chromium a box bottom ghosts the
+  unblurred content at device scale above 1), so every layer box extends two radii past its visible mask. Full-band
+  overlapping layers made headless WebKit about 7× slower, so layers stay as short as the cross-fade allows. The web
+  e2e renders a 20-pixel stripe pattern under both bands and fails on any row-to-row contrast jump or a non-monotonic
+  ramp, which is what a hard edge or a seam produces. Never put `opacity` below 1, a mask, or a filter on an ancestor
+  of the layers: per the Filter Effects backdrop-root rule the ancestor becomes the backdrop root and the layers blur
+  nothing (verified in Chromium), so the default band fades each layer with the scroll opacity and the container
+  carries positioning only. The renderer path keeps the documented container opacity. The radii stay static on
+  purpose: animating them re-rasterizes the backdrop on every scroll frame, while the opacity fade stays
+  compositor-only.
+  On web `intensityInputRange` only selects `maxIntensity` for the radius.
 - Public exports carry repository-standard scoped TSDoc and package readme links.
 - Tests retain at least 99.9% statements, branches, functions, and lines coverage.
+
+## 3.0 migration contract
+
+- This is a breaking release: `blurMethod`, `blurTarget` (including on `CollapsibleHeaderBackdrop`) and renderer `tint`
+  are removed without shims. The optional external blur stack is gone: `expo-blur`,
+  `@react-native-masked-view/masked-view`, `expo-linear-gradient`, and `@sbaiahmed1/react-native-blur` are unnecessary.
+- `expo >=55 <59` and a rebuilt native binary containing this package's module are required. No Expo Go and no
+  missing-module fallback. Bare apps configure Expo modules with `npx install-expo-modules@latest` or the manual setup.
+  If iOS removes its private variable-blur filter, hide the effect view instead of showing a uniform hard-edged blur.
+  Web keeps CSS backdrop filtering.
+- Native `intensityInputRange` fades a fixed radius using `maxIntensity`; bands begin at the screen edge and the
+  native header-backdrop default is 128 points. `chromeHeight` specifies the full-strength region beyond the safe-area inset.
+- Keep [Migrating to 3.0](readme.md#migrating-to-30) and `llms.txt` aligned with the public surface.
 
 ## Publication pipeline (react-native-builder-bob)
 

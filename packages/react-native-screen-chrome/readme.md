@@ -14,9 +14,7 @@ content and product behavior stay consumer-owned.
 ```bash
 npm install @rnw-community/react-native-screen-chrome \
     @rnw-community/react-native-collapsible-header \
-    react-native-reanimated react-native-safe-area-context
-# optional: the native blurred, masked edge-fade band
-npm install @react-native-masked-view/masked-view expo-blur expo-linear-gradient
+    expo react-native-reanimated react-native-safe-area-context
 ```
 
 The native libraries and `@rnw-community/react-native-collapsible-header` are peer dependencies and must be installed
@@ -25,45 +23,47 @@ context has two identities and the chrome components fail to find their provider
 `react-native-reanimated >=4.1.0 <5` on `react-native >=0.78`; Reanimated 4 applications also install
 `react-native-worklets` and configure `react-native-worklets/plugin`.
 
-When installed, `expo-blur` must be `>=55 <59`: the `blurMethod` prop and the `BlurMethod` type this package passes and re-exports in
-`EdgeFadePropsInterface` only exist from that release, which renamed `experimentalBlurMethod` to `blurMethod`.
+The package is an Expo module: its native `ScreenChromeProgressiveBlurView` draws the edge-fade blur on iOS and
+Android, so the application needs `expo` (`>=55 <59`), the New Architecture, and a native rebuild (`npx expo prebuild`
+or `pod install`) after installing it. Existing bare React Native apps without Expo modules must first run
+`npx install-expo-modules@latest` or follow the [manual Expo modules setup](https://docs.expo.dev/bare/installing-expo-modules/).
+Expo Go does not include the view. On iOS the view applies Core Animation's
+`variableBlur` filter, which UIKit does not expose publicly; it is reached by runtime lookup. If a future iOS removes
+it, the blur view hides rather than drawing a hard-edged uniform blur. On Android it eases a QmBlurView blur out through a gradient mask. The wash is a
+`experimental_backgroundImage` gradient. Web uses CSS `backdrop-filter` layers and never loads the native view.
 
-`@react-native-masked-view/masked-view`, `expo-blur`, and `expo-linear-gradient` are optional peers that only the
-native default edge-fade band uses; web never loads them. The band resolves each one with a guarded `require` when
-the package is first loaded, so an application that does not install them still renders:
+## Migrating to 3.0
 
-| Installed                            | Native default band                                                              |
-| ------------------------------------ | -------------------------------------------------------------------------------- |
-| all three                            | stepped blur under a color wash faded out through the gradient mask              |
-| no masked view or no linear gradient | stepped blur under a color wash painted as a CSS gradient                        |
-| no `expo-blur`                       | masked color wash without blur; a band renderer's `blur` element renders nothing |
+3.0 replaces the optional blur stack with this package's required Expo native view. Remove `blurMethod` and
+`blurTarget` from `EdgeFade` and `CollapsibleHeaderBackdrop`. Custom `renderBand` / `renderEdgeFadeBand` callbacks
+no longer receive `tint`; render the supplied `blur` or `defaultBand` element instead.
 
-The CSS-gradient fallback uses `experimental_backgroundImage`, which React Native renders from 0.76 on the New
-Architecture; on older setups the fallback band is empty. To use another blur library (for example
-`@react-native-community/blur`) without the Expo modules, draw the band yourself through
-[`renderEdgeFadeBand`](#custom-band-content): the package still owns the band position, height, scroll-driven opacity,
-and inert props. A missing module inside the guard does not fail the Metro build because `@react-native/metro-config`
-enables `allowOptionalDependencies`; a custom Metro config must keep it enabled to omit these peers.
+Before (2.x):
 
-`expo-blur` and `expo-linear-gradient` are Expo modules, so a bare React Native application (one created with the
-React Native CLI rather than Expo) that installs them must also install Expo Modules support:
-
-```bash
-npx install-expo-modules@latest
+```tsx
+<BlurTargetView ref={blurTarget}>{content}</BlurTargetView>
+<EdgeFade position="bottom" blurMethod="dimezisBlurView" blurTarget={blurTarget} />
 ```
 
-Only the native module setup is needed: answer No to `Install the Expo CLI integration?` to keep bundling with the
-React Native CLI (`--non-interactive` answers Yes and switches Babel, Metro and the native bundling phases to Expo CLI).
+After (3.0):
 
-The tool picks the Expo SDK from the application's React Native version; if it reports
-`Unable to find compatible Expo SDK version`, run a newer release explicitly with the matching SDK, for example
-`npx install-expo-modules@next --sdk-version 58.0.0` for React Native 0.88. See
-[Install Expo modules in an existing React Native project](https://docs.expo.dev/bare/installing-expo-modules/).
+```tsx
+<View>{content}</View>
+<EdgeFade position="bottom" chromeHeight={48} />
+```
 
-Without it no Expo view manager is registered and the application crashes on launch with
-`Can't find ViewManager 'ViewManagerAdapter_ExpoLinearGradient' nor 'RCTViewManagerAdapter_ExpoLinearGradient'`
-on Android, after `Unable to get the view config` warnings for `ExpoLinearGradient` and `ExpoBlurView`. Expo
-applications already include Expo Modules and need no extra step.
+`chromeHeight` is the height of your chrome beyond the safe-area inset: the blur holds its full radius there, then
+fades across the remaining band. The default is `0`. Bands now start at the screen edge; the native default header
+backdrop height is 128 points instead of 220. `intensityInputRange` now fades a fixed-radius native blur through opacity,
+with the radius set by `maxIntensity`, rather than animating the radius.
+
+Remove `expo-blur`, `@react-native-masked-view/masked-view`, `expo-linear-gradient`, and
+`@sbaiahmed1/react-native-blur` if nothing else in your app uses them. None is a peer or fallback in 3.0. Install the
+new required `expo` peer (`>=55 <59`); bare React Native apps without Expo modules first run
+`npx install-expo-modules@latest` or follow the [manual setup](https://docs.expo.dev/bare/installing-expo-modules/). Build a new native
+binary after upgrading (`npx expo run:ios` / `npx expo run:android`, or your native build pipeline). An OTA update alone
+cannot install the view. Expo Go is unsupported; use a development or production build. A missing native module is
+an error. Web continues to use CSS `backdrop-filter`.
 
 ## Complete example
 
@@ -332,11 +332,11 @@ native blur samples the content scrolling beneath the header.
 <CollapsibleHeaderBackdrop />
 ```
 
-Every `EdgeFade` prop except `position` is forwarded, so `testID`, `style`, `blurTarget`, and `renderBand` reach the
-band; `height` and `scrollAnimation` replace the header-derived defaults only when supplied:
+Every `EdgeFade` prop except `position` is forwarded, so `testID`, `style`, and `renderBand` reach the
+band; `height`, `chromeHeight` (default `headerHeight`) and `scrollAnimation` replace the header-derived defaults only when supplied:
 
 ```tsx
-<CollapsibleHeaderBackdrop testID="header-backdrop" blurTarget={blurTarget} renderBand={renderSolidBand} />
+<CollapsibleHeaderBackdrop testID="header-backdrop" renderBand={renderSolidBand} />
 ```
 
 ## CollapsibleHeaderBackdropPropsInterface
@@ -350,13 +350,12 @@ const backdropProps: CollapsibleHeaderBackdropPropsInterface = { testID: 'header
 
 ## Edge fades
 
-Native edge fades use Masked View, Expo Linear Gradient, and Expo Blur when they are installed, and a CSS-gradient
-wash otherwise (see [Installation](#installation)). The native blur is four stacked Expo Blur slices, each a quarter of
-the band, whose intensity halves away from the edge (1, 1/2, 1/4, 1/8 of the resolved intensity), and only the wash is
-masked: UIKit stops rendering a `UIVisualEffectView` whose superview carries a mask, so a blur inside the mask shows
-the wash over unblurred content. They ignore pointer events and accessibility traversal. Web edge fades mirror the native slices with four
-non-overlapping `backdrop-filter` slices whose radius halves away from the screen edge, each masked by its own quarter of
-the wash's edge mask, under a separate masked wash; scroll animation changes opacity while the radii stay static. Native defaults use 150-point top and bottom bands, while web defaults use 76-pixel bands.
+Every band starts at the screen edge and covers the safe-area inset plus its configured height. A native band holds
+its full blur radius behind the chrome it sits under (the inset plus `chromeHeight`), easing the radius to zero on
+iOS and the blur opacity to zero on Android; web cross-fades four fixed-radius layers. The blur sits under a color wash that eases from
+solid at the edge to transparent inward. Bands ignore pointer events and accessibility traversal, and scroll animation
+changes opacity while the radii stay static. Native defaults use 150-point top and bottom bands, while web defaults use
+76-pixel bands.
 
 ## EdgeFade
 
@@ -366,33 +365,20 @@ Renders a decorative top or bottom blur band, scroll-animatable through `scrollA
 <EdgeFade position="bottom" height={96} scrollAnimation={{ opacityInputRange: [0, 80] }} />
 ```
 
-On web the band is four `backdrop-filter` slices, each a quarter of the band, with radii of 1, 1/2, 1/4 and 1/8 of the
-`intensity`-derived edge radius (`max(8, intensity × 0.45)` pixels) stepping inward from the screen edge. Each slice
-carries the `maskStops` mask stretched over the whole band and offset to its own quarter, under a separately masked wash.
-The slices never overlap: overlapping `backdrop-filter` layers re-blur each other, and WebKit's cost grows with every
-stacked layer. Only
-`scrollAnimation.opacityInputRange` animates, and it fades each layer rather than the container — an ancestor with
-`opacity` below 1 or a mask becomes the backdrop root, and a `backdrop-filter` beneath it has nothing left to blur.
-`intensityInputRange` and `maxIntensity` have no effect on web, and `blurMethod`/`blurTarget` are Android-only and
-ignored. The static radii are deliberate: changing a `backdrop-filter` radius re-rasterizes the blurred backdrop on
-every scroll frame, while the opacity fade over fixed blurs stays on the compositor.
+Native bands hold the full blur radius over the safe-area inset plus `chromeHeight` (the bar the band sits behind) and
+fade it across the rest of the band (variable radius on iOS, a masked uniform blur on Android), so the chrome stays legible while content fades into the blur without a
+visible start line. Web bands hold the full radius over the larger of that zone and the inset plus the edge half of
+the band height before easing out. The edge radius is `max(8, intensity × 0.45)` points, using `scrollAnimation.maxIntensity` while an
+`intensityInputRange` is set, which fades the native view in through opacity, so scrolling never rebuilds the blur.
 
-Android blur is opt-in through `blurTarget`. Since `expo-blur@55` the `dimezisBlurView` methods only blur the
-background of a `BlurTargetView`, so `blurMethod` defaults to `'dimezisBlurView'` when a `blurTarget` ref is supplied
-and to `'none'` otherwise — expo-blur itself falls back to `'none'` with a console warning when a targeted method has
-no target, and that fallback is what the default avoids. Because that default is silent, a development build warns
-once per mounted band (including across `<Activity>` hide/show cycles and StrictMode effect replays) when an `EdgeFade`
-on Android asks for blur through its own props (a positive `intensity` or a `scrollAnimation.intensityInputRange`) with
-neither a `blurTarget` nor an explicit `blurMethod`. Only those per-band props are checked: the provider `config.intensity`
-is always present after merging with the defaults, so it cannot signal an explicit request. Pass `blurMethod="none"` to
-keep the band blur-free on Android without the warning:
-
-```tsx
-const blurTarget = useRef<ComponentRef<typeof View>>(null);
-
-<BlurTargetView ref={blurTarget}>{content}</BlurTargetView>
-<EdgeFade position="top" blurTarget={blurTarget} />;
-```
+On web the band is four `backdrop-filter` layers with radii of 1, 1/2, 1/4 and 1/8 of the edge radius. Each weaker
+layer fades in while the previous one is still opaque and stays opaque while that one fades out, so the radius steps
+down through cross-fades with no visible boundary, under a separately masked wash. Every layer box extends two radii
+past the part its mask shows, because a `backdrop-filter` box edge itself draws a visible seam. Only `scrollAnimation.opacityInputRange` animates, and it fades each layer rather than the container — an
+ancestor with `opacity` below 1 or a mask becomes the backdrop root, and a `backdrop-filter` beneath it has nothing left
+to blur. The static radii are deliberate: changing a
+`backdrop-filter` radius re-rasterizes the blurred backdrop on every scroll frame, while the opacity fade over fixed
+blurs stays on the compositor.
 
 ### Custom band content
 
@@ -414,35 +400,16 @@ const renderSolidBand: EdgeFadeBandRenderer = ({ colorScheme }) => (
 <EdgeFade position="bottom" renderBand={renderSolidBand} />;
 ```
 
-The default wash is a two-stop gradient. For a wash with its own stops (for example a knee at 45%), redraw the wash
-next to the package's animated `blur` with your own `locations` — no extra prop is needed. Keep `blur` outside any
-`MaskedView`: on iOS a masked ancestor stops the blur from rendering.
-
-```tsx
-const renderKneeBand: EdgeFadeBandRenderer = ({ blur, washColors, maskColors, maskLocations }) => (
-    <View style={{ flex: 1 }}>
-        {blur}
-        <MaskedView
-            style={StyleSheet.absoluteFill}
-            maskElement={<LinearGradient colors={maskColors} locations={maskLocations} style={{ flex: 1 }} />}
-        >
-            <LinearGradient colors={washColors} locations={[0.45, 1]} style={StyleSheet.absoluteFill} />
-        </MaskedView>
-    </View>
-);
-```
-
 ## EdgeFadePropsInterface
 
-| Prop              | Type                                           | Description                                                                          |
-| ----------------- | ---------------------------------------------- | ------------------------------------------------------------------------------------ |
-| `position`        | `EdgeFadePosition`                             | Screen edge the band renders at.                                                     |
-| `height`          | `number`                                       | Band height; defaults to the provider config's fade height.                          |
-| `intensity`       | `number`                                       | Static blur intensity; ignored while `scrollAnimation` drives it.                    |
-| `scrollAnimation` | `EdgeFadeScrollAnimationInterface`             | Optional scroll-driven opacity and blur intensity ranges.                            |
-| `blurMethod`      | `BlurMethod`                                   | Android Expo Blur rendering method; defaults from `blurTarget`.                      |
-| `blurTarget`      | `RefObject<ComponentRef<typeof View> \| null>` | Android `BlurTargetView` ref the band blurs; required by `dimezisBlurView` methods.  |
-| `renderBand`      | `EdgeFadeBandRenderer`                         | Custom band content; defaults to the provider's `renderEdgeFadeBand`, then built-in. |
+| Prop              | Type                               | Description                                                                          |
+| ----------------- | ---------------------------------- | ------------------------------------------------------------------------------------ |
+| `position`        | `EdgeFadePosition`                 | Screen edge the band renders at.                                                     |
+| `height`          | `number`                           | Band height; defaults to the provider config's fade height.                          |
+| `chromeHeight`    | `number`                           | Chrome the blur holds full strength behind, beyond the inset; defaults to `0`.       |
+| `intensity`       | `number`                           | Static blur intensity; ignored while `scrollAnimation` drives it.                    |
+| `scrollAnimation` | `EdgeFadeScrollAnimationInterface` | Optional scroll-driven opacity and blur intensity ranges.                            |
+| `renderBand`      | `EdgeFadeBandRenderer`             | Custom band content; defaults to the provider's `renderEdgeFadeBand`, then built-in. |
 
 ## EdgeFadeScrollAnimationInterface
 
@@ -479,35 +446,17 @@ const renderGlassBand: EdgeFadeBandRenderer = ({ defaultBand }) =>
 | `position`      | `EdgeFadePosition`               | Screen edge the band renders at.                                       |
 | `colorScheme`   | `ScreenChromeColorScheme`        | Active provider color scheme.                                          |
 | `height`        | `number`                         | Resolved band height, safe-area inset included.                        |
-| `tint`          | `BlurTint`                       | Expo Blur tint the default band uses.                                  |
 | `washColors`    | `readonly [string, string]`      | Wash gradient colors from top to bottom, solid at the screen edge.     |
 | `maskColors`    | `readonly [string, string, ...]` | Mask colors from the config's `maskStops` for this position, sorted.   |
 | `maskLocations` | `readonly [number, number, ...]` | Mask locations matching `maskColors`.                                  |
 | `blur`          | `ReactNode`                      | The package's blur element with its static or scroll-driven intensity. |
-| `defaultBand`   | `ReactNode`                      | The package's complete default band (blur under the masked wash).      |
-
-Recompose the masked wash next to the package's animated blur, for example with an extra overlay layer; the blur stays
-outside the `MaskedView` because a masked ancestor stops the iOS blur from rendering:
-
-```tsx
-const renderTintedBand: EdgeFadeBandRenderer = ({ blur, washColors, maskColors, maskLocations }) => (
-    <View style={{ flex: 1 }}>
-        {blur}
-        <MaskedView
-            style={StyleSheet.absoluteFill}
-            maskElement={<LinearGradient colors={maskColors} locations={maskLocations} style={{ flex: 1 }} />}
-        >
-            <LinearGradient colors={washColors} style={StyleSheet.absoluteFill} />
-            <View style={[StyleSheet.absoluteFill, { backgroundColor: 'rgba(0,122,255,0.08)' }]} />
-        </MaskedView>
-    </View>
-);
-```
+| `defaultBand`   | `ReactNode`                      | The package's complete default band (blur under the eased wash).       |
 
 ## getEdgeFadeBandMetrics
 
-Resolves the height and safe-area offset an edge-fade band uses — `height` (fade height plus the edge inset) and a
-negative `top` or `bottom` offset — for custom bands positioned outside `EdgeFade`.
+Resolves the geometry an edge-fade band uses — `height` (fade height plus the edge inset) and a `0` `top` or `bottom`
+offset, so the band starts at the screen edge and covers the safe-area inset — for custom bands positioned outside
+`EdgeFade` in a full-screen parent such as `ScreenChromeFrame`.
 
 ```tsx
 const insets = useSafeAreaInsets();
@@ -1280,8 +1229,9 @@ Snapping also requires the provider-owned scroll: combining `snapToCollapse` wit
 ## SCREEN_CHROME_DEFAULT_CONFIG
 
 The platform default `ScreenChromeConfigInterface`: native (`screen-chrome-default-config.constant.ts`) uses 150-point top and
-bottom fade bands and a 220-point header backdrop; web (`screen-chrome-default-config.constant.web.ts`) uses 76-pixel bands and a
-108-pixel backdrop. `mergeScreenChromeConfig` starts from this value.
+bottom fade bands and a 128-point header backdrop; web (`screen-chrome-default-config.constant.web.ts`) uses 76-pixel bands and a
+128-pixel backdrop. The header backdrop is twice the 64-point `headerHeight`, so its blur holds full strength behind the
+safe-area inset and the collapsed header and eases out across the next 64 points. `mergeScreenChromeConfig` starts from this value.
 
 ## SCREEN_CHROME_HEADER_LAYOUT_METRICS
 

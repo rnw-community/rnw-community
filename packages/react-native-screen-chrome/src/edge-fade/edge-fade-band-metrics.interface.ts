@@ -5,8 +5,8 @@
 export interface EdgeFadeBandMetricsInterface {
     /** Band height in points, safe-area inset included. */
     readonly height: number;
-    /** Negative top inset offset, set only for the top band. */
+    /** Top offset, `0` so the band starts at the screen edge; set only for the top band. */
     readonly top?: number;
-    /** Negative bottom inset offset, set only for the bottom band. */
+    /** Bottom offset, `0` so the band starts at the screen edge; set only for the bottom band. */
     readonly bottom?: number;
 }

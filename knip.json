@@ -33,12 +33,9 @@
         },
         "packages/react-native-screen-chrome-example/apps/bare": {
             "ignoreDependencies": [
-                "@react-native-masked-view/masked-view",
                 "@rnw-community/react-native-collapsible-header",
                 "@rnw-community/react-native-screen-chrome",
                 "expo",
-                "expo-blur",
-                "expo-linear-gradient",
                 "expo-updates",
                 "react-native-keyboard-controller",
                 "react-native-reanimated",
@@ -60,11 +57,8 @@
         "packages/react-native-screen-chrome-example/apps/expo": {
             "ignore": ["metro.config.js"],
             "ignoreDependencies": [
-                "@react-native-masked-view/masked-view",
                 "@rnw-community/react-native-collapsible-header",
                 "@rnw-community/react-native-screen-chrome",
-                "expo-blur",
-                "expo-linear-gradient",
                 "expo-updates",
                 "react-native-keyboard-controller",
                 "react-native-reanimated",
@@ -83,7 +77,12 @@
             "ignoreDependencies": ["@rnw-community/react-native-payments"]
         },
         "packages/react-native-screen-chrome": {
-            "entry": ["src/index.ts", "web-e2e/build-harness.mjs", "web-e2e/edge-fade-harness.tsx"],
+            "entry": [
+                "src/index.ts",
+                "web-e2e/build-harness.mjs",
+                "web-e2e/edge-fade-harness.tsx",
+                "web-e2e/edge-fade-matrix.tsx"
+            ],
             "ignore": ["babel.config.bob.js"],
             "ignoreDependencies": ["react-native-web"]
         }

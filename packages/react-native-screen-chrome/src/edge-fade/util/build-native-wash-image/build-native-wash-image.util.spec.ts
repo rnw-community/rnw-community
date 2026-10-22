@@ -1,0 +1,29 @@
+import { afterEach, describe, expect, it, jest } from '@jest/globals';
+import { Platform } from 'react-native';
+
+import { buildNativeWashImage } from './build-native-wash-image.util';
+
+const WASH_IMAGE = 'linear-gradient(to bottom, rgba(255,0,0,1) 0%, rgba(128,0,128,0.377) 50%, rgba(0,0,255,0) 100%)';
+
+afterEach(() => {
+    jest.restoreAllMocks();
+});
+
+describe('buildNativeWashImage', () => {
+    it.each(['ios', 'android'] as const)(
+        'blends the wash colors along the band and multiplies each stop by the mask alpha on %s',
+        platform => {
+            expect.hasAssertions();
+
+            jest.replaceProperty(Platform, 'OS', platform);
+
+            expect(
+                buildNativeWashImage(
+                    ['#ff0000', 'rgba(0,0,255,0.5)'],
+                    ['#000000', 'rgba(0,0,0,0.5)', 'transparent'],
+                    [0, 0.5, 1]
+                )
+            ).toBe(WASH_IMAGE);
+        }
+    );
+});

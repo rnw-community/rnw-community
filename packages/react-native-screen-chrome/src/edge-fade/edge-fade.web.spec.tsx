@@ -6,6 +6,7 @@ import { StyleSheet, View } from 'react-native';
 import { SCREEN_CHROME_DEFAULT_CONFIG } from '../constant/screen-chrome-default-config.constant.web';
 
 import { EdgeFade } from './edge-fade.web';
+import { getWebEdgeFadeBlurLayers } from './util/get-web-edge-fade-blur-layers/get-web-edge-fade-blur-layers.util';
 
 import type { EdgeFadeBandRenderer } from './edge-fade-band-renderer.type';
 import type { WebEdgeFadeStyleInterface } from './web-edge-fade-style.interface';
@@ -36,7 +37,12 @@ beforeEach(() => {
     mockScrollY.get.mockReturnValue(0);
 });
 
-const TOP_EDGE_MASK = 'linear-gradient(to bottom, rgba(0,0,0,0.99) 0%, #000000 50%, transparent 100%)';
+const QUARTER_STOP = 0.25;
+const WEB_TOP_BAND = 86;
+const WEB_TOP_RADIUS = 22.5;
+const TALL_CHROME = 60;
+const TOP_EDGE_MASK =
+    'linear-gradient(to bottom, #000000 0%, rgba(0,0,0,0.56) 25%, rgba(0,0,0,0.25) 50%, rgba(0,0,0,0.06) 75%, transparent 100%)';
 const TOP_WASH = 'linear-gradient(to bottom, rgba(255,255,255,0.42) 0%, rgba(255,255,255,0.08) 72%, transparent 100%)';
 
 type HostInstance = ReturnType<ReturnType<typeof render>['getByTestId']>;
@@ -48,14 +54,12 @@ const getLayerStyles = (root: HostInstance): WebEdgeFadeStyleInterface[] =>
     root.findAll(node => typeof node.type === 'string' && node !== root).map(flattenStyle);
 
 describe('EdgeFade web', () => {
-    it('renders the web defaults as edge-stepped blur slices under a masked wash', () => {
+    it('renders the web defaults as edge-anchored progressive blur layers under a masked wash', () => {
         expect.hasAssertions();
 
-        const screen = render(<EdgeFade testID="top-fade" position="top" blurMethod="dimezisBlurView" />);
+        const screen = render(<EdgeFade testID="top-fade" position="top" />);
         const fade = screen.getByTestId('top-fade', { includeHiddenElements: true });
 
-        expect(fade.props).not.toHaveProperty('blurMethod');
-        expect(fade.props).not.toHaveProperty('blurTarget');
         expect(fade).toHaveProp('pointerEvents', 'none');
         expect(fade).toHaveProp('aria-hidden', true);
         expect(flattenStyle(fade)).toEqual({
@@ -64,7 +68,7 @@ describe('EdgeFade web', () => {
             right: 0,
             zIndex: 2,
             height: 86,
-            top: -10,
+            top: 0,
         });
         expect(getLayerStyles(fade).map(({ backdropFilter }) => backdropFilter)).toEqual([
             'blur(22.5px) saturate(1.08)',
@@ -85,6 +89,20 @@ describe('EdgeFade web', () => {
         });
     });
 
+    it('holds the full blur behind a chrome height taller than the default web plateau', () => {
+        expect.hasAssertions();
+
+        const screen = render(<EdgeFade testID="top-fade" position="top" chromeHeight={TALL_CHROME} />);
+        const fade = screen.getByTestId('top-fade', { includeHiddenElements: true });
+
+        expect(getLayerStyles(fade).map(({ maskImage }) => maskImage)).toEqual([
+            ...getWebEdgeFadeBlurLayers('top', WEB_TOP_RADIUS, WEB_TOP_BAND, (TALL_CHROME + 10) / WEB_TOP_BAND).map(
+                ({ maskImage }) => maskImage
+            ),
+            TOP_EDGE_MASK,
+        ]);
+    });
+
     it('fades every band layer by scroll instead of the container, keeping explicit zero blur and consumer styles', () => {
         expect.hasAssertions();
 
@@ -96,14 +114,14 @@ describe('EdgeFade web', () => {
                 position="bottom"
                 height={50}
                 intensity={0}
-                scrollAnimation={{ opacityInputRange: [0, 20], intensityInputRange: [0, 20] }}
+                scrollAnimation={{ opacityInputRange: [0, 20] }}
                 style={{ zIndex: 9 }}
             />
         );
         const fade = screen.getByTestId('bottom-fade', { includeHiddenElements: true });
         const layers = getLayerStyles(fade);
 
-        expect(fade).toHaveStyle({ height: 80, bottom: -30, zIndex: 9 });
+        expect(fade).toHaveStyle({ height: 80, bottom: 0, zIndex: 9 });
         expect(flattenStyle(fade)).not.toHaveProperty('opacity');
         expect(layers.map(({ opacity }) => opacity)).toEqual([0.5, 0.5, 0.5, 0.5, 0.5]);
         expect(layers[0]).toHaveProperty('backdropFilter', 'blur(8px) saturate(1.08)');
@@ -141,17 +159,16 @@ describe('EdgeFade web band renderer', () => {
                 position: 'top',
                 colorScheme: 'light',
                 height: 86,
-                tint: 'systemMaterialLight',
                 washColors: [
                     SCREEN_CHROME_DEFAULT_CONFIG.colors.light.solid,
                     SCREEN_CHROME_DEFAULT_CONFIG.colors.light.wash,
                 ],
-                maskColors: ['rgba(0,0,0,0.99)', '#000000', 'transparent'],
-                maskLocations: [0, 0.5, 1],
+                maskColors: ['#000000', 'rgba(0,0,0,0.56)', 'rgba(0,0,0,0.25)', 'rgba(0,0,0,0.06)', 'transparent'],
+                maskLocations: [0, QUARTER_STOP, 0.5, 0.75, 1],
             })
         );
         expect(fade).toHaveProp('aria-hidden', true);
-        expect(fade).toHaveStyle({ height: 86, top: -10, opacity: 0.5 });
+        expect(fade).toHaveStyle({ height: 86, top: 0, opacity: 0.5 });
         expect(fade).not.toHaveProp(
             'style',
             expect.arrayContaining([expect.objectContaining({ backdropFilter: expect.any(String) })])

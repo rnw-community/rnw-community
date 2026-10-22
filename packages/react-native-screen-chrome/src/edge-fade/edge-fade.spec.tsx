@@ -1,52 +1,32 @@
-import { afterEach, beforeEach, describe, expect, it, jest } from '@jest/globals';
+import { beforeEach, describe, expect, it, jest } from '@jest/globals';
 import { render } from '@testing-library/react-native';
-import React, { Activity, StrictMode } from 'react';
-import { Platform, View } from 'react-native';
+import React from 'react';
+import { StyleSheet, View } from 'react-native';
 
-import { emptyFn } from '@rnw-community/shared';
+import { isDefined } from '@rnw-community/shared';
 
 import { SCREEN_CHROME_DEFAULT_CONFIG } from '../constant/screen-chrome-default-config.constant';
 
 import { EdgeFade } from './edge-fade';
 
 import type { EdgeFadeBandRenderer } from './edge-fade-band-renderer.type';
+import type { EdgeFadePosition } from './edge-fade-position.type';
 import type { ScreenChromeColorScheme } from '../type/screen-chrome-color-scheme.type';
-import type { ComponentRef, ReactNode } from 'react';
+import type { RenderResult } from '@testing-library/react-native';
+import type { StyleProp, ViewStyle } from 'react-native';
+import type { ReactTestInstance } from 'react-test-renderer';
 
+const TOP_INSET = 10;
+const BOTTOM_INSET = 30;
+const QUARTER_STOP = 0.25;
+const TOP_MASK_COLORS = ['#000000', 'rgba(0,0,0,0.56)', 'rgba(0,0,0,0.25)', 'rgba(0,0,0,0.06)', 'transparent'];
 const mockScrollY = { get: jest.fn(() => 0) };
 const mockConfig = SCREEN_CHROME_DEFAULT_CONFIG;
+const hidden = { includeHiddenElements: true };
 let mockColorScheme: ScreenChromeColorScheme = 'light';
 let mockRenderEdgeFadeBand: EdgeFadeBandRenderer | undefined = void 0;
+let mockExternalScrollY: { readonly get: () => number } | undefined = void 0;
 
-const MockBlurHost = (props: { readonly children?: ReactNode; readonly maskElement?: ReactNode }): ReactNode => (
-    <View testID="edge-fade-blur" {...props} />
-);
-const MockGradientHost = (props: { readonly children?: ReactNode; readonly maskElement?: ReactNode }): ReactNode => (
-    <View testID="edge-fade-gradient" {...props} />
-);
-const MockMaskedHost = ({
-    children,
-    maskElement,
-}: {
-    readonly children?: ReactNode;
-    readonly maskElement?: ReactNode;
-}): ReactNode => (
-    <View testID="edge-fade-mask">
-        {maskElement}
-        {children}
-    </View>
-);
-
-jest.mock('expo-blur', () => ({
-    BlurView: (props: { readonly children?: ReactNode; readonly maskElement?: ReactNode }) => MockBlurHost(props),
-}));
-jest.mock('expo-linear-gradient', () => ({
-    LinearGradient: (props: { readonly children?: ReactNode; readonly maskElement?: ReactNode }) => MockGradientHost(props),
-}));
-jest.mock('@react-native-masked-view/masked-view', () => ({
-    __esModule: true,
-    default: (props: { readonly children?: ReactNode; readonly maskElement?: ReactNode }) => MockMaskedHost(props),
-}));
 jest.mock('react-native-safe-area-context', () => ({
     useSafeAreaInsets: () => ({ top: 10, right: 20, bottom: 30, left: 40 }),
 }));
@@ -55,47 +35,75 @@ jest.mock('../hooks/use-screen-chrome/use-screen-chrome.hook', () => ({
         colorScheme: mockColorScheme,
         config: mockConfig,
         renderEdgeFadeBand: mockRenderEdgeFadeBand,
+        externalScrollY: mockExternalScrollY,
     }),
 }));
 jest.mock('@rnw-community/react-native-collapsible-header', () => ({
     useCollapsibleHeaderScroll: () => ({ scrollY: mockScrollY }),
 }));
 
+interface BlurProps {
+    readonly position: string;
+    readonly radius: number;
+    readonly plateau: number;
+}
+
+const getBlur = (screen: RenderResult) => screen.UNSAFE_getByType('ScreenChromeProgressiveBlurView' as never);
+const getBlurProps = (screen: RenderResult): BlurProps => getBlur(screen).props as BlurProps;
+const getStyle = (node: ReactTestInstance | null | undefined): ViewStyle =>
+    StyleSheet.flatten((node?.props as { readonly style?: StyleProp<ViewStyle> } | undefined)?.style) ?? {};
+
 beforeEach(() => {
     mockColorScheme = 'light';
     mockRenderEdgeFadeBand = void 0;
+    mockExternalScrollY = void 0;
     mockScrollY.get.mockReturnValue(0);
 });
 
 describe('EdgeFade native', () => {
-    it('renders an inert top safe-area band', () => {
+    it('renders an inert band anchored to the screen edge', () => {
         expect.hasAssertions();
 
-        const screen = render(<EdgeFade testID="top-fade" position="top" intensity={0} blurMethod="none" />);
-        const fade = screen.getByTestId('top-fade', { includeHiddenElements: true });
+        const screen = render(<EdgeFade testID="top-fade" position="top" />);
+        const fade = screen.getByTestId('top-fade', hidden);
 
         expect(fade).toHaveProp('pointerEvents', 'none');
         expect(fade).toHaveProp('accessible', false);
         expect(fade).toHaveProp('accessibilityElementsHidden', true);
         expect(fade).toHaveProp('importantForAccessibility', 'no-hide-descendants');
-        expect(fade).toHaveStyle({ height: 160, top: -10 });
+        expect(fade).toHaveStyle({ height: mockConfig.topFadeHeight + TOP_INSET, top: 0 });
     });
 
-    it('renders the top blur band with explicit zero intensity', () => {
-        expect.hasAssertions();
-
-        const screen = render(<EdgeFade testID="top-fade" position="top" intensity={0} blurMethod="none" />);
-        const [blur] = screen.getAllByTestId('edge-fade-blur', { includeHiddenElements: true });
-
-        expect(blur).toHaveProp('intensity', 0);
-        expect(blur).toHaveProp('tint', 'systemChromeMaterialLight');
-        expect(blur).toHaveProp('blurMethod', 'none');
-    });
-
-    it('drives bottom opacity and blur intensity from scroll animation ranges', () => {
+    it.each<[EdgeFadePosition, number, number]>([
+        ['top', mockConfig.topFadeHeight + TOP_INSET, TOP_INSET],
+        ['bottom', mockConfig.bottomFadeHeight + BOTTOM_INSET, BOTTOM_INSET],
+    ])('holds the %s native blur over the safe-area inset by default', (position, band, inset) => {
         expect.hasAssertions();
 
         mockColorScheme = 'dark';
+
+        expect(getBlurProps(render(<EdgeFade position={position} intensity={40} />))).toStrictEqual({
+            style: { flex: 1 },
+            position,
+            radius: 18,
+            plateau: inset / band,
+        });
+    });
+
+    it('holds the full blur behind the chrome height before ramping to the inner edge', () => {
+        expect.hasAssertions();
+
+        const band = 120;
+        const chrome = 84;
+
+        expect(getBlurProps(render(<EdgeFade position="bottom" height={band} chromeHeight={chrome} />)).plateau).toBe(
+            (BOTTOM_INSET + chrome) / (band + BOTTOM_INSET)
+        );
+    });
+
+    it('fades the band and its blur by scroll while the blur radius stays at the maximum intensity', () => {
+        expect.hasAssertions();
+
         mockScrollY.get.mockReturnValue(40);
 
         const screen = render(
@@ -105,41 +113,35 @@ describe('EdgeFade native', () => {
                 scrollAnimation={{ opacityInputRange: [0, 80], intensityInputRange: [0, 80], maxIntensity: 60 }}
             />
         );
-        const fade = screen.getByTestId('bottom-fade', { includeHiddenElements: true });
-        const [blur] = screen.getAllByTestId('edge-fade-blur', { includeHiddenElements: true });
 
-        expect(fade).toHaveStyle({ height: 180, bottom: -30, opacity: 0.5 });
-        expect(blur).toHaveProp('intensity', 30);
-        expect(blur).toHaveProp('tint', 'systemThinMaterialDark');
-        expect(blur).toHaveProp('blurMethod', 'none');
+        expect(screen.getByTestId('bottom-fade', hidden)).toHaveStyle({ opacity: 0.5 });
+        expect(getBlurProps(screen).radius).toBe(27);
+        expect(getStyle(getBlur(screen).parent).opacity).toBe(0.5);
     });
 
-    it('opts into the Android blur method only once a blur target is supplied', () => {
+    it('reads the scroll offset from the provider external scroll value when one is set', () => {
         expect.hasAssertions();
 
-        const blurTarget = React.createRef<ComponentRef<typeof View>>();
-        const [targetedBlur] = render(<EdgeFade position="top" blurTarget={blurTarget} />).getAllByTestId('edge-fade-blur', {
-            includeHiddenElements: true,
-        });
+        mockExternalScrollY = { get: () => 20 };
 
-        expect(targetedBlur).toHaveProp('blurMethod', 'dimezisBlurView');
+        const screen = render(
+            <EdgeFade testID="top-fade" position="top" scrollAnimation={{ opacityInputRange: [0, 80] }} />
+        );
 
-        const [untargetedBlur] = render(<EdgeFade position="top" />).getAllByTestId('edge-fade-blur', {
-            includeHiddenElements: true,
-        });
-
-        expect(untargetedBlur).toHaveProp('blurMethod', 'none');
+        expect(screen.getByTestId('top-fade', hidden)).toHaveStyle({ opacity: 0.25 });
     });
 
-    it('fades the color wash out through the configured edge mask', () => {
+    it('paints the wash as one gradient eased out by the configured mask stops', () => {
         expect.hasAssertions();
 
-        const screen = render(<EdgeFade position="top" />);
-        const [mask, wash] = screen.getAllByTestId('edge-fade-gradient', { includeHiddenElements: true });
+        const screen = render(<EdgeFade testID="top-fade" position="top" />);
+        const wash = screen
+            .getByTestId('top-fade', hidden)
+            .findAll(node => typeof node.type === 'string' && isDefined(getStyle(node).experimental_backgroundImage));
 
-        expect(mask).toHaveProp('colors', ['rgba(0,0,0,0.99)', '#000000', 'transparent']);
-        expect(mask).toHaveProp('locations', [0, 0.5, 1]);
-        expect(wash).toHaveProp('colors', [mockConfig.colors.light.solid, mockConfig.colors.light.wash]);
+        expect(getStyle(wash[0]).experimental_backgroundImage).toBe(
+            'linear-gradient(to bottom, rgba(255,255,255,0.42) 0%, rgba(255,255,255,0.187) 25%, rgba(255,255,255,0.062) 50%, rgba(255,255,255,0.01) 75%, rgba(255,255,255,0) 100%)'
+        );
     });
 });
 
@@ -147,56 +149,35 @@ describe('EdgeFade native band renderer', () => {
     it('hands the resolved band visuals to a per-instance renderer inside the inert animated container', () => {
         expect.hasAssertions();
 
-        mockScrollY.get.mockReturnValue(40);
-
         const renderBand = jest.fn<EdgeFadeBandRenderer>(({ blur }) => <View testID="custom-band">{blur}</View>);
-        const screen = render(
-            <EdgeFade
-                testID="top-fade"
-                position="top"
-                renderBand={renderBand}
-                scrollAnimation={{ opacityInputRange: [0, 80], intensityInputRange: [0, 80], maxIntensity: 60 }}
-            />
-        );
-        const fade = screen.getByTestId('top-fade', { includeHiddenElements: true });
+        const screen = render(<EdgeFade position="top" renderBand={renderBand} />);
 
         expect(renderBand).toHaveBeenCalledWith(
             expect.objectContaining({
                 position: 'top',
                 colorScheme: 'light',
-                height: 160,
-                tint: 'systemChromeMaterialLight',
+                height: mockConfig.topFadeHeight + TOP_INSET,
                 washColors: [mockConfig.colors.light.solid, mockConfig.colors.light.wash],
-                maskColors: ['rgba(0,0,0,0.99)', '#000000', 'transparent'],
-                maskLocations: [0, 0.5, 1],
+                maskColors: TOP_MASK_COLORS,
+                maskLocations: [0, QUARTER_STOP, 0.5, 0.75, 1],
             })
         );
-        expect(fade).toHaveProp('pointerEvents', 'none');
-        expect(fade).toHaveStyle({ height: 160, top: -10, opacity: 0.5 });
-        expect(screen.getByTestId('custom-band', { includeHiddenElements: true })).toBeTruthy();
-        expect(screen.getAllByTestId('edge-fade-blur', { includeHiddenElements: true })[0]).toHaveProp('intensity', 30);
-        expect(screen.queryByTestId('edge-fade-mask', { includeHiddenElements: true })).toBeNull();
-        expect(screen.queryByTestId('edge-fade-gradient', { includeHiddenElements: true })).toBeNull();
+        expect(screen.getByTestId('custom-band', hidden)).toBeTruthy();
+        expect(getBlur(screen)).toBeTruthy();
     });
 
-    it('lets a renderer wrap the default band', () => {
+    it('lets a renderer wrap the default band and renders nothing when it returns null', () => {
         expect.hasAssertions();
 
-        const screen = render(
+        const wrapped = render(
             <EdgeFade position="bottom" renderBand={({ defaultBand }) => <View testID="wrapper">{defaultBand}</View>} />
         );
 
-        expect(screen.getByTestId('wrapper', { includeHiddenElements: true })).toBeTruthy();
-        expect(screen.getByTestId('edge-fade-mask', { includeHiddenElements: true })).toBeTruthy();
-        expect(screen.getAllByTestId('edge-fade-gradient', { includeHiddenElements: true })).toHaveLength(2);
-    });
-
-    it('renders nothing inside the container when a renderer returns null', () => {
-        expect.hasAssertions();
-
-        const screen = render(<EdgeFade testID="top-fade" position="top" renderBand={() => null} />);
-
-        expect(screen.getByTestId('top-fade', { includeHiddenElements: true }).children).toHaveLength(0);
+        expect(wrapped.getByTestId('wrapper', hidden)).toBeTruthy();
+        expect(getBlur(wrapped)).toBeTruthy();
+        expect(
+            render(<EdgeFade testID="empty" position="top" renderBand={() => null} />).getByTestId('empty', hidden).children
+        ).toHaveLength(0);
     });
 
     it('inherits the provider renderer and prefers the per-instance renderer over it', () => {
@@ -204,96 +185,11 @@ describe('EdgeFade native band renderer', () => {
 
         mockRenderEdgeFadeBand = () => <View testID="provider-band" />;
 
-        const inherited = render(<EdgeFade position="top" />);
-
-        expect(inherited.getByTestId('provider-band', { includeHiddenElements: true })).toBeTruthy();
-        expect(inherited.queryByTestId('edge-fade-blur', { includeHiddenElements: true })).toBeNull();
+        expect(render(<EdgeFade position="top" />).getByTestId('provider-band', hidden)).toBeTruthy();
 
         const overridden = render(<EdgeFade position="top" renderBand={() => <View testID="instance-band" />} />);
 
-        expect(overridden.getByTestId('instance-band', { includeHiddenElements: true })).toBeTruthy();
-        expect(overridden.queryByTestId('provider-band', { includeHiddenElements: true })).toBeNull();
-    });
-});
-
-describe('EdgeFade ignored Android blur warning', () => {
-    const scrollDrivenBlur = { intensityInputRange: [0, 80] as const };
-    let warn: ReturnType<typeof jest.spyOn>;
-
-    beforeEach(() => {
-        jest.replaceProperty(Platform, 'OS', 'android');
-        warn = jest.spyOn(console, 'warn').mockImplementation(emptyFn);
-    });
-
-    afterEach(() => {
-        jest.restoreAllMocks();
-    });
-
-    it.each([
-        ['a static intensity', { intensity: 40 }],
-        ['a scroll-driven intensity', { scrollAnimation: scrollDrivenBlur }],
-    ])('warns once when %s cannot render without a blur target', (_name, blurProps) => {
-        expect.hasAssertions();
-
-        const screen = render(<EdgeFade position="top" {...blurProps} />);
-
-        screen.rerender(<EdgeFade position="top" {...blurProps} />);
-
-        expect(warn).toHaveBeenCalledTimes(1);
-        expect(warn).toHaveBeenCalledWith(expect.stringContaining('ignored on Android without a blurTarget'));
-    });
-
-    it.each([
-        ['no blur is requested', {}],
-        ['the intensity is zero', { intensity: 0 }],
-        ['a blur target is supplied', { intensity: 40, blurTarget: React.createRef<ComponentRef<typeof View>>() }],
-        ['the blur method is explicit', { intensity: 40, blurMethod: 'none' as const }],
-    ])('stays silent when %s', (_name, blurProps) => {
-        expect.hasAssertions();
-
-        render(<EdgeFade position="top" {...blurProps} />);
-
-        expect(warn).not.toHaveBeenCalled();
-    });
-
-    it('stays silent on iOS, where the blur renders without a target', () => {
-        expect.hasAssertions();
-
-        jest.replaceProperty(Platform, 'OS', 'ios');
-        render(<EdgeFade position="top" intensity={40} />);
-
-        expect(warn).not.toHaveBeenCalled();
-    });
-
-    it('warns once per band across Activity hide and show cycles and StrictMode effect replays', () => {
-        expect.hasAssertions();
-
-        const renderBand = (mode: 'hidden' | 'visible') => (
-            <StrictMode>
-                <Activity mode={mode}>
-                    <EdgeFade position="top" intensity={40} />
-                </Activity>
-            </StrictMode>
-        );
-        const screen = render(renderBand('visible'));
-
-        screen.rerender(renderBand('hidden'));
-        screen.rerender(renderBand('visible'));
-        screen.rerender(renderBand('hidden'));
-        screen.rerender(renderBand('visible'));
-
-        expect(warn).toHaveBeenCalledTimes(1);
-    });
-
-    it.each([
-        ['production builds', false],
-        ['runtimes without a __DEV__ global', void 0],
-    ])('stays silent in %s', (_name, devFlag) => {
-        expect.hasAssertions();
-
-        jest.replaceProperty(globalThis as unknown as { __DEV__: boolean | undefined }, '__DEV__', devFlag);
-        render(<EdgeFade position="top" intensity={40} />);
-
-        expect(warn).not.toHaveBeenCalled();
+        expect(overridden.getByTestId('instance-band', hidden)).toBeTruthy();
+        expect(overridden.queryByTestId('provider-band', hidden)).toBeNull();
     });
 });
