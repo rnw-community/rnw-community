@@ -1,6 +1,6 @@
 {
     "name": "@rnw-community/nestjs-webpack-swc",
-    "version": "2.29.0",
+    "version": "3.0.0",
     "description": "NestJS webpack and SWC configuration helpers: ready-made dev (HMR) and production webpack configs",
     "keywords": [
         "nestjs",
@@ -70,7 +70,7 @@
         "ts:nodenext": "tsc --pretty -p tsconfig.nodenext-check.json"
     },
     "dependencies": {
-        "@rnw-community/shared": "^2.29.0"
+        "@rnw-community/shared": "^3.0.0"
     },
     "devDependencies": {
         "@nestjs/common": "^12.1.3",

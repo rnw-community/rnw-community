@@ -1,6 +1,6 @@
 {
     "name": "@rnw-community/react-native-collapsible-header",
-    "version": "2.29.5",
+    "version": "3.0.0",
     "description": "Generic Reanimated collapsible header for React Native",
     "keywords": [
         "react",
@@ -54,7 +54,7 @@
         "ts:nodenext": "tsc --pretty -p tsconfig.nodenext-check.json"
     },
     "dependencies": {
-        "@rnw-community/shared": "^2.29.0",
+        "@rnw-community/shared": "^3.0.0",
         "react-compiler-runtime": "^1.0.0"
     },
     "devDependencies": {

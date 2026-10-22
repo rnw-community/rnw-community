@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [3.0.0](https://github.com/rnw-community/rnw-community/compare/v2.29.5...v3.0.0) (2026-10-22)
+
+- feat(react-native-screen-chrome)!: ship native progressive edge blur (#730) ([1a04e76](https://github.com/rnw-community/rnw-community/commit/1a04e767d431ab26ae13b685960938ee2684dc77)), closes [#730](https://github.com/rnw-community/rnw-community/issues/730)
+
+### BREAKING CHANGES
+
+- removes the blurMethod and blurTarget props and the tint render prop, drops the expo-blur, expo-linear-gradient and masked-view peers, requires the expo peer (Expo Modules) and a native rebuild; Expo Go is not supported and blur intensity and geometry change. See Migrating to 3.0 in the readme.
+
 ## [2.29.5](https://github.com/rnw-community/rnw-community/compare/v2.29.4...v2.29.5) (2026-10-22)
 
 **Note:** Version bump only for package @rnw-community/react-native-screen-chrome-example
