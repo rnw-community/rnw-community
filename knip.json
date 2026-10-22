@@ -77,7 +77,12 @@
             "ignoreDependencies": ["@rnw-community/react-native-payments"]
         },
         "packages/react-native-screen-chrome": {
-            "entry": ["src/index.ts", "web-e2e/build-harness.mjs", "web-e2e/edge-fade-harness.tsx"],
+            "entry": [
+                "src/index.ts",
+                "web-e2e/build-harness.mjs",
+                "web-e2e/edge-fade-harness.tsx",
+                "web-e2e/edge-fade-matrix.tsx"
+            ],
             "ignore": ["babel.config.bob.js"],
             "ignoreDependencies": ["react-native-web"]
         }

@@ -23,6 +23,7 @@
         "clear:deps": "rm -rf ./node_modules && rm -rf ./dist",
         "e2e:android:bare": "maestro test -e APP_ID=com.reactnativescreenchromeexample e2e/flows",
         "e2e:android:expo": "maestro test -e APP_ID=com.reactnativescreenchromeexpoexample e2e/flows",
+        "e2e:harness:check": "node --test e2e/harness/edge-fade-metrics.test.mjs",
         "e2e:ios:bare": "maestro test -e APP_ID=org.reactjs.native.example.ReactNativeScreenChromeExample e2e/flows",
         "e2e:ios:expo": "maestro test -e APP_ID=com.reactnativescreenchromeexpoexample e2e/flows",
         "format": "prettier --write \"./src/**/*.{ts,tsx}\"",
@@ -49,7 +50,9 @@
         "react-native-worklets": "0.13.0"
     },
     "devDependencies": {
-        "@types/react": "19.3.0"
+        "@types/react": "19.3.0",
+        "pixelmatch": "^8.0.0",
+        "pngjs": "^7.0.0"
     },
     "engines": {
         "node": ">=22.0.0"

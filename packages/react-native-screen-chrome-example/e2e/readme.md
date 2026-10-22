@@ -36,8 +36,8 @@ Or directly: `maestro test -e APP_ID=<appId> e2e/flows`.
 - `flows/keyboard_footer_stays_above_keyboard.yaml` — Send is tapped with the keyboard open, which only lands when the
   composer footer rides above the keyboard.
 - `flows/theme_switches_scheme.yaml` — the header toggle flips the provider color scheme to dark and back.
-- `flows/edge_fade_ramp_renders.yaml` — both progressive edge-fade bands render over a stripe pattern in the light and
-  dark schemes, with a screenshot of each for the blur-ramp record.
+- `harness/edge_fade_harness.yaml` — the edge-fade regression harness: captures every scheme × background × state of
+  the edge-fade screen for `harness/edge-fade-metrics.mjs` (see the screen chrome package `AGENTS.md`).
 - `subflows/launch_home.yaml` — shared launch + first-frame wait on the demo picker.
 - `subflows/launch_collapsible_demo.yaml` — opens the collapsible-header screen and waits for its first frame.
 - `subflows/collapse_then_expand.yaml` — collapses a demo collapsible header and scrolls back until it expands,

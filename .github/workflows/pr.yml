@@ -623,7 +623,10 @@ jobs:
             -   name: Install Chromium
                 run: pnpm --filter @rnw-community/react-native-screen-chrome exec playwright install --with-deps chromium
 
-            -   name: Edge fade computed CSS and rendered blur
+            -   name: Edge-fade harness metrics catch every known blur regression
+                run: pnpm --filter @rnw-community/react-native-screen-chrome-example e2e:harness:check
+
+            -   name: Edge fade computed CSS, rendered blur and measured harness matrix
                 run: pnpm --filter @rnw-community/react-native-screen-chrome test:web
 
     required-checks:

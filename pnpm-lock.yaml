@@ -884,6 +884,12 @@ importers:
             '@types/react':
                 specifier: 19.3.0
                 version: 19.3.0
+            pixelmatch:
+                specifier: ^8.0.0
+                version: 8.0.0
+            pngjs:
+                specifier: ^7.0.0
+                version: 7.0.0
 
     packages/react-native-screen-chrome-example/apps/bare:
         dependencies:
@@ -10122,6 +10128,11 @@ packages:
             { integrity: sha512-TfySrs/5nm8fQJDcBDuUng3VOUKsd7S+zqvbOTiGXHfxX4wK31ard+hoNuvkicM/2YFzlpDgABOevKSsB4G/FA== }
         engines: { node: '>= 6' }
 
+    pixelmatch@8.0.0:
+        resolution:
+            { integrity: sha512-cIqOLfh5k52us715qf3B3+kTOxZv+WDv77HN7xokLScYQGYQHi4m/ynoDIPpvF2LvCyUJGyvzY64i0QCXtzu1g== }
+        hasBin: true
+
     pkg-dir@4.2.0:
         resolution:
             { integrity: sha512-HRDzbaKjC+AOWVXxAU/x54COGeIv9eb+6CkDSQoNTt4XyWoIJvuPsXizxu/Fr23EiekbtZwmh1IcIG/l/a10GQ== }
@@ -10148,6 +10159,11 @@ packages:
         resolution:
             { integrity: sha512-NCrCHhWmnQklfH4MtJMRjZ2a8c80qXeMlQMv2uVp9ISJMTt562SbGd6n2oq0PaPgKm7Z6pL9E2UlLIhC+SHL3w== }
         engines: { node: '>=4.0.0' }
+
+    pngjs@7.0.0:
+        resolution:
+            { integrity: sha512-LKWqWJRhstyYo9pGvgor/ivk2w94eSjE3RGVuzLGlr3NmD8bf7RcYGze1mNdEHRP6TRP6rMuDHk5t44hnTRyow== }
+        engines: { node: '>=14.19.0' }
 
     possible-typed-array-names@1.1.0:
         resolution:
@@ -21186,6 +21202,10 @@ snapshots:
 
     pirates@4.0.7: {}
 
+    pixelmatch@8.0.0:
+        dependencies:
+            pngjs: 7.0.0
+
     pkg-dir@4.2.0:
         dependencies:
             find-up: 4.1.0
@@ -21203,6 +21223,8 @@ snapshots:
             xmlbuilder: 15.1.1
 
     pngjs@3.4.0: {}
+
+    pngjs@7.0.0: {}
 
     possible-typed-array-names@1.1.0: {}
 

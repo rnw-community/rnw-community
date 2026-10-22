@@ -141,6 +141,23 @@ pnpm test && pnpm test:coverage && pnpm build && pnpm ts && pnpm ts:nodenext && 
   never by changing its radius, which would rebuild the native filter every frame. The edge-fade harness (below) is
   the regression gate for the look on every platform. Additional visuals belong in a consumer
   `renderBand`/`renderEdgeFadeBand`, never in the package default.
+- The edge-fade harness is the regression gate for the blur look on every platform. The example's
+  `EdgeFadeDemoScreen` renders a fixed 3-point stripe and text pattern with both bands (`height` 128, `chromeHeight` 32) at a fixed scroll offset, and a ruler column marking the chrome and ramp rows. Its Scheme, Background (dark,
+  light, vivid) and State (reference without bands, rest, scrolled) controls are driven by
+  `e2e/harness/edge_fade_harness.yaml` on iOS and Android (required `Edge-fade harness (iOS|Android)` jobs) and by
+  `web-e2e/edge-fade-matrix.e2e.ts` in Chromium (headless Linux WebKit renders no `backdrop-filter`, so it is not a
+  lane). One script, `e2e/harness/edge-fade-metrics.mjs`, measures each capture against its reference: per-row
+  Laplacian energy and mean color. Thresholds (`THRESHOLDS`, the only place they live): chrome zone keeps at most
+  0.2 of the reference detail; the ramp returns to at least 0.8 by its inner edge, never loses more than 0.12 on the
+  way and rises at most 0.165 per point (iOS measures 0.137 for the 96-point ramp and 0.218 for the old half-band
+  plateau); content outside the bands keeps at least 0.85; the wash shifts the row mean by at most 120 levels and at
+  most 6 at the inner edge (3 outside); top and bottom ramps differ by at most 0.25; at rest no row differs from the
+  reference by more than 2 levels; downscaled goldens (`e2e/harness/baselines/<platform>`) differ in at most 3% of
+  pixels. `edge-fade-metrics.test.mjs` proves the checks fail for a blur that never renders (inside a `MaskedView`),
+  four stepped slices, a half-band plateau, a wash ending in a hard edge and a band visible at rest. To update the
+  goldens after an intended visual change, run the metric script with `--update` on the CI captures (the
+  `maestro-*-screen-chrome-harness-*` artifacts' `edge-fade` folder) or `UPDATE_EDGE_FADE_BASELINES=1 pnpm test:web`,
+  and commit the PNGs with the change.
 - Web `EdgeFade` matches the native ramp (`getWebEdgeFadeBlurLayers`): four `backdrop-filter` layers whose radius
   halves away from the edge, chained as cross-fades — each weaker layer fades in while the previous one is still
   opaque, then holds while that one fades out — plus a separate masked wash (`EdgeFadeWebBand`). A `backdrop-filter`

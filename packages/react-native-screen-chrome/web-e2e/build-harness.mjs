@@ -35,13 +35,13 @@ const workletsPlugin = {
 await mkdir(outDir, { recursive: true });
 
 await build({
-    entryPoints: [join(harnessDir, 'edge-fade-harness.tsx')],
-    outfile: join(outDir, 'harness.js'),
+    entryPoints: { harness: join(harnessDir, 'edge-fade-harness.tsx'), matrix: join(harnessDir, 'edge-fade-matrix.tsx') },
+    outdir: outDir,
     bundle: true,
     format: 'iife',
     platform: 'browser',
     jsx: 'automatic',
-    alias: { 'react-native': 'react-native-web' },
+    alias: { 'react-native': 'react-native-web', '@rnw-community/react-native-screen-chrome': join(sourceDir, 'index.ts') },
     resolveExtensions: ['.web.tsx', '.web.ts', '.web.js', '.tsx', '.ts', '.mjs', '.js'],
     mainFields: ['browser', 'module', 'main'],
     define: {
@@ -54,7 +54,8 @@ await build({
     logLevel: 'warning',
 });
 
-await writeFile(
-    join(outDir, 'index.html'),
-    '<!doctype html><html><head><meta charset="utf-8"></head><body style="margin:0"><div id="root"></div><script src="./harness.js"></script></body></html>'
-);
+const page = script =>
+    `<!doctype html><html><head><meta charset="utf-8"><style>html,body,#root{height:100%;margin:0;display:flex;flex-direction:column}#root{flex:1}</style></head><body><div id="root"></div><script src="./${script}.js"></script></body></html>`;
+
+await writeFile(join(outDir, 'index.html'), page('harness'));
+await writeFile(join(outDir, 'matrix.html'), page('matrix'));

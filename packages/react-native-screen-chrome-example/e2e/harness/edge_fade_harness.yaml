@@ -1,0 +1,97 @@
+appId: ${APP_ID}
+---
+- runFlow: ../subflows/launch_home.yaml
+- tapOn:
+      id: 'home-open-edge-fade'
+- extendedWaitUntil:
+      visible:
+          id: 'edge-fade-harness-state'
+      timeout: 15000
+- waitForAnimationToEnd
+- takeScreenshot: edge-fade/dark-dark-reference
+- tapOn:
+      id: 'edge-fade-harness-state'
+- waitForAnimationToEnd
+- takeScreenshot: edge-fade/dark-dark-rest
+- tapOn:
+      id: 'edge-fade-harness-state'
+- waitForAnimationToEnd
+- takeScreenshot: edge-fade/dark-dark-scrolled
+- tapOn:
+      id: 'edge-fade-harness-state'
+- tapOn:
+      id: 'edge-fade-harness-background'
+- waitForAnimationToEnd
+- takeScreenshot: edge-fade/dark-light-reference
+- tapOn:
+      id: 'edge-fade-harness-state'
+- waitForAnimationToEnd
+- takeScreenshot: edge-fade/dark-light-rest
+- tapOn:
+      id: 'edge-fade-harness-state'
+- waitForAnimationToEnd
+- takeScreenshot: edge-fade/dark-light-scrolled
+- tapOn:
+      id: 'edge-fade-harness-state'
+- tapOn:
+      id: 'edge-fade-harness-background'
+- waitForAnimationToEnd
+- takeScreenshot: edge-fade/dark-vivid-reference
+- tapOn:
+      id: 'edge-fade-harness-state'
+- waitForAnimationToEnd
+- takeScreenshot: edge-fade/dark-vivid-rest
+- tapOn:
+      id: 'edge-fade-harness-state'
+- waitForAnimationToEnd
+- takeScreenshot: edge-fade/dark-vivid-scrolled
+- tapOn:
+      id: 'edge-fade-harness-state'
+- tapOn:
+      id: 'edge-fade-harness-background'
+- tapOn:
+      id: 'edge-fade-harness-scheme'
+- waitForAnimationToEnd
+- takeScreenshot: edge-fade/light-dark-reference
+- tapOn:
+      id: 'edge-fade-harness-state'
+- waitForAnimationToEnd
+- takeScreenshot: edge-fade/light-dark-rest
+- tapOn:
+      id: 'edge-fade-harness-state'
+- waitForAnimationToEnd
+- takeScreenshot: edge-fade/light-dark-scrolled
+- tapOn:
+      id: 'edge-fade-harness-state'
+- tapOn:
+      id: 'edge-fade-harness-background'
+- waitForAnimationToEnd
+- takeScreenshot: edge-fade/light-light-reference
+- tapOn:
+      id: 'edge-fade-harness-state'
+- waitForAnimationToEnd
+- takeScreenshot: edge-fade/light-light-rest
+- tapOn:
+      id: 'edge-fade-harness-state'
+- waitForAnimationToEnd
+- takeScreenshot: edge-fade/light-light-scrolled
+- tapOn:
+      id: 'edge-fade-harness-state'
+- tapOn:
+      id: 'edge-fade-harness-background'
+- waitForAnimationToEnd
+- takeScreenshot: edge-fade/light-vivid-reference
+- tapOn:
+      id: 'edge-fade-harness-state'
+- waitForAnimationToEnd
+- takeScreenshot: edge-fade/light-vivid-rest
+- tapOn:
+      id: 'edge-fade-harness-state'
+- waitForAnimationToEnd
+- takeScreenshot: edge-fade/light-vivid-scrolled
+- tapOn:
+      id: 'edge-fade-harness-state'
+- tapOn:
+      id: 'edge-fade-harness-background'
+- tapOn:
+      id: 'edge-fade-harness-scheme'
