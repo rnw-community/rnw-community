@@ -363,12 +363,12 @@ const backdropProps: CollapsibleHeaderBackdropPropsInterface = { testID: 'header
 
 ## Edge fades
 
-Every band starts at the screen edge, covers the safe-area inset plus its configured height, holds its full blur radius
-behind the chrome it sits under (the inset plus `chromeHeight`), and eases the radius to zero at the inner edge, under a color wash whose mask eases from solid at the edge to
-transparent inward, so neither the blur nor the wash shows where it starts. Native bands render the blur with `@sbaiahmed1/react-native-blur`'s
-`ProgressiveBlurView` when it is installed, and fall back to four stepped Expo Blur slices otherwise; only the wash is
-masked, because UIKit stops rendering a `UIVisualEffectView` whose superview carries a mask. Web bands cross-fade four
-`backdrop-filter` layers whose radius halves away from the edge. Bands ignore pointer events and accessibility
+Every band starts at the screen edge and covers the safe-area inset plus its configured height. With
+`@sbaiahmed1/react-native-blur` installed, a native band holds its full blur radius behind the chrome it sits under (the
+inset plus `chromeHeight`) and eases the radius continuously to zero at the inner edge; the Expo Blur fallback steps the
+radius down in four slices, web cross-fades four fixed-radius layers, and a band with neither blur peer has no blur. The
+blur sits under a color wash whose mask eases from solid at the edge to transparent inward. Only the wash is masked,
+because UIKit stops rendering a `UIVisualEffectView` whose superview carries a mask. Bands ignore pointer events and accessibility
 traversal, and scroll animation changes opacity while the radii stay static. Native defaults use 150-point top and
 bottom bands, while web defaults use 76-pixel bands.
 
