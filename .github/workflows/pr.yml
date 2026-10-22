@@ -426,7 +426,10 @@ jobs:
             -   name: Install tarball with yarn
                 if: matrix.package-manager == 'yarn'
                 working-directory: ${{ runner.temp }}/smoke
-                run: yarn install --no-lockfile
+                env:
+                    COREPACK_ENABLE_DOWNLOAD_PROMPT: '0'
+                # The fleet image's yarn is the corepack shim (Yarn 4); this leg tests Yarn classic.
+                run: corepack yarn@1.22.22 install --no-lockfile
 
             -   name: Install tarball with pnpm
                 if: matrix.package-manager == 'pnpm'
