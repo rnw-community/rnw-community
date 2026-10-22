@@ -72,30 +72,35 @@ beforeEach(() => {
 });
 
 describe('EdgeFade native progressive blur', () => {
-    it.each<[EdgeFadePosition, string, number]>([
-        ['top', 'blurredTopClearBottom', 170 / 320],
-        ['bottom', 'blurredBottomClearTop', 210 / 360],
-    ])('renders one %s progressive blur filling the band instead of the stepped slices', (position, direction, plateau) => {
-        expect.hasAssertions();
+    it.each<[EdgeFadePosition, string]>([
+        ['top', 'blurredTopClearBottom'],
+        ['bottom', 'blurredBottomClearTop'],
+    ])(
+        'renders one %s progressive blur ramping across the whole band instead of the stepped slices',
+        (position, direction) => {
+            expect.hasAssertions();
 
-        const screen = render(<EdgeFade position={position} intensity={40} />);
+            const screen = render(<EdgeFade position={position} intensity={40} />);
 
-        expect(screen.queryAllByTestId('expo-blur-host', hidden)).toHaveLength(0);
-        expect(getProgressiveProps(screen)).toMatchObject({
-            blurType: 'light',
-            blurAmount: 18,
-            direction,
-            startOffset: plateau,
-        });
-        expect(StyleSheet.flatten(getProgressiveProps(screen).style)).toMatchObject({
-            position: 'absolute',
-            top: 0,
-            right: 0,
-            bottom: 0,
-            left: 0,
-        });
-        expect(screen.getByTestId('mask-host', hidden).findAll(node => node === getProgressiveHost(screen))).toHaveLength(0);
-    });
+            expect(screen.queryAllByTestId('expo-blur-host', hidden)).toHaveLength(0);
+            expect(getProgressiveProps(screen)).toMatchObject({
+                blurType: 'light',
+                blurAmount: 18,
+                direction,
+                startOffset: 0,
+            });
+            expect(StyleSheet.flatten(getProgressiveProps(screen).style)).toMatchObject({
+                position: 'absolute',
+                top: 0,
+                right: 0,
+                bottom: 0,
+                left: 0,
+            });
+            expect(
+                screen.getByTestId('mask-host', hidden).findAll(node => node === getProgressiveHost(screen))
+            ).toHaveLength(0);
+        }
+    );
 
     it('follows the provider color scheme', () => {
         expect.hasAssertions();

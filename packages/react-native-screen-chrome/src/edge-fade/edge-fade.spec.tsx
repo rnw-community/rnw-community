@@ -138,8 +138,14 @@ describe('EdgeFade native', () => {
         const screen = render(<EdgeFade position="top" />);
         const [mask, wash] = screen.getAllByTestId('edge-fade-gradient', { includeHiddenElements: true });
 
-        expect(mask).toHaveProp('colors', ['rgba(0,0,0,0.99)', '#000000', 'transparent']);
-        expect(mask).toHaveProp('locations', [0, 0.5, 1]);
+        expect(mask).toHaveProp('colors', [
+            '#000000',
+            'rgba(0,0,0,0.56)',
+            'rgba(0,0,0,0.25)',
+            'rgba(0,0,0,0.06)',
+            'transparent',
+        ]);
+        expect(mask).toHaveProp('locations', [0, 0.25, 0.5, 0.75, 1]);
         expect(wash).toHaveProp('colors', [mockConfig.colors.light.solid, mockConfig.colors.light.wash]);
     });
 });
@@ -168,8 +174,8 @@ describe('EdgeFade native band renderer', () => {
                 height: 160,
                 tint: 'systemChromeMaterialLight',
                 washColors: [mockConfig.colors.light.solid, mockConfig.colors.light.wash],
-                maskColors: ['rgba(0,0,0,0.99)', '#000000', 'transparent'],
-                maskLocations: [0, 0.5, 1],
+                maskColors: ['#000000', 'rgba(0,0,0,0.56)', 'rgba(0,0,0,0.25)', 'rgba(0,0,0,0.06)', 'transparent'],
+                maskLocations: [0, 0.25, 0.5, 0.75, 1],
             })
         );
         expect(fade).toHaveProp('pointerEvents', 'none');

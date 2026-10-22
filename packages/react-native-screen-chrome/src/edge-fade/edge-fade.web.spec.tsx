@@ -36,7 +36,8 @@ beforeEach(() => {
     mockScrollY.get.mockReturnValue(0);
 });
 
-const TOP_EDGE_MASK = 'linear-gradient(to bottom, rgba(0,0,0,0.99) 0%, #000000 50%, transparent 100%)';
+const TOP_EDGE_MASK =
+    'linear-gradient(to bottom, #000000 0%, rgba(0,0,0,0.56) 25%, rgba(0,0,0,0.25) 50%, rgba(0,0,0,0.06) 75%, transparent 100%)';
 const TOP_WASH = 'linear-gradient(to bottom, rgba(255,255,255,0.42) 0%, rgba(255,255,255,0.08) 72%, transparent 100%)';
 
 type HostInstance = ReturnType<ReturnType<typeof render>['getByTestId']>;
@@ -146,8 +147,8 @@ describe('EdgeFade web band renderer', () => {
                     SCREEN_CHROME_DEFAULT_CONFIG.colors.light.solid,
                     SCREEN_CHROME_DEFAULT_CONFIG.colors.light.wash,
                 ],
-                maskColors: ['rgba(0,0,0,0.99)', '#000000', 'transparent'],
-                maskLocations: [0, 0.5, 1],
+                maskColors: ['#000000', 'rgba(0,0,0,0.56)', 'rgba(0,0,0,0.25)', 'rgba(0,0,0,0.06)', 'transparent'],
+                maskLocations: [0, 0.25, 0.5, 0.75, 1],
             })
         );
         expect(fade).toHaveProp('aria-hidden', true);

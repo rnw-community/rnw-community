@@ -23,14 +23,18 @@ export const SCREEN_CHROME_SHARED_DEFAULT_CONFIG: Omit<
     },
     maskStops: {
         top: {
-            0: { color: 'rgba(0,0,0,0.99)' },
-            0.5: { color: '#000000' },
+            0: { color: '#000000' },
+            0.25: { color: 'rgba(0,0,0,0.56)' },
+            0.5: { color: 'rgba(0,0,0,0.25)' },
+            0.75: { color: 'rgba(0,0,0,0.06)' },
             1: { color: 'transparent' },
         },
         bottom: {
             0: { color: 'transparent' },
-            0.5: { color: '#000000' },
-            1: { color: 'rgba(0,0,0,0.99)' },
+            0.25: { color: 'rgba(0,0,0,0.06)' },
+            0.5: { color: 'rgba(0,0,0,0.25)' },
+            0.75: { color: 'rgba(0,0,0,0.56)' },
+            1: { color: '#000000' },
         },
     },
 };

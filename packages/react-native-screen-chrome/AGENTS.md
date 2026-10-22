@@ -149,8 +149,10 @@ pnpm test && pnpm test:coverage && pnpm build && pnpm ts && pnpm ts:nodenext && 
   sibling painted beneath the masked wash, never a descendant of the mask. UIKit documents that a mask on a superview
   of a `UIVisualEffectView` makes the effect fail, and `RNCMaskedView` sets `maskView` on itself, so a blur inside it
   renders the wash over unblurred content. The blur is one `ProgressiveBlurView` (Core Animation `variableBlur` on iOS,
-  a masked QmBlurView on Android) whose radius holds over the plateau (`getEdgeFadeBlurPlateau`: the safe-area inset
-  plus half the band height) and eases to zero toward the inner edge; `intensityInputRange` fades it through opacity,
+  a masked QmBlurView on Android) with `startOffset` 0, so its radius ramps from zero at the inner edge to full at the
+  screen edge across the whole band with no plateau: a plateau ends in a slope break that reads as a line where the
+  blur starts. The default `maskStops` ease the wash out the same way, reaching zero with zero slope at the inner edge;
+  `intensityInputRange` fades the blur through opacity,
   never by changing its radius, which would rebuild the native filter every frame. Masking a superview cannot feather
   a `UIVisualEffectView`, so constant-intensity Expo Blur slices always end in a visible edge; they remain only as the
   fallback without the progressive package. Specs assert no

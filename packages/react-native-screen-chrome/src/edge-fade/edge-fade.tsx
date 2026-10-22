@@ -13,7 +13,6 @@ import { edgeFadeStyles } from './edge-fade.styles';
 import { useEdgeFadeOpacityStyle } from './hooks/use-edge-fade-opacity-style.hook';
 import { buildBackgroundImage } from './util/build-background-image/build-background-image.util';
 import { getEdgeFadeBandMetrics } from './util/edge-fade-get-band-metrics/edge-fade-get-band-metrics.util';
-import { getEdgeFadeBlurPlateau } from './util/get-edge-fade-blur-plateau/get-edge-fade-blur-plateau.util';
 import { getEdgeFadeVisuals } from './util/get-edge-fade-visuals/get-edge-fade-visuals.util';
 
 import type { EdgeFadePropsInterface } from './edge-fade-props.interface';
@@ -53,7 +52,6 @@ export const EdgeFade = ({
             scrollAnimation={scrollAnimation}
             blurMethod={blurMethod}
             blurTarget={blurTarget}
-            plateau={getEdgeFadeBlurPlateau(positionalStyle.height, insets[position])}
         />
     );
     const wash =
