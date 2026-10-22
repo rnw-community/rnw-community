@@ -72,12 +72,12 @@ beforeEach(() => {
 });
 
 describe('EdgeFade native progressive blur', () => {
-    it.each<[EdgeFadePosition, string]>([
-        ['top', 'blurredTopClearBottom'],
-        ['bottom', 'blurredBottomClearTop'],
+    it.each<[EdgeFadePosition, string, number]>([
+        ['top', 'blurredTopClearBottom', 10 / 160],
+        ['bottom', 'blurredBottomClearTop', 30 / 180],
     ])(
-        'renders one %s progressive blur ramping across the whole band instead of the stepped slices',
-        (position, direction) => {
+        'renders one %s progressive blur holding over the safe-area inset instead of the stepped slices',
+        (position, direction, plateau) => {
             expect.hasAssertions();
 
             const screen = render(<EdgeFade position={position} intensity={40} />);
@@ -87,7 +87,7 @@ describe('EdgeFade native progressive blur', () => {
                 blurType: 'light',
                 blurAmount: 18,
                 direction,
-                startOffset: 0,
+                startOffset: plateau,
             });
             expect(StyleSheet.flatten(getProgressiveProps(screen).style)).toMatchObject({
                 position: 'absolute',
@@ -101,6 +101,14 @@ describe('EdgeFade native progressive blur', () => {
             ).toHaveLength(0);
         }
     );
+
+    it('holds the full blur behind the chrome height before ramping to the inner edge', () => {
+        expect.hasAssertions();
+
+        const screen = render(<EdgeFade position="bottom" height={120} chromeHeight={84} />);
+
+        expect(getProgressiveProps(screen)).toHaveProperty('startOffset', 114 / 150);
+    });
 
     it('follows the provider color scheme', () => {
         expect.hasAssertions();

@@ -13,6 +13,7 @@ import { useEdgeFadeOpacityStyle } from './hooks/use-edge-fade-opacity-style.hoo
 import { getEdgeFadeBandMetrics } from './util/edge-fade-get-band-metrics/edge-fade-get-band-metrics.util';
 import { getEdgeFadeBlurPlateau } from './util/get-edge-fade-blur-plateau/get-edge-fade-blur-plateau.util';
 import { getEdgeFadeBlurRadius } from './util/get-edge-fade-blur-radius/get-edge-fade-blur-radius.util';
+import { getEdgeFadeChromePlateau } from './util/get-edge-fade-chrome-plateau/get-edge-fade-chrome-plateau.util';
 import { getEdgeFadeVisuals } from './util/get-edge-fade-visuals/get-edge-fade-visuals.util';
 import { getWebEdgeFadeBlurLayers } from './util/get-web-edge-fade-blur-layers/get-web-edge-fade-blur-layers.util';
 import { getWebEdgeFadeVisualStyle } from './util/get-web-edge-fade-visual-style/get-web-edge-fade-visual-style.util';
@@ -29,6 +30,7 @@ const AnimatedView = createAnimatedComponent(View);
 export const EdgeFade = ({
     position,
     height,
+    chromeHeight = 0,
     intensity,
     scrollAnimation,
     blurMethod: _blurMethod,
@@ -46,7 +48,10 @@ export const EdgeFade = ({
         position,
         getEdgeFadeBlurRadius(intensity, scrollAnimation, config),
         metrics.height,
-        getEdgeFadeBlurPlateau(metrics.height, insets[position])
+        Math.max(
+            getEdgeFadeBlurPlateau(metrics.height, insets[position]),
+            getEdgeFadeChromePlateau(metrics.height, insets[position], chromeHeight)
+        )
     );
     const renderResolvedBand = renderBand ?? renderEdgeFadeBand;
 

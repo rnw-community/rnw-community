@@ -6,6 +6,7 @@ import { StyleSheet, View } from 'react-native';
 import { SCREEN_CHROME_DEFAULT_CONFIG } from '../constant/screen-chrome-default-config.constant.web';
 
 import { EdgeFade } from './edge-fade.web';
+import { getWebEdgeFadeBlurLayers } from './util/get-web-edge-fade-blur-layers/get-web-edge-fade-blur-layers.util';
 
 import type { EdgeFadeBandRenderer } from './edge-fade-band-renderer.type';
 import type { WebEdgeFadeStyleInterface } from './web-edge-fade-style.interface';
@@ -84,6 +85,18 @@ describe('EdgeFade web', () => {
             WebkitMaskImage: TOP_EDGE_MASK,
             backgroundImage: TOP_WASH,
         });
+    });
+
+    it('holds the full blur behind a chrome height taller than the default web plateau', () => {
+        expect.hasAssertions();
+
+        const screen = render(<EdgeFade testID="top-fade" position="top" chromeHeight={60} />);
+        const fade = screen.getByTestId('top-fade', { includeHiddenElements: true });
+
+        expect(getLayerStyles(fade).map(({ maskImage }) => maskImage)).toEqual([
+            ...getWebEdgeFadeBlurLayers('top', 22.5, 86, 70 / 86).map(({ maskImage }) => maskImage),
+            TOP_EDGE_MASK,
+        ]);
     });
 
     it('fades every band layer by scroll instead of the container, keeping explicit zero blur and consumer styles', () => {

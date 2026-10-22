@@ -20,9 +20,10 @@ interface Props extends Pick<
     'position' | 'intensity' | 'scrollAnimation' | 'blurMethod' | 'blurTarget'
 > {
     readonly tint: BlurTint;
+    readonly plateau: number;
 }
 
-export const EdgeFadeBlur = (props: Props): ReactNode => {
+export const EdgeFadeBlur = ({ plateau, ...props }: Props): ReactNode => {
     const { config, colorScheme } = useScreenChrome();
 
     if (!isDefined(ProgressiveBlurView)) {
@@ -35,6 +36,7 @@ export const EdgeFadeBlur = (props: Props): ReactNode => {
             position={props.position}
             colorScheme={colorScheme}
             radius={getEdgeFadeBlurRadius(props.intensity, props.scrollAnimation, config)}
+            plateau={plateau}
             scrollAnimation={props.scrollAnimation}
         />
     );

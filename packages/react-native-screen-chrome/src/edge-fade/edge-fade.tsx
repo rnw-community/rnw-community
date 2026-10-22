@@ -13,6 +13,7 @@ import { edgeFadeStyles } from './edge-fade.styles';
 import { useEdgeFadeOpacityStyle } from './hooks/use-edge-fade-opacity-style.hook';
 import { buildBackgroundImage } from './util/build-background-image/build-background-image.util';
 import { getEdgeFadeBandMetrics } from './util/edge-fade-get-band-metrics/edge-fade-get-band-metrics.util';
+import { getEdgeFadeChromePlateau } from './util/get-edge-fade-chrome-plateau/get-edge-fade-chrome-plateau.util';
 import { getEdgeFadeVisuals } from './util/get-edge-fade-visuals/get-edge-fade-visuals.util';
 
 import type { EdgeFadePropsInterface } from './edge-fade-props.interface';
@@ -30,6 +31,7 @@ const GRADIENT_END = { x: 0, y: 1 };
 export const EdgeFade = ({
     position,
     height,
+    chromeHeight = 0,
     intensity,
     scrollAnimation,
     blurMethod,
@@ -44,6 +46,7 @@ export const EdgeFade = ({
     const containerAnimatedStyle = useEdgeFadeOpacityStyle(scrollAnimation?.opacityInputRange);
     const positionalStyle = getEdgeFadeBandMetrics(position, height, config, insets);
     const renderResolvedBand = renderBand ?? renderEdgeFadeBand;
+    const fallbackWashImage = buildBackgroundImage(config.colors[colorScheme], position);
     const blur = (
         <EdgeFadeBlur
             position={position}
@@ -52,6 +55,7 @@ export const EdgeFade = ({
             scrollAnimation={scrollAnimation}
             blurMethod={blurMethod}
             blurTarget={blurTarget}
+            plateau={getEdgeFadeChromePlateau(positionalStyle.height, insets[position], chromeHeight)}
         />
     );
     const wash =
@@ -76,12 +80,7 @@ export const EdgeFade = ({
                 />
             </MaskedView>
         ) : (
-            <View
-                style={[
-                    StyleSheet.absoluteFill,
-                    { experimental_backgroundImage: buildBackgroundImage(config.colors[colorScheme], position) },
-                ]}
-            />
+            <View style={[StyleSheet.absoluteFill, { experimental_backgroundImage: fallbackWashImage }]} />
         );
     const defaultBand = (
         <View style={edgeFadeStyles.fill}>

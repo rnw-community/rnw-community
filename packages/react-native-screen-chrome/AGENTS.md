@@ -149,8 +149,9 @@ pnpm test && pnpm test:coverage && pnpm build && pnpm ts && pnpm ts:nodenext && 
   sibling painted beneath the masked wash, never a descendant of the mask. UIKit documents that a mask on a superview
   of a `UIVisualEffectView` makes the effect fail, and `RNCMaskedView` sets `maskView` on itself, so a blur inside it
   renders the wash over unblurred content. The blur is one `ProgressiveBlurView` (Core Animation `variableBlur` on iOS,
-  a masked QmBlurView on Android) with `startOffset` 0, so its radius ramps from zero at the inner edge to full at the
-  screen edge across the whole band with no plateau: a plateau ends in a slope break that reads as a line where the
+  a masked QmBlurView on Android) whose `startOffset` (`getEdgeFadeChromePlateau`) holds the full radius only behind
+  the chrome itself, the safe-area inset plus `chromeHeight`, then eases to zero at the inner edge. Never derive the
+  plateau from the band height: a plateau reaching past the chrome compresses the ramp and reads as a line where the
   blur starts. The default `maskStops` ease the wash out the same way, reaching zero with zero slope at the inner edge;
   `intensityInputRange` fades the blur through opacity,
   never by changing its radius, which would rebuild the native filter every frame. Masking a superview cannot feather

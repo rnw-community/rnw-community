@@ -346,7 +346,7 @@ native blur samples the content scrolling beneath the header.
 ```
 
 Every `EdgeFade` prop except `position` is forwarded, so `testID`, `style`, `blurTarget`, and `renderBand` reach the
-band; `height` and `scrollAnimation` replace the header-derived defaults only when supplied:
+band; `height`, `chromeHeight` (default `headerHeight`) and `scrollAnimation` replace the header-derived defaults only when supplied:
 
 ```tsx
 <CollapsibleHeaderBackdrop testID="header-backdrop" blurTarget={blurTarget} renderBand={renderSolidBand} />
@@ -363,8 +363,8 @@ const backdropProps: CollapsibleHeaderBackdropPropsInterface = { testID: 'header
 
 ## Edge fades
 
-Every band starts at the screen edge, covers the safe-area inset plus its configured height, and ramps its blur radius
-from zero at the inner edge to full at the screen edge, under a color wash whose mask eases from solid at the edge to
+Every band starts at the screen edge, covers the safe-area inset plus its configured height, holds its full blur radius
+behind the chrome it sits under (the inset plus `chromeHeight`), and eases the radius to zero at the inner edge, under a color wash whose mask eases from solid at the edge to
 transparent inward, so neither the blur nor the wash shows where it starts. Native bands render the blur with `@sbaiahmed1/react-native-blur`'s
 `ProgressiveBlurView` when it is installed, and fall back to four stepped Expo Blur slices otherwise; only the wash is
 masked, because UIKit stops rendering a `UIVisualEffectView` whose superview carries a mask. Web bands cross-fade four
@@ -380,9 +380,10 @@ Renders a decorative top or bottom blur band, scroll-animatable through `scrollA
 <EdgeFade position="bottom" height={96} scrollAnimation={{ opacityInputRange: [0, 80] }} />
 ```
 
-Native bands render a progressive blur whose radius eases from zero at the band's inner edge to full at the screen
-edge across the whole band, with no full-radius plateau, so content fades into the blur without a visible start line;
-web bands hold the full radius over the safe-area inset plus the edge half of the band height before easing out. The edge radius is `max(8, intensity × 0.45)` points, using `scrollAnimation.maxIntensity` while an
+Native bands hold the full blur radius over the safe-area inset plus `chromeHeight` (the bar the band sits behind) and
+ease it to zero across the rest of the band, so the chrome stays legible while content fades into the blur without a
+visible start line. Web bands hold the full radius over the larger of that zone and the inset plus the edge half of
+the band height before easing out. The edge radius is `max(8, intensity × 0.45)` points, using `scrollAnimation.maxIntensity` while an
 `intensityInputRange` is set. With `@sbaiahmed1/react-native-blur` installed, iOS and Android render one
 `ProgressiveBlurView`, and `intensityInputRange` fades it in through opacity, so scrolling never rebuilds the blur.
 
@@ -457,6 +458,7 @@ const renderKneeBand: EdgeFadeBandRenderer = ({ blur, washColors, maskColors, ma
 | ----------------- | ---------------------------------------------- | ------------------------------------------------------------------------------------ |
 | `position`        | `EdgeFadePosition`                             | Screen edge the band renders at.                                                     |
 | `height`          | `number`                                       | Band height; defaults to the provider config's fade height.                          |
+| `chromeHeight`    | `number`                                       | Chrome the blur holds full strength behind, beyond the inset; defaults to `0`.       |
 | `intensity`       | `number`                                       | Static blur intensity; ignored while `scrollAnimation` drives it.                    |
 | `scrollAnimation` | `EdgeFadeScrollAnimationInterface`             | Optional scroll-driven opacity and blur intensity ranges.                            |
 | `blurMethod`      | `BlurMethod`                                   | Android Expo Blur rendering method; defaults from `blurTarget`.                      |
@@ -1301,8 +1303,8 @@ Snapping also requires the provider-owned scroll: combining `snapToCollapse` wit
 
 The platform default `ScreenChromeConfigInterface`: native (`screen-chrome-default-config.constant.ts`) uses 150-point top and
 bottom fade bands and a 128-point header backdrop; web (`screen-chrome-default-config.constant.web.ts`) uses 76-pixel bands and a
-128-pixel backdrop. The header backdrop is twice the 64-point `headerHeight`, so the native blur ramp reaches most of its
-radius behind the collapsed header and eases out across the next 64 points. `mergeScreenChromeConfig` starts from this value.
+128-pixel backdrop. The header backdrop is twice the 64-point `headerHeight`, so its blur holds full strength behind the
+safe-area inset and the collapsed header and eases out across the next 64 points. `mergeScreenChromeConfig` starts from this value.
 
 ## SCREEN_CHROME_HEADER_LAYOUT_METRICS
 

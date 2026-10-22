@@ -16,6 +16,7 @@ interface Props extends Pick<EdgeFadePropsInterface, 'position' | 'scrollAnimati
     readonly ProgressiveBlur: typeof ProgressiveBlurView;
     readonly colorScheme: ScreenChromeColorScheme;
     readonly radius: number;
+    readonly plateau: number;
 }
 
 export const EdgeFadeProgressiveBlur = ({
@@ -23,6 +24,7 @@ export const EdgeFadeProgressiveBlur = ({
     position,
     colorScheme,
     radius,
+    plateau,
     scrollAnimation,
 }: Props): ReactNode => {
     const opacityStyle = useEdgeFadeOpacityStyle(scrollAnimation?.intensityInputRange);
@@ -34,7 +36,7 @@ export const EdgeFadeProgressiveBlur = ({
                 blurType={colorScheme}
                 blurAmount={radius}
                 direction={BLUR_DIRECTION[position]}
-                startOffset={0}
+                startOffset={plateau}
             />
         </AnimatedView>
     );

@@ -13,24 +13,20 @@ import type { EdgeFadeBandRenderer } from './edge-fade-band-renderer.type';
 import type { ScreenChromeColorScheme } from '../type/screen-chrome-color-scheme.type';
 import type { ComponentRef, ReactNode } from 'react';
 
+interface MockHostProps {
+    readonly children?: ReactNode;
+    readonly maskElement?: ReactNode;
+}
+
+const TOP_MASK_COLORS = ['#000000', 'rgba(0,0,0,0.56)', 'rgba(0,0,0,0.25)', 'rgba(0,0,0,0.06)', 'transparent'];
 const mockScrollY = { get: jest.fn(() => 0) };
 const mockConfig = SCREEN_CHROME_DEFAULT_CONFIG;
 let mockColorScheme: ScreenChromeColorScheme = 'light';
 let mockRenderEdgeFadeBand: EdgeFadeBandRenderer | undefined = void 0;
 
-const MockBlurHost = (props: { readonly children?: ReactNode; readonly maskElement?: ReactNode }): ReactNode => (
-    <View testID="edge-fade-blur" {...props} />
-);
-const MockGradientHost = (props: { readonly children?: ReactNode; readonly maskElement?: ReactNode }): ReactNode => (
-    <View testID="edge-fade-gradient" {...props} />
-);
-const MockMaskedHost = ({
-    children,
-    maskElement,
-}: {
-    readonly children?: ReactNode;
-    readonly maskElement?: ReactNode;
-}): ReactNode => (
+const MockBlurHost = (props: MockHostProps): ReactNode => <View testID="edge-fade-blur" {...props} />;
+const MockGradientHost = (props: MockHostProps): ReactNode => <View testID="edge-fade-gradient" {...props} />;
+const MockMaskedHost = ({ children, maskElement }: MockHostProps): ReactNode => (
     <View testID="edge-fade-mask">
         {maskElement}
         {children}
@@ -39,14 +35,14 @@ const MockMaskedHost = ({
 
 jest.mock('@sbaiahmed1/react-native-blur', () => ({}));
 jest.mock('expo-blur', () => ({
-    BlurView: (props: { readonly children?: ReactNode; readonly maskElement?: ReactNode }) => MockBlurHost(props),
+    BlurView: (props: MockHostProps) => MockBlurHost(props),
 }));
 jest.mock('expo-linear-gradient', () => ({
-    LinearGradient: (props: { readonly children?: ReactNode; readonly maskElement?: ReactNode }) => MockGradientHost(props),
+    LinearGradient: (props: MockHostProps) => MockGradientHost(props),
 }));
 jest.mock('@react-native-masked-view/masked-view', () => ({
     __esModule: true,
-    default: (props: { readonly children?: ReactNode; readonly maskElement?: ReactNode }) => MockMaskedHost(props),
+    default: (props: MockHostProps) => MockMaskedHost(props),
 }));
 jest.mock('react-native-safe-area-context', () => ({
     useSafeAreaInsets: () => ({ top: 10, right: 20, bottom: 30, left: 40 }),
@@ -138,13 +134,7 @@ describe('EdgeFade native', () => {
         const screen = render(<EdgeFade position="top" />);
         const [mask, wash] = screen.getAllByTestId('edge-fade-gradient', { includeHiddenElements: true });
 
-        expect(mask).toHaveProp('colors', [
-            '#000000',
-            'rgba(0,0,0,0.56)',
-            'rgba(0,0,0,0.25)',
-            'rgba(0,0,0,0.06)',
-            'transparent',
-        ]);
+        expect(mask).toHaveProp('colors', TOP_MASK_COLORS);
         expect(mask).toHaveProp('locations', [0, 0.25, 0.5, 0.75, 1]);
         expect(wash).toHaveProp('colors', [mockConfig.colors.light.solid, mockConfig.colors.light.wash]);
     });
@@ -174,7 +164,7 @@ describe('EdgeFade native band renderer', () => {
                 height: 160,
                 tint: 'systemChromeMaterialLight',
                 washColors: [mockConfig.colors.light.solid, mockConfig.colors.light.wash],
-                maskColors: ['#000000', 'rgba(0,0,0,0.56)', 'rgba(0,0,0,0.25)', 'rgba(0,0,0,0.06)', 'transparent'],
+                maskColors: TOP_MASK_COLORS,
                 maskLocations: [0, 0.25, 0.5, 0.75, 1],
             })
         );

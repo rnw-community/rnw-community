@@ -27,6 +27,7 @@ describe('CollapsibleHeaderBackdrop', () => {
         expect(jest.mocked(EdgeFade).mock.calls[0][0]).toEqual({
             position: 'top',
             height: mockConfig.headerBackdropHeight,
+            chromeHeight: mockConfig.headerHeight,
             scrollAnimation: {
                 opacityInputRange: [mockConfig.collapseStart, mockConfig.smallTitleStart],
                 intensityInputRange: [mockConfig.collapseStart, mockConfig.collapseEnd],
@@ -47,6 +48,7 @@ describe('CollapsibleHeaderBackdrop', () => {
                 testID="backdrop"
                 style={{ zIndex: 5 }}
                 height={64}
+                chromeHeight={40}
                 intensity={12}
                 scrollAnimation={scrollAnimation}
                 renderBand={renderBand}
@@ -58,6 +60,7 @@ describe('CollapsibleHeaderBackdrop', () => {
             style: { zIndex: 5 },
             position: 'top',
             height: 64,
+            chromeHeight: 40,
             intensity: 12,
             scrollAnimation,
             renderBand,
