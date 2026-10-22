@@ -645,6 +645,7 @@ jobs:
         uses: rnw-community/mobile-ci/.github/workflows/ios-maestro.yml@c45b9b0e1cc8e841a9d1f1df5f8a9acaa422ce19 # v4.3.1
         with:
             call-scope: edge-fade
+            shard-count: 1
             targets: >-
                 [
                   {"name":"screen-chrome-harness","appDir":"packages/react-native-screen-chrome-example/apps/expo","workspace":"reactnativescreenchromeexpoexample.xcworkspace","scheme":"reactnativescreenchromeexpoexample","appId":"com.reactnativescreenchromeexpoexample","prebuildCommand":"pnpm prebuild","flowsDir":"packages/react-native-screen-chrome-example/e2e/harness"}
@@ -675,6 +676,7 @@ jobs:
         uses: rnw-community/mobile-ci/.github/workflows/android-maestro.yml@c45b9b0e1cc8e841a9d1f1df5f8a9acaa422ce19 # v4.3.1
         with:
             call-scope: edge-fade
+            shard-count: 1
             targets: >-
                 [
                   {"name":"screen-chrome-harness","appDir":"packages/react-native-screen-chrome-example/apps/expo","appId":"com.reactnativescreenchromeexpoexample","prebuildCommand":"pnpm prebuild","flowsDir":"packages/react-native-screen-chrome-example/e2e/harness"}
