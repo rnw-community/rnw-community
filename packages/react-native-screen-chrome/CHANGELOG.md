@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.29.5](https://github.com/rnw-community/rnw-community/compare/v2.29.4...v2.29.5) (2026-10-22)
+
+### Bug Fixes
+
+- **react-native-screen-chrome:** resolve the native edge fade on iOS and Android ([#728](https://github.com/rnw-community/rnw-community/issues/728)) ([ebc621e](https://github.com/rnw-community/rnw-community/commit/ebc621ee405ef8ad7c4784d7dfbddde538721ece)), closes [#546](https://github.com/rnw-community/rnw-community/issues/546) [#719](https://github.com/rnw-community/rnw-community/issues/719)
+
 ## [2.29.3](https://github.com/rnw-community/rnw-community/compare/v2.29.2...v2.29.3) (2026-10-20)
 
 ### Bug Fixes
