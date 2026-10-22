@@ -26,6 +26,8 @@ jobs:
   release:
     name: Publish a release
     timeout-minutes: 15
+    # Stays GitHub-hosted: the npm registry rejects provenance attestations built
+    # on a self-hosted runner.
     runs-on: ubuntu-latest
     # A manual from-package recovery must never overlap a push-triggered release: two concurrent
     # lerna runs would race on tags and publishes. Never cancel a run that may be mid-publish.

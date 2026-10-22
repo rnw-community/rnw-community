@@ -28,6 +28,7 @@ jobs:
             actions: read
         uses: rnw-community/mobile-ci/.github/workflows/android-maestro.yml@c45b9b0e1cc8e841a9d1f1df5f8a9acaa422ce19 # v4.3.1
         with:
+            control-runner-labels: '["self-hosted","trf-linux-amd64-2x4"]'
             targets: >-
                 [
                   {"name":"payments-bare","appDir":"packages/react-native-payments-example/apps/bare","appId":"com.reactnativepaymentsexample","prebuildCommand":"","flowsDir":"packages/react-native-payments-example/e2e/flows","buildStrategy":"native"},
