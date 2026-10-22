@@ -27,7 +27,7 @@ jobs:
         #   github.event.pull_request.author_association == 'FIRST_TIME_CONTRIBUTOR'
 
         timeout-minutes: 30
-        runs-on: ubuntu-latest
+        runs-on: [self-hosted, trf-linux-amd64-2x4]
         permissions:
             contents: read
             pull-requests: write # posts the sticky review comment

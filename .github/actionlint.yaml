@@ -7,5 +7,6 @@ self-hosted-runner:
         # used to run on. Kept so a revert of the amd64 move still lints.
         - linux-tiered
         - linux-xl
+        - trf-linux-amd64-2x4
         - trf-linux-amd64-4x8
         - trf-rnw-linux-amd64-4x8

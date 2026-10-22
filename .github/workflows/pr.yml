@@ -20,7 +20,7 @@ jobs:
     stale:
         name: Close stale issues and pull requests
         timeout-minutes: 10
-        runs-on: ubuntu-latest
+        runs-on: [self-hosted, trf-linux-amd64-2x4]
         permissions:
             issues: write # labels and closes stale issues
             pull-requests: write # labels and closes stale pull requests
@@ -39,7 +39,9 @@ jobs:
     code-quality:
         name: Build, lint and test (Node ${{ matrix.node-version }})
         timeout-minutes: 15
-        runs-on: ubuntu-latest
+        # Turbo build, type-aware lint and coverage over the whole monorepo
+        # need more than the 4 GiB 2x4 shape.
+        runs-on: [self-hosted, trf-linux-amd64-4x8]
         strategy:
             fail-fast: false
             matrix:
@@ -322,7 +324,7 @@ jobs:
     package-manager-smoke:
         name: Package manager smoke (${{ matrix.package-manager }})
         timeout-minutes: 10
-        runs-on: ubuntu-latest
+        runs-on: [self-hosted, trf-linux-amd64-2x4]
         permissions:
             contents: read
         strategy:
@@ -455,7 +457,7 @@ jobs:
     workflow-lint:
         name: Workflow lint (actionlint, zizmor)
         timeout-minutes: 10
-        runs-on: ubuntu-latest
+        runs-on: [self-hosted, trf-linux-amd64-2x4]
         permissions:
             contents: read
         env:
@@ -468,6 +470,12 @@ jobs:
                 uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
                 with:
                     persist-credentials: false
+
+            -   name: Install shellcheck and pipx
+                run: |
+                    set -euo pipefail
+                    sudo apt-get update -qq
+                    sudo apt-get -o DPkg::Lock::Timeout=300 install -y -qq --no-install-recommends shellcheck pipx
 
             -   name: Install actionlint
                 run: |
@@ -492,7 +500,7 @@ jobs:
     nestjs-compatibility:
         name: NestJS compatibility (@nestjs/common ${{ matrix.nestjs }}, @nestjs/config ${{ matrix.nestjs-config }})
         timeout-minutes: 20
-        runs-on: ubuntu-latest
+        runs-on: [self-hosted, trf-linux-amd64-2x4]
         permissions:
             contents: read
         strategy:
@@ -537,7 +545,7 @@ jobs:
     reanimated-compatibility:
         name: Reanimated compatibility (react-native-reanimated ${{ matrix.reanimated }}, react-native-worklets ${{ matrix.worklets }}, ${{ matrix.tasks }})
         timeout-minutes: 20
-        runs-on: ubuntu-latest
+        runs-on: [self-hosted, trf-linux-amd64-2x4]
         permissions:
             contents: read
         strategy:
@@ -595,7 +603,7 @@ jobs:
     screen-chrome-web-e2e:
         name: Screen chrome web edge fade (Playwright, Chromium)
         timeout-minutes: 15
-        runs-on: ubuntu-latest
+        runs-on: [self-hosted, trf-linux-amd64-2x4]
         permissions:
             contents: read
 
@@ -631,7 +639,7 @@ jobs:
         if: always()
         needs: [code-quality, package-manager-smoke, workflow-lint, nestjs-compatibility, reanimated-compatibility, screen-chrome-web-e2e]
         timeout-minutes: 5
-        runs-on: ubuntu-latest
+        runs-on: [self-hosted, trf-linux-amd64-2x4]
         permissions: {}
 
         steps:
