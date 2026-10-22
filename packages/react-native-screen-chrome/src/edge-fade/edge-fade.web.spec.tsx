@@ -37,6 +37,10 @@ beforeEach(() => {
     mockScrollY.get.mockReturnValue(0);
 });
 
+const QUARTER_STOP = 0.25;
+const WEB_TOP_BAND = 86;
+const WEB_TOP_RADIUS = 22.5;
+const TALL_CHROME = 60;
 const TOP_EDGE_MASK =
     'linear-gradient(to bottom, #000000 0%, rgba(0,0,0,0.56) 25%, rgba(0,0,0,0.25) 50%, rgba(0,0,0,0.06) 75%, transparent 100%)';
 const TOP_WASH = 'linear-gradient(to bottom, rgba(255,255,255,0.42) 0%, rgba(255,255,255,0.08) 72%, transparent 100%)';
@@ -90,11 +94,13 @@ describe('EdgeFade web', () => {
     it('holds the full blur behind a chrome height taller than the default web plateau', () => {
         expect.hasAssertions();
 
-        const screen = render(<EdgeFade testID="top-fade" position="top" chromeHeight={60} />);
+        const screen = render(<EdgeFade testID="top-fade" position="top" chromeHeight={TALL_CHROME} />);
         const fade = screen.getByTestId('top-fade', { includeHiddenElements: true });
 
         expect(getLayerStyles(fade).map(({ maskImage }) => maskImage)).toEqual([
-            ...getWebEdgeFadeBlurLayers('top', 22.5, 86, 70 / 86).map(({ maskImage }) => maskImage),
+            ...getWebEdgeFadeBlurLayers('top', WEB_TOP_RADIUS, WEB_TOP_BAND, (TALL_CHROME + 10) / WEB_TOP_BAND).map(
+                ({ maskImage }) => maskImage
+            ),
             TOP_EDGE_MASK,
         ]);
     });
@@ -161,7 +167,7 @@ describe('EdgeFade web band renderer', () => {
                     SCREEN_CHROME_DEFAULT_CONFIG.colors.light.wash,
                 ],
                 maskColors: ['#000000', 'rgba(0,0,0,0.56)', 'rgba(0,0,0,0.25)', 'rgba(0,0,0,0.06)', 'transparent'],
-                maskLocations: [0, 0.25, 0.5, 0.75, 1],
+                maskLocations: [0, QUARTER_STOP, 0.5, 0.75, 1],
             })
         );
         expect(fade).toHaveProp('aria-hidden', true);

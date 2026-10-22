@@ -30,6 +30,10 @@ interface ProgressiveHostProps {
 const mockScrollY = { get: jest.fn(() => 0) };
 let mockColorScheme: ScreenChromeColorScheme = 'light';
 const mockConfig = SCREEN_CHROME_DEFAULT_CONFIG;
+const TOP_INSET = 10;
+const BOTTOM_INSET = 30;
+const BAND = 120;
+const TAB_BAR = 84;
 
 const MockProgressiveHost = (props: MockHostProps): ReactNode => <View testID="progressive-host" {...props} />;
 const MockExpoBlurHost = (props: MockHostProps): ReactNode => <View testID="expo-blur-host" {...props} />;
@@ -73,8 +77,8 @@ beforeEach(() => {
 
 describe('EdgeFade native progressive blur', () => {
     it.each<[EdgeFadePosition, string, number]>([
-        ['top', 'blurredTopClearBottom', 10 / 160],
-        ['bottom', 'blurredBottomClearTop', 30 / 180],
+        ['top', 'blurredTopClearBottom', TOP_INSET / (SCREEN_CHROME_DEFAULT_CONFIG.topFadeHeight + TOP_INSET)],
+        ['bottom', 'blurredBottomClearTop', BOTTOM_INSET / (SCREEN_CHROME_DEFAULT_CONFIG.bottomFadeHeight + BOTTOM_INSET)],
     ])(
         'renders one %s progressive blur holding over the safe-area inset instead of the stepped slices',
         (position, direction, plateau) => {
@@ -105,9 +109,9 @@ describe('EdgeFade native progressive blur', () => {
     it('holds the full blur behind the chrome height before ramping to the inner edge', () => {
         expect.hasAssertions();
 
-        const screen = render(<EdgeFade position="bottom" height={120} chromeHeight={84} />);
+        const screen = render(<EdgeFade position="bottom" height={BAND} chromeHeight={TAB_BAR} />);
 
-        expect(getProgressiveProps(screen)).toHaveProperty('startOffset', 114 / 150);
+        expect(getProgressiveProps(screen)).toHaveProperty('startOffset', (BOTTOM_INSET + TAB_BAR) / (BAND + BOTTOM_INSET));
     });
 
     it('follows the provider color scheme', () => {

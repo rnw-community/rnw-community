@@ -18,6 +18,7 @@ interface MockHostProps {
     readonly maskElement?: ReactNode;
 }
 
+const QUARTER_STOP = 0.25;
 const TOP_MASK_COLORS = ['#000000', 'rgba(0,0,0,0.56)', 'rgba(0,0,0,0.25)', 'rgba(0,0,0,0.06)', 'transparent'];
 const mockScrollY = { get: jest.fn(() => 0) };
 const mockConfig = SCREEN_CHROME_DEFAULT_CONFIG;
@@ -135,7 +136,7 @@ describe('EdgeFade native', () => {
         const [mask, wash] = screen.getAllByTestId('edge-fade-gradient', { includeHiddenElements: true });
 
         expect(mask).toHaveProp('colors', TOP_MASK_COLORS);
-        expect(mask).toHaveProp('locations', [0, 0.25, 0.5, 0.75, 1]);
+        expect(mask).toHaveProp('locations', [0, QUARTER_STOP, 0.5, 0.75, 1]);
         expect(wash).toHaveProp('colors', [mockConfig.colors.light.solid, mockConfig.colors.light.wash]);
     });
 });
@@ -165,7 +166,7 @@ describe('EdgeFade native band renderer', () => {
                 tint: 'systemChromeMaterialLight',
                 washColors: [mockConfig.colors.light.solid, mockConfig.colors.light.wash],
                 maskColors: TOP_MASK_COLORS,
-                maskLocations: [0, 0.25, 0.5, 0.75, 1],
+                maskLocations: [0, QUARTER_STOP, 0.5, 0.75, 1],
             })
         );
         expect(fade).toHaveProp('pointerEvents', 'none');
