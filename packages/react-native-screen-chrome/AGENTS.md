@@ -91,12 +91,13 @@ pnpm test && pnpm test:coverage && pnpm build && pnpm ts && pnpm ts:nodenext && 
 - `snapToCollapse` only takes effect while a `CollapsibleHeader` is mounted: the header registers the snap geometry
   with the provider. Reduced-motion-aware snapping is upstream scope, not a local reimplementation.
 - Native peer dependencies remain external so applications own native versions and linking.
-  `@react-native-masked-view/masked-view`, `expo-linear-gradient`, and `expo-blur` are optional in
-  `peerDependenciesMeta`: `edge-fade-native-modules.ts` is the only place that loads them, each through a literal
+  `@sbaiahmed1/react-native-blur`, `@react-native-masked-view/masked-view`, `expo-linear-gradient`, and `expo-blur` are
+  optional in `peerDependenciesMeta`: `edge-fade-native-modules.ts` is the only place that loads them, each through a literal
   `require` inside its own `try` (Metro's `allowOptionalDependencies` only recognises that exact shape, so never route
   them through a shared helper with a computed specifier). Without masked view or linear gradient the native default
-  band is a plain `View` with the `buildBackgroundImage` wash as `experimental_backgroundImage`; without `expo-blur`
-  `EdgeFadeBlur` renders nothing. The web build (`edge-fade.web.tsx` via the `browser` field) never loads them; the
+  band is a plain `View` with the `buildBackgroundImage` wash as `experimental_backgroundImage`. `EdgeFadeBlur` prefers
+  `@sbaiahmed1/react-native-blur`'s `ProgressiveBlurView` and falls back to the `expo-blur` slices
+  (`EdgeFadeSlicedBlur`); with neither it renders nothing. The web build (`edge-fade.web.tsx` via the `browser` field) never loads them; the
   public types (`BlurMethod`, `BlurTint`) still reference `expo-blur` as type-only imports.
 - `ScreenChromeProvider` `colorScheme` accepts `'system'`, resolved during render by `resolveScreenChromeColorScheme`
   from `useColorScheme()` — never mirrored into state — so the context value stays `'light' | 'dark'`. The hook is
@@ -147,25 +148,32 @@ pnpm test && pnpm test:coverage && pnpm build && pnpm ts && pnpm ts:nodenext && 
 - `EdgeFade` native masks only its wash (`MaskedView` + `expo-linear-gradient`, #640); the blur (`EdgeFadeBlur`) is a
   sibling painted beneath the masked wash, never a descendant of the mask. UIKit documents that a mask on a superview
   of a `UIVisualEffectView` makes the effect fail, and `RNCMaskedView` sets `maskView` on itself, so a blur inside it
-  renders the wash over unblurred content. The blur is four non-overlapping Expo Blur slices, each a quarter of the
-  band, whose intensity halves away from the edge, so it steps down instead of ending in one hard edge. Specs assert no
+  renders the wash over unblurred content. The blur is one `ProgressiveBlurView` (Core Animation `variableBlur` on iOS,
+  a masked QmBlurView on Android) whose radius holds over the plateau (`getEdgeFadeBlurPlateau`: the safe-area inset
+  plus half the band height) and eases to zero toward the inner edge; `intensityInputRange` fades it through opacity,
+  never by changing its radius, which would rebuild the native filter every frame. Masking a superview cannot feather
+  a `UIVisualEffectView`, so constant-intensity Expo Blur slices always end in a visible edge; they remain only as the
+  fallback without the progressive package. Specs assert no
   blur host has a mask ancestor; `web-e2e` (`pnpm test:web`, Playwright over an esbuild + react-native-web harness)
   asserts the web band's computed CSS and measures that content under it is really blurred. Do not add further
   gradient or masked native views to the default band while #601 is open — they have corrupted the Hermes heap on the
   RN 0.86 / iOS 26 stack. Additional visuals (Liquid Glass, solid colors, custom gradients) belong in a consumer
   `renderBand`/`renderEdgeFadeBand`, never in the package default. That includes wash stops: a custom wash
   `locations` is a renderer recipe in the readme, not a prop.
-- Web `EdgeFade` mirrors the native slices (`getWebEdgeFadeBlurLayers`): four non-overlapping quarter-band
-  `backdrop-filter` slices whose radius halves away from the edge, each carrying the `maskStops` mask sized to 400% and
-  positioned on its own quarter, plus a separate masked wash (`EdgeFadeWebBand`). A single blur with a gradient mask
-  cross-fades sharp content into a full-radius smear and reads as a hard edge. Never let blur layers overlap: each
-  overlapping `backdrop-filter` re-blurs the layers below it, and four full-band layers made headless WebKit about 7×
-  slower to render a screen (a consumer's mobile-webkit e2e timed out); the web e2e asserts the slices never overlap. Never put `opacity` below 1, a mask, or a filter on an ancestor of the
-  layers: per the Filter Effects backdrop-root rule the ancestor becomes the backdrop root and the layers blur nothing
-  (verified in Chromium), so the default band fades each layer with the scroll opacity and the container carries
-  positioning only. The renderer path keeps the documented container opacity. The radii stay static on purpose:
-  animating them re-rasterizes the backdrop on every scroll frame, while the opacity fade stays compositor-only.
-  `intensityInputRange`, `maxIntensity`, `blurMethod`, and `blurTarget` are documented as no-ops on web.
+- Web `EdgeFade` matches the native ramp (`getWebEdgeFadeBlurLayers`): four `backdrop-filter` layers whose radius
+  halves away from the edge, chained as cross-fades — each weaker layer fades in while the previous one is still
+  opaque, then holds while that one fades out — plus a separate masked wash (`EdgeFadeWebBand`). A `backdrop-filter`
+  box edge draws a seam (non-overlapping slices showed one per slice boundary; in Chromium a box bottom ghosts the
+  unblurred content at device scale above 1), so every layer box extends two radii past its visible mask. Full-band
+  overlapping layers made headless WebKit about 7× slower, so layers stay as short as the cross-fade allows. The web
+  e2e renders a 20-pixel stripe pattern under both bands and fails on any row-to-row contrast jump or a non-monotonic
+  ramp, which is what a hard edge or a seam produces. Never put `opacity` below 1, a mask, or a filter on an ancestor
+  of the layers: per the Filter Effects backdrop-root rule the ancestor becomes the backdrop root and the layers blur
+  nothing (verified in Chromium), so the default band fades each layer with the scroll opacity and the container
+  carries positioning only. The renderer path keeps the documented container opacity. The radii stay static on
+  purpose: animating them re-rasterizes the backdrop on every scroll frame, while the opacity fade stays
+  compositor-only.
+  `blurMethod` and `blurTarget` are no-ops on web; `intensityInputRange` only selects `maxIntensity` for the radius.
 - Public exports carry repository-standard scoped TSDoc and package readme links.
 - Tests retain at least 99.9% statements, branches, functions, and lines coverage.
 

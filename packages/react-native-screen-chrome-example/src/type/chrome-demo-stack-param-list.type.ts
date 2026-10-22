@@ -8,4 +8,5 @@ export type ChromeDemoStackParamList = {
     TabBar: undefined;
     Keyboard: undefined;
     Theme: undefined;
+    EdgeFade: undefined;
 };

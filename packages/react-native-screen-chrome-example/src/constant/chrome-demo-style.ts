@@ -114,6 +114,24 @@ export const CHROME_DEMO_STYLES = StyleSheet.create({
         fontSize: 15,
         fontWeight: '600',
     },
+    stripe: {
+        backgroundColor: '#000000',
+        width: 20,
+        marginRight: 20,
+    },
+    stripes: {
+        ...StyleSheet.absoluteFill,
+        backgroundColor: '#FFFFFF',
+        flexDirection: 'row',
+    },
+    stripesToggle: {
+        alignSelf: 'center',
+        backgroundColor: '#1B4D3E',
+        borderRadius: 8,
+        marginTop: 320,
+        paddingHorizontal: 24,
+        paddingVertical: 12,
+    },
     tab: {
         alignItems: 'center',
         borderRadius: 22,

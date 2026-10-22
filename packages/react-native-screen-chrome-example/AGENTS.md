@@ -21,7 +21,8 @@ src/
                                    bottom-fade-demo-screen.tsx (scroll-driven bottom `EdgeFade`),
                                    tab-bar-demo-screen.tsx (floating tab bar in `ScreenChromeFooter`),
                                    keyboard-demo-screen.tsx (footer in `KeyboardStickyView`),
-                                   theme-demo-screen.tsx (`colorScheme` from app state)
+                                   theme-demo-screen.tsx (`colorScheme` from app state),
+                                   edge-fade-demo-screen.tsx (both bands over a stripe pattern, scheme toggle)
   constant/                      — chrome-demo-items.ts, chrome-demo-style.ts
   interface/                     — chrome-demo-item.interface.ts
   type/                          — chrome-demo-stack-param-list.type.ts
@@ -35,7 +36,7 @@ e2e/
                                    static_header_stays_fixed, footer_band_stays_visible,
                                    snap_off_header_scrolls_freely, bottom_fade_follows_scroll,
                                    tab_bar_switches_tabs, keyboard_footer_stays_above_keyboard,
-                                   theme_switches_scheme
+                                   theme_switches_scheme, edge_fade_ramp_renders
   subflows/                      — launch_home, launch_collapsible_demo, collapse_then_expand
   recording/                     — capture-only flows for readme GIFs
   readme.md                      — flow inventory and appId table

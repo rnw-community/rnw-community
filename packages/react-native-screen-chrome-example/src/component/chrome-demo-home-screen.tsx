@@ -20,6 +20,7 @@ const CHROME_DEMO_LINKS: ReadonlyArray<{
     { screen: 'TabBar', target: 'Floating tab bar', testID: 'home-open-tab-bar' },
     { screen: 'Keyboard', target: 'Keyboard-sticky footer', testID: 'home-open-keyboard' },
     { screen: 'Theme', target: 'Light and dark', testID: 'home-open-theme' },
+    { screen: 'EdgeFade', target: 'Edge fade ramp', testID: 'home-open-edge-fade' },
 ];
 
 export const ChromeDemoHomeScreen = ({ navigate }: { readonly navigate: (screen: string) => void }) => (

@@ -1,83 +1,46 @@
 import { describe, expect, it } from '@jest/globals';
 
-import { SCREEN_CHROME_DEFAULT_CONFIG } from '../../../constant/screen-chrome-default-config.constant.web';
-
 import { getWebEdgeFadeBlurLayers } from './get-web-edge-fade-blur-layers.util';
 
-const TOP_EDGE_MASK = 'linear-gradient(to bottom, rgba(0,0,0,0.99) 0%, #000000 50%, transparent 100%)';
-
 describe('getWebEdgeFadeBlurLayers', () => {
-    it('halves the blur radius per slice away from the intensity-derived radius at the screen edge', () => {
+    it('halves the blur radius per layer away from the screen edge', () => {
         expect.hasAssertions();
 
-        const layers = getWebEdgeFadeBlurLayers('top', SCREEN_CHROME_DEFAULT_CONFIG, 50);
+        const layers = getWebEdgeFadeBlurLayers('top', 20, 80, 0.5);
 
         expect(layers.map(({ backdropFilter }) => backdropFilter)).toEqual([
-            'blur(22.5px) saturate(1.08)',
-            'blur(11.25px) saturate(1.08)',
-            'blur(5.625px) saturate(1.08)',
-            'blur(2.8125px) saturate(1.08)',
+            'blur(20px) saturate(1.08)',
+            'blur(10px) saturate(1.08)',
+            'blur(5px) saturate(1.08)',
+            'blur(2.5px) saturate(1.08)',
         ]);
         expect(layers.every(layer => layer.WebkitBackdropFilter === layer.backdropFilter)).toBe(true);
     });
 
-    it('enforces the minimum edge radius at low intensity', () => {
+    it('pads every layer box two radii past its visible span so the backdrop edge never shows', () => {
         expect.hasAssertions();
 
-        const [edgeSlice] = getWebEdgeFadeBlurLayers('bottom', SCREEN_CHROME_DEFAULT_CONFIG, 0);
-
-        expect(edgeSlice).toHaveProperty('backdropFilter', 'blur(8px) saturate(1.08)');
+        expect(getWebEdgeFadeBlurLayers('top', 20, 80, 0.5)).toMatchObject([
+            { top: '0%', bottom: '-12.5%' },
+            { top: '12.5%', bottom: '0%' },
+            { top: '37.5%', bottom: '0%' },
+            { top: '56.25%', bottom: '-6.25%' },
+        ]);
+        expect(getWebEdgeFadeBlurLayers('bottom', 20, 80, 0.5)[0]).toMatchObject({ bottom: '0%', top: '-12.5%' });
     });
 
-    it('lays the blurs out as non-overlapping quarter slices stepping inward from the edge', () => {
+    it('cross-fades each weaker layer in under the previous one before that one fades out', () => {
         expect.hasAssertions();
 
-        expect(getWebEdgeFadeBlurLayers('top', SCREEN_CHROME_DEFAULT_CONFIG, 50)).toMatchObject([
-            { top: '0%', bottom: '75%' },
-            { top: '25%', bottom: '50%' },
-            { top: '50%', bottom: '25%' },
-            { top: '75%', bottom: '0%' },
+        expect(getWebEdgeFadeBlurLayers('top', 20, 80, 0.5).map(({ maskImage }) => maskImage)).toEqual([
+            'linear-gradient(to bottom, #000000 0%, #000000 44.4444%, transparent 55.5556%)',
+            'linear-gradient(to bottom, transparent 28.5714%, #000000 42.8571%, #000000 57.1429%, transparent 71.4286%)',
+            'linear-gradient(to bottom, transparent 20%, #000000 40%, #000000 60%, transparent 80%)',
+            'linear-gradient(to bottom, transparent 12.5%, #000000 37.5%, #000000 62.5%, transparent 87.5%)',
         ]);
-        expect(getWebEdgeFadeBlurLayers('bottom', SCREEN_CHROME_DEFAULT_CONFIG, 50)).toMatchObject([
-            { bottom: '0%', top: '75%' },
-            { bottom: '25%', top: '50%' },
-            { bottom: '50%', top: '25%' },
-            { bottom: '75%', top: '0%' },
-        ]);
-    });
-
-    it('stretches the edge mask across the whole band and shows each slice its own quarter of it', () => {
-        expect.hasAssertions();
-
-        const layers = getWebEdgeFadeBlurLayers('top', SCREEN_CHROME_DEFAULT_CONFIG, 50);
-
-        expect(layers[0]).toMatchObject({
-            maskImage: TOP_EDGE_MASK,
-            WebkitMaskImage: TOP_EDGE_MASK,
-            maskSize: '100% 400%',
-            WebkitMaskSize: '100% 400%',
-            maskRepeat: 'no-repeat',
-            WebkitMaskRepeat: 'no-repeat',
+        expect(getWebEdgeFadeBlurLayers('bottom', 20, 80, 0.5)[2]).toMatchObject({
+            maskImage: 'linear-gradient(to top, transparent 20%, #000000 40%, #000000 60%, transparent 80%)',
+            WebkitMaskImage: 'linear-gradient(to top, transparent 20%, #000000 40%, #000000 60%, transparent 80%)',
         });
-        expect(layers.map(({ maskPosition }) => maskPosition)).toEqual([
-            '0% 0%',
-            '0% 33.33333333333333%',
-            '0% 66.66666666666666%',
-            '0% 100%',
-        ]);
-        expect(layers.every(layer => layer.WebkitMaskPosition === layer.maskPosition)).toBe(true);
-    });
-
-    it('positions the bottom slices from the bottom of the stretched mask', () => {
-        expect.hasAssertions();
-
-        const layers = getWebEdgeFadeBlurLayers('bottom', SCREEN_CHROME_DEFAULT_CONFIG, 50);
-
-        expect(layers.map(({ maskPosition }) => maskPosition)).toEqual([
-            '0% 100%',
-            '0% 66.66666666666666%',
-            '0% 33.33333333333333%',
-            '0% 0%',
-        ]);
     });
 });

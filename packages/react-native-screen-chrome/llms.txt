@@ -4,7 +4,8 @@
 > navigation controls, progressive edge fades, and content insets around one scrollable. Motion, scroll wiring, and
 > snapping are delegated to the peer `@rnw-community/react-native-collapsible-header`; other peers are
 > `react-native-reanimated` and `react-native-safe-area-context`, plus the optional `@react-native-masked-view/masked-view`,
-> `expo-blur` (>=55 <59), and `expo-linear-gradient` for the native blurred edge-fade band.
+> `expo-blur` (>=55 <59), and `expo-linear-gradient` for the native blurred edge-fade band, and the optional
+> `@sbaiahmed1/react-native-blur` (>=6 <7) for its progressive native blur.
 
 Mount one `ScreenChromeProvider` per scrollable inside each screen, never once around a navigator, and resolve exactly
 one copy of the collapsible header. Render content first, decorative fades and backdrop second, `CollapsibleHeader` last.
@@ -16,7 +17,7 @@ one copy of the collapsible header. Render content first, decorative fades and b
 - [Structure and paint order](readme.md#structure-and-paint-order): Provider ownership, one provider per scrollable, and layer ordering.
 - [Styling and NativeWind](readme.md#styling-and-nativewind): Style prop per rendered node, merge order, package-owned props, and the NativeWind `styled` wrapper recipe.
 - [Compound header contract](readme.md#compound-header-contract): Required direct-child slot order and the render-time `TypeError` on violations.
-- [Edge fades](readme.md#edge-fades): Native masked-gradient blur versus web CSS mask and backdrop-filter behavior.
+- [Edge fades](readme.md#edge-fades): Progressive native blur versus web cross-faded backdrop-filter layers.
 - [Configuration and snapping](readme.md#configuration-and-snapping): Deep-merge rules, threshold ordering, and `snapToCollapse` requirements.
 - [External scroll offset](readme.md#external-scroll-offset): Driving the chrome from an app-owned `scrollY` shared value, and why it excludes snapping.
 - [Recipes](readme.md#recipes): FlatList, SectionList, FlashList, and LegendList wiring plus list-performance obligations.

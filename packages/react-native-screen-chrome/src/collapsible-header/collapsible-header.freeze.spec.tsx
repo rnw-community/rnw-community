@@ -27,6 +27,7 @@ const HALF_OPACITY = 0.5;
 const SNAP_CONFIG = { snapToCollapse: true };
 const FADE_SCROLL_ANIMATION = { opacityInputRange: [0, 80] as const };
 
+jest.mock('@sbaiahmed1/react-native-blur', () => ({}));
 jest.mock('expo-blur', () => ({ BlurView: jest.fn(() => null) }));
 jest.mock('expo-linear-gradient', () => ({ LinearGradient: jest.fn(() => null) }));
 jest.mock('@react-native-masked-view/masked-view', () => ({ __esModule: true, default: jest.fn(() => null) }));

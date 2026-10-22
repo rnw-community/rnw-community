@@ -1,0 +1,20 @@
+appId: ${APP_ID}
+---
+# The progressive edge-fade bands render over the stripe pattern in the light and
+# dark schemes; the bands are hidden from accessibility, so the captures are the
+# visual record of the blur ramp per platform.
+- runFlow: ../subflows/launch_home.yaml
+- tapOn:
+      id: 'home-open-edge-fade'
+- extendedWaitUntil:
+      visible:
+          id: 'edge-fade-demo-toggle'
+          text: 'Light'
+      timeout: 15000
+- takeScreenshot: edge-fade-ramp-light
+- tapOn:
+      id: 'edge-fade-demo-toggle'
+- assertVisible:
+      id: 'edge-fade-demo-toggle'
+      text: 'Dark'
+- takeScreenshot: edge-fade-ramp-dark

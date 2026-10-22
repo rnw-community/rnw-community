@@ -13,6 +13,7 @@ import type { ViewProps } from 'react-native';
 
 const mockConfig = SCREEN_CHROME_DEFAULT_CONFIG;
 
+jest.mock('@sbaiahmed1/react-native-blur', () => ({}));
 jest.mock('expo-blur', () => {
     throw new Error("Cannot find module 'expo-blur'");
 });
@@ -42,7 +43,7 @@ describe('EdgeFade without the optional blur, gradient, and mask modules', () =>
             .UNSAFE_getAllByType(View)
             .map(({ props }: { readonly props: ViewProps }) => StyleSheet.flatten(props.style));
 
-        expect(fade).toHaveStyle({ height: mockConfig.bottomFadeHeight + 30, bottom: -30 });
+        expect(fade).toHaveStyle({ height: mockConfig.bottomFadeHeight + 30, bottom: 0 });
         expect(bandStyles).toContainEqual({
             position: 'absolute',
             left: 0,

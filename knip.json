@@ -63,6 +63,7 @@
                 "@react-native-masked-view/masked-view",
                 "@rnw-community/react-native-collapsible-header",
                 "@rnw-community/react-native-screen-chrome",
+                "@sbaiahmed1/react-native-blur",
                 "expo-blur",
                 "expo-linear-gradient",
                 "expo-updates",

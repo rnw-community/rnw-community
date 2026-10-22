@@ -48,7 +48,7 @@ const getLayerStyles = (root: HostInstance): WebEdgeFadeStyleInterface[] =>
     root.findAll(node => typeof node.type === 'string' && node !== root).map(flattenStyle);
 
 describe('EdgeFade web', () => {
-    it('renders the web defaults as edge-stepped blur slices under a masked wash', () => {
+    it('renders the web defaults as edge-anchored progressive blur layers under a masked wash', () => {
         expect.hasAssertions();
 
         const screen = render(<EdgeFade testID="top-fade" position="top" blurMethod="dimezisBlurView" />);
@@ -64,7 +64,7 @@ describe('EdgeFade web', () => {
             right: 0,
             zIndex: 2,
             height: 86,
-            top: -10,
+            top: 0,
         });
         expect(getLayerStyles(fade).map(({ backdropFilter }) => backdropFilter)).toEqual([
             'blur(22.5px) saturate(1.08)',
@@ -96,14 +96,14 @@ describe('EdgeFade web', () => {
                 position="bottom"
                 height={50}
                 intensity={0}
-                scrollAnimation={{ opacityInputRange: [0, 20], intensityInputRange: [0, 20] }}
+                scrollAnimation={{ opacityInputRange: [0, 20] }}
                 style={{ zIndex: 9 }}
             />
         );
         const fade = screen.getByTestId('bottom-fade', { includeHiddenElements: true });
         const layers = getLayerStyles(fade);
 
-        expect(fade).toHaveStyle({ height: 80, bottom: -30, zIndex: 9 });
+        expect(fade).toHaveStyle({ height: 80, bottom: 0, zIndex: 9 });
         expect(flattenStyle(fade)).not.toHaveProperty('opacity');
         expect(layers.map(({ opacity }) => opacity)).toEqual([0.5, 0.5, 0.5, 0.5, 0.5]);
         expect(layers[0]).toHaveProperty('backdropFilter', 'blur(8px) saturate(1.08)');
@@ -151,7 +151,7 @@ describe('EdgeFade web band renderer', () => {
             })
         );
         expect(fade).toHaveProp('aria-hidden', true);
-        expect(fade).toHaveStyle({ height: 86, top: -10, opacity: 0.5 });
+        expect(fade).toHaveStyle({ height: 86, top: 0, opacity: 0.5 });
         expect(fade).not.toHaveProp(
             'style',
             expect.arrayContaining([expect.objectContaining({ backdropFilter: expect.any(String) })])

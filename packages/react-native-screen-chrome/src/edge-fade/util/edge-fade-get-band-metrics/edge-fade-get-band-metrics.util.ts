@@ -20,6 +20,6 @@ export const getEdgeFadeBandMetrics = (
 
     return {
         height: resolvedHeight + inset,
-        ...(position === 'top' ? { top: -inset } : { bottom: -inset }),
+        [position]: 0,
     };
 };

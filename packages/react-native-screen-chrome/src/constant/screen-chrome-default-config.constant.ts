@@ -10,5 +10,5 @@ export const SCREEN_CHROME_DEFAULT_CONFIG: ScreenChromeConfigInterface = {
     ...SCREEN_CHROME_SHARED_DEFAULT_CONFIG,
     topFadeHeight: 150,
     bottomFadeHeight: 150,
-    headerBackdropHeight: 220,
+    headerBackdropHeight: 128,
 };

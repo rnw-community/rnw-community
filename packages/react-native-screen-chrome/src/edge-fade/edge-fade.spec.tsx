@@ -37,6 +37,7 @@ const MockMaskedHost = ({
     </View>
 );
 
+jest.mock('@sbaiahmed1/react-native-blur', () => ({}));
 jest.mock('expo-blur', () => ({
     BlurView: (props: { readonly children?: ReactNode; readonly maskElement?: ReactNode }) => MockBlurHost(props),
 }));
@@ -78,7 +79,7 @@ describe('EdgeFade native', () => {
         expect(fade).toHaveProp('accessible', false);
         expect(fade).toHaveProp('accessibilityElementsHidden', true);
         expect(fade).toHaveProp('importantForAccessibility', 'no-hide-descendants');
-        expect(fade).toHaveStyle({ height: 160, top: -10 });
+        expect(fade).toHaveStyle({ height: 160, top: 0 });
     });
 
     it('renders the top blur band with explicit zero intensity', () => {
@@ -108,7 +109,7 @@ describe('EdgeFade native', () => {
         const fade = screen.getByTestId('bottom-fade', { includeHiddenElements: true });
         const [blur] = screen.getAllByTestId('edge-fade-blur', { includeHiddenElements: true });
 
-        expect(fade).toHaveStyle({ height: 180, bottom: -30, opacity: 0.5 });
+        expect(fade).toHaveStyle({ height: 180, bottom: 0, opacity: 0.5 });
         expect(blur).toHaveProp('intensity', 30);
         expect(blur).toHaveProp('tint', 'systemThinMaterialDark');
         expect(blur).toHaveProp('blurMethod', 'none');
@@ -172,7 +173,7 @@ describe('EdgeFade native band renderer', () => {
             })
         );
         expect(fade).toHaveProp('pointerEvents', 'none');
-        expect(fade).toHaveStyle({ height: 160, top: -10, opacity: 0.5 });
+        expect(fade).toHaveStyle({ height: 160, top: 0, opacity: 0.5 });
         expect(screen.getByTestId('custom-band', { includeHiddenElements: true })).toBeTruthy();
         expect(screen.getAllByTestId('edge-fade-blur', { includeHiddenElements: true })[0]).toHaveProp('intensity', 30);
         expect(screen.queryByTestId('edge-fade-mask', { includeHiddenElements: true })).toBeNull();

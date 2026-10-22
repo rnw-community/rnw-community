@@ -68,6 +68,7 @@
         "@react-native/jest-preset": "0.88.0",
         "@react-native/metro-config": "0.88.0",
         "@rnw-community/react-native-collapsible-header": "workspace:^",
+        "@sbaiahmed1/react-native-blur": "^6.0.2",
         "@testing-library/react-native": "^13.3.3",
         "@types/react": "19.3.0",
         "@types/react-test-renderer": "19.1.0",
@@ -88,6 +89,7 @@
     "peerDependencies": {
         "@react-native-masked-view/masked-view": ">=0.3 <1",
         "@rnw-community/react-native-collapsible-header": ">=2.18.0 <3",
+        "@sbaiahmed1/react-native-blur": ">=6 <7",
         "expo-blur": ">=55 <59",
         "expo-linear-gradient": ">=55 <59",
         "react": ">=18",
@@ -97,6 +99,9 @@
     },
     "peerDependenciesMeta": {
         "@react-native-masked-view/masked-view": {
+            "optional": true
+        },
+        "@sbaiahmed1/react-native-blur": {
             "optional": true
         },
         "expo-blur": {

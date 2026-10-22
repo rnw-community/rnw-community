@@ -14,6 +14,7 @@ const mockConfig = SCREEN_CHROME_DEFAULT_CONFIG;
 const MockBlurHost = (props: { readonly children?: ReactNode }): ReactNode => <View testID="edge-fade-blur" {...props} />;
 const MockPassthroughHost = ({ children }: { readonly children?: ReactNode }): ReactNode => <View>{children}</View>;
 
+jest.mock('@sbaiahmed1/react-native-blur', () => ({}));
 jest.mock('expo-blur', () => ({
     BlurView: (props: { readonly children?: ReactNode }) => MockBlurHost(props),
 }));

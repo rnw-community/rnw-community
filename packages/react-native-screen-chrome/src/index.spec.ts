@@ -2,6 +2,7 @@ import { describe, expect, it, jest } from '@jest/globals';
 
 import * as screenChrome from './index';
 
+jest.mock('@sbaiahmed1/react-native-blur', () => ({}));
 jest.mock('expo-blur', () => ({ BlurView: jest.fn(() => null) }));
 jest.mock('expo-linear-gradient', () => ({ LinearGradient: jest.fn(() => null) }));
 jest.mock('@react-native-masked-view/masked-view', () => ({ __esModule: true, default: jest.fn(() => null) }));

@@ -26,6 +26,9 @@ const hostProps = (instance: ReactTestInstance): HostProps => instance.props;
 
 const MockBlurHost = (props: { readonly children?: ReactNode }): ReactNode => <View testID="blur-host" {...props} />;
 
+jest.mock('@sbaiahmed1/react-native-blur', () => {
+    throw new Error("Cannot find module '@sbaiahmed1/react-native-blur'");
+});
 jest.mock('expo-blur', () => ({ BlurView: (props: { readonly children?: ReactNode }) => MockBlurHost(props) }));
 jest.mock('expo-linear-gradient', () => {
     throw new Error("Cannot find module 'expo-linear-gradient'");

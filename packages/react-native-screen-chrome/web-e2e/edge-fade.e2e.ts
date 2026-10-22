@@ -9,7 +9,8 @@ const BAND_HEIGHT = 76;
 const SCREEN_HEIGHT = 600;
 const EDGE_STRIP_HEIGHT = 12;
 const BLUR_RADII = ['22.5px', '11.25px', '5.625px', '2.8125px'];
-const SLICE_HEIGHT = BAND_HEIGHT / 4;
+const MAX_ROW_STEP = 0.15;
+const STRIPES_LEFT = 200;
 
 type Position = 'top' | 'bottom';
 
@@ -18,8 +19,6 @@ interface LayerStyle {
     readonly height: number;
     readonly backdropFilter: string;
     readonly maskImage: string;
-    readonly maskSize: string;
-    readonly maskPosition: string;
     readonly backgroundImage: string;
     readonly opacity: string;
 }
@@ -42,8 +41,6 @@ const readBand = async (page: Page, position: Position) =>
                 height: rect.height,
                 backdropFilter: style.backdropFilter,
                 maskImage: style.maskImage,
-                maskSize: style.maskSize,
-                maskPosition: style.maskPosition,
                 backgroundImage: style.backgroundImage,
                 opacity: style.opacity,
             };
@@ -61,11 +58,11 @@ const readBand = async (page: Page, position: Position) =>
         return { top, height, layers, backdropRootAncestors };
     }, `${position}-fade`);
 
-const readEdgeSharpness = async (page: Page, rowStart: number): Promise<number> => {
-    const screenshot = await page.screenshot({ clip: { x: 0, y: rowStart, width: 400, height: EDGE_STRIP_HEIGHT } });
+const readRowContrast = async (page: Page, left: number): Promise<number[]> => {
+    const screenshot = await page.screenshot();
 
     return page.evaluate(
-        async dataUrl => {
+        async ({ dataUrl, cssLeft, cssHeight }) => {
             const image = new Image();
 
             image.src = dataUrl;
@@ -85,21 +82,31 @@ const readEdgeSharpness = async (page: Page, rowStart: number): Promise<number> 
             context.drawImage(image, 0, 0);
 
             const { data, width, height } = context.getImageData(0, 0, image.width, image.height);
-            let energy = 0;
+            const scale = height / cssHeight;
+            const firstColumn = Math.round(cssLeft * scale) + 1;
 
-            for (let row = 0; row < height; row++) {
-                for (let column = 1; column < width; column++) {
-                    const index = (row * width + column) * 4;
+            return Array.from({ length: cssHeight }, (_, cssRow) => {
+                let energy = 0;
 
-                    energy += Math.abs(data[index] - data[index - 4]);
+                for (let row = Math.round(cssRow * scale); row < Math.round((cssRow + 1) * scale); row++) {
+                    for (let column = firstColumn; column < width; column++) {
+                        const index = (row * width + column) * 4;
+
+                        energy += Math.abs(data[index] - data[index - 4]);
+                    }
                 }
-            }
 
-            return energy / (width * height);
+                return energy / (width - firstColumn) / scale;
+            });
         },
-        `data:image/png;base64,${screenshot.toString('base64')}`
+        { dataUrl: `data:image/png;base64,${screenshot.toString('base64')}`, cssLeft: left, cssHeight: SCREEN_HEIGHT }
     );
 };
+
+const readEdgeSharpness = async (page: Page, rowStart: number): Promise<number> =>
+    (await readRowContrast(page, 0))
+        .slice(rowStart, rowStart + EDGE_STRIP_HEIGHT)
+        .reduce((sum, contrast) => sum + contrast, 0) / EDGE_STRIP_HEIGHT;
 
 const setScrollY = async (page: Page, offset: number): Promise<void> => {
     await page.evaluate(value => window.setEdgeFadeScrollY?.(value), offset);
@@ -122,7 +129,7 @@ for (const position of ['top', 'bottom'] as const) {
             expect(band.top).toBe(position === 'top' ? 0 : SCREEN_HEIGHT - BAND_HEIGHT);
         });
 
-        test('steps four backdrop blurs whose radius halves away from the edge', async ({ page }) => {
+        test('stacks four backdrop blurs whose radius halves away from the edge', async ({ page }) => {
             const blurLayers = getBlurLayers((await readBand(page, position)).layers);
 
             expect(blurLayers.map(layer => layer.backdropFilter)).toStrictEqual(
@@ -130,33 +137,20 @@ for (const position of ['top', 'bottom'] as const) {
             );
         });
 
-        test('lays the blurs out as edge-to-inside quarter slices that never overlap', async ({ page }) => {
+        test('ramps the blur in from the plateau without a hard edge', async ({ page }) => {
+            await setScrollY(page, 80);
+
             const band = await readBand(page, position);
-            const sliceTops = getBlurLayers(band.layers).map(layer => layer.top - band.top);
+            const contrast = await readRowContrast(page, STRIPES_LEFT);
+            const baseline = contrast[SCREEN_HEIGHT / 2];
+            const bandRows = contrast.slice(Math.max(band.top, 0), band.top + band.height);
+            const inwardRows = position === 'top' ? bandRows : [...bandRows].reverse();
+            const rowSteps = inwardRows.slice(1).map((row, index) => row - inwardRows[index]);
 
-            expect(getBlurLayers(band.layers).map(layer => layer.height)).toStrictEqual(Array(4).fill(SLICE_HEIGHT));
-            expect(sliceTops).toStrictEqual([0, 1, 2, 3].map(step => (position === 'top' ? step : 3 - step) * SLICE_HEIGHT));
-        });
-
-        test('masks every blur slice with its own quarter of the wash edge mask', async ({ page }) => {
-            const { layers } = await readBand(page, position);
-            const wash = layers[layers.length - 1];
-            const blurLayers = getBlurLayers(layers);
-            const quarterPositions = ['0% 0%', '0% 33.3333%', '0% 66.6667%', '0% 100%'];
-
-            for (const layer of blurLayers) {
-                expect(layer.maskImage).toBe(wash.maskImage);
-                expect(layer.maskSize).toBe('100% 400%');
-            }
-
-            expect(blurLayers.map(layer => layer.maskPosition)).toStrictEqual(
-                position === 'top' ? quarterPositions : [...quarterPositions].reverse()
-            );
-            expect(wash.maskImage).toBe(
-                position === 'top'
-                    ? 'linear-gradient(rgba(0, 0, 0, 0.99) 0%, rgb(0, 0, 0) 50%, rgba(0, 0, 0, 0) 100%)'
-                    : 'linear-gradient(rgba(0, 0, 0, 0) 0%, rgb(0, 0, 0) 50%, rgba(0, 0, 0, 0.99) 100%)'
-            );
+            expect(inwardRows[0]).toBeLessThan(baseline * 0.1);
+            expect(inwardRows[inwardRows.length - 1]).toBeGreaterThan(baseline * 0.95);
+            expect(Math.min(...rowSteps)).toBeGreaterThan(-baseline * 0.1);
+            expect(Math.max(...rowSteps)).toBeLessThan(baseline * MAX_ROW_STEP);
         });
 
         test('paints the wash above the blurs, solid at the edge and transparent inward', async ({ page }) => {

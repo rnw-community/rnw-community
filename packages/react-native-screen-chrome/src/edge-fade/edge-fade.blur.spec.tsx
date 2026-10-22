@@ -35,6 +35,7 @@ const MockMaskedHost = ({ children, maskElement }: MockHostProps): ReactNode => 
     </View>
 );
 
+jest.mock('@sbaiahmed1/react-native-blur', () => ({}));
 jest.mock('expo-blur', () => ({ BlurView: (props: MockHostProps) => MockBlurHost(props) }));
 jest.mock('expo-linear-gradient', () => ({ LinearGradient: (props: MockHostProps) => MockGradientHost(props) }));
 jest.mock('@react-native-masked-view/masked-view', () => ({

@@ -8,6 +8,7 @@ import { enableFreeze } from 'react-native-screens';
 import { BottomFadeDemoScreen } from './bottom-fade-demo-screen';
 import { ChromeDemoHomeScreen } from './chrome-demo-home-screen';
 import { CollapsibleDemoScreen } from './collapsible-demo-screen';
+import { EdgeFadeDemoScreen } from './edge-fade-demo-screen';
 import { FooterDemoScreen } from './footer-demo-screen';
 import { KeyboardDemoScreen } from './keyboard-demo-screen';
 import { SnapOffDemoScreen } from './snap-off-demo-screen';
@@ -39,6 +40,7 @@ export const App = () => (
                     <Stack.Screen component={TabBarDemoScreen} name="TabBar" />
                     <Stack.Screen component={KeyboardDemoScreen} name="Keyboard" />
                     <Stack.Screen component={ThemeDemoScreen} name="Theme" />
+                    <Stack.Screen component={EdgeFadeDemoScreen} name="EdgeFade" />
                 </Stack.Navigator>
             </NavigationContainer>
         </KeyboardProvider>

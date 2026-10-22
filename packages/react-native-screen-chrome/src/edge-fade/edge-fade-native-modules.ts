@@ -1,3 +1,4 @@
+import type * as ProgressiveBlurModule from '@sbaiahmed1/react-native-blur';
 import type * as ExpoBlurModule from 'expo-blur';
 import type * as ExpoLinearGradientModule from 'expo-linear-gradient';
 import type { ComponentType, ReactElement } from 'react';
@@ -9,6 +10,15 @@ const requireExpoBlur = (): typeof ExpoBlurModule | undefined => {
     try {
         // eslint-disable-next-line @typescript-eslint/no-require-imports
         return require('expo-blur') as typeof ExpoBlurModule;
+    } catch {
+        return void 0;
+    }
+};
+
+const requireProgressiveBlur = (): typeof ProgressiveBlurModule | undefined => {
+    try {
+        // eslint-disable-next-line @typescript-eslint/no-require-imports
+        return require('@sbaiahmed1/react-native-blur') as typeof ProgressiveBlurModule;
     } catch {
         return void 0;
     }
@@ -34,6 +44,7 @@ const requireMaskedView = (): { readonly default: MaskedViewComponent } | undefi
 
 export const edgeFadeNativeModules = {
     BlurView: requireExpoBlur()?.BlurView,
+    ProgressiveBlurView: requireProgressiveBlur()?.ProgressiveBlurView,
     LinearGradient: requireExpoLinearGradient()?.LinearGradient,
     MaskedView: requireMaskedView()?.default,
 };
