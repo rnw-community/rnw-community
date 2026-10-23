@@ -53,9 +53,9 @@ export const EdgeFadeDemoContent = ({
             scrollEventThrottle={16}
             showsVerticalScrollIndicator={false}
             style={StyleSheet.absoluteFill}
-            contentContainerStyle={{ height: height }}
+            contentContainerStyle={{ height }}
         >
-            <View style={[styles.content, { height: height }]} testID="edge-fade-harness">
+            <View style={[styles.content, { height }]} testID="edge-fade-harness">
                 <View style={styles.pattern}>
                     {STRIPES.map(stripe => (
                         <View key={stripe} style={[styles.stripe, { backgroundColor: stripeColor }]} />
