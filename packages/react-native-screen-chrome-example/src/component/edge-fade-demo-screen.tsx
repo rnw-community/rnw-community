@@ -67,7 +67,7 @@ export const EdgeFadeDemoScreen = () => {
         resetTemporalScroll,
         prepareTemporalScroll,
         startTemporalScroll,
-    } = useEdgeFadeScroll(isScrolledState);
+    } = useEdgeFadeScroll(state, isScrolledState);
     const blurOnlyRenderBand = state === 'blur-only' ? { renderBand: renderBlurOnlyBand } : {};
 
     const advanceState = () => {

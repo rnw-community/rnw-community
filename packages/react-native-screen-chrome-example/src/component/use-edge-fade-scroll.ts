@@ -15,7 +15,7 @@ const TEMPORAL_SCROLL_START = 200;
 const TEMPORAL_SCROLL_END = 400;
 const TEMPORAL_SCROLL_DURATION = 5000;
 
-export const useEdgeFadeScroll = (isScrolledState: boolean) => {
+export const useEdgeFadeScroll = (state: string, isScrolledState: boolean) => {
     const [temporalPrepared, setTemporalPrepared] = useState(false);
     const scrollRef = useAnimatedRef<Animated.ScrollView>();
     const scrollY = useSharedValue(0);
@@ -42,7 +42,7 @@ export const useEdgeFadeScroll = (isScrolledState: boolean) => {
 
         temporalScrollY.set(offset);
         scrollRef.current?.scrollTo({ y: offset, animated: false });
-    }, [isScrolledState, scrollRef, temporalScrollActive, temporalScrollY]);
+    }, [state, isScrolledState, scrollRef, temporalScrollActive, temporalScrollY]);
 
     const resetTemporalScroll = () => {
         setTemporalPrepared(false);
