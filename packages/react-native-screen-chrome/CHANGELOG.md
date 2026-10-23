@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [3.0.1](https://github.com/rnw-community/rnw-community/compare/v3.0.0...v3.0.1) (2026-10-23)
+
+### Bug Fixes
+
+- **react-native-screen-chrome:** fade edge blur into the background ([#731](https://github.com/rnw-community/rnw-community/issues/731)) ([d3ccf3e](https://github.com/rnw-community/rnw-community/commit/d3ccf3ed137a09a2f2e11684802cb39ab79c3dd9))
+
 # [3.0.0](https://github.com/rnw-community/rnw-community/compare/v2.29.5...v3.0.0) (2026-10-22)
 
 - feat(react-native-screen-chrome)!: ship native progressive edge blur (#730) ([1a04e76](https://github.com/rnw-community/rnw-community/commit/1a04e767d431ab26ae13b685960938ee2684dc77)), closes [#730](https://github.com/rnw-community/rnw-community/issues/730)
