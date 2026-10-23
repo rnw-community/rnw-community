@@ -197,7 +197,7 @@ const temporalFrame = (source, luminanceShift) => {
     for (let y = bottomStart; y < source.height; y++) {
         for (let x = 0; x < patternWidth; x++) {
             for (let channel = 0; channel < 3; channel++) {
-                const index = (y * WIDTH + x) * 4 + channel;
+                const index = (y * source.width + x) * 4 + channel;
 
                 image.data[index] = Math.min(255, image.data[index] + luminanceShift);
             }
@@ -525,8 +525,10 @@ describe('edge-fade harness metrics', () => {
         const source = temporalBase();
         const frames = temporalSequence(source, 61);
         frames[30] = temporalFrame(frames[30], 64);
+        const failures = checkTemporalFrames(frames, undefined, 5).join('\n');
 
-        assert.match(checkTemporalFrames(frames, undefined, 5).join('\n'), /temporal band luminance spike/u);
+        assert.match(failures, /top temporal band luminance spike/u);
+        assert.match(failures, /bottom temporal band luminance spike/u);
     });
 
     it('rejects a mean-preserving temporal contrast flash', () => {
@@ -541,8 +543,10 @@ describe('edge-fade harness metrics', () => {
         const source = temporalBase();
         const frames = temporalSequence(source, 241);
         frames[122] = temporalFrame(frames[122], 64);
+        const failures = checkTemporalFrames(frames, undefined, 4).join('\n');
 
-        assert.match(checkTemporalFrames(frames, undefined, 4).join('\n'), /temporal band luminance spike/u);
+        assert.match(failures, /top temporal band luminance spike/u);
+        assert.match(failures, /bottom temporal band luminance spike/u);
     });
 
     it('fails when native temporal artifacts are missing', () => {
