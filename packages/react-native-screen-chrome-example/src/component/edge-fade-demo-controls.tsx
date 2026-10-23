@@ -22,11 +22,20 @@ interface Props {
     readonly onScheme: () => void;
     readonly onBackground: () => void;
     readonly onState: () => void;
+    readonly onCompact: () => void;
     readonly onPrepare: () => void;
     readonly onStart: () => void;
 }
 
-export const EdgeFadeDemoControls = ({ backgroundLabel, onScheme, onBackground, onState, onPrepare, onStart }: Props) => (
+export const EdgeFadeDemoControls = ({
+    backgroundLabel,
+    onScheme,
+    onBackground,
+    onState,
+    onCompact,
+    onPrepare,
+    onStart,
+}: Props) => (
     <View style={styles.controls}>
         <Pressable onPress={onScheme} style={styles.control} testID="edge-fade-harness-scheme">
             <Text style={styles.controlLabel}>Scheme</Text>
@@ -41,6 +50,9 @@ export const EdgeFadeDemoControls = ({ backgroundLabel, onScheme, onBackground, 
         </Pressable>
         <Pressable onPress={onState} style={styles.control} testID="edge-fade-harness-state">
             <Text style={styles.controlLabel}>State</Text>
+        </Pressable>
+        <Pressable onPress={onCompact} style={styles.control} testID="edge-fade-harness-compact">
+            <Text style={styles.controlLabel}>Compact band</Text>
         </Pressable>
         <Pressable onPress={onPrepare} style={styles.control} testID="edge-fade-harness-temporal-prepare">
             <Text style={styles.controlLabel}>Prepare temporal</Text>

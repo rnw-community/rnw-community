@@ -40,12 +40,13 @@ export const EdgeFade = ({
     const insets = useSafeAreaInsets();
     const animatedStyle = useEdgeFadeOpacityStyle(scrollAnimation?.opacityInputRange);
     const metrics = getEdgeFadeBandMetrics(position, height, config, insets);
-    const washStyle = getWebEdgeFadeVisualStyle(position, colorScheme, config);
+    const plateau = getEdgeFadeChromePlateau(metrics.height, insets[position], chromeHeight);
+    const washStyle = getWebEdgeFadeVisualStyle(position, colorScheme, config, plateau);
     const blurLayers = getWebEdgeFadeBlurLayers(
         position,
         getEdgeFadeBlurRadius(intensity, scrollAnimation, config),
         metrics.height,
-        getEdgeFadeChromePlateau(metrics.height, insets[position], chromeHeight)
+        plateau
     );
     const renderResolvedBand = renderBand ?? renderEdgeFadeBand;
 
@@ -68,7 +69,7 @@ export const EdgeFade = ({
                 position,
                 colorScheme,
                 height: metrics.height,
-                ...getEdgeFadeVisuals(position, colorScheme, config),
+                ...getEdgeFadeVisuals(position, colorScheme, config, plateau),
                 blur: (
                     <View style={edgeFadeStyles.fill}>
                         <EdgeFadeWebBand blurLayers={blurLayers} />

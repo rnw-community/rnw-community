@@ -37,16 +37,17 @@ export const EdgeFade = ({
 }: EdgeFadePropsInterface): ReactNode => {
     const { config, colorScheme, renderEdgeFadeBand } = useScreenChrome();
     const insets = useSafeAreaInsets();
-    const visuals = getEdgeFadeVisuals(position, colorScheme, config);
     const containerAnimatedStyle = useEdgeFadeOpacityStyle(scrollAnimation?.opacityInputRange);
     const positionalStyle = getEdgeFadeBandMetrics(position, height, config, insets);
+    const plateau = getEdgeFadeChromePlateau(positionalStyle.height, insets[position], chromeHeight);
+    const visuals = getEdgeFadeVisuals(position, colorScheme, config, plateau);
     const renderResolvedBand = renderBand ?? renderEdgeFadeBand;
     const washImage = buildNativeWashImage(visuals.washColors, visuals.maskColors, visuals.maskLocations);
     const blur = (
         <EdgeFadeProgressiveBlur
             position={position}
             radius={getEdgeFadeBlurRadius(intensity, scrollAnimation, config)}
-            plateau={getEdgeFadeChromePlateau(positionalStyle.height, insets[position], chromeHeight)}
+            plateau={plateau}
             scrollAnimation={scrollAnimation}
         />
     );

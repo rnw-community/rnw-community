@@ -35,7 +35,7 @@ pnpm test && pnpm test:coverage && pnpm build && pnpm ts && pnpm ts:nodenext && 
   implementations, and the native blur (with its intensity animation) lives in the internal `EdgeFadeProgressiveBlur` so the
   renderer receives it as a ready element. With no renderer the rendered tree is identical to the pre-renderer output;
   on web the CSS visuals stay on the container in that case and move into the `blur`/`defaultBand` children only when a
-  renderer is set. `CollapsibleHeaderBackdrop` forwards every `EdgeFade` prop except `position`.
+  renderer is set. `CollapsibleHeaderBackdrop` forwards every `EdgeFade` prop except `position`; by default it stays visible with static blur through collapse and uses `collapsedHeaderHeight ?? headerHeight` for its chrome plateau.
 - The compound header validates direct slots and delegates all transitions to `react-native-collapsible-header`; it
   renders in `mode="overlay"`, forwards `config.snapToCollapse` as `snap`, and maps config thresholds to normalized
   motion through `getCollapsibleHeaderMotion`.
@@ -107,7 +107,7 @@ pnpm test && pnpm test:coverage && pnpm build && pnpm ts && pnpm ts:nodenext && 
   `headerHeight`, matching the primitive's `expandedHeight >= collapsedHeight` assertion. Every other `headerHeight`
   consumer (`ScreenChromeHeader`, `getScreenChromeHeaderMetrics`/`useScreenChromeHeaderMetrics`, and therefore the
   scroll content inset) deliberately keeps the expanded height — content must clear the header at rest — and
-  `CollapsibleHeaderBackdrop` stays on its independent `headerBackdropHeight`. Leaving the inset out of
+  `CollapsibleHeaderBackdrop` keeps its independent `headerBackdropHeight` while aligning its blur and wash plateau to the collapsed height. Leaving the inset out of
   `expandedHeight`/`collapsedHeight` compresses the title and controls to whatever the notch does not consume, and
   `paddingTop` on `headerStyle` does not move them at all: the primitive renders the expanded, collapsed, and persistent
   layers as `position: absolute` boxes with inset `0`, which resolve against the container box and ignore its padding,

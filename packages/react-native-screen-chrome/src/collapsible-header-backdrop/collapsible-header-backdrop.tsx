@@ -15,22 +15,20 @@ import type { ReactNode } from 'react';
 export const CollapsibleHeaderBackdrop = ({
     height,
     chromeHeight,
+    intensity,
     scrollAnimation,
     ...edgeFadeProps
 }: CollapsibleHeaderBackdropPropsInterface): ReactNode => {
     const { config } = useScreenChrome();
-    const resolvedScrollAnimation = getDefined(scrollAnimation, () => ({
-        opacityInputRange: [config.collapseStart, config.smallTitleStart] as const,
-        intensityInputRange: [config.collapseStart, config.collapseEnd] as const,
-    }));
 
     return (
         <EdgeFade
             {...edgeFadeProps}
             position="top"
             height={getDefined(height, () => config.headerBackdropHeight)}
-            chromeHeight={getDefined(chromeHeight, () => config.headerHeight)}
-            scrollAnimation={resolvedScrollAnimation}
+            chromeHeight={getDefined(chromeHeight, () => config.collapsedHeaderHeight ?? config.headerHeight)}
+            intensity={getDefined(intensity, () => config.maxBlurIntensity)}
+            scrollAnimation={scrollAnimation}
         />
     );
 };

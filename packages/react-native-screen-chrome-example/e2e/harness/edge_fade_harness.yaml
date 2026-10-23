@@ -119,3 +119,18 @@ appId: ${APP_ID}
       id: 'edge-fade-harness-background'
 - tapOn:
       id: 'edge-fade-harness-scheme'
+- tapOn:
+      id: 'edge-fade-harness-compact'
+- waitForAnimationToEnd
+- takeScreenshot: edge-fade/compact-dark-dark-reference
+- tapOn:
+      id: 'edge-fade-harness-state'
+- waitForAnimationToEnd
+- tapOn:
+      id: 'edge-fade-harness-state'
+- waitForAnimationToEnd
+- takeScreenshot: edge-fade/compact-dark-dark-scrolled
+- tapOn:
+      id: 'edge-fade-harness-state'
+- waitForAnimationToEnd
+- takeScreenshot: edge-fade/compact-dark-dark-blur-only

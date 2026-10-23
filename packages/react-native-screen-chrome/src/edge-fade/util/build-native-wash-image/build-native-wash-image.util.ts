@@ -25,8 +25,20 @@ export const buildNativeWashImage = (
         const [red, green, blue] = edge.map((channel, channelIndex) => channel + (inner[channelIndex] - channel) * location);
         const [, , , maskAlpha] = toRgba(maskColors[index]);
 
-        return `rgba(${Math.round(red)},${Math.round(green)},${Math.round(blue)},${Number(maskAlpha.toFixed(3))}) ${location * 100}%`;
+        return `rgba(${Math.round(red)},${Math.round(green)},${Math.round(blue)},${Number(maskAlpha.toFixed(3))}) ${Number((location * 100).toFixed(4))}%`;
     });
+
+    if (maskLocations[0] > 0) {
+        const [, , , maskAlpha] = toRgba(maskColors[0]);
+
+        stops.unshift(`rgba(${edge[0]},${edge[1]},${edge[2]},${Number(maskAlpha.toFixed(3))}) 0%`);
+    }
+
+    if (maskLocations[maskLocations.length - 1] < 1) {
+        const [, , , maskAlpha] = toRgba(maskColors[maskColors.length - 1]);
+
+        stops.push(`rgba(${inner[0]},${inner[1]},${inner[2]},${Number(maskAlpha.toFixed(3))}) 100%`);
+    }
 
     return `linear-gradient(to bottom, ${stops.join(', ')})`;
 };
