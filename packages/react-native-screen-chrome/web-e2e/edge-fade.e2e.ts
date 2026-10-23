@@ -159,11 +159,7 @@ for (const position of ['top', 'bottom'] as const) {
 
             expect(layers).toHaveLength(2);
             expect(wash.backdropFilter).toBe('none');
-            expect(wash.backgroundImage).toBe(
-                position === 'top'
-                    ? 'linear-gradient(color(srgb 1 1 1) 0%, color(srgb 1 1 1) 100%)'
-                    : 'linear-gradient(color(srgb 1 1 1) 0%, color(srgb 1 1 1) 100%)'
-            );
+            expect(wash.backgroundImage).toBe('linear-gradient(color(srgb 1 1 1) 0%, color(srgb 1 1 1) 100%)');
         });
 
         test('resolves the rendered CSS variable to an opaque wash color', async ({ page }) => {
