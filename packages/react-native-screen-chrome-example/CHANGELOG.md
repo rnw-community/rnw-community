@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [3.0.3](https://github.com/rnw-community/rnw-community/compare/v3.0.2...v3.0.3) (2026-10-23)
+
+### Bug Fixes
+
+- **react-native-screen-chrome:** keep compact edge chrome continuous and sharp outside the band ([#733](https://github.com/rnw-community/rnw-community/issues/733)) ([7c0c21e](https://github.com/rnw-community/rnw-community/commit/7c0c21e45b75faf329be9aae7bdd231e8364e690))
+
 ## [3.0.2](https://github.com/rnw-community/rnw-community/compare/v3.0.1...v3.0.2) (2026-10-23)
 
 **Note:** Version bump only for package @rnw-community/react-native-screen-chrome-example
