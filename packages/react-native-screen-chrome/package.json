@@ -90,7 +90,7 @@
         "react-test-renderer": "19.3.0"
     },
     "peerDependencies": {
-        "@rnw-community/react-native-collapsible-header": ">=2.18.0 <3",
+        "@rnw-community/react-native-collapsible-header": ">=2.18.0 <4",
         "expo": ">=55 <59",
         "react": ">=18",
         "react-native": ">=0.78",
