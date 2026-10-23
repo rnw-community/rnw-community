@@ -57,13 +57,15 @@ test('keeps a compact 56-point band smooth, contained, and unchanged outside its
     expect(checkCompactCaptureDir(captureDir)).toEqual([]);
 });
 
-test('keeps one persistent header backdrop throughout the 0–80 point scroll thresholds', async ({ page }) => {
+test('keeps the header blur and wash visible throughout the 0–80 point scroll thresholds', async ({ page }) => {
     await page.goto(pathToFileURL(join(CACHE_DIR, 'matrix.html')).href);
     await page.getByTestId('edge-fade-harness-temporal-prepare').click();
 
     const backdrop = page.getByTestId('edge-fade-harness-temporal-backdrop');
+    const visualLayers = backdrop.locator(':scope > div');
 
     await expect(backdrop).toBeVisible();
+    await expect(visualLayers).toHaveCount(2);
 
     for (const offset of [0, 20, 40, 60, 80]) {
         await page.getByTestId('edge-fade-harness').evaluate((content, scrollOffset) => {
@@ -81,8 +83,10 @@ test('keeps one persistent header backdrop throughout the 0–80 point scroll th
         }, offset);
         await page.waitForTimeout(50);
 
-        const opacity = await backdrop.evaluate(element => Number(getComputedStyle(element).opacity));
+        const opacities = await visualLayers.evaluateAll(elements =>
+            elements.map(element => Number(getComputedStyle(element).opacity))
+        );
 
-        expect(opacity, `backdrop remains visible at scroll offset ${offset}`).toBeGreaterThan(0.95);
+        expect(opacities, `blur and wash remain visible at scroll offset ${offset}`).toEqual([1, 1]);
     }
 });
