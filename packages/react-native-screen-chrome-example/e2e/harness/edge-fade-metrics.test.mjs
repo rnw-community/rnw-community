@@ -221,6 +221,36 @@ const temporalBase = () => {
     return image;
 };
 
+const temporalFlatBackground = background => {
+    const source = reference();
+
+    for (let y = 0; y < source.height; y++) {
+        for (let x = 0; x < PATTERN_WIDTH; x++) {
+            const index = (y * source.width + x) * 4;
+
+            source.data[index] = background[0];
+            source.data[index + 1] = background[1];
+            source.data[index + 2] = background[2];
+            source.data[index + 3] = 255;
+        }
+    }
+
+    const image = new PNG({
+        width: source.width / TEMPORAL_SCALE_DOWN,
+        height: source.height / TEMPORAL_SCALE_DOWN,
+    });
+
+    for (let y = 0; y < image.height; y++) {
+        for (let x = 0; x < image.width; x++) {
+            const sourceIndex = (y * TEMPORAL_SCALE_DOWN * source.width + x * TEMPORAL_SCALE_DOWN) * 4;
+
+            image.data.set(source.data.subarray(sourceIndex, sourceIndex + 4), (y * image.width + x) * 4);
+        }
+    }
+
+    return image;
+};
+
 const temporalCaptureAt = (source, offset) => {
     const image = new PNG({ width: source.width, height: source.height });
     source.data.copy(image.data);
@@ -231,6 +261,23 @@ const temporalCaptureAt = (source, offset) => {
     for (let y = top; y < top + size; y++) {
         for (let x = left; x < left + size; x++) {
             image.data.set([0, 255, 0, 255], (y * image.width + x) * 4);
+        }
+    }
+
+    return image;
+};
+
+const withSystemPill = source => {
+    const image = new PNG({ width: source.width, height: source.height });
+    source.data.copy(image.data);
+    const scale = source.width / WIDTH;
+    const topSafeAreaRows = Math.round(TOP_INSET * scale);
+    const pillLeft = Math.round(source.width * 0.34);
+    const pillRight = Math.round(source.width * 0.66);
+
+    for (let y = Math.round(topSafeAreaRows * 0.2); y < Math.round(topSafeAreaRows * 0.8); y++) {
+        for (let x = pillLeft; x < pillRight; x++) {
+            image.data.set([0, 0, 0, 255], (y * image.width + x) * 4);
         }
     }
 
@@ -445,6 +492,26 @@ describe('edge-fade harness metrics', () => {
         const frames = temporalSequence(source, 61).map((frame, index) => temporalFrame(frame, index / 3));
 
         assert.deepEqual(checkTemporalFrames(frames, undefined, 5), []);
+    });
+
+    it('ignores a system pill only in the top safe-area profile while keeping physical-edge checks', () => {
+        const source = temporalFlatBackground([255, 255, 255]);
+        const frames = temporalSequence(source, 61).map(withSystemPill);
+
+        assert.deepEqual(checkTemporalFrames(frames, [255, 255, 255], 5), []);
+
+        const brokenTopEdge = frames.map(frame => {
+            const image = new PNG({ width: frame.width, height: frame.height });
+            frame.data.copy(image.data);
+
+            for (let x = 0; x < image.width - 5; x++) {
+                image.data.set([80, 80, 80, 255], x * 4);
+            }
+
+            return image;
+        });
+
+        assert.match(checkTemporalFrames(brokenTopEdge, [255, 255, 255], 5).join('\n'), /top physical edge is/u);
     });
 
     it('rejects an isolated temporal band luminance spike', () => {

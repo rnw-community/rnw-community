@@ -41,7 +41,10 @@ Or directly: `maestro test -e APP_ID=<appId> e2e/flows`.
 - `harness/edge_fade_temporal_harness.yaml` — records six bounded programmatic ScrollView traversals, one per scheme ×
   background. It prepares the real ScrollView at offset 200 before recording, then scrolls 200→400 while a visible
   content witness moves. CI preserves every decoded MP4 frame, records the clip duration, and checks edge, luminance,
-  contrast, frame-count, duration, and measured-scroll gates.
+  contrast, frame-count, duration, and measured-scroll gates. On temporal top-edge background profiles, samples inside
+  the measured top safe area come from the two clear side strips so a device cutout rendered in video but omitted from
+  still screenshots cannot look like a fade reversal. Physical-edge color and variance still use the full width, and
+  profile samples below the safe area still use the full width.
 - `subflows/launch_home.yaml` — shared launch + first-frame wait on the demo picker.
 - `subflows/launch_collapsible_demo.yaml` — opens the collapsible-header screen and waits for its first frame.
 - `subflows/collapse_then_expand.yaml` — collapses a demo collapsible header and scrolls back until it expands,

@@ -34,6 +34,7 @@ const TEXT_LINE_HEIGHT = 24;
 const RULER_POINTS = 6;
 const PATTERN_MARGIN_POINTS = 14;
 const BACKGROUND_SAMPLE_INSET_POINTS = 12;
+const TOP_SAFE_AREA_SIDE_SAMPLE_FRACTION = 0.3;
 const TEMPORAL_WITNESS_X_START_POINTS = 12;
 const TEMPORAL_WITNESS_X_END_POINTS = 42;
 const TEMPORAL_WITNESS_GREEN_MIN = 180;
@@ -146,6 +147,25 @@ const rowColorStats = ({ width, data }, row, from, to, step = 1) => {
     return { color, deviation };
 };
 
+const rowSideColor = ({ width, data }, row, patternWidth, step) => {
+    const sideWidth = Math.floor(patternWidth * TOP_SAFE_AREA_SIDE_SAMPLE_FRACTION);
+    const sums = [0, 0, 0];
+    let count = 0;
+
+    for (let x = 0; x < patternWidth; x += step) {
+        if (x >= sideWidth && x < patternWidth - sideWidth) {
+            continue;
+        }
+
+        for (let channel = 0; channel < 3; channel++) {
+            sums[channel] += data[(row * width + x) * 4 + channel];
+        }
+        count++;
+    }
+
+    return sums.map(sum => sum / count);
+};
+
 export const checkBackgroundMetadata = (reference, background, scale) => {
     const from = Math.round((reference.width / scale - BACKGROUND_SAMPLE_INSET_POINTS) * scale);
     const to = Math.round((reference.width / scale - RULER_POINTS) * scale);
@@ -159,7 +179,7 @@ export const checkBackgroundMetadata = (reference, background, scale) => {
         : [];
 };
 
-const checkScreenBackground = (capture, background, geometry, name, sampleStep = 1) => {
+const checkScreenBackground = (capture, background, geometry, name, sampleStep = 1, topSafeAreaRows = 0) => {
     const { topBandEnd, bottomBandStart, scale, patternWidth } = geometry;
     const textLineWindow = Math.max(1, Math.round((TEXT_LINE_HEIGHT * scale) / sampleStep));
     const edgeRows = [
@@ -173,7 +193,14 @@ const checkScreenBackground = (capture, background, geometry, name, sampleStep =
         const outer = rowColorStats(capture, firstRow, 0, patternWidth, sampleStep);
         const edgeDistance = colorDistance(outer.color, background);
         const distances = smooth(
-            edge.rows.map(row => colorDistance(rowColorStats(capture, row, 0, patternWidth, sampleStep).color, background)),
+            edge.rows.map(row => {
+                const color =
+                    edge.name === 'top' && row < topSafeAreaRows
+                        ? rowSideColor(capture, row, patternWidth, sampleStep)
+                        : rowColorStats(capture, row, 0, patternWidth, sampleStep).color;
+
+                return colorDistance(color, background);
+            }),
             textLineWindow
         );
         let runningMaximum = distances[0];
@@ -388,6 +415,7 @@ const witnessPosition = (frame, geometry) => {
 const summarizeTemporalFrame = (frame, geometry, background, frameIndex) => {
     const { topBandEnd, bottomBandStart } = geometry;
     const sampleStep = Math.max(1, Math.round(geometry.scale));
+    const topSafeAreaRows = Math.max(0, Math.round(geometry.topChromeEnd - CHROME_HEIGHT * geometry.scale));
     const edgeRows = [range(0, topBandEnd, sampleStep), range(bottomBandStart, frame.height, sampleStep)];
 
     return {
@@ -396,7 +424,7 @@ const summarizeTemporalFrame = (frame, geometry, background, frameIndex) => {
         signals: edgeRows.map(rows => temporalSignal(frame, rows, geometry)),
         witness: witnessPosition(frame, geometry),
         backgroundFailures: background
-            ? checkScreenBackground(frame, background, geometry, `temporal frame ${frameIndex}`, sampleStep)
+            ? checkScreenBackground(frame, background, geometry, `temporal frame ${frameIndex}`, sampleStep, topSafeAreaRows)
             : [],
     };
 };
