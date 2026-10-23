@@ -34,9 +34,18 @@ interface Props {
     readonly scrollRef: ComponentProps<typeof Animated.ScrollView>['ref'];
     readonly onScroll: ComponentProps<typeof Animated.ScrollView>['onScroll'];
     readonly temporalPrepared: boolean;
+    readonly temporalDone: boolean;
 }
 
-export const EdgeFadeDemoContent = ({ base, stripeColor, height, scrollRef, onScroll, temporalPrepared }: Props) => (
+export const EdgeFadeDemoContent = ({
+    base,
+    stripeColor,
+    height,
+    scrollRef,
+    onScroll,
+    temporalPrepared,
+    temporalDone,
+}: Props) => (
     <View style={[StyleSheet.absoluteFill, { backgroundColor: base }]}>
         <Animated.ScrollView
             ref={scrollRef}
@@ -55,7 +64,7 @@ export const EdgeFadeDemoContent = ({ base, stripeColor, height, scrollRef, onSc
                 {temporalPrepared ? (
                     <View
                         style={[styles.temporalWitness, { top: TEMPORAL_WITNESS_CONTENT_OFFSET }]}
-                        testID="edge-fade-harness-temporal-witness"
+                        testID={temporalDone ? 'edge-fade-harness-temporal-done' : 'edge-fade-harness-temporal-witness'}
                     />
                 ) : null}
             </View>

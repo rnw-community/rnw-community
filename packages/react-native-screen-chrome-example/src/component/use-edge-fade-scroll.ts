@@ -4,19 +4,22 @@ import {
     useAnimatedReaction,
     useAnimatedRef,
     useAnimatedScrollHandler,
+    useFrameCallback,
     useSharedValue,
-    withTiming,
 } from 'react-native-reanimated';
+import { scheduleOnRN } from 'react-native-worklets';
 
 import type Animated from 'react-native-reanimated';
 
 const SCROLLED_OFFSET = 200;
 const TEMPORAL_SCROLL_START = 200;
 const TEMPORAL_SCROLL_END = 400;
-const TEMPORAL_SCROLL_DURATION = 5000;
+const TEMPORAL_SCROLL_FRAMES = 300;
+const TEMPORAL_SCROLL_STEP = (TEMPORAL_SCROLL_END - TEMPORAL_SCROLL_START) / TEMPORAL_SCROLL_FRAMES;
 
 export const useEdgeFadeScroll = (state: string, isScrolledState: boolean) => {
     const [temporalPrepared, setTemporalPrepared] = useState(false);
+    const [temporalDone, setTemporalDone] = useState(false);
     const scrollRef = useAnimatedRef<Animated.ScrollView>();
     const scrollY = useSharedValue(0);
     const temporalScrollY = useSharedValue(0);
@@ -25,6 +28,22 @@ export const useEdgeFadeScroll = (state: string, isScrolledState: boolean) => {
         onScroll: event => {
             scrollY.set(event.contentOffset.y);
         },
+    });
+
+    useFrameCallback(() => {
+        'worklet';
+        if (!temporalScrollActive.get()) {
+            return;
+        }
+
+        const offset = Math.min(temporalScrollY.get() + TEMPORAL_SCROLL_STEP, TEMPORAL_SCROLL_END);
+
+        temporalScrollY.set(offset);
+
+        if (offset >= TEMPORAL_SCROLL_END) {
+            temporalScrollActive.set(false);
+            scheduleOnRN(setTemporalDone, true);
+        }
     });
 
     useAnimatedReaction(
@@ -46,12 +65,14 @@ export const useEdgeFadeScroll = (state: string, isScrolledState: boolean) => {
 
     const resetTemporalScroll = () => {
         setTemporalPrepared(false);
+        setTemporalDone(false);
         temporalScrollActive.set(false);
         temporalScrollY.set(0);
     };
 
     const prepareTemporalScroll = () => {
         setTemporalPrepared(true);
+        setTemporalDone(false);
         temporalScrollActive.set(false);
         temporalScrollY.set(TEMPORAL_SCROLL_START);
         scrollRef.current?.scrollTo({ y: TEMPORAL_SCROLL_START, animated: false });
@@ -60,7 +81,6 @@ export const useEdgeFadeScroll = (state: string, isScrolledState: boolean) => {
     const startTemporalScroll = () => {
         temporalScrollY.set(TEMPORAL_SCROLL_START);
         temporalScrollActive.set(true);
-        temporalScrollY.set(withTiming(TEMPORAL_SCROLL_END, { duration: TEMPORAL_SCROLL_DURATION }));
     };
 
     return {
@@ -68,6 +88,7 @@ export const useEdgeFadeScroll = (state: string, isScrolledState: boolean) => {
         scrollY,
         onScroll,
         temporalPrepared,
+        temporalDone,
         resetTemporalScroll,
         prepareTemporalScroll,
         startTemporalScroll,

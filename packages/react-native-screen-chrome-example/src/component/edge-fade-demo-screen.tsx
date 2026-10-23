@@ -64,6 +64,7 @@ export const EdgeFadeDemoScreen = () => {
         scrollY,
         onScroll,
         temporalPrepared,
+        temporalDone,
         resetTemporalScroll,
         prepareTemporalScroll,
         startTemporalScroll,
@@ -101,6 +102,7 @@ export const EdgeFadeDemoScreen = () => {
                 scrollRef={scrollRef}
                 onScroll={onScroll}
                 temporalPrepared={temporalPrepared}
+                temporalDone={temporalDone}
             />
             {state === 'reference' ? null : (
                 <>
