@@ -22,7 +22,8 @@ src/
                                    tab-bar-demo-screen.tsx (floating tab bar in `ScreenChromeFooter`),
                                    keyboard-demo-screen.tsx (footer in `KeyboardStickyView`),
                                    theme-demo-screen.tsx (`colorScheme` from app state),
-                                   edge-fade-demo-screen.tsx (measured scheme/background/state matrix over stripes and text)
+                                   edge-fade-demo-screen.tsx (measured scheme/background matrix over stripes and text,
+                                   separate wash-free blur-only state, and programmatic temporal scroll witness)
   constant/                      — chrome-demo-items.ts, chrome-demo-style.ts
   interface/                     — chrome-demo-item.interface.ts
   type/                          — chrome-demo-stack-param-list.type.ts
@@ -37,7 +38,8 @@ e2e/
                                    snap_off_header_scrolls_freely, bottom_fade_follows_scroll,
                                    tab_bar_switches_tabs, keyboard_footer_stays_above_keyboard,
                                    theme_switches_scheme
-  harness/                       — edge_fade_harness.yaml, shared pixel metrics and mutation tests, platform goldens
+  harness/                       — edge_fade_harness.yaml, edge_fade_temporal_harness.yaml, shared pixel metrics and
+                                   mutation tests, platform goldens
   subflows/                      — launch_home, launch_collapsible_demo, collapse_then_expand
   recording/                     — capture-only flows for readme GIFs
   readme.md                      — flow inventory and appId table

@@ -8,7 +8,7 @@ const HARNESS_URL = pathToFileURL(join(__dirname, '..', 'node_modules', '.cache'
 const BAND_HEIGHT = 76;
 const SCREEN_HEIGHT = 600;
 const EDGE_STRIP_HEIGHT = 12;
-const BLUR_RADII = ['22.5px', '11.25px', '5.625px', '2.8125px'];
+const BLUR_RADII = ['22.5px'];
 const MAX_ROW_STEP = 0.15;
 const STRIPES_LEFT = 200;
 
@@ -129,7 +129,7 @@ for (const position of ['top', 'bottom'] as const) {
             expect(band.top).toBe(position === 'top' ? 0 : SCREEN_HEIGHT - BAND_HEIGHT);
         });
 
-        test('stacks four backdrop blurs whose radius halves away from the edge', async ({ page }) => {
+        test('blends the full blur radius through an eased mask', async ({ page }) => {
             const blurLayers = getBlurLayers((await readBand(page, position)).layers);
 
             expect(blurLayers.map(layer => layer.backdropFilter)).toStrictEqual(
@@ -157,13 +157,15 @@ for (const position of ['top', 'bottom'] as const) {
             const { layers } = await readBand(page, position);
             const wash = layers[layers.length - 1];
 
-            expect(layers).toHaveLength(5);
+            expect(layers).toHaveLength(2);
             expect(wash.backdropFilter).toBe('none');
-            expect(wash.backgroundImage).toBe(
-                position === 'top'
-                    ? 'linear-gradient(rgba(255, 255, 255, 0.42) 0%, rgba(255, 255, 255, 0.08) 72%, rgba(0, 0, 0, 0) 100%)'
-                    : 'linear-gradient(rgba(0, 0, 0, 0) 0%, rgba(255, 255, 255, 0.08) 28%, rgba(255, 255, 255, 0.42) 100%)'
-            );
+            expect(wash.backgroundImage).toBe('linear-gradient(color(srgb 1 1 1) 0%, color(srgb 1 1 1) 100%)');
+        });
+
+        test('resolves the rendered CSS variable to an opaque wash color', async ({ page }) => {
+            const { layers } = await readBand(page, position);
+
+            expect(layers.at(-1)?.backgroundImage).toBe('linear-gradient(color(srgb 1 1 1) 0%, color(srgb 1 1 1) 100%)');
         });
 
         test('keeps every ancestor free of opacity, filter, and mask so the blurs sample the page', async ({ page }) => {
@@ -195,7 +197,7 @@ test('fades the scroll-animated bottom layers with the scroll offset while the c
 
         await expect
             .poll(async () => (await readBand(page, 'bottom')).layers.map(layer => layer.opacity))
-            .toStrictEqual(Array(5).fill(opacity));
+            .toStrictEqual(Array(2).fill(opacity));
     }
 
     expect(await readEdgeSharpness(page, bottomEdgeRow)).toBeLessThan(contentSharpness * 0.25);
@@ -204,5 +206,5 @@ test('fades the scroll-animated bottom layers with the scroll offset while the c
     await expect.poll(async () => (await readBand(page, 'bottom')).layers[0].opacity).toBe('0');
 
     expect(await readEdgeSharpness(page, bottomEdgeRow)).toBeGreaterThan(contentSharpness * 0.5);
-    expect((await readBand(page, 'top')).layers.map(layer => layer.opacity)).toStrictEqual(Array(5).fill('1'));
+    expect((await readBand(page, 'top')).layers.map(layer => layer.opacity)).toStrictEqual(Array(2).fill('1'));
 });

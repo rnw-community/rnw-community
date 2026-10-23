@@ -16,7 +16,8 @@ describe('getWebEdgeFadeVisualStyle', () => {
         expect(getWebEdgeFadeVisualStyle('bottom', 'dark', config)).toEqual({
             maskImage: 'linear-gradient(to bottom, red 0%, #000 100%)',
             WebkitMaskImage: 'linear-gradient(to bottom, red 0%, #000 100%)',
-            backgroundImage: `linear-gradient(to bottom, transparent 0%, ${config.colors.dark.wash} 28%, ${config.colors.dark.solid} 100%)`,
+            backgroundImage:
+                'linear-gradient(to bottom, rgb(from rgba(0,0,0,0.12) r g b / 1) 0%, rgb(from rgba(0,0,0,0.48) r g b / 1) 100%)',
         });
     });
 });

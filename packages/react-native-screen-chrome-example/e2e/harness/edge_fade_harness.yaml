@@ -19,6 +19,10 @@ appId: ${APP_ID}
 - takeScreenshot: edge-fade/dark-dark-scrolled
 - tapOn:
       id: 'edge-fade-harness-state'
+- waitForAnimationToEnd
+- takeScreenshot: edge-fade/dark-dark-blur-only
+- tapOn:
+      id: 'edge-fade-harness-state'
 - tapOn:
       id: 'edge-fade-harness-background'
 - waitForAnimationToEnd
@@ -33,6 +37,10 @@ appId: ${APP_ID}
 - takeScreenshot: edge-fade/dark-light-scrolled
 - tapOn:
       id: 'edge-fade-harness-state'
+- waitForAnimationToEnd
+- takeScreenshot: edge-fade/dark-light-blur-only
+- tapOn:
+      id: 'edge-fade-harness-state'
 - tapOn:
       id: 'edge-fade-harness-background'
 - waitForAnimationToEnd
@@ -45,6 +53,10 @@ appId: ${APP_ID}
       id: 'edge-fade-harness-state'
 - waitForAnimationToEnd
 - takeScreenshot: edge-fade/dark-vivid-scrolled
+- tapOn:
+      id: 'edge-fade-harness-state'
+- waitForAnimationToEnd
+- takeScreenshot: edge-fade/dark-vivid-blur-only
 - tapOn:
       id: 'edge-fade-harness-state'
 - tapOn:
@@ -63,6 +75,10 @@ appId: ${APP_ID}
 - takeScreenshot: edge-fade/light-dark-scrolled
 - tapOn:
       id: 'edge-fade-harness-state'
+- waitForAnimationToEnd
+- takeScreenshot: edge-fade/light-dark-blur-only
+- tapOn:
+      id: 'edge-fade-harness-state'
 - tapOn:
       id: 'edge-fade-harness-background'
 - waitForAnimationToEnd
@@ -77,6 +93,10 @@ appId: ${APP_ID}
 - takeScreenshot: edge-fade/light-light-scrolled
 - tapOn:
       id: 'edge-fade-harness-state'
+- waitForAnimationToEnd
+- takeScreenshot: edge-fade/light-light-blur-only
+- tapOn:
+      id: 'edge-fade-harness-state'
 - tapOn:
       id: 'edge-fade-harness-background'
 - waitForAnimationToEnd
@@ -89,6 +109,10 @@ appId: ${APP_ID}
       id: 'edge-fade-harness-state'
 - waitForAnimationToEnd
 - takeScreenshot: edge-fade/light-vivid-scrolled
+- tapOn:
+      id: 'edge-fade-harness-state'
+- waitForAnimationToEnd
+- takeScreenshot: edge-fade/light-vivid-blur-only
 - tapOn:
       id: 'edge-fade-harness-state'
 - tapOn:

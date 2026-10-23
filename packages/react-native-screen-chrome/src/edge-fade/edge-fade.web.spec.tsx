@@ -43,7 +43,8 @@ const WEB_TOP_RADIUS = 22.5;
 const TALL_CHROME = 60;
 const TOP_EDGE_MASK =
     'linear-gradient(to bottom, #000000 0%, rgba(0,0,0,0.56) 25%, rgba(0,0,0,0.25) 50%, rgba(0,0,0,0.06) 75%, transparent 100%)';
-const TOP_WASH = 'linear-gradient(to bottom, rgba(255,255,255,0.42) 0%, rgba(255,255,255,0.08) 72%, transparent 100%)';
+const TOP_WASH =
+    'linear-gradient(to bottom, rgb(from rgba(255,255,255,0.42) r g b / 1) 0%, rgb(from rgba(255,255,255,0.08) r g b / 1) 100%)';
 
 type HostInstance = ReturnType<ReturnType<typeof render>['getByTestId']>;
 
@@ -72,12 +73,9 @@ describe('EdgeFade web', () => {
         });
         expect(getLayerStyles(fade).map(({ backdropFilter }) => backdropFilter)).toEqual([
             'blur(22.5px) saturate(1.08)',
-            'blur(11.25px) saturate(1.08)',
-            'blur(5.625px) saturate(1.08)',
-            'blur(2.8125px) saturate(1.08)',
             void 0,
         ]);
-        expect(getLayerStyles(fade)[4]).toEqual({
+        expect(getLayerStyles(fade)[1]).toEqual({
             position: 'absolute',
             left: 0,
             right: 0,
@@ -123,11 +121,11 @@ describe('EdgeFade web', () => {
 
         expect(fade).toHaveStyle({ height: 80, bottom: 0, zIndex: 9 });
         expect(flattenStyle(fade)).not.toHaveProperty('opacity');
-        expect(layers.map(({ opacity }) => opacity)).toEqual([0.5, 0.5, 0.5, 0.5, 0.5]);
+        expect(layers.map(({ opacity }) => opacity)).toEqual([0.5, 0.5]);
         expect(layers[0]).toHaveProperty('backdropFilter', 'blur(8px) saturate(1.08)');
-        expect(layers[4]).toMatchObject({
+        expect(layers[1]).toMatchObject({
             backgroundImage:
-                'linear-gradient(to bottom, transparent 0%, rgba(255,255,255,0.08) 28%, rgba(255,255,255,0.42) 100%)',
+                'linear-gradient(to bottom, rgb(from rgba(255,255,255,0.08) r g b / 1) 0%, rgb(from rgba(255,255,255,0.42) r g b / 1) 100%)',
         });
     });
 });
@@ -189,12 +187,12 @@ describe('EdgeFade web band renderer', () => {
             render(<View testID="default-band">{defaultBand}</View>).getByTestId('default-band')
         );
 
-        expect(blurLayers).toHaveLength(5);
+        expect(blurLayers).toHaveLength(2);
         expect(blurLayers[0]).toEqual({ flex: 1 });
         expect(blurLayers[1]).toHaveProperty('backdropFilter', 'blur(22.5px) saturate(1.08)');
-        expect(defaultBandLayers).toHaveLength(6);
+        expect(defaultBandLayers).toHaveLength(3);
         expect(defaultBandLayers[1]).toHaveProperty('backdropFilter', 'blur(22.5px) saturate(1.08)');
-        expect(defaultBandLayers[5]).toMatchObject({ maskImage: TOP_EDGE_MASK, backgroundImage: TOP_WASH });
+        expect(defaultBandLayers[2]).toMatchObject({ maskImage: TOP_EDGE_MASK, backgroundImage: TOP_WASH });
     });
 
     it('inherits the provider renderer and prefers the per-instance renderer over it', () => {
@@ -226,6 +224,6 @@ describe('EdgeFade web band renderer', () => {
 
         const layers = getLayerStyles(screen.getByTestId('external-fade', { includeHiddenElements: true }));
 
-        expect(layers.map(({ opacity }) => opacity)).toEqual([0.5, 0.5, 0.5, 0.5, 0.5]);
+        expect(layers.map(({ opacity }) => opacity)).toEqual([0.5, 0.5]);
     });
 });

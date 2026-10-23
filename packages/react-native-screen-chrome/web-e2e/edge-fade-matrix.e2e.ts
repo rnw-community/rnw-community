@@ -6,7 +6,7 @@ const CACHE_DIR = join(__dirname, '..', 'node_modules', '.cache', 'web-e2e');
 const BASELINE_DIR = join(__dirname, '..', '..', 'react-native-screen-chrome-example', 'e2e', 'harness', 'baselines');
 const SCHEMES = ['dark', 'light'];
 const BACKGROUNDS = ['dark', 'light', 'vivid'];
-const STATES = ['reference', 'rest', 'scrolled'];
+const STATES = ['reference', 'rest', 'scrolled', 'blur-only'];
 
 test.use({ viewport: { width: 402, height: 874 }, deviceScaleFactor: 2 });
 

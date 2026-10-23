@@ -9,6 +9,7 @@ final class ScreenChromeProgressiveBlurView: ExpoView {
   var plateau = 0.0
 
   private let effectView = VariableBlurEffectView(effect: UIBlurEffect(style: .light))
+  private let blurMask = UIImageView()
   private var foregroundObserver: NSObjectProtocol?
 
   required init(appContext: AppContext? = nil) {
@@ -35,6 +36,12 @@ final class ScreenChromeProgressiveBlurView: ExpoView {
     }
   }
 
+  override func layoutSubviews() {
+    super.layoutSubviews()
+    blurMask.frame = effectView.bounds
+    effectView.mask = blurMask
+  }
+
   func applyBlur() {
     effectView.effect = UIBlurEffect(style: .light)
 
@@ -51,6 +58,9 @@ final class ScreenChromeProgressiveBlurView: ExpoView {
     }
 
     effectView.isHidden = false
+    blurMask.image = UIImage(cgImage: maskImage)
+    blurMask.frame = effectView.bounds
+    effectView.mask = blurMask
     filter.setValue(radius, forKey: "inputRadius")
     filter.setValue(maskImage, forKey: "inputMaskImage")
     filter.setValue(true, forKey: "inputNormalizeEdges")
@@ -80,13 +90,13 @@ final class ScreenChromeProgressiveBlurView: ExpoView {
       for step in 0...steps {
         let progress = CGFloat(step) / CGFloat(steps)
         locations.append(offset + fade * progress)
-        alphas.append(pow(1 - progress, 3))
+        alphas.append(pow(1 - progress, 2) * (1 + 2 * progress))
       }
     } else {
       for step in 0...steps {
         let progress = CGFloat(step) / CGFloat(steps)
         locations.append(fade * progress)
-        alphas.append(pow(progress, 3))
+        alphas.append(pow(progress, 2) * (3 - 2 * progress))
       }
       locations.append(1)
       alphas.append(1)

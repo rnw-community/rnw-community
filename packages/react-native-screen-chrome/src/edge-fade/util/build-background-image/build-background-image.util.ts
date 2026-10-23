@@ -1,13 +1,10 @@
 import type { ScreenChromeColorSetInterface } from '../../../interface/screen-chrome-color-set.interface';
 import type { EdgeFadePosition } from '../../edge-fade-position.type';
 
-const PERCENT_MULTIPLIER = 100;
-const WASH_STOP_PERCENT = 72;
-
 export const buildBackgroundImage = (colorSet: ScreenChromeColorSetInterface, position: EdgeFadePosition): string => {
-    if (position === 'top') {
-        return `linear-gradient(to bottom, ${colorSet.solid} 0%, ${colorSet.wash} ${WASH_STOP_PERCENT}%, transparent ${PERCENT_MULTIPLIER}%)`;
-    }
+    const [edge, inner] = [colorSet.solid, colorSet.wash].map(color => `rgb(from ${color} r g b / 1)`);
 
-    return `linear-gradient(to bottom, transparent 0%, ${colorSet.wash} ${PERCENT_MULTIPLIER - WASH_STOP_PERCENT}%, ${colorSet.solid} ${PERCENT_MULTIPLIER}%)`;
+    return position === 'top'
+        ? `linear-gradient(to bottom, ${edge} 0%, ${inner} 100%)`
+        : `linear-gradient(to bottom, ${inner} 0%, ${edge} 100%)`;
 };

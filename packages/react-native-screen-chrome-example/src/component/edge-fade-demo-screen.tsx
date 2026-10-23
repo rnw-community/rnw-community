@@ -1,64 +1,85 @@
 import React, { useState } from 'react';
-import { Pressable, StatusBar, StyleSheet, Text, View } from 'react-native';
-import { useSharedValue } from 'react-native-reanimated';
+import { StatusBar, StyleSheet, View, useWindowDimensions } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { EdgeFade, ScreenChromeProvider } from '@rnw-community/react-native-screen-chrome';
 
-import type { ScreenChromeColorScheme } from '@rnw-community/react-native-screen-chrome';
+import { EdgeFadeDemoContent } from './edge-fade-demo-content';
+import { EdgeFadeDemoControls } from './edge-fade-demo-controls';
+import { useEdgeFadeScroll } from './use-edge-fade-scroll';
+
+import type { EdgeFadeBandRenderPropsInterface, ScreenChromeColorScheme } from '@rnw-community/react-native-screen-chrome';
 
 const SCHEMES: readonly ScreenChromeColorScheme[] = ['dark', 'light'];
+const VIVID_BACKGROUND_RGB = { red: 10, green: 132, blue: 255 };
 const BACKGROUNDS = [
-    { name: 'dark', base: '#101010', stripe: '#E0E0E0' },
-    { name: 'light', base: '#FFFFFF', stripe: '#202020' },
-    { name: 'vivid', base: '#0A84FF', stripe: '#FF2D55' },
+    {
+        name: 'dark',
+        base: '#101010',
+        rgb: [16, 16, 16],
+        solid: 'rgba(16,16,16,0.4)',
+        wash: 'rgba(16,16,16,0.08)',
+        stripe: '#E0E0E0',
+    },
+    {
+        name: 'light',
+        base: '#FFFFFF',
+        rgb: [255, 255, 255],
+        solid: 'rgba(255,255,255,0.4)',
+        wash: 'rgba(255,255,255,0.08)',
+        stripe: '#202020',
+    },
+    {
+        name: 'vivid',
+        base: '#0A84FF',
+        rgb: [VIVID_BACKGROUND_RGB.red, VIVID_BACKGROUND_RGB.green, VIVID_BACKGROUND_RGB.blue],
+        solid: 'rgba(10,132,255,0.4)',
+        wash: 'rgba(10,132,255,0.08)',
+        stripe: '#FF2D55',
+    },
 ] as const;
-const STATES = ['reference', 'rest', 'scrolled'] as const;
+const STATES = ['reference', 'rest', 'scrolled', 'blur-only'] as const;
 const BAND_HEIGHT = 128;
 const CHROME_HEIGHT = 32;
-const STRIPE_WIDTH = 3;
 const RULER_WIDTH = 6;
-const SCROLLED_OFFSET = 200;
+const SCROLL_CONTENT_VIEWPORTS = 3;
 const FADE_ANIMATION = { opacityInputRange: [0, 40] as const };
-const STRIPES = Array.from({ length: 80 }, (_, index) => index);
-const TEXT_ROWS = Array.from({ length: 40 }, (_, index) => index);
 
 const styles = StyleSheet.create({
-    pattern: {
-        position: 'absolute',
-        top: 0,
-        bottom: 0,
-        left: 0,
-        right: RULER_WIDTH * 2,
-        flexDirection: 'row',
-        overflow: 'hidden',
-    },
-    stripe: { width: STRIPE_WIDTH, marginRight: STRIPE_WIDTH },
-    text: { position: 'absolute', top: 0, bottom: 0, left: 0, right: RULER_WIDTH * 2, overflow: 'hidden' },
-    textRow: { fontSize: 13, lineHeight: 24, fontWeight: '700' },
     ruler: { position: 'absolute', right: 0, width: RULER_WIDTH, zIndex: 10 },
-    controls: {
-        position: 'absolute',
-        top: '45%',
-        left: 0,
-        right: RULER_WIDTH * 2,
-        flexDirection: 'row',
-        justifyContent: 'center',
-    },
-    control: { backgroundColor: '#1B4D3E', paddingHorizontal: 20, paddingVertical: 12, marginHorizontal: 8 },
-    controlLabel: { color: '#FFFFFF', fontWeight: '700' },
 });
 
 const next = <T,>(values: readonly T[], value: T): T => values[(values.indexOf(value) + 1) % values.length];
+const renderBlurOnlyBand = ({ blur }: EdgeFadeBandRenderPropsInterface) => blur;
 
 export const EdgeFadeDemoScreen = () => {
     const insets = useSafeAreaInsets();
+    const { height: viewportHeight } = useWindowDimensions();
     const [scheme, setScheme] = useState<ScreenChromeColorScheme>('dark');
     const [background, setBackground] = useState<(typeof BACKGROUNDS)[number]>(BACKGROUNDS[0]);
     const [state, setState] = useState<(typeof STATES)[number]>('reference');
-    const scrollY = useSharedValue(0);
+    const isScrolledState = state === 'scrolled' || state === 'blur-only';
+    const {
+        scrollRef,
+        scrollY,
+        onScroll,
+        temporalPrepared,
+        temporalDone,
+        resetTemporalScroll,
+        prepareTemporalScroll,
+        startTemporalScroll,
+    } = useEdgeFadeScroll(state, isScrolledState);
+    const blurOnlyRenderBand = state === 'blur-only' ? { renderBand: renderBlurOnlyBand } : {};
 
-    scrollY.set(state === 'scrolled' ? SCROLLED_OFFSET : 0);
+    const advanceState = () => {
+        resetTemporalScroll();
+        setState(next(STATES, state));
+    };
+
+    const prepareTemporal = () => {
+        setState('scrolled');
+        prepareTemporalScroll();
+    };
 
     const rulerSegments = [
         { top: 0, height: insets.top + CHROME_HEIGHT, backgroundColor: '#FF00FF' },
@@ -68,22 +89,21 @@ export const EdgeFadeDemoScreen = () => {
     ];
 
     return (
-        <ScreenChromeProvider colorScheme={scheme} scrollY={scrollY}>
+        <ScreenChromeProvider
+            colorScheme={scheme}
+            config={{ colors: { [scheme]: { solid: background.solid, wash: background.wash } } }}
+            scrollY={scrollY}
+        >
             <StatusBar hidden />
-            <View style={[StyleSheet.absoluteFill, { backgroundColor: background.base }]} testID="edge-fade-harness">
-                <View style={styles.pattern}>
-                    {STRIPES.map(stripe => (
-                        <View key={stripe} style={[styles.stripe, { backgroundColor: background.stripe }]} />
-                    ))}
-                </View>
-                <View style={styles.text}>
-                    {TEXT_ROWS.map(row => (
-                        <Text key={row} numberOfLines={1} style={[styles.textRow, { color: background.base }]}>
-                            Hamburgefonstiv 0123456789 Hamburgefonstiv
-                        </Text>
-                    ))}
-                </View>
-            </View>
+            <EdgeFadeDemoContent
+                base={background.base}
+                stripeColor={background.stripe}
+                height={viewportHeight * SCROLL_CONTENT_VIEWPORTS}
+                scrollRef={scrollRef}
+                onScroll={onScroll}
+                temporalPrepared={temporalPrepared}
+                temporalDone={temporalDone}
+            />
             {state === 'reference' ? null : (
                 <>
                     <EdgeFade
@@ -91,41 +111,28 @@ export const EdgeFadeDemoScreen = () => {
                         height={BAND_HEIGHT}
                         chromeHeight={CHROME_HEIGHT}
                         scrollAnimation={FADE_ANIMATION}
+                        {...blurOnlyRenderBand}
                     />
                     <EdgeFade
                         position="bottom"
                         height={BAND_HEIGHT}
                         chromeHeight={CHROME_HEIGHT}
                         scrollAnimation={FADE_ANIMATION}
+                        {...blurOnlyRenderBand}
                     />
                 </>
             )}
             {rulerSegments.map(segment => (
                 <View key={JSON.stringify(segment)} style={[styles.ruler, segment]} />
             ))}
-            <View style={styles.controls}>
-                <Pressable
-                    onPress={() => void setScheme(next(SCHEMES, scheme))}
-                    style={styles.control}
-                    testID="edge-fade-harness-scheme"
-                >
-                    <Text style={styles.controlLabel}>Scheme</Text>
-                </Pressable>
-                <Pressable
-                    onPress={() => void setBackground(next(BACKGROUNDS, background))}
-                    style={styles.control}
-                    testID="edge-fade-harness-background"
-                >
-                    <Text style={styles.controlLabel}>Background</Text>
-                </Pressable>
-                <Pressable
-                    onPress={() => void setState(next(STATES, state))}
-                    style={styles.control}
-                    testID="edge-fade-harness-state"
-                >
-                    <Text style={styles.controlLabel}>State</Text>
-                </Pressable>
-            </View>
+            <EdgeFadeDemoControls
+                backgroundLabel={`${background.name}:${background.rgb.join(',')}`}
+                onScheme={() => void setScheme(next(SCHEMES, scheme))}
+                onBackground={() => void setBackground(next(BACKGROUNDS, background))}
+                onState={advanceState}
+                onPrepare={prepareTemporal}
+                onStart={startTemporalScroll}
+            />
         </ScreenChromeProvider>
     );
 };

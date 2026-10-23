@@ -664,9 +664,9 @@ jobs:
             flows-name-pattern: '*.yaml'
             pre-flow-command: |
                 dest="${ARTIFACTS_DIR:-$MAESTRO_DEBUG_OUTPUT_DIRECTORY}/edge-fade"
-                mkdir -p "$dest"
+                mkdir -p "$dest/temporal"
                 scratch="$RUNNER_TEMP/maestro-debug-${SHARD_INDEX}-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
-                nohup bash -c 'while sleep 0.2; do find "$1" -path "*/takeScreenshot/edge-fade/*.png" -exec cp -f {} "$0" \; 2>/dev/null; done' "$dest" "$scratch" >/dev/null 2>&1 &
+                nohup bash -c 'while sleep 0.2; do find "$1" -path "*/takeScreenshot/edge-fade/*.png" -exec cp -f {} "$0" \; 2>/dev/null; find "$1" -path "*/startRecording/temporal-*.mp4" -exec cp -f {} "$0/temporal" \; 2>/dev/null; done' "$dest" "$scratch" >/dev/null 2>&1 &
             install-command: pnpm install --frozen-lockfile
             build-command: pnpm build --filter=...@rnw-community/react-native-screen-chrome-example-expo
             trigger-paths: |
@@ -695,9 +695,9 @@ jobs:
             flows-name-pattern: '*.yaml'
             pre-flow-command: |
                 dest="${ARTIFACTS_DIR:-$MAESTRO_DEBUG_OUTPUT_DIRECTORY}/edge-fade"
-                mkdir -p "$dest"
+                mkdir -p "$dest/temporal"
                 scratch="$RUNNER_TEMP/maestro-debug-${SHARD_INDEX}-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
-                nohup bash -c 'while sleep 0.2; do find "$1" -path "*/takeScreenshot/edge-fade/*.png" -exec cp -f {} "$0" \; 2>/dev/null; done' "$dest" "$scratch" >/dev/null 2>&1 &
+                nohup bash -c 'while sleep 0.2; do find "$1" -path "*/takeScreenshot/edge-fade/*.png" -exec cp -f {} "$0" \; 2>/dev/null; find "$1" -path "*/startRecording/temporal-*.mp4" -exec cp -f {} "$0/temporal" \; 2>/dev/null; done' "$dest" "$scratch" >/dev/null 2>&1 &
             install-command: pnpm install --frozen-lockfile
             build-command: pnpm build --filter=...@rnw-community/react-native-screen-chrome-example-expo
             trigger-paths: |
@@ -762,6 +762,28 @@ jobs:
                   pattern: maestro-${{ matrix.platform }}*screen-chrome-harness-shard-*
                   path: harness
                   merge-multiple: true
+
+            - name: Install ffmpeg
+              if: env.HARNESS_RESULT == 'passed'
+              run: |
+                  if ! command -v ffmpeg >/dev/null 2>&1; then
+                    sudo apt-get update
+                    sudo apt-get install -y ffmpeg
+                  fi
+
+            - name: Extract temporal harness frames
+              if: env.HARNESS_RESULT == 'passed'
+              run: |
+                  set -euo pipefail
+                  for recording in harness/edge-fade/temporal/temporal-*.mp4; do
+                    test -f "$recording" || continue
+                    cell="${recording##*/temporal-}"
+                    cell="${cell%.mp4}"
+                    mkdir -p "harness/edge-fade/temporal/$cell"
+                    ffmpeg -v error -xerror -i "$recording" -f null -
+                    ffprobe -v error -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 "$recording" > "harness/edge-fade/temporal/$cell/duration.txt"
+                    ffmpeg -v error -xerror -i "$recording" -fps_mode passthrough "harness/edge-fade/temporal/$cell/%06d.png"
+                  done
 
             - name: Measure the edge-fade blur
               if: env.HARNESS_RESULT == 'passed'

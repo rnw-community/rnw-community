@@ -37,7 +37,14 @@ Or directly: `maestro test -e APP_ID=<appId> e2e/flows`.
   composer footer rides above the keyboard.
 - `flows/theme_switches_scheme.yaml` — the header toggle flips the provider color scheme to dark and back.
 - `harness/edge_fade_harness.yaml` — the edge-fade regression harness: captures every scheme × background × state of
-  the edge-fade screen for `harness/edge-fade-metrics.mjs` (see the screen chrome package `AGENTS.md`).
+  the edge-fade screen for `harness/edge-fade-metrics.mjs`, including an independent wash-free blur-only control.
+- `harness/edge_fade_temporal_harness.yaml` — records six bounded programmatic ScrollView traversals, one per scheme ×
+  background. It prepares the real ScrollView at offset 200 before recording, then scrolls 200→400 while a visible
+  content witness moves. CI preserves every decoded MP4 frame, records the clip duration, and checks edge, luminance,
+  contrast, frame-count, duration, and measured-scroll gates. On temporal top-edge background profiles, samples inside
+  the measured top safe area come from the two clear side strips so a device cutout rendered in video but omitted from
+  still screenshots cannot look like a fade reversal. Physical-edge color and variance still use the full width, and
+  profile samples below the safe area still use the full width.
 - `subflows/launch_home.yaml` — shared launch + first-frame wait on the demo picker.
 - `subflows/launch_collapsible_demo.yaml` — opens the collapsible-header screen and waits for its first frame.
 - `subflows/collapse_then_expand.yaml` — collapses a demo collapsible header and scrolls back until it expands,
@@ -46,6 +53,11 @@ Or directly: `maestro test -e APP_ID=<appId> e2e/flows`.
   `static_header_capture`, `footer_capture`, `snap_off_capture`, `bottom_fade_capture`, `tab_bar_capture`,
   `keyboard_capture`, `theme_capture`); not part of the assertion suite. Each opens its screen, then drives the
   gestures between `startRecording`/`stopRecording`, mirroring the collapsible-header example.
+
+The static gate also measures the width of the 20–80% stripe-contrast transition (square root of normalized
+Laplacian energy). It must span at least 35% of the ruler's ramp. The adjacent-row energy check alone allowed a
+visibly compressed transition, because squared contrast and its one-point smoothing kept each rise below 0.165.
+The width check runs on both the washed capture and the blur-only control; existing thresholds are unchanged.
 
 ## Recording the readme GIFs
 
