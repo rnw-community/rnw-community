@@ -384,7 +384,7 @@ resolved visuals (`EdgeFadeBandRenderPropsInterface`), including the animated `b
 `defaultBand`, so a renderer can wrap, compose, or conditionally fall back to the package output. Pass it per
 instance, or once on `ScreenChromeProvider` as `renderEdgeFadeBand`; the per-instance prop wins. Without either, the
 output is unchanged. Web honours the same contract: the blur layer and the wash move off the container
-into `blur` (blur slices only) and `defaultBand` (blur slices and wash) when a renderer is set, and the container keeps
+into `blur` (the blur layer only) and `defaultBand` (the blur layer and wash) when a renderer is set, and the container keeps
 the scroll-driven opacity. In Chromium a container opacity below 1 is a backdrop root, so the web `blur` renders
 unblurred while a renderer band is mid-fade.
 
