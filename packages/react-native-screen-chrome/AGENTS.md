@@ -158,8 +158,8 @@ pnpm test && pnpm test:coverage && pnpm build && pnpm ts && pnpm ts:nodenext && 
   and rises at most 0.165 per point; its 20–80% contrast transition spans at least 35% of the ramp; outside content keeps at least 0.85; wash shifts at most 6 levels at the inner edge
   and 3 outside; physical-edge mean is within 10 levels of the known background and deviation within 8; top/bottom
   ramps differ at most 0.25; rest differs at most 2 levels. A separate `edge_fade_temporal_harness.yaml` scrolls a real
-  native `ScrollView` from 200 to 400 over five seconds with invariant vertical stripes, records six scheme/background
-  cells, and CI extracts frames at 12fps before the native metric CLI checks band spikes and background edges. The web
+  native `ScrollView` from 200 to 400 over 300 rendered frames (about five seconds at 60 Hz) with invariant vertical stripes, records six scheme/background
+  cells, and CI extracts every decoded frame (`-fps_mode passthrough`) before the native metric CLI checks band spikes and background edges. The web
   matrix imports only `checkCaptureDir` and does not require temporal artifacts. Synthetic mutations cover missing
   blur, stepped slices, compressed ramp, wrong/missing background, physical-last-row texture, slow profile reversal,
   temporal spike, hard wash edge, and visible-at-rest bands. Keep baseline PNGs unchanged until a parent has inspected
