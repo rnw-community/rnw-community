@@ -351,8 +351,8 @@ const backdropProps: CollapsibleHeaderBackdropPropsInterface = { testID: 'header
 ## Edge fades
 
 Every band starts at the screen edge and covers the safe-area inset plus its configured height. A native band holds
-its full blur radius behind the chrome it sits under (the inset plus `chromeHeight`), easing the radius to zero on
-iOS and the blur opacity to zero on Android; web cross-fades four fixed-radius layers. The blur sits under a color wash that is fully
+its full blur behind the chrome it sits under (the inset plus `chromeHeight`), then eases the blur opacity to zero
+at the inner edge on every platform. iOS also varies the radius. The blur sits under a color wash that is fully
 opaque at the screen edge and eases to transparent inward along the `maskStops` alpha. Bands ignore pointer events and accessibility traversal, and scroll animation
 changes opacity while the radii stay static. Native defaults use 150-point top and bottom bands, while web defaults use
 76-pixel bands.
@@ -366,19 +366,15 @@ Renders a decorative top or bottom blur band, scroll-animatable through `scrollA
 ```
 
 Native bands hold the full blur radius over the safe-area inset plus `chromeHeight` (the bar the band sits behind) and
-fade it across the rest of the band (variable radius on iOS, a masked uniform blur on Android), so the chrome stays legible while content fades into the blur without a
-visible start line. Web bands hold the full radius over the larger of that zone and the inset plus the edge half of
-the band height before easing out. The edge radius is `max(8, intensity × 0.45)` points, using `scrollAnimation.maxIntensity` while an
+fade it across the rest of the band (masked variable blur on iOS, masked uniform blur on Android and web), so the chrome stays legible while content fades into the blur without a
+visible start line. Web uses the same chrome-only plateau. The edge radius is `max(8, intensity × 0.45)` points, using `scrollAnimation.maxIntensity` while an
 `intensityInputRange` is set, which fades the native view in through opacity, so scrolling never rebuilds the blur.
 
-On web the band is four `backdrop-filter` layers with radii of 1, 1/2, 1/4 and 1/8 of the edge radius. Each weaker
-layer fades in while the previous one is still opaque and stays opaque while that one fades out, so the radius steps
-down through cross-fades with no visible boundary, under a separately masked wash. Every layer box extends two radii
-past the part its mask shows, because a `backdrop-filter` box edge itself draws a visible seam. Only `scrollAnimation.opacityInputRange` animates, and it fades each layer rather than the container — an
-ancestor with `opacity` below 1 or a mask becomes the backdrop root, and a `backdrop-filter` beneath it has nothing left
-to blur. The static radii are deliberate: changing a
-`backdrop-filter` radius re-rasterizes the blurred backdrop on every scroll frame, while the opacity fade over fixed
-blurs stays on the compositor.
+On web a fixed-radius `backdrop-filter` blends into the original content through an eased mask across the entire
+ramp, under a separately masked wash. Its box extends two radii past the inner edge to keep the sampling boundary
+outside the visible mask. Only `scrollAnimation.opacityInputRange` animates, fading each visual rather than the
+container: an ancestor with opacity below 1 or a mask becomes the backdrop root and prevents sampling the page.
+The radius stays static so scrolling can animate opacity without re-rasterizing the blurred backdrop.
 
 ### Custom band content
 
@@ -387,7 +383,7 @@ offset, scroll-driven opacity, and the inert pointer/accessibility props on the 
 resolved visuals (`EdgeFadeBandRenderPropsInterface`), including the animated `blur` element and the complete
 `defaultBand`, so a renderer can wrap, compose, or conditionally fall back to the package output. Pass it per
 instance, or once on `ScreenChromeProvider` as `renderEdgeFadeBand`; the per-instance prop wins. Without either, the
-output is unchanged. Web honours the same contract: the blur slices and the wash move off the container
+output is unchanged. Web honours the same contract: the blur layer and the wash move off the container
 into `blur` (blur slices only) and `defaultBand` (blur slices and wash) when a renderer is set, and the container keeps
 the scroll-driven opacity. In Chromium a container opacity below 1 is a backdrop root, so the web `blur` renders
 unblurred while a renderer band is mid-fade.

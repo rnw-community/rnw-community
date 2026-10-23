@@ -85,23 +85,27 @@ const blurRow = (source, target, y, radius) => {
     }
 };
 
-const goodRadius = progress => RADIUS * (1 - progress) ** 3;
 const goodWash = progress => WASH * (1 - progress) ** 2;
 
-const band = ({ radius = goodRadius, chromeRadius = RADIUS, wash = goodWash, plateau = 0 } = {}) => {
+const band = ({ radius, chromeRadius = RADIUS, wash = goodWash, plateau = 0 } = {}) => {
     const source = reference();
     const capture = reference();
     const paint = (y, depth) => {
         const progress = Math.max(0, (depth - CHROME) / (BAND - CHROME) - plateau) / (1 - plateau);
         const alpha = wash(Math.min(1, Math.max(0, depth) / BAND));
 
-        blurRow(source, capture, y, depth < CHROME ? chromeRadius : radius(Math.min(1, progress)));
+        const rampProgress = Math.min(1, progress);
+        const blurOpacity = radius ? 1 : 1 - rampProgress;
+
+        blurRow(source, capture, y, depth < CHROME ? chromeRadius : radius ? radius(rampProgress) : RADIUS);
 
         for (let x = 0; x < PATTERN_WIDTH; x++) {
             for (let channel = 0; channel < 3; channel++) {
                 const index = (y * source.width + x) * 4 + channel;
 
-                capture.data[index] = capture.data[index] * (1 - alpha) + SCREEN_BACKGROUND[channel] * alpha;
+                capture.data[index] =
+                    (source.data[index] * (1 - blurOpacity) + capture.data[index] * blurOpacity) * (1 - alpha) +
+                    SCREEN_BACKGROUND[channel] * alpha;
             }
         }
     };
@@ -382,7 +386,7 @@ describe('edge-fade harness metrics', () => {
         assert.match(checkBlurOnlyCapture(unblurred, source).join('\n'), /blur is missing/u);
     });
 
-    it('rejects wash-only captures that pass the full metric at zero and 24-point insets', () => {
+    it('rejects wash-only captures at zero and 24-point insets', () => {
         for (const [topInset, bottomInset] of [
             [0, 0],
             [0, 24],
@@ -390,7 +394,10 @@ describe('edge-fade harness metrics', () => {
         ]) {
             const { capture, reference: original } = opaqueWashOnly(topInset, bottomInset);
 
-            assert.deepEqual(checkScrolledCapture(capture, original, SCREEN_BACKGROUND), []);
+            const failures = checkScrolledCapture(capture, original, SCREEN_BACKGROUND);
+
+            assert.equal(failures.length, [topInset, bottomInset].filter(inset => inset === 24).length);
+            assert.ok(failures.every(failure => failure.includes('compressed blur transition')));
             assert.match(checkBlurOnlyCapture(original, original).join('\n'), /blur is missing/u);
         }
     });
@@ -570,7 +577,19 @@ describe('edge-fade harness metrics', () => {
     it('fails a half-band plateau that compresses the ramp to the slope measured on iOS', () => {
         const { capture, reference: original } = band({ plateau: 0.7 });
 
-        assert.match(checkScrolledCapture(capture, original).join('\n'), /visible blur edge/u);
+        assert.match(checkScrolledCapture(capture, original).join('\n'), /visible blur edge|compressed blur transition/u);
+    });
+
+    it('rejects a smooth but compressed transition below the adjacent-row energy limit', () => {
+        const { capture, reference: original } = band({ plateau: 0.6 });
+
+        assert.match(checkScrolledCapture(capture, original).join('\n'), /compressed blur transition/u);
+    });
+
+    it('rejects a one-row sharp-to-blurred step', () => {
+        const { capture, reference: original } = band({ radius: progress => (progress < 0.8 ? RADIUS : 0) });
+
+        assert.match(checkScrolledCapture(capture, original).join('\n'), /visible blur edge|compressed blur transition/u);
     });
 
     it('fails an opaque tint slab', () => {

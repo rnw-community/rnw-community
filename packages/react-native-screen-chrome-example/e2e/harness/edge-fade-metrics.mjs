@@ -10,6 +10,7 @@ export const THRESHOLDS = {
     rampEndEnergyMin: 0.8,
     rampDropMax: 0.12,
     rampStepPerPointMax: 0.165,
+    rampContrastTransitionMin: 0.35,
     outsideEnergyMin: 0.85,
     washInnerEdgeMax: 6,
     washOutsideMax: 3,
@@ -247,6 +248,9 @@ const checkBand = (name, chrome, ramp, scale, failures) => {
         ramp.map(({ energy: value }) => value),
         step
     );
+    const contrast = energy.map(Math.sqrt);
+    const transitionStart = contrast.findIndex(value => value >= 0.2);
+    const transitionEnd = contrast.findIndex(value => value >= 0.8);
     const chromeEnergy = mean(chrome.map(({ energy: value }) => value));
     const runningMax = energy.map((_, index) => Math.max(...energy.slice(0, index + 1)));
     const drop = energy.findIndex((value, index) => runningMax[index] - value > THRESHOLDS.rampDropMax);
@@ -264,6 +268,11 @@ const checkBand = (name, chrome, ramp, scale, failures) => {
     }
     if (drop >= 0) {
         failures.push(`${name}: the ramp gets blurrier again ${at(drop)}`);
+    }
+    if (transitionEnd >= 0 && transitionEnd - transitionStart < ramp.length * THRESHOLDS.rampContrastTransitionMin) {
+        failures.push(
+            `${name}: a compressed blur transition spans only ${((transitionEnd - transitionStart) / scale).toFixed(1)}pt of the ${(ramp.length / scale).toFixed(1)}pt ramp`
+        );
     }
     if (jump >= 0) {
         failures.push(`${name}: a visible blur edge ${at(jump)}`);

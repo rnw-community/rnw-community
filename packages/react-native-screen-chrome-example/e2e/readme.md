@@ -54,6 +54,11 @@ Or directly: `maestro test -e APP_ID=<appId> e2e/flows`.
   `keyboard_capture`, `theme_capture`); not part of the assertion suite. Each opens its screen, then drives the
   gestures between `startRecording`/`stopRecording`, mirroring the collapsible-header example.
 
+The static gate also measures the width of the 20–80% stripe-contrast transition (square root of normalized
+Laplacian energy). It must span at least 35% of the ruler's ramp. The adjacent-row energy check alone allowed a
+visibly compressed transition, because squared contrast and its one-point smoothing kept each rise below 0.165.
+The width check runs on both the washed capture and the blur-only control; existing thresholds are unchanged.
+
 ## Recording the readme GIFs
 
 With the app installed on a booted emulator or simulator, run one capture flow at a time:

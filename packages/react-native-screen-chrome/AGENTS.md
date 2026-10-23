@@ -134,9 +134,10 @@ pnpm test && pnpm test:coverage && pnpm build && pnpm ts && pnpm ts:nodenext && 
   (`buildNativeWashImage`) blends the RGB of the two wash colors and takes each stop's alpha from the `maskStops` alone, so the
   edge is fully opaque whatever alpha the configured colors carry (a translucent edge leaves blurred content visible; web
   `buildBackgroundImage` does the same with opaque `rgb()` colors); nothing is masked,
-  because a mask on a superview of a `UIVisualEffectView` stops the blur rendering. The view holds the full radius
+  because a mask on a superview of a `UIVisualEffectView` stops the blur rendering. The blur's own eased image mask
+  is applied directly to the effect view, which UIKit supports. The view holds the full radius
   (`plateau`, from `getEdgeFadeChromePlateau`) only behind the chrome itself, the safe-area inset plus `chromeHeight`,
-  then eases to zero at the inner edge (Core Animation `variableBlur` with a cubic mask on iOS; a QmBlurView eased out
+  then eases to zero at the inner edge (Core Animation `variableBlur` with an eased radius and output mask on iOS; a QmBlurView eased out
   through a `DST_IN` gradient on Android; both ported from `@sbaiahmed1/react-native-blur`, see
   `THIRD_PARTY_NOTICES.md`). Never derive the plateau from the band height: a plateau reaching past the chrome
   compresses the ramp and reads as a line where the blur starts. `intensityInputRange` fades the view through opacity,
@@ -154,7 +155,7 @@ pnpm test && pnpm test:coverage && pnpm build && pnpm ts && pnpm ts:nodenext && 
   physical screen edge inward. Direct edge variance still catches texture on the physical last row when its mean is
   within threshold. Rest checks use absolute pixel differences and cannot miss mean-preserving blur. Thresholds live in
   `THRESHOLDS`: chrome zone keeps at most 0.2 of reference detail; the ramp returns to at least 0.8, loses at most 0.12,
-  and rises at most 0.165 per point; outside content keeps at least 0.85; wash shifts at most 6 levels at the inner edge
+  and rises at most 0.165 per point; its 20–80% contrast transition spans at least 35% of the ramp; outside content keeps at least 0.85; wash shifts at most 6 levels at the inner edge
   and 3 outside; physical-edge mean is within 10 levels of the known background and deviation within 8; top/bottom
   ramps differ at most 0.25; rest differs at most 2 levels. A separate `edge_fade_temporal_harness.yaml` scrolls a real
   native `ScrollView` from 200 to 400 over five seconds with invariant vertical stripes, records six scheme/background
@@ -163,20 +164,11 @@ pnpm test && pnpm test:coverage && pnpm build && pnpm ts && pnpm ts:nodenext && 
   blur, stepped slices, compressed ramp, wrong/missing background, physical-last-row texture, slow profile reversal,
   temporal spike, hard wash edge, and visible-at-rest bands. Keep baseline PNGs unchanged until a parent has inspected
   the CI capture images; update only reviewed CI captures.
-- Web `EdgeFade` matches the native ramp (`getWebEdgeFadeBlurLayers`): four `backdrop-filter` layers whose radius
-  halves away from the edge, chained as cross-fades — each weaker layer fades in while the previous one is still
-  opaque, then holds while that one fades out — plus a separate masked wash (`EdgeFadeWebBand`). A `backdrop-filter`
-  box edge draws a seam (non-overlapping slices showed one per slice boundary; in Chromium a box bottom ghosts the
-  unblurred content at device scale above 1), so every layer box extends two radii past its visible mask. Full-band
-  overlapping layers made headless WebKit about 7× slower, so layers stay as short as the cross-fade allows. The web
-  e2e renders a 20-pixel stripe pattern under both bands and fails on any row-to-row contrast jump or a non-monotonic
-  ramp, which is what a hard edge or a seam produces. Never put `opacity` below 1, a mask, or a filter on an ancestor
-  of the layers: per the Filter Effects backdrop-root rule the ancestor becomes the backdrop root and the layers blur
-  nothing (verified in Chromium), so the default band fades each layer with the scroll opacity and the container
-  carries positioning only. The renderer path keeps the documented container opacity. The radii stay static on
-  purpose: animating them re-rasterizes the backdrop on every scroll frame, while the opacity fade stays
-  compositor-only.
-  On web `intensityInputRange` only selects `maxIntensity` for the radius.
+- Web `EdgeFade` matches the Android blend (`getWebEdgeFadeBlurLayers`): one fixed-radius `backdrop-filter` with an
+  eased output mask across the full ramp, plus a separately masked wash. The full-opacity plateau is only the safe-area
+  inset plus `chromeHeight`. The filter box extends two radii past the inner edge so its sampling boundary cannot show
+  through the mask. Never put opacity below 1, a mask, or a filter on an ancestor: that creates a backdrop root and
+  prevents sampling the page. Scroll opacity animates the visual layers, with a static radius.
 - Public exports carry repository-standard scoped TSDoc and package readme links.
 - Tests retain at least 99.9% statements, branches, functions, and lines coverage.
 
