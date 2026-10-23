@@ -40,7 +40,7 @@ const TEXT_LINE_HEIGHT = 24;
 const RULER_POINTS = 6;
 const PATTERN_MARGIN_POINTS = 14;
 const BACKGROUND_SAMPLE_INSET_POINTS = 12;
-const TOP_SAFE_AREA_SIDE_SAMPLE_FRACTION = 0.3;
+const SAFE_AREA_SIDE_SAMPLE_FRACTION = 0.3;
 const TEMPORAL_WITNESS_X_START_POINTS = 12;
 const TEMPORAL_WITNESS_X_END_POINTS = 42;
 const TEMPORAL_WITNESS_GREEN_MIN = 180;
@@ -158,7 +158,7 @@ const rowColorStats = ({ width, data }, row, from, to, step = 1) => {
 };
 
 const rowSideColor = ({ width, data }, row, patternWidth, step) => {
-    const sideWidth = Math.floor(patternWidth * TOP_SAFE_AREA_SIDE_SAMPLE_FRACTION);
+    const sideWidth = Math.floor(patternWidth * SAFE_AREA_SIDE_SAMPLE_FRACTION);
     const sums = [0, 0, 0];
     let count = 0;
 
@@ -190,7 +190,9 @@ export const checkBackgroundMetadata = (reference, background, scale) => {
 };
 
 const checkScreenBackground = (capture, background, geometry, name, sampleStep = 1, topSafeAreaRows = 0) => {
-    const { topBandEnd, bottomBandStart, scale, patternWidth } = geometry;
+    const { topBandEnd, bottomBandStart, bottomChromeStart, scale, patternWidth } = geometry;
+    const bottomSafeAreaRows = Math.max(0, Math.round(capture.height - bottomChromeStart - CHROME_HEIGHT * scale));
+    const bottomSafeAreaStart = capture.height - bottomSafeAreaRows;
     const textLineWindow = Math.max(1, Math.round((TEXT_LINE_HEIGHT * scale) / sampleStep));
     const edgeRows = [
         { name: 'top', rows: [...range(0, topBandEnd, sampleStep), topBandEnd - 1] },
@@ -204,10 +206,10 @@ const checkScreenBackground = (capture, background, geometry, name, sampleStep =
         const edgeDistance = colorDistance(outer.color, background);
         const distances = smooth(
             edge.rows.map(row => {
-                const color =
-                    edge.name === 'top' && row < topSafeAreaRows
-                        ? rowSideColor(capture, row, patternWidth, sampleStep)
-                        : rowColorStats(capture, row, 0, patternWidth, sampleStep).color;
+                const isSafeAreaRow = edge.name === 'top' ? row < topSafeAreaRows : row >= bottomSafeAreaStart;
+                const color = isSafeAreaRow
+                    ? rowSideColor(capture, row, patternWidth, sampleStep)
+                    : rowColorStats(capture, row, 0, patternWidth, sampleStep).color;
 
                 return colorDistance(color, background);
             }),

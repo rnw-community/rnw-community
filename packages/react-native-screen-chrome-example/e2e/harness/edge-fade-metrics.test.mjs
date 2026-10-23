@@ -301,6 +301,25 @@ const withSystemPill = source => {
     return image;
 };
 
+const withHomeIndicator = source => {
+    const image = new PNG({ width: source.width, height: source.height });
+    source.data.copy(image.data);
+    const scale = source.width / (WIDTH / SCALE);
+    const patternWidth = Math.round(PATTERN_WIDTH * (source.width / WIDTH));
+    const indicatorLeft = Math.round(patternWidth * 0.34);
+    const indicatorRight = Math.round(patternWidth * 0.66);
+    const indicatorTop = Math.round(source.height - 9 * scale);
+    const indicatorBottom = Math.round(source.height - 4 * scale);
+
+    for (let y = indicatorTop; y < indicatorBottom; y++) {
+        for (let x = indicatorLeft; x < indicatorRight; x++) {
+            image.data.set([206, 206, 206, 255], (y * source.width + x) * 4);
+        }
+    }
+
+    return image;
+};
+
 const temporalWitnessTopPoints = offset => TEMPORAL_WITNESS_CONTENT_OFFSET - offset;
 
 const compactCaptureDir = wash => {
@@ -470,6 +489,15 @@ describe('edge-fade harness metrics', () => {
 
     it('checks the physical last row of the bottom edge', () => {
         const { capture, reference: original } = band();
+        fitBackgroundEdges(capture);
+
+        for (let y = HEIGHT - 9 * SCALE; y < HEIGHT - 4 * SCALE; y++) {
+            for (let x = Math.round(PATTERN_WIDTH * 0.34); x < PATTERN_WIDTH * 0.66; x++) {
+                capture.data.set([128, 128, 128, 255], (y * WIDTH + x) * 4);
+            }
+        }
+
+        assert.deepEqual(checkScrolledCapture(capture, original, SCREEN_BACKGROUND), []);
 
         for (let x = 0; x < PATTERN_WIDTH; x++) {
             capture.data.set([255, 255, 255, 255], ((HEIGHT - 1) * WIDTH + x) * 4);
@@ -485,6 +513,43 @@ describe('edge-fade harness metrics', () => {
         const { capture, reference: original } = band();
 
         assert.deepEqual(checkScrolledCapture(fitBackgroundEdges(capture), original, SCREEN_BACKGROUND), []);
+    });
+
+    it('accepts a home indicator artifact inside the bottom safe area', () => {
+        const { capture, reference: original } = band();
+        fitBackgroundEdges(capture);
+
+        for (let y = HEIGHT - 9 * SCALE; y < HEIGHT - 4 * SCALE; y++) {
+            for (let x = Math.round(PATTERN_WIDTH * 0.34); x < PATTERN_WIDTH * 0.66; x++) {
+                capture.data.set([128, 128, 128, 255], (y * WIDTH + x) * 4);
+            }
+        }
+
+        assert.deepEqual(checkScrolledCapture(capture, original, SCREEN_BACKGROUND), []);
+    });
+
+    it('keeps the full-width background check active above the bottom safe area', () => {
+        const { capture, reference: original } = band();
+        fitBackgroundEdges(capture);
+
+        for (let y = HEIGHT - 9 * SCALE; y < HEIGHT - 4 * SCALE; y++) {
+            for (let x = Math.round(PATTERN_WIDTH * 0.34); x < PATTERN_WIDTH * 0.66; x++) {
+                capture.data.set([128, 128, 128, 255], (y * WIDTH + x) * 4);
+            }
+        }
+
+        const rampTop = HEIGHT - BOTTOM_INSET - CHROME;
+
+        for (let y = rampTop - 40 * SCALE; y < rampTop - 20 * SCALE; y++) {
+            for (let x = Math.round(PATTERN_WIDTH * 0.2); x < PATTERN_WIDTH * 0.8; x++) {
+                capture.data.set([255, 255, 255, 255], (y * WIDTH + x) * 4);
+            }
+        }
+
+        assert.match(
+            checkScrolledCapture(capture, original, SCREEN_BACKGROUND).join('\n'),
+            /bottom background delta reverses/u
+        );
     });
 
     it('requires blur in the independent wash-free control capture', () => {
@@ -525,6 +590,25 @@ describe('edge-fade harness metrics', () => {
 
         assert.ok(failures.some(failure => /bottom physical edge varies/u.test(failure)));
         assert.ok(!failures.some(failure => /bottom physical edge is/u.test(failure)));
+    });
+
+    it('rejects a bottom ramp blur edge while a home indicator is present in the safe area', () => {
+        const { capture, reference: original } = band({ radius: progress => (progress < 0.5 ? RADIUS : 0) });
+        fitBackgroundEdges(capture);
+
+        for (let y = HEIGHT - 9 * SCALE; y < HEIGHT - 4 * SCALE; y++) {
+            for (let x = Math.round(PATTERN_WIDTH * 0.34); x < PATTERN_WIDTH * 0.66; x++) {
+                capture.data.set([128, 128, 128, 255], (y * WIDTH + x) * 4);
+            }
+        }
+
+        const failures = checkScrolledCapture(capture, original, SCREEN_BACKGROUND);
+
+        assert.ok(
+            failures.some(
+                failure => failure.startsWith('bottom:') && /visible blur edge|compressed blur transition/u.test(failure)
+            )
+        );
     });
 
     it('rejects a slow background-distance reversal that never exceeds the adjacent-row limit', () => {
@@ -627,9 +711,9 @@ describe('edge-fade harness metrics', () => {
         );
     });
 
-    it('ignores a system pill only in the top safe-area profile while keeping physical-edge checks', () => {
+    it('ignores system and home indicators in safe-area profiles while keeping physical-edge checks', () => {
         const source = temporalFlatBackground([255, 255, 255]);
-        const frames = temporalSequence(source, 61).map(withSystemPill);
+        const frames = temporalSequence(source, 61).map(frame => withHomeIndicator(withSystemPill(frame)));
 
         assert.deepEqual(checkTemporalFrames(frames, [255, 255, 255], 5), []);
 
@@ -645,6 +729,19 @@ describe('edge-fade harness metrics', () => {
         });
 
         assert.match(checkTemporalFrames(brokenTopEdge, [255, 255, 255], 5).join('\n'), /top physical edge is/u);
+
+        const brokenBottomEdge = frames.map(frame => {
+            const image = new PNG({ width: frame.width, height: frame.height });
+            frame.data.copy(image.data);
+
+            for (let x = 0; x < image.width - 5; x++) {
+                image.data.set([80, 80, 80, 255], ((image.height - 1) * image.width + x) * 4);
+            }
+
+            return image;
+        });
+
+        assert.match(checkTemporalFrames(brokenBottomEdge, [255, 255, 255], 5).join('\n'), /bottom physical edge is/u);
     });
 
     it('rejects an isolated temporal band luminance spike', () => {
