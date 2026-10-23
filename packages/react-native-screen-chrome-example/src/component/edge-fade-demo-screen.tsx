@@ -2,13 +2,14 @@ import React, { useState } from 'react';
 import { StatusBar, StyleSheet, View, useWindowDimensions } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { EdgeFade, ScreenChromeProvider } from '@rnw-community/react-native-screen-chrome';
+import { ScreenChromeProvider } from '@rnw-community/react-native-screen-chrome';
 
+import { EdgeFadeDemoBands } from './edge-fade-demo-bands';
 import { EdgeFadeDemoContent } from './edge-fade-demo-content';
 import { EdgeFadeDemoControls } from './edge-fade-demo-controls';
 import { useEdgeFadeScroll } from './use-edge-fade-scroll';
 
-import type { EdgeFadeBandRenderPropsInterface, ScreenChromeColorScheme } from '@rnw-community/react-native-screen-chrome';
+import type { ScreenChromeColorScheme } from '@rnw-community/react-native-screen-chrome';
 
 const SCHEMES: readonly ScreenChromeColorScheme[] = ['dark', 'light'];
 const VIVID_BACKGROUND_RGB = { red: 10, green: 132, blue: 255 };
@@ -40,25 +41,23 @@ const BACKGROUNDS = [
 ] as const;
 const STATES = ['reference', 'rest', 'scrolled', 'blur-only'] as const;
 const BAND_HEIGHT = 128;
+const COMPACT_BAND_HEIGHT = 56;
 const CHROME_HEIGHT = 32;
 const RULER_WIDTH = 6;
 const SCROLL_CONTENT_VIEWPORTS = 3;
-const FADE_ANIMATION = { opacityInputRange: [0, 40] as const };
-
 const styles = StyleSheet.create({
     ruler: { position: 'absolute', right: 0, width: RULER_WIDTH, zIndex: 10 },
 });
 
 const next = <T,>(values: readonly T[], value: T): T => values[(values.indexOf(value) + 1) % values.length];
-const renderBlurOnlyBand = ({ blur }: EdgeFadeBandRenderPropsInterface) => blur;
-
 export const EdgeFadeDemoScreen = () => {
     const insets = useSafeAreaInsets();
     const { height: viewportHeight } = useWindowDimensions();
     const [scheme, setScheme] = useState<ScreenChromeColorScheme>('dark');
     const [background, setBackground] = useState<(typeof BACKGROUNDS)[number]>(BACKGROUNDS[0]);
     const [state, setState] = useState<(typeof STATES)[number]>('reference');
-    const isScrolledState = state === 'scrolled' || state === 'blur-only';
+    const [isCompact, setIsCompact] = useState(false);
+    const bandHeight = isCompact ? COMPACT_BAND_HEIGHT : BAND_HEIGHT;
     const {
         scrollRef,
         scrollY,
@@ -68,9 +67,7 @@ export const EdgeFadeDemoScreen = () => {
         resetTemporalScroll,
         prepareTemporalScroll,
         startTemporalScroll,
-    } = useEdgeFadeScroll(state, isScrolledState);
-    const blurOnlyRenderBand = state === 'blur-only' ? { renderBand: renderBlurOnlyBand } : {};
-
+    } = useEdgeFadeScroll(state, state === 'scrolled' || state === 'blur-only');
     const advanceState = () => {
         resetTemporalScroll();
         setState(next(STATES, state));
@@ -80,12 +77,11 @@ export const EdgeFadeDemoScreen = () => {
         setState('scrolled');
         prepareTemporalScroll();
     };
-
     const rulerSegments = [
         { top: 0, height: insets.top + CHROME_HEIGHT, backgroundColor: '#FF00FF' },
-        { top: insets.top + CHROME_HEIGHT, height: BAND_HEIGHT - CHROME_HEIGHT, backgroundColor: '#00FFFF' },
+        { top: insets.top + CHROME_HEIGHT, height: bandHeight - CHROME_HEIGHT, backgroundColor: '#00FFFF' },
         { bottom: 0, height: insets.bottom + CHROME_HEIGHT, backgroundColor: '#FF00FF' },
-        { bottom: insets.bottom + CHROME_HEIGHT, height: BAND_HEIGHT - CHROME_HEIGHT, backgroundColor: '#00FFFF' },
+        { bottom: insets.bottom + CHROME_HEIGHT, height: bandHeight - CHROME_HEIGHT, backgroundColor: '#00FFFF' },
     ];
 
     return (
@@ -105,22 +101,11 @@ export const EdgeFadeDemoScreen = () => {
                 temporalDone={temporalDone}
             />
             {state === 'reference' ? null : (
-                <>
-                    <EdgeFade
-                        position="top"
-                        height={BAND_HEIGHT}
-                        chromeHeight={CHROME_HEIGHT}
-                        scrollAnimation={FADE_ANIMATION}
-                        {...blurOnlyRenderBand}
-                    />
-                    <EdgeFade
-                        position="bottom"
-                        height={BAND_HEIGHT}
-                        chromeHeight={CHROME_HEIGHT}
-                        scrollAnimation={FADE_ANIMATION}
-                        {...blurOnlyRenderBand}
-                    />
-                </>
+                <EdgeFadeDemoBands
+                    bandHeight={bandHeight}
+                    isBlurOnly={state === 'blur-only'}
+                    isTemporal={temporalPrepared}
+                />
             )}
             {rulerSegments.map(segment => (
                 <View key={JSON.stringify(segment)} style={[styles.ruler, segment]} />
@@ -130,6 +115,9 @@ export const EdgeFadeDemoScreen = () => {
                 onScheme={() => void setScheme(next(SCHEMES, scheme))}
                 onBackground={() => void setBackground(next(BACKGROUNDS, background))}
                 onState={advanceState}
+                onCompact={() => {
+                    setIsCompact(value => !value);
+                }}
                 onPrepare={prepareTemporal}
                 onStart={startTemporalScroll}
             />

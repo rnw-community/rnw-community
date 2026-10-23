@@ -1,11 +1,10 @@
-import type { ScreenChromeMaskStopInterface } from '../../screen-chrome-mask-stop.interface';
-
 const PERCENT_MULTIPLIER = 100;
 
-export const buildMaskImage = (maskStops: Readonly<Record<number, ScreenChromeMaskStopInterface>>): string => {
-    const stopsCss = Object.entries(maskStops)
-        .sort(([firstOffset], [secondOffset]) => Number(firstOffset) - Number(secondOffset))
-        .map(([offset, { color }]) => `${color} ${Number(offset) * PERCENT_MULTIPLIER}%`)
+export const buildMaskImage = (maskColors: readonly string[], maskLocations: readonly number[]): string => {
+    const stopsCss = maskLocations
+        .map((location, index) => ({ location, color: maskColors[index] }))
+        .sort((first, second) => first.location - second.location)
+        .map(({ location, color }) => `${color} ${Number((location * PERCENT_MULTIPLIER).toFixed(4))}%`)
         .join(', ');
 
     return `linear-gradient(to bottom, ${stopsCss})`;

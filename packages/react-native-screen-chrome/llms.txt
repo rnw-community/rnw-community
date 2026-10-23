@@ -27,7 +27,7 @@ one copy of the collapsible header. Render content first, decorative fades and b
 - [`CollapsibleHeader`](readme.md#collapsibleheader): Compound collapsible header composing control and title slots into the generic collapsible-header primitive, with optional `motion` overrides.
 - [`CollapsibleHeaderSlot`](readme.md#collapsibleheaderslot): Persistent leading or trailing control slot mounted once above both title layers.
 - [`CollapsibleHeaderTitleSlot`](readme.md#collapsibleheadertitleslot): Groups the expanded and collapsed title layers of a compound header.
-- [`CollapsibleHeaderBackdrop`](readme.md#collapsibleheaderbackdrop): Top `EdgeFade` sized to `headerBackdropHeight` and aligned with the title-collapse thresholds.
+- [`CollapsibleHeaderBackdrop`](readme.md#collapsibleheaderbackdrop): Persistent top `EdgeFade` sized to `headerBackdropHeight`, with its blur and wash ramp aligned to the collapsed header edge.
 - [`EdgeFade`](readme.md#edgefade): Decorative top or bottom blur band, scroll-animatable through `scrollAnimation`.
 - [`EdgeFadePropsInterface`](readme.md#edgefadepropsinterface): Props accepted by `EdgeFade`.
 - [`EdgeFadeScrollAnimationInterface`](readme.md#edgefadescrollanimationinterface): Scroll-driven opacity and blur intensity ranges for an edge fade.

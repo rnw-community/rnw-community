@@ -1,5 +1,7 @@
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
+import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 import { describe, it } from 'node:test';
 
 import { PNG } from 'pngjs';
@@ -7,6 +9,7 @@ import { PNG } from 'pngjs';
 import {
     checkBackgroundMetadata,
     checkBlurOnlyCapture,
+    checkCompactCaptureDir,
     checkRestCapture,
     checkScrolledCapture,
     checkTemporalCaptureDir,
@@ -20,6 +23,8 @@ const TOP_INSET = 62 * SCALE;
 const BOTTOM_INSET = 34 * SCALE;
 const CHROME = 32 * SCALE;
 const BAND = 128 * SCALE;
+const COMPACT_BAND = 56 * SCALE;
+const COMPACT_RAMP_POINTS = 24;
 const RADIUS = 20 * SCALE;
 const PATTERN_WIDTH = WIDTH - 12 * SCALE;
 const STRIPE = 3 * SCALE;
@@ -27,10 +32,10 @@ const RULER_WIDTH = 6;
 const WASH = 0.42;
 const SCREEN_BACKGROUND = [16, 16, 16];
 const TEMPORAL_SCALE_DOWN = 6;
-const TEMPORAL_WITNESS_CONTENT_OFFSET = 620;
+const TEMPORAL_WITNESS_CONTENT_OFFSET = 430;
 const TEMPORAL_RECORDINGS = ['dark-dark', 'dark-light', 'dark-vivid', 'light-dark', 'light-light', 'light-vivid'];
 
-const reference = (topInset = TOP_INSET, bottomInset = BOTTOM_INSET) => {
+const reference = (topInset = TOP_INSET, bottomInset = BOTTOM_INSET, bandHeight = BAND) => {
     const image = new PNG({ width: WIDTH, height: HEIGHT });
 
     for (let y = 0; y < HEIGHT; y++) {
@@ -52,8 +57,8 @@ const reference = (topInset = TOP_INSET, bottomInset = BOTTOM_INSET) => {
     };
 
     ruler(0, topInset + CHROME, [255, 0, 255]);
-    ruler(topInset + CHROME, topInset + BAND, [0, 255, 255]);
-    ruler(HEIGHT - bottomInset - BAND, HEIGHT - bottomInset - CHROME, [0, 255, 255]);
+    ruler(topInset + CHROME, topInset + bandHeight, [0, 255, 255]);
+    ruler(HEIGHT - bottomInset - bandHeight, HEIGHT - bottomInset - CHROME, [0, 255, 255]);
     ruler(HEIGHT - bottomInset - CHROME, HEIGHT, [255, 0, 255]);
 
     return image;
@@ -87,12 +92,19 @@ const blurRow = (source, target, y, radius) => {
 
 const goodWash = progress => WASH * (1 - progress) ** 2;
 
-const band = ({ radius, chromeRadius = RADIUS, wash = goodWash, plateau = 0 } = {}) => {
-    const source = reference();
-    const capture = reference();
+const band = ({
+    radius,
+    chromeRadius = RADIUS,
+    wash = goodWash,
+    plateau = 0,
+    bandHeight = BAND,
+    paintHeight = bandHeight,
+} = {}) => {
+    const source = reference(TOP_INSET, BOTTOM_INSET, bandHeight);
+    const capture = reference(TOP_INSET, BOTTOM_INSET, bandHeight);
     const paint = (y, depth) => {
-        const progress = Math.max(0, (depth - CHROME) / (BAND - CHROME) - plateau) / (1 - plateau);
-        const alpha = wash(Math.min(1, Math.max(0, depth) / BAND));
+        const progress = Math.max(0, (depth - CHROME) / (paintHeight - CHROME) - plateau) / (1 - plateau);
+        const alpha = wash(Math.min(1, Math.max(0, depth) / paintHeight));
 
         const rampProgress = Math.min(1, progress);
         const blurOpacity = radius ? 1 : 1 - rampProgress;
@@ -110,7 +122,7 @@ const band = ({ radius, chromeRadius = RADIUS, wash = goodWash, plateau = 0 } = 
         }
     };
 
-    for (let depth = 0; depth < TOP_INSET + BAND; depth++) {
+    for (let depth = 0; depth < TOP_INSET + paintHeight; depth++) {
         paint(depth, depth - TOP_INSET);
         paint(HEIGHT - 1 - depth, depth - BOTTOM_INSET);
     }
@@ -207,8 +219,7 @@ const temporalFrame = (source, luminanceShift) => {
     return image;
 };
 
-const temporalBase = () => {
-    const { capture } = band({ wash: progress => (1 - progress) ** 2 });
+const temporalScaled = capture => {
     const image = new PNG({
         width: capture.width / TEMPORAL_SCALE_DOWN,
         height: capture.height / TEMPORAL_SCALE_DOWN,
@@ -224,6 +235,8 @@ const temporalBase = () => {
 
     return image;
 };
+
+const temporalBase = () => temporalScaled(band({ wash: progress => (1 - progress) ** 2 }).capture);
 
 const temporalFlatBackground = background => {
     const source = reference();
@@ -288,10 +301,87 @@ const withSystemPill = source => {
     return image;
 };
 
+const withHomeIndicator = source => {
+    const image = new PNG({ width: source.width, height: source.height });
+    source.data.copy(image.data);
+    const scale = source.width / (WIDTH / SCALE);
+    const patternWidth = Math.round(PATTERN_WIDTH * (source.width / WIDTH));
+    const indicatorLeft = Math.round(patternWidth * 0.34);
+    const indicatorRight = Math.round(patternWidth * 0.66);
+    const indicatorTop = Math.round(source.height - 9 * scale);
+    const indicatorBottom = Math.round(source.height - 4 * scale);
+
+    for (let y = indicatorTop; y < indicatorBottom; y++) {
+        for (let x = indicatorLeft; x < indicatorRight; x++) {
+            image.data.set([206, 206, 206, 255], (y * source.width + x) * 4);
+        }
+    }
+
+    return image;
+};
+
 const temporalWitnessTopPoints = offset => TEMPORAL_WITNESS_CONTENT_OFFSET - offset;
 
+const compactCaptureDir = wash => {
+    const captureDir = mkdtempSync(join(tmpdir(), 'screen-chrome-compact-'));
+    const compactWash = progress => {
+        const rampProgress = Math.max(0, Math.min(1, (progress - CHROME / COMPACT_BAND) / (1 - CHROME / COMPACT_BAND)));
+
+        return wash(rampProgress) / WASH;
+    };
+    const { capture, reference: original } = band({ bandHeight: COMPACT_BAND, wash: compactWash });
+    const { capture: blurOnly } = band({ bandHeight: COMPACT_BAND, wash: () => 0 });
+
+    for (const [name, image] of [
+        ['compact-dark-dark-reference', original],
+        ['compact-dark-dark-scrolled', capture],
+        ['compact-dark-dark-blur-only', blurOnly],
+    ]) {
+        writeFileSync(join(captureDir, `${name}.png`), PNG.sync.write(image));
+    }
+
+    return captureDir;
+};
+
 const temporalSequence = (source, count) =>
-    Array.from({ length: count }, (_, index) => temporalCaptureAt(source, 200 + (200 * index) / Math.max(1, count - 1)));
+    Array.from({ length: count }, (_, index) => temporalCaptureAt(source, (200 * index) / Math.max(1, count - 1)));
+
+const temporalSequenceBetween = (source, count, startOffset, endOffset) =>
+    Array.from({ length: count }, (_, index) =>
+        temporalCaptureAt(source, startOffset + ((endOffset - startOffset) * index) / Math.max(1, count - 1))
+    );
+
+const fadedTemporalSequence = (source, count) => {
+    const sharp = temporalScaled(reference());
+
+    return Array.from({ length: count }, (_, index) => {
+        const offset = (200 * index) / Math.max(1, count - 1);
+        const opacity = Math.max(0, 1 - offset / 80);
+        const frame = new PNG({ width: source.width, height: source.height });
+        sharp.data.copy(frame.data);
+
+        for (let y = 0; y < source.height; y++) {
+            const isInBand =
+                y < Math.round((TOP_INSET + BAND) / TEMPORAL_SCALE_DOWN) ||
+                y >= Math.round((HEIGHT - BOTTOM_INSET - BAND) / TEMPORAL_SCALE_DOWN);
+
+            if (!isInBand) {
+                continue;
+            }
+
+            for (let x = 0; x < Math.round(PATTERN_WIDTH / TEMPORAL_SCALE_DOWN); x++) {
+                const pixel = (y * source.width + x) * 4;
+
+                for (let channel = 0; channel < 3; channel++) {
+                    frame.data[pixel + channel] =
+                        sharp.data[pixel + channel] * (1 - opacity) + source.data[pixel + channel] * opacity;
+                }
+            }
+        }
+
+        return temporalCaptureAt(frame, offset);
+    });
+};
 
 const meanPreservingDetailFlash = source => {
     const image = new PNG({ width: source.width, height: source.height });
@@ -344,6 +434,43 @@ describe('edge-fade harness metrics', () => {
         assert.deepEqual(checkRestCapture(original, original), []);
     });
 
+    it('measures compact blur independently when the wash attenuates stripe contrast', () => {
+        const captureDir = compactCaptureDir(goodWash);
+
+        try {
+            const washed = PNG.sync.read(readFileSync(join(captureDir, 'compact-dark-dark-scrolled.png')));
+            const blurOnly = PNG.sync.read(readFileSync(join(captureDir, 'compact-dark-dark-blur-only.png')));
+            const firstRampRow = TOP_INSET + CHROME;
+            const rowContrast = image => {
+                let contrast = 0;
+
+                for (let x = 0; x < PATTERN_WIDTH - 1; x++) {
+                    for (let channel = 0; channel < 3; channel++) {
+                        const pixel = (firstRampRow * image.width + x) * 4 + channel;
+                        contrast += Math.abs(image.data[pixel] - image.data[pixel + 4]);
+                    }
+                }
+
+                return contrast;
+            };
+
+            assert.ok(rowContrast(washed) < rowContrast(blurOnly));
+            assert.deepEqual(checkCompactCaptureDir(captureDir), []);
+        } finally {
+            rmSync(captureDir, { recursive: true });
+        }
+    });
+
+    it('rejects a compact band whose wash finishes before the blur transition', () => {
+        const captureDir = compactCaptureDir(progress => (progress < 0.5 ? WASH : 0));
+
+        try {
+            assert.match(checkCompactCaptureDir(captureDir).join('\n'), /wash and blur ramp differ/u);
+        } finally {
+            rmSync(captureDir, { recursive: true });
+        }
+    });
+
     it('rejects a physical edge whose mean does not converge to the declared screen background', () => {
         const { capture, reference: original } = band();
 
@@ -362,6 +489,15 @@ describe('edge-fade harness metrics', () => {
 
     it('checks the physical last row of the bottom edge', () => {
         const { capture, reference: original } = band();
+        fitBackgroundEdges(capture);
+
+        for (let y = HEIGHT - 9 * SCALE; y < HEIGHT - 4 * SCALE; y++) {
+            for (let x = Math.round(PATTERN_WIDTH * 0.34); x < PATTERN_WIDTH * 0.66; x++) {
+                capture.data.set([128, 128, 128, 255], (y * WIDTH + x) * 4);
+            }
+        }
+
+        assert.deepEqual(checkScrolledCapture(capture, original, SCREEN_BACKGROUND), []);
 
         for (let x = 0; x < PATTERN_WIDTH; x++) {
             capture.data.set([255, 255, 255, 255], ((HEIGHT - 1) * WIDTH + x) * 4);
@@ -377,6 +513,43 @@ describe('edge-fade harness metrics', () => {
         const { capture, reference: original } = band();
 
         assert.deepEqual(checkScrolledCapture(fitBackgroundEdges(capture), original, SCREEN_BACKGROUND), []);
+    });
+
+    it('accepts a home indicator artifact inside the bottom safe area', () => {
+        const { capture, reference: original } = band();
+        fitBackgroundEdges(capture);
+
+        for (let y = HEIGHT - 9 * SCALE; y < HEIGHT - 4 * SCALE; y++) {
+            for (let x = Math.round(PATTERN_WIDTH * 0.34); x < PATTERN_WIDTH * 0.66; x++) {
+                capture.data.set([128, 128, 128, 255], (y * WIDTH + x) * 4);
+            }
+        }
+
+        assert.deepEqual(checkScrolledCapture(capture, original, SCREEN_BACKGROUND), []);
+    });
+
+    it('keeps the full-width background check active above the bottom safe area', () => {
+        const { capture, reference: original } = band();
+        fitBackgroundEdges(capture);
+
+        for (let y = HEIGHT - 9 * SCALE; y < HEIGHT - 4 * SCALE; y++) {
+            for (let x = Math.round(PATTERN_WIDTH * 0.34); x < PATTERN_WIDTH * 0.66; x++) {
+                capture.data.set([128, 128, 128, 255], (y * WIDTH + x) * 4);
+            }
+        }
+
+        const rampTop = HEIGHT - BOTTOM_INSET - CHROME;
+
+        for (let y = rampTop - 40 * SCALE; y < rampTop - 20 * SCALE; y++) {
+            for (let x = Math.round(PATTERN_WIDTH * 0.2); x < PATTERN_WIDTH * 0.8; x++) {
+                capture.data.set([255, 255, 255, 255], (y * WIDTH + x) * 4);
+            }
+        }
+
+        assert.match(
+            checkScrolledCapture(capture, original, SCREEN_BACKGROUND).join('\n'),
+            /bottom background delta reverses/u
+        );
     });
 
     it('requires blur in the independent wash-free control capture', () => {
@@ -419,6 +592,25 @@ describe('edge-fade harness metrics', () => {
         assert.ok(!failures.some(failure => /bottom physical edge is/u.test(failure)));
     });
 
+    it('rejects a bottom ramp blur edge while a home indicator is present in the safe area', () => {
+        const { capture, reference: original } = band({ radius: progress => (progress < 0.5 ? RADIUS : 0) });
+        fitBackgroundEdges(capture);
+
+        for (let y = HEIGHT - 9 * SCALE; y < HEIGHT - 4 * SCALE; y++) {
+            for (let x = Math.round(PATTERN_WIDTH * 0.34); x < PATTERN_WIDTH * 0.66; x++) {
+                capture.data.set([128, 128, 128, 255], (y * WIDTH + x) * 4);
+            }
+        }
+
+        const failures = checkScrolledCapture(capture, original, SCREEN_BACKGROUND);
+
+        assert.ok(
+            failures.some(
+                failure => failure.startsWith('bottom:') && /visible blur edge|compressed blur transition/u.test(failure)
+            )
+        );
+    });
+
     it('rejects a slow background-distance reversal that never exceeds the adjacent-row limit', () => {
         const capture = slowBackgroundReversal();
         const original = reference();
@@ -447,7 +639,7 @@ describe('edge-fade harness metrics', () => {
             ['iOS', { height: 874, topInset: 62, bottomInset: 34 }],
             ['Android', { height: 640, topInset: 24, bottomInset: 24 }],
         ]) {
-            for (const offset of [200, 400]) {
+            for (const offset of [0, 200]) {
                 const witnessTop = temporalWitnessTopPoints(offset);
 
                 assert.ok(witnessTop > viewport.topInset + BAND / SCALE, `${platform} witness clears the top band`);
@@ -457,7 +649,7 @@ describe('edge-fade harness metrics', () => {
                 );
             }
 
-            assert.equal(temporalWitnessTopPoints(200) - temporalWitnessTopPoints(400), 200);
+            assert.equal(temporalWitnessTopPoints(0) - temporalWitnessTopPoints(200), 200);
         }
     });
 
@@ -501,9 +693,27 @@ describe('edge-fade harness metrics', () => {
         assert.deepEqual(checkTemporalFrames(frames, undefined, 5), []);
     });
 
-    it('ignores a system pill only in the top safe-area profile while keeping physical-edge checks', () => {
+    it('rejects a smooth full-band fade across the actual 0–80 point backdrop thresholds', () => {
+        const source = temporalBase();
+
+        assert.match(
+            checkTemporalFrames(fadedTemporalSequence(source, 61), undefined, 5).join('\n'),
+            /changes by .* across scroll offsets 0–80/u
+        );
+    });
+
+    it('requires recorded frames on both sides of the 0–80 point backdrop thresholds', () => {
+        const source = temporalBase();
+
+        assert.match(
+            checkTemporalFrames(temporalSequenceBetween(source, 61, 100, 300), undefined, 5).join('\n'),
+            /does not cover both sides of scroll offsets 0–80/u
+        );
+    });
+
+    it('ignores system and home indicators in safe-area profiles while keeping physical-edge checks', () => {
         const source = temporalFlatBackground([255, 255, 255]);
-        const frames = temporalSequence(source, 61).map(withSystemPill);
+        const frames = temporalSequence(source, 61).map(frame => withHomeIndicator(withSystemPill(frame)));
 
         assert.deepEqual(checkTemporalFrames(frames, [255, 255, 255], 5), []);
 
@@ -519,6 +729,19 @@ describe('edge-fade harness metrics', () => {
         });
 
         assert.match(checkTemporalFrames(brokenTopEdge, [255, 255, 255], 5).join('\n'), /top physical edge is/u);
+
+        const brokenBottomEdge = frames.map(frame => {
+            const image = new PNG({ width: frame.width, height: frame.height });
+            frame.data.copy(image.data);
+
+            for (let x = 0; x < image.width - 5; x++) {
+                image.data.set([80, 80, 80, 255], ((image.height - 1) * image.width + x) * 4);
+            }
+
+            return image;
+        });
+
+        assert.match(checkTemporalFrames(brokenBottomEdge, [255, 255, 255], 5).join('\n'), /bottom physical edge is/u);
     });
 
     it('rejects an isolated temporal band luminance spike', () => {
@@ -535,8 +758,10 @@ describe('edge-fade harness metrics', () => {
         const source = temporalBase();
         const frames = temporalSequence(source, 61);
         frames[30] = meanPreservingDetailFlash(frames[30]);
+        const failures = checkTemporalFrames(frames, undefined, 5).join('\n');
 
-        assert.match(checkTemporalFrames(frames, undefined, 5).join('\n'), /temporal band detail spike/u);
+        assert.match(failures, /temporal band detail spike/u);
+        assert.match(failures, /temporal band energy steps/u);
     });
 
     it('detects a one-frame 60 fps flash between the old 12 fps sample points', () => {

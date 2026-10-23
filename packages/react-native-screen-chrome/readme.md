@@ -333,7 +333,7 @@ native blur samples the content scrolling beneath the header.
 ```
 
 Every `EdgeFade` prop except `position` is forwarded, so `testID`, `style`, and `renderBand` reach the
-band; `height`, `chromeHeight` (default `headerHeight`) and `scrollAnimation` replace the header-derived defaults only when supplied:
+band; `height`, `chromeHeight` (default `collapsedHeaderHeight ?? headerHeight`) and `scrollAnimation` can be overridden:
 
 ```tsx
 <CollapsibleHeaderBackdrop testID="header-backdrop" renderBand={renderSolidBand} />
@@ -341,8 +341,10 @@ band; `height`, `chromeHeight` (default `headerHeight`) and `scrollAnimation` re
 
 ## CollapsibleHeaderBackdropPropsInterface
 
-`Omit<EdgeFadePropsInterface, 'position'>`: `height` defaults to `headerBackdropHeight`, and `scrollAnimation` defaults
-to opacity over `collapseStart`–`smallTitleStart` and blur intensity over `collapseStart`–`collapseEnd`.
+`Omit<EdgeFadePropsInterface, 'position'>`: `height` defaults to `headerBackdropHeight`, and the band remains visible
+with a static blur at `maxBlurIntensity` across header collapse unless an explicit `scrollAnimation` is supplied. An
+explicit `intensity` overrides that default. Its wash and blur ramp begin at the collapsed chrome edge, including the
+safe-area inset.
 
 ```tsx
 const backdropProps: CollapsibleHeaderBackdropPropsInterface = { testID: 'header-backdrop', height: 120 };

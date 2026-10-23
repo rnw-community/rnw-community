@@ -6,7 +6,7 @@ import type { ComponentProps } from 'react';
 
 const STRIPE_WIDTH = 3;
 const RULER_WIDTH = 6;
-const TEMPORAL_WITNESS_CONTENT_OFFSET = 620;
+const TEMPORAL_WITNESS_CONTENT_OFFSET = 430;
 const STRIPES = Array.from({ length: 80 }, (_, index) => index);
 const TEXT_ROWS = Array.from({ length: 40 }, (_, index) => index);
 

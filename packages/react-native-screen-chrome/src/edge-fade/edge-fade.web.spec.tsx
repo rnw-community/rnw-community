@@ -37,12 +37,16 @@ beforeEach(() => {
     mockScrollY.get.mockReturnValue(0);
 });
 
-const QUARTER_STOP = 0.25;
 const WEB_TOP_BAND = 86;
+const WEB_TOP_INSET = 10;
 const WEB_TOP_RADIUS = 22.5;
 const TALL_CHROME = 60;
+const QUARTER_FRACTION = 0.25;
+const HALF_FRACTION = 0.5;
+const THREE_QUARTER_FRACTION = 0.75;
+const MASK_STOP_FRACTIONS = [0, QUARTER_FRACTION, HALF_FRACTION, THREE_QUARTER_FRACTION, 1] as const;
 const TOP_EDGE_MASK =
-    'linear-gradient(to bottom, #000000 0%, rgba(0,0,0,0.56) 25%, rgba(0,0,0,0.25) 50%, rgba(0,0,0,0.06) 75%, transparent 100%)';
+    'linear-gradient(to bottom, #000000 11.6279%, rgba(0,0,0,0.56) 33.7209%, rgba(0,0,0,0.25) 55.814%, rgba(0,0,0,0.06) 77.907%, transparent 100%)';
 const TOP_WASH =
     'linear-gradient(to bottom, rgb(from rgba(255,255,255,0.42) r g b / 1) 0%, rgb(from rgba(255,255,255,0.08) r g b / 1) 100%)';
 
@@ -97,7 +101,7 @@ describe('EdgeFade web', () => {
             ...getWebEdgeFadeBlurLayers('top', WEB_TOP_RADIUS, WEB_TOP_BAND, (TALL_CHROME + 10) / WEB_TOP_BAND).map(
                 ({ maskImage }) => maskImage
             ),
-            TOP_EDGE_MASK,
+            'linear-gradient(to bottom, #000000 81.3953%, rgba(0,0,0,0.56) 86.0465%, rgba(0,0,0,0.25) 90.6977%, rgba(0,0,0,0.06) 95.3488%, transparent 100%)',
         ]);
     });
 
@@ -162,7 +166,9 @@ describe('EdgeFade web band renderer', () => {
                     SCREEN_CHROME_DEFAULT_CONFIG.colors.light.wash,
                 ],
                 maskColors: ['#000000', 'rgba(0,0,0,0.56)', 'rgba(0,0,0,0.25)', 'rgba(0,0,0,0.06)', 'transparent'],
-                maskLocations: [0, QUARTER_STOP, 0.5, 0.75, 1],
+                maskLocations: MASK_STOP_FRACTIONS.map(
+                    fraction => WEB_TOP_INSET / WEB_TOP_BAND + ((WEB_TOP_BAND - WEB_TOP_INSET) / WEB_TOP_BAND) * fraction
+                ),
             })
         );
         expect(fade).toHaveProp('aria-hidden', true);

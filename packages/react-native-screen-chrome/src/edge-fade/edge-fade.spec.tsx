@@ -18,7 +18,16 @@ import type { ReactTestInstance } from 'react-test-renderer';
 
 const TOP_INSET = 10;
 const BOTTOM_INSET = 30;
-const QUARTER_STOP = 0.25;
+const DEFAULT_BLUR_RADIUS = 22.5;
+const QUARTER_FRACTION = 0.25;
+const HALF_FRACTION = 0.5;
+const THREE_QUARTER_FRACTION = 0.75;
+const MASK_STOP_FRACTIONS = [0, QUARTER_FRACTION, HALF_FRACTION, THREE_QUARTER_FRACTION, 1] as const;
+const NATIVE_TOP_BAND_HEIGHT = 160;
+const NATIVE_TOP_MASK_LOCATIONS = MASK_STOP_FRACTIONS.map(
+    fraction =>
+        TOP_INSET / NATIVE_TOP_BAND_HEIGHT + ((NATIVE_TOP_BAND_HEIGHT - TOP_INSET) / NATIVE_TOP_BAND_HEIGHT) * fraction
+);
 const TOP_MASK_COLORS = ['#000000', 'rgba(0,0,0,0.56)', 'rgba(0,0,0,0.25)', 'rgba(0,0,0,0.06)', 'transparent'];
 const mockScrollY = { get: jest.fn(() => 0) };
 const mockConfig = SCREEN_CHROME_DEFAULT_CONFIG;
@@ -101,6 +110,17 @@ describe('EdgeFade native', () => {
         );
     });
 
+    it.each([0, 20, 40, 80])('keeps a default band visible at scroll offset %s', scrollOffset => {
+        expect.hasAssertions();
+
+        mockScrollY.get.mockReturnValue(scrollOffset);
+
+        const screen = render(<EdgeFade testID="persistent-fade" position="top" />);
+
+        expect(screen.getByTestId('persistent-fade', hidden)).not.toHaveStyle({ opacity: 0 });
+        expect(getBlurProps(screen).radius).toBe(DEFAULT_BLUR_RADIUS);
+    });
+
     it('fades the band and its blur by scroll while the blur radius stays at the maximum intensity', () => {
         expect.hasAssertions();
 
@@ -140,7 +160,7 @@ describe('EdgeFade native', () => {
             .findAll(node => typeof node.type === 'string' && isDefined(getStyle(node).experimental_backgroundImage));
 
         expect(getStyle(wash[0]).experimental_backgroundImage).toBe(
-            'linear-gradient(to bottom, rgba(255,255,255,1) 0%, rgba(255,255,255,0.561) 25%, rgba(255,255,255,0.251) 50%, rgba(255,255,255,0.059) 75%, rgba(255,255,255,0) 100%)'
+            'linear-gradient(to bottom, rgba(255,255,255,1) 0%, rgba(255,255,255,1) 6.25%, rgba(255,255,255,0.561) 29.6875%, rgba(255,255,255,0.251) 53.125%, rgba(255,255,255,0.059) 76.5625%, rgba(255,255,255,0) 100%)'
         );
     });
 });
@@ -159,7 +179,7 @@ describe('EdgeFade native band renderer', () => {
                 height: mockConfig.topFadeHeight + TOP_INSET,
                 washColors: [mockConfig.colors.light.solid, mockConfig.colors.light.wash],
                 maskColors: TOP_MASK_COLORS,
-                maskLocations: [0, QUARTER_STOP, 0.5, 0.75, 1],
+                maskLocations: NATIVE_TOP_MASK_LOCATIONS,
             })
         );
         expect(screen.getByTestId('custom-band', hidden)).toBeTruthy();

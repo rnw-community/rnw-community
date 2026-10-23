@@ -7,7 +7,7 @@ import { EdgeFade } from '../edge-fade/edge-fade';
 
 import { CollapsibleHeaderBackdrop } from './collapsible-header-backdrop';
 
-const mockConfig = SCREEN_CHROME_DEFAULT_CONFIG;
+let mockConfig = SCREEN_CHROME_DEFAULT_CONFIG;
 
 jest.mock('../edge-fade/edge-fade', () => ({ EdgeFade: jest.fn(() => null) }));
 jest.mock('../hooks/use-screen-chrome/use-screen-chrome.hook', () => ({
@@ -15,6 +15,7 @@ jest.mock('../hooks/use-screen-chrome/use-screen-chrome.hook', () => ({
 }));
 
 beforeEach(() => {
+    mockConfig = SCREEN_CHROME_DEFAULT_CONFIG;
     jest.mocked(EdgeFade).mockClear();
 });
 
@@ -27,11 +28,41 @@ describe('CollapsibleHeaderBackdrop', () => {
         expect(jest.mocked(EdgeFade).mock.calls[0][0]).toEqual({
             position: 'top',
             height: mockConfig.headerBackdropHeight,
+            chromeHeight: mockConfig.collapsedHeaderHeight ?? mockConfig.headerHeight,
+            intensity: mockConfig.maxBlurIntensity,
+            scrollAnimation: void 0,
+        });
+    });
+
+    it('uses the configured collapsed header height for its blur plateau', () => {
+        expect.hasAssertions();
+
+        mockConfig = { ...SCREEN_CHROME_DEFAULT_CONFIG, collapsedHeaderHeight: 32 };
+
+        render(<CollapsibleHeaderBackdrop />);
+
+        expect(jest.mocked(EdgeFade).mock.calls[0][0]).toEqual({
+            position: 'top',
+            height: mockConfig.headerBackdropHeight,
+            chromeHeight: 32,
+            intensity: mockConfig.maxBlurIntensity,
+            scrollAnimation: void 0,
+        });
+    });
+
+    it('uses maximum blur intensity by default when the band stays persistent', () => {
+        expect.hasAssertions();
+
+        mockConfig = { ...SCREEN_CHROME_DEFAULT_CONFIG, intensity: 30, maxBlurIntensity: 45 };
+
+        render(<CollapsibleHeaderBackdrop />);
+
+        expect(jest.mocked(EdgeFade).mock.calls[0][0]).toEqual({
+            position: 'top',
+            height: mockConfig.headerBackdropHeight,
             chromeHeight: mockConfig.headerHeight,
-            scrollAnimation: {
-                opacityInputRange: [mockConfig.collapseStart, mockConfig.smallTitleStart],
-                intensityInputRange: [mockConfig.collapseStart, mockConfig.collapseEnd],
-            },
+            intensity: 45,
+            scrollAnimation: void 0,
         });
     });
 

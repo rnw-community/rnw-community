@@ -12,8 +12,8 @@ import { scheduleOnRN } from 'react-native-worklets';
 import type Animated from 'react-native-reanimated';
 
 const SCROLLED_OFFSET = 200;
-const TEMPORAL_SCROLL_START = 200;
-const TEMPORAL_SCROLL_END = 400;
+const TEMPORAL_SCROLL_START = 0;
+const TEMPORAL_SCROLL_END = 200;
 const TEMPORAL_SCROLL_FRAMES = 300;
 const TEMPORAL_SCROLL_STEP = (TEMPORAL_SCROLL_END - TEMPORAL_SCROLL_START) / TEMPORAL_SCROLL_FRAMES;
 
@@ -57,11 +57,11 @@ export const useEdgeFadeScroll = (state: string, isScrolledState: boolean) => {
 
     useEffect(() => {
         temporalScrollActive.set(false);
-        const offset = isScrolledState ? SCROLLED_OFFSET : 0;
+        const offset = temporalPrepared || !isScrolledState ? TEMPORAL_SCROLL_START : SCROLLED_OFFSET;
 
         temporalScrollY.set(offset);
         scrollRef.current?.scrollTo({ y: offset, animated: false });
-    }, [state, isScrolledState, scrollRef, temporalScrollActive, temporalScrollY]);
+    }, [state, isScrolledState, scrollRef, temporalPrepared, temporalScrollActive, temporalScrollY]);
 
     const resetTemporalScroll = () => {
         setTemporalPrepared(false);

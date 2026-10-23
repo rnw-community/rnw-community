@@ -9,14 +9,26 @@ const toGradientTuple = <T>([first, second, ...rest]: readonly T[]): GradientTup
 export const getEdgeFadeVisuals = (
     position: EdgeFadePosition,
     colorScheme: ScreenChromeColorScheme,
-    config: ScreenChromeConfigInterface
+    config: ScreenChromeConfigInterface,
+    plateau = 0
 ) => {
     const colorSet = config.colors[colorScheme];
     const washColors: readonly [string, string] =
         position === 'top' ? [colorSet.solid, colorSet.wash] : [colorSet.wash, colorSet.solid];
     const maskStops = Object.entries(config.maskStops[position])
-        .map(([offset, { color }]) => ({ location: Number(offset), color }))
-        .sort((first, second) => first.location - second.location);
+        .map(([offset, { color }]) => {
+            const originalLocation = Number(offset);
+
+            return {
+                originalLocation,
+                color,
+            };
+        })
+        .sort((first, second) => first.originalLocation - second.originalLocation)
+        .map(({ originalLocation, color }) => ({
+            location: position === 'top' ? plateau + (1 - plateau) * originalLocation : (1 - plateau) * originalLocation,
+            color,
+        }));
 
     return {
         washColors,

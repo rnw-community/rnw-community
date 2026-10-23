@@ -27,19 +27,28 @@ export const THRESHOLDS = {
     temporalMinimumFrames: 60,
     temporalMinimumDurationSeconds: 4,
     temporalMinimumWitnessPoints: 100,
+    temporalBackdropRangePoints: 80,
+    temporalBackdropDriftMax: 0.15,
+    temporalRampStepMax: 0.15,
 };
 
 const BAND_HEIGHT = 128;
 const CHROME_HEIGHT = 32;
+const DEFAULT_RAMP_POINTS = BAND_HEIGHT - CHROME_HEIGHT;
+const TEMPORAL_SCROLL_END_POINTS = 200;
 const TEXT_LINE_HEIGHT = 24;
 const RULER_POINTS = 6;
 const PATTERN_MARGIN_POINTS = 14;
 const BACKGROUND_SAMPLE_INSET_POINTS = 12;
-const TOP_SAFE_AREA_SIDE_SAMPLE_FRACTION = 0.3;
+const SAFE_AREA_SIDE_SAMPLE_FRACTION = 0.3;
 const TEMPORAL_WITNESS_X_START_POINTS = 12;
 const TEMPORAL_WITNESS_X_END_POINTS = 42;
 const TEMPORAL_WITNESS_GREEN_MIN = 180;
 const GOLDEN_WIDTH = 200;
+const COMPACT_PREFIX = 'compact-';
+const COMPACT_RAMP_POINTS = 24;
+const COMPACT_CELLS = ['dark-dark'];
+const COMPACT_WASH_BLUR_MISMATCH_MAX = 0.35;
 const SCREEN_BACKGROUNDS = {
     dark: [16, 16, 16],
     light: [255, 255, 255],
@@ -52,7 +61,7 @@ const TEMPORAL_CELLS = ['dark', 'light'].flatMap(scheme =>
 const isColor = (data, index, [red, green, blue]) =>
     Math.abs(data[index] - red) < 60 && Math.abs(data[index + 1] - green) < 60 && Math.abs(data[index + 2] - blue) < 60;
 
-const readRuler = ({ width, height, data }) => {
+const readRuler = ({ width, height, data }, rampPoints = DEFAULT_RAMP_POINTS) => {
     const column = width - 2;
     const kinds = Array.from({ length: height }, (_, row) => {
         const index = (row * width + column) * 4;
@@ -67,7 +76,7 @@ const readRuler = ({ width, height, data }) => {
     const topBandEnd = kinds.indexOf('content', topChromeEnd);
     const bottomChromeStart = kinds.lastIndexOf('ramp') + 1;
     const bottomBandStart = kinds.lastIndexOf('content', bottomChromeStart) + 1;
-    const scale = (topBandEnd - topChromeEnd) / (BAND_HEIGHT - CHROME_HEIGHT);
+    const scale = (topBandEnd - topChromeEnd) / rampPoints;
 
     if (topChromeEnd <= 0 || bottomChromeStart >= height || !(scale > 0)) {
         throw new Error('the geometry ruler is missing from the capture');
@@ -101,10 +110,10 @@ const rowStats = ({ width, data }, row, patternWidth) => {
     return { energy: energy / (patternWidth - 2), mean: sums.map(sum => sum / patternWidth) };
 };
 
-const profile = (capture, reference, rows, patternWidth) => {
+const profile = (capture, reference, rows, { patternWidth, scale, washWindowPoints = TEXT_LINE_HEIGHT }) => {
     const captured = rows.map(row => rowStats(capture, row, patternWidth));
     const original = rows.map(row => rowStats(reference, row, patternWidth));
-    const window = Math.round(TEXT_LINE_HEIGHT * readRuler(reference).scale);
+    const window = Math.round(washWindowPoints * scale);
     const washes = [0, 1, 2].map(channel => {
         const capturedMeans = smooth(
             captured.map(row => row.mean[channel]),
@@ -149,7 +158,7 @@ const rowColorStats = ({ width, data }, row, from, to, step = 1) => {
 };
 
 const rowSideColor = ({ width, data }, row, patternWidth, step) => {
-    const sideWidth = Math.floor(patternWidth * TOP_SAFE_AREA_SIDE_SAMPLE_FRACTION);
+    const sideWidth = Math.floor(patternWidth * SAFE_AREA_SIDE_SAMPLE_FRACTION);
     const sums = [0, 0, 0];
     let count = 0;
 
@@ -181,7 +190,9 @@ export const checkBackgroundMetadata = (reference, background, scale) => {
 };
 
 const checkScreenBackground = (capture, background, geometry, name, sampleStep = 1, topSafeAreaRows = 0) => {
-    const { topBandEnd, bottomBandStart, scale, patternWidth } = geometry;
+    const { topBandEnd, bottomBandStart, bottomChromeStart, scale, patternWidth } = geometry;
+    const bottomSafeAreaRows = Math.max(0, Math.round(capture.height - bottomChromeStart - CHROME_HEIGHT * scale));
+    const bottomSafeAreaStart = capture.height - bottomSafeAreaRows;
     const textLineWindow = Math.max(1, Math.round((TEXT_LINE_HEIGHT * scale) / sampleStep));
     const edgeRows = [
         { name: 'top', rows: [...range(0, topBandEnd, sampleStep), topBandEnd - 1] },
@@ -195,10 +206,10 @@ const checkScreenBackground = (capture, background, geometry, name, sampleStep =
         const edgeDistance = colorDistance(outer.color, background);
         const distances = smooth(
             edge.rows.map(row => {
-                const color =
-                    edge.name === 'top' && row < topSafeAreaRows
-                        ? rowSideColor(capture, row, patternWidth, sampleStep)
-                        : rowColorStats(capture, row, 0, patternWidth, sampleStep).color;
+                const isSafeAreaRow = edge.name === 'top' ? row < topSafeAreaRows : row >= bottomSafeAreaStart;
+                const color = isSafeAreaRow
+                    ? rowSideColor(capture, row, patternWidth, sampleStep)
+                    : rowColorStats(capture, row, 0, patternWidth, sampleStep).color;
 
                 return colorDistance(color, background);
             }),
@@ -287,28 +298,28 @@ const checkBand = (name, chrome, ramp, scale, failures) => {
 const resample = (values, length) =>
     Array.from({ length }, (_, index) => values[Math.floor((index * values.length) / length)]);
 
-export const checkScrolledCapture = (capture, reference, background) => {
+export const checkScrolledCapture = (capture, reference, background, rampPoints) => {
     if (capture.width !== reference.width || capture.height !== reference.height) {
         return ['capture size differs from the reference'];
     }
 
     const failures = [];
-    const geometry = readRuler(reference);
-    const { topChromeEnd, topBandEnd, bottomBandStart, bottomChromeStart, scale, patternWidth } = geometry;
+    const geometry = readRuler(reference, rampPoints);
+    const { topChromeEnd, topBandEnd, bottomBandStart, bottomChromeStart, scale } = geometry;
     if (background) {
         failures.push(...checkScreenBackground(capture, background, geometry, 'scrolled capture'));
     }
     const topRamp = checkBand(
         'top',
-        profile(capture, reference, range(0, topChromeEnd), patternWidth),
-        profile(capture, reference, range(topChromeEnd, topBandEnd), patternWidth),
+        profile(capture, reference, range(0, topChromeEnd), geometry),
+        profile(capture, reference, range(topChromeEnd, topBandEnd), geometry),
         scale,
         failures
     );
     const bottomRamp = checkBand(
         'bottom',
-        profile(capture, reference, range(bottomChromeStart, capture.height).reverse(), patternWidth),
-        profile(capture, reference, range(bottomBandStart, bottomChromeStart).reverse(), patternWidth),
+        profile(capture, reference, range(bottomChromeStart, capture.height).reverse(), geometry),
+        profile(capture, reference, range(bottomBandStart, bottomChromeStart).reverse(), geometry),
         scale,
         failures
     );
@@ -316,7 +327,7 @@ export const checkScrolledCapture = (capture, reference, background) => {
         capture,
         reference,
         range(topBandEnd + Math.round(4 * scale), bottomBandStart - Math.round(4 * scale)),
-        patternWidth
+        geometry
     );
     const length = Math.min(topRamp.length, bottomRamp.length);
     const asymmetry = Math.max(
@@ -336,14 +347,15 @@ export const checkScrolledCapture = (capture, reference, background) => {
     return failures;
 };
 
-export const checkBlurOnlyCapture = (capture, reference) => checkScrolledCapture(capture, reference);
+export const checkBlurOnlyCapture = (capture, reference, rampPoints) =>
+    checkScrolledCapture(capture, reference, undefined, rampPoints);
 
-export const checkRestCapture = (capture, reference) => {
+export const checkRestCapture = (capture, reference, rampPoints) => {
     if (capture.width !== reference.width || capture.height !== reference.height) {
         return ['capture size differs from the reference'];
     }
 
-    const { patternWidth } = readRuler(reference);
+    const { patternWidth } = readRuler(reference, rampPoints);
     const worstRow = Math.max(
         ...range(0, capture.height).map(row => {
             const difference = [0, 0, 0];
@@ -449,9 +461,14 @@ const checkTemporalSummaries = (summaries, durationSeconds, scale) => {
         return ['temporal frame size differs from the first frame'];
     }
 
-    const failures = summaries.flatMap(summary => summary.backgroundFailures);
     const firstWitness = summaries[0].witness;
     const lastWitness = summaries.at(-1).witness;
+    const offsets = summaries.map(({ witness }) =>
+        witness === undefined || lastWitness === undefined
+            ? undefined
+            : TEMPORAL_SCROLL_END_POINTS - (witness - lastWitness) / scale
+    );
+    const failures = summaries.flatMap(summary => summary.backgroundFailures);
 
     if (firstWitness === undefined || lastWitness === undefined) {
         failures.push('temporal capture is missing the visible scroll witness');
@@ -487,17 +504,55 @@ const checkTemporalSummaries = (summaries, durationSeconds, scale) => {
         if (detailSpike >= 0) {
             failures.push(`${edgeName} temporal band detail spike at frame ${detailSpike}`);
         }
+        const inBackdropRange = offsets
+            .map((offset, index) => ({ offset, ...signal[index] }))
+            .filter(({ offset }) => offset !== undefined && offset >= 0 && offset <= THRESHOLDS.temporalBackdropRangePoints);
+        const startRange = inBackdropRange
+            .filter(({ offset }) => offset <= 8)
+            .map(({ detail, luminance }) => ({ detail, luminance }));
+        const endRange = inBackdropRange
+            .filter(({ offset }) => offset >= THRESHOLDS.temporalBackdropRangePoints - 8)
+            .map(({ detail, luminance }) => ({ detail, luminance }));
+
+        if (startRange.length === 0 || endRange.length === 0) {
+            failures.push(`${edgeName} temporal recording does not cover both sides of scroll offsets 0–80`);
+            continue;
+        }
+
+        const startDetail = median(startRange.map(({ detail }) => detail));
+        const endDetail = median(endRange.map(({ detail }) => detail));
+        const startLuminance = median(startRange.map(({ luminance }) => luminance));
+        const endLuminance = median(endRange.map(({ luminance }) => luminance));
+        const detailDrift = Math.abs(endDetail - startDetail) / Math.max(startDetail, 1);
+        const luminanceDrift = Math.abs(endLuminance - startLuminance) / 255;
+
+        if (inBackdropRange.length > 1 && Math.max(detailDrift, luminanceDrift) > THRESHOLDS.temporalBackdropDriftMax) {
+            failures.push(
+                `${edgeName} backdrop changes by ${Math.max(detailDrift, luminanceDrift).toFixed(2)} across scroll offsets 0–80`
+            );
+        }
+
+        const settledDetail = typicalDetail;
+        const detailStep = Math.max(
+            ...signal
+                .slice(1)
+                .map(({ detail }, index) => Math.abs(detail - signal[index].detail) / Math.max(settledDetail, 1))
+        );
+
+        if (detailStep > THRESHOLDS.temporalRampStepMax) {
+            failures.push(`${edgeName} temporal band energy steps by ${detailStep.toFixed(2)} in one frame`);
+        }
     }
 
     return failures;
 };
 
-export const checkTemporalFrames = (frames, background, durationSeconds) => {
+export const checkTemporalFrames = (frames, background, durationSeconds, rampPoints) => {
     if (frames.length === 0) {
         return [`temporal capture requires at least ${THRESHOLDS.temporalMinimumFrames} frames`];
     }
 
-    const geometry = readRuler(frames[0]);
+    const geometry = readRuler(frames[0], rampPoints);
     const summaries = frames.map((frame, frameIndex) => summarizeTemporalFrame(frame, geometry, background, frameIndex));
 
     return checkTemporalSummaries(summaries, durationSeconds, geometry.scale);
@@ -583,10 +638,62 @@ const checkGolden = (name, capture, baselineDir, update) => {
         : [];
 };
 
+export const checkCompactCaptureDir = captureDir => {
+    const read = name => PNG.sync.read(readFileSync(join(captureDir, `${COMPACT_PREFIX}${name}.png`)));
+    const missing = COMPACT_CELLS.filter(
+        cell =>
+            !['reference', 'scrolled', 'blur-only'].every(state =>
+                existsSync(join(captureDir, `${COMPACT_PREFIX}${cell}-${state}.png`))
+            )
+    );
+
+    if (missing.length > 0) {
+        return [`compact band captures are missing for ${missing.join(', ')}`];
+    }
+
+    return COMPACT_CELLS.flatMap(cell => {
+        const reference = read(`${cell}-reference`);
+        const scrolled = read(`${cell}-scrolled`);
+        const blurOnly = read(`${cell}-blur-only`);
+        const background = SCREEN_BACKGROUNDS[cell.split('-')[1]];
+        const geometry = readRuler(reference, COMPACT_RAMP_POINTS);
+        const pairedRampFailures = ['top', 'bottom'].flatMap((edgeName, edgeIndex) => {
+            const rows =
+                edgeIndex === 0
+                    ? range(geometry.topChromeEnd, geometry.topBandEnd)
+                    : range(geometry.bottomBandStart, geometry.bottomChromeStart).reverse();
+            const washedSamples = profile(scrolled, blurOnly, rows, { ...geometry, washWindowPoints: 2 });
+            const blurSamples = profile(blurOnly, reference, rows, geometry);
+            const blurProgress = blurSamples.map(({ energy }) => Math.min(1, Math.max(0, Math.sqrt(energy))));
+            const washProgress = washedSamples.map(({ averageWash }) => {
+                const first = washedSamples[0].averageWash;
+                const last = washedSamples.at(-1).averageWash;
+
+                return Math.min(1, Math.max(0, (first - averageWash) / Math.max(1, first - last)));
+            });
+            const mismatch = Math.max(...blurProgress.map((value, index) => Math.abs(value - washProgress[index])));
+
+            return mismatch > COMPACT_WASH_BLUR_MISMATCH_MAX
+                ? [`compact ${cell} ${edgeName}: wash and blur ramp differ by ${mismatch.toFixed(2)} of their range`]
+                : [];
+        });
+
+        return [
+            ...checkScrolledCapture(scrolled, reference, background, COMPACT_RAMP_POINTS).map(
+                failure => `compact ${cell} scrolled: ${failure}`
+            ),
+            ...pairedRampFailures,
+            ...checkBlurOnlyCapture(blurOnly, reference, COMPACT_RAMP_POINTS).map(
+                failure => `compact ${cell} blur-only: ${failure}`
+            ),
+        ];
+    });
+};
+
 export const checkCaptureDir = (captureDir, baselineDir, update = false) => {
     const read = name => PNG.sync.read(readFileSync(join(captureDir, `${name}.png`)));
     const cells = readdirSync(captureDir)
-        .filter(file => file.endsWith('-reference.png'))
+        .filter(file => file.endsWith('-reference.png') && !file.startsWith(COMPACT_PREFIX))
         .map(file => file.replace('-reference.png', ''));
 
     const expectedCells = ['dark', 'light'].flatMap(scheme =>
@@ -621,6 +728,7 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
     const [captureDir, baselineDir] = process.argv.slice(2);
     const failures = [
         ...checkCaptureDir(captureDir, baselineDir, process.argv.includes('--update')),
+        ...checkCompactCaptureDir(captureDir),
         ...checkTemporalCaptureDir(join(captureDir, 'temporal')),
     ];
 

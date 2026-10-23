@@ -38,3 +38,55 @@ test('renders the edge-fade matrix with a measured progressive blur and no hard 
         )
     ).toEqual([]);
 });
+
+test('keeps a compact 56-point band smooth, contained, and unchanged outside its bounds', async ({ page }, { project }) => {
+    const captureDir = join(CACHE_DIR, `edge-fade-${project.name}`);
+
+    await page.goto(pathToFileURL(join(CACHE_DIR, 'matrix.html')).href);
+    await page.getByTestId('edge-fade-harness-compact').click();
+    await page.screenshot({ path: join(captureDir, 'compact-dark-dark-reference.png') });
+    await page.getByTestId('edge-fade-harness-state').click();
+    await page.getByTestId('edge-fade-harness-state').click();
+    await page.screenshot({ path: join(captureDir, 'compact-dark-dark-scrolled.png') });
+    await page.getByTestId('edge-fade-harness-state').click();
+    await page.screenshot({ path: join(captureDir, 'compact-dark-dark-blur-only.png') });
+
+    const { checkCompactCaptureDir } =
+        await import('../../react-native-screen-chrome-example/e2e/harness/edge-fade-metrics.mjs');
+
+    expect(checkCompactCaptureDir(captureDir)).toEqual([]);
+});
+
+test('keeps the header blur and wash visible throughout the 0–80 point scroll thresholds', async ({ page }) => {
+    await page.goto(pathToFileURL(join(CACHE_DIR, 'matrix.html')).href);
+    await page.getByTestId('edge-fade-harness-temporal-prepare').click();
+
+    const backdrop = page.getByTestId('edge-fade-harness-temporal-backdrop');
+    const visualLayers = backdrop.locator(':scope > div');
+
+    await expect(backdrop).toBeVisible();
+    await expect(visualLayers).toHaveCount(2);
+
+    for (const offset of [0, 20, 40, 60, 80]) {
+        await page.getByTestId('edge-fade-harness').evaluate((content, scrollOffset) => {
+            let scrollable = content.parentElement;
+
+            while (scrollable !== null && scrollable.scrollHeight <= scrollable.clientHeight) {
+                scrollable = scrollable.parentElement;
+            }
+
+            if (scrollable === null) {
+                throw new Error('the harness scroll container is missing');
+            }
+
+            scrollable.scrollTop = scrollOffset;
+        }, offset);
+        await page.waitForTimeout(50);
+
+        const opacities = await visualLayers.evaluateAll(elements =>
+            elements.map(element => Number(getComputedStyle(element).opacity))
+        );
+
+        expect(opacities, `blur and wash remain visible at scroll offset ${offset}`).toEqual([1, 1]);
+    }
+});
