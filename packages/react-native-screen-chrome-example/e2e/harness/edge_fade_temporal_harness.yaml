@@ -1,0 +1,105 @@
+appId: ${APP_ID}
+---
+- runFlow: ../subflows/launch_home.yaml
+- tapOn:
+      id: 'home-open-edge-fade'
+- extendedWaitUntil:
+      visible:
+          id: 'edge-fade-harness-temporal-prepare'
+      timeout: 15000
+- tapOn:
+      id: 'edge-fade-harness-temporal-prepare'
+- extendedWaitUntil:
+      visible:
+          id: 'edge-fade-harness-temporal-witness'
+      timeout: 5000
+- waitForAnimationToEnd
+- startRecording: temporal-dark-dark
+- tapOn:
+      id: 'edge-fade-harness-temporal'
+- waitForAnimationToEnd:
+      timeout: 8000
+- stopRecording
+- tapOn:
+      id: 'edge-fade-harness-background'
+- waitForAnimationToEnd
+- tapOn:
+      id: 'edge-fade-harness-temporal-prepare'
+- extendedWaitUntil:
+      visible:
+          id: 'edge-fade-harness-temporal-witness'
+      timeout: 5000
+- waitForAnimationToEnd
+- startRecording: temporal-dark-light
+- tapOn:
+      id: 'edge-fade-harness-temporal'
+- waitForAnimationToEnd:
+      timeout: 8000
+- stopRecording
+- tapOn:
+      id: 'edge-fade-harness-background'
+- waitForAnimationToEnd
+- tapOn:
+      id: 'edge-fade-harness-temporal-prepare'
+- extendedWaitUntil:
+      visible:
+          id: 'edge-fade-harness-temporal-witness'
+      timeout: 5000
+- waitForAnimationToEnd
+- startRecording: temporal-dark-vivid
+- tapOn:
+      id: 'edge-fade-harness-temporal'
+- waitForAnimationToEnd:
+      timeout: 8000
+- stopRecording
+- tapOn:
+      id: 'edge-fade-harness-scheme'
+- waitForAnimationToEnd
+- tapOn:
+      id: 'edge-fade-harness-background'
+- waitForAnimationToEnd
+- tapOn:
+      id: 'edge-fade-harness-temporal-prepare'
+- extendedWaitUntil:
+      visible:
+          id: 'edge-fade-harness-temporal-witness'
+      timeout: 5000
+- waitForAnimationToEnd
+- startRecording: temporal-light-dark
+- tapOn:
+      id: 'edge-fade-harness-temporal'
+- waitForAnimationToEnd:
+      timeout: 8000
+- stopRecording
+- tapOn:
+      id: 'edge-fade-harness-background'
+- waitForAnimationToEnd
+- tapOn:
+      id: 'edge-fade-harness-temporal-prepare'
+- extendedWaitUntil:
+      visible:
+          id: 'edge-fade-harness-temporal-witness'
+      timeout: 5000
+- waitForAnimationToEnd
+- startRecording: temporal-light-light
+- tapOn:
+      id: 'edge-fade-harness-temporal'
+- waitForAnimationToEnd:
+      timeout: 8000
+- stopRecording
+- tapOn:
+      id: 'edge-fade-harness-background'
+- waitForAnimationToEnd
+- tapOn:
+      id: 'edge-fade-harness-temporal-prepare'
+- extendedWaitUntil:
+      visible:
+          id: 'edge-fade-harness-temporal-witness'
+      timeout: 5000
+- waitForAnimationToEnd
+- startRecording: temporal-light-vivid
+- tapOn:
+      id: 'edge-fade-harness-temporal'
+- waitForAnimationToEnd:
+      timeout: 8000
+- stopRecording

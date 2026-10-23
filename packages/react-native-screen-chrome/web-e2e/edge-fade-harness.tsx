@@ -18,7 +18,10 @@ const SAFE_AREA_METRICS = {
     frame: { x: 0, y: 0, width: 400, height: 600 },
     insets: { top: 0, right: 0, bottom: 0, left: 0 },
 };
+const SCREEN_BACKGROUND_COLOR = 'var(--screen-background)';
 const CONTENT_LINES = Array.from({ length: 40 }, (_, index) => `Scrolled content line ${index + 1}`);
+
+document.documentElement.style.setProperty('--screen-background', '#ffffff');
 
 const styles = StyleSheet.create({
     screen: { width: 400, height: 600, overflow: 'hidden', backgroundColor: '#ffffff' },
@@ -40,7 +43,11 @@ const Harness = (): ReactNode => {
 
     return (
         <SafeAreaProvider initialMetrics={SAFE_AREA_METRICS}>
-            <ScreenChromeProvider scrollY={scrollY}>
+            <ScreenChromeProvider
+                colorScheme="light"
+                config={{ colors: { light: { solid: SCREEN_BACKGROUND_COLOR, wash: SCREEN_BACKGROUND_COLOR } } }}
+                scrollY={scrollY}
+            >
                 <View testID="screen" style={styles.screen}>
                     <View testID="stripes" style={styles.stripes} />
                     {CONTENT_LINES.map(line => (

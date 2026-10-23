@@ -352,8 +352,8 @@ const backdropProps: CollapsibleHeaderBackdropPropsInterface = { testID: 'header
 
 Every band starts at the screen edge and covers the safe-area inset plus its configured height. A native band holds
 its full blur radius behind the chrome it sits under (the inset plus `chromeHeight`), easing the radius to zero on
-iOS and the blur opacity to zero on Android; web cross-fades four fixed-radius layers. The blur sits under a color wash that eases from
-solid at the edge to transparent inward. Bands ignore pointer events and accessibility traversal, and scroll animation
+iOS and the blur opacity to zero on Android; web cross-fades four fixed-radius layers. The blur sits under a color wash that is fully
+opaque at the screen edge and eases to transparent inward along the `maskStops` alpha. Bands ignore pointer events and accessibility traversal, and scroll animation
 changes opacity while the radii stay static. Native defaults use 150-point top and bottom bands, while web defaults use
 76-pixel bands.
 
@@ -1163,7 +1163,9 @@ value stays `'light' | 'dark'`. A fixed value ignores the device appearance enti
 
 ## ScreenChromeColorSetInterface
 
-Defines the solid and translucent wash colors used by a chrome color scheme.
+Defines the wash colors used by a chrome color scheme. Only the RGB of each color is used: `solid` is the color at the screen edge and
+should equal the screen background, `wash` is the color blended toward the inner edge, and the `maskStops` alpha alone sets the opacity,
+so the edge is fully opaque and any color alpha is ignored.
 
 ```ts
 const lightColors: ScreenChromeColorSetInterface = { solid: 'rgba(255,255,255,0.42)', wash: 'rgba(255,255,255,0.08)' };

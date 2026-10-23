@@ -140,7 +140,7 @@ describe('EdgeFade native', () => {
             .findAll(node => typeof node.type === 'string' && isDefined(getStyle(node).experimental_backgroundImage));
 
         expect(getStyle(wash[0]).experimental_backgroundImage).toBe(
-            'linear-gradient(to bottom, rgba(255,255,255,0.42) 0%, rgba(255,255,255,0.187) 25%, rgba(255,255,255,0.062) 50%, rgba(255,255,255,0.01) 75%, rgba(255,255,255,0) 100%)'
+            'linear-gradient(to bottom, rgba(255,255,255,1) 0%, rgba(255,255,255,0.561) 25%, rgba(255,255,255,0.251) 50%, rgba(255,255,255,0.059) 75%, rgba(255,255,255,0) 100%)'
         );
     });
 });

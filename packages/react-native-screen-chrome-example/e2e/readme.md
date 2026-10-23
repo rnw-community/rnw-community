@@ -37,7 +37,11 @@ Or directly: `maestro test -e APP_ID=<appId> e2e/flows`.
   composer footer rides above the keyboard.
 - `flows/theme_switches_scheme.yaml` — the header toggle flips the provider color scheme to dark and back.
 - `harness/edge_fade_harness.yaml` — the edge-fade regression harness: captures every scheme × background × state of
-  the edge-fade screen for `harness/edge-fade-metrics.mjs` (see the screen chrome package `AGENTS.md`).
+  the edge-fade screen for `harness/edge-fade-metrics.mjs`, including an independent wash-free blur-only control.
+- `harness/edge_fade_temporal_harness.yaml` — records six bounded programmatic ScrollView traversals, one per scheme ×
+  background. It prepares the real ScrollView at offset 200 before recording, then scrolls 200→400 while a visible
+  content witness moves. CI preserves every decoded MP4 frame, records the clip duration, and checks edge, luminance,
+  contrast, frame-count, duration, and measured-scroll gates.
 - `subflows/launch_home.yaml` — shared launch + first-frame wait on the demo picker.
 - `subflows/launch_collapsible_demo.yaml` — opens the collapsible-header screen and waits for its first frame.
 - `subflows/collapse_then_expand.yaml` — collapses a demo collapsible header and scrolls back until it expands,

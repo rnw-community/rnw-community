@@ -161,9 +161,15 @@ for (const position of ['top', 'bottom'] as const) {
             expect(wash.backdropFilter).toBe('none');
             expect(wash.backgroundImage).toBe(
                 position === 'top'
-                    ? 'linear-gradient(rgba(255, 255, 255, 0.42) 0%, rgba(255, 255, 255, 0.08) 72%, rgba(0, 0, 0, 0) 100%)'
-                    : 'linear-gradient(rgba(0, 0, 0, 0) 0%, rgba(255, 255, 255, 0.08) 28%, rgba(255, 255, 255, 0.42) 100%)'
+                    ? 'linear-gradient(color(srgb 1 1 1) 0%, color(srgb 1 1 1) 100%)'
+                    : 'linear-gradient(color(srgb 1 1 1) 0%, color(srgb 1 1 1) 100%)'
             );
+        });
+
+        test('resolves the rendered CSS variable to an opaque wash color', async ({ page }) => {
+            const { layers } = await readBand(page, position);
+
+            expect(layers.at(-1)?.backgroundImage).toBe('linear-gradient(color(srgb 1 1 1) 0%, color(srgb 1 1 1) 100%)');
         });
 
         test('keeps every ancestor free of opacity, filter, and mask so the blurs sample the page', async ({ page }) => {

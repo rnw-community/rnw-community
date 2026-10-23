@@ -131,7 +131,9 @@ pnpm test && pnpm test:coverage && pnpm build && pnpm ts && pnpm ts:nodenext && 
   _identity_ is behavior — a merged ref callback that React 19 would otherwise detach, clean up, and reattach
   on every render — must be manually memoized; nothing else memoizes them today.
 - Native `EdgeFade` is the native blur view under a wash `View` whose `experimental_backgroundImage`
-  (`buildNativeWashImage`) multiplies the wash gradient by the `maskStops` alpha at each stop; nothing is masked,
+  (`buildNativeWashImage`) blends the RGB of the two wash colors and takes each stop's alpha from the `maskStops` alone, so the
+  edge is fully opaque whatever alpha the configured colors carry (a translucent edge leaves blurred content visible; web
+  `buildBackgroundImage` does the same with opaque `rgb()` colors); nothing is masked,
   because a mask on a superview of a `UIVisualEffectView` stops the blur rendering. The view holds the full radius
   (`plateau`, from `getEdgeFadeChromePlateau`) only behind the chrome itself, the safe-area inset plus `chromeHeight`,
   then eases to zero at the inner edge (Core Animation `variableBlur` with a cubic mask on iOS; a QmBlurView eased out
@@ -142,24 +144,25 @@ pnpm test && pnpm test:coverage && pnpm build && pnpm ts && pnpm ts:nodenext && 
   the regression gate for the look on every platform. Additional visuals belong in a consumer
   `renderBand`/`renderEdgeFadeBand`, never in the package default.
 - The edge-fade harness is the regression gate for the blur look on every platform. The example's
-  `EdgeFadeDemoScreen` renders a fixed 3-point stripe and text pattern with both bands (`height` 128, `chromeHeight` 32) at a fixed scroll offset, and a ruler column marking the chrome and ramp rows. Its Scheme, Background (dark,
-  light, vivid) and State (reference without bands, rest, scrolled) controls are driven by
-  `e2e/harness/edge_fade_harness.yaml` on iOS and Android (required `Edge-fade harness (iOS|Android)` jobs) and by
-  `web-e2e/edge-fade-matrix.e2e.ts` in Chromium (headless Linux WebKit renders no `backdrop-filter`, so it is not a
-  lane). One script, `e2e/harness/edge-fade-metrics.mjs`, measures each capture against its reference: per-row
-  Laplacian energy and mean color. Tint-slab measurements average row colors over the 24-point text-line interval
-  before comparing them, so vertical text blur is not mistaken for tint; inner-edge and outside checks keep raw row means; rest checks use absolute pixel differences
-  and cannot miss a mean-preserving blur. Thresholds (`THRESHOLDS`, the only place they live): chrome zone keeps at most
-  0.2 of the reference detail; the ramp returns to at least 0.8 by its inner edge, never loses more than 0.12 on the
-  way and rises at most 0.165 per point (iOS measures 0.137 for the 96-point ramp and 0.218 for the old half-band
-  plateau); content outside the bands keeps at least 0.85; the wash shifts the row mean by at most 120 levels and at
-  most 6 at the inner edge (3 outside); top and bottom ramps differ by at most 0.25; at rest no row differs from the
-  reference by more than 2 levels; downscaled goldens (`e2e/harness/baselines/<platform>`) differ in at most 3% of
-  pixels. `edge-fade-metrics.test.mjs` proves the checks fail for a blur that never renders (inside a `MaskedView`),
-  four stepped slices, a half-band plateau, a wash ending in a hard edge and a band visible at rest. To update the
-  goldens after an intended visual change, run the metric script with `--update` on the CI captures (the
-  `maestro-*-screen-chrome-harness-*` artifacts' `edge-fade` folder) or `UPDATE_EDGE_FADE_BASELINES=1 pnpm test:web`,
-  and commit the PNGs with the change.
+  `EdgeFadeDemoScreen` renders both bands (`height` 128, `chromeHeight` 32), fixed 3-point stripes and text, and a ruler
+  column marking chrome and ramp rows. Every scheme/background cell explicitly configures the provider's solid and wash
+  RGB to match its dark, light or vivid screen background. `e2e/harness/edge_fade_harness.yaml` drives the unchanged
+  reference/rest/scrolled state matrix on iOS and Android; `web-e2e/edge-fade-matrix.e2e.ts` drives the same static
+  matrix in Chromium (headless Linux WebKit renders no `backdrop-filter`).
+- `e2e/harness/edge-fade-metrics.mjs` measures Laplacian energy, row color, known-background edge mean/variance, and the
+  background-distance profile smoothed over one 24-point text line before running a maximum reversal check from the
+  physical screen edge inward. Direct edge variance still catches texture on the physical last row when its mean is
+  within threshold. Rest checks use absolute pixel differences and cannot miss mean-preserving blur. Thresholds live in
+  `THRESHOLDS`: chrome zone keeps at most 0.2 of reference detail; the ramp returns to at least 0.8, loses at most 0.12,
+  and rises at most 0.165 per point; outside content keeps at least 0.85; wash shifts at most 6 levels at the inner edge
+  and 3 outside; physical-edge mean is within 10 levels of the known background and deviation within 8; top/bottom
+  ramps differ at most 0.25; rest differs at most 2 levels. A separate `edge_fade_temporal_harness.yaml` scrolls a real
+  native `ScrollView` from 200 to 400 over five seconds with invariant vertical stripes, records six scheme/background
+  cells, and CI extracts frames at 12fps before the native metric CLI checks band spikes and background edges. The web
+  matrix imports only `checkCaptureDir` and does not require temporal artifacts. Synthetic mutations cover missing
+  blur, stepped slices, compressed ramp, wrong/missing background, physical-last-row texture, slow profile reversal,
+  temporal spike, hard wash edge, and visible-at-rest bands. Keep baseline PNGs unchanged until a parent has inspected
+  the CI capture images; update only reviewed CI captures.
 - Web `EdgeFade` matches the native ramp (`getWebEdgeFadeBlurLayers`): four `backdrop-filter` layers whose radius
   halves away from the edge, chained as cross-fades — each weaker layer fades in while the previous one is still
   opaque, then holds while that one fades out — plus a separate masked wash (`EdgeFadeWebBand`). A `backdrop-filter`

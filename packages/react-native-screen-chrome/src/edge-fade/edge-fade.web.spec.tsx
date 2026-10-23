@@ -43,7 +43,8 @@ const WEB_TOP_RADIUS = 22.5;
 const TALL_CHROME = 60;
 const TOP_EDGE_MASK =
     'linear-gradient(to bottom, #000000 0%, rgba(0,0,0,0.56) 25%, rgba(0,0,0,0.25) 50%, rgba(0,0,0,0.06) 75%, transparent 100%)';
-const TOP_WASH = 'linear-gradient(to bottom, rgba(255,255,255,0.42) 0%, rgba(255,255,255,0.08) 72%, transparent 100%)';
+const TOP_WASH =
+    'linear-gradient(to bottom, rgb(from rgba(255,255,255,0.42) r g b / 1) 0%, rgb(from rgba(255,255,255,0.08) r g b / 1) 100%)';
 
 type HostInstance = ReturnType<ReturnType<typeof render>['getByTestId']>;
 
@@ -127,7 +128,7 @@ describe('EdgeFade web', () => {
         expect(layers[0]).toHaveProperty('backdropFilter', 'blur(8px) saturate(1.08)');
         expect(layers[4]).toMatchObject({
             backgroundImage:
-                'linear-gradient(to bottom, transparent 0%, rgba(255,255,255,0.08) 28%, rgba(255,255,255,0.42) 100%)',
+                'linear-gradient(to bottom, rgb(from rgba(255,255,255,0.08) r g b / 1) 0%, rgb(from rgba(255,255,255,0.42) r g b / 1) 100%)',
         });
     });
 });
