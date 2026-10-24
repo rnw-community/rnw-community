@@ -206,13 +206,23 @@ export const checkPlaygroundDir = captureDir => {
         .filter(file => /-(budgie|alpha-\d+|tall)\.png$/u.test(file))
         .map(file => file.replace('.png', ''));
 
+    if (cells.length === 0) {
+        return [{ cell: captureDir, metrics: null, failures: ['no playground captures found'] }];
+    }
+
     return cells.map(cell => {
         const offset = cell.split('-').slice(0, 2).join('-');
         const blurOnlyName = `${cell.replace(/-(budgie|alpha-\d+|tall)$/u, '')}-blur-only`;
+        const needsBlurOnly = cell.endsWith('-budgie');
+
+        if (needsBlurOnly && !existsSync(join(captureDir, `${blurOnlyName}.png`))) {
+            return { cell, metrics: null, failures: [`${cell}: missing the ${blurOnlyName} capture`] };
+        }
+
         const metrics = measurePlaygroundCell(
             read(cell),
             read(`${offset}-reference`),
-            existsSync(join(captureDir, `${blurOnlyName}.png`)) && cell.endsWith('-budgie') ? read(blurOnlyName) : undefined
+            needsBlurOnly ? read(blurOnlyName) : undefined
         );
 
         return { cell, metrics, failures: checkPlaygroundCell(cell, metrics) };
