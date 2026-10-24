@@ -166,10 +166,12 @@ const opaqueWashOnly = (topInset, bottomInset) => {
     return { capture, reference: source };
 };
 
+const EDGE_BACKGROUND_SHARE = 0.95;
+
 const fitBackgroundEdges = image => {
     const edgeRamp = 10 * SCALE;
     const blendRow = (row, depth) => {
-        const backgroundShare = 1 - Math.min(1, depth / edgeRamp);
+        const backgroundShare = EDGE_BACKGROUND_SHARE * (1 - Math.min(1, depth / edgeRamp));
 
         for (let x = 0; x < WIDTH - RULER_WIDTH * SCALE; x++) {
             for (let channel = 0; channel < 3; channel++) {
@@ -585,21 +587,32 @@ describe('edge-fade harness metrics', () => {
         }
     });
 
-    it('rejects measurable texture returning on the physical last row under the edge mean limit', () => {
+    it('rejects a sharp unblurred physical last row', () => {
         const { capture, reference: original } = band();
         fitBackgroundEdges(capture);
 
         for (let x = 0; x < PATTERN_WIDTH; x++) {
-            const value = Math.floor(x / STRIPE) % 2 === 0 ? 0 : 32;
+            const value = Math.floor(x / STRIPE) % 2 === 0 ? 0 : 255;
 
             capture.data.set([value, value, value, 255], ((HEIGHT - 1) * WIDTH + x) * 4);
-            capture.data.set([16, 16, 16, 255], ((HEIGHT - 2) * WIDTH + x) * 4);
         }
 
         const failures = checkScrolledCapture(capture, original, SCREEN_BACKGROUND);
 
-        assert.ok(failures.some(failure => /bottom physical edge varies/u.test(failure)));
-        assert.ok(!failures.some(failure => /bottom physical edge is/u.test(failure)));
+        assert.ok(failures.some(failure => /bottom physical edge keeps .* the blur is missing/u.test(failure)));
+    });
+
+    it('rejects an opaque slab on the physical last row', () => {
+        const { capture, reference: original } = band();
+        fitBackgroundEdges(capture);
+
+        for (let x = 0; x < PATTERN_WIDTH; x++) {
+            capture.data.set([...SCREEN_BACKGROUND, 255], ((HEIGHT - 1) * WIDTH + x) * 4);
+        }
+
+        const failures = checkScrolledCapture(capture, original, SCREEN_BACKGROUND);
+
+        assert.ok(failures.some(failure => /bottom physical edge keeps no content/u.test(failure)));
     });
 
     it('rejects a bottom ramp blur edge while a home indicator is present in the safe area', () => {

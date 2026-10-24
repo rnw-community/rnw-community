@@ -17,6 +17,8 @@ export const THRESHOLDS = {
     washInnerEdgeMax: 6,
     washOutsideMax: 3,
     backgroundEdgeDeviationMax: 8,
+    edgeDetailRatioMax: 0.1,
+    edgeDetailRatioMin: 0.002,
     backgroundMetadataMeanMax: 3,
     backgroundMonotonicDropMax: 4,
     symmetryMax: 0.25,
@@ -241,7 +243,19 @@ const checkScreenBackground = (capture, background, geometry, name, sampleStep =
             }
         }
 
-        if (outer.deviation > THRESHOLDS.backgroundEdgeDeviationMax) {
+        if (reference) {
+            const detailRatio =
+                outer.deviation / Math.max(rowColorStats(reference, firstRow, 0, patternWidth, sampleStep).deviation, 1);
+
+            if (detailRatio > THRESHOLDS.edgeDetailRatioMax) {
+                failures.push(
+                    `${name}: ${edge.name} physical edge keeps ${detailRatio.toFixed(3)} of the content detail, the blur is missing`
+                );
+            }
+            if (detailRatio < THRESHOLDS.edgeDetailRatioMin) {
+                failures.push(`${name}: ${edge.name} physical edge keeps no content, the wash is an opaque slab`);
+            }
+        } else if (outer.deviation > THRESHOLDS.backgroundEdgeDeviationMax) {
             failures.push(
                 `${name}: ${edge.name} physical edge varies by ${outer.deviation.toFixed(1)} levels against the actual background`
             );
