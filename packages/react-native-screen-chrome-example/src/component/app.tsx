@@ -11,6 +11,7 @@ import { CollapsibleDemoScreen } from './collapsible-demo-screen';
 import { EdgeFadeDemoScreen } from './edge-fade-demo-screen';
 import { FooterDemoScreen } from './footer-demo-screen';
 import { KeyboardDemoScreen } from './keyboard-demo-screen';
+import { PlaygroundScreen } from './playground-screen';
 import { SnapOffDemoScreen } from './snap-off-demo-screen';
 import { StaticHeaderDemoScreen } from './static-header-demo-screen';
 import { TabBarDemoScreen } from './tab-bar-demo-screen';
@@ -41,6 +42,7 @@ export const App = () => (
                     <Stack.Screen component={KeyboardDemoScreen} name="Keyboard" />
                     <Stack.Screen component={ThemeDemoScreen} name="Theme" />
                     <Stack.Screen component={EdgeFadeDemoScreen} name="EdgeFade" />
+                    <Stack.Screen component={PlaygroundScreen} name="Playground" />
                 </Stack.Navigator>
             </NavigationContainer>
         </KeyboardProvider>

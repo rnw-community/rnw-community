@@ -21,6 +21,7 @@ const CHROME_DEMO_LINKS: ReadonlyArray<{
     { screen: 'Keyboard', target: 'Keyboard-sticky footer', testID: 'home-open-keyboard' },
     { screen: 'Theme', target: 'Light and dark', testID: 'home-open-theme' },
     { screen: 'EdgeFade', target: 'Edge fade ramp', testID: 'home-open-edge-fade' },
+    { screen: 'Playground', target: 'Edge chrome playground', testID: 'home-open-playground' },
 ];
 
 export const ChromeDemoHomeScreen = ({ navigate }: { readonly navigate: (screen: string) => void }) => (

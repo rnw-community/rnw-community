@@ -1,0 +1,178 @@
+appId: ${APP_ID}
+---
+- runFlow: ../subflows/launch_home.yaml
+- scrollUntilVisible:
+      element:
+          id: 'home-open-playground'
+- tapOn:
+      id: 'home-open-playground'
+- extendedWaitUntil:
+      visible:
+          id: 'playground-preset-budgie'
+      timeout: 15000
+- tapOn:
+      id: 'playground-preset-budgie'
+- tapOn:
+      id: 'playground-toggle-chrome'
+- waitForAnimationToEnd
+- takeScreenshot: playground/dark-rest-reference
+- tapOn:
+      id: 'playground-toggle-chrome'
+- waitForAnimationToEnd
+- takeScreenshot: playground/dark-rest-budgie
+- tapOn:
+      id: 'playground-toggle-wash'
+- waitForAnimationToEnd
+- takeScreenshot: playground/dark-rest-blur-only
+- tapOn:
+      id: 'playground-toggle-wash'
+- tapOn:
+      id: 'playground-toggle-blur'
+- waitForAnimationToEnd
+- takeScreenshot: playground/dark-rest-wash-only
+- tapOn:
+      id: 'playground-toggle-blur'
+- tapOn:
+      id: 'playground-toggle-scroll'
+- tapOn:
+      id: 'playground-toggle-chrome'
+- waitForAnimationToEnd
+- takeScreenshot: playground/dark-scrolled-reference
+- tapOn:
+      id: 'playground-toggle-chrome'
+- waitForAnimationToEnd
+- takeScreenshot: playground/dark-scrolled-budgie
+- tapOn:
+      id: 'playground-toggle-wash'
+- waitForAnimationToEnd
+- takeScreenshot: playground/dark-scrolled-blur-only
+- tapOn:
+      id: 'playground-toggle-wash'
+- tapOn:
+      id: 'playground-toggle-blur'
+- waitForAnimationToEnd
+- takeScreenshot: playground/dark-scrolled-wash-only
+- tapOn:
+      id: 'playground-toggle-blur'
+- tapOn:
+      id: 'playground-toggle-scroll'
+- tapOn:
+      id: 'playground-toggle-scheme'
+- tapOn:
+      id: 'playground-toggle-chrome'
+- waitForAnimationToEnd
+- takeScreenshot: playground/light-rest-reference
+- tapOn:
+      id: 'playground-toggle-chrome'
+- waitForAnimationToEnd
+- takeScreenshot: playground/light-rest-budgie
+- tapOn:
+      id: 'playground-toggle-wash'
+- waitForAnimationToEnd
+- takeScreenshot: playground/light-rest-blur-only
+- tapOn:
+      id: 'playground-toggle-wash'
+- tapOn:
+      id: 'playground-toggle-blur'
+- waitForAnimationToEnd
+- takeScreenshot: playground/light-rest-wash-only
+- tapOn:
+      id: 'playground-toggle-blur'
+- tapOn:
+      id: 'playground-toggle-scroll'
+- tapOn:
+      id: 'playground-toggle-chrome'
+- waitForAnimationToEnd
+- takeScreenshot: playground/light-scrolled-reference
+- tapOn:
+      id: 'playground-toggle-chrome'
+- waitForAnimationToEnd
+- takeScreenshot: playground/light-scrolled-budgie
+- tapOn:
+      id: 'playground-toggle-wash'
+- waitForAnimationToEnd
+- takeScreenshot: playground/light-scrolled-blur-only
+- tapOn:
+      id: 'playground-toggle-wash'
+- tapOn:
+      id: 'playground-toggle-blur'
+- waitForAnimationToEnd
+- takeScreenshot: playground/light-scrolled-wash-only
+- tapOn:
+      id: 'playground-toggle-blur'
+- tapOn:
+      id: 'playground-toggle-scroll'
+- tapOn:
+      id: 'playground-toggle-scheme'
+- tapOn:
+      id: 'playground-toggle-scroll'
+- tapOn:
+      id: 'playground-toggle-panel'
+- tapOn:
+      id: 'playground-slider-solid-alpha'
+      point: '0%,50%'
+- tapOn:
+      id: 'playground-slider-wash-alpha'
+      point: '0%,50%'
+- assertVisible:
+      id: 'playground-slider-solid-alpha-value'
+- tapOn:
+      id: 'playground-toggle-panel'
+- waitForAnimationToEnd
+- takeScreenshot: playground/dark-scrolled-alpha-0
+- tapOn:
+      id: 'playground-toggle-panel'
+- tapOn:
+      id: 'playground-slider-solid-alpha'
+      point: '35%,50%'
+- tapOn:
+      id: 'playground-slider-wash-alpha'
+      point: '35%,50%'
+- assertVisible:
+      id: 'playground-slider-solid-alpha-value'
+- tapOn:
+      id: 'playground-toggle-panel'
+- waitForAnimationToEnd
+- takeScreenshot: playground/dark-scrolled-alpha-35
+- tapOn:
+      id: 'playground-toggle-panel'
+- tapOn:
+      id: 'playground-slider-solid-alpha'
+      point: '70%,50%'
+- tapOn:
+      id: 'playground-slider-wash-alpha'
+      point: '70%,50%'
+- assertVisible:
+      id: 'playground-slider-solid-alpha-value'
+- tapOn:
+      id: 'playground-toggle-panel'
+- waitForAnimationToEnd
+- takeScreenshot: playground/dark-scrolled-alpha-70
+- tapOn:
+      id: 'playground-toggle-panel'
+- tapOn:
+      id: 'playground-slider-solid-alpha'
+      point: '100%,50%'
+- tapOn:
+      id: 'playground-slider-wash-alpha'
+      point: '100%,50%'
+- assertVisible:
+      id: 'playground-slider-solid-alpha-value'
+- tapOn:
+      id: 'playground-toggle-panel'
+- waitForAnimationToEnd
+- takeScreenshot: playground/dark-scrolled-alpha-100
+- tapOn:
+      id: 'playground-preset-budgie'
+- tapOn:
+      id: 'playground-toggle-panel'
+- tapOn:
+      id: 'playground-slider-topHeight'
+      point: '48%,50%'
+- tapOn:
+      id: 'playground-slider-bottomHeight'
+      point: '60%,50%'
+- tapOn:
+      id: 'playground-toggle-panel'
+- waitForAnimationToEnd
+- takeScreenshot: playground/dark-scrolled-tall
