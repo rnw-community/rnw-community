@@ -159,13 +159,13 @@ for (const position of ['top', 'bottom'] as const) {
 
             expect(layers).toHaveLength(2);
             expect(wash.backdropFilter).toBe('none');
-            expect(wash.backgroundImage).toBe('linear-gradient(color(srgb 1 1 1) 0%, color(srgb 1 1 1) 100%)');
+            expect(wash.backgroundImage).toBe('linear-gradient(rgb(255, 255, 255) 0%, rgb(255, 255, 255) 100%)');
         });
 
         test('resolves the rendered CSS variable to an opaque wash color', async ({ page }) => {
             const { layers } = await readBand(page, position);
 
-            expect(layers.at(-1)?.backgroundImage).toBe('linear-gradient(color(srgb 1 1 1) 0%, color(srgb 1 1 1) 100%)');
+            expect(layers.at(-1)?.backgroundImage).toBe('linear-gradient(rgb(255, 255, 255) 0%, rgb(255, 255, 255) 100%)');
         });
 
         test('keeps every ancestor free of opacity, filter, and mask so the blurs sample the page', async ({ page }) => {

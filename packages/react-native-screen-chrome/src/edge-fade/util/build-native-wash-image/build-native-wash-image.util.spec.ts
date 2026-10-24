@@ -2,11 +2,14 @@ import { afterEach, describe, expect, it, jest } from '@jest/globals';
 import { Platform } from 'react-native';
 
 import { SCREEN_CHROME_DEFAULT_CONFIG } from '../../../constant/screen-chrome-default-config.constant';
+import { getEdgeFadeChromePlateau } from '../get-edge-fade-chrome-plateau/get-edge-fade-chrome-plateau.util';
 import { getEdgeFadeVisuals } from '../get-edge-fade-visuals/get-edge-fade-visuals.util';
 
 import { buildNativeWashImage } from './build-native-wash-image.util';
 
-const WASH_IMAGE = 'linear-gradient(to bottom, rgba(255,0,0,1) 0%, rgba(128,0,128,0.502) 50%, rgba(0,0,255,0) 100%)';
+import type { EdgeFadePosition } from '../../edge-fade-position.type';
+
+const WASH_IMAGE = 'linear-gradient(to bottom, rgba(255,0,0,1) 0%, rgba(128,0,128,0.377) 50%, rgba(0,0,255,0) 100%)';
 const CHROME_PLATEAU = 0.8;
 const RGB_WASH_CONFIG = {
     ...SCREEN_CHROME_DEFAULT_CONFIG,
@@ -20,6 +23,32 @@ const RGB_WASH_CONFIG = {
         bottom: { 0: { color: 'transparent' }, 1: { color: '#000000' } },
     },
 };
+const SCHEME_RGB = { light: '255,255,255', dark: '0,0,0' } as const;
+const MEDIUM_ALPHA = 0.7;
+const BLUR_RADIUS = 13.5;
+const ALPHA_TOLERANCE = 0.002;
+const ALPHAS = [0, 0.35, MEDIUM_ALPHA, 1];
+const GEOMETRIES = [
+    { name: 'compact header backdrop', height: 56, inset: 62, chromeHeight: 32 },
+    { name: 'tab bar fade', height: 92, inset: 34, chromeHeight: 68 },
+    { name: 'tall band', height: 128, inset: 62, chromeHeight: 32 },
+    { name: 'chrome-free band', height: 150, inset: 0, chromeHeight: 0 },
+];
+const POSITIONS: readonly EdgeFadePosition[] = ['top', 'bottom'];
+const MATRIX = (['light', 'dark'] as const).flatMap(scheme =>
+    ALPHAS.flatMap(solidAlpha =>
+        POSITIONS.flatMap(position =>
+            GEOMETRIES.map(geometry => ({ scheme, solidAlpha, washAlpha: solidAlpha / 3, position, ...geometry }))
+        )
+    )
+);
+
+const parseStops = (image: string) =>
+    [...image.matchAll(/rgba\((\d+),(\d+),(\d+),([\d.]+)\) ([\d.]+)%/gu)].map(([, red, green, blue, alpha, offset]) => ({
+        rgb: `${red},${green},${blue}`,
+        alpha: Number(alpha),
+        location: Number(offset) / 100,
+    }));
 
 afterEach(() => {
     jest.restoreAllMocks();
@@ -27,7 +56,7 @@ afterEach(() => {
 
 describe('buildNativeWashImage', () => {
     it.each(['ios', 'android'] as const)(
-        'blends the wash colors along the band and takes each stop alpha from the mask alone on %s',
+        'blends the wash colors along the band and multiplies their alpha by the mask on %s',
         platform => {
             expect.hasAssertions();
 
@@ -43,12 +72,12 @@ describe('buildNativeWashImage', () => {
         }
     );
 
-    it('ignores the alpha of the configured wash colors so the outer edge is the opaque color', () => {
+    it('keeps the translucency of the configured wash colors at the screen edge', () => {
         expect.hasAssertions();
 
         expect(
             buildNativeWashImage(['rgba(255,255,255,0.42)', 'rgba(255,255,255,0.08)'], ['#000000', 'transparent'], [0, 1])
-        ).toBe('linear-gradient(to bottom, rgba(255,255,255,1) 0%, rgba(255,255,255,0) 100%)');
+        ).toBe('linear-gradient(to bottom, rgba(255,255,255,0.42) 0%, rgba(255,255,255,0) 100%)');
     });
 
     it('keeps the custom top edge color when the mask ramp moves inward', () => {
@@ -80,4 +109,32 @@ describe('buildNativeWashImage', () => {
             'linear-gradient(to bottom, rgba(0,0,255,0) 0%, rgba(51,0,204,1) 20%, rgba(255,0,0,1) 100%)'
         );
     });
+
+    it.each(MATRIX)(
+        '$scheme $position $name with solid alpha $solidAlpha never paints more than the configured colors',
+        ({ scheme, solidAlpha, washAlpha, position, height, inset, chromeHeight }) => {
+            expect.hasAssertions();
+
+            const config = {
+                ...SCREEN_CHROME_DEFAULT_CONFIG,
+                colors: {
+                    ...SCREEN_CHROME_DEFAULT_CONFIG.colors,
+                    [scheme]: {
+                        solid: `rgba(${SCHEME_RGB[scheme]},${solidAlpha})`,
+                        wash: `rgba(${SCHEME_RGB[scheme]},${washAlpha})`,
+                    },
+                },
+            };
+            const plateau = getEdgeFadeChromePlateau(height + inset, inset, chromeHeight, BLUR_RADIUS);
+            const { washColors, maskColors, maskLocations } = getEdgeFadeVisuals(position, scheme, config, plateau);
+            const stops = parseStops(buildNativeWashImage(washColors, maskColors, maskLocations));
+            const edgeStop = position === 'top' ? stops[0] : stops[stops.length - 1];
+            const innerStop = position === 'top' ? stops[stops.length - 1] : stops[0];
+
+            expect(stops.every(({ rgb }) => rgb === SCHEME_RGB[scheme])).toBe(true);
+            expect(edgeStop.alpha).toBeCloseTo(solidAlpha, 2);
+            expect(innerStop.alpha).toBe(0);
+            expect(stops.every(({ alpha }) => alpha <= solidAlpha + ALPHA_TOLERANCE)).toBe(true);
+        }
+    );
 });
