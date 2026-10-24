@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [3.0.4](https://github.com/rnw-community/rnw-community/compare/v3.0.3...v3.0.4) (2026-10-24)
+
+### Bug Fixes
+
+- **react-native-screen-chrome:** show blurred content under the chrome ([#734](https://github.com/rnw-community/rnw-community/issues/734)) ([a63fbef](https://github.com/rnw-community/rnw-community/commit/a63fbef0f7fd76613e6e138d2adeb646e438ae36)), closes [#735](https://github.com/rnw-community/rnw-community/issues/735)
+
 ## [3.0.3](https://github.com/rnw-community/rnw-community/compare/v3.0.2...v3.0.3) (2026-10-23)
 
 ### Bug Fixes
