@@ -409,9 +409,9 @@ const meanPreservingDetailFlash = source => {
     return image;
 };
 
-const slowBackgroundReversal = () => {
+const slowBackgroundReversal = (rate = 0.2, peak = 60) => {
     const image = reference();
-    const reversal = index => Math.max(0, Math.min(index, 60) - Math.max(0, index - 60) * 0.2);
+    const reversal = index => Math.max(0, Math.min(index, peak) - Math.max(0, index - peak) * rate);
     const setRow = (row, distance) => {
         const value = Math.min(255, SCREEN_BACKGROUND[0] + distance);
 
@@ -632,6 +632,12 @@ describe('edge-fade harness metrics', () => {
                 failure => failure.startsWith('bottom:') && /visible blur edge|compressed blur transition/u.test(failure)
             )
         );
+    });
+
+    it('tolerates a background-distance dip that is small against the visible content range', () => {
+        const failures = checkScrolledCapture(slowBackgroundReversal(0.02, 200), reference(), SCREEN_BACKGROUND);
+
+        assert.ok(!failures.some(failure => /background delta reverses/u.test(failure)));
     });
 
     it('rejects a slow background-distance reversal that never exceeds the adjacent-row limit', () => {

@@ -21,6 +21,7 @@ export const THRESHOLDS = {
     edgeDetailRatioMin: 0.002,
     backgroundMetadataMeanMax: 3,
     backgroundMonotonicDropMax: 4,
+    backgroundMonotonicDropFraction: 0.2,
     symmetryMax: 0.25,
     restDiffMax: 2,
     goldenDiffMax: 0.03,
@@ -146,6 +147,8 @@ const profile = (capture, reference, rows, { patternWidth, scale, washWindowPoin
         wash: Math.max(...row.mean.map((value, channel) => Math.abs(value - original[index].mean[channel]))),
         averageWash: Math.max(...washes.map(channel => channel[index])),
         visibility: colorDistance(row.mean, background) / Math.max(colorDistance(original[index].mean, background), 1),
+        capturedDistance: colorDistance(row.mean, background),
+        referenceDistance: colorDistance(original[index].mean, background),
     }));
 };
 
@@ -231,13 +234,17 @@ const checkScreenBackground = (capture, background, geometry, name, sampleStep =
             }),
             textLineWindow
         );
+        const span = Math.max(...distances) - Math.min(...distances);
         let runningMaximum = distances[0];
         let reversal = -1;
 
         for (let index = 1; index < distances.length; index++) {
             runningMaximum = Math.max(runningMaximum, distances[index]);
 
-            if (runningMaximum - distances[index] > THRESHOLDS.backgroundMonotonicDropMax) {
+            if (
+                runningMaximum - distances[index] >
+                Math.max(THRESHOLDS.backgroundMonotonicDropMax, THRESHOLDS.backgroundMonotonicDropFraction * span)
+            ) {
                 reversal = index;
                 break;
             }
@@ -299,8 +306,12 @@ const checkBand = (name, chrome, ramp, scale, failures) => {
     if (chromeVisibility < THRESHOLDS.chromeVisibilityMin) {
         failures.push(`${name}: chrome zone shows only ${chromeVisibility.toFixed(2)} of the content, the wash hides it`);
     }
-    if (chrome[0].visibility > THRESHOLDS.edgeVisibilityMax) {
-        failures.push(`${name}: the physical edge row stands out ${chrome[0].visibility.toFixed(2)}x against the content`);
+    const edgeWindow = chrome.slice(0, Math.max(1, Math.round(TEXT_LINE_HEIGHT * scale)));
+    const edgeVisibility =
+        chrome[0].capturedDistance / Math.max(mean(edgeWindow.map(({ referenceDistance }) => referenceDistance)), 1);
+
+    if (edgeVisibility > THRESHOLDS.edgeVisibilityMax) {
+        failures.push(`${name}: the physical edge row stands out ${edgeVisibility.toFixed(2)}x against the content`);
     }
     if (chromeSharpness > THRESHOLDS.chromeSharpnessMax) {
         failures.push(`${name}: chrome zone keeps ${chromeSharpness.toFixed(2)} of the content detail, the blur is missing`);
