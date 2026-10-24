@@ -8,7 +8,7 @@ import type { ScreenChromeColorScheme } from '@rnw-community/react-native-screen
 
 const styles = StyleSheet.create({
     panel: {
-        maxHeight: 360,
+        maxHeight: 420,
         flexShrink: 1,
         backgroundColor: 'rgba(0,0,0,0.85)',
         borderRadius: 16,
