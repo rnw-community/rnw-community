@@ -30,7 +30,7 @@ const INITIAL_TOGGLES: PlaygroundTogglesInterface = {
 };
 
 const styles = StyleSheet.create({
-    controls: { position: 'absolute', left: 8, right: PLAYGROUND_GEOMETRY.patternMargin, top: '42%', zIndex: 20 },
+    controls: { position: 'absolute', left: 8, right: PLAYGROUND_GEOMETRY.patternMargin, top: '42%', bottom: 8, zIndex: 20 },
     ruler: { position: 'absolute', right: 0, width: PLAYGROUND_GEOMETRY.rulerWidth, zIndex: 10 },
 });
 
@@ -85,7 +85,7 @@ export const PlaygroundScreen = () => {
             {rulerSegments.map(segment => (
                 <View key={JSON.stringify(segment)} style={[styles.ruler, segment]} />
             ))}
-            <View style={styles.controls}>
+            <View style={styles.controls} pointerEvents="box-none">
                 <PlaygroundToggleButtons
                     toggles={toggles}
                     onChange={setToggles}

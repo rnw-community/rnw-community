@@ -220,10 +220,17 @@ export const checkPlaygroundDir = captureDir => {
 };
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
-    const results = checkPlaygroundDir(process.argv[2]);
+    const captureDir = process.argv[2];
+
+    if (captureDir === undefined) {
+        console.error('usage: playground-metrics.mjs <capture-dir>');
+        process.exit(2);
+    }
+
+    const results = checkPlaygroundDir(captureDir);
+    const passed = results.every(({ failures }) => failures.length === 0);
 
     console.log(JSON.stringify(results, null, 2));
-    console.log(
-        results.every(({ failures }) => failures.length === 0) ? 'playground: all checks passed' : 'playground: failures'
-    );
+    console.log(passed ? 'playground: all checks passed' : 'playground: failures');
+    process.exitCode = passed ? 0 : 1;
 }

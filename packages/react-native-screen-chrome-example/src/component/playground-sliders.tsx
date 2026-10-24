@@ -7,7 +7,14 @@ import type { PlaygroundConfigInterface } from '../interface/playground-config.i
 import type { ScreenChromeColorScheme } from '@rnw-community/react-native-screen-chrome';
 
 const styles = StyleSheet.create({
-    panel: { maxHeight: 360, backgroundColor: 'rgba(0,0,0,0.85)', borderRadius: 16, padding: 12, marginTop: 8 },
+    panel: {
+        maxHeight: 360,
+        flexShrink: 1,
+        backgroundColor: 'rgba(0,0,0,0.85)',
+        borderRadius: 16,
+        padding: 12,
+        marginTop: 8,
+    },
 });
 
 type NumericKey = Exclude<keyof PlaygroundConfigInterface, 'alphas'>;

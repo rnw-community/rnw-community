@@ -1,5 +1,5 @@
 import React from 'react';
-import { Text, View } from 'react-native';
+import { ScrollView, Text } from 'react-native';
 
 import { CHROME_DEMO_STYLES as styles } from '../constant/chrome-demo-style';
 
@@ -25,10 +25,10 @@ const CHROME_DEMO_LINKS: ReadonlyArray<{
 ];
 
 export const ChromeDemoHomeScreen = ({ navigate }: { readonly navigate: (screen: string) => void }) => (
-    <View style={styles.homeContainer}>
+    <ScrollView contentContainerStyle={styles.homeContainer}>
         <Text style={styles.homeTitle}>Screen chrome demos</Text>
         {CHROME_DEMO_LINKS.map(({ screen, target, testID }) => (
             <ChromeDemoLink key={screen} onPress={() => void navigate(screen)} target={target} testID={testID} />
         ))}
-    </View>
+    </ScrollView>
 );

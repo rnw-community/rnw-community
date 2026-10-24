@@ -116,6 +116,10 @@ appId: ${APP_ID}
       point: '0%,50%'
 - assertVisible:
       id: 'playground-slider-solid-alpha-value'
+      text: '.*solid alpha 0'
+- assertVisible:
+      id: 'playground-slider-wash-alpha-value'
+      text: '.*wash alpha 0'
 - tapOn:
       id: 'playground-toggle-panel'
 - waitForAnimationToEnd
@@ -130,6 +134,10 @@ appId: ${APP_ID}
       point: '35%,50%'
 - assertVisible:
       id: 'playground-slider-solid-alpha-value'
+      text: '.*solid alpha 0\.(3[3-7])'
+- assertVisible:
+      id: 'playground-slider-wash-alpha-value'
+      text: '.*wash alpha 0\.(3[3-7])'
 - tapOn:
       id: 'playground-toggle-panel'
 - waitForAnimationToEnd
@@ -144,6 +152,10 @@ appId: ${APP_ID}
       point: '70%,50%'
 - assertVisible:
       id: 'playground-slider-solid-alpha-value'
+      text: '.*solid alpha 0\.(6[8-9]|7[0-2])'
+- assertVisible:
+      id: 'playground-slider-wash-alpha-value'
+      text: '.*wash alpha 0\.(6[8-9]|7[0-2])'
 - tapOn:
       id: 'playground-toggle-panel'
 - waitForAnimationToEnd
@@ -158,6 +170,10 @@ appId: ${APP_ID}
       point: '100%,50%'
 - assertVisible:
       id: 'playground-slider-solid-alpha-value'
+      text: '.*solid alpha 1'
+- assertVisible:
+      id: 'playground-slider-wash-alpha-value'
+      text: '.*wash alpha 1'
 - tapOn:
       id: 'playground-toggle-panel'
 - waitForAnimationToEnd
