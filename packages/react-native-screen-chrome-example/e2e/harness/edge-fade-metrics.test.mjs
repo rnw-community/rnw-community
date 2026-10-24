@@ -327,7 +327,7 @@ const compactCaptureDir = wash => {
     const compactWash = progress => {
         const rampProgress = Math.max(0, Math.min(1, (progress - CHROME / COMPACT_BAND) / (1 - CHROME / COMPACT_BAND)));
 
-        return wash(rampProgress) / WASH;
+        return wash(rampProgress);
     };
     const { capture, reference: original } = band({ bandHeight: COMPACT_BAND, wash: compactWash });
     const { capture: blurOnly } = band({ bandHeight: COMPACT_BAND, wash: () => 0 });
@@ -471,13 +471,24 @@ describe('edge-fade harness metrics', () => {
         }
     });
 
-    it('rejects a physical edge whose mean does not converge to the declared screen background', () => {
+    it('accepts a translucent physical edge that keeps the blurred content visible', () => {
         const { capture, reference: original } = band();
 
-        assert.match(
-            checkScrolledCapture(capture, original, SCREEN_BACKGROUND).join('\n'),
-            /top physical edge.*background/u
-        );
+        assert.deepEqual(checkScrolledCapture(capture, original, SCREEN_BACKGROUND), []);
+    });
+
+    it('rejects an opaque chrome plateau that hides the blurred content', () => {
+        const { capture, reference: original } = band({ wash: progress => (progress < 0.4 ? 1 : (1 - progress) ** 2) });
+        const failures = checkScrolledCapture(capture, original, SCREEN_BACKGROUND).join('\n');
+
+        assert.match(failures, /top: chrome zone shows only 0\.\d+ of the content, the wash hides it/u);
+        assert.match(failures, /bottom: chrome zone shows only 0\.\d+ of the content, the wash hides it/u);
+    });
+
+    it('rejects a translucent chrome plateau whose content stays sharp', () => {
+        const { capture, reference: original } = band({ chromeRadius: 0 });
+
+        assert.match(checkScrolledCapture(capture, original, SCREEN_BACKGROUND).join('\n'), /the blur is missing/u);
     });
 
     it('reports when the declared background metadata disagrees with the reference pixels', () => {
@@ -505,7 +516,7 @@ describe('edge-fade harness metrics', () => {
 
         assert.match(
             checkScrolledCapture(capture, original, SCREEN_BACKGROUND).join('\n'),
-            /bottom physical edge.*background/u
+            /bottom: the physical edge row stands out/u
         );
     });
 
@@ -569,8 +580,7 @@ describe('edge-fade harness metrics', () => {
 
             const failures = checkScrolledCapture(capture, original, SCREEN_BACKGROUND);
 
-            assert.equal(failures.length, [topInset, bottomInset].filter(inset => inset === 24).length);
-            assert.ok(failures.every(failure => failure.includes('compressed blur transition')));
+            assert.ok(failures.some(failure => failure.includes('the wash hides it')));
             assert.match(checkBlurOnlyCapture(original, original).join('\n'), /blur is missing/u);
         }
     });
@@ -728,7 +738,7 @@ describe('edge-fade harness metrics', () => {
             return image;
         });
 
-        assert.match(checkTemporalFrames(brokenTopEdge, [255, 255, 255], 5).join('\n'), /top physical edge is/u);
+        assert.match(checkTemporalFrames(brokenTopEdge, [255, 255, 255], 5).join('\n'), /top background delta reverses/u);
 
         const brokenBottomEdge = frames.map(frame => {
             const image = new PNG({ width: frame.width, height: frame.height });
@@ -741,7 +751,10 @@ describe('edge-fade harness metrics', () => {
             return image;
         });
 
-        assert.match(checkTemporalFrames(brokenBottomEdge, [255, 255, 255], 5).join('\n'), /bottom physical edge is/u);
+        assert.match(
+            checkTemporalFrames(brokenBottomEdge, [255, 255, 255], 5).join('\n'),
+            /bottom background delta reverses/u
+        );
     });
 
     it('rejects an isolated temporal band luminance spike', () => {

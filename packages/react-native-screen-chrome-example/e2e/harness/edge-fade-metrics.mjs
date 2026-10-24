@@ -6,7 +6,9 @@ import pixelmatch from 'pixelmatch';
 import { PNG } from 'pngjs';
 
 export const THRESHOLDS = {
-    chromeEnergyMax: 0.2,
+    chromeVisibilityMin: 0.35,
+    chromeSharpnessMax: 0.5,
+    edgeVisibilityMax: 1.1,
     rampEndEnergyMin: 0.8,
     rampDropMax: 0.12,
     rampStepPerPointMax: 0.165,
@@ -14,7 +16,6 @@ export const THRESHOLDS = {
     outsideEnergyMin: 0.85,
     washInnerEdgeMax: 6,
     washOutsideMax: 3,
-    backgroundEdgeMeanMax: 10,
     backgroundEdgeDeviationMax: 8,
     backgroundMetadataMeanMax: 3,
     backgroundMonotonicDropMax: 4,
@@ -41,6 +42,8 @@ const RULER_POINTS = 6;
 const PATTERN_MARGIN_POINTS = 14;
 const BACKGROUND_SAMPLE_INSET_POINTS = 12;
 const SAFE_AREA_SIDE_SAMPLE_FRACTION = 0.3;
+const POINT_WIDTH = 402;
+const MINIMUM_VISIBILITY_SQUARED = 0.05;
 const TEMPORAL_WITNESS_X_START_POINTS = 12;
 const TEMPORAL_WITNESS_X_END_POINTS = 42;
 const TEMPORAL_WITNESS_GREEN_MIN = 180;
@@ -110,7 +113,16 @@ const rowStats = ({ width, data }, row, patternWidth) => {
     return { energy: energy / (patternWidth - 2), mean: sums.map(sum => sum / patternWidth) };
 };
 
+const referenceBackground = reference => {
+    const scale = reference.width / POINT_WIDTH;
+    const from = Math.round((POINT_WIDTH - BACKGROUND_SAMPLE_INSET_POINTS) * scale);
+    const to = Math.round((POINT_WIDTH - RULER_POINTS) * scale);
+
+    return rowColorStats(reference, Math.floor(reference.height / 2), from, to).color;
+};
+
 const profile = (capture, reference, rows, { patternWidth, scale, washWindowPoints = TEXT_LINE_HEIGHT }) => {
+    const background = referenceBackground(reference);
     const captured = rows.map(row => rowStats(capture, row, patternWidth));
     const original = rows.map(row => rowStats(reference, row, patternWidth));
     const window = Math.round(washWindowPoints * scale);
@@ -131,6 +143,7 @@ const profile = (capture, reference, rows, { patternWidth, scale, washWindowPoin
         energy: row.energy / Math.max(original[index].energy, 1),
         wash: Math.max(...row.mean.map((value, channel) => Math.abs(value - original[index].mean[channel]))),
         averageWash: Math.max(...washes.map(channel => channel[index])),
+        visibility: colorDistance(row.mean, background) / Math.max(colorDistance(original[index].mean, background), 1),
     }));
 };
 
@@ -190,7 +203,7 @@ export const checkBackgroundMetadata = (reference, background, scale) => {
 };
 
 const checkScreenBackground = (capture, background, geometry, name, sampleStep = 1, topSafeAreaRows = 0) => {
-    const { topBandEnd, bottomBandStart, bottomChromeStart, scale, patternWidth } = geometry;
+    const { topBandEnd, bottomBandStart, bottomChromeStart, scale, patternWidth, reference } = geometry;
     const bottomSafeAreaRows = Math.max(0, Math.round(capture.height - bottomChromeStart - CHROME_HEIGHT * scale));
     const bottomSafeAreaStart = capture.height - bottomSafeAreaRows;
     const textLineWindow = Math.max(1, Math.round((TEXT_LINE_HEIGHT * scale) / sampleStep));
@@ -203,15 +216,16 @@ const checkScreenBackground = (capture, background, geometry, name, sampleStep =
     for (const edge of edgeRows) {
         const firstRow = edge.rows[0];
         const outer = rowColorStats(capture, firstRow, 0, patternWidth, sampleStep);
-        const edgeDistance = colorDistance(outer.color, background);
         const distances = smooth(
             edge.rows.map(row => {
                 const isSafeAreaRow = edge.name === 'top' ? row < topSafeAreaRows : row >= bottomSafeAreaStart;
-                const color = isSafeAreaRow
-                    ? rowSideColor(capture, row, patternWidth, sampleStep)
-                    : rowColorStats(capture, row, 0, patternWidth, sampleStep).color;
+                const colorOf = image =>
+                    isSafeAreaRow
+                        ? rowSideColor(image, row, patternWidth, sampleStep)
+                        : rowColorStats(image, row, 0, patternWidth, sampleStep).color;
+                const distance = colorDistance(colorOf(capture), background);
 
-                return colorDistance(color, background);
+                return reference ? distance - colorDistance(colorOf(reference), background) : distance;
             }),
             textLineWindow
         );
@@ -227,11 +241,6 @@ const checkScreenBackground = (capture, background, geometry, name, sampleStep =
             }
         }
 
-        if (edgeDistance > THRESHOLDS.backgroundEdgeMeanMax) {
-            failures.push(
-                `${name}: ${edge.name} physical edge is ${edgeDistance.toFixed(1)} levels from the actual background`
-            );
-        }
         if (outer.deviation > THRESHOLDS.backgroundEdgeDeviationMax) {
             failures.push(
                 `${name}: ${edge.name} physical edge varies by ${outer.deviation.toFixed(1)} levels against the actual background`
@@ -263,6 +272,8 @@ const checkBand = (name, chrome, ramp, scale, failures) => {
     const transitionStart = contrast.findIndex(value => value >= 0.2);
     const transitionEnd = contrast.findIndex(value => value >= 0.8);
     const chromeEnergy = mean(chrome.map(({ energy: value }) => value));
+    const chromeVisibility = mean(chrome.map(({ visibility }) => visibility));
+    const chromeSharpness = chromeEnergy / Math.max(chromeVisibility ** 2, MINIMUM_VISIBILITY_SQUARED);
     const runningMax = energy.map((_, index) => Math.max(...energy.slice(0, index + 1)));
     const drop = energy.findIndex((value, index) => runningMax[index] - value > THRESHOLDS.rampDropMax);
     const jump = energy.findIndex(
@@ -271,8 +282,14 @@ const checkBand = (name, chrome, ramp, scale, failures) => {
     const washes = [...chrome, ...ramp].map(({ wash }) => wash);
     const at = index => `${(index / scale).toFixed(0)}pt into the ramp`;
 
-    if (chromeEnergy > THRESHOLDS.chromeEnergyMax) {
-        failures.push(`${name}: chrome zone keeps ${chromeEnergy.toFixed(2)} of the content detail, the blur is missing`);
+    if (chromeVisibility < THRESHOLDS.chromeVisibilityMin) {
+        failures.push(`${name}: chrome zone shows only ${chromeVisibility.toFixed(2)} of the content, the wash hides it`);
+    }
+    if (chrome[0].visibility > THRESHOLDS.edgeVisibilityMax) {
+        failures.push(`${name}: the physical edge row stands out ${chrome[0].visibility.toFixed(2)}x against the content`);
+    }
+    if (chromeSharpness > THRESHOLDS.chromeSharpnessMax) {
+        failures.push(`${name}: chrome zone keeps ${chromeSharpness.toFixed(2)} of the content detail, the blur is missing`);
     }
     if (mean(energy.slice(-2 * step)) < THRESHOLDS.rampEndEnergyMin) {
         failures.push(`${name}: content is still blurred at the band's inner edge`);
@@ -307,7 +324,7 @@ export const checkScrolledCapture = (capture, reference, background, rampPoints)
     const geometry = readRuler(reference, rampPoints);
     const { topChromeEnd, topBandEnd, bottomBandStart, bottomChromeStart, scale } = geometry;
     if (background) {
-        failures.push(...checkScreenBackground(capture, background, geometry, 'scrolled capture'));
+        failures.push(...checkScreenBackground(capture, background, { ...geometry, reference }, 'scrolled capture'));
     }
     const topRamp = checkBand(
         'top',
