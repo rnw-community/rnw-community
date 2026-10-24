@@ -47,8 +47,7 @@ const THREE_QUARTER_FRACTION = 0.75;
 const MASK_STOP_FRACTIONS = [0, QUARTER_FRACTION, HALF_FRACTION, THREE_QUARTER_FRACTION, 1] as const;
 const TOP_EDGE_MASK =
     'linear-gradient(to bottom, #000000 11.6279%, rgba(0,0,0,0.56) 33.7209%, rgba(0,0,0,0.25) 55.814%, rgba(0,0,0,0.06) 77.907%, transparent 100%)';
-const TOP_WASH =
-    'linear-gradient(to bottom, rgb(from rgba(255,255,255,0.42) r g b / 1) 0%, rgb(from rgba(255,255,255,0.08) r g b / 1) 100%)';
+const TOP_WASH = 'linear-gradient(to bottom, rgba(255,255,255,0.42) 0%, rgba(255,255,255,0.08) 100%)';
 
 type HostInstance = ReturnType<ReturnType<typeof render>['getByTestId']>;
 
@@ -91,17 +90,20 @@ describe('EdgeFade web', () => {
         });
     });
 
-    it('holds the full blur behind a chrome height taller than the default web plateau', () => {
+    it('caps a tall chrome plateau so the blur keeps a three-radius ramp', () => {
         expect.hasAssertions();
 
         const screen = render(<EdgeFade testID="top-fade" position="top" chromeHeight={TALL_CHROME} />);
         const fade = screen.getByTestId('top-fade', { includeHiddenElements: true });
 
         expect(getLayerStyles(fade).map(({ maskImage }) => maskImage)).toEqual([
-            ...getWebEdgeFadeBlurLayers('top', WEB_TOP_RADIUS, WEB_TOP_BAND, (TALL_CHROME + 10) / WEB_TOP_BAND).map(
-                ({ maskImage }) => maskImage
-            ),
-            'linear-gradient(to bottom, #000000 81.3953%, rgba(0,0,0,0.56) 86.0465%, rgba(0,0,0,0.25) 90.6977%, rgba(0,0,0,0.06) 95.3488%, transparent 100%)',
+            ...getWebEdgeFadeBlurLayers(
+                'top',
+                WEB_TOP_RADIUS,
+                WEB_TOP_BAND,
+                (WEB_TOP_BAND - 3 * WEB_TOP_RADIUS) / WEB_TOP_BAND
+            ).map(({ maskImage }) => maskImage),
+            'linear-gradient(to bottom, #000000 21.5116%, rgba(0,0,0,0.56) 41.1337%, rgba(0,0,0,0.25) 60.7558%, rgba(0,0,0,0.06) 80.3779%, transparent 100%)',
         ]);
     });
 
@@ -128,8 +130,7 @@ describe('EdgeFade web', () => {
         expect(layers.map(({ opacity }) => opacity)).toEqual([0.5, 0.5]);
         expect(layers[0]).toHaveProperty('backdropFilter', 'blur(8px) saturate(1.08)');
         expect(layers[1]).toMatchObject({
-            backgroundImage:
-                'linear-gradient(to bottom, rgb(from rgba(255,255,255,0.08) r g b / 1) 0%, rgb(from rgba(255,255,255,0.42) r g b / 1) 100%)',
+            backgroundImage: 'linear-gradient(to bottom, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.42) 100%)',
         });
     });
 });

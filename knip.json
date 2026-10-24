@@ -29,6 +29,7 @@
             ]
         },
         "packages/react-native-screen-chrome-example": {
+            "entry": ["e2e/manual/playground-metrics.mjs"],
             "ignoreDependencies": ["react-native-worklets"]
         },
         "packages/react-native-screen-chrome-example/apps/bare": {

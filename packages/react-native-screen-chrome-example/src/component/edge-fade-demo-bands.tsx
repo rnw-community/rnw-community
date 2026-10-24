@@ -8,18 +8,20 @@ interface Props {
     readonly bandHeight: number;
     readonly isBlurOnly: boolean;
     readonly isTemporal: boolean;
+    readonly intensity?: number;
 }
 
 const CHROME_HEIGHT = 32;
 const renderBlurOnlyBand = ({ blur }: EdgeFadeBandRenderPropsInterface) => blur;
 
-export const EdgeFadeDemoBands = ({ bandHeight, isBlurOnly, isTemporal }: Props) => {
+export const EdgeFadeDemoBands = ({ bandHeight, isBlurOnly, isTemporal, intensity }: Props) => {
     const blurOnlyRenderBand = isBlurOnly ? { renderBand: renderBlurOnlyBand } : {};
     const fadeAnimation = isTemporal ? {} : { scrollAnimation: { opacityInputRange: [0, 40] as const } };
     const topBand = isTemporal ? (
         <CollapsibleHeaderBackdrop
             height={bandHeight}
             chromeHeight={CHROME_HEIGHT}
+            intensity={intensity}
             testID="edge-fade-harness-temporal-backdrop"
             {...blurOnlyRenderBand}
         />
@@ -28,6 +30,7 @@ export const EdgeFadeDemoBands = ({ bandHeight, isBlurOnly, isTemporal }: Props)
             position="top"
             height={bandHeight}
             chromeHeight={CHROME_HEIGHT}
+            intensity={intensity}
             scrollAnimation={{ opacityInputRange: [0, 40] }}
             {...blurOnlyRenderBand}
         />
@@ -40,6 +43,7 @@ export const EdgeFadeDemoBands = ({ bandHeight, isBlurOnly, isTemporal }: Props)
                 position="bottom"
                 height={bandHeight}
                 chromeHeight={CHROME_HEIGHT}
+                intensity={intensity}
                 {...fadeAnimation}
                 {...blurOnlyRenderBand}
             />

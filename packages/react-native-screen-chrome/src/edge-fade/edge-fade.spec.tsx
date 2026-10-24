@@ -99,14 +99,14 @@ describe('EdgeFade native', () => {
         });
     });
 
-    it('holds the full blur behind the chrome height before ramping to the inner edge', () => {
+    it('caps the chrome plateau so the blur keeps a three-radius ramp to the inner edge', () => {
         expect.hasAssertions();
 
         const band = 120;
         const chrome = 84;
 
         expect(getBlurProps(render(<EdgeFade position="bottom" height={band} chromeHeight={chrome} />)).plateau).toBe(
-            (BOTTOM_INSET + chrome) / (band + BOTTOM_INSET)
+            (band + BOTTOM_INSET - 3 * DEFAULT_BLUR_RADIUS) / (band + BOTTOM_INSET)
         );
     });
 
@@ -160,7 +160,7 @@ describe('EdgeFade native', () => {
             .findAll(node => typeof node.type === 'string' && isDefined(getStyle(node).experimental_backgroundImage));
 
         expect(getStyle(wash[0]).experimental_backgroundImage).toBe(
-            'linear-gradient(to bottom, rgba(255,255,255,1) 0%, rgba(255,255,255,1) 6.25%, rgba(255,255,255,0.561) 29.6875%, rgba(255,255,255,0.251) 53.125%, rgba(255,255,255,0.059) 76.5625%, rgba(255,255,255,0) 100%)'
+            'linear-gradient(to bottom, rgba(255,255,255,0.42) 0%, rgba(255,255,255,0.398) 6.25%, rgba(255,255,255,0.179) 29.6875%, rgba(255,255,255,0.06) 53.125%, rgba(255,255,255,0.009) 76.5625%, rgba(255,255,255,0) 100%)'
         );
     });
 });

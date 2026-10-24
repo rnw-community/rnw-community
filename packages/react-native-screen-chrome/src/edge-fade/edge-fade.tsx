@@ -39,17 +39,13 @@ export const EdgeFade = ({
     const insets = useSafeAreaInsets();
     const containerAnimatedStyle = useEdgeFadeOpacityStyle(scrollAnimation?.opacityInputRange);
     const positionalStyle = getEdgeFadeBandMetrics(position, height, config, insets);
-    const plateau = getEdgeFadeChromePlateau(positionalStyle.height, insets[position], chromeHeight);
+    const radius = getEdgeFadeBlurRadius(intensity, scrollAnimation, config);
+    const plateau = getEdgeFadeChromePlateau(positionalStyle.height, insets[position], chromeHeight, radius);
     const visuals = getEdgeFadeVisuals(position, colorScheme, config, plateau);
     const renderResolvedBand = renderBand ?? renderEdgeFadeBand;
     const washImage = buildNativeWashImage(visuals.washColors, visuals.maskColors, visuals.maskLocations);
     const blur = (
-        <EdgeFadeProgressiveBlur
-            position={position}
-            radius={getEdgeFadeBlurRadius(intensity, scrollAnimation, config)}
-            plateau={plateau}
-            scrollAnimation={scrollAnimation}
-        />
+        <EdgeFadeProgressiveBlur position={position} radius={radius} plateau={plateau} scrollAnimation={scrollAnimation} />
     );
     const defaultBand = (
         <View style={edgeFadeStyles.fill}>

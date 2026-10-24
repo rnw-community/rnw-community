@@ -355,7 +355,7 @@ const backdropProps: CollapsibleHeaderBackdropPropsInterface = { testID: 'header
 Every band starts at the screen edge and covers the safe-area inset plus its configured height. A native band holds
 its full blur behind the chrome it sits under (the inset plus `chromeHeight`), then eases the blur opacity to zero
 at the inner edge on every platform. iOS also varies the radius. The blur sits under a color wash that is fully
-opaque at the screen edge and eases to transparent inward along the `maskStops` alpha. Bands ignore pointer events and accessibility traversal, and scroll animation
+as opaque at the screen edge as the configured color alpha allows (alpha multiplied by the `maskStops` alpha) and eases to transparent inward. Bands ignore pointer events and accessibility traversal, and scroll animation
 changes opacity while the radii stay static. Native defaults use 150-point top and bottom bands, while web defaults use
 76-pixel bands.
 
@@ -367,7 +367,7 @@ Renders a decorative top or bottom blur band, scroll-animatable through `scrollA
 <EdgeFade position="bottom" height={96} scrollAnimation={{ opacityInputRange: [0, 80] }} />
 ```
 
-Native bands hold the full blur radius over the safe-area inset plus `chromeHeight` (the bar the band sits behind) and
+Native bands hold the full blur radius over the safe-area inset plus `chromeHeight` (the bar the band sits behind), shortened when the band cannot also keep a ramp of three blur radii, and
 fade it across the rest of the band (masked variable blur on iOS, masked uniform blur on Android and web), so the chrome stays legible while content fades into the blur without a
 visible start line. Web uses the same chrome-only plateau. The edge radius is `max(8, intensity × 0.45)` points, using `scrollAnimation.maxIntensity` while an
 `intensityInputRange` is set, which fades the native view in through opacity, so scrolling never rebuilds the blur.
@@ -1161,9 +1161,7 @@ value stays `'light' | 'dark'`. A fixed value ignores the device appearance enti
 
 ## ScreenChromeColorSetInterface
 
-Defines the wash colors used by a chrome color scheme. Only the RGB of each color is used: `solid` is the color at the screen edge and
-should equal the screen background, `wash` is the color blended toward the inner edge, and the `maskStops` alpha alone sets the opacity,
-so the edge is fully opaque and any color alpha is ignored.
+Defines the wash colors used by a chrome color scheme. `solid` is the color at the screen edge, `wash` is the color blended toward the inner edge, and each stop's opacity is the configured color alpha multiplied by the `maskStops` alpha, so a translucent color leaves the blurred content visible at the edge.
 
 ```ts
 const lightColors: ScreenChromeColorSetInterface = { solid: 'rgba(255,255,255,0.42)', wash: 'rgba(255,255,255,0.08)' };

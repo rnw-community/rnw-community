@@ -131,15 +131,15 @@ pnpm test && pnpm test:coverage && pnpm build && pnpm ts && pnpm ts:nodenext && 
   _identity_ is behavior — a merged ref callback that React 19 would otherwise detach, clean up, and reattach
   on every render — must be manually memoized; nothing else memoizes them today.
 - Native `EdgeFade` is the native blur view under a wash `View` whose `experimental_backgroundImage`
-  (`buildNativeWashImage`) blends the RGB of the two wash colors and takes each stop's alpha from the `maskStops` alone, so the
-  edge is fully opaque whatever alpha the configured colors carry (a translucent edge leaves blurred content visible; web
-  `buildBackgroundImage` does the same with opaque `rgb()` colors); nothing is masked,
+  (`buildNativeWashImage`) blends the RGB of the two wash colors and takes each stop's alpha as the configured color alpha times the `maskStops` alpha, so a
+  translucent color leaves blurred content visible at the edge (web `buildBackgroundImage` passes the configured colors through and
+  the CSS mask supplies the `maskStops` alpha); nothing is masked,
   because a mask on a superview of a `UIVisualEffectView` stops the blur rendering. The blur's own eased image mask
   is applied directly to the effect view, which UIKit supports. The view holds the full radius
   (`plateau`, from `getEdgeFadeChromePlateau`) only behind the chrome itself, the safe-area inset plus `chromeHeight`,
-  then eases to zero at the inner edge (Core Animation `variableBlur` with an eased radius and output mask on iOS; a QmBlurView eased out
+  shortened when needed so the ramp keeps at least three blur radii (a band too short for both keeps the ramp), then eases to zero at the inner edge (Core Animation `variableBlur` with an eased radius and output mask on iOS; a QmBlurView eased out
   through a `DST_IN` gradient on Android; both ported from `@sbaiahmed1/react-native-blur`, see
-  `THIRD_PARTY_NOTICES.md`). Never derive the plateau from the band height: a plateau reaching past the chrome
+  `THIRD_PARTY_NOTICES.md`). Never let the plateau reach past the chrome: it
   compresses the ramp and reads as a line where the blur starts. `intensityInputRange` fades the view through opacity,
   never by changing its radius, which would rebuild the native filter every frame. The edge-fade harness (below) is
   the regression gate for the look on every platform. Additional visuals belong in a consumer

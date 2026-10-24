@@ -56,7 +56,7 @@ export const CHROME_DEMO_STYLES = StyleSheet.create({
         fontWeight: '600',
     },
     homeContainer: {
-        flex: 1,
+        flexGrow: 1,
         gap: 12,
         justifyContent: 'center',
     },

@@ -166,10 +166,12 @@ const opaqueWashOnly = (topInset, bottomInset) => {
     return { capture, reference: source };
 };
 
+const EDGE_BACKGROUND_SHARE = 0.95;
+
 const fitBackgroundEdges = image => {
     const edgeRamp = 10 * SCALE;
     const blendRow = (row, depth) => {
-        const backgroundShare = 1 - Math.min(1, depth / edgeRamp);
+        const backgroundShare = EDGE_BACKGROUND_SHARE * (1 - Math.min(1, depth / edgeRamp));
 
         for (let x = 0; x < WIDTH - RULER_WIDTH * SCALE; x++) {
             for (let channel = 0; channel < 3; channel++) {
@@ -327,7 +329,7 @@ const compactCaptureDir = wash => {
     const compactWash = progress => {
         const rampProgress = Math.max(0, Math.min(1, (progress - CHROME / COMPACT_BAND) / (1 - CHROME / COMPACT_BAND)));
 
-        return wash(rampProgress) / WASH;
+        return wash(rampProgress);
     };
     const { capture, reference: original } = band({ bandHeight: COMPACT_BAND, wash: compactWash });
     const { capture: blurOnly } = band({ bandHeight: COMPACT_BAND, wash: () => 0 });
@@ -407,9 +409,9 @@ const meanPreservingDetailFlash = source => {
     return image;
 };
 
-const slowBackgroundReversal = () => {
+const slowBackgroundReversal = (rate = 0.2, peak = 60) => {
     const image = reference();
-    const reversal = index => Math.max(0, Math.min(index, 60) - Math.max(0, index - 60) * 0.2);
+    const reversal = index => Math.max(0, Math.min(index, peak) - Math.max(0, index - peak) * rate);
     const setRow = (row, distance) => {
         const value = Math.min(255, SCREEN_BACKGROUND[0] + distance);
 
@@ -471,13 +473,24 @@ describe('edge-fade harness metrics', () => {
         }
     });
 
-    it('rejects a physical edge whose mean does not converge to the declared screen background', () => {
+    it('accepts a translucent physical edge that keeps the blurred content visible', () => {
         const { capture, reference: original } = band();
 
-        assert.match(
-            checkScrolledCapture(capture, original, SCREEN_BACKGROUND).join('\n'),
-            /top physical edge.*background/u
-        );
+        assert.deepEqual(checkScrolledCapture(capture, original, SCREEN_BACKGROUND), []);
+    });
+
+    it('rejects an opaque chrome plateau that hides the blurred content', () => {
+        const { capture, reference: original } = band({ wash: progress => (progress < 0.4 ? 1 : (1 - progress) ** 2) });
+        const failures = checkScrolledCapture(capture, original, SCREEN_BACKGROUND).join('\n');
+
+        assert.match(failures, /top: chrome zone shows only 0\.\d+ of the content, the wash hides it/u);
+        assert.match(failures, /bottom: chrome zone shows only 0\.\d+ of the content, the wash hides it/u);
+    });
+
+    it('rejects a translucent chrome plateau whose content stays sharp', () => {
+        const { capture, reference: original } = band({ chromeRadius: 0 });
+
+        assert.match(checkScrolledCapture(capture, original, SCREEN_BACKGROUND).join('\n'), /the blur is missing/u);
     });
 
     it('reports when the declared background metadata disagrees with the reference pixels', () => {
@@ -505,7 +518,7 @@ describe('edge-fade harness metrics', () => {
 
         assert.match(
             checkScrolledCapture(capture, original, SCREEN_BACKGROUND).join('\n'),
-            /bottom physical edge.*background/u
+            /bottom: the physical edge row stands out/u
         );
     });
 
@@ -569,27 +582,37 @@ describe('edge-fade harness metrics', () => {
 
             const failures = checkScrolledCapture(capture, original, SCREEN_BACKGROUND);
 
-            assert.equal(failures.length, [topInset, bottomInset].filter(inset => inset === 24).length);
-            assert.ok(failures.every(failure => failure.includes('compressed blur transition')));
+            assert.ok(failures.some(failure => failure.includes('the wash hides it')));
             assert.match(checkBlurOnlyCapture(original, original).join('\n'), /blur is missing/u);
         }
     });
 
-    it('rejects measurable texture returning on the physical last row under the edge mean limit', () => {
+    it('rejects a sharp unblurred physical last row', () => {
         const { capture, reference: original } = band();
         fitBackgroundEdges(capture);
 
         for (let x = 0; x < PATTERN_WIDTH; x++) {
-            const value = Math.floor(x / STRIPE) % 2 === 0 ? 0 : 32;
+            const value = Math.floor(x / STRIPE) % 2 === 0 ? 0 : 255;
 
             capture.data.set([value, value, value, 255], ((HEIGHT - 1) * WIDTH + x) * 4);
-            capture.data.set([16, 16, 16, 255], ((HEIGHT - 2) * WIDTH + x) * 4);
         }
 
         const failures = checkScrolledCapture(capture, original, SCREEN_BACKGROUND);
 
-        assert.ok(failures.some(failure => /bottom physical edge varies/u.test(failure)));
-        assert.ok(!failures.some(failure => /bottom physical edge is/u.test(failure)));
+        assert.ok(failures.some(failure => /bottom physical edge keeps .* the blur is missing/u.test(failure)));
+    });
+
+    it('rejects an opaque slab on the physical last row', () => {
+        const { capture, reference: original } = band();
+        fitBackgroundEdges(capture);
+
+        for (let x = 0; x < PATTERN_WIDTH; x++) {
+            capture.data.set([...SCREEN_BACKGROUND, 255], ((HEIGHT - 1) * WIDTH + x) * 4);
+        }
+
+        const failures = checkScrolledCapture(capture, original, SCREEN_BACKGROUND);
+
+        assert.ok(failures.some(failure => /bottom physical edge keeps no content/u.test(failure)));
     });
 
     it('rejects a bottom ramp blur edge while a home indicator is present in the safe area', () => {
@@ -609,6 +632,12 @@ describe('edge-fade harness metrics', () => {
                 failure => failure.startsWith('bottom:') && /visible blur edge|compressed blur transition/u.test(failure)
             )
         );
+    });
+
+    it('tolerates a background-distance dip that is small against the visible content range', () => {
+        const failures = checkScrolledCapture(slowBackgroundReversal(0.02, 200), reference(), SCREEN_BACKGROUND);
+
+        assert.ok(!failures.some(failure => /background delta reverses/u.test(failure)));
     });
 
     it('rejects a slow background-distance reversal that never exceeds the adjacent-row limit', () => {
@@ -728,7 +757,7 @@ describe('edge-fade harness metrics', () => {
             return image;
         });
 
-        assert.match(checkTemporalFrames(brokenTopEdge, [255, 255, 255], 5).join('\n'), /top physical edge is/u);
+        assert.match(checkTemporalFrames(brokenTopEdge, [255, 255, 255], 5).join('\n'), /top background delta reverses/u);
 
         const brokenBottomEdge = frames.map(frame => {
             const image = new PNG({ width: frame.width, height: frame.height });
@@ -741,7 +770,10 @@ describe('edge-fade harness metrics', () => {
             return image;
         });
 
-        assert.match(checkTemporalFrames(brokenBottomEdge, [255, 255, 255], 5).join('\n'), /bottom physical edge is/u);
+        assert.match(
+            checkTemporalFrames(brokenBottomEdge, [255, 255, 255], 5).join('\n'),
+            /bottom background delta reverses/u
+        );
     });
 
     it('rejects an isolated temporal band luminance spike', () => {

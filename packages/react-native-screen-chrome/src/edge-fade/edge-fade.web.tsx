@@ -40,14 +40,10 @@ export const EdgeFade = ({
     const insets = useSafeAreaInsets();
     const animatedStyle = useEdgeFadeOpacityStyle(scrollAnimation?.opacityInputRange);
     const metrics = getEdgeFadeBandMetrics(position, height, config, insets);
-    const plateau = getEdgeFadeChromePlateau(metrics.height, insets[position], chromeHeight);
+    const radius = getEdgeFadeBlurRadius(intensity, scrollAnimation, config);
+    const plateau = getEdgeFadeChromePlateau(metrics.height, insets[position], chromeHeight, radius);
     const washStyle = getWebEdgeFadeVisualStyle(position, colorScheme, config, plateau);
-    const blurLayers = getWebEdgeFadeBlurLayers(
-        position,
-        getEdgeFadeBlurRadius(intensity, scrollAnimation, config),
-        metrics.height,
-        plateau
-    );
+    const blurLayers = getWebEdgeFadeBlurLayers(position, radius, metrics.height, plateau);
     const renderResolvedBand = renderBand ?? renderEdgeFadeBand;
 
     if (!isDefined(renderResolvedBand)) {

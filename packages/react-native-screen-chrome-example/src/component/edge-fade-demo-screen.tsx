@@ -42,6 +42,7 @@ const BACKGROUNDS = [
 const STATES = ['reference', 'rest', 'scrolled', 'blur-only'] as const;
 const BAND_HEIGHT = 128;
 const COMPACT_BAND_HEIGHT = 56;
+const COMPACT_INTENSITY = 17;
 const CHROME_HEIGHT = 32;
 const RULER_WIDTH = 6;
 const SCROLL_CONTENT_VIEWPORTS = 3;
@@ -105,6 +106,7 @@ export const EdgeFadeDemoScreen = () => {
                     bandHeight={bandHeight}
                     isBlurOnly={state === 'blur-only'}
                     isTemporal={temporalPrepared}
+                    {...(isCompact && { intensity: COMPACT_INTENSITY })}
                 />
             )}
             {rulerSegments.map(segment => (
