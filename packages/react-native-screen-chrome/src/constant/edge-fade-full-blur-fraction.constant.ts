@@ -1,0 +1,1 @@
+export const EDGE_FADE_FULL_BLUR_FRACTION = 0.08;

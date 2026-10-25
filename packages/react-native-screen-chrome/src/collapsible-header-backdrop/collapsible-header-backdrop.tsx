@@ -14,7 +14,6 @@ import type { ReactNode } from 'react';
  */
 export const CollapsibleHeaderBackdrop = ({
     height,
-    chromeHeight,
     intensity,
     scrollAnimation,
     ...edgeFadeProps
@@ -26,7 +25,6 @@ export const CollapsibleHeaderBackdrop = ({
             {...edgeFadeProps}
             position="top"
             height={getDefined(height, () => config.headerBackdropHeight)}
-            chromeHeight={getDefined(chromeHeight, () => config.collapsedHeaderHeight ?? config.headerHeight)}
             intensity={getDefined(intensity, () => config.maxBlurIntensity)}
             scrollAnimation={scrollAnimation}
         />

@@ -3,6 +3,7 @@ import { render } from '@testing-library/react-native';
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
 
+import { EDGE_FADE_FULL_BLUR_FRACTION } from '../constant/edge-fade-full-blur-fraction.constant';
 import { SCREEN_CHROME_DEFAULT_CONFIG } from '../constant/screen-chrome-default-config.constant.web';
 
 import { EdgeFade } from './edge-fade.web';
@@ -38,7 +39,6 @@ beforeEach(() => {
 });
 
 const WEB_TOP_BAND = 86;
-const WEB_TOP_INSET = 10;
 const WEB_TOP_RADIUS = 22.5;
 const TALL_CHROME = 60;
 const QUARTER_FRACTION = 0.25;
@@ -46,7 +46,7 @@ const HALF_FRACTION = 0.5;
 const THREE_QUARTER_FRACTION = 0.75;
 const MASK_STOP_FRACTIONS = [0, QUARTER_FRACTION, HALF_FRACTION, THREE_QUARTER_FRACTION, 1] as const;
 const TOP_EDGE_MASK =
-    'linear-gradient(to bottom, #000000 11.6279%, rgba(0,0,0,0.56) 33.7209%, rgba(0,0,0,0.25) 55.814%, rgba(0,0,0,0.06) 77.907%, transparent 100%)';
+    'linear-gradient(to bottom, #000000 8%, rgba(0,0,0,0.56) 31%, rgba(0,0,0,0.25) 54%, rgba(0,0,0,0.06) 77%, transparent 100%)';
 const TOP_WASH = 'linear-gradient(to bottom, rgba(255,255,255,0.42) 0%, rgba(255,255,255,0.08) 100%)';
 
 type HostInstance = ReturnType<ReturnType<typeof render>['getByTestId']>;
@@ -90,20 +90,17 @@ describe('EdgeFade web', () => {
         });
     });
 
-    it('caps a tall chrome plateau so the blur keeps a three-radius ramp', () => {
+    it('keeps the full-blur fraction whatever chrome height it is given', () => {
         expect.hasAssertions();
 
         const screen = render(<EdgeFade testID="top-fade" position="top" chromeHeight={TALL_CHROME} />);
         const fade = screen.getByTestId('top-fade', { includeHiddenElements: true });
 
         expect(getLayerStyles(fade).map(({ maskImage }) => maskImage)).toEqual([
-            ...getWebEdgeFadeBlurLayers(
-                'top',
-                WEB_TOP_RADIUS,
-                WEB_TOP_BAND,
-                (WEB_TOP_BAND - 3 * WEB_TOP_RADIUS) / WEB_TOP_BAND
-            ).map(({ maskImage }) => maskImage),
-            'linear-gradient(to bottom, #000000 21.5116%, rgba(0,0,0,0.56) 41.1337%, rgba(0,0,0,0.25) 60.7558%, rgba(0,0,0,0.06) 80.3779%, transparent 100%)',
+            ...getWebEdgeFadeBlurLayers('top', WEB_TOP_RADIUS, WEB_TOP_BAND, EDGE_FADE_FULL_BLUR_FRACTION).map(
+                ({ maskImage }) => maskImage
+            ),
+            TOP_EDGE_MASK,
         ]);
     });
 
@@ -168,7 +165,7 @@ describe('EdgeFade web band renderer', () => {
                 ],
                 maskColors: ['#000000', 'rgba(0,0,0,0.56)', 'rgba(0,0,0,0.25)', 'rgba(0,0,0,0.06)', 'transparent'],
                 maskLocations: MASK_STOP_FRACTIONS.map(
-                    fraction => WEB_TOP_INSET / WEB_TOP_BAND + ((WEB_TOP_BAND - WEB_TOP_INSET) / WEB_TOP_BAND) * fraction
+                    fraction => EDGE_FADE_FULL_BLUR_FRACTION + (1 - EDGE_FADE_FULL_BLUR_FRACTION) * fraction
                 ),
             })
         );

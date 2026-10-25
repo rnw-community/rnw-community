@@ -15,9 +15,29 @@ describe('getWebEdgeFadeBlurLayers', () => {
             backdropFilter: 'blur(20px) saturate(1.08)',
             WebkitBackdropFilter: 'blur(20px) saturate(1.08)',
         });
-        expect(layers[0].maskImage).toContain('rgba(0,0,0,0.5) 50%');
+        expect(layers[0].maskImage).toContain('rgba(0,0,0,0.25) 50%');
         expect(layers[0].maskImage).toContain('rgba(0,0,0,0) 66.6667%');
         expect(layers[0].WebkitMaskImage).toBe(layers[0].maskImage);
+    });
+
+    it('holds the full blur over the plateau and eases it in quadratically from the inner edge', () => {
+        expect.hasAssertions();
+
+        const plateau = 0.08;
+        const maskImage = String(getWebEdgeFadeBlurLayers('top', 8, 150, plateau)[0].maskImage);
+        const padding = 1 + (2 * 8) / 150;
+        const stops = [...maskImage.matchAll(/rgba\(0,0,0,([\d.]+)\) ([\d.]+)%/gu)].map(([, opacity, offset]) => ({
+            opacity: Number(opacity),
+            ramp: (1 - (Number(offset) / 100) * padding) / (1 - plateau),
+        }));
+
+        expect(maskImage).toMatch(/^linear-gradient\(to bottom, #000000 0%, rgba\(0,0,0,1\) /u);
+        expect(stops[0].ramp).toBeCloseTo(1, 5);
+        expect(stops).toHaveLength(25);
+        stops.forEach(({ opacity, ramp }, index) => {
+            expect(opacity).toBeCloseTo(ramp ** 2, 3);
+            expect(index === 0 || opacity < stops[index - 1].opacity).toBe(true);
+        });
     });
 
     it('mirrors the eased mask and sampling padding at the bottom edge', () => {

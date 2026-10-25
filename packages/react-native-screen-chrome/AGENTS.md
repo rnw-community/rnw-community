@@ -35,7 +35,7 @@ pnpm test && pnpm test:coverage && pnpm build && pnpm ts && pnpm ts:nodenext && 
   implementations, and the native blur (with its intensity animation) lives in the internal `EdgeFadeProgressiveBlur` so the
   renderer receives it as a ready element. With no renderer the rendered tree is identical to the pre-renderer output;
   on web the CSS visuals stay on the container in that case and move into the `blur`/`defaultBand` children only when a
-  renderer is set. `CollapsibleHeaderBackdrop` forwards every `EdgeFade` prop except `position`; by default it stays visible with static blur through collapse and uses `collapsedHeaderHeight ?? headerHeight` for its chrome plateau.
+  renderer is set. `CollapsibleHeaderBackdrop` forwards every `EdgeFade` prop except `position`; by default it stays visible with static blur through collapse; it draws no second layer, so the header gets the same ramp as every band.
 - The compound header validates direct slots and delegates all transitions to `react-native-collapsible-header`; it
   renders in `mode="overlay"`, forwards `config.snapToCollapse` as `snap`, and maps config thresholds to normalized
   motion through `getCollapsibleHeaderMotion`.
@@ -107,7 +107,7 @@ pnpm test && pnpm test:coverage && pnpm build && pnpm ts && pnpm ts:nodenext && 
   `headerHeight`, matching the primitive's `expandedHeight >= collapsedHeight` assertion. Every other `headerHeight`
   consumer (`ScreenChromeHeader`, `getScreenChromeHeaderMetrics`/`useScreenChromeHeaderMetrics`, and therefore the
   scroll content inset) deliberately keeps the expanded height — content must clear the header at rest — and
-  `CollapsibleHeaderBackdrop` keeps its independent `headerBackdropHeight` while aligning its blur and wash plateau to the collapsed height. Leaving the inset out of
+  `CollapsibleHeaderBackdrop` keeps its independent `headerBackdropHeight`. Leaving the inset out of
   `expandedHeight`/`collapsedHeight` compresses the title and controls to whatever the notch does not consume, and
   `paddingTop` on `headerStyle` does not move them at all: the primitive renders the expanded, collapsed, and persistent
   layers as `position: absolute` boxes with inset `0`, which resolve against the container box and ignore its padding,
@@ -136,11 +136,12 @@ pnpm test && pnpm test:coverage && pnpm build && pnpm ts && pnpm ts:nodenext && 
   the CSS mask supplies the `maskStops` alpha); nothing is masked,
   because a mask on a superview of a `UIVisualEffectView` stops the blur rendering. The blur's own eased image mask
   is applied directly to the effect view, which UIKit supports. The view holds the full radius
-  (`plateau`, from `getEdgeFadeChromePlateau`) only behind the chrome itself, the safe-area inset plus `chromeHeight`,
-  shortened when needed so the ramp keeps at least three blur radii (a band too short for both keeps the ramp), then eases to zero at the inner edge (Core Animation `variableBlur` with an eased radius and output mask on iOS; a QmBlurView eased out
+  (`plateau`, `EDGE_FADE_FULL_BLUR_FRACTION`) only over the outermost 8% of the band, then eases in with `m = d²`
+  (`d` is 0 at the inner edge and 1 at the plateau) so content stays nearly sharp for most of the band, and fades to zero at the inner edge (Core Animation `variableBlur` with an eased radius and output mask on iOS; a QmBlurView eased out
   through a `DST_IN` gradient on Android; both ported from `@sbaiahmed1/react-native-blur`, see
-  `THIRD_PARTY_NOTICES.md`). Never let the plateau reach past the chrome: it
-  compresses the ramp and reads as a line where the blur starts. `intensityInputRange` fades the view through opacity,
+  `THIRD_PARTY_NOTICES.md`). Never tie the plateau to the chrome height or use an
+  S-curve (smoothstep is steepest mid-ramp): both compress the transition and read as a line where the blur starts.
+  `chromeHeight` is accepted for compatibility and ignored. `intensityInputRange` fades the view through opacity,
   never by changing its radius, which would rebuild the native filter every frame. The edge-fade harness (below) is
   the regression gate for the look on every platform. Additional visuals belong in a consumer
   `renderBand`/`renderEdgeFadeBand`, never in the package default.
@@ -155,7 +156,7 @@ pnpm test && pnpm test:coverage && pnpm build && pnpm ts && pnpm ts:nodenext && 
   physical screen edge inward. Direct edge variance still catches texture on the physical last row when its mean is
   within threshold. Rest checks use absolute pixel differences and cannot miss mean-preserving blur. Thresholds live in
   `THRESHOLDS`: chrome zone keeps at most 0.2 of reference detail; the ramp returns to at least 0.8, loses at most 0.12,
-  and rises at most 0.165 per point; its 20–80% contrast transition spans at least 35% of the ramp; outside content keeps at least 0.85; wash shifts at most 6 levels at the inner edge
+  and rises at most 0.165 per point; its 20–80% contrast transition, measured from the physical edge across the whole band, spans at least 35% of the band; outside content keeps at least 0.85; wash shifts at most 6 levels at the inner edge
   and 3 outside; physical-edge mean is within 10 levels of the known background and deviation within 8; top/bottom
   ramps differ at most 0.25; rest differs at most 2 levels. A separate `edge_fade_temporal_harness.yaml` scrolls a real
   native `ScrollView` from 200 to 400 over 300 rendered frames (about five seconds at 60 Hz) with invariant vertical stripes, records six scheme/background
@@ -165,8 +166,7 @@ pnpm test && pnpm test:coverage && pnpm build && pnpm ts && pnpm ts:nodenext && 
   temporal spike, hard wash edge, and visible-at-rest bands. Keep baseline PNGs unchanged until a parent has inspected
   the CI capture images; update only reviewed CI captures.
 - Web `EdgeFade` matches the Android blend (`getWebEdgeFadeBlurLayers`): one fixed-radius `backdrop-filter` with an
-  eased output mask across the full ramp, plus a separately masked wash. The full-opacity plateau is only the safe-area
-  inset plus `chromeHeight`. The filter box extends two radii past the inner edge so its sampling boundary cannot show
+  eased output mask across the full ramp, plus a separately masked wash. The full-opacity plateau is the same outer 8% and the mask follows the same `d²` ramp. The filter box extends two radii past the inner edge so its sampling boundary cannot show
   through the mask. Never put opacity below 1, a mask, or a filter on an ancestor: that creates a backdrop root and
   prevents sampling the page. Scroll opacity animates the visual layers, with a static radius.
 - Public exports carry repository-standard scoped TSDoc and package readme links.
@@ -182,7 +182,7 @@ pnpm test && pnpm test:coverage && pnpm build && pnpm ts && pnpm ts:nodenext && 
   If iOS removes its private variable-blur filter, hide the effect view instead of showing a uniform hard-edged blur.
   Web keeps CSS backdrop filtering.
 - Native `intensityInputRange` fades a fixed radius using `maxIntensity`; bands begin at the screen edge and the
-  native header-backdrop default is 128 points. `chromeHeight` specifies the full-strength region beyond the safe-area inset.
+  native header-backdrop default is 128 points. `chromeHeight` no longer changes the full-strength region.
 - Keep [Migrating to 3.0](readme.md#migrating-to-30) and `llms.txt` aligned with the public surface.
 
 ## Publication pipeline (react-native-builder-bob)

@@ -28,23 +28,6 @@ describe('CollapsibleHeaderBackdrop', () => {
         expect(jest.mocked(EdgeFade).mock.calls[0][0]).toEqual({
             position: 'top',
             height: mockConfig.headerBackdropHeight,
-            chromeHeight: mockConfig.collapsedHeaderHeight ?? mockConfig.headerHeight,
-            intensity: mockConfig.maxBlurIntensity,
-            scrollAnimation: void 0,
-        });
-    });
-
-    it('uses the configured collapsed header height for its blur plateau', () => {
-        expect.hasAssertions();
-
-        mockConfig = { ...SCREEN_CHROME_DEFAULT_CONFIG, collapsedHeaderHeight: 32 };
-
-        render(<CollapsibleHeaderBackdrop />);
-
-        expect(jest.mocked(EdgeFade).mock.calls[0][0]).toEqual({
-            position: 'top',
-            height: mockConfig.headerBackdropHeight,
-            chromeHeight: 32,
             intensity: mockConfig.maxBlurIntensity,
             scrollAnimation: void 0,
         });
@@ -60,7 +43,6 @@ describe('CollapsibleHeaderBackdrop', () => {
         expect(jest.mocked(EdgeFade).mock.calls[0][0]).toEqual({
             position: 'top',
             height: mockConfig.headerBackdropHeight,
-            chromeHeight: mockConfig.headerHeight,
             intensity: 45,
             scrollAnimation: void 0,
         });

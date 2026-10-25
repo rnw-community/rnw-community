@@ -121,9 +121,10 @@ class ScreenChromeProgressiveBlurView(context: Context, appContext: AppContext) 
     const val BLUR_ROUNDS = 5
     const val SCREEN_CLASS = "com.swmansion.rnscreens.Screen"
     const val REACT_ROOT_CLASS = "com.facebook.react.ReactRootView"
-    val RAMP_POSITIONS = floatArrayOf(0f, 0.15f, 0.3f, 0.45f, 0.6f, 0.75f, 1f)
-    val RAMP_COLORS = floatArrayOf(0f, 0.08f, 0.3f, 0.52f, 0.75f, 0.9f, 1f)
-      .map { alpha -> Color.argb((alpha * 255f).roundToInt(), 255, 255, 255) }
+    const val RAMP_STEPS = 24
+    val RAMP_POSITIONS = FloatArray(RAMP_STEPS + 1) { step -> step.toFloat() / RAMP_STEPS }
+    val RAMP_COLORS = RAMP_POSITIONS
+      .map { progress -> Color.argb((progress * progress * 255f).roundToInt(), 255, 255, 255) }
       .toIntArray()
   }
 }
