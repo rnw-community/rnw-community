@@ -112,7 +112,7 @@ jobs:
                 run: pnpm cpd
 
             -   name: Unit tests
-                run: pnpm exec turbo run test:coverage --affected
+                run: pnpm exec turbo run test:coverage --affected --concurrency=2 -- --runInBand
 
             -   name: Upload coverage - decorators-core
                 if: hashFiles('packages/decorators-core/coverage/lcov.info') != ''
