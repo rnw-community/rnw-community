@@ -389,12 +389,20 @@ jobs:
                         "@babel/core": "^7.29.7",
                         "@react-native/metro-config": "0.85.3",
                         "@types/react": "^19.2.0",
-                        "typescript": "^5.9.3",
-                        "@typescript/native": "npm:typescript@7.0.2",
-                        "tsrs": "0.18.0-ts7.1.0-dev.20260929"
+                        "typescript": "^5.9.3"
                       }
                     }
                     JSON
+                    node --input-type=module - "$RUNNER_TEMP/smoke/package.json" <<'JS'
+                    import fs from 'node:fs';
+                    const root = JSON.parse(fs.readFileSync('package.json', 'utf8'));
+                    const target = process.argv[2];
+                    const consumer = JSON.parse(fs.readFileSync(target, 'utf8'));
+                    for (const compiler of ['tsrs', '@typescript/native']) {
+                      consumer.devDependencies[compiler] = root.devDependencies[compiler];
+                    }
+                    fs.writeFileSync(target, JSON.stringify(consumer, null, 2) + '\n');
+                    JS
                     cat > "$RUNNER_TEMP/smoke/smoke.ts" <<'TS'
                     import type { PaymentDetailsInit } from '@rnw-community/react-native-payments';
                     import { PaymentRequest } from '@rnw-community/react-native-payments';

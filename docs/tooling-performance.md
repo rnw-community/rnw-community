@@ -123,7 +123,7 @@ alternative. Upgrades adding an unclassified counterpart fail `lint:oxlint:check
 native-only rules absent from that metadata; upstream release review remains necessary. Nursery discovery here
 does not enable nursery checks at runtime.
 
-Seventeen tooling regression tests cover the new policies, enum fallback, mixed promise arrays and catalog guard.
+Twenty tooling regression tests cover the new policies, enum fallback, mixed promise arrays and catalog guard.
 The original eight warnings remain unchanged. Three interleaved runs on `eslint-plugin`, `react-native-payments`
 and `react-native-screen-chrome` measured combined ESLint/native work of 9.288 s before and 8.696 s after these
 policies, with largest individual RSS 830.39 MiB and 818.88 MiB respectively. This small sample shows no measured
@@ -168,7 +168,7 @@ The standalone root typed oxlint pass measured 1.927 s, but requires every packa
 
 The baseline and migrated pipelines both report the same eight existing warnings by file, rule, severity and line:
 three naming warnings, four type-parameter warnings and one nested-promise warning. No library source changes
-silence diagnostics. Seventeen tooling regression tests cover invalid inputs, default emit, decorator metadata,
+silence diagnostics. Twenty tooling regression tests cover invalid inputs, default emit, decorator metadata,
 newly migrated syntax-rule positions and rules with divergent behavior or ownership aliases.
 
 ## Run the checks
@@ -203,8 +203,15 @@ on dependency builds so they cannot cache results against stale declarations. Pu
 The consumer smoke matrix checks TypeScript 5.9, native TypeScript 7 and tsrs independently. The tooling test runner
 invokes JavaScript launchers through Node for portability; direct compiler comparison tests explicitly skip when
 the optional tsrs binary is unavailable, while launcher fallback and lint tests still run.
+Turbo declares `TSRS_BINARY` in `globalEnv`, preserving the override and incorporating it in task hashes.
+`affectedUsingTaskInputs` makes root lint config changes select package lint tasks through their declared inputs;
+regressions exercise actual Turbo selection and oxlint discovery from a package directory. The smoke fixture reads
+compiler specifications from the root manifest to prevent version drift.
 
 ## Reproduce profiling
+
+Build profiling clears each compiler output directory before every sample, and workspace lint samples are emitted
+to stdout as well as `results.json`.
 
 The profiler requires Python 3.9+ and Linux or macOS for `wait4` peak-RSS accounting. Run these commands without
 concurrent builds or tests:

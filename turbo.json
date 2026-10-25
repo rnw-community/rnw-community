@@ -43,7 +43,9 @@
       "inputs": [
         "$TURBO_DEFAULT$",
         "$TURBO_ROOT$/eslint.config.mjs",
-        "$TURBO_ROOT$/.oxlintrc.json"
+        "$TURBO_ROOT$/.oxlintrc.json",
+        "$TURBO_ROOT$/package.json",
+        "$TURBO_ROOT$/pnpm-lock.yaml"
       ],
       "outputs": []
     },
@@ -55,7 +57,9 @@
       "inputs": [
         "$TURBO_DEFAULT$",
         "$TURBO_ROOT$/eslint.config.mjs",
-        "$TURBO_ROOT$/.oxlintrc.json"
+        "$TURBO_ROOT$/.oxlintrc.json",
+        "$TURBO_ROOT$/package.json",
+        "$TURBO_ROOT$/pnpm-lock.yaml"
       ],
       "outputs": []
     },
@@ -82,5 +86,11 @@
     "//#find-deadcode": {
       "outputs": []
     }
+  },
+  "globalEnv": [
+    "TSRS_BINARY"
+  ],
+  "futureFlags": {
+    "affectedUsingTaskInputs": true
   }
 }

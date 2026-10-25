@@ -8,13 +8,23 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 import { ESLint } from 'eslint';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
-const binaries = { tsc: '@typescript/native/bin/tsc', tsrs: 'tsrs/bin/tsrs', oxlint: 'oxlint/bin/oxlint' };
-const run = (binary, args) =>
-    spawnSync(process.execPath, [path.join(root, 'node_modules', binaries[binary]), ...args], {
+const binaries = {
+    tsc: '@typescript/native/bin/tsc',
+    tsrs: 'tsrs/bin/tsrs',
+    oxlint: 'oxlint/bin/oxlint',
+    turbo: 'turbo/bin/turbo',
+};
+const run = (binary, args, options = {}) => {
+    const result = spawnSync(process.execPath, [path.join(root, 'node_modules', binaries[binary]), ...args], {
         cwd: root,
         encoding: 'utf8',
         timeout: 60000,
+        ...options,
     });
+    assert.ifError(result.error);
+    assert.equal(result.signal, null, `${binary} terminated by ${result.signal}: ${result.stderr}`);
+    return result;
+};
 const { default: getTsrsBinary } = await import(pathToFileURL(path.join(root, 'node_modules/tsrs/lib/getExePath.js')));
 let tsrsUnavailable;
 try {
@@ -110,7 +120,16 @@ test('unused directives for multiple migrated rules are ignored without hiding r
         '// eslint-disable-next-line @typescript-eslint/no-floating-promises, id-length\nPromise.resolve(1);\n',
         async (_directory, file) => {
             const results = await eslint.lintFiles([file]);
-            assert.ok(results.some(result => result.messages.some(message => message.ruleId === null)));
+            assert.ok(
+                results.some(result =>
+                    result.messages.some(
+                        message =>
+                            message.ruleId === null &&
+                            !message.fatal &&
+                            message.message.startsWith('Unused eslint-disable directive')
+                    )
+                )
+            );
         }
     );
 });
@@ -389,4 +408,85 @@ test('compiler launcher rejects invalid explicit binary overrides', () => {
     assert.equal(result.status, 1);
     assert.match(result.stderr, /TSRS_BINARY/u);
     assert.doesNotMatch(result.stderr, /falling back/u);
+});
+
+test('package-local oxlint discovers the root typed configuration', async () => {
+    await withProject('Promise.resolve(1);\n', async (_directory, file) => {
+        const result = run('oxlint', ['--no-ignore', '--format', 'json', file], { cwd: path.join(root, 'packages/shared') });
+        assert.equal(result.status, 1, result.stdout + result.stderr);
+        assert.ok(JSON.parse(result.stdout).diagnostics.some(item => item.code === 'typescript(no-floating-promises)'));
+    });
+});
+
+test('Turbo forwards explicit compiler overrides and includes them in task hashes', () => {
+    const args = ['run', 'ts', '--filter=@rnw-community/shared'];
+    const env = { ...process.env, TSRS_BINARY: path.join(root, '.scratch/missing-compiler') };
+    const dry = run('turbo', [...args, '--dry=json'], { env });
+    assert.equal(dry.status, 0, dry.stdout + dry.stderr);
+    const first = JSON.parse(dry.stdout);
+    assert.ok(first.globalCacheInputs.environmentVariables.configured.some(value => value.startsWith('TSRS_BINARY=')));
+    const changed = run('turbo', [...args, '--dry=json'], { env: { ...env, TSRS_BINARY: env.TSRS_BINARY + '-other' } });
+    assert.equal(changed.status, 0, changed.stdout + changed.stderr);
+    assert.notEqual(first.tasks[0].hash, JSON.parse(changed.stdout).tasks[0].hash);
+    const result = run('turbo', [...args, '--force'], { env });
+    assert.equal(result.status, 1, result.stdout + result.stderr);
+    assert.match(result.stdout + result.stderr, /TSRS_BINARY/u);
+});
+
+test('root lint changes select package lint tasks in affected CI runs', async () => {
+    await withProject('', async directory => {
+        const manifest = JSON.parse(await readFile(path.join(root, 'package.json'), 'utf8'));
+        const config = JSON.parse(await readFile(path.join(root, 'turbo.json'), 'utf8'));
+        const fixtureManifest = {
+            name: 'lint-selection-fixture',
+            private: true,
+            packageManager: manifest.packageManager,
+            workspaces: ['packages/*'],
+        };
+        await writeFile(path.join(directory, 'package.json'), JSON.stringify(fixtureManifest));
+        await writeFile(path.join(directory, 'pnpm-workspace.yaml'), "packages:\n  - 'packages/*'\n");
+        await writeFile(
+            path.join(directory, 'turbo.json'),
+            JSON.stringify({ futureFlags: config.futureFlags, tasks: { lint: { inputs: config.tasks.lint.inputs } } })
+        );
+        for (const name of ['first', 'second']) {
+            await mkdir(path.join(directory, 'packages', name), { recursive: true });
+            await writeFile(
+                path.join(directory, 'packages', name, 'package.json'),
+                JSON.stringify({ name, scripts: { lint: 'node --version' } })
+            );
+        }
+        for (const name of ['eslint.config.mjs', '.oxlintrc.json']) await writeFile(path.join(directory, name), '{}\n');
+        const lockfile = "lockfileVersion: '9.0'\nimporters:\n  .: {}\n  packages/first: {}\n  packages/second: {}\n";
+        await writeFile(path.join(directory, 'pnpm-lock.yaml'), lockfile);
+        const git = args => {
+            const result = spawnSync('git', args, { cwd: directory, encoding: 'utf8', timeout: 10000 });
+            assert.equal(result.status, 0, result.stdout + result.stderr);
+        };
+        git(['init', '--initial-branch=master']);
+        git(['add', '.']);
+        git(['-c', 'user.name=Fixture', '-c', 'user.email=fixture@example.com', 'commit', '-m', 'Initial fixture']);
+        const options = { cwd: directory, env: { ...process.env, TURBO_SCM_BASE: 'HEAD', TURBO_SCM_HEAD: 'HEAD' } };
+        const affected = () => {
+            const result = run('turbo', ['run', 'lint', '--affected', '--dry=json'], options);
+            assert.equal(result.status, 0, result.stdout + result.stderr);
+            return JSON.parse(result.stdout)
+                .tasks.map(task => task.taskId)
+                .sort();
+        };
+        assert.deepEqual(affected(), []);
+        for (const name of ['eslint.config.mjs', '.oxlintrc.json']) {
+            await writeFile(path.join(directory, name), '{"changed":true}\n');
+            assert.deepEqual(affected(), ['first#lint', 'second#lint'], name);
+            await writeFile(path.join(directory, name), '{}\n');
+        }
+        await writeFile(
+            path.join(directory, 'package.json'),
+            JSON.stringify({ ...fixtureManifest, devDependencies: { oxlint: '1.89.0' } })
+        );
+        assert.deepEqual(affected(), ['first#lint', 'second#lint'], 'root dev dependencies');
+        await writeFile(path.join(directory, 'package.json'), JSON.stringify(fixtureManifest));
+        await writeFile(path.join(directory, 'pnpm-lock.yaml'), lockfile + 'settings:\n  autoInstallPeers: false\n');
+        assert.deepEqual(affected(), ['first#lint', 'second#lint'], 'root lockfile');
+    });
 });

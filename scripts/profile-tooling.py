@@ -3,6 +3,7 @@ import json
 import os
 from pathlib import Path
 import statistics
+import shutil
 import subprocess
 import sys
 import time
@@ -63,6 +64,7 @@ def main():
                     candidates.append((tool, binaries / tool, flags))
                 for round_index in range(arguments.runs):
                     for tool, binary, flags in candidates[::1 if round_index % 2 == 0 else -1]:
+                        shutil.rmtree(output / f'{tool}-{label}-output', ignore_errors=True)
                         result = measure(
                             binary, flags, directory, output / f'{tool}-{label}-{round_index}.log'
                         )
@@ -113,7 +115,9 @@ def main():
                     binaries / 'oxlint', [*flags, *sources, '--format', 'json'], root,
                     output / f'{tool}-{round_index}.log'
                 )
-                records.append({'tool': tool, 'package': 'workspace', 'round': round_index, **result})
+                record = {'tool': tool, 'package': 'workspace', 'round': round_index, **result}
+                records.append(record)
+                print(json.dumps(record), flush=True)
     summary = {}
     for tool in sorted({record['tool'] for record in records}):
         selected = [record for record in records if record['tool'] == tool]
