@@ -35,7 +35,7 @@ describe('getEdgeFadeVisuals', () => {
         ]);
     });
 
-    it('starts the top wash ramp at the safe inset and collapsed chrome boundary', () => {
+    it('starts the top wash ramp at the full-blur plateau boundary', () => {
         expect.hasAssertions();
 
         const [edge, quarter, midpoint, threeQuarter, inner] = getEdgeFadeVisuals(
@@ -52,7 +52,7 @@ describe('getEdgeFadeVisuals', () => {
         expect(inner).toBe(1);
     });
 
-    it('finishes the bottom wash ramp before the collapsed chrome plateau', () => {
+    it('finishes the bottom wash ramp before the full-blur plateau', () => {
         expect.hasAssertions();
 
         const [inner, quarter, midpoint, threeQuarter, edge] = getEdgeFadeVisuals(
@@ -69,7 +69,7 @@ describe('getEdgeFadeVisuals', () => {
         expect(edge).toBe((EDGE_FADE_BAND_HEIGHT - EDGE_FADE_CHROME_HEIGHT) / EDGE_FADE_BAND_HEIGHT);
     });
 
-    it('preserves the top mask endpoint and stop ordering when the chrome fills the band', () => {
+    it('preserves the top mask endpoint and stop ordering when the plateau fills the band', () => {
         expect.hasAssertions();
 
         const { maskColors, maskLocations } = getEdgeFadeVisuals('top', 'light', SCREEN_CHROME_DEFAULT_CONFIG, 1);
@@ -78,7 +78,7 @@ describe('getEdgeFadeVisuals', () => {
         expect(maskLocations).toEqual([1, 1, 1, 1, 1]);
     });
 
-    it('preserves the bottom mask endpoint and stop ordering when the chrome fills the band', () => {
+    it('preserves the bottom mask endpoint and stop ordering when the plateau fills the band', () => {
         expect.hasAssertions();
 
         const { maskColors, maskLocations } = getEdgeFadeVisuals('bottom', 'light', SCREEN_CHROME_DEFAULT_CONFIG, 1);

@@ -5,6 +5,7 @@ import { StyleSheet, View } from 'react-native';
 
 import { isDefined } from '@rnw-community/shared';
 
+import { EDGE_FADE_FULL_BLUR_FRACTION } from '../constant/edge-fade-full-blur-fraction.constant';
 import { SCREEN_CHROME_DEFAULT_CONFIG } from '../constant/screen-chrome-default-config.constant';
 
 import { EdgeFade } from './edge-fade';
@@ -17,16 +18,14 @@ import type { StyleProp, ViewStyle } from 'react-native';
 import type { ReactTestInstance } from 'react-test-renderer';
 
 const TOP_INSET = 10;
-const BOTTOM_INSET = 30;
 const DEFAULT_BLUR_RADIUS = 22.5;
+const TALL_CHROME_HEIGHT = 84;
 const QUARTER_FRACTION = 0.25;
 const HALF_FRACTION = 0.5;
 const THREE_QUARTER_FRACTION = 0.75;
 const MASK_STOP_FRACTIONS = [0, QUARTER_FRACTION, HALF_FRACTION, THREE_QUARTER_FRACTION, 1] as const;
-const NATIVE_TOP_BAND_HEIGHT = 160;
 const NATIVE_TOP_MASK_LOCATIONS = MASK_STOP_FRACTIONS.map(
-    fraction =>
-        TOP_INSET / NATIVE_TOP_BAND_HEIGHT + ((NATIVE_TOP_BAND_HEIGHT - TOP_INSET) / NATIVE_TOP_BAND_HEIGHT) * fraction
+    fraction => EDGE_FADE_FULL_BLUR_FRACTION + (1 - EDGE_FADE_FULL_BLUR_FRACTION) * fraction
 );
 const TOP_MASK_COLORS = ['#000000', 'rgba(0,0,0,0.56)', 'rgba(0,0,0,0.25)', 'rgba(0,0,0,0.06)', 'transparent'];
 const mockScrollY = { get: jest.fn(() => 0) };
@@ -83,32 +82,28 @@ describe('EdgeFade native', () => {
         expect(fade).toHaveStyle({ height: mockConfig.topFadeHeight + TOP_INSET, top: 0 });
     });
 
-    it.each<[EdgeFadePosition, number, number]>([
-        ['top', mockConfig.topFadeHeight + TOP_INSET, TOP_INSET],
-        ['bottom', mockConfig.bottomFadeHeight + BOTTOM_INSET, BOTTOM_INSET],
-    ])('holds the %s native blur over the safe-area inset by default', (position, band, inset) => {
-        expect.hasAssertions();
+    it.each<[EdgeFadePosition, number | undefined]>([
+        ['top', void 0],
+        ['bottom', void 0],
+        ['top', TALL_CHROME_HEIGHT],
+        ['bottom', TALL_CHROME_HEIGHT],
+    ])(
+        'holds the %s native blur over the outer full-blur fraction whatever the chrome height (%s)',
+        (position, chromeHeight) => {
+            expect.hasAssertions();
 
-        mockColorScheme = 'dark';
+            mockColorScheme = 'dark';
 
-        expect(getBlurProps(render(<EdgeFade position={position} intensity={40} />))).toStrictEqual({
-            style: { flex: 1 },
-            position,
-            radius: 18,
-            plateau: inset / band,
-        });
-    });
-
-    it('caps the chrome plateau so the blur keeps a three-radius ramp to the inner edge', () => {
-        expect.hasAssertions();
-
-        const band = 120;
-        const chrome = 84;
-
-        expect(getBlurProps(render(<EdgeFade position="bottom" height={band} chromeHeight={chrome} />)).plateau).toBe(
-            (band + BOTTOM_INSET - 3 * DEFAULT_BLUR_RADIUS) / (band + BOTTOM_INSET)
-        );
-    });
+            expect(
+                getBlurProps(render(<EdgeFade position={position} intensity={40} chromeHeight={chromeHeight} />))
+            ).toStrictEqual({
+                style: { flex: 1 },
+                position,
+                radius: 18,
+                plateau: EDGE_FADE_FULL_BLUR_FRACTION,
+            });
+        }
+    );
 
     it.each([0, 20, 40, 80])('keeps a default band visible at scroll offset %s', scrollOffset => {
         expect.hasAssertions();
@@ -160,7 +155,7 @@ describe('EdgeFade native', () => {
             .findAll(node => typeof node.type === 'string' && isDefined(getStyle(node).experimental_backgroundImage));
 
         expect(getStyle(wash[0]).experimental_backgroundImage).toBe(
-            'linear-gradient(to bottom, rgba(255,255,255,0.42) 0%, rgba(255,255,255,0.398) 6.25%, rgba(255,255,255,0.179) 29.6875%, rgba(255,255,255,0.06) 53.125%, rgba(255,255,255,0.009) 76.5625%, rgba(255,255,255,0) 100%)'
+            'linear-gradient(to bottom, rgba(255,255,255,0.42) 0%, rgba(255,255,255,0.392) 8%, rgba(255,255,255,0.176) 31%, rgba(255,255,255,0.059) 54%, rgba(255,255,255,0.009) 77%, rgba(255,255,255,0) 100%)'
         );
     });
 });

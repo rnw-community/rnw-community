@@ -12,7 +12,7 @@ export const THRESHOLDS = {
     rampEndEnergyMin: 0.8,
     rampDropMax: 0.12,
     rampStepPerPointMax: 0.165,
-    rampContrastTransitionMin: 0.35,
+    bandContrastTransitionMin: 0.35,
     outsideEnergyMin: 0.85,
     washInnerEdgeMax: 6,
     washOutsideMax: 3,
@@ -55,6 +55,7 @@ const COMPACT_PREFIX = 'compact-';
 const COMPACT_RAMP_POINTS = 24;
 const COMPACT_CELLS = ['dark-dark'];
 const COMPACT_WASH_BLUR_MISMATCH_MAX = 0.35;
+const FULL_BLUR_FRACTION = 0.08;
 const SCREEN_BACKGROUNDS = {
     dark: [16, 16, 16],
     light: [255, 255, 255],
@@ -289,7 +290,10 @@ const checkBand = (name, chrome, ramp, scale, failures) => {
         ramp.map(({ energy: value }) => value),
         step
     );
-    const contrast = energy.map(Math.sqrt);
+    const contrast = smooth(
+        [...chrome, ...ramp].map(({ energy: value }) => value),
+        step
+    ).map(Math.sqrt);
     const transitionStart = contrast.findIndex(value => value >= 0.2);
     const transitionEnd = contrast.findIndex(value => value >= 0.8);
     const chromeEnergy = mean(chrome.map(({ energy: value }) => value));
@@ -322,9 +326,9 @@ const checkBand = (name, chrome, ramp, scale, failures) => {
     if (drop >= 0) {
         failures.push(`${name}: the ramp gets blurrier again ${at(drop)}`);
     }
-    if (transitionEnd >= 0 && transitionEnd - transitionStart < ramp.length * THRESHOLDS.rampContrastTransitionMin) {
+    if (transitionEnd >= 0 && transitionEnd - transitionStart < contrast.length * THRESHOLDS.bandContrastTransitionMin) {
         failures.push(
-            `${name}: a compressed blur transition spans only ${((transitionEnd - transitionStart) / scale).toFixed(1)}pt of the ${(ramp.length / scale).toFixed(1)}pt ramp`
+            `${name}: a compressed blur transition spans only ${((transitionEnd - transitionStart) / scale).toFixed(1)}pt of the ${(contrast.length / scale).toFixed(1)}pt band`
         );
     }
     if (jump >= 0) {
@@ -700,20 +704,27 @@ export const checkCompactCaptureDir = captureDir => {
         const background = SCREEN_BACKGROUNDS[cell.split('-')[1]];
         const geometry = readRuler(reference, COMPACT_RAMP_POINTS);
         const pairedRampFailures = ['top', 'bottom'].flatMap((edgeName, edgeIndex) => {
-            const rows =
+            const bandRows =
                 edgeIndex === 0
-                    ? range(geometry.topChromeEnd, geometry.topBandEnd)
-                    : range(geometry.bottomBandStart, geometry.bottomChromeStart).reverse();
-            const washedSamples = profile(scrolled, blurOnly, rows, { ...geometry, washWindowPoints: 2 });
-            const blurSamples = profile(blurOnly, reference, rows, geometry);
+                    ? range(0, geometry.topBandEnd)
+                    : range(geometry.bottomBandStart, reference.height).reverse();
+            const plateauRows = Math.round(bandRows.length * FULL_BLUR_FRACTION);
+            const washedSamples = profile(scrolled, blurOnly, bandRows, { ...geometry, washWindowPoints: 2 });
+            const blurSamples = profile(blurOnly, reference, bandRows.slice(plateauRows), geometry);
             const blurProgress = blurSamples.map(({ energy }) => Math.min(1, Math.max(0, Math.sqrt(energy))));
-            const washProgress = washedSamples.map(({ averageWash }) => {
-                const first = washedSamples[0].averageWash;
-                const last = washedSamples.at(-1).averageWash;
-
-                return Math.min(1, Math.max(0, (first - averageWash) / Math.max(1, first - last)));
-            });
-            const mismatch = Math.max(...blurProgress.map((value, index) => Math.abs(value - washProgress[index])));
+            const edgeWash = washedSamples[0].averageWash;
+            const innerWash = washedSamples.at(-1).averageWash;
+            const washProgress = washedSamples
+                .slice(plateauRows)
+                .map(({ averageWash }) =>
+                    Math.min(1, Math.max(0, (edgeWash - averageWash) / Math.max(1, edgeWash - innerWash)))
+                );
+            const smooth = values =>
+                values.map((_, index) =>
+                    median(values.slice(Math.min(Math.max(0, index - 1), values.length - 3), Math.max(3, index + 2)))
+                );
+            const smoothedWash = smooth(washProgress);
+            const mismatch = Math.max(...smooth(blurProgress).map((value, index) => Math.abs(value - smoothedWash[index])));
 
             return mismatch > COMPACT_WASH_BLUR_MISMATCH_MAX
                 ? [`compact ${cell} ${edgeName}: wash and blur ramp differ by ${mismatch.toFixed(2)} of their range`]

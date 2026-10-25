@@ -30,6 +30,7 @@ const PATTERN_WIDTH = WIDTH - 12 * SCALE;
 const STRIPE = 3 * SCALE;
 const RULER_WIDTH = 6;
 const WASH = 0.42;
+const FULL_BLUR_FRACTION = 0.08;
 const SCREEN_BACKGROUND = [16, 16, 16];
 const TEMPORAL_SCALE_DOWN = 6;
 const TEMPORAL_WITNESS_CONTENT_OFFSET = 430;
@@ -96,18 +97,17 @@ const band = ({
     radius,
     chromeRadius = RADIUS,
     wash = goodWash,
-    plateau = 0,
+    plateau = FULL_BLUR_FRACTION,
     bandHeight = BAND,
     paintHeight = bandHeight,
 } = {}) => {
     const source = reference(TOP_INSET, BOTTOM_INSET, bandHeight);
     const capture = reference(TOP_INSET, BOTTOM_INSET, bandHeight);
-    const paint = (y, depth) => {
-        const progress = Math.max(0, (depth - CHROME) / (paintHeight - CHROME) - plateau) / (1 - plateau);
-        const alpha = wash(Math.min(1, Math.max(0, depth) / paintHeight));
-
+    const paint = (y, depth, inset) => {
+        const progress = Math.max(0, (depth + inset) / (inset + paintHeight) - plateau) / (1 - plateau);
         const rampProgress = Math.min(1, progress);
-        const blurOpacity = radius ? 1 : 1 - rampProgress;
+        const alpha = wash(rampProgress);
+        const blurOpacity = radius ? 1 : (1 - rampProgress) ** 2;
 
         blurRow(source, capture, y, depth < CHROME ? chromeRadius : radius ? radius(rampProgress) : RADIUS);
 
@@ -123,8 +123,8 @@ const band = ({
     };
 
     for (let depth = 0; depth < TOP_INSET + paintHeight; depth++) {
-        paint(depth, depth - TOP_INSET);
-        paint(HEIGHT - 1 - depth, depth - BOTTOM_INSET);
+        paint(depth, depth - TOP_INSET, TOP_INSET);
+        paint(HEIGHT - 1 - depth, depth - BOTTOM_INSET, BOTTOM_INSET);
     }
 
     return { capture, reference: source };
@@ -326,12 +326,7 @@ const temporalWitnessTopPoints = offset => TEMPORAL_WITNESS_CONTENT_OFFSET - off
 
 const compactCaptureDir = wash => {
     const captureDir = mkdtempSync(join(tmpdir(), 'screen-chrome-compact-'));
-    const compactWash = progress => {
-        const rampProgress = Math.max(0, Math.min(1, (progress - CHROME / COMPACT_BAND) / (1 - CHROME / COMPACT_BAND)));
-
-        return wash(rampProgress);
-    };
-    const { capture, reference: original } = band({ bandHeight: COMPACT_BAND, wash: compactWash });
+    const { capture, reference: original } = band({ bandHeight: COMPACT_BAND, wash });
     const { capture: blurOnly } = band({ bandHeight: COMPACT_BAND, wash: () => 0 });
 
     for (const [name, image] of [

@@ -80,7 +80,7 @@ final class ScreenChromeProgressiveBlurView: ExpoView {
   private func makeMaskImage() -> CGImage? {
     let offset = max(0, min(1, plateau))
     let fade = 1 - offset
-    let steps = 12
+    let steps = 24
     var locations: [CGFloat] = []
     var alphas: [CGFloat] = []
 
@@ -90,13 +90,13 @@ final class ScreenChromeProgressiveBlurView: ExpoView {
       for step in 0...steps {
         let progress = CGFloat(step) / CGFloat(steps)
         locations.append(offset + fade * progress)
-        alphas.append(pow(1 - progress, 2) * (1 + 2 * progress))
+        alphas.append(pow(1 - progress, 2))
       }
     } else {
       for step in 0...steps {
         let progress = CGFloat(step) / CGFloat(steps)
         locations.append(fade * progress)
-        alphas.append(pow(progress, 2) * (3 - 2 * progress))
+        alphas.append(pow(progress, 2))
       }
       locations.append(1)
       alphas.append(1)

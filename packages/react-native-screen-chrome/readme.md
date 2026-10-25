@@ -52,8 +52,8 @@ After (3.0):
 <EdgeFade position="bottom" chromeHeight={48} />
 ```
 
-`chromeHeight` is the height of your chrome beyond the safe-area inset: the blur holds its full radius there, then
-fades across the remaining band. The default is `0`. Bands now start at the screen edge; the native default header
+`chromeHeight` is still accepted but no longer changes the look: the blur holds its full radius only over the outermost
+8% of the band and eases in across the rest of it. Bands now start at the screen edge; the native default header
 backdrop height is 128 points instead of 220. `intensityInputRange` now fades a fixed-radius native blur through opacity,
 with the radius set by `maxIntensity`, rather than animating the radius.
 
@@ -333,7 +333,7 @@ native blur samples the content scrolling beneath the header.
 ```
 
 Every `EdgeFade` prop except `position` is forwarded, so `testID`, `style`, and `renderBand` reach the
-band; `height`, `chromeHeight` (default `collapsedHeaderHeight ?? headerHeight`) and `scrollAnimation` can be overridden:
+band; `height`, `intensity` and `scrollAnimation` can be overridden:
 
 ```tsx
 <CollapsibleHeaderBackdrop testID="header-backdrop" renderBand={renderSolidBand} />
@@ -343,8 +343,7 @@ band; `height`, `chromeHeight` (default `collapsedHeaderHeight ?? headerHeight`)
 
 `Omit<EdgeFadePropsInterface, 'position'>`: `height` defaults to `headerBackdropHeight`, and the band remains visible
 with a static blur at `maxBlurIntensity` across header collapse unless an explicit `scrollAnimation` is supplied. An
-explicit `intensity` overrides that default. Its wash and blur ramp begin at the collapsed chrome edge, including the
-safe-area inset.
+explicit `intensity` overrides that default. Its wash and blur follow the same ease-in ramp as every other band.
 
 ```tsx
 const backdropProps: CollapsibleHeaderBackdropPropsInterface = { testID: 'header-backdrop', height: 120 };
@@ -352,10 +351,12 @@ const backdropProps: CollapsibleHeaderBackdropPropsInterface = { testID: 'header
 
 ## Edge fades
 
-Every band starts at the screen edge and covers the safe-area inset plus its configured height. A native band holds
-its full blur behind the chrome it sits under (the inset plus `chromeHeight`), then eases the blur opacity to zero
-at the inner edge on every platform. iOS also varies the radius. The blur sits under a color wash that is fully
-as opaque at the screen edge as the configured color alpha allows (alpha multiplied by the `maskStops` alpha) and eases to transparent inward. Bands ignore pointer events and accessibility traversal, and scroll animation
+Every band starts at the screen edge and covers the safe-area inset plus its configured height. A band holds its
+full blur only over the outermost 8% of its height, then eases the blur in with a quadratic ramp (`d²`, where `d` runs
+from 0 at the inner edge to 1 where the full blur starts), so content stays nearly sharp across most of the band and the
+blur only gathers near the screen edge, like the iOS system bars. iOS also varies the radius along the same ramp. The blur sits under a color wash that is fully
+as opaque at the screen edge as the configured color alpha allows (alpha multiplied by the `maskStops` alpha, whose
+defaults sample the same `d²` ramp) and eases to transparent inward. Bands ignore pointer events and accessibility traversal, and scroll animation
 changes opacity while the radii stay static. Native defaults use 150-point top and bottom bands, while web defaults use
 76-pixel bands.
 
@@ -367,9 +368,9 @@ Renders a decorative top or bottom blur band, scroll-animatable through `scrollA
 <EdgeFade position="bottom" height={96} scrollAnimation={{ opacityInputRange: [0, 80] }} />
 ```
 
-Native bands hold the full blur radius over the safe-area inset plus `chromeHeight` (the bar the band sits behind), shortened when the band cannot also keep a ramp of three blur radii, and
-fade it across the rest of the band (masked variable blur on iOS, masked uniform blur on Android and web), so the chrome stays legible while content fades into the blur without a
-visible start line. Web uses the same chrome-only plateau. The edge radius is `max(8, intensity × 0.45)` points, using `scrollAnimation.maxIntensity` while an
+Bands hold the full blur radius over the outermost 8% of the band and ease it in with the quadratic ramp across the rest
+of the band (masked variable blur on iOS, masked uniform blur on Android and web), so content blurs in gradually
+without a visible start line. Web uses the same plateau and ramp. The edge radius is `max(8, intensity × 0.45)` points, using `scrollAnimation.maxIntensity` while an
 `intensityInputRange` is set, which fades the native view in through opacity, so scrolling never rebuilds the blur.
 
 On web a fixed-radius `backdrop-filter` blends into the original content through an eased mask across the entire
@@ -404,7 +405,7 @@ const renderSolidBand: EdgeFadeBandRenderer = ({ colorScheme }) => (
 | ----------------- | ---------------------------------- | ------------------------------------------------------------------------------------ |
 | `position`        | `EdgeFadePosition`                 | Screen edge the band renders at.                                                     |
 | `height`          | `number`                           | Band height; defaults to the provider config's fade height.                          |
-| `chromeHeight`    | `number`                           | Chrome the blur holds full strength behind, beyond the inset; defaults to `0`.       |
+| `chromeHeight`    | `number`                           | Deprecated and ignored; the full blur covers the outer 8% of every band.             |
 | `intensity`       | `number`                           | Static blur intensity; ignored while `scrollAnimation` drives it.                    |
 | `scrollAnimation` | `EdgeFadeScrollAnimationInterface` | Optional scroll-driven opacity and blur intensity ranges.                            |
 | `renderBand`      | `EdgeFadeBandRenderer`             | Custom band content; defaults to the provider's `renderEdgeFadeBand`, then built-in. |

@@ -1,8 +1,8 @@
 import { afterEach, describe, expect, it, jest } from '@jest/globals';
 import { Platform } from 'react-native';
 
+import { EDGE_FADE_FULL_BLUR_FRACTION } from '../../../constant/edge-fade-full-blur-fraction.constant';
 import { SCREEN_CHROME_DEFAULT_CONFIG } from '../../../constant/screen-chrome-default-config.constant';
-import { getEdgeFadeChromePlateau } from '../get-edge-fade-chrome-plateau/get-edge-fade-chrome-plateau.util';
 import { getEdgeFadeVisuals } from '../get-edge-fade-visuals/get-edge-fade-visuals.util';
 
 import { buildNativeWashImage } from './build-native-wash-image.util';
@@ -25,14 +25,16 @@ const RGB_WASH_CONFIG = {
 };
 const SCHEME_RGB = { light: '255,255,255', dark: '0,0,0' } as const;
 const MEDIUM_ALPHA = 0.7;
-const BLUR_RADIUS = 13.5;
 const ALPHA_TOLERANCE = 0.002;
+const EASE_TOLERANCE = 0.005;
 const ALPHAS = [0, 0.35, MEDIUM_ALPHA, 1];
 const GEOMETRIES = [
-    { name: 'compact header backdrop', height: 56, inset: 62, chromeHeight: 32 },
-    { name: 'tab bar fade', height: 92, inset: 34, chromeHeight: 68 },
-    { name: 'tall band', height: 128, inset: 62, chromeHeight: 32 },
-    { name: 'chrome-free band', height: 150, inset: 0, chromeHeight: 0 },
+    { name: 'compact header backdrop', height: 56, inset: 62 },
+    { name: 'tab bar fade', height: 92, inset: 34 },
+    { name: 'tall band', height: 128, inset: 62 },
+    { name: 'budgie top band', height: 91, inset: 59 },
+    { name: 'budgie bottom band', height: 106, inset: 34 },
+    { name: 'chrome-free band', height: 150, inset: 0 },
 ];
 const POSITIONS: readonly EdgeFadePosition[] = ['top', 'bottom'];
 const MATRIX = (['light', 'dark'] as const).flatMap(scheme =>
@@ -111,8 +113,8 @@ describe('buildNativeWashImage', () => {
     });
 
     it.each(MATRIX)(
-        '$scheme $position $name with solid alpha $solidAlpha never paints more than the configured colors',
-        ({ scheme, solidAlpha, washAlpha, position, height, inset, chromeHeight }) => {
+        '$scheme $position $name with solid alpha $solidAlpha eases the wash in and never paints more than the configured colors',
+        ({ scheme, solidAlpha, washAlpha, position }) => {
             expect.hasAssertions();
 
             const config = {
@@ -125,16 +127,30 @@ describe('buildNativeWashImage', () => {
                     },
                 },
             };
-            const plateau = getEdgeFadeChromePlateau(height + inset, inset, chromeHeight, BLUR_RADIUS);
-            const { washColors, maskColors, maskLocations } = getEdgeFadeVisuals(position, scheme, config, plateau);
+            const { washColors, maskColors, maskLocations } = getEdgeFadeVisuals(
+                position,
+                scheme,
+                config,
+                EDGE_FADE_FULL_BLUR_FRACTION
+            );
             const stops = parseStops(buildNativeWashImage(washColors, maskColors, maskLocations));
-            const edgeStop = position === 'top' ? stops[0] : stops[stops.length - 1];
-            const innerStop = position === 'top' ? stops[stops.length - 1] : stops[0];
+            const fromEdge = position === 'top' ? stops : [...stops].reverse();
+            const edgeDistance = (location: number) => (position === 'top' ? location : 1 - location);
+            const [edgeStop, plateauStop] = fromEdge;
 
             expect(stops.every(({ rgb }) => rgb === SCHEME_RGB[scheme])).toBe(true);
             expect(edgeStop.alpha).toBeCloseTo(solidAlpha, 2);
-            expect(innerStop.alpha).toBe(0);
+            expect(fromEdge[fromEdge.length - 1].alpha).toBe(0);
+            expect(edgeDistance(plateauStop.location)).toBeCloseTo(EDGE_FADE_FULL_BLUR_FRACTION);
             expect(stops.every(({ alpha }) => alpha <= solidAlpha + ALPHA_TOLERANCE)).toBe(true);
+            expect(fromEdge.every(({ alpha }, index) => index === 0 || alpha <= fromEdge[index - 1].alpha)).toBe(true);
+            fromEdge.forEach(({ alpha, location }) => {
+                const distance = edgeDistance(location);
+                const ramp = Math.min(1, (1 - distance) / (1 - EDGE_FADE_FULL_BLUR_FRACTION));
+                const colorAlpha = solidAlpha + (washAlpha - solidAlpha) * distance;
+
+                expect(Math.abs(alpha - colorAlpha * ramp ** 2)).toBeLessThanOrEqual(EASE_TOLERANCE);
+            });
         }
     );
 });

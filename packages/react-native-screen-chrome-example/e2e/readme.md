@@ -55,9 +55,12 @@ Or directly: `maestro test -e APP_ID=<appId> e2e/flows`.
   gestures between `startRecording`/`stopRecording`, mirroring the collapsible-header example.
 
 The static gate also measures the width of the 20–80% stripe-contrast transition (square root of normalized
-Laplacian energy). It must span at least 35% of the ruler's ramp. The adjacent-row energy check alone allowed a
-visibly compressed transition, because squared contrast and its one-point smoothing kept each rise below 0.165.
-The width check runs on both the washed capture and the blur-only control; existing thresholds are unchanged.
+Laplacian energy), measured from the physical edge across the whole band because the blur now eases in over the
+whole band and holds full strength only over its outer 8%. It must span at least 35% of the band, which is wider in
+points than the old 35%-of-the-ruler's-ramp gate. The adjacent-row energy check alone allowed a visibly compressed
+transition, because squared contrast and its one-point smoothing kept each rise below 0.165. The width check runs on
+both the washed capture and the blur-only control. The compact wash-versus-blur comparison likewise runs over the band
+beyond that outer 8% and measures the wash against its value at the physical edge.
 
 ## Recording the readme GIFs
 
