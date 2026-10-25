@@ -8,7 +8,7 @@ profiling. The TypeScript 6 JavaScript API shim remains available to ESLint, kni
 Supported type-aware rules run in [oxlint with tsgolint](https://oxc.rs/docs/guide/usage/linter/type-aware.html).
 ESLint remains the rule source of truth. The generator preserves severities, options and file overrides and verifies
 that the rules disabled in ESLint have the same options in oxlint. Rules with known behavior differences stay in
-ESLint, including `consistent-return`. The custom public-API documentation rule and remaining typed rules still
+ESLint, including `consistent-return` and heterogeneous-enum boolean checks. The custom public-API documentation rule and remaining typed rules still
 require `projectService`, so the migration does not remove the TypeScript program from ESLint.
 
 ## Full build migration and automation coverage
@@ -51,6 +51,83 @@ contains its implementation. `no-unnecessary-condition` and `prefer-const` have 
 position differences affecting disable directives; `id-length` additionally reports TypeScript type parameters.
 Those rules retain their validated ESLint ownership. The rule generator also retains other documented parity and
 plugin exceptions; unsupported checks are never silently disabled.
+
+## Type-aware rule audit
+
+Verified on 2026-10-25 against the [oxlint releases](https://github.com/oxc-project/oxc/releases) and
+[tsgolint 7.0.2005 release](https://github.com/oxc-project/tsgolint/releases/tag/v7.0.2005).
+Oxlint 1.89.0 and tsgolint 7.0.2005 are the current published releases. Upstream documentation headline counts
+vary between the [type-aware guide](https://oxc.rs/docs/guide/usage/linter/type-aware.html) and the
+[backend implementation inventory](https://github.com/oxc-project/tsgolint#implemented-rules); they are not counts
+of enabled repository rules.
+
+The installed public handoff catalog exposes 60 typed counterparts, including nursery entries for audit purposes.
+Production TS and TSX now enable **51 built-in typed policies: 47 native and four ESLint**, plus the custom typed
+public-API documentation rule. Existing `.spec.ts` exceptions reduce those files to 48 built-in policies (44 native);
+`.spec.tsx` retains the production configuration. This audit preserves those existing differences.
+
+Eleven additional policies are enabled beyond `strictTypeChecked`:
+
+| Rule                             | Purpose                                                                                | Owner  |
+| -------------------------------- | -------------------------------------------------------------------------------------- | ------ |
+| `switch-exhaustiveness-check`    | Require every union member even with a default branch                                  | Native |
+| `require-array-sort-compare`     | Require comparators for numeric/object arrays; ordinary string sorting remains allowed | Native |
+| `strict-boolean-expressions`     | Reject ambiguous nullable, unknown and heterogeneous-enum conditions                   | ESLint |
+| `consistent-type-exports`        | Mark type-only exports explicitly                                                      | Native |
+| `no-unnecessary-qualifier`       | Remove redundant namespace qualification                                               | Native |
+| `prefer-find`                    | Avoid allocating a filtered array just to select its first item                        | Native |
+| `prefer-includes`                | Use membership operations instead of index sentinels                                   | Native |
+| `prefer-nullish-coalescing`      | Make nullish defaults explicit                                                         | Native |
+| `prefer-readonly`                | Mark private members that are not reassigned as readonly                               | Native |
+| `prefer-regexp-exec`             | Use direct non-global regular-expression execution                                     | Native |
+| `prefer-string-starts-ends-with` | Use explicit prefix/suffix operations                                                  | Native |
+
+[Exhaustiveness](https://oxc.rs/docs/guide/usage/linter/rules/typescript/switch-exhaustiveness-check) keeps defensive
+`default` branches allowed but sets `considerDefaultExhaustiveForUnions: false`.
+[Sort comparison](https://oxc.rs/docs/guide/usage/linter/rules/typescript/require-array-sort-compare) explicitly keeps
+`ignoreStringArrays: true`. All eleven policies produce no new repository diagnostics. Negative fixtures test each
+policy and ownership, and positive fixtures retain exhaustive switches and intentional string sorting.
+
+`strict-boolean-expressions` stays in ESLint after reproducing a native gap for non-nullable heterogeneous enums
+and their boolean unions. The other ESLint typed owners remain `no-unnecessary-condition` (diagnostic positions),
+`no-unsafe-enum-assignment` (backend implemented, frontend registration missing) and `naming-convention`.
+The backend enum-assignment addition is already covered by the existing ESLint policy.
+
+Recent `no-generated-empty-object-type` and `no-useless-default-assignment` rules were already enabled and native.
+`await-thenable` defaults reject mixed and entirely synchronous arrays passed to promise aggregators in both engines.
+The newly documented [allowMixedPromiseArrays option](https://typescript-eslint.io/rules/await-thenable/#allowmixedpromisearrays)
+is rejected by both installed configuration schemas, so it is intentionally not configured. A negative fixture
+locks in the mixed-promise check that works today.
+
+Nine available policies remain deliberate opt-outs. Shadow runs cover sources and specs; finding counts are not
+claims that every occurrence is a bug:
+
+| Policy                              | Shadow findings | Reason                                                                                 |
+| ----------------------------------- | --------------: | -------------------------------------------------------------------------------------- |
+| `no-unsafe-type-assertion`          |             249 | Generic/decorator boundaries and test narrowing need a separate guard/decoder adoption |
+| `prefer-readonly-parameter-types`   |             691 | Would change mutable contracts and test fixtures across the libraries                  |
+| `no-meaningless-void-operator`      |              71 | Explicit void operations are an established cleanup/fire-and-forget convention         |
+| `promise-function-async`            |              58 | Direct promise forwarding is intentional                                               |
+| `require-await`                     |              42 | Uniform async contracts and promise-shaped test callbacks remain valid                 |
+| `no-deprecated`                     |              25 | Compatibility and current React test tooling need a separate migration                 |
+| `strict-void-return`                |              18 | Legitimate value-discarding callbacks; async misuse is already checked                 |
+| `non-nullable-type-assertion-style` |               6 | Prefers non-null assertions that the existing strict policy forbids                    |
+| `prefer-optional-chain`             |               1 | Nursery implementation; retained as a separate parity/style adoption                   |
+
+The two remaining catalog counterparts use the existing core `consistent-return` and `dot-notation` policies.
+No rule is silently dropped to increase native counts.
+
+Config generation now checks every typed counterpart exposed by the installed public handoff catalog whose matching
+installed typescript-eslint metadata marks it as type-aware. Each needs a resolved policy or an explicit core-rule
+alternative. Upgrades adding an unclassified counterpart fail `lint:oxlint:check`. This guard does not discover
+native-only rules absent from that metadata; upstream release review remains necessary. Nursery discovery here
+does not enable nursery checks at runtime.
+
+Thirteen tooling regression tests cover the new policies, enum fallback, mixed promise arrays and catalog guard.
+The original eight warnings remain unchanged. Three interleaved runs on `eslint-plugin`, `react-native-payments`
+and `react-native-screen-chrome` measured combined ESLint/native work of 9.288 s before and 8.696 s after these
+policies, with largest individual RSS 830.39 MiB and 818.88 MiB respectively. This small sample shows no measured
+regression; it is not a whole-workspace speedup claim. The full-workspace lint measurement below predates this audit.
 
 ## Initial check-only measurements
 

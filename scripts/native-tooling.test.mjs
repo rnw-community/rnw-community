@@ -190,3 +190,108 @@ test('updated native syntax rules preserve baseline diagnostic positions and hav
         });
     }
 });
+
+test('additional typed policies reject unsafe or weaker constructs with one lint owner', async () => {
+    const { eslintConfigWithoutOxlint } = await import('../eslint.config.mjs');
+    const baseline = new ESLint({ cwd: root, overrideConfigFile: true, overrideConfig: eslintConfigWithoutOxlint });
+    const current = new ESLint({ cwd: root });
+    const cases = [
+        ['consistent-type-exports', 'type Value = string; export { Value };\n'],
+        [
+            'no-unnecessary-qualifier',
+            "namespace Example { export type Value = string; export const value: Example.Value = 'ok'; }\n",
+        ],
+        ['prefer-find', 'export const value = [1, 2].filter(item => item === 1)[0];\n'],
+        ['prefer-includes', 'export const present = [1, 2].indexOf(1) !== -1;\n'],
+        [
+            'prefer-nullish-coalescing',
+            "export const fallback = (value: string | undefined): string => value || 'fallback';\n",
+        ],
+        ['prefer-readonly', 'export class Example { private value = 1; read(): number { return this.value; } }\n'],
+        ['prefer-regexp-exec', "export const result = 'value'.match(/value/);\n"],
+        [
+            'prefer-string-starts-ends-with',
+            "export const matched = (value: string): boolean => value.indexOf('prefix') === 0;\n",
+        ],
+        ['require-array-sort-compare', 'export const values = [3, 1, 2].sort();\n'],
+        [
+            'strict-boolean-expressions',
+            "enum Mixed { ZERO = 0, YES = 'yes' } export const active = (value: Mixed): number => value ? 1 : 0;\n",
+        ],
+        [
+            'switch-exhaustiveness-check',
+            "export const result = (value: 'a' | 'b'): number => { switch (value) { case 'a': return 1; default: return 0; } };\n",
+        ],
+    ];
+    for (const [rule, source] of cases) {
+        await withProject(source, async (_directory, file) => {
+            const name = `@typescript-eslint/${rule}`;
+            const expected = (await baseline.lintFiles([file]))
+                .flatMap(result => result.messages)
+                .filter(message => message.ruleId === name)
+                .map(message => [message.line, message.column]);
+            assert.ok(expected.length > 0, rule);
+            const config = await current.calculateConfigForFile(file);
+            const native = run('oxlint', ['--no-ignore', '--format', 'json', file]);
+            const actual = JSON.parse(native.stdout)
+                .diagnostics.filter(item => item.code === `typescript(${rule})`)
+                .map(item => [item.labels.at(-1).span.line, item.labels.at(-1).span.column]);
+            if (rule === 'strict-boolean-expressions') {
+                assert.equal(config.rules[name][0], 2);
+                const retained = (await current.lintFiles([file]))
+                    .flatMap(result => result.messages)
+                    .filter(message => message.ruleId === name)
+                    .map(message => [message.line, message.column]);
+                assert.deepEqual(retained, expected);
+                assert.deepEqual(actual, []);
+            } else {
+                assert.equal(config.rules[name][0], 0, rule);
+                assert.deepEqual(actual, expected, rule);
+            }
+        });
+    }
+});
+
+test('native await checking rejects mixed promise aggregators', async () => {
+    await withProject(
+        "export const result = async () => await Promise.all([Promise.resolve(1), 'value']);\n",
+        async (_directory, file) => {
+            const native = run('oxlint', ['--no-ignore', '--format', 'json', file]);
+            assert.ok(JSON.parse(native.stdout).diagnostics.some(item => item.code === 'typescript(await-thenable)'));
+        }
+    );
+});
+
+test('exhaustive switches and intentional string sorting remain valid', async () => {
+    await withProject(
+        "export const values = ['b', 'a'].sort();\nexport const result = (value: 'a' | 'b'): number => { switch(value) { case 'a': return 1; case 'b': return 2; default: throw new Error('unknown'); } };\n",
+        async (_directory, file) => {
+            const native = run('oxlint', ['--no-ignore', '--format', 'json', file]);
+            assert.ok(
+                JSON.parse(native.stdout).diagnostics.every(
+                    item =>
+                        !['typescript(require-array-sort-compare)', 'typescript(switch-exhaustiveness-check)'].includes(
+                            item.code
+                        )
+                )
+            );
+        }
+    );
+});
+
+test('type-aware catalog upgrades require a policy for every newly supported rule', async () => {
+    const { assertTypeAwareRuleCoverage } = await import('./assert-type-aware-rule-coverage.mjs');
+    assert.throws(() => assertTypeAwareRuleCoverage({}, ['@typescript-eslint/new-typed-check']), /new-typed-check/u);
+    assert.doesNotThrow(() =>
+        assertTypeAwareRuleCoverage(
+            { '@typescript-eslint/await-thenable': [2], '@typescript-eslint/strict-void-return': [0] },
+            ['@typescript-eslint/await-thenable', '@typescript-eslint/strict-void-return']
+        )
+    );
+    assert.doesNotThrow(() =>
+        assertTypeAwareRuleCoverage({ 'consistent-return': [2], 'dot-notation': [0] }, [
+            '@typescript-eslint/consistent-return',
+            '@typescript-eslint/dot-notation',
+        ])
+    );
+});

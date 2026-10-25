@@ -281,6 +281,19 @@
                 "typescript/unbound-method": ["error"],
                 "typescript/unified-signatures": ["error"],
                 "typescript/use-unknown-in-catch-callback-variable": ["error"],
+                "typescript/consistent-type-exports": ["error"],
+                "typescript/no-unnecessary-qualifier": ["error"],
+                "typescript/prefer-find": ["error"],
+                "typescript/prefer-includes": ["error"],
+                "typescript/prefer-nullish-coalescing": ["error"],
+                "typescript/prefer-readonly": ["error"],
+                "typescript/prefer-regexp-exec": ["error"],
+                "typescript/prefer-string-starts-ends-with": ["error"],
+                "typescript/require-array-sort-compare": ["error", { "ignoreStringArrays": true }],
+                "typescript/switch-exhaustiveness-check": [
+                    "error",
+                    { "allowDefaultCaseForExhaustiveSwitch": true, "considerDefaultExhaustiveForUnions": false }
+                ],
                 "typescript/explicit-member-accessibility": ["error", { "accessibility": "no-public" }],
                 "sort-imports": [
                     "error",
@@ -561,6 +574,19 @@
                 "typescript/unbound-method": ["error"],
                 "typescript/unified-signatures": ["error"],
                 "typescript/use-unknown-in-catch-callback-variable": ["error"],
+                "typescript/consistent-type-exports": ["error"],
+                "typescript/no-unnecessary-qualifier": ["error"],
+                "typescript/prefer-find": ["error"],
+                "typescript/prefer-includes": ["error"],
+                "typescript/prefer-nullish-coalescing": ["error"],
+                "typescript/prefer-readonly": ["error"],
+                "typescript/prefer-regexp-exec": ["error"],
+                "typescript/prefer-string-starts-ends-with": ["error"],
+                "typescript/require-array-sort-compare": ["error", { "ignoreStringArrays": true }],
+                "typescript/switch-exhaustiveness-check": [
+                    "error",
+                    { "allowDefaultCaseForExhaustiveSwitch": true, "considerDefaultExhaustiveForUnions": false }
+                ],
                 "typescript/explicit-member-accessibility": ["error", { "accessibility": "no-public" }],
                 "sort-imports": [
                     "error",
@@ -841,6 +867,19 @@
                 "typescript/unbound-method": ["error"],
                 "typescript/unified-signatures": ["error"],
                 "typescript/use-unknown-in-catch-callback-variable": ["error"],
+                "typescript/consistent-type-exports": ["error"],
+                "typescript/no-unnecessary-qualifier": ["error"],
+                "typescript/prefer-find": ["error"],
+                "typescript/prefer-includes": ["error"],
+                "typescript/prefer-nullish-coalescing": ["error"],
+                "typescript/prefer-readonly": ["error"],
+                "typescript/prefer-regexp-exec": ["error"],
+                "typescript/prefer-string-starts-ends-with": ["error"],
+                "typescript/require-array-sort-compare": ["error", { "ignoreStringArrays": true }],
+                "typescript/switch-exhaustiveness-check": [
+                    "error",
+                    { "allowDefaultCaseForExhaustiveSwitch": true, "considerDefaultExhaustiveForUnions": false }
+                ],
                 "typescript/explicit-member-accessibility": ["error", { "accessibility": "no-public" }],
                 "sort-imports": [
                     "error",
@@ -1120,6 +1159,19 @@
                 "typescript/unbound-method": ["error"],
                 "typescript/unified-signatures": ["error"],
                 "typescript/use-unknown-in-catch-callback-variable": ["error"],
+                "typescript/consistent-type-exports": ["error"],
+                "typescript/no-unnecessary-qualifier": ["error"],
+                "typescript/prefer-find": ["error"],
+                "typescript/prefer-includes": ["error"],
+                "typescript/prefer-nullish-coalescing": ["error"],
+                "typescript/prefer-readonly": ["error"],
+                "typescript/prefer-regexp-exec": ["error"],
+                "typescript/prefer-string-starts-ends-with": ["error"],
+                "typescript/require-array-sort-compare": ["error", { "ignoreStringArrays": true }],
+                "typescript/switch-exhaustiveness-check": [
+                    "error",
+                    { "allowDefaultCaseForExhaustiveSwitch": true, "considerDefaultExhaustiveForUnions": false }
+                ],
                 "typescript/explicit-member-accessibility": ["error", { "accessibility": "no-public" }],
                 "sort-imports": [
                     "error",

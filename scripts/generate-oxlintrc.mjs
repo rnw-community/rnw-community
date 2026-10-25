@@ -6,8 +6,11 @@ import migrate from '@oxlint/migrate';
 import { ESLint } from 'eslint';
 import oxlintPlugin from 'eslint-plugin-oxlint';
 import prettier from 'prettier';
+import tseslint from 'typescript-eslint';
 
 import { eslintConfigWithoutOxlint, oxlintConfigPath } from '../eslint.config.mjs';
+
+import { assertTypeAwareRuleCoverage } from './assert-type-aware-rule-coverage.mjs';
 
 const repoRoot = path.dirname(oxlintConfigPath);
 
@@ -17,6 +20,23 @@ const fileCategories = [
     { files: ['**/*.spec.ts'], probe: 'packages/oxlint-probe/src/probe.spec.ts' },
     { files: ['**/*.spec.tsx'], probe: 'packages/oxlint-probe/src/probe.spec.tsx' },
 ];
+
+const nativeRuleCatalog = [
+    ...oxlintPlugin.configs['flat/all'],
+    ...oxlintPlugin.buildFromOxlintConfig(
+        { plugins: ['typescript'], categories: { correctness: 'off', nursery: 'error' } },
+        { typeAware: true, withNursery: true }
+    ),
+];
+const supportedTypeAwareRules = new Set(
+    nativeRuleCatalog
+        .flatMap(config => Object.keys(config.rules ?? {}))
+        .filter(
+            name =>
+                name.startsWith('@typescript-eslint/') &&
+                tseslint.plugin.rules[name.slice('@typescript-eslint/'.length)]?.meta.docs?.requiresTypeChecking
+        )
+);
 
 const pluginsKeptInEslint = new Map([
     [
@@ -30,6 +50,7 @@ const pluginsKeptInEslint = new Map([
 ]);
 
 const rulesKeptInEslint = new Map([
+    ['strict-boolean-expressions', 'native checks miss non-nullable heterogeneous enums in conditions'],
     ['no-unnecessary-condition', 'optional-chain diagnostics span different lines, changing disable directive behavior'],
     ['dot-notation', 'the typed oxlint rule does not disable the active core ESLint rule'],
     ['consistent-return', 'tsgolint skips missing final returns in async functions'],
@@ -116,6 +137,7 @@ const eslint = new ESLint({ cwd: repoRoot, overrideConfigFile: true, overrideCon
 const categories = await Promise.all(
     fileCategories.map(async ({ files, probe }) => {
         const { rules } = await eslint.calculateConfigForFile(path.join(repoRoot, probe));
+        assertTypeAwareRuleCoverage(rules, supportedTypeAwareRules);
 
         return { files, eslintRules: rules, migratableRules: withoutRules(rules, isKeptInEslint) };
     })

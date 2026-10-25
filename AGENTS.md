@@ -332,7 +332,9 @@ moves to oxlint with identical options; `eslint-plugin-oxlint` then turns
 exactly those rules off in ESLint, so nothing is reported twice and nothing is dropped. Rules whose options oxlint
 rejects, or whose results diverge from ESLint on a third-party parity corpus, stay in ESLint (the
 `rulesKeptInEslint` / `pluginsKeptInEslint` maps list each reason). The generator fails if the handoff would replace
-an ESLint rule with different options.
+an ESLint rule with different options. It also requires a resolved policy for every known typed counterpart in the
+installed public handoff catalog (including nursery entries for discovery only); newly unclassified counterparts
+fail config generation. See the [type-aware audit](docs/tooling-performance.md#type-aware-rule-audit).
 
 - Keep `oxlint`, `@oxlint/migrate` and `eslint-plugin-oxlint` aligned (currently pinned to `1.89.0`).
   `sort-imports`, `no-lonely-if` and `no-div-regex` use the revalidated native implementations. The migrator skips
@@ -355,6 +357,9 @@ an ESLint rule with different options.
   including `no-unsafe-enum-assignment` and `naming-convention`; `no-unnecessary-condition` remains for diagnostic
   position parity. Keep `projectService`:
   the custom `@rnw-community/public-api-tsdoc` rule also needs the TypeScript program
+- Production TS/TSX enable 51 built-in typed policies: 47 native and four in ESLint.
+  `strict-boolean-expressions` stays in ESLint because native checks miss heterogeneous-enum conditions.
+  Exhaustive switches and numeric/object sort comparators are required; defensive defaults and string sorting remain allowed
 - `pnpm test:tooling` exercises negative type/lint fixtures, rule handoff, and mixed disable directives. CI runs it
   alongside the config drift guard. See [Tooling performance](docs/tooling-performance.md) for measurements and reproduction
 - `eslint.config.mjs` loads `@rnw-community/eslint-plugin` from its built `dist`, so the turbo `lint`/`lint:fix` tasks
