@@ -2,7 +2,8 @@
   "$schema": "https://turborepo.com/schema.json",
   "globalDependencies": [
     "tsconfig*.json",
-    "get-jest.config.js"
+    "get-jest.config.js",
+    "scripts/typecheck.mjs"
   ],
   "tasks": {
     "topo": {
@@ -20,7 +21,7 @@
     },
     "ts": {
       "dependsOn": [
-        "^topo"
+        "^build"
       ],
       "outputs": [
         "node_modules/.cache/tsbuildinfo.json"
@@ -28,7 +29,7 @@
     },
     "ts:nodenext": {
       "dependsOn": [
-        "^topo"
+        "^build"
       ],
       "outputs": [
         "node_modules/.cache/tsbuildinfo-nodenext.json"
@@ -36,7 +37,7 @@
     },
     "lint": {
       "dependsOn": [
-        "^topo",
+        "^build",
         "@rnw-community/eslint-plugin#build"
       ],
       "inputs": [
@@ -48,7 +49,7 @@
     },
     "lint:fix": {
       "dependsOn": [
-        "^topo",
+        "^build",
         "@rnw-community/eslint-plugin#build"
       ],
       "inputs": [

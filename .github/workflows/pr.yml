@@ -87,10 +87,13 @@ jobs:
             -   name: Oxlint config in sync with ESLint config
                 run: pnpm lint:oxlint:check
 
-            -   name: Oxlint checks
+            -   name: Oxlint checks (syntax)
                 run: pnpm lint:fast
 
-            -   name: ESLint checks
+            -   name: Native tooling regression checks
+                run: pnpm test:tooling
+
+            -   name: Oxlint type-aware and ESLint checks
                 run: pnpm exec turbo run lint --affected
 
             -   name: Publish hygiene checks (publint, attw)
@@ -386,7 +389,9 @@ jobs:
                         "@babel/core": "^7.29.7",
                         "@react-native/metro-config": "0.85.3",
                         "@types/react": "^19.2.0",
-                        "typescript": "^5.9.3"
+                        "typescript": "^5.9.3",
+                        "@typescript/native": "npm:typescript@7.0.2",
+                        "tsrs": "0.18.0-ts7.1.0-dev.20260929"
                       }
                     }
                     JSON
@@ -449,9 +454,17 @@ jobs:
                 working-directory: ${{ runner.temp }}/smoke
                 run: node --input-type=module -e "import.meta.resolve('@rnw-community/react-native-collapsible-header'); import.meta.resolve('@rnw-community/react-native-screen-chrome'); import.meta.resolve('@rnw-community/react-native-payments')"
 
-            -   name: Typecheck against shipped types
+            -   name: Typecheck shipped types with TypeScript 5.9
                 working-directory: ${{ runner.temp }}/smoke
-                run: ./node_modules/.bin/tsc --noEmit --strict --skipLibCheck --target es2021 --lib es2021,dom --module esnext --moduleResolution bundler --jsx react smoke.ts
+                run: node ./node_modules/typescript/bin/tsc --noEmit --strict --skipLibCheck --target es2021 --lib es2021,dom --module esnext --moduleResolution bundler --jsx react smoke.ts
+
+            -   name: Typecheck shipped types with TypeScript 7
+                working-directory: ${{ runner.temp }}/smoke
+                run: node ./node_modules/@typescript/native/bin/tsc --noEmit --strict --skipLibCheck --target es2021 --lib es2021,dom --module esnext --moduleResolution bundler --jsx react smoke.ts
+
+            -   name: Typecheck shipped types with tsrs
+                working-directory: ${{ runner.temp }}/smoke
+                run: ./node_modules/.bin/tsrs --noEmit --strict --skipLibCheck --target es2021 --lib es2021,dom --module esnext --moduleResolution bundler --jsx react smoke.ts
 
             -   name: Comprehensive ESM/CJS require()/import() smoke (every publishable package, npm leg only)
                 if: matrix.package-manager == 'npm'

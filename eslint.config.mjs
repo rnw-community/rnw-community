@@ -101,6 +101,20 @@ export const eslintConfigWithoutOxlint = defineConfig(
         extends: [tseslint.configs.strictTypeChecked],
         rules: {
             '@typescript-eslint/class-methods-use-this': 'off',
+            '@typescript-eslint/consistent-type-exports': 'error',
+            '@typescript-eslint/no-unnecessary-qualifier': 'error',
+            '@typescript-eslint/prefer-find': 'error',
+            '@typescript-eslint/prefer-includes': 'error',
+            '@typescript-eslint/prefer-nullish-coalescing': 'error',
+            '@typescript-eslint/prefer-readonly': 'error',
+            '@typescript-eslint/prefer-regexp-exec': 'error',
+            '@typescript-eslint/prefer-string-starts-ends-with': 'error',
+            '@typescript-eslint/require-array-sort-compare': ['error', { ignoreStringArrays: true }],
+            '@typescript-eslint/strict-boolean-expressions': 'error',
+            '@typescript-eslint/switch-exhaustiveness-check': [
+                'error',
+                { allowDefaultCaseForExhaustiveSwitch: true, considerDefaultExhaustiveForUnions: false },
+            ],
             '@typescript-eslint/explicit-member-accessibility': ['error', { accessibility: 'no-public' }],
             '@typescript-eslint/no-magic-numbers': [
                 'error',
@@ -132,6 +146,11 @@ export const eslintConfigWithoutOxlint = defineConfig(
             ],
             '@typescript-eslint/restrict-template-expressions': ['error', { allowNumber: true }],
             '@typescript-eslint/no-deprecated': 'off',
+            '@typescript-eslint/no-unsafe-type-assertion': 'off',
+            '@typescript-eslint/non-nullable-type-assertion-style': 'off',
+            '@typescript-eslint/prefer-optional-chain': 'off',
+            '@typescript-eslint/prefer-readonly-parameter-types': 'off',
+            '@typescript-eslint/strict-void-return': 'off',
             '@typescript-eslint/no-unnecessary-type-parameters': 1,
             '@typescript-eslint/ban-ts-comment': [
                 'error',
@@ -389,10 +408,28 @@ export const eslintConfigWithoutOxlint = defineConfig(
 
 const oxlintRulesLayer = oxlint.buildFromOxlintConfigFile(oxlintConfigPath);
 const oxlintOwnedRules = new Set(oxlintRulesLayer.flatMap(config => Object.keys(config.rules ?? {})));
-const unusedDirectiveRulePattern =
-    /^Unused eslint-disable directive \(no problems were reported from '(?<rule>[^']+)'\)\.$/u;
-const isUnusedOxlintRuleDirective = message =>
-    message.ruleId === null && oxlintOwnedRules.has(unusedDirectiveRulePattern.exec(message.message)?.groups?.rule);
+const unusedDirectiveRulePattern = /^Unused eslint-disable directive \(no problems were reported from (?<rules>.+)\)\.$/u;
+const retainedDirectiveMessages = message => {
+    const match = unusedDirectiveRulePattern.exec(message.message);
+    const rules = [...(match?.groups?.rules ?? '').matchAll(/'([^']+)'/gu)].map(rule => rule[1]);
+    if (message.ruleId !== null || rules.length === 0) {
+        return [message];
+    }
+    const retainedRules = rules.filter(rule => !oxlintOwnedRules.has(rule));
+    if (retainedRules.length === 0) {
+        return [];
+    }
+    if (retainedRules.length === rules.length) {
+        return [message];
+    }
+    const { fix, suggestions, ...retainedMessage } = message;
+    return [
+        {
+            ...retainedMessage,
+            message: `Unused eslint-disable directive (no problems were reported from ${retainedRules.map(rule => `'${rule}'`).join(' or ')}).`,
+        },
+    ];
+};
 
 export default [
     ...eslintConfigWithoutOxlint,
@@ -406,8 +443,7 @@ export default [
                         meta: { name: 'skip-unused-oxlint-directives' },
                         supportsAutofix: true,
                         preprocess: text => [text],
-                        postprocess: messageLists =>
-                            messageLists.flat().filter(message => !isUnusedOxlintRuleDirective(message)),
+                        postprocess: messageLists => messageLists.flat().flatMap(retainedDirectiveMessages),
                     },
                 },
             },

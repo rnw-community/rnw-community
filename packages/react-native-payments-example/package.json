@@ -28,12 +28,12 @@
         "format": "prettier --write \"./src/**/*.{ts,tsx}\"",
         "ios:bare": "pnpm --filter @rnw-community/react-native-payments-example-bare ios",
         "ios:expo": "pnpm --filter @rnw-community/react-native-payments-example-expo ios",
-        "lint": "eslint src",
-        "lint:fix": "eslint --fix src",
+        "lint": "oxlint src && eslint src",
+        "lint:fix": "oxlint --fix src && eslint --fix src",
         "prebuild:expo": "pnpm --filter @rnw-community/react-native-payments-example-expo prebuild",
         "start:bare": "pnpm --filter @rnw-community/react-native-payments-example-bare start",
         "start:expo": "pnpm --filter @rnw-community/react-native-payments-example-expo start",
-        "ts": "tsc --pretty -p tsconfig.json"
+        "ts": "node ../../scripts/typecheck.mjs --pretty -p tsconfig.json"
     },
     "dependencies": {
         "@rnw-community/react-native-payments": "workspace:*",

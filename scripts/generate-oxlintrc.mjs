@@ -6,8 +6,11 @@ import migrate from '@oxlint/migrate';
 import { ESLint } from 'eslint';
 import oxlintPlugin from 'eslint-plugin-oxlint';
 import prettier from 'prettier';
+import tseslint from 'typescript-eslint';
 
 import { eslintConfigWithoutOxlint, oxlintConfigPath } from '../eslint.config.mjs';
+
+import { assertTypeAwareRuleCoverage } from './assert-type-aware-rule-coverage.mjs';
 
 const repoRoot = path.dirname(oxlintConfigPath);
 
@@ -17,6 +20,23 @@ const fileCategories = [
     { files: ['**/*.spec.ts'], probe: 'packages/oxlint-probe/src/probe.spec.ts' },
     { files: ['**/*.spec.tsx'], probe: 'packages/oxlint-probe/src/probe.spec.tsx' },
 ];
+
+const nativeRuleCatalog = [
+    ...oxlintPlugin.configs['flat/all'],
+    ...oxlintPlugin.buildFromOxlintConfig(
+        { plugins: ['typescript'], categories: { correctness: 'off', nursery: 'error' } },
+        { typeAware: true, withNursery: true }
+    ),
+];
+const supportedTypeAwareRules = new Set(
+    nativeRuleCatalog
+        .flatMap(config => Object.keys(config.rules ?? {}))
+        .filter(
+            name =>
+                name.startsWith('@typescript-eslint/') &&
+                tseslint.plugin.rules[name.slice('@typescript-eslint/'.length)]?.meta.docs?.requiresTypeChecking
+        )
+);
 
 const pluginsKeptInEslint = new Map([
     [
@@ -30,6 +50,10 @@ const pluginsKeptInEslint = new Map([
 ]);
 
 const rulesKeptInEslint = new Map([
+    ['strict-boolean-expressions', 'native checks miss non-nullable heterogeneous enums in conditions'],
+    ['no-unnecessary-condition', 'optional-chain diagnostics span different lines, changing disable directive behavior'],
+    ['dot-notation', 'the typed oxlint rule does not disable the active core ESLint rule'],
+    ['consistent-return', 'tsgolint skips missing final returns in async functions'],
     ['id-length', 'oxlint also reports single-letter TypeScript type parameters, which ESLint core never visits'],
     [
         'max-params',
@@ -55,12 +79,10 @@ const rulesKeptInEslint = new Map([
         'max-statements',
         'no-bitwise',
         'no-console',
-        'no-div-regex',
         'no-else-return',
         'no-global-assign',
         'no-implicit-globals',
         'no-lone-blocks',
-        'no-lonely-if',
         'no-misleading-character-class',
         'no-negated-condition',
         'no-param-reassign',
@@ -75,7 +97,6 @@ const rulesKeptInEslint = new Map([
         'prefer-template',
         'promise/always-return',
         'react/jsx-max-depth',
-        'sort-imports',
         'vars-on-top',
     ].map(ruleName => [ruleName, 'oxlint reports a different set or position of problems than ESLint on the parity corpus']),
 ]);
@@ -94,9 +115,14 @@ const assertOxlintTakesOverWhatItDisables = (eslintRules, oxlintRules) => {
     for (const [oxlintRuleName, oxlintEntry] of Object.entries(oxlintRules)) {
         const [disabledInEslint] = oxlintPlugin.buildFromOxlintConfig({
             categories: { correctness: 'off' },
+            options: { typeAware: true },
             rules: { [oxlintRuleName]: 'error' },
         });
-        for (const eslintRuleName of Object.keys(disabledInEslint?.rules ?? {})) {
+        const disabledRules = Object.keys(disabledInEslint?.rules ?? {});
+        if (!isOff(oxlintEntry) && disabledRules.every(ruleName => isOff(eslintRules[ruleName] ?? 'off'))) {
+            throw new Error(`oxlint "${oxlintRuleName}" would not replace an active ESLint rule`);
+        }
+        for (const eslintRuleName of disabledRules) {
             const eslintEntry = eslintRules[eslintRuleName] ?? 'off';
             if (!isOff(eslintEntry) && JSON.stringify(eslintEntry) !== JSON.stringify(oxlintEntry)) {
                 throw new Error(
@@ -111,6 +137,7 @@ const eslint = new ESLint({ cwd: repoRoot, overrideConfigFile: true, overrideCon
 const categories = await Promise.all(
     fileCategories.map(async ({ files, probe }) => {
         const { rules } = await eslint.calculateConfigForFile(path.join(repoRoot, probe));
+        assertTypeAwareRuleCoverage(rules, supportedTypeAwareRules);
 
         return { files, eslintRules: rules, migratableRules: withoutRules(rules, isKeptInEslint) };
     })
@@ -123,16 +150,26 @@ const activeInAnyCategory = new Set(
 const globalIgnores = eslintConfigWithoutOxlint.filter(config =>
     Object.keys(config).every(key => ['ignores', 'name'].includes(key))
 );
-const migrated = await migrate([
-    ...globalIgnores,
-    ...categories.map(({ files, migratableRules }) => ({
-        files,
-        rules: withoutRules(migratableRules, ruleName => !activeInAnyCategory.has(ruleName)),
-    })),
-]);
+const migrated = await migrate(
+    [
+        ...globalIgnores,
+        ...categories.map(({ files, migratableRules }) => ({
+            files,
+            rules: withoutRules(migratableRules, ruleName => !activeInAnyCategory.has(ruleName)),
+        })),
+    ],
+    undefined,
+    { typeAware: true, jsPlugins: false }
+);
 for (const { files, eslintRules } of categories) {
     const override = migrated.overrides.find(candidate => JSON.stringify(candidate.files) === JSON.stringify(files));
-    assertOxlintTakesOverWhatItDisables(eslintRules, override?.rules ?? {});
+    if (!override) {
+        throw new Error(`Missing oxlint override for ${files.join(', ')}`);
+    }
+    if (eslintRules['sort-imports'] !== undefined) {
+        override.rules['sort-imports'] = eslintRules['sort-imports'];
+    }
+    assertOxlintTakesOverWhatItDisables(eslintRules, override.rules);
 }
 
 const prettierConfig = await prettier.resolveConfig(oxlintConfigPath);

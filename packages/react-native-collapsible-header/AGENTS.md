@@ -193,6 +193,8 @@ src/
 
 ## Publication pipeline (react-native-builder-bob)
 
+Declaration generation uses `scripts/typecheck.mjs` through bob's explicit `tsc` option: pinned tsrs where its binary is available, otherwise the native reference compiler. Babel owns JavaScript output.
+
 The package builds with `react-native-builder-bob` — the React Native library standard — configured in
 `package.json` under `react-native-builder-bob`:
 

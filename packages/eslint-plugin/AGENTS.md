@@ -66,7 +66,7 @@ src/
 ### Publication shape — CommonJS only, no `"module"` field
 
 Unlike every other package in the repo, this one does not ship a genuine ESM build: `export = plugin` cannot be
-re-emitted as ESM syntax, so `tsc` compiles both `dist/esm/` and `dist/cjs/` as CommonJS (see root AGENTS.md's ESM
+re-emitted as ESM syntax, so `tsrs` compiles both `dist/esm/` and `dist/cjs/` as CommonJS (see root AGENTS.md's ESM
 Modernization Status for the full reasoning). `package.json` reflects this with root-level `"type": "commonjs"`
 (covering both dist trees) and no `"module"` field. `pnpm publint`'s `attw` check for this package alone passes
 `--ignore-rules named-exports`, since `attw`'s named-export warning only flags the unsupported (and undocumented)
