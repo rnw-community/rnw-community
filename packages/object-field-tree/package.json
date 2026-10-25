@@ -1,6 +1,6 @@
 {
     "name": "@rnw-community/object-field-tree",
-    "version": "3.0.0",
+    "version": "3.0.5",
     "description": "Create a object fields combinations tree with data generator function",
     "keywords": [
         "object field tree",
@@ -54,7 +54,7 @@
         "ts:nodenext": "node ../../scripts/typecheck.mjs --pretty -p tsconfig.nodenext-check.json"
     },
     "dependencies": {
-        "@rnw-community/shared": "^3.0.0"
+        "@rnw-community/shared": "^3.0.5"
     },
     "engines": {
         "node": ">=22.0.0"

@@ -1,6 +1,6 @@
 {
     "name": "@rnw-community/wdio",
-    "version": "3.0.0",
+    "version": "3.0.5",
     "description": "WDIO commands, page objects and utils",
     "keywords": [
         "wdio",
@@ -50,7 +50,7 @@
         "ts:nodenext": "node ../../scripts/typecheck.mjs --pretty -p tsconfig.nodenext-check.json"
     },
     "dependencies": {
-        "@rnw-community/shared": "^3.0.0",
+        "@rnw-community/shared": "^3.0.5",
         "@wdio/globals": "^9.29.1",
         "@wdio/protocols": "^9.30.0",
         "webdriverio": "^9.30.0"

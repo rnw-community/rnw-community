@@ -1,6 +1,6 @@
 {
     "name": "@rnw-community/nestjs-rxjs-metrics",
-    "version": "3.0.0",
+    "version": "3.0.5",
     "description": "NestJS prometheus metrics wrapper for RxJS streams",
     "keywords": [
         "nestjs",
@@ -50,7 +50,7 @@
         "ts:nodenext": "node ../../scripts/typecheck.mjs --pretty -p tsconfig.nodenext-check.json"
     },
     "dependencies": {
-        "@rnw-community/shared": "^3.0.0"
+        "@rnw-community/shared": "^3.0.5"
     },
     "devDependencies": {
         "@nestjs/common": "^12.1.3",

@@ -1,6 +1,6 @@
 {
     "name": "@rnw-community/eslint-plugin",
-    "version": "3.0.0",
+    "version": "3.0.5",
     "description": "RNW-Community ESLint plugin",
     "keywords": [
         "eslint",
