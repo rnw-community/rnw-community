@@ -719,7 +719,12 @@ export const checkCompactCaptureDir = captureDir => {
                 .map(({ averageWash }) =>
                     Math.min(1, Math.max(0, (edgeWash - averageWash) / Math.max(1, edgeWash - innerWash)))
                 );
-            const mismatch = Math.max(...blurProgress.map((value, index) => Math.abs(value - washProgress[index])));
+            const smooth = values =>
+                values.map((_, index) =>
+                    median(values.slice(Math.min(Math.max(0, index - 1), values.length - 3), Math.max(3, index + 2)))
+                );
+            const smoothedWash = smooth(washProgress);
+            const mismatch = Math.max(...smooth(blurProgress).map((value, index) => Math.abs(value - smoothedWash[index])));
 
             return mismatch > COMPACT_WASH_BLUR_MISMATCH_MAX
                 ? [`compact ${cell} ${edgeName}: wash and blur ramp differ by ${mismatch.toFixed(2)} of their range`]
