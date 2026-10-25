@@ -98,7 +98,7 @@ importers:
                 specifier: ^29.7.0
                 version: 29.7.0(supports-color@8.1.1)
             '@oxlint/migrate':
-                specifier: ^1.89.0
+                specifier: 1.89.0
                 version: 1.89.0
             '@rnw-community/eslint-plugin':
                 specifier: workspace:*
@@ -134,7 +134,7 @@ importers:
                 specifier: ^18.4.1
                 version: 18.4.1(@typescript/typescript6@6.0.2)(eslint@10.12.0(jiti@2.7.0)(supports-color@7.2.0))(ts-declaration-location@1.0.7(@typescript/typescript6@6.0.2))
             eslint-plugin-oxlint:
-                specifier: ^1.89.0
+                specifier: 1.89.0
                 version: 1.89.0(oxlint@1.89.0(oxlint-tsgolint@7.0.2005))
             eslint-plugin-promise:
                 specifier: ^7.3.0
@@ -164,7 +164,7 @@ importers:
                 specifier: ^17.3.0
                 version: 17.3.0
             oxlint:
-                specifier: ^1.89.0
+                specifier: 1.89.0
                 version: 1.89.0(oxlint-tsgolint@7.0.2005)
             oxlint-tsgolint:
                 specifier: 7.0.2005

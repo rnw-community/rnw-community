@@ -33,7 +33,7 @@
         "prebuild:expo": "pnpm --filter @rnw-community/react-native-collapsible-header-example-expo prebuild",
         "start:bare": "pnpm --filter @rnw-community/react-native-collapsible-header-example-bare start",
         "start:expo": "pnpm --filter @rnw-community/react-native-collapsible-header-example-expo start",
-        "ts": "tsrs --pretty -p tsconfig.json"
+        "ts": "node ../../scripts/typecheck.mjs --pretty -p tsconfig.json"
     },
     "dependencies": {
         "@react-navigation/native": "^7.5.1",

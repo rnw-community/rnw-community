@@ -187,7 +187,7 @@ pnpm test && pnpm test:coverage && pnpm build && pnpm ts && pnpm ts:nodenext && 
 
 ## Publication pipeline (react-native-builder-bob)
 
-Declaration generation uses the pinned `tsrs` binary through bob's explicit `tsc` option; Babel still owns JavaScript output.
+Declaration generation uses `scripts/typecheck.mjs` through bob's explicit `tsc` option: pinned tsrs where its binary is available, otherwise the native reference compiler. Babel owns JavaScript output.
 
 The package builds with `react-native-builder-bob`, configured in `package.json` under `react-native-builder-bob`:
 

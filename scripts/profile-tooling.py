@@ -106,8 +106,9 @@ def main():
                 print(json.dumps(record), flush=True)
     if arguments.mode in ('lint', 'native'):
         sources = [str(directory / 'src') for directory, package in packages if 'lint' in package.get('scripts', {})]
-        for tool, flags in [('oxlint', []), ('oxlint-fast', ['--config', '.oxlintrc.fast.json'])]:
-            for round_index in range(arguments.runs):
+        candidates = [('oxlint', []), ('oxlint-fast', ['--config', '.oxlintrc.fast.json'])]
+        for round_index in range(arguments.runs):
+            for tool, flags in candidates[::1 if round_index % 2 == 0 else -1]:
                 result = measure(
                     binaries / 'oxlint', [*flags, *sources, '--format', 'json'], root,
                     output / f'{tool}-{round_index}.log'

@@ -19,7 +19,8 @@ Never edit `version` fields, `lerna.json`, or `CHANGELOG.md` by hand.
 
 ## What a release does
 
-After `pnpm install --frozen-lockfile`, `pnpm build`, and `pnpm test:coverage` pass, `pnpm release`
+After `pnpm install --frozen-lockfile`, `pnpm build`, type checks, full lint, generated lint config validation,
+tooling regression tests and `pnpm test:coverage` pass, `pnpm release`
 (`lerna publish --conventional-commits --create-release=github`):
 
 1. Computes the next version and updates `lerna.json`, each changed `package.json`, and the `CHANGELOG.md` files.

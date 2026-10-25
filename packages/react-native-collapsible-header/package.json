@@ -50,8 +50,8 @@
         "lint:fix": "oxlint --fix src && eslint --fix src",
         "test": "jest",
         "test:coverage": "jest --coverage",
-        "ts": "tsrs --pretty -p tsconfig.json",
-        "ts:nodenext": "tsrs --pretty -p tsconfig.nodenext-check.json"
+        "ts": "node ../../scripts/typecheck.mjs --pretty -p tsconfig.json",
+        "ts:nodenext": "node ../../scripts/typecheck.mjs --pretty -p tsconfig.nodenext-check.json"
     },
     "dependencies": {
         "@rnw-community/shared": "^3.0.0",
@@ -108,7 +108,7 @@
                 "typescript",
                 {
                     "project": "tsconfig.build.json",
-                    "tsc": "../../node_modules/tsrs/bin/tsrs"
+                    "tsc": "../../scripts/typecheck.mjs"
                 }
             ]
         ]

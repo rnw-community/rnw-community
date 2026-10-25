@@ -41,8 +41,8 @@
     ],
     "scripts": {
         "build": "pnpm run build:esm && pnpm run build:cjs && node ../../scripts/rewrite-esm-extensions.mjs ./dist/esm && node ../../scripts/assert-esm-extensions.mjs ./dist/esm && rm -rf ./dist/*/*.tsbuildinfo && echo '{\"type\":\"module\"}' > dist/esm/package.json && echo '{\"type\":\"commonjs\"}' > dist/cjs/package.json",
-        "build:cjs": "tsrs --pretty -p tsconfig.build-cjs.json",
-        "build:esm": "tsrs --pretty -p tsconfig.build-esm.json",
+        "build:cjs": "node ../../scripts/typecheck.mjs --pretty -p tsconfig.build-cjs.json",
+        "build:esm": "node ../../scripts/typecheck.mjs --pretty -p tsconfig.build-esm.json",
         "clear": "rm -rf coverage && rm -rf dist && rm -f *.tsbuildinfo",
         "clear:deps": "rm -rf ./node_modules && rm -rf ./dist",
         "format": "prettier --write \"./src/**/*.{ts,tsx,js}\"",
@@ -50,8 +50,8 @@
         "lint:fix": "oxlint --fix src && eslint --fix src",
         "test": "jest",
         "test:coverage": "jest --coverage",
-        "ts": "tsrs --pretty -p tsconfig.json",
-        "ts:nodenext": "tsrs --pretty -p tsconfig.nodenext-check.json"
+        "ts": "node ../../scripts/typecheck.mjs --pretty -p tsconfig.json",
+        "ts:nodenext": "node ../../scripts/typecheck.mjs --pretty -p tsconfig.nodenext-check.json"
     },
     "dependencies": {
         "@rnw-community/shared": "^3.0.0"

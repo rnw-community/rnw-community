@@ -287,8 +287,10 @@ A package MUST NOT re-export (`export type { X } from '@rnw-community/other'`) a
 **Production compiler and separate compatibility/API compilers, by design:**
 
 - `tsrs` (pinned to `0.18.0-ts7.1.0-dev.20260929`) runs all `ts` and `ts:nodenext` checks and all Node/NestJS
-  ESM/CJS JavaScript and declaration builds. React Native packages keep bob's Babel module/commonjs targets and use
-  `../../node_modules/tsrs/bin/tsrs` through bob's `typescript` target's `tsc` option for declarations. It ports the
+  ESM/CJS JavaScript and declaration builds through `scripts/typecheck.mjs`. The launcher falls back to the native
+  reference compiler if the optional tsrs binary is unavailable (including Windows and Intel macOS); compile errors
+  never trigger fallback. React Native packages keep bob's Babel module/commonjs targets and use
+  `../../scripts/typecheck.mjs` through bob's `typescript` target's `tsc` option for declarations. It ports the
   TypeScript 7.1 development compiler to Rust and supports legacy decorator metadata. Keep it pinned; compare fresh
   JavaScript/declaration output and consumer types when upgrading. `scripts/profile-tooling.py` measures type checks,
   builds and lint with process elapsed time and peak RSS.
@@ -344,15 +346,15 @@ fail config generation. See the [type-aware audit](docs/tooling-performance.md#t
 - After changing `eslint.config.mjs`, run `pnpm lint:oxlint:generate` and commit `.oxlintrc.json`; CI runs
   `pnpm lint:oxlint:check` and fails on drift
 - `pnpm lint` runs each package's `oxlint src && eslint src` through Turbo; package-level lint and fix commands
-  include type-aware oxlint too. Build workspace dependencies first so both linters resolve their declarations.
+  include type-aware oxlint too. Turbo builds workspace dependencies before typed checks and lint so both linters resolve current declarations.
   CI builds and lints the affected packages; its repository-wide syntax pass needs no build outputs.
   `pnpm lint:oxlint` explicitly checks every package with types and requires all dependencies built
 - `.oxlintrc.json` enables type-aware rules by default for local commands, staged files and editor integrations.
   `pnpm lint:fast` selects `.oxlintrc.fast.json`, which extends it with type analysis disabled; it is only a quick
   syntax pass and does not replace the full lint gate
 - Disable directives keep ESLint syntax (`// eslint-disable-next-line <rule>`) — oxlint honours them. ESLint's
-  unused-directive report skips directives that name oxlint-owned rules (the `oxlint-handoff` processor), so those
-  are not checked for staleness
+  unused-directive report skips oxlint-owned names (the `oxlint-handoff` processor), so those are not checked for
+  staleness. Mixed directives still report stale ESLint-owned names without autofixes that would delete native suppressions
 - Supported type-aware rules run through the pinned `oxlint-tsgolint` backend. Unsupported rules stay in ESLint,
   including `no-unsafe-enum-assignment` and `naming-convention`; `no-unnecessary-condition` remains for diagnostic
   position parity. Keep `projectService`:

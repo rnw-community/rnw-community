@@ -31,7 +31,7 @@ forms pass with TypeScript 5.9 and tsrs. Default-emit fixtures also verify legac
 | Automation                                                                                                       | Compiler and lint coverage                                                                             |
 | ---------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------ |
 | [PR quality and compatibility](../.github/workflows/pr.yml)                                                      | Native builds, type checks, NodeNext and typed lint; NestJS/Reanimated matrix inherits package scripts |
-| Packaged consumers (npm, yarn, pnpm, bun)                                                                        | Both TypeScript 5.9 and tsrs check shipped declarations                                                |
+| Packaged consumers (npm, yarn, pnpm, bun)                                                                        | TypeScript 5.9, native TypeScript 7 and tsrs check shipped declarations                                |
 | [Release](../.github/workflows/release.yml)                                                                      | Native builds plus type, lint, config drift and tooling regressions before coverage/publishing         |
 | [Android Maestro](../.github/workflows/android-maestro.yml), [iOS Maestro](../.github/workflows/ios-maestro.yml) | Package builds inherit tsrs; bob retains Babel for React Native JavaScript                             |
 | [Documentation media](../.github/workflows/docs-media.yml) and PR web/edge-fade builds                           | Existing package build commands inherit tsrs                                                           |
@@ -123,7 +123,7 @@ alternative. Upgrades adding an unclassified counterpart fail `lint:oxlint:check
 native-only rules absent from that metadata; upstream release review remains necessary. Nursery discovery here
 does not enable nursery checks at runtime.
 
-Thirteen tooling regression tests cover the new policies, enum fallback, mixed promise arrays and catalog guard.
+Seventeen tooling regression tests cover the new policies, enum fallback, mixed promise arrays and catalog guard.
 The original eight warnings remain unchanged. Three interleaved runs on `eslint-plugin`, `react-native-payments`
 and `react-native-screen-chrome` measured combined ESLint/native work of 9.288 s before and 8.696 s after these
 policies, with largest individual RSS 830.39 MiB and 818.88 MiB respectively. This small sample shows no measured
@@ -136,7 +136,8 @@ pnpm 11.22.0, native TypeScript 7.0.2, tsrs 0.18.0-ts7.1.0-dev.20260929, oxlint 
 
 Each package runs serially with three interleaved repetitions. Times below sum each package's median elapsed time;
 they include compiler launch overhead and exclude installation, builds and Turbo. Memory is the largest OS-reported
-peak resident set of an individual process across those runs, not the sum of concurrent processes. Filesystem caches
+peak resident set of an individual process across those runs, not the sum of concurrent processes. In particular,
+concurrent oxlint and tsgolint RSS is not aggregated; these figures do not measure total native-stage memory. Filesystem caches
 are warm; “cold” means compiler incremental state is disabled. Builds and tests do not run concurrently with measurements.
 
 | Type checks (25 packages)        | TypeScript 7 |       tsrs | Speedup |
@@ -167,7 +168,7 @@ The standalone root typed oxlint pass measured 1.927 s, but requires every packa
 
 The baseline and migrated pipelines both report the same eight existing warnings by file, rule, severity and line:
 three naming warnings, four type-parameter warnings and one nested-promise warning. No library source changes
-silence diagnostics. Nine tooling regression tests cover invalid inputs, default emit, decorator metadata,
+silence diagnostics. Seventeen tooling regression tests cover invalid inputs, default emit, decorator metadata,
 newly migrated syntax-rule positions and rules with divergent behavior or ownership aliases.
 
 ## Run the checks
@@ -194,8 +195,14 @@ No library source behavior or published entry point changes in this migration. T
 checks default emit, decorator metadata and newly migrated syntax-rule positions.
 
 The pinned tsrs release provides binaries for Linux x64/ARM64 (GNU and musl) and Apple Silicon macOS.
-On Windows or Intel macOS, use `pnpm exec tsc -p packages/<package>/tsconfig.json` (or the NodeNext check config)
-until a compatible tsrs binary is available. The same binary availability applies to builds; the published packages remain platform-neutral.
+Package commands and bob use `scripts/typecheck.mjs`, which resolves the installed tsrs binary before invoking it.
+When that optional binary is unavailable (including Windows and Intel macOS), it reports the reason and invokes the
+native reference compiler instead. Invalid `TSRS_BINARY` overrides fail explicitly. Compiler diagnostics and exit
+codes never trigger a fallback. The launcher is part of Turbo's global inputs, and typed lint/check tasks depend
+on dependency builds so they cannot cache results against stale declarations. Published packages remain platform-neutral.
+The consumer smoke matrix checks TypeScript 5.9, native TypeScript 7 and tsrs independently. The tooling test runner
+invokes JavaScript launchers through Node for portability; direct compiler comparison tests explicitly skip when
+the optional tsrs binary is unavailable, while launcher fallback and lint tests still run.
 
 ## Reproduce profiling
 

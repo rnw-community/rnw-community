@@ -37,8 +37,10 @@ pnpm cpd            # copy-paste detection
 The same scripts exist per package: `cd packages/<name> && pnpm test --watch`. Package-level lint and lint fixes run
 type-aware oxlint followed by ESLint. Build once after installing so workspace types resolve.
 
-Type checks, builds and declaration emit use pinned `tsrs`; React Native libraries retain bob for Babel builds.
-Native TypeScript 7 remains a reference compiler, and CI also checks shipped types with TypeScript 5.9. The TypeScript 6 JavaScript API
+Type checks, builds and declaration emit use pinned `tsrs` through `scripts/typecheck.mjs`; if the optional native
+binary is unavailable, the launcher uses native TypeScript 7. Compiler errors never trigger fallback. React Native
+libraries retain bob for Babel builds.
+Native TypeScript 7 remains a reference compiler, and CI checks shipped types independently with TypeScript 5.9, TypeScript 7 and tsrs. The TypeScript 6 JavaScript API
 shim remains for ESLint, knip and bob. See [Tooling performance](docs/tooling-performance.md) for benchmark commands,
 measurements and compiler upgrade checks.
 

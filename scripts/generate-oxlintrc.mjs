@@ -166,7 +166,9 @@ for (const { files, eslintRules } of categories) {
     if (!override) {
         throw new Error(`Missing oxlint override for ${files.join(', ')}`);
     }
-    override.rules['sort-imports'] = eslintRules['sort-imports'];
+    if (eslintRules['sort-imports'] !== undefined) {
+        override.rules['sort-imports'] = eslintRules['sort-imports'];
+    }
     assertOxlintTakesOverWhatItDisables(eslintRules, override.rules);
 }
 

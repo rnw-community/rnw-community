@@ -43,10 +43,10 @@
         "node": ">=22.0.0"
     },
     "scripts": {
-        "ts": "tsrs --pretty -p tsconfig.json",
-        "ts:nodenext": "tsrs --pretty -p tsconfig.nodenext-check.json",
-        "build:esm": "tsrs --pretty -p tsconfig.build-esm.json",
-        "build:cjs": "tsrs --pretty -p tsconfig.build-cjs.json",
+        "ts": "node ../../scripts/typecheck.mjs --pretty -p tsconfig.json",
+        "ts:nodenext": "node ../../scripts/typecheck.mjs --pretty -p tsconfig.nodenext-check.json",
+        "build:esm": "node ../../scripts/typecheck.mjs --pretty -p tsconfig.build-esm.json",
+        "build:cjs": "node ../../scripts/typecheck.mjs --pretty -p tsconfig.build-cjs.json",
         "build": "pnpm run build:esm && pnpm run build:cjs && rm -rf ./dist/*/*.tsbuildinfo",
         "lint": "oxlint src && eslint src",
         "lint:fix": "oxlint --fix src && eslint --fix src",

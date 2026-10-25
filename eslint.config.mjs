@@ -409,10 +409,26 @@ export const eslintConfigWithoutOxlint = defineConfig(
 const oxlintRulesLayer = oxlint.buildFromOxlintConfigFile(oxlintConfigPath);
 const oxlintOwnedRules = new Set(oxlintRulesLayer.flatMap(config => Object.keys(config.rules ?? {})));
 const unusedDirectiveRulePattern = /^Unused eslint-disable directive \(no problems were reported from (?<rules>.+)\)\.$/u;
-const isUnusedOxlintRuleDirective = message => {
-    const rules = [...(unusedDirectiveRulePattern.exec(message.message)?.groups?.rules ?? '').matchAll(/'([^']+)'/gu)];
-
-    return message.ruleId === null && rules.length > 0 && rules.every(match => oxlintOwnedRules.has(match[1]));
+const retainedDirectiveMessages = message => {
+    const match = unusedDirectiveRulePattern.exec(message.message);
+    const rules = [...(match?.groups?.rules ?? '').matchAll(/'([^']+)'/gu)].map(rule => rule[1]);
+    if (message.ruleId !== null || rules.length === 0) {
+        return [message];
+    }
+    const retainedRules = rules.filter(rule => !oxlintOwnedRules.has(rule));
+    if (retainedRules.length === 0) {
+        return [];
+    }
+    if (retainedRules.length === rules.length) {
+        return [message];
+    }
+    const { fix, suggestions, ...retainedMessage } = message;
+    return [
+        {
+            ...retainedMessage,
+            message: `Unused eslint-disable directive (no problems were reported from ${retainedRules.map(rule => `'${rule}'`).join(' or ')}).`,
+        },
+    ];
 };
 
 export default [
@@ -427,8 +443,7 @@ export default [
                         meta: { name: 'skip-unused-oxlint-directives' },
                         supportsAutofix: true,
                         preprocess: text => [text],
-                        postprocess: messageLists =>
-                            messageLists.flat().filter(message => !isUnusedOxlintRuleDirective(message)),
+                        postprocess: messageLists => messageLists.flat().flatMap(retainedDirectiveMessages),
                     },
                 },
             },

@@ -1,14 +1,27 @@
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
-import { mkdtemp, mkdir, readFile, rm, writeFile } from 'node:fs/promises';
+import { copyFile, mkdtemp, mkdir, readFile, rm, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { test } from 'node:test';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 
 import { ESLint } from 'eslint';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
-const run = (binary, args) => spawnSync(path.join(root, 'node_modules/.bin', binary), args, { cwd: root, encoding: 'utf8' });
+const binaries = { tsc: '@typescript/native/bin/tsc', tsrs: 'tsrs/bin/tsrs', oxlint: 'oxlint/bin/oxlint' };
+const run = (binary, args) =>
+    spawnSync(process.execPath, [path.join(root, 'node_modules', binaries[binary]), ...args], {
+        cwd: root,
+        encoding: 'utf8',
+        timeout: 60000,
+    });
+const { default: getTsrsBinary } = await import(pathToFileURL(path.join(root, 'node_modules/tsrs/lib/getExePath.js')));
+let tsrsUnavailable;
+try {
+    getTsrsBinary();
+} catch (error) {
+    tsrsUnavailable = error.message;
+}
 
 const withProject = async (source, check) => {
     await mkdir(path.join(root, '.scratch'), { recursive: true });
@@ -43,7 +56,7 @@ test('ESLint hands floating promises to oxlint and retains the typed public API 
     assert.equal(config.languageOptions.parserOptions.projectService, true);
 });
 
-test('both compilers reject invalid assignments', async () => {
+test('both compilers reject invalid assignments', { skip: tsrsUnavailable }, async () => {
     await withProject('export const value: string = 123;\n', async directory => {
         for (const compiler of ['tsc', 'tsrs']) {
             const result = run(compiler, ['-p', directory, '--noEmit', '--pretty', 'false']);
@@ -102,6 +115,34 @@ test('unused directives for multiple migrated rules are ignored without hiding r
     );
 });
 
+test('autofix preserves native suppressions in mixed unused directives', async () => {
+    const eslint = new ESLint({ cwd: root, fix: true });
+    await withProject(
+        '// eslint-disable-next-line @typescript-eslint/no-floating-promises, id-length\nPromise.resolve(1);\n',
+        async (_directory, file) => {
+            const [result] = await eslint.lintFiles([file]);
+            const source = result.output ?? (await readFile(file, 'utf8'));
+            assert.match(source, /eslint-disable-next-line @typescript-eslint\/no-floating-promises/u);
+            const unused = result.messages.filter(message => message.ruleId === null);
+            assert.equal(unused.length, 1);
+            assert.match(unused[0].message, /'id-length'/u);
+            assert.doesNotMatch(unused[0].message, /no-floating-promises/u);
+            assert.equal(unused[0].fix, undefined);
+            await writeFile(file, source);
+            const native = run('oxlint', ['--no-ignore', '--format', 'json', file]);
+            assert.ok(JSON.parse(native.stdout).diagnostics.every(item => !item.code?.includes('no-floating-promises')));
+        }
+    );
+});
+
+test('fast lint retains inherited syntax rules', async () => {
+    await withProject('if (true) {} else { if (false) {} }\n', async (_directory, file) => {
+        const fast = run('oxlint', ['--no-ignore', '--config', '.oxlintrc.fast.json', '--format', 'json', file]);
+        assert.equal(fast.status, 1, fast.stdout + fast.stderr);
+        assert.ok(JSON.parse(fast.stdout).diagnostics.some(item => item.code?.includes('no-lonely-if')));
+    });
+});
+
 test('missing async returns remain an ESLint error', async () => {
     const eslint = new ESLint({ cwd: root });
     await withProject(
@@ -130,7 +171,7 @@ test('dot notation violations have one owner', async () => {
     });
 });
 
-test('native emit preserves legacy decorator metadata and declarations', async () => {
+test('native emit preserves legacy decorator metadata and declarations', { skip: tsrsUnavailable }, async () => {
     await withProject(
         'function marker(_target: object, _name: string, _descriptor: PropertyDescriptor): void {}\nexport class Item { @marker read(value: string): string { return value; } }\n',
         async directory => {
@@ -294,4 +335,58 @@ test('type-aware catalog upgrades require a policy for every newly supported rul
             '@typescript-eslint/dot-notation',
         ])
     );
+});
+
+test('compiler launcher falls back only when native binary resolution fails', async () => {
+    for (const [available, status, compiler] of [
+        [true, 0, 'tsrs'],
+        [false, 0, 'tsc'],
+        [true, 2, 'tsrs'],
+    ]) {
+        await withProject('', async directory => {
+            await mkdir(path.join(directory, 'scripts'));
+            await copyFile(path.join(root, 'scripts/typecheck.mjs'), path.join(directory, 'scripts/typecheck.mjs'));
+            for (const [name, binary] of [
+                ['tsrs', 'tsrs'],
+                ['@typescript/native', 'tsc'],
+            ]) {
+                const packageRoot = path.join(directory, 'node_modules', name);
+                await mkdir(path.join(packageRoot, 'lib'), { recursive: true });
+                await mkdir(path.join(packageRoot, 'bin'));
+                await writeFile(
+                    path.join(packageRoot, 'package.json'),
+                    JSON.stringify({ type: 'module', exports: { './package.json': './package.json' } })
+                );
+                await writeFile(
+                    path.join(packageRoot, 'lib/getExePath.js'),
+                    available
+                        ? 'export default () => "binary";'
+                        : 'export default () => { throw new Error("missing optional binary"); };'
+                );
+                await writeFile(
+                    path.join(packageRoot, 'bin', binary),
+                    `console.log(JSON.stringify({compiler: '${binary}', args: process.argv.slice(2)})); process.exit(${binary === 'tsrs' ? status : 0});`
+                );
+            }
+            const result = spawnSync(
+                process.execPath,
+                [path.join(directory, 'scripts/typecheck.mjs'), '--noEmit', '-p', 'project with spaces'],
+                { encoding: 'utf8', timeout: 10000, env: { ...process.env, TSRS_BINARY: '' } }
+            );
+            assert.equal(result.status, status, result.stderr);
+            assert.deepEqual(JSON.parse(result.stdout), { compiler, args: ['--noEmit', '-p', 'project with spaces'] });
+            assert.equal(result.stderr.includes('falling back'), !available);
+        });
+    }
+});
+
+test('compiler launcher rejects invalid explicit binary overrides', () => {
+    const result = spawnSync(process.execPath, [path.join(root, 'scripts/typecheck.mjs'), '--version'], {
+        encoding: 'utf8',
+        timeout: 10000,
+        env: { ...process.env, TSRS_BINARY: path.join(root, '.scratch/missing-compiler') },
+    });
+    assert.equal(result.status, 1);
+    assert.match(result.stderr, /TSRS_BINARY/u);
+    assert.doesNotMatch(result.stderr, /falling back/u);
 });
