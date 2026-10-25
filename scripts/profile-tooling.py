@@ -64,7 +64,10 @@ def main():
                     candidates.append((tool, binaries / tool, flags))
                 for round_index in range(arguments.runs):
                     for tool, binary, flags in candidates[::1 if round_index % 2 == 0 else -1]:
-                        shutil.rmtree(output / f'{tool}-{label}-output', ignore_errors=True)
+                        try:
+                            shutil.rmtree(output / f'{tool}-{label}-output')
+                        except FileNotFoundError:
+                            pass
                         result = measure(
                             binary, flags, directory, output / f'{tool}-{label}-{round_index}.log'
                         )
