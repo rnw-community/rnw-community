@@ -289,8 +289,8 @@ A package MUST NOT re-export (`export type { X } from '@rnw-community/other'`) a
 - `tsrs` (pinned to `0.18.0-ts7.1.0-dev.20260929`) runs all `ts` and `ts:nodenext` checks and all Node/NestJS
   ESM/CJS JavaScript and declaration builds through `scripts/typecheck.mjs`. The launcher falls back to the native
   reference compiler if the optional tsrs binary is unavailable (including Windows and Intel macOS); compile errors
-  never trigger fallback. Turbo passes `TSRS_BINARY` through and hashes its value so custom binaries cannot reuse
-  another compiler's cached results. React Native packages keep bob's Babel module/commonjs targets and use
+  never trigger fallback. Turbo forwards and hashes `TSRS_BINARY`, so a custom binary never reuses cached results.
+  React Native packages keep bob's Babel module/commonjs targets and use
   `../../scripts/typecheck.mjs` through bob's `typescript` target's `tsc` option for declarations. It ports the
   TypeScript 7.1 development compiler to Rust and supports legacy decorator metadata. Keep it pinned; compare fresh
   JavaScript/declaration output and consumer types when upgrading. `scripts/profile-tooling.py` measures type checks,
@@ -348,8 +348,7 @@ fail config generation. See the [type-aware audit](docs/tooling-performance.md#t
   `pnpm lint:oxlint:check` and fails on drift
 - `pnpm lint` runs each package's `oxlint src && eslint src` through Turbo; package-level lint and fix commands
   include type-aware oxlint too. Turbo builds workspace dependencies before typed checks and lint so both linters resolve current declarations.
-  CI builds and lints the affected packages; task-input-aware selection includes every lint task when a root lint
-  config or root dependency manifests change. Its repository-wide syntax pass needs no build outputs.
+  CI builds and lints the affected packages; a root lint config change selects every lint task. Its repository-wide syntax pass needs no build outputs.
   `pnpm lint:oxlint` explicitly checks every package with types and requires all dependencies built
 - `.oxlintrc.json` enables type-aware rules by default for local commands, staged files and editor integrations.
   `pnpm lint:fast` selects `.oxlintrc.fast.json`, which extends it with type analysis disabled; it is only a quick

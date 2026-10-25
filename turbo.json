@@ -43,9 +43,7 @@
       "inputs": [
         "$TURBO_DEFAULT$",
         "$TURBO_ROOT$/eslint.config.mjs",
-        "$TURBO_ROOT$/.oxlintrc.json",
-        "$TURBO_ROOT$/package.json",
-        "$TURBO_ROOT$/pnpm-lock.yaml"
+        "$TURBO_ROOT$/.oxlintrc.json"
       ],
       "outputs": []
     },
@@ -57,9 +55,7 @@
       "inputs": [
         "$TURBO_DEFAULT$",
         "$TURBO_ROOT$/eslint.config.mjs",
-        "$TURBO_ROOT$/.oxlintrc.json",
-        "$TURBO_ROOT$/package.json",
-        "$TURBO_ROOT$/pnpm-lock.yaml"
+        "$TURBO_ROOT$/.oxlintrc.json"
       ],
       "outputs": []
     },
