@@ -62,6 +62,7 @@
                 "no-control-regex": ["error"],
                 "no-debugger": ["error"],
                 "no-delete-var": ["error"],
+                "no-div-regex": ["error"],
                 "no-dupe-else-if": ["error"],
                 "no-duplicate-case": ["error"],
                 "no-empty": ["error", { "allowEmptyCatch": false }],
@@ -97,6 +98,7 @@
                 "no-iterator": ["error"],
                 "no-label-var": ["error"],
                 "no-labels": ["error", { "allowLoop": false, "allowSwitch": false }],
+                "no-lonely-if": ["error"],
                 "no-loop-func": ["error"],
                 "no-loss-of-precision": ["error"],
                 "no-multi-assign": ["error", { "ignoreNonDeclaration": false }],
@@ -279,7 +281,17 @@
                 "typescript/unbound-method": ["error"],
                 "typescript/unified-signatures": ["error"],
                 "typescript/use-unknown-in-catch-callback-variable": ["error"],
-                "typescript/explicit-member-accessibility": ["error", { "accessibility": "no-public" }]
+                "typescript/explicit-member-accessibility": ["error", { "accessibility": "no-public" }],
+                "sort-imports": [
+                    "error",
+                    {
+                        "allowSeparatedGroups": false,
+                        "ignoreCase": false,
+                        "ignoreDeclarationSort": true,
+                        "ignoreMemberSort": false,
+                        "memberSyntaxSortOrder": ["all", "multiple", "none", "single"]
+                    }
+                ]
             },
             "plugins": ["typescript", "promise", "react"]
         },
@@ -329,6 +341,7 @@
                 "no-control-regex": ["error"],
                 "no-debugger": ["error"],
                 "no-delete-var": ["error"],
+                "no-div-regex": ["error"],
                 "no-dupe-else-if": ["error"],
                 "no-duplicate-case": ["error"],
                 "no-empty": ["error", { "allowEmptyCatch": false }],
@@ -364,6 +377,7 @@
                 "no-iterator": ["error"],
                 "no-label-var": ["error"],
                 "no-labels": ["error", { "allowLoop": false, "allowSwitch": false }],
+                "no-lonely-if": ["error"],
                 "no-loop-func": ["error"],
                 "no-loss-of-precision": ["error"],
                 "no-multi-assign": ["error", { "ignoreNonDeclaration": false }],
@@ -547,7 +561,17 @@
                 "typescript/unbound-method": ["error"],
                 "typescript/unified-signatures": ["error"],
                 "typescript/use-unknown-in-catch-callback-variable": ["error"],
-                "typescript/explicit-member-accessibility": ["error", { "accessibility": "no-public" }]
+                "typescript/explicit-member-accessibility": ["error", { "accessibility": "no-public" }],
+                "sort-imports": [
+                    "error",
+                    {
+                        "allowSeparatedGroups": false,
+                        "ignoreCase": false,
+                        "ignoreDeclarationSort": true,
+                        "ignoreMemberSort": false,
+                        "memberSyntaxSortOrder": ["all", "multiple", "none", "single"]
+                    }
+                ]
             },
             "plugins": ["typescript", "node", "promise", "react"]
         },
@@ -597,6 +621,7 @@
                 "no-control-regex": ["error"],
                 "no-debugger": ["error"],
                 "no-delete-var": ["error"],
+                "no-div-regex": ["error"],
                 "no-dupe-else-if": ["error"],
                 "no-duplicate-case": ["error"],
                 "no-empty": ["error", { "allowEmptyCatch": false }],
@@ -632,6 +657,7 @@
                 "no-iterator": ["error"],
                 "no-label-var": ["error"],
                 "no-labels": ["error", { "allowLoop": false, "allowSwitch": false }],
+                "no-lonely-if": ["error"],
                 "no-loop-func": ["error"],
                 "no-loss-of-precision": ["error"],
                 "no-multi-assign": ["error", { "ignoreNonDeclaration": false }],
@@ -815,7 +841,17 @@
                 "typescript/unbound-method": ["error"],
                 "typescript/unified-signatures": ["error"],
                 "typescript/use-unknown-in-catch-callback-variable": ["error"],
-                "typescript/explicit-member-accessibility": ["error", { "accessibility": "no-public" }]
+                "typescript/explicit-member-accessibility": ["error", { "accessibility": "no-public" }],
+                "sort-imports": [
+                    "error",
+                    {
+                        "allowSeparatedGroups": false,
+                        "ignoreCase": false,
+                        "ignoreDeclarationSort": true,
+                        "ignoreMemberSort": false,
+                        "memberSyntaxSortOrder": ["all", "multiple", "none", "single"]
+                    }
+                ]
             },
             "plugins": ["typescript", "node", "promise", "react"]
         },
@@ -865,6 +901,7 @@
                 "no-control-regex": ["error"],
                 "no-debugger": ["error"],
                 "no-delete-var": ["error"],
+                "no-div-regex": ["error"],
                 "no-dupe-else-if": ["error"],
                 "no-duplicate-case": ["error"],
                 "no-empty": ["error", { "allowEmptyCatch": false }],
@@ -900,6 +937,7 @@
                 "no-iterator": ["error"],
                 "no-label-var": ["error"],
                 "no-labels": ["error", { "allowLoop": false, "allowSwitch": false }],
+                "no-lonely-if": ["error"],
                 "no-loop-func": ["error"],
                 "no-loss-of-precision": ["error"],
                 "no-multi-assign": ["error", { "ignoreNonDeclaration": false }],
@@ -1082,7 +1120,17 @@
                 "typescript/unbound-method": ["error"],
                 "typescript/unified-signatures": ["error"],
                 "typescript/use-unknown-in-catch-callback-variable": ["error"],
-                "typescript/explicit-member-accessibility": ["error", { "accessibility": "no-public" }]
+                "typescript/explicit-member-accessibility": ["error", { "accessibility": "no-public" }],
+                "sort-imports": [
+                    "error",
+                    {
+                        "allowSeparatedGroups": false,
+                        "ignoreCase": false,
+                        "ignoreDeclarationSort": true,
+                        "ignoreMemberSort": false,
+                        "memberSyntaxSortOrder": ["all", "multiple", "none", "single"]
+                    }
+                ]
             },
             "plugins": ["typescript", "promise", "react"]
         }

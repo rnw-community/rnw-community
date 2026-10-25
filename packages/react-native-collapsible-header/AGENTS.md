@@ -193,6 +193,8 @@ src/
 
 ## Publication pipeline (react-native-builder-bob)
 
+Declaration generation uses the pinned `tsrs` binary through bob's explicit `tsc` option; Babel still owns JavaScript output.
+
 The package builds with `react-native-builder-bob` — the React Native library standard — configured in
 `package.json` under `react-native-builder-bob`:
 

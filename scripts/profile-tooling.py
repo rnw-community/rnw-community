@@ -26,7 +26,7 @@ def main():
     parser = argparse.ArgumentParser(
         description='Serial, interleaved tooling benchmarks with per-process peak RSS (Linux/macOS).'
     )
-    parser.add_argument('mode', choices=['types', 'lint', 'native'])
+    parser.add_argument('mode', choices=['types', 'build', 'lint', 'native'])
     parser.add_argument('--runs', type=int, default=3)
     parser.add_argument('--output', default='.plans/tooling-profile')
     parser.add_argument('--incremental', action='store_true')
@@ -46,6 +46,30 @@ def main():
         for file in sorted((root / 'packages').glob('*/package.json'))
     ]
     for directory, package in packages:
+        if arguments.mode == 'build':
+            configs = sorted(directory.glob('tsconfig.build-*.json'))
+            if 'react-native-builder-bob' in package:
+                configs = [directory / 'tsconfig.build.json']
+            for config in configs:
+                label = f'{directory.name}-{config.stem}'
+                candidates = []
+                for tool in ['tsc', 'tsrs']:
+                    flags = [
+                        '-p', str(config), '--noEmit', 'false', '--incremental', 'false',
+                        '--pretty', 'false', '--outDir', str(output / f'{tool}-{label}-output'),
+                    ]
+                    if config.name == 'tsconfig.build.json':
+                        flags.extend(['--emitDeclarationOnly', 'true', '--declaration', 'true'])
+                    candidates.append((tool, binaries / tool, flags))
+                for round_index in range(arguments.runs):
+                    for tool, binary, flags in candidates[::1 if round_index % 2 == 0 else -1]:
+                        result = measure(
+                            binary, flags, directory, output / f'{tool}-{label}-{round_index}.log'
+                        )
+                        record = {'tool': tool, 'package': label, 'round': round_index, **result}
+                        records.append(record)
+                        print(json.dumps(record), flush=True)
+            continue
         if arguments.mode == 'types' and 'ts' in package.get('scripts', {}):
             candidates = [
                 (tool, binaries / tool, ['-p', 'tsconfig.json', '--noEmit', '--pretty', 'false'])
@@ -55,7 +79,9 @@ def main():
                 flags.extend(['--incremental', str(arguments.incremental).lower()])
                 if arguments.incremental:
                     flags.extend(['--tsBuildInfoFile', str(output / f'{tool}-{directory.name}.tsbuildinfo')])
-                    measure(binary, flags, directory, output / f'{tool}-{directory.name}-warmup.log')
+                    warmup = measure(binary, flags, directory, output / f'{tool}-{directory.name}-warmup.log')
+                    if warmup['exit']:
+                        parser.error(f'Compiler warmup failed: {warmup["log"]}')
         elif arguments.mode in ('lint', 'native') and 'lint' in package.get('scripts', {}):
             flags = [str(directory / 'src'), '--format', 'json']
             candidates = [

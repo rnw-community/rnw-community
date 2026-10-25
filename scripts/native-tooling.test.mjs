@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
-import { mkdtemp, mkdir, rm, writeFile } from 'node:fs/promises';
+import { mkdtemp, mkdir, readFile, rm, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { test } from 'node:test';
 import { fileURLToPath } from 'node:url';
@@ -128,4 +128,65 @@ test('dot notation violations have one owner', async () => {
         const native = run('oxlint', ['--no-ignore', '--format', 'json', file]);
         assert.ok(JSON.parse(native.stdout).diagnostics.every(item => !item.code?.includes('dot-notation')));
     });
+});
+
+test('native emit preserves legacy decorator metadata and declarations', async () => {
+    await withProject(
+        'function marker(_target: object, _name: string, _descriptor: PropertyDescriptor): void {}\nexport class Item { @marker read(value: string): string { return value; } }\n',
+        async directory => {
+            const outputs = [];
+            for (const compiler of ['tsc', 'tsrs']) {
+                const outDir = path.join(directory, compiler);
+                const result = run(compiler, [
+                    '-p',
+                    directory,
+                    '--noEmit',
+                    'false',
+                    '--outDir',
+                    outDir,
+                    '--pretty',
+                    'false',
+                ]);
+                assert.equal(result.status, 0, result.stdout + result.stderr);
+                const javascript = await readFile(path.join(outDir, 'probe.js'), 'utf8');
+                const declarations = await readFile(path.join(outDir, 'probe.d.ts'), 'utf8');
+                assert.match(javascript, /__metadata\("design:paramtypes", \[String\]\)/u);
+                assert.match(declarations, /read\(value: string\): string/u);
+                assert.ok(await readFile(path.join(outDir, 'probe.js.map'), 'utf8'));
+                assert.ok(await readFile(path.join(outDir, 'probe.d.ts.map'), 'utf8'));
+                outputs.push({ javascript, declarations });
+            }
+            assert.deepEqual(outputs[1], outputs[0]);
+        }
+    );
+});
+
+test('updated native syntax rules preserve baseline diagnostic positions and have one owner', async () => {
+    const { eslintConfigWithoutOxlint } = await import('../eslint.config.mjs');
+    const baseline = new ESLint({ cwd: root, overrideConfigFile: true, overrideConfig: eslintConfigWithoutOxlint });
+    const current = new ESLint({ cwd: root });
+    const cases = [
+        ['sort-imports', "export const value = 1;\nimport { resolve, basename } from 'node:path';\n"],
+        [
+            'no-lonely-if',
+            'declare const first: () => boolean, second: () => boolean, third: () => boolean;\nif (first()) { first(); } else if (second()) { second(); } else { if (third()) { third(); } }\n',
+        ],
+        ['no-div-regex', 'export const pattern = /=+$/;\n'],
+    ];
+    for (const [rule, source] of cases) {
+        await withProject(source, async (_directory, file) => {
+            const config = await current.calculateConfigForFile(file);
+            assert.equal(config.rules[rule][0], 0, rule);
+            const expected = (await baseline.lintFiles([file]))
+                .flatMap(result => result.messages)
+                .filter(message => message.ruleId === rule)
+                .map(message => [message.line, message.column]);
+            assert.ok(expected.length > 0, rule);
+            const native = run('oxlint', ['--no-ignore', '--format', 'json', file]);
+            const actual = JSON.parse(native.stdout)
+                .diagnostics.filter(item => item.code === `eslint(${rule})`)
+                .map(item => [item.labels.at(-1).span.line, item.labels.at(-1).span.column]);
+            assert.deepEqual(actual, expected, rule);
+        });
+    }
 });

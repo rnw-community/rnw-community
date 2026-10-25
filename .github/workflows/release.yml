@@ -71,6 +71,9 @@ jobs:
       - name: Build packages
         run: pnpm build
 
+      - name: Validate native tooling and source
+        run: pnpm ts && pnpm lint && pnpm lint:oxlint:check && pnpm test:tooling
+
       - name: Unit tests
         run: pnpm test:coverage
 

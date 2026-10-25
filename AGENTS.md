@@ -94,7 +94,7 @@ This list links to the sections that define each rule instead of repeating them.
    merge until each thread is resolved.
 
 **Adding a package:** copy the layout of the most similar existing package. React Native libraries build with bob;
-Node and NestJS packages use the tsc dual build. Then register the new package everywhere CI and the docs list
+Node and NestJS packages use the tsrs dual build. Then register the new package everywhere CI and the docs list
 packages:
 
 - `codecov.yml` (a flag and a coverage target)
@@ -284,22 +284,23 @@ A package MUST NOT re-export (`export type { X } from '@rnw-community/other'`) a
 
 ### TypeScript — Strict mode with all strict flags enabled, decorators enabled
 
-**Separate check, emit and JavaScript API compilers, by design:**
+**Production compiler and separate compatibility/API compilers, by design:**
 
-- `tsrs` (pinned to `0.18.0-ts7.1.0-dev.20260929`) runs every `ts` and `ts:nodenext` check. It ports the
-  TypeScript 7.1 development checker to Rust; it never emits published JavaScript or declarations. Keep it pinned and
-  compare diagnostics against the native compiler when upgrading. `scripts/profile-tooling.py` compares elapsed
-  time and peak RSS with independent cold or warm incremental caches.
-
-- `@typescript/native` (`npm:typescript@^7`) provides the `tsc` binary — the native TypeScript 7 compiler. Every
-  `build:esm` and `build:cjs` script, and bob's `typescript` target (via its explicit `tsc`
-  option), compiles with it, including `.d.ts` emit and `experimentalDecorators`/`emitDecoratorMetadata`.
+- `tsrs` (pinned to `0.18.0-ts7.1.0-dev.20260929`) runs all `ts` and `ts:nodenext` checks and all Node/NestJS
+  ESM/CJS JavaScript and declaration builds. React Native packages keep bob's Babel module/commonjs targets and use
+  `../../node_modules/tsrs/bin/tsrs` through bob's `typescript` target's `tsc` option for declarations. It ports the
+  TypeScript 7.1 development compiler to Rust and supports legacy decorator metadata. Keep it pinned; compare fresh
+  JavaScript/declaration output and consumer types when upgrading. `scripts/profile-tooling.py` measures type checks,
+  builds and lint with process elapsed time and peak RSS.
+- `@typescript/native` (`npm:typescript@^7`) provides the reference `tsc` binary for diagnostics, emit comparison and
+  performance tests. Production build/check scripts use `tsrs`. The consumer package-manager smoke matrix runs both
+  `tsrs` and TypeScript 5.9 against shipped declarations to preserve older-consumer coverage.
 - `typescript` (`npm:@typescript/typescript6@^6`) provides the TypeScript 6.0 **JavaScript API** (and a `tsc6`
   binary) for tools that `import 'typescript'`: typescript-eslint's type-aware lint, knip, bob's declaration rewriter.
   TypeScript 7.0 ships no JS API yet and typescript-eslint's peer range stops below 7. A root pnpm `overrides` entry
   pins every `typescript` peer in the graph to this shim; `@arethetypeswrong/core` keeps its own pinned compiler.
-- Collapse both into a single `typescript@^7` once typescript-eslint supports the TypeScript 7 API
-  (typescript-eslint/typescript-eslint#10940).
+- Replace the JavaScript API shim only after typescript-eslint and the custom typed rule support the native API
+  (typescript-eslint/typescript-eslint#10940). Keep a reference compiler for compatibility and profiling.
 - TypeScript 6/7 removed `moduleResolution: "node"` and infer `rootDir` from the tsconfig's own directory: the root
   build tsconfigs set `"rootDir": "${configDir}/src"` so every package keeps emitting `dist/<format>/index.js`.
 
@@ -333,6 +334,11 @@ rejects, or whose results diverge from ESLint on a third-party parity corpus, st
 `rulesKeptInEslint` / `pluginsKeptInEslint` maps list each reason). The generator fails if the handoff would replace
 an ESLint rule with different options.
 
+- Keep `oxlint`, `@oxlint/migrate` and `eslint-plugin-oxlint` aligned (currently pinned to `1.89.0`).
+  `sort-imports`, `no-lonely-if` and `no-div-regex` use the revalidated native implementations. The migrator skips
+  import sorting for Oxfmt users; this repository uses Prettier, so the generator copies the exact resolved
+  `sort-imports` rule into each override and validates its handoff. Typed JS-plugin rules still require ESLint because
+  oxlint's JS bridge provides no TypeScript program or ESTree-to-TypeScript maps
 - After changing `eslint.config.mjs`, run `pnpm lint:oxlint:generate` and commit `.oxlintrc.json`; CI runs
   `pnpm lint:oxlint:check` and fails on drift
 - `pnpm lint` runs each package's `oxlint src && eslint src` through Turbo; package-level lint and fix commands
@@ -346,7 +352,8 @@ an ESLint rule with different options.
   unused-directive report skips directives that name oxlint-owned rules (the `oxlint-handoff` processor), so those
   are not checked for staleness
 - Supported type-aware rules run through the pinned `oxlint-tsgolint` backend. Unsupported rules stay in ESLint,
-  including `no-unnecessary-condition`, `no-unsafe-enum-assignment` and `naming-convention`. Keep `projectService`:
+  including `no-unsafe-enum-assignment` and `naming-convention`; `no-unnecessary-condition` remains for diagnostic
+  position parity. Keep `projectService`:
   the custom `@rnw-community/public-api-tsdoc` rule also needs the TypeScript program
 - `pnpm test:tooling` exercises negative type/lint fixtures, rule handoff, and mixed disable directives. CI runs it
   alongside the config drift guard. See [Tooling performance](docs/tooling-performance.md) for measurements and reproduction
@@ -413,8 +420,8 @@ Always write plans to `.plans/` as `.md` files before executing multi-step chang
 ## React Native library builds — react-native-builder-bob
 
 **Every publishable React Native library package MUST build with `react-native-builder-bob`** (targets
-`["module", { esm: true }]` + `["commonjs", { esm: true }]` + `typescript`, output `dist`), not the hand-rolled tsc
-dual-build described below. Bob owns what the tsc pipeline reimplements by hand — ESM extension rewriting, per-tree
+`["module", { esm: true }]` + `["commonjs", { esm: true }]` + `typescript`, output `dist`), not the hand-rolled tsrs
+dual-build described below. Bob owns what the dual compiler pipeline reimplements by hand — ESM extension rewriting, per-tree
 `package.json` markers, and split declaration trees — and, being Babel-based, it takes `babel-plugin-react-compiler`
 (target `'18'`, `panicThreshold: 'all_errors'`) through a `babel.config.bob.js` so published dist ships precompiled
 React Compiler output (`react-compiler-runtime` as a runtime dependency). `'worklet'` directives pass through for the
@@ -424,7 +431,7 @@ compiler output.
 `react-native-collapsible-header` is the reference implementation. **Exception — `react-native-screen-chrome` ships
 without compiler output**: its compiler-transformed code corrupts the Hermes heap at runtime on the current
 RN 0.86 / iOS 26 stack (bisect and evidence in #601); re-add the plugin there only after #601 resolves.
-Node/NestJS packages (no JSX, no compiler) keep the tsc pipeline below.
+Node/NestJS packages (no JSX, no compiler) keep the tsrs pipeline below.
 
 ## ESM Modernization Status
 
@@ -464,7 +471,7 @@ The monorepo uses dual ESM + CJS output. Rules:
   resolution) requires: it `require()`s the module and uses the returned value directly, with no `.default` unwrap.
   Switching to `export default plugin` would satisfy a "real" ESM build but silently break every consumer still on
   legacy `.eslintrc` config. Because `export =` cannot be re-emitted as genuine ESM syntax, the package's own
-  `tsconfig.build-esm.json` targets `NodeNext` against a `type`-less source tree so `tsc` compiles it as CommonJS
+  `tsconfig.build-esm.json` targets `NodeNext` against a `type`-less source tree so `tsrs` compiles it as CommonJS
   even under `dist/esm/` — both dist trees are byte-equivalent CJS. The package.json reflects this honestly instead of
   papering over it: root-level `"type": "commonjs"` (not per-directory markers, since neither directory is ESM), no
   `"module"` field (there is no real ESM entry to advertise to bundlers), and `pnpm publint`'s `attw` invocation for

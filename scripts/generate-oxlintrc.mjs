@@ -30,6 +30,7 @@ const pluginsKeptInEslint = new Map([
 ]);
 
 const rulesKeptInEslint = new Map([
+    ['no-unnecessary-condition', 'optional-chain diagnostics span different lines, changing disable directive behavior'],
     ['dot-notation', 'the typed oxlint rule does not disable the active core ESLint rule'],
     ['consistent-return', 'tsgolint skips missing final returns in async functions'],
     ['id-length', 'oxlint also reports single-letter TypeScript type parameters, which ESLint core never visits'],
@@ -57,12 +58,10 @@ const rulesKeptInEslint = new Map([
         'max-statements',
         'no-bitwise',
         'no-console',
-        'no-div-regex',
         'no-else-return',
         'no-global-assign',
         'no-implicit-globals',
         'no-lone-blocks',
-        'no-lonely-if',
         'no-misleading-character-class',
         'no-negated-condition',
         'no-param-reassign',
@@ -77,7 +76,6 @@ const rulesKeptInEslint = new Map([
         'prefer-template',
         'promise/always-return',
         'react/jsx-max-depth',
-        'sort-imports',
         'vars-on-top',
     ].map(ruleName => [ruleName, 'oxlint reports a different set or position of problems than ESLint on the parity corpus']),
 ]);
@@ -143,7 +141,11 @@ const migrated = await migrate(
 );
 for (const { files, eslintRules } of categories) {
     const override = migrated.overrides.find(candidate => JSON.stringify(candidate.files) === JSON.stringify(files));
-    assertOxlintTakesOverWhatItDisables(eslintRules, override?.rules ?? {});
+    if (!override) {
+        throw new Error(`Missing oxlint override for ${files.join(', ')}`);
+    }
+    override.rules['sort-imports'] = eslintRules['sort-imports'];
+    assertOxlintTakesOverWhatItDisables(eslintRules, override.rules);
 }
 
 const prettierConfig = await prettier.resolveConfig(oxlintConfigPath);
