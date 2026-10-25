@@ -87,10 +87,13 @@ jobs:
             -   name: Oxlint config in sync with ESLint config
                 run: pnpm lint:oxlint:check
 
-            -   name: Oxlint checks
+            -   name: Oxlint checks (syntax)
                 run: pnpm lint:fast
 
-            -   name: ESLint checks
+            -   name: Native tooling regression checks
+                run: pnpm test:tooling
+
+            -   name: Oxlint type-aware and ESLint checks
                 run: pnpm exec turbo run lint --affected
 
             -   name: Publish hygiene checks (publint, attw)

@@ -21,8 +21,10 @@ Root commands run across every package through Turbo:
 
 ```bash
 pnpm build          # dual ESM + CJS build into each package's dist/
-pnpm ts             # type check
-pnpm lint           # ESLint (pnpm lint:fix to auto-fix)
+pnpm ts             # tsrs type check
+pnpm lint           # type-aware oxlint + ESLint (pnpm lint:fix to auto-fix)
+pnpm lint:fast      # syntax-only oxlint
+pnpm test:tooling   # native compiler/linter regression checks
 pnpm test           # Jest (pnpm test:coverage for the 99.9% coverage gate)
 pnpm ts:nodenext    # type check under nodenext resolution
 pnpm publint        # publint + @arethetypeswrong/cli on built packages
@@ -32,7 +34,12 @@ pnpm deadcode       # knip
 pnpm cpd            # copy-paste detection
 ```
 
-The same scripts exist per package: `cd packages/<name> && pnpm test --watch`.
+The same scripts exist per package: `cd packages/<name> && pnpm test --watch`. Package-level lint and lint fixes run
+type-aware oxlint followed by ESLint. Build once after installing so workspace types resolve.
+
+Type checks use pinned `tsrs`; builds and declaration emit stay on native TypeScript 7. The TypeScript 6 JavaScript API
+shim remains for ESLint, knip and bob. See [Tooling performance](docs/tooling-performance.md) for benchmark commands,
+measurements and compiler upgrade checks.
 
 ## Where things live
 

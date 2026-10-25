@@ -62,12 +62,12 @@
         "clear": "rm -rf coverage && rm -rf dist && rm -f *.tsbuildinfo",
         "clear:deps": "rm -rf ./node_modules && rm -rf ./dist",
         "format": "prettier --write \"./src/**/*.{ts,tsx}\"",
-        "lint": "eslint src",
+        "lint": "oxlint src && eslint src",
         "test": "jest",
         "test:coverage": "jest --coverage",
-        "lint:fix": "eslint --fix src",
-        "ts": "tsc --pretty -p tsconfig.json",
-        "ts:nodenext": "tsc --pretty -p tsconfig.nodenext-check.json"
+        "lint:fix": "oxlint --fix src && eslint --fix src",
+        "ts": "tsrs --pretty -p tsconfig.json",
+        "ts:nodenext": "tsrs --pretty -p tsconfig.nodenext-check.json"
     },
     "dependencies": {
         "@rnw-community/shared": "^3.0.0"

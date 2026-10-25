@@ -43,13 +43,13 @@
         "node": ">=22.0.0"
     },
     "scripts": {
-        "ts": "tsc --pretty -p tsconfig.json",
-        "ts:nodenext": "tsc --pretty -p tsconfig.nodenext-check.json",
+        "ts": "tsrs --pretty -p tsconfig.json",
+        "ts:nodenext": "tsrs --pretty -p tsconfig.nodenext-check.json",
         "build:esm": "tsc --pretty -p tsconfig.build-esm.json",
         "build:cjs": "tsc --pretty -p tsconfig.build-cjs.json",
         "build": "pnpm run build:esm && pnpm run build:cjs && rm -rf ./dist/*/*.tsbuildinfo",
-        "lint": "eslint src",
-        "lint:fix": "eslint --fix src",
+        "lint": "oxlint src && eslint src",
+        "lint:fix": "oxlint --fix src && eslint --fix src",
         "test": "jest",
         "test:coverage": "jest --coverage",
         "format": "prettier --write \"./src/**/*.{ts,tsx}\"",

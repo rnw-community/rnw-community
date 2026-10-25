@@ -16,9 +16,10 @@ TypeScript monorepo with 22 packages providing NestJS, React, React Native, and 
 # Root-level (runs across all packages via Turbo)
 pnpm build              # Build all packages (dual ESM + CJS output to dist/)
 pnpm ts                 # Type check all packages
-pnpm lint               # oxlint first pass, then ESLint all packages
-pnpm lint:fast          # oxlint only (sub-second, no type information)
-pnpm lint:fix           # Auto-fix lint issues (oxlint --fix, then ESLint --fix)
+pnpm lint               # per-package type-aware oxlint and ESLint
+pnpm lint:fast          # syntax-only oxlint (no type information)
+pnpm lint:oxlint        # oxlint syntax and type-aware rules
+pnpm lint:fix           # Auto-fix lint issues in every package (oxlint, then ESLint)
 pnpm lint:oxlint:generate # Regenerate .oxlintrc.json after editing eslint.config.mjs
 pnpm test               # Run all tests
 pnpm test:coverage      # Run tests with coverage
@@ -35,7 +36,7 @@ pnpm test --watch       # Watch mode
 pnpm test:coverage      # Tests with coverage
 pnpm build              # Build this package only
 pnpm ts                 # Type check this package only
-pnpm lint:fix           # Fix lint issues in this package (ESLint share only; run `pnpm lint:fast` at the root too)
+pnpm lint:fix           # Fix lint issues in this package (type-aware oxlint, then ESLint)
 ```
 
 ## Architecture
@@ -283,10 +284,15 @@ A package MUST NOT re-export (`export type { X } from '@rnw-community/other'`) a
 
 ### TypeScript — Strict mode with all strict flags enabled, decorators enabled
 
-**Two TypeScript installs, by design** (the split recommended by the TypeScript 7.0 release notes):
+**Separate check, emit and JavaScript API compilers, by design:**
+
+- `tsrs` (pinned to `0.18.0-ts7.1.0-dev.20260929`) runs every `ts` and `ts:nodenext` check. It ports the
+  TypeScript 7.1 development checker to Rust; it never emits published JavaScript or declarations. Keep it pinned and
+  compare diagnostics against the native compiler when upgrading. `scripts/profile-tooling.py` compares elapsed
+  time and peak RSS with independent cold or warm incremental caches.
 
 - `@typescript/native` (`npm:typescript@^7`) provides the `tsc` binary — the native TypeScript 7 compiler. Every
-  `ts`, `ts:nodenext`, `build:esm` and `build:cjs` script, and bob's `typescript` target (via its explicit `tsc`
+  `build:esm` and `build:cjs` script, and bob's `typescript` target (via its explicit `tsc`
   option), compiles with it, including `.d.ts` emit and `experimentalDecorators`/`emitDecoratorMetadata`.
 - `typescript` (`npm:@typescript/typescript6@^6`) provides the TypeScript 6.0 **JavaScript API** (and a `tsc6`
   binary) for tools that `import 'typescript'`: typescript-eslint's type-aware lint, knip, bob's declaration rewriter.
@@ -320,8 +326,8 @@ Groups: builtin → external → `@rnw-community/*` → parent → sibling → i
 ### Lint toolchain — ESLint 10 + oxlint
 
 `eslint.config.mjs` is the single source of truth for every lint rule. `scripts/generate-oxlintrc.mjs` resolves the
-ESLint rules per file kind (`.ts`, `.tsx`, `.spec.ts`, `.spec.tsx`) and converts them with `@oxlint/migrate`: each rule
-oxlint implements without type information moves to oxlint with identical options; `eslint-plugin-oxlint` then turns
+ESLint rules per file kind (`.ts`, `.tsx`, `.spec.ts`, `.spec.tsx`) and converts them with `@oxlint/migrate`: each supported syntax or type-aware rule
+moves to oxlint with identical options; `eslint-plugin-oxlint` then turns
 exactly those rules off in ESLint, so nothing is reported twice and nothing is dropped. Rules whose options oxlint
 rejects, or whose results diverge from ESLint on a third-party parity corpus, stay in ESLint (the
 `rulesKeptInEslint` / `pluginsKeptInEslint` maps list each reason). The generator fails if the handoff would replace
@@ -329,12 +335,21 @@ an ESLint rule with different options.
 
 - After changing `eslint.config.mjs`, run `pnpm lint:oxlint:generate` and commit `.oxlintrc.json`; CI runs
   `pnpm lint:oxlint:check` and fails on drift
-- `pnpm lint` = `pnpm lint:fast` (oxlint over `packages/*/src`) followed by the per-package ESLint turbo task; a
-  per-package `pnpm lint` runs only the ESLint share
+- `pnpm lint` runs each package's `oxlint src && eslint src` through Turbo; package-level lint and fix commands
+  include type-aware oxlint too. Build workspace dependencies first so both linters resolve their declarations.
+  CI builds and lints the affected packages; its repository-wide syntax pass needs no build outputs.
+  `pnpm lint:oxlint` explicitly checks every package with types and requires all dependencies built
+- `.oxlintrc.json` enables type-aware rules by default for local commands, staged files and editor integrations.
+  `pnpm lint:fast` selects `.oxlintrc.fast.json`, which extends it with type analysis disabled; it is only a quick
+  syntax pass and does not replace the full lint gate
 - Disable directives keep ESLint syntax (`// eslint-disable-next-line <rule>`) — oxlint honours them. ESLint's
   unused-directive report skips directives that name oxlint-owned rules (the `oxlint-handoff` processor), so those
   are not checked for staleness
-- Type-aware rules stay in ESLint/typescript-eslint; oxlint's type-aware mode (`oxlint-tsgolint`) is not adopted yet
+- Supported type-aware rules run through the pinned `oxlint-tsgolint` backend. Unsupported rules stay in ESLint,
+  including `no-unnecessary-condition`, `no-unsafe-enum-assignment` and `naming-convention`. Keep `projectService`:
+  the custom `@rnw-community/public-api-tsdoc` rule also needs the TypeScript program
+- `pnpm test:tooling` exercises negative type/lint fixtures, rule handoff, and mixed disable directives. CI runs it
+  alongside the config drift guard. See [Tooling performance](docs/tooling-performance.md) for measurements and reproduction
 - `eslint.config.mjs` loads `@rnw-community/eslint-plugin` from its built `dist`, so the turbo `lint`/`lint:fix` tasks
   depend on `@rnw-community/eslint-plugin#build`, and `pnpm lint:oxlint:*` and the pre-commit hook run
   `pnpm lint:plugin:build` first. Run `pnpm lint:plugin:build` before invoking `eslint` directly (editor integration

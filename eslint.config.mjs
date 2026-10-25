@@ -389,10 +389,12 @@ export const eslintConfigWithoutOxlint = defineConfig(
 
 const oxlintRulesLayer = oxlint.buildFromOxlintConfigFile(oxlintConfigPath);
 const oxlintOwnedRules = new Set(oxlintRulesLayer.flatMap(config => Object.keys(config.rules ?? {})));
-const unusedDirectiveRulePattern =
-    /^Unused eslint-disable directive \(no problems were reported from '(?<rule>[^']+)'\)\.$/u;
-const isUnusedOxlintRuleDirective = message =>
-    message.ruleId === null && oxlintOwnedRules.has(unusedDirectiveRulePattern.exec(message.message)?.groups?.rule);
+const unusedDirectiveRulePattern = /^Unused eslint-disable directive \(no problems were reported from (?<rules>.+)\)\.$/u;
+const isUnusedOxlintRuleDirective = message => {
+    const rules = [...(unusedDirectiveRulePattern.exec(message.message)?.groups?.rules ?? '').matchAll(/'([^']+)'/gu)];
+
+    return message.ruleId === null && rules.length > 0 && rules.every(match => oxlintOwnedRules.has(match[1]));
+};
 
 export default [
     ...eslintConfigWithoutOxlint,

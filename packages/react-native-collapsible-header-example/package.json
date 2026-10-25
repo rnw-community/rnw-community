@@ -28,12 +28,12 @@
         "format": "prettier --write \"./src/**/*.{ts,tsx}\"",
         "ios:bare": "pnpm --filter @rnw-community/react-native-collapsible-header-example-bare ios",
         "ios:expo": "pnpm --filter @rnw-community/react-native-collapsible-header-example-expo ios",
-        "lint": "eslint src",
-        "lint:fix": "eslint --fix src",
+        "lint": "oxlint src && eslint src",
+        "lint:fix": "oxlint --fix src && eslint --fix src",
         "prebuild:expo": "pnpm --filter @rnw-community/react-native-collapsible-header-example-expo prebuild",
         "start:bare": "pnpm --filter @rnw-community/react-native-collapsible-header-example-bare start",
         "start:expo": "pnpm --filter @rnw-community/react-native-collapsible-header-example-expo start",
-        "ts": "tsc --pretty -p tsconfig.json"
+        "ts": "tsrs --pretty -p tsconfig.json"
     },
     "dependencies": {
         "@react-navigation/native": "^7.5.1",

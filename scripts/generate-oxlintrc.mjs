@@ -30,6 +30,8 @@ const pluginsKeptInEslint = new Map([
 ]);
 
 const rulesKeptInEslint = new Map([
+    ['dot-notation', 'the typed oxlint rule does not disable the active core ESLint rule'],
+    ['consistent-return', 'tsgolint skips missing final returns in async functions'],
     ['id-length', 'oxlint also reports single-letter TypeScript type parameters, which ESLint core never visits'],
     [
         'max-params',
@@ -94,9 +96,14 @@ const assertOxlintTakesOverWhatItDisables = (eslintRules, oxlintRules) => {
     for (const [oxlintRuleName, oxlintEntry] of Object.entries(oxlintRules)) {
         const [disabledInEslint] = oxlintPlugin.buildFromOxlintConfig({
             categories: { correctness: 'off' },
+            options: { typeAware: true },
             rules: { [oxlintRuleName]: 'error' },
         });
-        for (const eslintRuleName of Object.keys(disabledInEslint?.rules ?? {})) {
+        const disabledRules = Object.keys(disabledInEslint?.rules ?? {});
+        if (!isOff(oxlintEntry) && disabledRules.every(ruleName => isOff(eslintRules[ruleName] ?? 'off'))) {
+            throw new Error(`oxlint "${oxlintRuleName}" would not replace an active ESLint rule`);
+        }
+        for (const eslintRuleName of disabledRules) {
             const eslintEntry = eslintRules[eslintRuleName] ?? 'off';
             if (!isOff(eslintEntry) && JSON.stringify(eslintEntry) !== JSON.stringify(oxlintEntry)) {
                 throw new Error(
@@ -123,13 +130,17 @@ const activeInAnyCategory = new Set(
 const globalIgnores = eslintConfigWithoutOxlint.filter(config =>
     Object.keys(config).every(key => ['ignores', 'name'].includes(key))
 );
-const migrated = await migrate([
-    ...globalIgnores,
-    ...categories.map(({ files, migratableRules }) => ({
-        files,
-        rules: withoutRules(migratableRules, ruleName => !activeInAnyCategory.has(ruleName)),
-    })),
-]);
+const migrated = await migrate(
+    [
+        ...globalIgnores,
+        ...categories.map(({ files, migratableRules }) => ({
+            files,
+            rules: withoutRules(migratableRules, ruleName => !activeInAnyCategory.has(ruleName)),
+        })),
+    ],
+    undefined,
+    { typeAware: true, jsPlugins: false }
+);
 for (const { files, eslintRules } of categories) {
     const override = migrated.overrides.find(candidate => JSON.stringify(candidate.files) === JSON.stringify(files));
     assertOxlintTakesOverWhatItDisables(eslintRules, override?.rules ?? {});
