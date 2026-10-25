@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [3.0.6](https://github.com/rnw-community/rnw-community/compare/v3.0.5...v3.0.6) (2026-10-25)
+
+### Bug Fixes
+
+- **react-native-screen-chrome:** ease the edge blur in across the whole band ([#737](https://github.com/rnw-community/rnw-community/issues/737)) ([ee57674](https://github.com/rnw-community/rnw-community/commit/ee57674f49a61dd57bc558bdc8f7c989333a9c28))
+
 ## [3.0.5](https://github.com/rnw-community/rnw-community/compare/v3.0.4...v3.0.5) (2026-10-25)
 
 **Note:** Version bump only for package @rnw-community/react-native-screen-chrome
