@@ -112,7 +112,7 @@ jobs:
                 run: pnpm cpd
 
             -   name: Unit tests
-                run: pnpm exec turbo run test:coverage --affected
+                run: pnpm exec turbo run test:coverage --affected --concurrency=2 -- --runInBand
 
             -   name: Upload coverage - decorators-core
                 if: hashFiles('packages/decorators-core/coverage/lcov.info') != ''
@@ -390,8 +390,8 @@ jobs:
                         "@react-native/metro-config": "0.85.3",
                         "@types/react": "^19.2.0",
                         "typescript": "^5.9.3",
-                        "@typescript/native": "npm:typescript@7.0.2",
-                        "tsrs": "0.18.0-ts7.1.0-dev.20260929"
+                        "@typescript/native": "$(jq -r '.devDependencies["@typescript/native"]' package.json)",
+                        "tsrs": "$(jq -r .devDependencies.tsrs package.json)"
                       }
                     }
                     JSON

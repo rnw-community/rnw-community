@@ -8,13 +8,23 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 import { ESLint } from 'eslint';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
-const binaries = { tsc: '@typescript/native/bin/tsc', tsrs: 'tsrs/bin/tsrs', oxlint: 'oxlint/bin/oxlint' };
-const run = (binary, args) =>
-    spawnSync(process.execPath, [path.join(root, 'node_modules', binaries[binary]), ...args], {
+const binaries = {
+    tsc: '@typescript/native/bin/tsc',
+    tsrs: 'tsrs/bin/tsrs',
+    oxlint: 'oxlint/bin/oxlint',
+    turbo: 'turbo/bin/turbo',
+};
+const run = (binary, args, options = {}) => {
+    const result = spawnSync(process.execPath, [path.join(root, 'node_modules', binaries[binary]), ...args], {
         cwd: root,
         encoding: 'utf8',
         timeout: 60000,
+        ...options,
     });
+    assert.ifError(result.error);
+    assert.equal(result.signal, null, `${binary} terminated by ${result.signal}: ${result.stderr}`);
+    return result;
+};
 const { default: getTsrsBinary } = await import(pathToFileURL(path.join(root, 'node_modules/tsrs/lib/getExePath.js')));
 let tsrsUnavailable;
 try {
@@ -39,9 +49,9 @@ const withProject = async (source, check) => {
     }
 };
 
-test('full lint catches floating promises while fast lint skips type analysis', async () => {
+test('package-local full lint catches floating promises while fast lint skips type analysis', async () => {
     await withProject('Promise.resolve(1);\n', async (_directory, file) => {
-        const full = run('oxlint', ['--no-ignore', '--format', 'json', file]);
+        const full = run('oxlint', ['--no-ignore', '--format', 'json', file], { cwd: path.join(root, 'packages/shared') });
         assert.equal(full.status, 1, full.stdout + full.stderr);
         assert.ok(JSON.parse(full.stdout).diagnostics.some(item => item.code?.includes('no-floating-promises')));
         const fast = run('oxlint', ['--no-ignore', '--config', '.oxlintrc.fast.json', '--format', 'json', file]);
@@ -110,7 +120,8 @@ test('unused directives for multiple migrated rules are ignored without hiding r
         '// eslint-disable-next-line @typescript-eslint/no-floating-promises, id-length\nPromise.resolve(1);\n',
         async (_directory, file) => {
             const results = await eslint.lintFiles([file]);
-            assert.ok(results.some(result => result.messages.some(message => message.ruleId === null)));
+            const messages = results.flatMap(result => result.messages);
+            assert.ok(messages.some(message => message.message.startsWith('Unused eslint-disable directive')));
         }
     );
 });
@@ -389,4 +400,47 @@ test('compiler launcher rejects invalid explicit binary overrides', () => {
     assert.equal(result.status, 1);
     assert.match(result.stderr, /TSRS_BINARY/u);
     assert.doesNotMatch(result.stderr, /falling back/u);
+});
+
+test('Turbo includes explicit compiler overrides in task hashes', () => {
+    const hash = binary => {
+        const env = { ...process.env, TSRS_BINARY: binary };
+        const result = run('turbo', ['run', 'ts', '--filter=@rnw-community/shared', '--dry=json'], { env });
+        assert.equal(result.status, 0, result.stdout + result.stderr);
+        return JSON.parse(result.stdout).tasks[0].hash;
+    };
+    assert.notEqual(hash('/first/tsrs'), hash('/second/tsrs'));
+});
+
+test('root lint config changes select every package lint task in affected runs', async () => {
+    await withProject('', async directory => {
+        const write = (name, content) => writeFile(path.join(directory, name), content);
+        const { packageManager } = JSON.parse(await readFile(path.join(root, 'package.json'), 'utf8'));
+        const { futureFlags, tasks } = JSON.parse(await readFile(path.join(root, 'turbo.json'), 'utf8'));
+        await write('package.json', JSON.stringify({ name: 'fixture', private: true, packageManager }));
+        await write('pnpm-workspace.yaml', 'packages:\n  - packages/*\n');
+        await write('turbo.json', JSON.stringify({ futureFlags, tasks: { lint: { inputs: tasks.lint.inputs } } }));
+        for (const name of ['first', 'second']) {
+            await mkdir(path.join(directory, 'packages', name), { recursive: true });
+            await write(`packages/${name}/package.json`, JSON.stringify({ name, scripts: { lint: 'true' } }));
+        }
+        const git = args => assert.equal(spawnSync('git', args, { cwd: directory }).status, 0, args.join(' '));
+        git(['init', '--quiet']);
+        git(['add', '.']);
+        git(['-c', 'user.name=Fixture', '-c', 'user.email=fixture@example.com', 'commit', '--quiet', '-m', 'fixture']);
+        const env = { ...process.env, TURBO_SCM_BASE: 'HEAD', TURBO_SCM_HEAD: 'HEAD' };
+        const affected = () => {
+            const result = run('turbo', ['run', 'lint', '--affected', '--dry=json'], { cwd: directory, env });
+            assert.equal(result.status, 0, result.stdout + result.stderr);
+            return JSON.parse(result.stdout)
+                .tasks.map(task => task.taskId)
+                .sort();
+        };
+        assert.deepEqual(affected(), []);
+        for (const name of ['eslint.config.mjs', '.oxlintrc.json']) {
+            await write(name, '{}');
+            assert.deepEqual(affected(), ['first#lint', 'second#lint'], name);
+            await rm(path.join(directory, name));
+        }
+    });
 });

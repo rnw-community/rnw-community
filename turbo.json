@@ -82,5 +82,11 @@
     "//#find-deadcode": {
       "outputs": []
     }
+  },
+  "globalEnv": [
+    "TSRS_BINARY"
+  ],
+  "futureFlags": {
+    "affectedUsingTaskInputs": true
   }
 }
