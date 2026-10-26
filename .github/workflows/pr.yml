@@ -668,6 +668,7 @@ jobs:
             actions: read
         uses: rnw-community/mobile-ci/.github/workflows/ios-maestro.yml@c45b9b0e1cc8e841a9d1f1df5f8a9acaa422ce19 # v4.3.1
         with:
+            control-runner-labels: '["self-hosted","trf-linux-amd64-2x4"]'
             call-scope: edge-fade
             shard-count: 1
             targets: >-
@@ -699,6 +700,7 @@ jobs:
             actions: read
         uses: rnw-community/mobile-ci/.github/workflows/android-maestro.yml@c45b9b0e1cc8e841a9d1f1df5f8a9acaa422ce19 # v4.3.1
         with:
+            control-runner-labels: '["self-hosted","trf-linux-amd64-2x4"]'
             call-scope: edge-fade
             shard-count: 1
             targets: >-
@@ -734,7 +736,7 @@ jobs:
                     - platform: android
                       label: Android
         if: always()
-        runs-on: ubuntu-latest
+        runs-on: [self-hosted, trf-linux-amd64-2x4]
         timeout-minutes: 15
         permissions:
             contents: read
