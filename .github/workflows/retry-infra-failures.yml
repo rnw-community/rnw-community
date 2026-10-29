@@ -1,0 +1,26 @@
+# Re-runs a failed run's failed jobs once when every failure is infrastructure
+# (lost runner, exec format error, job not acquired, shutdown signal, disk
+# full, network, timeout). A test failure anywhere means nothing is re-run.
+# rnw-community/mobile-ci#271.
+name: Retry infra failures
+
+on:
+    workflow_run: # zizmor: ignore[dangerous-triggers] the job reads the triggering run through the API only and checks out or runs none of its code
+        workflows: ["Pull Request", "iOS Maestro E2E", "Android Maestro E2E"]
+        types: [completed]
+
+permissions:
+    contents: read
+
+jobs:
+    retry:
+        if: github.event.workflow_run.conclusion == 'failure'
+        runs-on: [self-hosted, trf-linux-amd64-2x4]
+        timeout-minutes: 10
+        permissions:
+            actions: write
+            checks: read
+        steps:
+            - uses: rnw-community/mobile-ci/actions/rerun-infra-failures@443067982b184fe16ceef20a8ff2e36d5af286b6 # v4.6.0
+              with:
+                  run-id: ${{ github.event.workflow_run.id }}
