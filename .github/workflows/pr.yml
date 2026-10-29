@@ -666,7 +666,7 @@ jobs:
             contents: read
             packages: write
             actions: read
-        uses: rnw-community/mobile-ci/.github/workflows/ios-maestro.yml@443067982b184fe16ceef20a8ff2e36d5af286b6 # v4.6.0
+        uses: rnw-community/mobile-ci/.github/workflows/ios-maestro.yml@f90309c791283d6e2dd1e35eb2ae6c5aee2151cd # v4.7.0
         with:
             control-runner-labels: '["self-hosted","trf-linux-amd64-2x4"]'
             call-scope: edge-fade
@@ -698,7 +698,7 @@ jobs:
             contents: read
             packages: write
             actions: read
-        uses: rnw-community/mobile-ci/.github/workflows/android-maestro.yml@443067982b184fe16ceef20a8ff2e36d5af286b6 # v4.6.0
+        uses: rnw-community/mobile-ci/.github/workflows/android-maestro.yml@f90309c791283d6e2dd1e35eb2ae6c5aee2151cd # v4.7.0
         with:
             control-runner-labels: '["self-hosted","trf-linux-amd64-2x4"]'
             call-scope: edge-fade
