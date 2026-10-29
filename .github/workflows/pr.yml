@@ -831,6 +831,6 @@ jobs:
                     echo "edge-fade-metrics=${EDGE_FADE_METRICS_RESULT}"
                     echo "screen-chrome-web-e2e=${SCREEN_CHROME_WEB_E2E_RESULT}"
                     if [ "${CODE_QUALITY_RESULT}" != 'success' ] || [ "${PACKAGE_MANAGER_SMOKE_RESULT}" != 'success' ] || [ "${WORKFLOW_LINT_RESULT}" != 'success' ] || [ "${NESTJS_COMPATIBILITY_RESULT}" != 'success' ] || [ "${REANIMATED_COMPATIBILITY_RESULT}" != 'success' ] || [ "${SCREEN_CHROME_WEB_E2E_RESULT}" != 'success' ] || [ "${EDGE_FADE_METRICS_RESULT}" != 'success' ]; then
-                      echo "Required jobs did not pass"
+                      echo "::error::Required jobs did not succeed"
                       exit 1
                     fi
