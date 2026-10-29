@@ -698,7 +698,7 @@ jobs:
             contents: read
             packages: write
             actions: read
-        uses: rnw-community/mobile-ci/.github/workflows/android-maestro.yml@6ac8ed9317d5a79f86af745f1531a9a1fcbce6b8 # scratch: mobile-ci main with rnw-community/mobile-ci#299 diagnostics, revert before merge
+        uses: rnw-community/mobile-ci/.github/workflows/android-maestro.yml@443067982b184fe16ceef20a8ff2e36d5af286b6 # v4.6.0
         with:
             control-runner-labels: '["self-hosted","trf-linux-amd64-2x4"]'
             call-scope: edge-fade
