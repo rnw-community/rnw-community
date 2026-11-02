@@ -15,7 +15,7 @@ permissions:
 jobs:
     retry:
         if: github.event.workflow_run.conclusion == 'failure'
-        runs-on: [self-hosted, trf-linux-amd64-2x4]
+        runs-on: [self-hosted, linux-portable-2x4]
         timeout-minutes: 10
         permissions:
             actions: write

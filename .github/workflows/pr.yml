@@ -20,7 +20,7 @@ jobs:
     stale:
         name: Close stale issues and pull requests
         timeout-minutes: 10
-        runs-on: [self-hosted, trf-linux-amd64-2x4]
+        runs-on: [self-hosted, linux-portable-2x4]
         permissions:
             issues: write # labels and closes stale issues
             pull-requests: write # labels and closes stale pull requests
@@ -41,7 +41,7 @@ jobs:
         timeout-minutes: 15
         # Turbo build, type-aware lint and coverage over the whole monorepo
         # need more than the 4 GiB 2x4 shape.
-        runs-on: [self-hosted, trf-linux-amd64-4x8]
+        runs-on: [self-hosted, linux-portable-4x8]
         strategy:
             fail-fast: false
             matrix:
@@ -327,7 +327,7 @@ jobs:
     package-manager-smoke:
         name: Package manager smoke (${{ matrix.package-manager }})
         timeout-minutes: 10
-        runs-on: [self-hosted, trf-linux-amd64-2x4]
+        runs-on: [self-hosted, linux-portable-2x4]
         permissions:
             contents: read
         strategy:
@@ -473,12 +473,13 @@ jobs:
     workflow-lint:
         name: Workflow lint (actionlint, zizmor)
         timeout-minutes: 10
-        runs-on: [self-hosted, trf-linux-amd64-2x4]
+        runs-on: [self-hosted, linux-portable-2x4]
         permissions:
             contents: read
         env:
             ACTIONLINT_VERSION: '1.7.12'
-            ACTIONLINT_SHA256: '8aca8db96f1b94770f1b0d72b6dddcb1ebb8123cb3712530b08cc387b349a3d8'
+            ACTIONLINT_SHA256_AMD64: '8aca8db96f1b94770f1b0d72b6dddcb1ebb8123cb3712530b08cc387b349a3d8'
+            ACTIONLINT_SHA256_ARM64: '325e971b6ba9bfa504672e29be93c24981eeb1c07576d730e9f7c8805afff0c6'
             ZIZMOR_VERSION: '1.31.0'
 
         steps:
@@ -496,9 +497,14 @@ jobs:
             -   name: Install actionlint
                 run: |
                     set -euo pipefail
-                    archive="actionlint_${ACTIONLINT_VERSION}_linux_amd64.tar.gz"
+                    case "$(uname -m)" in
+                      x86_64) arch=amd64; sha256="${ACTIONLINT_SHA256_AMD64}" ;;
+                      aarch64|arm64) arch=arm64; sha256="${ACTIONLINT_SHA256_ARM64}" ;;
+                      *) echo "::error::No actionlint build for $(uname -m)"; exit 1 ;;
+                    esac
+                    archive="actionlint_${ACTIONLINT_VERSION}_linux_${arch}.tar.gz"
                     curl -fsSL -o "$RUNNER_TEMP/$archive" "https://github.com/rhysd/actionlint/releases/download/v${ACTIONLINT_VERSION}/${archive}"
-                    echo "${ACTIONLINT_SHA256}  $RUNNER_TEMP/$archive" | sha256sum --check --strict
+                    echo "${sha256}  $RUNNER_TEMP/$archive" | sha256sum --check --strict
                     mkdir -p "$RUNNER_TEMP/actionlint"
                     tar -xzf "$RUNNER_TEMP/$archive" -C "$RUNNER_TEMP/actionlint" actionlint
                     echo "$RUNNER_TEMP/actionlint" >> "$GITHUB_PATH"
@@ -516,7 +522,7 @@ jobs:
     nestjs-compatibility:
         name: NestJS compatibility (@nestjs/common ${{ matrix.nestjs }}, @nestjs/config ${{ matrix.nestjs-config }})
         timeout-minutes: 20
-        runs-on: [self-hosted, trf-linux-amd64-2x4]
+        runs-on: [self-hosted, linux-portable-2x4]
         permissions:
             contents: read
         strategy:
@@ -561,7 +567,7 @@ jobs:
     reanimated-compatibility:
         name: Reanimated compatibility (react-native-reanimated ${{ matrix.reanimated }}, react-native-worklets ${{ matrix.worklets }}, ${{ matrix.tasks }})
         timeout-minutes: 20
-        runs-on: [self-hosted, trf-linux-amd64-2x4]
+        runs-on: [self-hosted, linux-portable-2x4]
         permissions:
             contents: read
         strategy:
@@ -619,7 +625,7 @@ jobs:
     screen-chrome-web-e2e:
         name: Screen chrome web edge fade (Playwright, Chromium)
         timeout-minutes: 15
-        runs-on: [self-hosted, trf-linux-amd64-2x4]
+        runs-on: [self-hosted, linux-portable-2x4]
         permissions:
             contents: read
 
@@ -668,7 +674,7 @@ jobs:
             actions: read
         uses: rnw-community/mobile-ci/.github/workflows/ios-maestro.yml@f90309c791283d6e2dd1e35eb2ae6c5aee2151cd # v4.7.0
         with:
-            control-runner-labels: '["self-hosted","trf-linux-amd64-2x4"]'
+            control-runner-labels: '["self-hosted","linux-portable-2x4"]'
             call-scope: edge-fade
             shard-count: 1
             targets: >-
@@ -700,7 +706,7 @@ jobs:
             actions: read
         uses: rnw-community/mobile-ci/.github/workflows/android-maestro.yml@f90309c791283d6e2dd1e35eb2ae6c5aee2151cd # v4.7.0
         with:
-            control-runner-labels: '["self-hosted","trf-linux-amd64-2x4"]'
+            control-runner-labels: '["self-hosted","linux-portable-2x4"]'
             call-scope: edge-fade
             shard-count: 1
             targets: >-
@@ -736,7 +742,7 @@ jobs:
                     - platform: android
                       label: Android
         if: always()
-        runs-on: [self-hosted, trf-linux-amd64-2x4]
+        runs-on: [self-hosted, linux-portable-2x4]
         timeout-minutes: 15
         permissions:
             contents: read
@@ -809,7 +815,7 @@ jobs:
         if: always()
         needs: [code-quality, package-manager-smoke, workflow-lint, nestjs-compatibility, reanimated-compatibility, screen-chrome-web-e2e, edge-fade-metrics]
         timeout-minutes: 5
-        runs-on: [self-hosted, trf-linux-amd64-2x4]
+        runs-on: [self-hosted, linux-portable-2x4]
         permissions: {}
 
         steps:

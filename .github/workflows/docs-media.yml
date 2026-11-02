@@ -4,9 +4,9 @@ name: Docs media
 # is not code churn, so this never runs on push or schedule. The pull_request
 # trigger only fires when the capture plumbing itself changes, which is also the
 # only way to exercise a new version of this workflow before it reaches master.
-# The APK build / emulator split: Gradle on a
-# GitHub-hosted x86_64 runner, the KVM emulator on the self-hosted amd64 fleet,
-# and the ffmpeg conversion back on a GitHub-hosted runner.
+# The APK build / emulator split: Gradle and the KVM emulator on the
+# self-hosted amd64 fleet, and the ffmpeg conversion on the portable Linux
+# pool, which may hand it an amd64 or an arm64 runner.
 # iOS is not captured here yet: the Apple Pay loop needs the macOS fleet.
 
 on:
@@ -152,7 +152,7 @@ jobs:
         name: Convert recordings to GIF
         needs: record-android
         permissions: {}
-        runs-on: [self-hosted, trf-linux-amd64-2x4]
+        runs-on: [self-hosted, linux-portable-2x4]
         timeout-minutes: 10
         steps:
             - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
