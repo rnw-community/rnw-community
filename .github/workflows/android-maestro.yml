@@ -29,7 +29,7 @@ jobs:
         uses: rnw-community/mobile-ci/.github/workflows/android-maestro.yml@f90309c791283d6e2dd1e35eb2ae6c5aee2151cd # v4.7.0
         with:
             shard-count: 1
-            control-runner-labels: '["self-hosted","trf-linux-amd64-2x4"]'
+            control-runner-labels: '["self-hosted","linux-portable-2x4"]'
             targets: >-
                 [
                   {"name":"payments-bare","appDir":"packages/react-native-payments-example/apps/bare","appId":"com.reactnativepaymentsexample","prebuildCommand":"","flowsDir":"packages/react-native-payments-example/e2e/flows","buildStrategy":"native"},
