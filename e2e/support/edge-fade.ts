@@ -1,9 +1,6 @@
 import { captureScreen, expectId, keep, sleep, stopRecording, tapId, type Ctx } from './core.ts';
 import { openDemo } from './screen-chrome.ts';
 
-export const SCHEMES = ['dark', 'light'] as const;
-export const BACKGROUNDS = ['dark', 'light', 'vivid'] as const;
-
 /** Opens the edge-fade harness screen. */
 export const openHarness = (ctx: Ctx, readyId: string): Promise<void> => openDemo(ctx, 'edge-fade', readyId);
 

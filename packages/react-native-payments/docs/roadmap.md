@@ -30,8 +30,8 @@ Remaining before the GIFs replace the [Screenshots](../readme.md#screenshots) pl
 - **Android**: the CI emulator has no Google account, so Google Pay answers `show()` with its "Google Pay requires a
   Google account to be set up on this device" dialog instead of the payment sheet. A recording of the real sheet
   needs an emulator image signed into a test Google account.
-- **iOS**: the Apple Pay loop needs the macOS Maestro fleet; add an iOS job to `docs-media.yml` once that fleet is
-  available.
+- **iOS**: the Apple Pay loop needs a full (unslimmed) simulator, which the simlock farm now leases to the payments
+  e2e suite; add an iOS capture to `docs-media.yml` on one.
 
 ## Native
 
@@ -49,7 +49,7 @@ see [guides/change-events.md](./guides/change-events.md#android). Outcome of the
   shipping intents; it is answered `SUCCESS` immediately today. Routing it to `PaymentResponse.complete()` /
   `retry()` would give Android an in-sheet authorization result, but changes when `show()` resolves.
 - **On-device verification** with a signed-in Google account and a TEST-environment card is pending the Android
-  Maestro suite ([#393](https://github.com/rnw-community/rnw-community/issues/393)).
+  e2e suite ([#393](https://github.com/rnw-community/rnw-community/issues/393)).
 
 ### Native modernization — [#442](https://github.com/rnw-community/rnw-community/issues/442)
 
@@ -64,13 +64,13 @@ Spike findings (decision recorded on the issue):
   of delegate state whose regressions are silent runtime sheet hangs, not compile errors. Effort: L. Risk: high.
   Revisit only as part of an Expo Modules API spike (see #445), not as a standalone plain-Swift TurboModule rewrite.
 - [x] **Android → Kotlin: done.** The former `PaymentsModule.java` (284 lines) was a single activity-result round
-  trip, not a delegate protocol — `abort`/`complete`/`setActiveEvents`/`updatePaymentDetails` were no-ops that resolved
-  immediately, no coupon codes, no in-sheet change events, no teardown state machine (the change events arrived later
-  with #438). It is now `PaymentsModule.kt`,
-  `PaymentsPackage.kt` and the two `android/src/*arch/PaymentsSpec.kt` variants, behaviour-identical (same method
-  names, promise codes and messages); the newarch spec extends the codegen-generated Java `NativePaymentsSpec`
-  directly, with no bridging shim. The library applies the `kotlin-android` plugin, resolving `kotlinVersion` from
-  the consuming app's root project (React Native 0.86 apps already define it).
+      trip, not a delegate protocol — `abort`/`complete`/`setActiveEvents`/`updatePaymentDetails` were no-ops that resolved
+      immediately, no coupon codes, no in-sheet change events, no teardown state machine (the change events arrived later
+      with #438). It is now `PaymentsModule.kt`,
+      `PaymentsPackage.kt` and the two `android/src/*arch/PaymentsSpec.kt` variants, behaviour-identical (same method
+      names, promise codes and messages); the newarch spec extends the codegen-generated Java `NativePaymentsSpec`
+      directly, with no bridging shim. The library applies the `kotlin-android` plugin, resolving `kotlinVersion` from
+      the consuming app's root project (React Native 0.86 apps already define it).
 - **`AppDelegate.h` PassKit import: dropped.** `react-native-payments.podspec` declares
   `s.frameworks = "PassKit", "Contacts"`, linking the framework at the Pod target level, and the bare example's
   `AppDelegate.swift` (RN 0.86 community template) builds and passes the iOS Maestro suite without `import PassKit`.

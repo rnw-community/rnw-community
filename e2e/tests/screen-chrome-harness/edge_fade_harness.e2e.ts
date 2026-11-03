@@ -1,5 +1,6 @@
 import { phase, tapId } from '../../support/core.ts';
-import { BACKGROUNDS, SCHEMES, capture, openHarness } from '../../support/edge-fade.ts';
+import { capture, openHarness } from '../../support/edge-fade.ts';
+import { BACKGROUNDS, SCHEMES } from '../../support/edge-fade-plan.ts';
 import { test } from '../../support/test.ts';
 
 const STATES = ['reference', 'rest', 'scrolled', 'blur-only'] as const;

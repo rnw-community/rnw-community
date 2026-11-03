@@ -34,8 +34,6 @@ const FULL_BLUR_FRACTION = 0.08;
 const SCREEN_BACKGROUND = [16, 16, 16];
 const TEMPORAL_SCALE_DOWN = 6;
 const TEMPORAL_WITNESS_CONTENT_OFFSET = 430;
-const TEMPORAL_RECORDINGS = ['dark-dark', 'dark-light', 'dark-vivid', 'light-dark', 'light-light', 'light-vivid'];
-
 const reference = (topInset = TOP_INSET, bottomInset = BOTTOM_INSET, bandHeight = BAND) => {
     const image = new PNG({ width: WIDTH, height: HEIGHT });
 
@@ -675,39 +673,6 @@ describe('edge-fade harness metrics', () => {
 
             assert.equal(temporalWitnessTopPoints(0) - temporalWitnessTopPoints(200), 200);
         }
-    });
-
-    it('labels each temporal recording with the selected scheme and background state', () => {
-        const lines = readFileSync(new URL('./edge_fade_temporal_harness.yaml', import.meta.url), 'utf8').split('\n');
-        const backgrounds = ['dark', 'light', 'vivid'];
-        const schemes = ['dark', 'light'];
-        const recordings = [];
-        let backgroundIndex = 0;
-        let schemeIndex = 0;
-
-        for (let lineIndex = 0; lineIndex < lines.length; lineIndex++) {
-            if (lines[lineIndex].trim() === '- tapOn:') {
-                const testID = lines[lineIndex + 1].match(/id: '([^']+)'/u)?.[1];
-
-                if (testID === 'edge-fade-harness-background') {
-                    backgroundIndex = (backgroundIndex + 1) % backgrounds.length;
-                }
-                if (testID === 'edge-fade-harness-scheme') {
-                    schemeIndex = (schemeIndex + 1) % schemes.length;
-                }
-            }
-
-            const recording = lines[lineIndex].match(/- startRecording: temporal-([^-]+-[^\s]+)/u)?.[1];
-
-            if (recording !== undefined) {
-                const selected = `${schemes[schemeIndex]}-${backgrounds[backgroundIndex]}`;
-
-                assert.equal(recording, selected, `recording ${recording} matches selected state ${selected}`);
-                recordings.push(recording);
-            }
-        }
-
-        assert.deepEqual(recordings, TEMPORAL_RECORDINGS);
     });
 
     it('accepts smooth luminance changes during an actual traversal', () => {

@@ -36,4 +36,4 @@ a mounted `CollapsibleHeader`, and only one header per provider may snap.
 ## Architecture & conventions
 
 - [AGENTS.md](https://github.com/rnw-community/rnw-community/blob/master/packages/react-native-collapsible-header/AGENTS.md): Architecture, invariants, build, and coverage.
-- [Example app](https://github.com/rnw-community/rnw-community/tree/master/packages/react-native-collapsible-header-example): Expo and bare targets, Maestro e2e suite, and integration-template screens.
+- [Example app](https://github.com/rnw-community/rnw-community/tree/master/packages/react-native-collapsible-header-example): Expo and bare targets, exercised by the root `e2e/tests/collapsible-header` suite, and integration-template screens.

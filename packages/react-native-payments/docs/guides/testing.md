@@ -67,7 +67,8 @@ the assertions need real token/address fields.
 
 ## End-to-end verification
 
-Unit tests cover the JS layer at 100%; on-device verification of the event API (sheet opens, shipping/coupon
-change round-trip, async `updateWith` completion) runs locally through the Maestro flow suite in
-[react-native-payments-example/e2e/readme.md](../../../react-native-payments-example/e2e/readme.md), but is not
-yet wired into CI — tracked in [#395](https://github.com/rnw-community/rnw-community/issues/395).
+Unit tests cover the JS layer at 100%. On-device, the e2e suite documented in
+[react-native-payments-example/e2e/readme.md](../../../react-native-payments-example/e2e/readme.md) runs in CI on iOS
+and Android devices leased from the simlock farm: sheet presentation, listener wiring and the `show`/`abort`/`reset`
+state transitions. The round trips only a user-driven native sheet dispatches (a picked shipping address or option,
+async `updateWith` completion) stay the documented gap that readme describes.

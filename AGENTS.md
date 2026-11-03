@@ -52,9 +52,9 @@ pnpm lint:fix           # Fix lint issues in this package (type-aware oxlint, th
 - **react-native-payments-example** — private example package: shared `src/` screens plus `apps/bare` (React Native CLI) and `apps/expo` (Expo) app targets
 - **react-native-payments-docs** — private VitePress site rendering `react-native-payments`' `readme.md` and `docs/` tree verbatim, deployed to GitHub Pages by `.github/workflows/docs.yml`
 - **react-native-collapsible-header** — Generic slot-based Reanimated header transition with provider-based scroll wiring, snap, overlay mode, and React Compiler precompiled output
-- **react-native-collapsible-header-example** — private example package: shared `src/` demo screen plus `apps/bare` and `apps/expo` app targets, carries the Maestro e2e suite and readme demo-GIF recording flow
+- **react-native-collapsible-header-example** — private example package: shared `src/` demo screen plus `apps/bare` and `apps/expo` app targets, its e2e suite lives in the root `e2e/tests/collapsible-header`, and it carries the readme demo-GIF recording flow
 - **react-native-screen-chrome** — Safe-area screen structure, progressive edge fades, and compound collapsible chrome
-- **react-native-screen-chrome-example** — private example package: `apps/bare` and `apps/expo` app targets plus a Maestro e2e suite
+- **react-native-screen-chrome-example** — private example package: `apps/bare` and `apps/expo` app targets; its e2e suites live in the root `e2e/tests/screen-chrome` and `e2e/tests/screen-chrome-harness`
 - **platform, fast-style, redux-loadable** — React Native/Web utilities
 - **object-field-tree** — Object field combination trees
 - **wdio** — WebDriverIO page objects and commands
@@ -488,41 +488,53 @@ The monorepo uses dual ESM + CJS output. Rules:
   readme documents as its supported usage (`import rnwcPlugin from '@rnw-community/eslint-plugin'`), never named
   imports of individual properties
 
-## Mobile CI (Maestro E2E)
+## Mobile CI (E2E)
 
-Two workflows, `.github/workflows/ios-maestro.yml` and `.github/workflows/android-maestro.yml`, run Maestro end-to-end
-suites. Each is a thin caller of the [`rnw-community/mobile-ci`](https://github.com/rnw-community/mobile-ci) reusable
-workflow of the same name, pinned to a commit SHA, with one call per platform. Its `targets` list covers every example
-package (payments, collapsible-header and screen-chrome) for both the `bare` and `expo` app targets, and each target
-names its own suite with `flowsDir` (the example package's `e2e/flows`). To add an example package, add its targets to
-both workflows. Planning, building, booting the device, installing the app, running the suite and uploading the
-debug artifacts all happen inside the reusable workflows.
+Two workflows, `.github/workflows/ios-maestro.yml` ("iOS E2E") and `.github/workflows/android-maestro.yml` ("Android
+E2E"), run the end-to-end suites. Each is a thin caller of the [`rnw-community/mobile-ci`](https://github.com/rnw-community/mobile-ci)
+reusable workflow of the same name, pinned to a commit SHA, with one call per platform and `test-framework: e2e`. Its
+`targets` list covers every example package (payments, collapsible-header and screen-chrome) for both the `bare` and
+`expo` app targets. To add an example package, add its targets to both workflows and its tests under `e2e/tests/`.
+Planning, building, installing the app, running the suite and uploading the artifacts all happen inside the reusable
+workflows.
 
-- **When they run:** on every pull request; on pushes to `master` that touch the payments or collapsible-header packages
-  or the workflow itself; nightly (iOS at 03:17 UTC, Android at 03:47 UTC); and on manual dispatch.
-- **Which suites run:** on a pull request, mobile-ci runs `turbo ls --affected` against every target's app package and
-  runs every suite when any of them is affected. A documentation-only change (`*.md`, `llms*.txt`, `docs/`) runs no
-  suite, and a change to either workflow runs every suite. Every other trigger runs every suite.
+- **The e2e project:** the tests live in `e2e/` at the repo root, a standalone npm project (its own `package.json` and
+  `package-lock.json`, not a pnpm workspace member). `e2e/tests/<suite>/<flow>.e2e.ts` holds one test per scenario;
+  `e2e/support/<suite>.ts` holds the shared steps, `e2e/support/core.ts` the common helpers, and `e2e/support/simlock/`
+  the device provider and relay. The suites are `payments`, `collapsible-header`, `screen-chrome`,
+  `screen-chrome-harness` (the edge-fade harness) and `payments-media` (the docs-media Google Pay capture).
+- **Devices:** every device is leased from the Mac Studio simlock farm (`simlock-url:
+https://simlock.vitaliiyehorov.dev`, secret `SIMLOCK_TOKEN`); no CI host boots a simulator or emulator. The e2e job
+  runs on `["self-hosted","linux-portable-4x8"]`. `e2e/e2e.config.ts` defines three targets: `ios` (iPhone 17 Pro; the
+  payments suite leases a full, unslimmed simulator because the Apple Pay sheet needs PassKit), `android` (Galaxy
+  Nexus, API 34 `aosp_atd` image, window/transition/animator animations off; the functional suites) and `android-gms`
+  (Galaxy Nexus, API 35 `google_apis` image with Google Play services; the pixel lanes, because ATD returns blank
+  screenshots and recordings that never finalize).
+- **When they run:** on every pull request; on pushes to `master` that touch the payments or collapsible-header
+  packages, `e2e/` or the workflow itself; nightly (iOS at 03:17 UTC, Android at 03:47 UTC); and on manual dispatch.
+- **Which suites run:** mobile-ci runs the e2e project once per CI target, and the target name minus a `-bare`/`-expo`
+  suffix picks `e2e/tests/<suite>` (`payments-bare` runs `tests/payments`). On a pull request, mobile-ci runs `turbo ls
+--affected` against every target's app package and runs every suite when any of them is affected. A
+  documentation-only change (`*.md`, `llms*.txt`, `docs/`) runs no suite, and a change to either workflow or to `e2e/`
+  runs every suite. Every other trigger runs every suite.
 - **Builds:** the `bare` targets set `buildStrategy: native`, because only an Expo app can be repacked, so they always
   compile. The `expo` targets repack a published base binary with this commit's JavaScript when one exists for their
   native fingerprint, and compile otherwise. A cold native build gets `build-timeout-minutes: 120`.
-- **iOS:** builds and tests run on the self-hosted macOS ARM64 runners (label `macos-maestro`) with the pinned Xcode.
-  The simulators stay stock (`simulator-slim-profile: ''`), because the payments suite needs the PassKit services a
-  slim profile switches off.
-- **Android:** builds and tests run on the self-hosted x86_64 Linux KVM pool. The suite runs on a KVM-accelerated
-  `android-34` Google APIs x86_64 emulator with the `Galaxy Nexus` profile (720x1280 at 320dpi, the geometry the flows
-  are calibrated against), and `emulator-slots-dir` caps how many emulators share a host.
-- **Pinning and results:** `maestro-version` pins the Maestro CLI, and the reusable workflows are pinned to a commit SHA.
-  Every run uploads a Maestro artifact per shard with one JUnit report per flow, plus the debug output of any failing
-  flow, and each workflow ends with a status job that reports a single pass or fail. The screen-chrome targets set
-  `tolerateTestFailures` on iOS, so their Maestro failures are reported as warnings and do not fail the workflow, until
-  the Hermes heap corruption tracked in #601 is fixed.
-- **Why one call per platform:** mobile-ci v4.3.0 takes `flowsDir`, `tolerateTestFailures` and `buildStrategy` per
-  target, so a single call expresses three example packages with their own suites, bare targets that cannot be
-  repacked, and a quarantine of one package. Before that release these workflows composed the individual mobile-ci
-  actions instead.
-- **Running locally:** build the example app and install it on a simulator or emulator. Then run `pnpm e2e:ios:bare`
-  (or another `e2e:<platform>:<target>` script) from the example package directory.
+- **iOS:** builds run on the self-hosted macOS ARM64 runners (label `macos-maestro`) with the pinned Xcode.
+- **Android:** builds compile `android-abis: arm64-v8a`, because the farm emulator is arm64.
+- **Pinning and results:** the reusable workflows are pinned to a commit SHA, and each workflow ends with a status job
+  that reports a single pass or fail. The screen-chrome targets set `tolerateTestFailures` on iOS, so their failures
+  are reported as warnings and do not fail the workflow, until the Hermes heap corruption tracked in #601 is fixed.
+- **Edge-fade harness and docs media:** `pr.yml`'s `edge-fade-ios` and `edge-fade-android` jobs run
+  `e2e/tests/screen-chrome-harness` (Android on `android-gms`) and upload the captures in the run's
+  `e2e-<platform>-edge-fade-screen-chrome-harness` artifact under `edge-fade/`. The dispatch-only `docs-media.yml`
+  records `e2e/tests/payments-media` on `android-gms` and publishes the `docs-media-payments` artifact.
+- **Running locally:** `cd e2e && npm ci`, then set `SIMLOCK_URL`, `SIMLOCK_TOKEN`, `E2E_APP_ID`, `E2E_APP_PATH` (a
+  built `.app` or `.apk`) and optionally `E2E_TARGET` (a CI target name, to pick one suite), and run `npx e2e run
+--target ios` (or `android`, `android-gms`). A local run needs a simlock token for the farm.
+- **Maestro:** only the manual readme demo-GIF capture flows (`packages/*-example/e2e/recording/`, the screen-chrome
+  example's `e2e/manual/`, and the `e2e/subflows/` they use) still use Maestro; they are run by hand, never in CI. The
+  `.agents/skills/maestro-e2e` skill covers them.
 
 ## PR Review & Merge Policy
 
