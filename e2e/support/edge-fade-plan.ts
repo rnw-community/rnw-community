@@ -2,7 +2,7 @@ export const SCHEMES = ['dark', 'light'] as const;
 export const BACKGROUNDS = ['dark', 'light', 'vivid'] as const;
 
 /** One temporal recording: the harness controls tapped first, and the scheme-background cell it then records. */
-export interface TemporalStep {
+interface TemporalStep {
     readonly taps: readonly ('edge-fade-harness-scheme' | 'edge-fade-harness-background')[];
     readonly cell: `${(typeof SCHEMES)[number]}-${(typeof BACKGROUNDS)[number]}`;
 }

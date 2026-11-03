@@ -27,7 +27,7 @@ jobs:
             contents: read
             packages: write
             actions: read
-        uses: rnw-community/mobile-ci/.github/workflows/android-maestro.yml@e962422723ac5fd794d812128673ae399c42723a # feat/android-e2e-simlock-farm
+        uses: rnw-community/mobile-ci/.github/workflows/android-maestro.yml@6898d7c629f03307f5d4d122de173cc232188209 # v4.9.0
         with:
             control-runner-labels: '["self-hosted","linux-portable-2x4"]'
             targets: >-

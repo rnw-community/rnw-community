@@ -70,6 +70,6 @@ until #601 is fixed.
 
 The PR workflow separately runs the required edge-fade harness (`e2e/tests/screen-chrome-harness`, Android on the
 `android-gms` target) through mobile-ci on iOS and Android, then downloads the `edge-fade/` captures from the
-`e2e-<platform>-edge-fade-screen-chrome-harness` artifact and applies the shared metric script. Chromium runs the same matrix in the web e2e job.
+`e2e-<platform>-edge-fade--screen-chrome-harness` artifact and applies the shared metric script. Chromium runs the same matrix in the web e2e job.
 `Required checks` includes all three platforms. The harness covers both schemes, three backgrounds, top and bottom
 bands, and rest/scrolled states against unblurred references; regenerate native goldens from reviewed CI captures.

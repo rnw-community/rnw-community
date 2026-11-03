@@ -12,6 +12,8 @@ Devices are leased from the simlock farm; no CI host boots a simulator or emulat
 
 ```bash
 cd e2e && npm ci
+# @mobile-ci/e2e-simlock ships in mobile-ci, not on npm: install it from the tag the workflows pin, after every npm ci.
+curl -fsSL https://raw.githubusercontent.com/rnw-community/mobile-ci/v4.9.0/scripts/fetch-e2e-simlock.sh | bash -s v4.9.0 .
 SIMLOCK_URL=https://simlock.vitaliiyehorov.dev SIMLOCK_TOKEN=<token> E2E_TARGET=screen-chrome-expo \
   E2E_APP_ID=<appId> E2E_APP_PATH=<built .app or .apk> npx e2e run --target ios   # or android
 ```
@@ -63,7 +65,7 @@ The demos render their asserted edge fades through `AccessibleEdgeFade` (`src/co
   profile samples below the safe area still use the full width.
 
 `pr.yml`'s `edge-fade-ios` and `edge-fade-android` jobs run the harness (Android on the `android-gms` target) and upload
-the captures in the run's `e2e-<platform>-edge-fade-screen-chrome-harness` artifact under `edge-fade/`, with the same
+the captures in the run's `e2e-<platform>-edge-fade--screen-chrome-harness` artifact under `edge-fade/`, with the same
 `<cell>.png` and `temporal/temporal-<cell>.mp4` layout as before; `harness/edge-fade-metrics.mjs` measures them against
 the baselines in `harness/baselines/`.
 

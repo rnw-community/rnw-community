@@ -500,15 +500,17 @@ workflows.
 
 - **The e2e project:** the tests live in `e2e/` at the repo root, a standalone npm project (its own `package.json` and
   `package-lock.json`, not a pnpm workspace member). `e2e/tests/<suite>/<flow>.e2e.ts` holds one test per scenario;
-  `e2e/support/<suite>.ts` holds the shared steps, `e2e/support/core.ts` the common helpers, and `e2e/support/simlock/`
-  the device provider and relay. The suites are `payments`, `collapsible-header`, `screen-chrome`,
+  `e2e/support/<suite>.ts` holds the shared steps and `e2e/support/core.ts` the common helpers. Devices come from
+  `@mobile-ci/e2e-simlock` (its `simlockDevices` provider and its Maestro-compatible `/steps`), which mobile-ci ships and
+  installs into `e2e/node_modules` from the workflow's own tag; nothing in this repo copies it. The suites are `payments`, `collapsible-header`, `screen-chrome`,
   `screen-chrome-harness` (the edge-fade harness) and `payments-media` (the docs-media Google Pay capture).
 - **Devices:** every device is leased from the Mac Studio simlock farm (`simlock-url:
 https://simlock.vitaliiyehorov.dev`, secret `SIMLOCK_TOKEN`); no CI host boots a simulator or emulator. The e2e job
-  runs on `["self-hosted","linux-portable-4x8"]`. `e2e/e2e.config.ts` defines three targets: `ios` (iPhone 17 Pro; the
-  payments suite leases a full, unslimmed simulator because the Apple Pay sheet needs PassKit), `android` (Galaxy
+  runs on `["self-hosted","linux-portable-4x8"]`. `e2e/e2e.config.ts` defines three targets, all leased under the `rnw-community-e2e` tenant: `ios` (iPhone 17 Pro,
+  stills taken by the XCTest runner so they carry no Dynamic Island, like the edge-fade baselines; the payments suite
+  leases a full, unslimmed simulator because the Apple Pay sheet needs PassKit), `android` (Galaxy
   Nexus, API 34 `aosp_atd` image, window/transition/animator animations off; the functional suites) and `android-gms`
-  (Galaxy Nexus, API 35 `google_apis` image with Google Play services; the pixel lanes, because ATD returns blank
+  (Galaxy Nexus, API 35 `google_apis` image with Google Play services, animations off too; the pixel lanes, because ATD returns blank
   screenshots and recordings that never finalize).
 - **When they run:** on every pull request; on pushes to `master` that touch the payments or collapsible-header
   packages, `e2e/` or the workflow itself; nightly (iOS at 03:17 UTC, Android at 03:47 UTC); and on manual dispatch.
@@ -522,14 +524,17 @@ https://simlock.vitaliiyehorov.dev`, secret `SIMLOCK_TOKEN`); no CI host boots a
   native fingerprint, and compile otherwise. A cold native build gets `build-timeout-minutes: 120`.
 - **iOS:** builds run on the self-hosted macOS ARM64 runners (label `macos-maestro`) with the pinned Xcode.
 - **Android:** builds compile `android-abis: arm64-v8a`, because the farm emulator is arm64.
-- **Pinning and results:** the reusable workflows are pinned to a commit SHA, and each workflow ends with a status job
+- **Pinning and results:** every mobile-ci workflow and action is pinned to the commit SHA of a release tag (`# v4.9.0`),
+  and each workflow ends with a status job
   that reports a single pass or fail. The screen-chrome targets set `tolerateTestFailures` on iOS, so their failures
   are reported as warnings and do not fail the workflow, until the Hermes heap corruption tracked in #601 is fixed.
 - **Edge-fade harness and docs media:** `pr.yml`'s `edge-fade-ios` and `edge-fade-android` jobs run
   `e2e/tests/screen-chrome-harness` (Android on `android-gms`) and upload the captures in the run's
-  `e2e-<platform>-edge-fade-screen-chrome-harness` artifact under `edge-fade/`. The dispatch-only `docs-media.yml`
+  `e2e-<platform>-edge-fade--screen-chrome-harness` artifact (mobile-ci names it `e2e-<platform>-<call-scope>-` plus the
+  target, hence the double dash) under `edge-fade/`. The dispatch-only `docs-media.yml`
   records `e2e/tests/payments-media` on `android-gms` and publishes the `docs-media-payments` artifact.
-- **Running locally:** `cd e2e && npm ci`, then set `SIMLOCK_URL`, `SIMLOCK_TOKEN`, `E2E_APP_ID`, `E2E_APP_PATH` (a
+- **Running locally:** `cd e2e && npm ci`, then mobile-ci's `scripts/fetch-e2e-simlock.sh v4.9.0 .` (again after every
+  `npm ci`, which wipes it), then set `SIMLOCK_URL`, `SIMLOCK_TOKEN`, `E2E_APP_ID`, `E2E_APP_PATH` (a
   built `.app` or `.apk`) and optionally `E2E_TARGET` (a CI target name, to pick one suite), and run `npx e2e run
 --target ios` (or `android`, `android-gms`). A local run needs a simlock token for the farm.
 - **Maestro:** only the manual readme demo-GIF capture flows (`packages/*-example/e2e/recording/`, the screen-chrome

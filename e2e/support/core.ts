@@ -2,6 +2,7 @@ import { copyFile, mkdir } from 'node:fs/promises';
 import { dirname, extname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
+import { byId as firstById, scrollTo as scrollUntilVisible, tapUntil as tapUntilGone } from '@mobile-ci/e2e-simlock/steps';
 import { expect } from 'e2e';
 
 import { DEVICES, type Platform } from './devices.ts';
@@ -20,7 +21,7 @@ export interface Ctx {
 export const sleep = (ms: number): Promise<void> => new Promise(resolve => setTimeout(resolve, ms));
 
 /** A React Native testID shows up on the host view and its wrapper; Maestro takes the first, so does this. */
-export const byId = (ctx: Ctx, testId: string): Locator => ctx.screen.getByTestId(testId).first();
+export const byId = (ctx: Ctx, testId: string): Locator => firstById(ctx.screen, testId);
 
 /** Maestro's `.*text.*` selector: the first element whose text contains `text`. */
 export const containingText = (ctx: Ctx, text: string): Locator =>
@@ -54,27 +55,12 @@ export async function expectIdText(ctx: Ctx, testId: string, text: string, timeo
 }
 
 /** Maestro's `scrollUntilVisible` (`direction` is where the content goes: `down` reveals what is below). */
-export async function scrollTo(ctx: Ctx, target: Locator, direction: 'up' | 'down' = 'down'): Promise<void> {
-    if (!(await target.isVisible())) {
-        await ctx.screen.scrollUntilVisible(target, { direction, timeout: 20_000 });
-    }
-}
+export const scrollTo = (ctx: Ctx, target: Locator, direction: 'up' | 'down' = 'down'): Promise<void> =>
+    scrollUntilVisible(ctx.screen, target, direction);
 
-/** Maestro's `retry` around a tap that navigates: tap again while the next state does not show. */
-export async function tapUntil(ctx: Ctx, testId: string, next: () => Promise<void>, attempts = 3): Promise<void> {
-    for (let attempt = 1; ; attempt++) {
-        await tapId(ctx, testId);
-        try {
-            await next();
-            return;
-        } catch (error) {
-            if (attempt >= attempts) {
-                throw error;
-            }
-            console.log(`[retry] tap on ${testId} attempt ${attempt} did not reach the next state`);
-        }
-    }
-}
+/** Maestro's `retry` around a tap that navigates: tap again while the tapped element still shows and the next state does not. */
+export const tapUntil = (ctx: Ctx, testId: string, next: () => Promise<void>, attempts = 3): Promise<void> =>
+    tapUntilGone(byId(ctx, testId), next, { attempts });
 
 type Percent = readonly [x: number, y: number];
 
