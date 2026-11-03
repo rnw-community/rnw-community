@@ -30,6 +30,8 @@ const target = (name: string, platform: Platform, lease: { osVersion?: string; d
     engine: mobile({
         platform,
         session: process.env.E2E_SESSION,
+        // Plain recordings: drawing the touch indicator re-encodes the clip, which the temporal harness measures.
+        videoTouches: false,
         device: simlockDevices({
             url: env('SIMLOCK_URL'),
             token: env('SIMLOCK_TOKEN'),

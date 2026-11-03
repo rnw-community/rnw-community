@@ -9,8 +9,7 @@ import type { AddressInfo } from 'node:net';
  * policy denies `boot` (it grants devices already booted), while the e2e
  * mobile engine boots its device in `prepare`. The relay answers `boot` for
  * the UDID the engine names, the leased and already booted simulator; every
- * other request, uploads included, passes through untouched, except that a
- * lease allocate gains the relay's `deviceMode`.
+ * other request, uploads included, passes through as `forUpstream` leaves it.
  */
 export interface BootRelay {
     readonly baseUrl: string;
@@ -54,7 +53,33 @@ function endToEnd(headers: Headers): Headers {
  */
 export type DeviceMode = 'slim' | 'full';
 
-export async function startBootRelay(upstreamBaseUrl: string, deviceMode?: DeviceMode): Promise<BootRelay> {
+export interface RelayOptions {
+    readonly platform: 'ios' | 'android';
+    readonly deviceMode?: DeviceMode;
+}
+
+interface JsonRpcRequest extends Record<string, unknown> {
+    readonly method?: unknown;
+    readonly params?: { readonly command?: unknown; readonly flags?: Record<string, unknown> } & Record<string, unknown>;
+}
+
+/**
+ * What the relay sends upstream for a request: a lease allocate gains the relay's `deviceMode`, and an iOS
+ * `screenshot` is taken by the XCTest runner (as Maestro's were: no Dynamic Island), which already captures at the
+ * device's density and refuses another. agent-device's client has no field for either, so the relay sets them.
+ */
+export function forUpstream(rpc: JsonRpcRequest, options: RelayOptions): JsonRpcRequest {
+    if (options.deviceMode !== undefined && rpc.method === 'agent_device.lease.allocate') {
+        return { ...rpc, params: { ...rpc.params, deviceMode: options.deviceMode } };
+    }
+    if (options.platform === 'ios' && rpc.method === 'agent_device.command' && rpc.params?.command === 'screenshot') {
+        const { screenshotPixelDensity: _density, ...flags } = rpc.params.flags ?? {};
+        return { ...rpc, params: { ...rpc.params, flags: { ...flags, screenshotCaptureBackend: 'runner' } } };
+    }
+    return rpc;
+}
+
+export async function startBootRelay(upstreamBaseUrl: string, options: RelayOptions): Promise<BootRelay> {
     const upstream = new URL(upstreamBaseUrl.endsWith('/') ? upstreamBaseUrl : `${upstreamBaseUrl}/`);
     const send = upstream.protocol === 'https:' ? httpsRequest : httpRequest;
 
@@ -139,10 +164,8 @@ export async function startBootRelay(upstreamBaseUrl: string, deviceMode?: Devic
             }
             const raw = Buffer.concat(chunks);
             const rpc = JSON.parse(raw.toString('utf8')) as { params?: { command?: string } } & Record<string, unknown>;
-            const upstreamBody =
-                deviceMode !== undefined && rpc.method === 'agent_device.lease.allocate'
-                    ? Buffer.from(JSON.stringify({ ...rpc, params: { ...rpc.params, deviceMode } }))
-                    : raw;
+            const upstreamRpc = forUpstream(rpc, options);
+            const upstreamBody = upstreamRpc === rpc ? raw : Buffer.from(JSON.stringify(upstreamRpc));
             const command = rpc.params?.command;
             const positionals = (rpc.params as { positionals?: unknown[] } | undefined)?.positionals ?? [];
             if (command === 'close' && positionals.length === 0) {

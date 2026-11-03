@@ -118,10 +118,12 @@ export function simlockDevices(options: SimlockOptions): DeviceProvider {
     const client = (session: string) =>
         createAgentDeviceClient({ daemonBaseUrl: baseUrl, daemonAuthToken: options.token, session });
     const startRelay = (): Promise<BootRelay> => {
-        relay ??= startBootRelay(baseUrl, options.deviceMode).catch((cause: unknown) => {
-            relay = undefined;
-            throw cause;
-        });
+        relay ??= startBootRelay(baseUrl, { platform: options.platform, deviceMode: options.deviceMode }).catch(
+            (cause: unknown) => {
+                relay = undefined;
+                throw cause;
+            }
+        );
         return relay;
     };
     /** Closes the relay once no lease is held and none is being acquired (a slot may wait in the farm queue). */
