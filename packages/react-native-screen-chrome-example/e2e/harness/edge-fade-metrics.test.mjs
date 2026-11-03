@@ -831,6 +831,29 @@ describe('edge-fade harness metrics', () => {
         assert.match(checkRestCapture(capture, original).join('\n'), /visible at rest/u);
     });
 
+    it('ignores system chrome in the safe areas at rest: the home indicator and status bar come and go', () => {
+        const original = reference();
+        const capture = reference();
+        const paint = (rows, level) => {
+            for (const y of rows) {
+                for (let x = WIDTH / 3; x < (WIDTH * 2) / 3; x++) {
+                    capture.data.set([level, level, level, 255], (y * WIDTH + x) * 4);
+                }
+            }
+        };
+
+        paint(
+            Array.from({ length: 5 * SCALE }, (_, row) => HEIGHT - 13 * SCALE + row),
+            120
+        );
+        paint(
+            Array.from({ length: 17 * SCALE }, (_, row) => 21 * SCALE + row),
+            255
+        );
+
+        assert.deepEqual(checkRestCapture(capture, original), []);
+    });
+
     it('fails a band that is visible at rest', () => {
         const { capture, reference: original } = band();
 

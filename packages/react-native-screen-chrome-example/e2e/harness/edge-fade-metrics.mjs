@@ -401,9 +401,12 @@ export const checkRestCapture = (capture, reference, rampPoints) => {
         return ['capture size differs from the reference'];
     }
 
-    const { patternWidth } = readRuler(reference, rampPoints);
+    const { patternWidth, topChromeEnd, bottomChromeStart, scale } = readRuler(reference, rampPoints);
+    // The safe areas hold system chrome (status bar, home indicator) that iOS shows and hides on its own clock.
+    const topSafeAreaRows = Math.max(0, Math.round(topChromeEnd - CHROME_HEIGHT * scale));
+    const bottomSafeAreaStart = Math.min(capture.height, Math.round(bottomChromeStart + CHROME_HEIGHT * scale));
     const worstRow = Math.max(
-        ...range(0, capture.height).map(row => {
+        ...range(topSafeAreaRows, bottomSafeAreaStart).map(row => {
             const difference = [0, 0, 0];
 
             for (let x = 0; x < patternWidth; x++) {
