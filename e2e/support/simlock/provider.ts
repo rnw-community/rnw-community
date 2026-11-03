@@ -22,6 +22,12 @@ interface SimlockOptions {
     /** `full` for an unslimmed device (Apple Pay needs PassKit); the farm's default, `slim`, otherwise. */
     readonly deviceMode?: DeviceMode;
     /**
+     * `off` sets an Android device's window, transition and animator scales to 0 once it is leased, as mobile-ci's
+     * own emulators run: a window still sliding in reports an offset viewport, and agent-device refuses a gesture
+     * outside it.
+     */
+    readonly animations?: 'off';
+    /**
      * Lease TTL, renewed every third of it while the run holds the lease. Short on purpose: a
      * run killed before it releases (a cancelled CI job) frees its simulator within one TTL.
      */
@@ -320,6 +326,9 @@ export function simlockDevices(options: SimlockOptions): DeviceProvider {
                 await install(request.appPath, request.app);
                 installedApp = request.app;
                 request.log(`simlock uploaded and installed ${installedApp} in ${Date.now() - installStarted} ms`);
+            }
+            if (options.animations === 'off' && options.platform === 'android') {
+                await scoped.settings.update({ setting: 'animations', state: 'off', platform: 'android', serial: udid });
             }
             const entry: Held = {
                 id: lease.leaseId,

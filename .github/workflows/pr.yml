@@ -754,9 +754,11 @@ jobs:
                 e2e/**
             build-timeout-minutes: 120
             android-abis: arm64-v8a
-            # The harness captures come from e2e/tests/screen-chrome-harness on an emulator leased from the simlock farm.
+            # The harness captures come from e2e/tests/screen-chrome-harness on an emulator leased from the simlock farm,
+            # its `android-gms` (google_apis) image: the ATD image's screenshots are blank and its recordings never finalize.
             test-framework: e2e
             e2e-dir: e2e
+            e2e-command: npx e2e run --target android-gms
             e2e-runner-labels: '["self-hosted","linux-portable-2x4"]'
             e2e-timeout-minutes: 45
             simlock-url: https://simlock.vitaliiyehorov.dev

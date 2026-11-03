@@ -25,7 +25,11 @@ const suite = process.env.E2E_TARGET?.replace(/-(bare|expo)$/, '');
 // otherwise drive each other's device. Set before the workers start, so they inherit it.
 process.env.E2E_SESSION ??= `e2e-${randomBytes(4).toString('hex')}`;
 
-const target = (name: string, platform: Platform, lease: { osVersion?: string; deviceMode?: DeviceMode } = {}) => ({
+const target = (
+    name: string,
+    platform: Platform,
+    lease: { osVersion?: string; deviceMode?: DeviceMode; animations?: 'off' } = {}
+) => ({
     name,
     engine: mobile({
         platform,
@@ -50,8 +54,9 @@ export default {
     targets: [
         // The Apple Pay sheet needs PassKit, which a slim simulator switches off.
         target('ios', 'ios', suite === 'payments' ? { deviceMode: 'full' } : {}),
-        target('android', 'android', { osVersion: DEVICES.android.osVersion }),
-        // The Google Pay sheet needs Google Play services, which only the farm's API 35 `google_apis` image has.
+        target('android', 'android', { osVersion: DEVICES.android.osVersion, animations: 'off' }),
+        // Pixel lanes (the edge-fade harness, the docs media) and the Google Pay sheet: the farm's API 35 `google_apis`
+        // image has Google Play services, and the ATD image's screenshots are blank and its recordings never finalize.
         target('android-gms', 'android', { osVersion: '35' }),
     ],
     workers: Number(process.env.E2E_WORKERS ?? 1),
