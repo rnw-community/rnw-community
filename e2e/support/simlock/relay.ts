@@ -9,7 +9,8 @@ import type { AddressInfo } from 'node:net';
  * policy denies `boot` (it grants devices already booted), while the e2e
  * mobile engine boots its device in `prepare`. The relay answers `boot` for
  * the UDID the engine names, the leased and already booted simulator; every
- * other request, uploads included, passes through untouched.
+ * other request, uploads included, passes through untouched, except that a
+ * lease allocate gains the relay's `deviceMode`.
  */
 export interface BootRelay {
     readonly baseUrl: string;
@@ -47,7 +48,13 @@ function endToEnd(headers: Headers): Headers {
     return result;
 }
 
-export async function startBootRelay(upstreamBaseUrl: string): Promise<BootRelay> {
+/**
+ * `full` leases an unslimmed device (PassKit and the other services a slim one switches off); unset is the farm's
+ * default, `slim`. agent-device's client drops lease fields it does not know, so the relay adds it to the allocate.
+ */
+export type DeviceMode = 'slim' | 'full';
+
+export async function startBootRelay(upstreamBaseUrl: string, deviceMode?: DeviceMode): Promise<BootRelay> {
     const upstream = new URL(upstreamBaseUrl.endsWith('/') ? upstreamBaseUrl : `${upstreamBaseUrl}/`);
     const send = upstream.protocol === 'https:' ? httpsRequest : httpRequest;
 
@@ -132,6 +139,10 @@ export async function startBootRelay(upstreamBaseUrl: string): Promise<BootRelay
             }
             const raw = Buffer.concat(chunks);
             const rpc = JSON.parse(raw.toString('utf8')) as { params?: { command?: string } } & Record<string, unknown>;
+            const upstreamBody =
+                deviceMode !== undefined && rpc.method === 'agent_device.lease.allocate'
+                    ? Buffer.from(JSON.stringify({ ...rpc, params: { ...rpc.params, deviceMode } }))
+                    : raw;
             const command = rpc.params?.command;
             const positionals = (rpc.params as { positionals?: unknown[] } | undefined)?.positionals ?? [];
             if (command === 'close' && positionals.length === 0) {
@@ -150,7 +161,7 @@ export async function startBootRelay(upstreamBaseUrl: string): Promise<BootRelay
                 return;
             }
             if (command !== 'boot') {
-                const reply = await forward(incoming, path, raw);
+                const reply = await forward(incoming, path, upstreamBody);
                 if (DEBUG) {
                     console.error(`[relay] ${command} -> ${reply.status}`);
                 }

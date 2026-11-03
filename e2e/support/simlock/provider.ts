@@ -4,7 +4,7 @@ import { join } from 'node:path';
 
 import { createAgentDeviceClient } from 'agent-device';
 
-import { startBootRelay, type BootRelay } from './relay.ts';
+import { startBootRelay, type BootRelay, type DeviceMode } from './relay.ts';
 
 import type { DeviceLease, DeviceProvider, DeviceRequest } from '@e2e-dev/mobile';
 
@@ -19,6 +19,8 @@ interface SimlockOptions {
     readonly device: string;
     /** A runtime the catalog lists for that model (`34` is the Android `aosp_atd` image); the farm's default otherwise. */
     readonly osVersion?: string;
+    /** `full` for an unslimmed device (Apple Pay needs PassKit); the farm's default, `slim`, otherwise. */
+    readonly deviceMode?: DeviceMode;
     /**
      * Lease TTL, renewed every third of it while the run holds the lease. Short on purpose: a
      * run killed before it releases (a cancelled CI job) frees its simulator within one TTL.
@@ -111,15 +113,24 @@ export function simlockDevices(options: SimlockOptions): DeviceProvider {
     const held = new Map<string, Held>();
     const uploads = limiter(Math.max(1, options.installConcurrency ?? 3));
     let relay: Promise<BootRelay> | undefined;
+    let acquiring = 0;
 
     const client = (session: string) =>
         createAgentDeviceClient({ daemonBaseUrl: baseUrl, daemonAuthToken: options.token, session });
     const startRelay = (): Promise<BootRelay> => {
-        relay ??= startBootRelay(baseUrl).catch((cause: unknown) => {
+        relay ??= startBootRelay(baseUrl, options.deviceMode).catch((cause: unknown) => {
             relay = undefined;
             throw cause;
         });
         return relay;
+    };
+    /** Closes the relay once no lease is held and none is being acquired (a slot may wait in the farm queue). */
+    const closeRelayIfIdle = async (): Promise<void> => {
+        if (held.size === 0 && acquiring === 0 && relay !== undefined) {
+            const closing = relay;
+            relay = undefined;
+            await (await closing).close();
+        }
     };
 
     /**
@@ -225,7 +236,13 @@ export function simlockDevices(options: SimlockOptions): DeviceProvider {
         };
         const c = client(session);
         const clientId = randomBytes(8).toString('hex');
-        const lease = await allocate(request, c, {
+        // Through the relay, which adds the lease's deviceMode: agent-device's client drops fields it does not know.
+        const viaRelay = createAgentDeviceClient({
+            daemonBaseUrl: (await startRelay()).baseUrl,
+            daemonAuthToken: options.token,
+            session,
+        });
+        const lease = await allocate(request, viaRelay, {
             ...scopeBase,
             clientId,
             ttlMs,
@@ -331,6 +348,7 @@ export function simlockDevices(options: SimlockOptions): DeviceProvider {
             if (request.platform !== options.platform) {
                 throw new Error(`simlockDevices leases ${options.platform} devices, not ${request.platform}`);
             }
+            acquiring += 1;
             try {
                 return await leaseOnce(request, 0);
             } catch (cause) {
@@ -343,7 +361,10 @@ export function simlockDevices(options: SimlockOptions): DeviceProvider {
                 }
                 request.signal.throwIfAborted();
                 request.log(`simlock: ${cause.message}; leasing another device`);
-                return leaseOnce(request, 1);
+                return await leaseOnce(request, 1);
+            } finally {
+                acquiring -= 1;
+                await closeRelayIfIdle();
             }
         },
         async release(lease: DeviceLease, context): Promise<void> {
@@ -357,11 +378,7 @@ export function simlockDevices(options: SimlockOptions): DeviceProvider {
             } finally {
                 // A failed release still frees this process: the farm reclaims the lease after one TTL.
                 held.delete(lease.id);
-                if (held.size === 0 && relay !== undefined) {
-                    const closing = relay;
-                    relay = undefined;
-                    await (await closing).close();
-                }
+                await closeRelayIfIdle();
             }
         },
     };

@@ -5,7 +5,7 @@
             "entry": ["scripts/*.mjs"]
         },
         "e2e": {
-            "entry": ["e2e.config.ts", "tests/**/*.e2e.ts"]
+            "entry": ["e2e.config.ts", "tests/**/*.e2e.ts", "support/**/*.test.ts"]
         },
         "packages/decorators-core": {
             "entry": ["src/index.ts"]

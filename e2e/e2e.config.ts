@@ -5,6 +5,8 @@ import { mobile } from '@e2e-dev/mobile';
 import { DEVICES, type Platform } from './support/devices.ts';
 import { simlockDevices } from './support/simlock/provider.ts';
 
+import type { DeviceMode } from './support/simlock/relay.ts';
+
 import type { E2EConfig } from 'e2e';
 
 const env = (name: string): string => {
@@ -23,7 +25,7 @@ const suite = process.env.E2E_TARGET?.replace(/-(bare|expo)$/, '');
 // otherwise drive each other's device. Set before the workers start, so they inherit it.
 process.env.E2E_SESSION ??= `e2e-${randomBytes(4).toString('hex')}`;
 
-const target = (name: string, platform: Platform, osVersion?: string) => ({
+const target = (name: string, platform: Platform, lease: { osVersion?: string; deviceMode?: DeviceMode } = {}) => ({
     name,
     engine: mobile({
         platform,
@@ -33,7 +35,7 @@ const target = (name: string, platform: Platform, osVersion?: string) => ({
             token: env('SIMLOCK_TOKEN'),
             platform,
             device: DEVICES[platform].model,
-            ...(osVersion === undefined ? {} : { osVersion }),
+            ...lease,
         }),
     }),
     // E2E_APP_ID / E2E_APP_PATH: the target's app id and its repacked or built binary, set by mobile-ci's e2e job.
@@ -44,10 +46,11 @@ export default {
     projectId: 'rnw-community',
     tests: suite === undefined || suite === '' ? 'tests/**/*.e2e.ts' : `tests/${suite}/**/*.e2e.ts`,
     targets: [
-        target('ios', 'ios'),
-        target('android', 'android', DEVICES.android.osVersion),
+        // The Apple Pay sheet needs PassKit, which a slim simulator switches off.
+        target('ios', 'ios', suite === 'payments' ? { deviceMode: 'full' } : {}),
+        target('android', 'android', { osVersion: DEVICES.android.osVersion }),
         // The Google Pay sheet needs Google Play services, which only the farm's API 35 `google_apis` image has.
-        target('android-gms', 'android', '35'),
+        target('android-gms', 'android', { osVersion: '35' }),
     ],
     workers: Number(process.env.E2E_WORKERS ?? 1),
     timeout: 10 * 60_000,

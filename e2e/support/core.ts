@@ -123,6 +123,16 @@ export async function keep(source: string, name: string): Promise<void> {
     await copyFile(source, target);
 }
 
+/**
+ * `takeScreenshot: <name>` into `.e2e/<name>.png`: the device's own pixels at its native density, unmasked and
+ * unscaled, where `app.screenshot` writes a point-scale evidence image.
+ */
+export async function captureScreen(ctx: Ctx, name: string): Promise<void> {
+    const path = fileURLToPath(new URL(`../.e2e/${name}.png`, import.meta.url));
+    await mkdir(dirname(path), { recursive: true });
+    await ctx.device.unstable_raw.client.capture.screenshot({ path, pixelDensity: DEVICES[ctx.platform].pixelDensity });
+}
+
 /** `stopRecording`: the recording's local file. */
 export async function stopRecording(ctx: Ctx): Promise<string> {
     const [video] = await ctx.app.stopRecording();

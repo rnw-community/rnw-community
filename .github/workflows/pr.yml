@@ -519,6 +519,38 @@ jobs:
                     GH_TOKEN: ${{ github.token }}
                 run: pipx run "zizmor==${ZIZMOR_VERSION}" --format=github .github/workflows
 
+    e2e-suite:
+        name: E2E suite (typecheck, unit tests)
+        timeout-minutes: 10
+        runs-on: [self-hosted, linux-portable-2x4]
+        permissions:
+            contents: read
+        defaults:
+            run:
+                working-directory: e2e
+
+        steps:
+            -   name: Checkout repository
+                uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+                with:
+                    persist-credentials: false
+
+            -   name: Setup Node
+                uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+                with:
+                    node-version: 24.x
+                    cache: npm
+                    cache-dependency-path: e2e/package-lock.json
+
+            -   name: Install the e2e project
+                run: npm ci --no-audit --no-fund
+
+            -   name: Typecheck
+                run: npx tsc -p .
+
+            -   name: Unit tests
+                run: node --test 'support/**/*.test.ts'
+
     nestjs-compatibility:
         name: NestJS compatibility (@nestjs/common ${{ matrix.nestjs }}, @nestjs/config ${{ matrix.nestjs-config }})
         timeout-minutes: 20
@@ -814,7 +846,7 @@ jobs:
     required-checks:
         name: Required checks
         if: always()
-        needs: [code-quality, package-manager-smoke, workflow-lint, nestjs-compatibility, reanimated-compatibility, screen-chrome-web-e2e, edge-fade-metrics]
+        needs: [code-quality, package-manager-smoke, workflow-lint, e2e-suite, nestjs-compatibility, reanimated-compatibility, screen-chrome-web-e2e, edge-fade-metrics]
         timeout-minutes: 5
         runs-on: [self-hosted, linux-portable-2x4]
         permissions: {}
@@ -825,6 +857,7 @@ jobs:
                     CODE_QUALITY_RESULT: ${{ needs.code-quality.result }}
                     PACKAGE_MANAGER_SMOKE_RESULT: ${{ needs.package-manager-smoke.result }}
                     WORKFLOW_LINT_RESULT: ${{ needs.workflow-lint.result }}
+                    E2E_SUITE_RESULT: ${{ needs.e2e-suite.result }}
                     NESTJS_COMPATIBILITY_RESULT: ${{ needs.nestjs-compatibility.result }}
                     REANIMATED_COMPATIBILITY_RESULT: ${{ needs.reanimated-compatibility.result }}
                     EDGE_FADE_METRICS_RESULT: ${{ needs.edge-fade-metrics.result }}
@@ -833,11 +866,12 @@ jobs:
                     echo "code-quality=${CODE_QUALITY_RESULT}"
                     echo "package-manager-smoke=${PACKAGE_MANAGER_SMOKE_RESULT}"
                     echo "workflow-lint=${WORKFLOW_LINT_RESULT}"
+                    echo "e2e-suite=${E2E_SUITE_RESULT}"
                     echo "nestjs-compatibility=${NESTJS_COMPATIBILITY_RESULT}"
                     echo "reanimated-compatibility=${REANIMATED_COMPATIBILITY_RESULT}"
                     echo "edge-fade-metrics=${EDGE_FADE_METRICS_RESULT}"
                     echo "screen-chrome-web-e2e=${SCREEN_CHROME_WEB_E2E_RESULT}"
-                    if [ "${CODE_QUALITY_RESULT}" != 'success' ] || [ "${PACKAGE_MANAGER_SMOKE_RESULT}" != 'success' ] || [ "${WORKFLOW_LINT_RESULT}" != 'success' ] || [ "${NESTJS_COMPATIBILITY_RESULT}" != 'success' ] || [ "${REANIMATED_COMPATIBILITY_RESULT}" != 'success' ] || [ "${SCREEN_CHROME_WEB_E2E_RESULT}" != 'success' ] || [ "${EDGE_FADE_METRICS_RESULT}" != 'success' ]; then
+                    if [ "${CODE_QUALITY_RESULT}" != 'success' ] || [ "${PACKAGE_MANAGER_SMOKE_RESULT}" != 'success' ] || [ "${WORKFLOW_LINT_RESULT}" != 'success' ] || [ "${E2E_SUITE_RESULT}" != 'success' ] || [ "${NESTJS_COMPATIBILITY_RESULT}" != 'success' ] || [ "${REANIMATED_COMPATIBILITY_RESULT}" != 'success' ] || [ "${SCREEN_CHROME_WEB_E2E_RESULT}" != 'success' ] || [ "${EDGE_FADE_METRICS_RESULT}" != 'success' ]; then
                       echo "::error::Required jobs did not succeed"
                       exit 1
                     fi

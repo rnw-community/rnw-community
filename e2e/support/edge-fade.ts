@@ -1,4 +1,4 @@
-import { expectId, keep, sleep, stopRecording, tapId, type Ctx } from './core.ts';
+import { captureScreen, expectId, keep, sleep, stopRecording, tapId, type Ctx } from './core.ts';
 import { openDemo } from './screen-chrome.ts';
 
 export const SCHEMES = ['dark', 'light'] as const;
@@ -13,7 +13,7 @@ const settle = (): Promise<void> => sleep(1_000);
 /** `takeScreenshot: edge-fade/<name>`. */
 export async function capture(ctx: Ctx, name: string): Promise<void> {
     await settle();
-    await keep(await ctx.app.screenshot(name), `edge-fade/${name}`);
+    await captureScreen(ctx, `edge-fade/${name}`);
 }
 
 /** `startRecording: temporal-<cell>` around one programmatic scroll traversal, prepared at offset 200 first. */

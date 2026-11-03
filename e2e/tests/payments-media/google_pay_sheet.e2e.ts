@@ -1,6 +1,6 @@
 import { expect } from 'e2e';
 
-import { keep, phase, sleep, stopRecording, tapId } from '../../support/core.ts';
+import { captureScreen, keep, phase, sleep, stopRecording, tapId } from '../../support/core.ts';
 import { launchAndWaitForProbe } from '../../support/payments.ts';
 import { test } from '../../support/test.ts';
 
@@ -14,7 +14,7 @@ test('payments Google Pay sheet capture', async ({ ctx }) => {
             .poll(async () => (await ctx.device.foregroundApp()).bundleId, { timeout: 15_000 })
             .toBe('com.google.android.gms');
         await sleep(2_000);
-        await keep(await ctx.app.screenshot('google-pay-sheet'), 'recording/google-pay-sheet');
+        await captureScreen(ctx, 'recording/google-pay-sheet');
         await ctx.device.back();
         await sleep(2_000);
     });
