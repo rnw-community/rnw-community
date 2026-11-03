@@ -1,6 +1,12 @@
 import { StyleSheet } from 'react-native';
 
 export const CHROME_DEMO_STYLES = StyleSheet.create({
+    accessibleEdgeFade: {
+        left: 0,
+        position: 'absolute',
+        right: 0,
+        zIndex: 2,
+    },
     composer: {
         alignItems: 'center',
         backgroundColor: '#1B4D3E',

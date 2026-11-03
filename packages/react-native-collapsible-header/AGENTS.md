@@ -106,7 +106,7 @@ src/
 - **One provider per scrollable, mounted inside each screen — never once around a navigator.** A provider owns exactly
   one `scrollY`, scroll handler, scroll ref, and snap slot, so that is its unit of identity. Per-screen providers keep
   sibling screens independent (pinned by `collapsible-header-provider-isolation.spec.tsx` and by the example's two
-  Maestro freeze flows); a provider shared across screens makes the last-scrolled screen drive every header. Several
+  e2e freeze tests); a provider shared across screens makes the last-scrolled screen drive every header. Several
   headers within one screen may share a provider — they animate from one offset by design.
 - `snap` requires the provider **and** a mounted `CollapsibleHeader` — the provider owns the slot, the header fills it,
   so a provider whose snapping header is unmounted (tab switch, `freezeOnBlur`) simply stops snapping until it returns.
@@ -219,6 +219,6 @@ The package builds with `react-native-builder-bob` — the React Native library 
 
 `packages/react-native-collapsible-header-example` (private, mirrors `react-native-payments-example`) carries the
 runnable demo — provider wiring, snap, overscroll stretch, progress-driven slot animation, persistent actions — on
-Expo and bare React Native targets, plus the Maestro suite (`e2e/flows`) and the recording flow
-(`e2e/recording/demo_capture.yaml`) that produces `docs/collapsible-header-demo.gif` embedded in this package's
-readme. The `maestro-e2e` agent skill (`.claude/skills/maestro-e2e`) documents how to drive and extend the suite.
+Expo and bare React Native targets, plus the manual Maestro recording flow (`e2e/recording/demo_capture.yaml`) that
+produces `docs/collapsible-header-demo.gif` embedded in this package's readme. Its e2e suite is the root
+`e2e/tests/collapsible-header`.

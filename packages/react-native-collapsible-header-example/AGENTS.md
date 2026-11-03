@@ -27,14 +27,16 @@ apps/
   expo/                          — @rnw-community/react-native-collapsible-header-example-expo (Expo)
     index.js, app.json, babel.config.js, metro.config.js, assets/; ios/ and android/ come from `expo prebuild`
 e2e/
-  flows/                         — app_launch, collapse_on_scroll, expand_on_scroll_back, snap_to_nearest_endpoint,
-                                   freeze_preserves_collapsed_state, settings_header_collapses,
-                                   settings_freeze_preserves_collapsed_state, run by `maestro test`
-  subflows/                      — launch_header_demo (shared launch + first-frame wait), included via `runFlow`
-  recording/                     — demo_capture.yaml and settings_capture.yaml, produce the readme demo videos
-                                   (not assertion flows)
-  readme.md                      — flow inventory, APP_ID table, and the accessibility-tree visibility semantics
+  recording/                     — demo_capture.yaml and settings_capture.yaml, manual Maestro flows that produce the
+                                   readme demo videos (not assertion flows, not run in CI)
+  subflows/                      — launch_header_demo, collapse_header: Maestro steps the capture flows include via
+                                   `runFlow`
+  readme.md                      — test inventory, APP_ID table, and the accessibility-tree visibility semantics
 ```
+
+The CI e2e tests live in the repo root `e2e/tests/collapsible-header/` (app_launch, collapse_on_scroll,
+expand_on_scroll_back, snap_to_nearest_endpoint, freeze_preserves_collapsed_state, settings_header_collapses,
+settings_freeze_preserves_collapsed_state), with shared steps in `e2e/support/collapsible-header.ts`.
 
 ## What the demo exercises
 
@@ -46,7 +48,7 @@ e2e/
 - `stretchOnOverscroll` — header grows during negative overscroll.
 - `useCollapsibleHeaderProgress` — the expanded badge scales down from the slot-facing progress shared value.
 - Persistent content — the refresh action stays mounted across both transition layers.
-- Accessibility switching — the Maestro suite asserts hidden-layer removal from the accessibility tree.
+- Accessibility switching — the e2e suite asserts hidden-layer removal from the accessibility tree.
 - Screen freeze — native-stack navigation with `enableFreeze(true)` + `freezeOnBlur`; returning to a frozen screen
   (Home or Settings) must keep the header collapsed (state derives purely from the shared scroll value; also covered
   by `collapsible-header-freeze.spec.tsx` in the library package via react-freeze).
@@ -55,15 +57,15 @@ e2e/
 
 ## Android CI display geometry
 
-The Android legs run on an x86_64 emulator whose display is pinned to 720x1280 @ 320dpi with no cutout (a 360x640dp
-viewport). `snap_to_nearest_endpoint` and the other gesture flows express swipes in viewport percentages, and their
+The Android legs run on a simlock farm emulator with the `Galaxy Nexus` profile, 720x1280 @ 320dpi with no cutout (a
+360x640dp viewport). `snap_to_nearest_endpoint` and the other gesture tests express swipes in viewport percentages, and their
 release points are calibrated against that viewport: a `pixel_6` profile (1080x2400 @ 420dpi with a punch-hole cutout)
-moves the snap release past the snap end and shifts every safe-area inset, which failed this suite. The
-`emulator-profile` input of `.github/workflows/android-maestro.yml` pins it.
+moves the snap release past the snap end and shifts every safe-area inset, which failed this suite. `e2e/support/devices.ts` pins
+the model the farm leases.
 
 ## CI coverage
 
-Both Maestro workflows (`.github/workflows/ios-maestro.yml`, `android-maestro.yml`) run this package's suite. Each
+Both e2e workflows (`.github/workflows/ios-maestro.yml`, `android-maestro.yml`) run this package's suite. Each
 workflow lists every example package's targets in its `targets` input — register new example packages and targets there.
 The `expo` target is wired for both platforms. Like the payments example, the `bare` target commits its own `ios/` and
 `android/` projects (copied from the payments example with the product, bundle, and Kotlin package identifiers renamed;
@@ -88,9 +90,8 @@ exact and identical when bumping, and bump every manifest in the same commit.
 
 Target scripts live on this package and delegate to the nested workspaces: `ios:bare`, `android:bare`, `start:bare`,
 `ios:expo`, `android:expo`, `start:expo`, `prebuild:expo`. `ts`, `lint`, `lint:fix` and `format` cover `src` only.
-`e2e:ios:bare`, `e2e:ios:expo`, `e2e:android:bare`, `e2e:android:expo` each run `maestro test -e APP_ID=<target appId>
-e2e/flows` against whichever simulator/emulator is currently booted — the app under test must already be built and
-installed (`ios:bare`/`android:bare`/`ios:expo`/`android:expo`, or `prebuild:expo` first for the Expo native projects).
+The e2e tests run from the repo root `e2e/` project against a built `.app`/`.apk` on a device leased from the simlock
+farm; see `e2e/readme.md`.
 
 ## Expo version pins (root `overrides`)
 
@@ -111,5 +112,5 @@ Keep the set moving together: bump every pin to the same contemporaneous patch l
 `react-native`, `react-native-reanimated`, `react-native-worklets`, `@react-navigation/native`,
 `@react-navigation/native-stack`, `react-native-screens`, `react-native-safe-area-context`.
 
-This is an example/demo package — no unit tests, no build, no publish. It carries the runnable Maestro e2e suite
-(`e2e/`) for the collapsible header library and the recording flow behind the library readme's demo GIF.
+This is an example/demo package — no unit tests, no build, no publish. Its e2e suite lives in the repo root
+`e2e/tests/collapsible-header`; its own `e2e/` carries the manual recording flow behind the library readme's demo GIF.

@@ -1,15 +1,28 @@
-# Screen chrome example — Maestro E2E
+# react-native-screen-chrome-example — e2e
 
-Flows exercise `@rnw-community/react-native-screen-chrome` through the shared demo screens on a booted
-simulator/emulator with the app already installed (`ios:expo`/`ios:bare`/`android:expo`/`android:bare` first).
+The CI end-to-end tests exercise `@rnw-community/react-native-screen-chrome` through the shared demo screens. They live
+in the repo root [`e2e/`](../../../e2e) project: [`e2e/tests/screen-chrome/`](../../../e2e/tests/screen-chrome) (the
+functional suite) and [`e2e/tests/screen-chrome-harness/`](../../../e2e/tests/screen-chrome-harness) (the edge-fade
+harness), one `<flow>.e2e.ts` per scenario, with the shared steps (the former Maestro subflows) in
+[`e2e/support/screen-chrome.ts`](../../../e2e/support/screen-chrome.ts),
+[`edge-fade.ts`](../../../e2e/support/edge-fade.ts) and [`edge-fade-plan.ts`](../../../e2e/support/edge-fade-plan.ts).
+Devices are leased from the simlock farm; no CI host boots a simulator or emulator.
 
 ## Running
 
 ```bash
-pnpm --filter @rnw-community/react-native-screen-chrome-example e2e:ios:expo
+cd e2e && npm ci
+# @mobile-ci/e2e-simlock ships in mobile-ci, not on npm: install it from the tag the workflows pin, after every npm ci.
+curl -fsSL https://raw.githubusercontent.com/rnw-community/mobile-ci/v4.9.0/scripts/fetch-e2e-simlock.sh | bash -s v4.9.0 .
+SIMLOCK_URL=https://simlock.vitaliiyehorov.dev SIMLOCK_TOKEN=<token> E2E_TARGET=screen-chrome-expo \
+  E2E_APP_ID=<appId> E2E_APP_PATH=<built .app or .apk> npx e2e run --target ios   # or android
 ```
 
-Or directly: `maestro test -e APP_ID=<appId> e2e/flows`.
+`E2E_TARGET` picks the suite: the CI target name minus its `-bare`/`-expo` suffix selects `e2e/tests/<suite>`
+(`E2E_TARGET=screen-chrome-harness` runs the harness; on Android run it with `--target android-gms`, because the
+`aosp_atd` image returns blank screenshots and recordings that never finalize). Build the app first
+(`ios:expo`/`ios:bare`/`android:expo`/`android:bare`). A local run needs a simlock token for the farm.
+`pnpm e2e:harness:check` runs the metric script's unit tests without a device.
 
 | Target      | Platform | appId                                                       |
 | ----------- | -------- | ----------------------------------------------------------- |
@@ -18,41 +31,43 @@ Or directly: `maestro test -e APP_ID=<appId> e2e/flows`.
 | `apps/bare` | iOS      | `org.reactjs.native.example.ReactNativeScreenChromeExample` |
 | `apps/bare` | Android  | `com.reactnativescreenchromeexample`                        |
 
-## Flows
+## Tests
 
-- `flows/collapsible_header_snaps.yaml` — a partial drag past the title cross-fade window settles on the collapsed
+The demos render their asserted edge fades through `AccessibleEdgeFade` (`src/component/accessible-edge-fade.tsx`):
+`EdgeFade` opts out of accessibility, and the e2e suite reads the accessibility tree, so an accessible,
+`pointerEvents="none"` view with the band's own frame (`getEdgeFadeBandMetrics`) carries the fade's testID.
+
+- `screen-chrome/collapsible_header_snaps.e2e.ts` — a partial drag past the title cross-fade window settles on the collapsed
   endpoint via the provider-driven snap; the small title replaces the expanded one.
-- `flows/collapsible_header_expands_on_scroll_back.yaml` — two slow drags reach the collapsed endpoint, and scrolling
+- `screen-chrome/collapsible_header_expands_on_scroll_back.e2e.ts` — two slow drags reach the collapsed endpoint, and scrolling
   back to the top restores the expanded title.
-- `flows/static_header_stays_fixed.yaml` — a full page of scrolling never moves the static header row, and the top
+- `screen-chrome/static_header_stays_fixed.e2e.ts` — a full page of scrolling never moves the static header row, and the top
   fade band stays mounted above the content.
-- `flows/footer_band_stays_visible.yaml` — the sticky footer band, its bottom fade, and the static header all stay
+- `screen-chrome/footer_band_stays_visible.e2e.ts` — the sticky footer band, its bottom fade, and the static header all stay
   visible while the list scrolls underneath.
-- `flows/snap_off_header_scrolls_freely.yaml` — with `snapToCollapse: false` the header still collapses under a page
+- `screen-chrome/snap_off_header_scrolls_freely.e2e.ts` — with `snapToCollapse: false` the header still collapses under a page
   of scrolling and expands again at the top.
-- `flows/bottom_fade_follows_scroll.yaml` — the scroll-driven bottom fade stays mounted while the list scrolls under
+- `screen-chrome/bottom_fade_follows_scroll.e2e.ts` — the scroll-driven bottom fade stays mounted while the list scrolls under
   the static header.
-- `flows/tab_bar_switches_tabs.yaml` — the floating tab bar's tap targets select their tab before and after scrolling.
-- `flows/keyboard_footer_stays_above_keyboard.yaml` — Send is tapped with the keyboard open, which only lands when the
+- `screen-chrome/tab_bar_switches_tabs.e2e.ts` — the floating tab bar's tap targets select their tab before and after scrolling.
+- `screen-chrome/keyboard_footer_stays_above_keyboard.e2e.ts` — Send is tapped with the keyboard open, which only lands when the
   composer footer rides above the keyboard.
-- `flows/theme_switches_scheme.yaml` — the header toggle flips the provider color scheme to dark and back.
-- `harness/edge_fade_harness.yaml` — the edge-fade regression harness: captures every scheme × background × state of
-  the edge-fade screen for `harness/edge-fade-metrics.mjs`, including an independent wash-free blur-only control.
-- `harness/edge_fade_temporal_harness.yaml` — records six bounded programmatic ScrollView traversals, one per scheme ×
+- `screen-chrome/theme_switches_scheme.e2e.ts` — the header toggle flips the provider color scheme to dark and back.
+- `screen-chrome-harness/edge_fade_harness.e2e.ts` — the edge-fade regression harness: captures every scheme × background × state of
+  the edge-fade screen for `harness/edge-fade-metrics.mjs`, including an independent wash-free blur-only control. iOS
+  stills come from the XCTest runner, so they carry no Dynamic Island, matching the baselines.
+- `screen-chrome-harness/edge_fade_temporal_harness.e2e.ts` — records six bounded programmatic ScrollView traversals, one per scheme ×
   background. It prepares the real ScrollView at offset 200 before recording, then scrolls 200→400 while a visible
   content witness moves. CI preserves every decoded MP4 frame, records the clip duration, and checks edge, luminance,
   contrast, frame-count, duration, and measured-scroll gates. On temporal top-edge background profiles, samples inside
   the measured top safe area come from the two clear side strips so a device cutout rendered in video but omitted from
   still screenshots cannot look like a fade reversal. Physical-edge color and variance still use the full width, and
   profile samples below the safe area still use the full width.
-- `subflows/launch_home.yaml` — shared launch + first-frame wait on the demo picker.
-- `subflows/launch_collapsible_demo.yaml` — opens the collapsible-header screen and waits for its first frame.
-- `subflows/collapse_then_expand.yaml` — collapses a demo collapsible header and scrolls back until it expands,
-  parameterized by the `HEADER` testID prefix (`collapsible-demo`, `snap-off-demo`).
-- `recording/` — capture-only flows for the readme demo GIFs, one per demo (`collapsible_capture`,
-  `static_header_capture`, `footer_capture`, `snap_off_capture`, `bottom_fade_capture`, `tab_bar_capture`,
-  `keyboard_capture`, `theme_capture`); not part of the assertion suite. Each opens its screen, then drives the
-  gestures between `startRecording`/`stopRecording`, mirroring the collapsible-header example.
+
+`pr.yml`'s `edge-fade-ios` and `edge-fade-android` jobs run the harness (Android on the `android-gms` target) and upload
+the captures in the run's `e2e-<platform>-edge-fade--screen-chrome-harness` artifact under `edge-fade/`, with the same
+`<cell>.png` and `temporal/temporal-<cell>.mp4` layout as before; `harness/edge-fade-metrics.mjs` measures them against
+the baselines in `harness/baselines/`.
 
 The static gate also measures the width of the 20–80% stripe-contrast transition (square root of normalized
 Laplacian energy), measured from the physical edge across the whole band because the blur now eases in over the
@@ -62,9 +77,21 @@ transition, because squared contrast and its one-point smoothing kept each rise 
 both the washed capture and the blur-only control. The compact wash-versus-blur comparison likewise runs over the band
 beyond that outer 8% and measures the wash against its value at the physical edge.
 
-## Recording the readme GIFs
+## Manual Maestro capture flows
 
-With the app installed on a booted emulator or simulator, run one capture flow at a time:
+This package's own `e2e/` keeps manual Maestro tooling, never run in CI, alongside the harness metrics:
+
+- `recording/` — capture-only flows for the readme demo GIFs, one per demo (`collapsible_capture`,
+  `static_header_capture`, `footer_capture`, `snap_off_capture`, `bottom_fade_capture`, `tab_bar_capture`,
+  `keyboard_capture`, `theme_capture`). Each opens its screen, then drives the gestures between
+  `startRecording`/`stopRecording`, mirroring the collapsible-header example.
+- `manual/` — `playground_matrix.yaml` and its `playground-metrics.mjs`.
+- `subflows/` — `launch_home.yaml` (launch + first-frame wait on the demo picker), `launch_collapsible_demo.yaml` (opens
+  the collapsible-header screen and waits for its first frame) and `collapse_then_expand.yaml` (collapses a demo
+  collapsible header and scrolls back until it expands, parameterized by the `HEADER` testID prefix), included by the
+  flows above via `runFlow`.
+
+To record a readme GIF, with the app installed on a booted emulator or simulator, run one capture flow at a time:
 
 ```bash
 maestro test -e APP_ID=<appId> e2e/recording/static_header_capture.yaml

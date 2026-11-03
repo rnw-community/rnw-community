@@ -29,13 +29,10 @@ apps/
   expo/                          — @rnw-community/react-native-payments-example-expo (Expo)
     index.js, app.json, babel.config.js, metro.config.js, assets/
 e2e/
-  flows/                         — one Maestro scenario per file (app_launch, can_make_payment_probe,
-                                   sheet_opens_on_show, dismiss_abort_reject_state,
-                                   shipping_listener_wiring_enabled/disabled, async_update_toggle_state,
-                                   reset_new_request_state_transitions), run directly by `maestro test`
-  subflows/                      — shared steps included via `runFlow` (dismiss_ios_sheet, show_request,
-                                   launch_and_wait_for_probe), never run standalone
-  readme.md                      — flow inventory, APP_ID table per target/platform, and the two documented
+  recording/                     — android_sheet_capture.yaml, a manual Maestro capture superseded by the root
+                                   e2e/tests/payments-media test that docs-media.yml runs
+  subflows/                      — Maestro steps that capture flow includes via `runFlow`, never run standalone
+  readme.md                      — test inventory, APP_ID table per target/platform, and the two documented
                                    E2E coverage gaps (iOS PassKit sheet sandboxes the app's own accessibility
                                    tree while presented; native-sheet-driven completion is out of reach on a
                                    simulator/emulator)
@@ -79,30 +76,30 @@ published.
   the shipping pair when `requestShipping` is on, `couponcodechange` only on iOS with the coupon toggle on. On Android the
   log records that only the shipping pair is delivered (Google Pay callback intents), so a silent
   `paymentmethodchange` there is expected.
-- The Maestro suite is one shared, parameterized flow set per scenario, not one per app target/platform: only the `APP_ID`
-  env value and the connected device change between `apps/bare`/`apps/expo` and iOS/Android, and in-flow platform branching
-  uses Maestro's `when: platform:` condition. Flows assert against the on-screen event log and flow-state/can-make-status
-  labels, never native dialogs directly — except six iOS flows, which briefly assert against the PassKit sheet's own
-  accessibility tree (via `subflows/dismiss_ios_sheet.yaml`) purely to dismiss it, since iOS blocks UI-test tooling from
-  querying the app's own tree while that sheet is presented.
-- `.github/workflows/ios-maestro.yml` and `android-maestro.yml` at the repo root run this suite per target
-  (`bare`/`expo`) on `[self-hosted, macOS, ARM64, macos-maestro]` / an equivalent Android runner, gated by a
-  turbo-`--affected` check against every target's app workspace. As of this writing the workflows are wired but
-  queue rather than execute — the self-hosted fleet label is not yet registered (tracked separately) — so treat CI as
-  configured, not as a currently green signal. The `maestro-e2e` agent skill (`.claude/skills/maestro-e2e`) documents how to
-  drive and extend the suite locally.
+- The e2e suite lives in the repo root `e2e/tests/payments/` (one `<flow>.e2e.ts` per scenario, shared steps in
+  `e2e/support/payments.ts`). It is one shared, parameterized test set per scenario, not one per app target/platform:
+  only the `E2E_APP_ID`/`E2E_APP_PATH` values and the leased device change between `apps/bare`/`apps/expo` and
+  iOS/Android, and platform branching reads `ctx.platform`. Tests assert against the on-screen event log and
+  flow-state/can-make-status labels, never native dialogs directly — except the iOS branches, which briefly assert
+  against the PassKit sheet's own accessibility tree (`dismissIosSheet`) purely to dismiss it, since iOS blocks UI-test
+  tooling from querying the app's own tree while that sheet is presented.
+- `.github/workflows/ios-maestro.yml` ("iOS E2E") and `android-maestro.yml` ("Android E2E") at the repo root run this
+  suite per target (`payments-bare`/`payments-expo`) on devices leased from the simlock farm, gated by a
+  turbo-`--affected` check against every target's app workspace. iOS leases a full, unslimmed simulator (PassKit);
+  Android runs on the API 34 `aosp_atd` image, which has no Google Play services. See the root `AGENTS.md`
+  "Mobile CI (E2E)" section.
 
 ## Commands
 
 Target scripts live on this package and delegate to the nested workspaces: `ios:bare`, `android:bare`, `start:bare`,
 `ios:expo`, `android:expo`, `start:expo`, `prebuild:expo`. `ts`, `lint`, `lint:fix` and `format` cover `src` only.
-`e2e:ios:bare`, `e2e:ios:expo`, `e2e:android:bare`, `e2e:android:expo` each run `maestro test -e APP_ID=<target appId>
-e2e/flows` against whichever simulator/emulator is currently booted — the app under test must already be built and
-installed (`ios:bare`/`android:bare`/`ios:expo`/`android:expo`, or `prebuild:expo` first for the Expo native projects).
+The e2e tests run from the repo root `e2e/` project (`cd e2e && npm ci`, then mobile-ci's `fetch-e2e-simlock.sh v4.9.0 .` for the device provider, then `npx e2e run --target ios|android` with
+`SIMLOCK_URL`, `SIMLOCK_TOKEN`, `E2E_APP_ID`, `E2E_APP_PATH` and `E2E_TARGET=payments-bare` set) against a built
+`.app`/`.apk`; see `e2e/readme.md`.
 
 ## Dependencies
 
 `@rnw-community/react-native-payments` (workspace), `@rnw-community/shared` (workspace), `react`, `react-native`.
 
-This is an example/demo package — no unit tests, no build, no publish. It does carry a real, runnable Maestro e2e suite
-(`e2e/`) exercising the JS-observable half of the demo flow; see `e2e/readme.md` for the coverage boundary.
+This is an example/demo package — no unit tests, no build, no publish. Its e2e suite (the repo root
+`e2e/tests/payments`) exercises the JS-observable half of the demo flow; see `e2e/readme.md` for the coverage boundary.

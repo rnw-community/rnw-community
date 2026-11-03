@@ -63,8 +63,8 @@ handshake without a repo-wide search.
 
 ## End-to-end verification
 
-- [react-native-payments-example/e2e/readme.md](https://github.com/rnw-community/rnw-community/blob/master/packages/react-native-payments-example/e2e/readme.md): Maestro flow inventory and the documented iOS PassKit sheet accessibility-sandbox boundary.
-- [maestro-e2e skill](https://github.com/rnw-community/rnw-community/blob/master/.agents/skills/maestro-e2e/SKILL.md):Agent skill for writing and running Maestro E2E flows against this package's example app.
+- [react-native-payments-example/e2e/readme.md](https://github.com/rnw-community/rnw-community/blob/master/packages/react-native-payments-example/e2e/readme.md): e2e test inventory (`e2e/tests/payments`) and the documented iOS PassKit sheet accessibility-sandbox boundary.
+- [e2e/tests/payments](https://github.com/rnw-community/rnw-community/tree/master/e2e/tests/payments): the CI e2e tests for this package's example app, one `<flow>.e2e.ts` per scenario, run on simulators and emulators leased from the simlock farm; shared steps in `e2e/support/payments.ts`.
 
 ## Optional
 

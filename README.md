@@ -6,8 +6,8 @@ TypeScript packages for NestJS, React, React Native and React Native Web.
 
 [![Pull Request](https://github.com/rnw-community/rnw-community/actions/workflows/pr.yml/badge.svg)](https://github.com/rnw-community/rnw-community/actions/workflows/pr.yml)
 [![Release](https://github.com/rnw-community/rnw-community/actions/workflows/release.yml/badge.svg?branch=master)](https://github.com/rnw-community/rnw-community/actions/workflows/release.yml)
-[![iOS Maestro E2E](https://github.com/rnw-community/rnw-community/actions/workflows/ios-maestro.yml/badge.svg?branch=master)](https://github.com/rnw-community/rnw-community/actions/workflows/ios-maestro.yml)
-[![Android Maestro E2E](https://github.com/rnw-community/rnw-community/actions/workflows/android-maestro.yml/badge.svg?branch=master)](https://github.com/rnw-community/rnw-community/actions/workflows/android-maestro.yml)
+[![iOS E2E](https://github.com/rnw-community/rnw-community/actions/workflows/ios-maestro.yml/badge.svg?branch=master)](https://github.com/rnw-community/rnw-community/actions/workflows/ios-maestro.yml)
+[![Android E2E](https://github.com/rnw-community/rnw-community/actions/workflows/android-maestro.yml/badge.svg?branch=master)](https://github.com/rnw-community/rnw-community/actions/workflows/android-maestro.yml)
 [![codecov](https://codecov.io/gh/rnw-community/rnw-community/graph/badge.svg?token=T0THT8I97I)](https://codecov.io/gh/rnw-community/rnw-community)
 [![DeepScan grade](https://deepscan.io/api/teams/11119/projects/14033/branches/251011/badge/grade.svg)](https://deepscan.io/dashboard#view=project&tid=11119&pid=14033&bid=251011)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE.md)
@@ -75,8 +75,8 @@ of them.
 | [@rnw-community/wdio](./packages/wdio)                   | [![npm](https://img.shields.io/npm/v/@rnw-community/wdio)](https://www.npmjs.com/package/@rnw-community/wdio)                   | WebdriverIO commands, page objects and helpers for end-to-end tests             |
 | [@rnw-community/eslint-plugin](./packages/eslint-plugin) | [![npm](https://img.shields.io/npm/v/@rnw-community/eslint-plugin)](https://www.npmjs.com/package/@rnw-community/eslint-plugin) | ESLint plugin with React and React Native rules, such as `no-complex-jsx-logic` |
 
-Three private example packages are not published. Each has bare React Native CLI and Expo apps and a Maestro end-to-end
-suite: [react-native-payments-example](./packages/react-native-payments-example),
+Three private example packages are not published. Each has bare React Native CLI and Expo apps, tested by the
+end-to-end suites in [`e2e/`](./e2e): [react-native-payments-example](./packages/react-native-payments-example),
 [react-native-collapsible-header-example](./packages/react-native-collapsible-header-example) and
 [react-native-screen-chrome-example](./packages/react-native-screen-chrome-example).
 

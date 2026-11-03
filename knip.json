@@ -4,6 +4,10 @@
         ".": {
             "entry": ["scripts/*.mjs"]
         },
+        "e2e": {
+            "entry": ["e2e.config.ts", "tests/**/*.e2e.ts", "support/**/*.test.ts"],
+            "ignoreDependencies": ["@mobile-ci/e2e-simlock", "agent-device"]
+        },
         "packages/decorators-core": {
             "entry": ["src/index.ts"]
         },
@@ -100,7 +104,6 @@
         "packages/wdio/src/component/mocks/**",
         "packages/wdio/src/rooted-component/mocks/**"
     ],
-    "ignoreBinaries": ["maestro"],
     "ignoreDependencies": [
         "@arethetypeswrong/cli",
         "@babel/runtime",

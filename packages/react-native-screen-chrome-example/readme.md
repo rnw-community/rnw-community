@@ -31,8 +31,8 @@ pnpm start:bare            # metro for the bare shell
 pnpm start:expo            # expo dev server
 pnpm ios:bare / android:bare
 pnpm ios:expo / android:expo
-pnpm e2e:ios:bare          # maestro suite against a booted simulator (app installed)
-pnpm e2e:android:expo      # ... etc, one script per platform × target
+pnpm e2e:harness:check    # edge-fade metrics unit tests
 ```
 
-See `e2e/readme.md` for the flow inventory, appId table, and what each demo documents.
+The CI e2e tests live in the repo root `e2e/tests/screen-chrome` and `e2e/tests/screen-chrome-harness`. See
+`e2e/readme.md` for the test inventory, appId table, how to run them, and what each demo documents.

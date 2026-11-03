@@ -519,6 +519,43 @@ jobs:
                     GH_TOKEN: ${{ github.token }}
                 run: pipx run "zizmor==${ZIZMOR_VERSION}" --format=github .github/workflows
 
+    e2e-suite:
+        name: E2E suite (typecheck, unit tests)
+        timeout-minutes: 10
+        runs-on: [self-hosted, linux-portable-2x4]
+        permissions:
+            contents: read
+        defaults:
+            run:
+                working-directory: e2e
+
+        steps:
+            -   name: Checkout repository
+                uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+                with:
+                    persist-credentials: false
+
+            -   name: Setup Node
+                uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+                with:
+                    node-version: 24.x
+                    cache: npm
+                    cache-dependency-path: e2e/package-lock.json
+
+            -   name: Install the e2e project
+                run: npm ci --no-audit --no-fund
+
+            -   name: Install the simlock device provider
+                uses: rnw-community/mobile-ci/actions/e2e-simlock-install@6898d7c629f03307f5d4d122de173cc232188209 # v4.9.0
+                with:
+                    e2e-dir: e2e
+
+            -   name: Typecheck
+                run: npx tsc -p .
+
+            -   name: Unit tests
+                run: node --test 'support/**/*.test.ts'
+
     nestjs-compatibility:
         name: NestJS compatibility (@nestjs/common ${{ matrix.nestjs }}, @nestjs/config ${{ matrix.nestjs-config }})
         timeout-minutes: 20
@@ -672,63 +709,66 @@ jobs:
             contents: read
             packages: write
             actions: read
-        uses: rnw-community/mobile-ci/.github/workflows/ios-maestro.yml@f90309c791283d6e2dd1e35eb2ae6c5aee2151cd # v4.7.0
+        uses: rnw-community/mobile-ci/.github/workflows/ios-maestro.yml@6898d7c629f03307f5d4d122de173cc232188209 # v4.9.0
         with:
             control-runner-labels: '["self-hosted","linux-portable-2x4"]'
             call-scope: edge-fade
-            shard-count: 1
             targets: >-
                 [
-                  {"name":"screen-chrome-harness","appDir":"packages/react-native-screen-chrome-example/apps/expo","workspace":"reactnativescreenchromeexpoexample.xcworkspace","scheme":"reactnativescreenchromeexpoexample","appId":"com.reactnativescreenchromeexpoexample","prebuildCommand":"pnpm prebuild","flowsDir":"packages/react-native-screen-chrome-example/e2e/harness"}
+                  {"name":"screen-chrome-harness","appDir":"packages/react-native-screen-chrome-example/apps/expo","workspace":"reactnativescreenchromeexpoexample.xcworkspace","scheme":"reactnativescreenchromeexpoexample","appId":"com.reactnativescreenchromeexpoexample","prebuildCommand":"pnpm prebuild"}
                 ]
-            flows-name-pattern: '*.yaml'
-            pre-flow-command: |
-                dest="${ARTIFACTS_DIR:-$MAESTRO_DEBUG_OUTPUT_DIRECTORY}/edge-fade"
-                mkdir -p "$dest/temporal"
-                scratch="$RUNNER_TEMP/maestro-debug-${SHARD_INDEX}-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
-                nohup bash -c 'while sleep 0.2; do find "$1" -path "*/takeScreenshot/edge-fade/*.png" -exec cp -f {} "$0" \; 2>/dev/null; find "$1" -path "*/startRecording/temporal-*.mp4" -exec cp -f {} "$0/temporal" \; 2>/dev/null; done' "$dest" "$scratch" >/dev/null 2>&1 &
             install-command: pnpm install --frozen-lockfile
             build-command: pnpm build --filter=...@rnw-community/react-native-screen-chrome-example-expo
             trigger-paths: |
                 packages/react-native-screen-chrome/**
                 packages/react-native-screen-chrome-example/**
                 .github/workflows/pr.yml
-            maestro-version: '2.8.0'
+                e2e/**
             build-timeout-minutes: 120
             xcode-version: '26.4.1'
             xcode-build: '17E202'
             runner-labels: '["self-hosted","macOS","ARM64","macos-maestro"]'
+            # The harness captures come from e2e/tests/screen-chrome-harness on a simulator leased from the simlock farm.
+            test-framework: e2e
+            e2e-dir: e2e
+            e2e-runner-labels: '["self-hosted","linux-portable-2x4"]'
+            e2e-timeout-minutes: 45
+            simlock-url: https://simlock.vitaliiyehorov.dev
+        secrets:
+            simlock-token: ${{ secrets.SIMLOCK_TOKEN }}
 
     edge-fade-android:
         permissions:
             contents: read
             packages: write
             actions: read
-        uses: rnw-community/mobile-ci/.github/workflows/android-maestro.yml@f90309c791283d6e2dd1e35eb2ae6c5aee2151cd # v4.7.0
+        uses: rnw-community/mobile-ci/.github/workflows/android-maestro.yml@6898d7c629f03307f5d4d122de173cc232188209 # v4.9.0
         with:
             control-runner-labels: '["self-hosted","linux-portable-2x4"]'
             call-scope: edge-fade
-            shard-count: 1
             targets: >-
                 [
-                  {"name":"screen-chrome-harness","appDir":"packages/react-native-screen-chrome-example/apps/expo","appId":"com.reactnativescreenchromeexpoexample","prebuildCommand":"pnpm prebuild","flowsDir":"packages/react-native-screen-chrome-example/e2e/harness"}
+                  {"name":"screen-chrome-harness","appDir":"packages/react-native-screen-chrome-example/apps/expo","appId":"com.reactnativescreenchromeexpoexample","prebuildCommand":"pnpm prebuild"}
                 ]
-            flows-name-pattern: '*.yaml'
-            pre-flow-command: |
-                dest="${ARTIFACTS_DIR:-$MAESTRO_DEBUG_OUTPUT_DIRECTORY}/edge-fade"
-                mkdir -p "$dest/temporal"
-                scratch="$RUNNER_TEMP/maestro-debug-${SHARD_INDEX}-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
-                nohup bash -c 'while sleep 0.2; do find "$1" -path "*/takeScreenshot/edge-fade/*.png" -exec cp -f {} "$0" \; 2>/dev/null; find "$1" -path "*/startRecording/temporal-*.mp4" -exec cp -f {} "$0/temporal" \; 2>/dev/null; done' "$dest" "$scratch" >/dev/null 2>&1 &
             install-command: pnpm install --frozen-lockfile
             build-command: pnpm build --filter=...@rnw-community/react-native-screen-chrome-example-expo
             trigger-paths: |
                 packages/react-native-screen-chrome/**
                 packages/react-native-screen-chrome-example/**
                 .github/workflows/pr.yml
-            maestro-version: '2.8.0'
+                e2e/**
             build-timeout-minutes: 120
-            emulator-profile: Galaxy Nexus
-            emulator-slots-dir: /var/lib/mobile-ci/emulator-slots
+            android-abis: arm64-v8a
+            # The harness captures come from e2e/tests/screen-chrome-harness on an emulator leased from the simlock farm,
+            # its `android-gms` (google_apis) image: the ATD image's screenshots are blank and its recordings never finalize.
+            test-framework: e2e
+            e2e-dir: e2e
+            e2e-command: npx e2e run --target android-gms
+            e2e-runner-labels: '["self-hosted","linux-portable-2x4"]'
+            e2e-timeout-minutes: 45
+            simlock-url: https://simlock.vitaliiyehorov.dev
+        secrets:
+            simlock-token: ${{ secrets.SIMLOCK_TOKEN }}
 
     edge-fade-metrics:
         name: Edge-fade harness (${{ matrix.label }})
@@ -780,7 +820,7 @@ jobs:
               if: env.HARNESS_RESULT == 'passed'
               uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
               with:
-                  pattern: maestro-${{ matrix.platform }}*screen-chrome-harness-shard-*
+                  pattern: e2e-${{ matrix.platform }}-edge-fade--screen-chrome-harness
                   path: harness
                   merge-multiple: true
 
@@ -813,7 +853,7 @@ jobs:
     required-checks:
         name: Required checks
         if: always()
-        needs: [code-quality, package-manager-smoke, workflow-lint, nestjs-compatibility, reanimated-compatibility, screen-chrome-web-e2e, edge-fade-metrics]
+        needs: [code-quality, package-manager-smoke, workflow-lint, e2e-suite, nestjs-compatibility, reanimated-compatibility, screen-chrome-web-e2e, edge-fade-metrics]
         timeout-minutes: 5
         runs-on: [self-hosted, linux-portable-2x4]
         permissions: {}
@@ -824,6 +864,7 @@ jobs:
                     CODE_QUALITY_RESULT: ${{ needs.code-quality.result }}
                     PACKAGE_MANAGER_SMOKE_RESULT: ${{ needs.package-manager-smoke.result }}
                     WORKFLOW_LINT_RESULT: ${{ needs.workflow-lint.result }}
+                    E2E_SUITE_RESULT: ${{ needs.e2e-suite.result }}
                     NESTJS_COMPATIBILITY_RESULT: ${{ needs.nestjs-compatibility.result }}
                     REANIMATED_COMPATIBILITY_RESULT: ${{ needs.reanimated-compatibility.result }}
                     EDGE_FADE_METRICS_RESULT: ${{ needs.edge-fade-metrics.result }}
@@ -832,11 +873,12 @@ jobs:
                     echo "code-quality=${CODE_QUALITY_RESULT}"
                     echo "package-manager-smoke=${PACKAGE_MANAGER_SMOKE_RESULT}"
                     echo "workflow-lint=${WORKFLOW_LINT_RESULT}"
+                    echo "e2e-suite=${E2E_SUITE_RESULT}"
                     echo "nestjs-compatibility=${NESTJS_COMPATIBILITY_RESULT}"
                     echo "reanimated-compatibility=${REANIMATED_COMPATIBILITY_RESULT}"
                     echo "edge-fade-metrics=${EDGE_FADE_METRICS_RESULT}"
                     echo "screen-chrome-web-e2e=${SCREEN_CHROME_WEB_E2E_RESULT}"
-                    if [ "${CODE_QUALITY_RESULT}" != 'success' ] || [ "${PACKAGE_MANAGER_SMOKE_RESULT}" != 'success' ] || [ "${WORKFLOW_LINT_RESULT}" != 'success' ] || [ "${NESTJS_COMPATIBILITY_RESULT}" != 'success' ] || [ "${REANIMATED_COMPATIBILITY_RESULT}" != 'success' ] || [ "${SCREEN_CHROME_WEB_E2E_RESULT}" != 'success' ] || [ "${EDGE_FADE_METRICS_RESULT}" != 'success' ]; then
+                    if [ "${CODE_QUALITY_RESULT}" != 'success' ] || [ "${PACKAGE_MANAGER_SMOKE_RESULT}" != 'success' ] || [ "${WORKFLOW_LINT_RESULT}" != 'success' ] || [ "${E2E_SUITE_RESULT}" != 'success' ] || [ "${NESTJS_COMPATIBILITY_RESULT}" != 'success' ] || [ "${REANIMATED_COMPATIBILITY_RESULT}" != 'success' ] || [ "${SCREEN_CHROME_WEB_E2E_RESULT}" != 'success' ] || [ "${EDGE_FADE_METRICS_RESULT}" != 'success' ]; then
                       echo "::error::Required jobs did not succeed"
                       exit 1
                     fi

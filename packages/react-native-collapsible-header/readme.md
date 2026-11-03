@@ -21,7 +21,7 @@ Both come from the monorepo's
 [example app](https://github.com/rnw-community/rnw-community/tree/master/packages/react-native-collapsible-header-example)
 (Expo and bare React Native targets, `src/component/header-demo-screen.tsx` and `src/component/settings-demo-screen.tsx`)
 — copy those screens as integration templates. The example also carries the
-[Maestro E2E suite](https://github.com/rnw-community/rnw-community/tree/master/packages/react-native-collapsible-header-example/e2e)
+[e2e suite](https://github.com/rnw-community/rnw-community/tree/master/e2e/tests/collapsible-header)
 that validates the header through the accessibility tree, including the react-native-screens `freezeOnBlur` return case.
 
 ## Installation

@@ -77,7 +77,7 @@ below.
 
 ### Screenshots
 
-Recording is deferred, not dropped — capture needs the on-device Maestro fleet, tracked in
+Recording is deferred, not dropped — capture needs real payment sheets on the device farm, tracked in
 [docs/roadmap.md](docs/roadmap.md#docs). Once captured, an Apple Pay and a Google Pay sheet GIF replace this
 placeholder.
 

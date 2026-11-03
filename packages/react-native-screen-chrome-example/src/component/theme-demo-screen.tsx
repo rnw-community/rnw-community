@@ -11,6 +11,7 @@ import {
 
 import { CHROME_DEMO_STYLES as styles } from '../constant/chrome-demo-style';
 
+import { AccessibleEdgeFade } from './accessible-edge-fade';
 import { ChromeDemoList } from './chrome-demo-list';
 
 import type { ScreenChromeColorScheme } from '@rnw-community/react-native-screen-chrome';
@@ -29,7 +30,7 @@ export const ThemeDemoScreen = () => {
         <ScreenChromeProvider colorScheme={colorScheme}>
             <ScreenChromeFrame style={isDark ? styles.screenDark : styles.screenLight}>
                 <ThemeDemoContent colorScheme={colorScheme} />
-                <EdgeFade position="top" testID="theme-demo-top-fade" />
+                <AccessibleEdgeFade position="top" testID="theme-demo-top-fade" />
                 <EdgeFade position="bottom" testID="theme-demo-bottom-fade" />
                 <ScreenChromeHeader style={styles.headerBackdrop} testID="theme-demo-header">
                     <Text style={styles.slotText} testID="theme-demo-scheme">

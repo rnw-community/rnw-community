@@ -1,0 +1,13 @@
+{
+    "compilerOptions": {
+        "target": "ES2023",
+        "module": "NodeNext",
+        "moduleResolution": "NodeNext",
+        "strict": true,
+        "noEmit": true,
+        "allowImportingTsExtensions": true,
+        "skipLibCheck": true,
+        "types": ["node"]
+    },
+    "include": ["e2e.config.ts", "support/**/*.ts", "tests/**/*.ts"]
+}

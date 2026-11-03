@@ -148,7 +148,7 @@ pnpm test && pnpm test:coverage && pnpm build && pnpm ts && pnpm ts:nodenext && 
 - The edge-fade harness is the regression gate for the blur look on every platform. The example's
   `EdgeFadeDemoScreen` renders both bands (`height` 128, `chromeHeight` 32), fixed 3-point stripes and text, and a ruler
   column marking chrome and ramp rows. Every scheme/background cell explicitly configures the provider's solid and wash
-  RGB to match its dark, light or vivid screen background. `e2e/harness/edge_fade_harness.yaml` drives the unchanged
+  RGB to match its dark, light or vivid screen background. the root e2e test `e2e/tests/screen-chrome-harness/edge_fade_harness.e2e.ts` drives the unchanged
   reference/rest/scrolled state matrix on iOS and Android; `web-e2e/edge-fade-matrix.e2e.ts` drives the same static
   matrix in Chromium (headless Linux WebKit renders no `backdrop-filter`).
 - `e2e/harness/edge-fade-metrics.mjs` measures Laplacian energy, row color, known-background edge mean/variance, and the
@@ -158,7 +158,7 @@ pnpm test && pnpm test:coverage && pnpm build && pnpm ts && pnpm ts:nodenext && 
   `THRESHOLDS`: chrome zone keeps at most 0.2 of reference detail; the ramp returns to at least 0.8, loses at most 0.12,
   and rises at most 0.165 per point; its 20–80% contrast transition, measured from the physical edge across the whole band, spans at least 35% of the band; outside content keeps at least 0.85; wash shifts at most 6 levels at the inner edge
   and 3 outside; physical-edge mean is within 10 levels of the known background and deviation within 8; top/bottom
-  ramps differ at most 0.25; rest differs at most 2 levels. A separate `edge_fade_temporal_harness.yaml` scrolls a real
+  ramps differ at most 0.25; rest differs at most 2 levels. A separate `edge_fade_temporal_harness.e2e.ts` scrolls a real
   native `ScrollView` from 200 to 400 over 300 rendered frames (about five seconds at 60 Hz) with invariant vertical stripes, records six scheme/background
   cells, and CI extracts every decoded frame (`-fps_mode passthrough`) before the native metric CLI checks band spikes and background edges. The web
   matrix imports only `checkCaptureDir` and does not require temporal artifacts. Synthetic mutations cover missing

@@ -95,6 +95,6 @@ example per export), an `AGENTS.md` (layout, patterns, commands, coverage), and 
 - [react-native-payments-example](packages/react-native-payments-example/readme.md): Private, unpublished. Bare and Expo
   example apps for `react-native-payments`.
 - [react-native-collapsible-header-example](packages/react-native-collapsible-header-example/readme.md): Private,
-  unpublished. Bare and Expo example apps, Maestro e2e suite, and demo recordings for `react-native-collapsible-header`.
+  unpublished. Bare and Expo example apps, root `e2e/` tests, and demo recordings for `react-native-collapsible-header`.
 - [react-native-screen-chrome-example](packages/react-native-screen-chrome-example/readme.md): Private, unpublished. Bare
   and Expo example apps for `react-native-screen-chrome`.

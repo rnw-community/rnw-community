@@ -28,15 +28,15 @@ byte-identical, with declaration differences limited to two payments web constru
 aliases rather than inlining them, plus a few declaration maps. Bidirectional assignments between both declaration
 forms pass with TypeScript 5.9 and tsrs. Default-emit fixtures also verify legacy decorator metadata and source maps.
 
-| Automation                                                                                                       | Compiler and lint coverage                                                                             |
-| ---------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------ |
-| [PR quality and compatibility](../.github/workflows/pr.yml)                                                      | Native builds, type checks, NodeNext and typed lint; NestJS/Reanimated matrix inherits package scripts |
-| Packaged consumers (npm, yarn, pnpm, bun)                                                                        | TypeScript 5.9, native TypeScript 7 and tsrs check shipped declarations                                |
-| [Release](../.github/workflows/release.yml)                                                                      | Native builds plus type, lint, config drift and tooling regressions before coverage/publishing         |
-| [Android Maestro](../.github/workflows/android-maestro.yml), [iOS Maestro](../.github/workflows/ios-maestro.yml) | Package builds inherit tsrs; bob retains Babel for React Native JavaScript                             |
-| [Documentation media](../.github/workflows/docs-media.yml) and PR web/edge-fade builds                           | Existing package build commands inherit tsrs                                                           |
-| [VitePress documentation](../.github/workflows/docs.yml)                                                         | VitePress handles its own site build; there is no standalone TypeScript compiler command to replace    |
-| Local hooks                                                                                                      | Staged files use typed oxlint, remaining ESLint checks and Prettier                                    |
+| Automation                                                                                               | Compiler and lint coverage                                                                             |
+| -------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------ |
+| [PR quality and compatibility](../.github/workflows/pr.yml)                                              | Native builds, type checks, NodeNext and typed lint; NestJS/Reanimated matrix inherits package scripts |
+| Packaged consumers (npm, yarn, pnpm, bun)                                                                | TypeScript 5.9, native TypeScript 7 and tsrs check shipped declarations                                |
+| [Release](../.github/workflows/release.yml)                                                              | Native builds plus type, lint, config drift and tooling regressions before coverage/publishing         |
+| [Android E2E](../.github/workflows/android-maestro.yml), [iOS E2E](../.github/workflows/ios-maestro.yml) | Package builds inherit tsrs; bob retains Babel for React Native JavaScript                             |
+| [Documentation media](../.github/workflows/docs-media.yml) and PR web/edge-fade builds                   | Existing package build commands inherit tsrs                                                           |
+| [VitePress documentation](../.github/workflows/docs.yml)                                                 | VitePress handles its own site build; there is no standalone TypeScript compiler command to replace    |
+| Local hooks                                                                                              | Staged files use typed oxlint, remaining ESLint checks and Prettier                                    |
 
 The older TypeScript consumer leg and attw's own compiler remain deliberate compatibility references.
 
