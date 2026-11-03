@@ -2,7 +2,6 @@ import React from 'react';
 import { Text } from 'react-native';
 
 import {
-    EdgeFade,
     ScreenChromeFrame,
     ScreenChromeHeader,
     ScreenChromeProvider,
@@ -11,6 +10,7 @@ import {
 
 import { CHROME_DEMO_STYLES as styles } from '../constant/chrome-demo-style';
 
+import { AccessibleEdgeFade } from './accessible-edge-fade';
 import { ChromeDemoList } from './chrome-demo-list';
 
 const StaticDemoHeader = () => (
@@ -35,7 +35,7 @@ export const StaticHeaderDemoScreen = () => (
     <ScreenChromeProvider>
         <ScreenChromeFrame>
             <StaticDemoContent />
-            <EdgeFade position="top" testID="static-demo-top-fade" />
+            <AccessibleEdgeFade position="top" testID="static-demo-top-fade" />
             <StaticDemoHeader />
         </ScreenChromeFrame>
     </ScreenChromeProvider>

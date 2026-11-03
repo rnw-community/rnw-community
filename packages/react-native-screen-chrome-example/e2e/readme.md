@@ -20,6 +20,11 @@ Or directly: `maestro test -e APP_ID=<appId> e2e/flows`.
 
 ## Flows
 
+The demos render their asserted edge fades through `AccessibleEdgeFade` (`src/component/accessible-edge-fade.tsx`):
+`EdgeFade` opts out of accessibility, and the e2e suite reads the accessibility tree, so an accessible,
+`pointerEvents="none"` view with the band's own frame (`getEdgeFadeBandMetrics`) carries the fade's testID.
+
+
 - `flows/collapsible_header_snaps.yaml` — a partial drag past the title cross-fade window settles on the collapsed
   endpoint via the provider-driven snap; the small title replaces the expanded one.
 - `flows/collapsible_header_expands_on_scroll_back.yaml` — two slow drags reach the collapsed endpoint, and scrolling

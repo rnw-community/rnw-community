@@ -2,7 +2,6 @@ import React from 'react';
 import { Text } from 'react-native';
 
 import {
-    EdgeFade,
     ScreenChromeFrame,
     ScreenChromeHeader,
     ScreenChromeProvider,
@@ -11,6 +10,7 @@ import {
 
 import { CHROME_DEMO_STYLES as styles } from '../constant/chrome-demo-style';
 
+import { AccessibleEdgeFade } from './accessible-edge-fade';
 import { ChromeDemoList } from './chrome-demo-list';
 
 import type { EdgeFadeScrollAnimationInterface } from '@rnw-community/react-native-screen-chrome';
@@ -31,7 +31,11 @@ export const BottomFadeDemoScreen = () => (
     <ScreenChromeProvider>
         <ScreenChromeFrame>
             <BottomFadeDemoContent />
-            <EdgeFade position="bottom" scrollAnimation={BOTTOM_FADE_SCROLL_ANIMATION} testID="bottom-fade-demo-fade" />
+            <AccessibleEdgeFade
+                position="bottom"
+                scrollAnimation={BOTTOM_FADE_SCROLL_ANIMATION}
+                testID="bottom-fade-demo-fade"
+            />
             <ScreenChromeHeader style={styles.headerBackdrop} testID="bottom-fade-demo-header">
                 <Text style={styles.slotText} testID="bottom-fade-demo-title">
                     Activity
