@@ -3,6 +3,10 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [3.0.7](https://github.com/rnw-community/rnw-community/compare/v3.0.6...v3.0.7) (2026-11-03)
+
+**Note:** Version bump only for package rnw-community
+
 ## [3.0.6](https://github.com/rnw-community/rnw-community/compare/v3.0.5...v3.0.6) (2026-10-25)
 
 ### Bug Fixes
