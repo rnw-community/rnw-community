@@ -1,0 +1,12 @@
+{
+    "name": "rnw-community-e2e",
+    "private": true,
+    "type": "module",
+    "devDependencies": {
+        "@e2e-dev/mobile": "0.12.5",
+        "e2e": "0.22.0",
+        "agent-device": "0.21.35",
+        "@types/node": "^22.10.0",
+        "typescript": "~5.9.3"
+    }
+}

@@ -1,0 +1,63 @@
+import { randomBytes } from 'node:crypto';
+
+import { mobile } from '@e2e-dev/mobile';
+
+import { DEVICES, type Platform } from './support/devices.ts';
+import { simlockDevices } from './support/simlock/provider.ts';
+
+import type { E2EConfig } from 'e2e';
+
+const env = (name: string): string => {
+    const value = process.env[name];
+    if (value === undefined || value === '') {
+        throw new Error(`${name} is required`);
+    }
+    return value;
+};
+
+// mobile-ci runs this project once per target (`payments-bare`, `screen-chrome-harness`, …): both app builds of an
+// example package share its tests, so the target name minus its `-bare`/`-expo` suffix picks the directory.
+const suite = process.env.E2E_TARGET?.replace(/-(bare|expo)$/, '');
+
+// One agent-device session per run: simlock keys sessions by token + name, so two runs sharing a token would
+// otherwise drive each other's device. Set before the workers start, so they inherit it.
+process.env.E2E_SESSION ??= `e2e-${randomBytes(4).toString('hex')}`;
+
+const target = (name: string, platform: Platform, osVersion?: string) => ({
+    name,
+    engine: mobile({
+        platform,
+        session: process.env.E2E_SESSION,
+        device: simlockDevices({
+            url: env('SIMLOCK_URL'),
+            token: env('SIMLOCK_TOKEN'),
+            platform,
+            device: DEVICES[platform].model,
+            ...(osVersion === undefined ? {} : { osVersion }),
+        }),
+    }),
+    // E2E_APP_ID / E2E_APP_PATH: the target's app id and its repacked or built binary, set by mobile-ci's e2e job.
+    app: { bundleId: env('E2E_APP_ID'), appPath: env('E2E_APP_PATH') },
+});
+
+export default {
+    projectId: 'rnw-community',
+    tests: suite === undefined || suite === '' ? 'tests/**/*.e2e.ts' : `tests/${suite}/**/*.e2e.ts`,
+    targets: [
+        target('ios', 'ios'),
+        target('android', 'android', DEVICES.android.osVersion),
+        // The Google Pay sheet needs Google Play services, which only the farm's API 35 `google_apis` image has.
+        target('android-gms', 'android', '35'),
+    ],
+    workers: Number(process.env.E2E_WORKERS ?? 1),
+    timeout: 10 * 60_000,
+    actionTimeout: 30_000,
+    assertionTimeout: 10_000,
+    launchTimeout: 120_000,
+    cleanupTimeout: 60_000,
+    retries: Number(process.env.E2E_RETRIES ?? 0),
+    reporters: ['list', 'junit', 'markdown'],
+    trace: 'retain-on-failure',
+    video: 'off',
+    cache: 'off',
+} satisfies E2EConfig;

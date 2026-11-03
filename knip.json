@@ -4,6 +4,9 @@
         ".": {
             "entry": ["scripts/*.mjs"]
         },
+        "e2e": {
+            "entry": ["e2e.config.ts", "tests/**/*.e2e.ts"]
+        },
         "packages/decorators-core": {
             "entry": ["src/index.ts"]
         },
