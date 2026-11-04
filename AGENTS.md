@@ -524,16 +524,16 @@ https://simlock.vitaliiyehorov.dev`, secret `SIMLOCK_TOKEN`); no CI host boots a
   native fingerprint, and compile otherwise. A cold native build gets `build-timeout-minutes: 120`.
 - **iOS:** builds run on the self-hosted macOS ARM64 runners (label `macos-maestro`) with the pinned Xcode.
 - **Android:** builds compile `android-abis: arm64-v8a`, because the farm emulator is arm64.
-- **Pinning and results:** every mobile-ci workflow and action is pinned to the commit SHA of a release tag (`# v4.9.0`),
+- **Pinning and results:** every mobile-ci workflow and action is pinned to the commit SHA of a release tag (`# v4.10.0`),
   and each workflow ends with a status job
   that reports a single pass or fail. The screen-chrome targets set `tolerateTestFailures` on iOS, so their failures
   are reported as warnings and do not fail the workflow, until the Hermes heap corruption tracked in #601 is fixed.
 - **Edge-fade harness and docs media:** `pr.yml`'s `edge-fade-ios` and `edge-fade-android` jobs run
   `e2e/tests/screen-chrome-harness` (Android on `android-gms`) and upload the captures in the run's
-  `e2e-<platform>-edge-fade--screen-chrome-harness` artifact (mobile-ci names it `e2e-<platform>-<call-scope>-` plus the
-  target, hence the double dash) under `edge-fade/`. The dispatch-only `docs-media.yml`
+  `e2e-<platform>-edge-fade--screen-chrome-harness` artifact (the job downloads it through the workflow's
+  `e2e-artifact-prefix` output plus the target) under `edge-fade/`. The dispatch-only `docs-media.yml`
   records `e2e/tests/payments-media` on `android-gms` and publishes the `docs-media-payments` artifact.
-- **Running locally:** `cd e2e && npm ci`, then mobile-ci's `scripts/fetch-e2e-simlock.sh v4.9.0 .` (again after every
+- **Running locally:** `cd e2e && npm ci`, then mobile-ci's `scripts/fetch-e2e-simlock.sh v4.10.0 .` (again after every
   `npm ci`, which wipes it), then set `SIMLOCK_URL`, `SIMLOCK_TOKEN`, `E2E_APP_ID`, `E2E_APP_PATH` (a
   built `.app` or `.apk`) and optionally `E2E_TARGET` (a CI target name, to pick one suite), and run `npx e2e run
 --target ios` (or `android`, `android-gms`). A local run needs a simlock token for the farm.

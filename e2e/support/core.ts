@@ -2,7 +2,7 @@ import { copyFile, mkdir } from 'node:fs/promises';
 import { dirname, extname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { byId as firstById, scrollTo as scrollUntilVisible, tapUntil as tapUntilGone } from '@mobile-ci/e2e-simlock/steps';
+import { byId as firstById, retry, scrollTo as scrollUntilVisible, tapUntil as tapUntilGone } from '@mobile-ci/e2e-simlock/steps';
 import { expect } from 'e2e';
 
 import { DEVICES, type Platform } from './devices.ts';
@@ -77,18 +77,10 @@ export async function swipePercent(ctx: Ctx, from: Percent, to: Percent, duratio
  */
 export async function launch(ctx: Ctx, firstFrame: () => Promise<void>): Promise<void> {
     await phase('launch', async () => {
-        for (let attempt = 1; ; attempt++) {
+        await retry(2, async () => {
             await ctx.app.open();
-            try {
-                await firstFrame();
-                return;
-            } catch (error) {
-                if (attempt >= 3) {
-                    throw error;
-                }
-                console.log(`[retry] launch attempt ${attempt} showed no first frame`);
-            }
-        }
+            await firstFrame();
+        });
     });
 }
 

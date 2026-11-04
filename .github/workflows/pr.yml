@@ -546,7 +546,7 @@ jobs:
                 run: npm ci --no-audit --no-fund
 
             -   name: Install the simlock device provider
-                uses: rnw-community/mobile-ci/actions/e2e-simlock-install@6898d7c629f03307f5d4d122de173cc232188209 # v4.9.0
+                uses: rnw-community/mobile-ci/actions/e2e-simlock-install@8a1e507c416f5b6fc54b910556ca3956ff2afde1 # v4.10.0
                 with:
                     e2e-dir: e2e
 
@@ -709,7 +709,7 @@ jobs:
             contents: read
             packages: write
             actions: read
-        uses: rnw-community/mobile-ci/.github/workflows/ios-maestro.yml@6898d7c629f03307f5d4d122de173cc232188209 # v4.9.0
+        uses: rnw-community/mobile-ci/.github/workflows/ios-maestro.yml@8a1e507c416f5b6fc54b910556ca3956ff2afde1 # v4.10.0
         with:
             control-runner-labels: '["self-hosted","linux-portable-2x4"]'
             call-scope: edge-fade
@@ -742,7 +742,7 @@ jobs:
             contents: read
             packages: write
             actions: read
-        uses: rnw-community/mobile-ci/.github/workflows/android-maestro.yml@6898d7c629f03307f5d4d122de173cc232188209 # v4.9.0
+        uses: rnw-community/mobile-ci/.github/workflows/android-maestro.yml@8a1e507c416f5b6fc54b910556ca3956ff2afde1 # v4.10.0
         with:
             control-runner-labels: '["self-hosted","linux-portable-2x4"]'
             call-scope: edge-fade
@@ -820,9 +820,8 @@ jobs:
               if: env.HARNESS_RESULT == 'passed'
               uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
               with:
-                  pattern: e2e-${{ matrix.platform }}-edge-fade--screen-chrome-harness
+                  name: ${{ needs[format('edge-fade-{0}', matrix.platform)].outputs.e2e-artifact-prefix }}screen-chrome-harness
                   path: harness
-                  merge-multiple: true
 
             - name: Install ffmpeg
               if: env.HARNESS_RESULT == 'passed'

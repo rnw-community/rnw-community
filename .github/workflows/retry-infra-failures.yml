@@ -21,6 +21,6 @@ jobs:
             actions: write
             checks: read
         steps:
-            - uses: rnw-community/mobile-ci/actions/rerun-infra-failures@6898d7c629f03307f5d4d122de173cc232188209 # v4.9.0
+            - uses: rnw-community/mobile-ci/actions/rerun-infra-failures@8a1e507c416f5b6fc54b910556ca3956ff2afde1 # v4.10.0
               with:
                   run-id: ${{ github.event.workflow_run.id }}
