@@ -1,22 +1,29 @@
 name: Docs media
 
-# Regenerates the react-native-payments docs media (#469) on demand: media churn
-# is not code churn, so this never runs on push or schedule. The pull_request
-# trigger only fires when the capture plumbing itself changes, which is also the
-# only way to exercise a new version of this workflow before it reaches master.
-# mobile-ci's android-maestro.yml builds the bare app's arm64-v8a APK, and
-# e2e/tests/payments-media records the Google Pay sheet on an emulator leased
-# from the simlock farm: the `android-gms` target, the farm's image with Google
-# Play services. The ffmpeg conversion runs on the portable Linux pool.
-# iOS is not captured here yet: the farm's slimmed simulators cannot present the
-# Apple Pay sheet.
+# Regenerates the docs media on demand: media churn is not code churn, so this
+# never runs on push or schedule. The pull_request trigger only fires when the
+# capture plumbing itself changes, which is also the only way to exercise a new
+# version of this workflow before it reaches master.
+#
+# - record: the react-native-payments Google Pay sheet (#469) on the farm's
+#   `android-gms` target, from the bare app's arm64-v8a APK. The Apple Pay sheet
+#   is not captured here yet: the farm's slimmed simulators cannot present it.
+# - record-android-clips and record-ios-clips: the readme demo clips and the
+#   screen-chrome playground matrix, from the expo apps the warm-up keeps a base for.
+#
+# The ffmpeg conversions run on the portable Linux pool.
 
 on:
     workflow_dispatch:
     pull_request:
         paths:
             - .github/workflows/docs-media.yml
+            - e2e/support/media.ts
             - e2e/tests/payments-media/**
+            - e2e/tests/screen-chrome-media/**
+            - e2e/tests/screen-chrome-example-media/**
+            - e2e/tests/screen-chrome-playground/**
+            - e2e/tests/collapsible-header-media/**
 
 concurrency:
     group: docs-media-${{ github.ref }}
@@ -79,5 +86,116 @@ jobs:
               with:
                   name: docs-media-payments
                   path: media/*
+                  if-no-files-found: error
+                  retention-days: 30
+
+    record-android-clips:
+        name: Record Android readme clips
+        permissions:
+            contents: read
+            packages: write
+            actions: read
+        uses: rnw-community/mobile-ci/.github/workflows/android-maestro.yml@d8b7f0c45ff83974aa9e4e8e14ba6dbc336f8525 # v4.10.2
+        with:
+            control-runner-labels: '["self-hosted","linux-portable-2x4"]'
+            call-scope: clips
+            targets: >-
+                [{"name":"screen-chrome-media","appDir":"packages/react-native-screen-chrome-example/apps/expo","appId":"com.reactnativescreenchromeexpoexample","prebuildCommand":"pnpm prebuild"}]
+            install-command: pnpm install --frozen-lockfile
+            build-command: pnpm build --filter=...@rnw-community/react-native-screen-chrome-example-expo
+            trigger-paths: |
+                .github/workflows/docs-media.yml
+                e2e/**
+            build-timeout-minutes: 120
+            android-abis: arm64-v8a
+            test-framework: e2e
+            e2e-dir: e2e
+            e2e-command: npx e2e run --target android-pixel
+            e2e-runner-labels: '["self-hosted","linux-portable-2x4"]'
+            e2e-retries: '0'
+            e2e-timeout-minutes: 30
+            simlock-url: https://simlock.vitaliiyehorov.dev
+        secrets:
+            simlock-token: ${{ secrets.SIMLOCK_TOKEN }}
+
+    record-ios-clips:
+        name: Record iOS readme clips
+        permissions:
+            contents: read
+            packages: write
+            actions: read
+        uses: rnw-community/mobile-ci/.github/workflows/ios-maestro.yml@d8b7f0c45ff83974aa9e4e8e14ba6dbc336f8525 # v4.10.2
+        with:
+            control-runner-labels: '["self-hosted","linux-portable-2x4"]'
+            call-scope: clips
+            targets: >-
+                [
+                  {"name":"collapsible-header-media","appDir":"packages/react-native-collapsible-header-example/apps/expo","workspace":"reactnativecollapsibleheaderexpoexample.xcworkspace","scheme":"reactnativecollapsibleheaderexpoexample","appId":"com.reactnativecollapsibleheaderexpoexample","prebuildCommand":"pnpm prebuild"},
+                  {"name":"screen-chrome-example-media","appDir":"packages/react-native-screen-chrome-example/apps/expo","workspace":"reactnativescreenchromeexpoexample.xcworkspace","scheme":"reactnativescreenchromeexpoexample","appId":"com.reactnativescreenchromeexpoexample","prebuildCommand":"pnpm prebuild"},
+                  {"name":"screen-chrome-playground","appDir":"packages/react-native-screen-chrome-example/apps/expo","workspace":"reactnativescreenchromeexpoexample.xcworkspace","scheme":"reactnativescreenchromeexpoexample","appId":"com.reactnativescreenchromeexpoexample","prebuildCommand":"pnpm prebuild"}
+                ]
+            install-command: pnpm install --frozen-lockfile
+            build-command: pnpm build --filter=...@rnw-community/react-native-collapsible-header-example-expo --filter=...@rnw-community/react-native-screen-chrome-example-expo
+            trigger-paths: |
+                .github/workflows/docs-media.yml
+                e2e/**
+            build-timeout-minutes: 120
+            xcode-version: '26.4.1'
+            xcode-build: '17E202'
+            runner-labels: '["self-hosted","macOS","ARM64","macos-maestro"]'
+            test-framework: e2e
+            e2e-dir: e2e
+            e2e-runner-labels: '["self-hosted","linux-portable-2x4"]'
+            e2e-retries: '0'
+            e2e-timeout-minutes: 30
+            simlock-url: https://simlock.vitaliiyehorov.dev
+        secrets:
+            simlock-token: ${{ secrets.SIMLOCK_TOKEN }}
+
+    convert-clips:
+        name: Convert readme clips to GIF
+        needs: [record-android-clips, record-ios-clips]
+        if: needs.record-android-clips.outputs.result == 'passed' && needs.record-ios-clips.outputs.result == 'passed'
+        permissions: {}
+        runs-on: [self-hosted, linux-portable-2x4]
+        timeout-minutes: 15
+        steps:
+            - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+              with:
+                  pattern: e2e-*-clips--*
+                  path: capture
+            - name: Convert each clip to a GIF at its docs path
+              run: |
+                  set -euo pipefail
+                  command -v ffmpeg >/dev/null || { sudo apt-get update -q && sudo apt-get install -y -q ffmpeg; }
+                  converted=0
+                  for clip in capture/*/recording/*/docs/*.mp4; do
+                    test -f "$clip" || { echo "::error::no clips under capture/"; exit 1; }
+                    docs_path="${clip#capture/*/recording/}"
+                    frames=$(ffprobe -v error -count_frames -select_streams v -show_entries stream=nb_read_frames -of csv=p=0 "$clip")
+                    if [ "$frames" -lt 10 ]; then
+                      echo "::error::$docs_path has $frames frames: the recording did not capture the clip."
+                      exit 1
+                    fi
+                    case "$docs_path" in
+                      react-native-screen-chrome-example/*) width=360 ;;
+                      *) width=320 ;;
+                    esac
+                    gif="media/packages/${docs_path%.mp4}.gif"
+                    mkdir -p "$(dirname "$gif")"
+                    ffmpeg -y -loglevel error -i "$clip" \
+                      -vf "fps=12,scale=$width:-2:flags=lanczos,split[a][b];[a]palettegen[p];[b][p]paletteuse" \
+                      -loop 0 "$gif"
+                    converted=$((converted + 1))
+                  done
+                  if [ "$converted" -ne 11 ]; then
+                    echo "::error::converted $converted clips, expected 11."
+                    exit 1
+                  fi
+                  find media -type f -exec ls -la {} +
+            - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+              with:
+                  name: docs-media-clips
+                  path: media/
                   if-no-files-found: error
                   retention-days: 30

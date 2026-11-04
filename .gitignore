@@ -17,7 +17,6 @@ lerna-debug.log*
 .jscpd
 report
 .gradle
-maestro_output
 *.keystore
 *.jsx
 *.d.ts

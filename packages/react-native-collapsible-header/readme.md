@@ -159,7 +159,7 @@ When a `testID` is set, every layer derives its own: `{testID}-background`, `{te
 `{testID}-collapsed`, `{testID}-persistent` (when persistent content exists), and `{testID}-collapsed-clip` (when
 `collapsedTransition` is `'roll'`). Query them in React Native Testing
 Library with `{ includeHiddenElements: true }` — the invisible layer is accessibility-hidden by design — or target them
-directly from Maestro/Detox flows.
+directly from end-to-end tests.
 
 ## CollapsibleHeaderProps
 

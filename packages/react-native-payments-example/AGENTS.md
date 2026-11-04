@@ -80,7 +80,7 @@ published.
   flow-state/can-make-status labels, never native dialogs directly — except the iOS branches, which briefly assert
   against the PassKit sheet's own accessibility tree (`dismissIosSheet`) purely to dismiss it, since iOS blocks UI-test
   tooling from querying the app's own tree while that sheet is presented.
-- `.github/workflows/ios-maestro.yml` ("iOS E2E") and `android-maestro.yml` ("Android E2E") at the repo root run this
+- `.github/workflows/ios-e2e.yml` ("iOS E2E") and `android-e2e.yml` ("Android E2E") at the repo root run this
   suite per target (`payments-bare`/`payments-expo`) on devices leased from the simlock farm, gated by a
   turbo-`--affected` check against every target's app workspace. iOS leases a full, unslimmed simulator (PassKit);
   Android runs on the API 34 `aosp_atd` image, which has no Google Play services. See the root `AGENTS.md`

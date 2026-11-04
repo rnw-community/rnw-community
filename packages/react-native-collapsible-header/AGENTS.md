@@ -219,6 +219,6 @@ The package builds with `react-native-builder-bob` — the React Native library 
 
 `packages/react-native-collapsible-header-example` (private, mirrors `react-native-payments-example`) carries the
 runnable demo — provider wiring, snap, overscroll stretch, progress-driven slot animation, persistent actions — on
-Expo and bare React Native targets, plus the manual Maestro recording flow (`e2e/recording/demo_capture.yaml`) that
-produces `docs/collapsible-header-demo.gif` embedded in this package's readme. Its e2e suite is the root
+Expo and bare React Native targets, and the root `e2e/tests/collapsible-header-media` suite records
+`docs/collapsible-header-demo.gif`, embedded in this package's readme, through `docs-media.yml`. Its e2e suite is the root
 `e2e/tests/collapsible-header`.
