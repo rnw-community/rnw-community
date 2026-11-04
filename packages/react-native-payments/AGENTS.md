@@ -184,3 +184,5 @@ Uses `"lib": ["es2021", "DOM"]` in all tsconfigs (needs DOM types for W3C Paymen
 
 Unit tests cover the JS layer at 100%. On-device verification runs in CI through the root `e2e/tests/payments` suite, on
 devices leased from the simlock farm; see [react-native-payments-example/e2e/readme.md](../react-native-payments-example/e2e/readme.md).
+It does not cover the round trips only a user-driven native sheet dispatches (a picked shipping address or option,
+async `updateWith` completion): that readme documents the gap.
