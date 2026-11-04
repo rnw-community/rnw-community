@@ -109,4 +109,4 @@ Keep the set moving together: bump every pin to the same contemporaneous patch l
 `@react-navigation/native-stack`, `react-native-screens`, `react-native-safe-area-context`.
 
 This is an example/demo package — no unit tests, no build, no publish. Its e2e suite lives in the repo root
-`e2e/tests/collapsible-header`; its own `e2e/` carries the manual recording flow behind the library readme's demo GIF.
+`e2e/tests/collapsible-header`; `e2e/tests/collapsible-header-media`, run by `docs-media.yml`, records the library readme's demo GIF.

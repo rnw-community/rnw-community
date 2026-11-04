@@ -85,7 +85,8 @@ Three capture suites run through the dispatch-only `docs-media.yml`, never the P
   `google_apis`, real animations), the shape of the GIFs in `packages/react-native-screen-chrome/docs/`.
 - `screen-chrome-example-media/collapsible_header.e2e.ts` — the iOS clip for this package's own readme.
 - `screen-chrome-playground/playground_matrix.e2e.ts` — every playground cell on iOS, with stills from the XCTest runner.
-  Measure them with `node e2e/harness/playground-metrics.mjs <the artifact's playground directory>`.
+  Measure them from the repository root with
+  `node packages/react-native-screen-chrome-example/e2e/harness/playground-metrics.mjs <the artifact's playground directory>`.
 
 The run's `docs-media-clips` artifact holds each GIF at its path under `packages/`, ready to copy into the repository.
 
