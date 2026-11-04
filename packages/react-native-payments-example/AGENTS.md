@@ -90,7 +90,7 @@ published.
 
 Target scripts live on this package and delegate to the nested workspaces: `ios:bare`, `android:bare`, `start:bare`,
 `ios:expo`, `android:expo`, `start:expo`, `prebuild:expo`. `ts`, `lint`, `lint:fix` and `format` cover `src` only.
-The e2e tests run from the repo root `e2e/` project (`cd e2e && npm ci`, then mobile-ci's `fetch-e2e-simlock.sh v4.10.0 .` for the device provider, then `npx e2e run --target ios|android` with
+The e2e tests run from the repo root `e2e/` project (`cd e2e && npm ci`, then mobile-ci's `fetch-e2e-simlock.sh v4.10.2 .` for the device provider, then `npx e2e run --target ios|android` with
 `SIMLOCK_URL`, `SIMLOCK_TOKEN`, `E2E_APP_ID`, `E2E_APP_PATH` and `E2E_TARGET=payments-bare` set) against a built
 `.app`/`.apk`; see `e2e/readme.md`.
 
