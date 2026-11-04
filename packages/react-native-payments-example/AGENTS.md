@@ -29,9 +29,6 @@ apps/
   expo/                          — @rnw-community/react-native-payments-example-expo (Expo)
     index.js, app.json, babel.config.js, metro.config.js, assets/
 e2e/
-  recording/                     — android_sheet_capture.yaml, a manual Maestro capture superseded by the root
-                                   e2e/tests/payments-media test that docs-media.yml runs
-  subflows/                      — Maestro steps that capture flow includes via `runFlow`, never run standalone
   readme.md                      — test inventory, APP_ID table per target/platform, and the two documented
                                    E2E coverage gaps (iOS PassKit sheet sandboxes the app's own accessibility
                                    tree while presented; native-sheet-driven completion is out of reach on a

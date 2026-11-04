@@ -85,7 +85,7 @@ below.
 
 ### Screenshots
 
-Recording is deferred, not dropped — capture needs the on-device Maestro fleet, tracked in
+Recording is deferred, not dropped — capture needs real payment sheets on the device farm, tracked in
 [docs/roadmap.md](docs/roadmap.md#docs). Once captured, an Apple Pay and a Google Pay sheet GIF replace this
 placeholder.
 
@@ -3081,10 +3081,11 @@ the assertions need real token/address fields.
 
 ## End-to-end verification
 
-Unit tests cover the JS layer at 100%; on-device verification of the event API (sheet opens, shipping/coupon
-change round-trip, async `updateWith` completion) runs locally through the Maestro flow suite in
-[react-native-payments-example/e2e/readme.md](../react-native-payments-example/e2e/readme.md), but is not
-yet wired into CI — tracked in [#395](https://github.com/rnw-community/rnw-community/issues/395).
+Unit tests cover the JS layer at 100%. On-device, the e2e suite documented in
+[react-native-payments-example/e2e/readme.md](../react-native-payments-example/e2e/readme.md) runs in CI on iOS
+and Android devices leased from the simlock farm: sheet presentation, listener wiring and the `show`/`abort`/`reset`
+state transitions. The round trips only a user-driven native sheet dispatches (a picked shipping address or option,
+async `updateWith` completion) stay the documented gap that readme describes.
 
 ---
 
@@ -4020,8 +4021,8 @@ readme](readme.md) links here instead of carrying its own TODO ledger.
 ### Payment sheet GIFs — [#469](https://github.com/rnw-community/rnw-community/issues/469)
 
 Android capture is automated: dispatch the `docs-media.yml` workflow. It builds the bare example APK, runs
-[`e2e/recording/android_sheet_capture.yaml`](../react-native-payments-example/e2e/readme.md#layout) on the
-self-hosted Android emulator fleet, and uploads `google-pay-sheet.mp4` plus an ffmpeg-converted GIF as the
+[`e2e/tests/payments-media/google_pay_sheet.e2e.ts`](../react-native-payments-example/e2e/readme.md#layout) on the
+simlock farm's `android-gms` emulator, and uploads `google-pay-sheet.mp4` plus an ffmpeg-converted GIF as the
 `docs-media-payments` artifact.
 
 Remaining before the GIFs replace the [Screenshots](readme.md#screenshots) placeholder:
@@ -4029,8 +4030,8 @@ Remaining before the GIFs replace the [Screenshots](readme.md#screenshots) place
 - **Android**: the CI emulator has no Google account, so Google Pay answers `show()` with its "Google Pay requires a
   Google account to be set up on this device" dialog instead of the payment sheet. A recording of the real sheet
   needs an emulator image signed into a test Google account.
-- **iOS**: the Apple Pay loop needs the macOS Maestro fleet; add an iOS job to `docs-media.yml` once that fleet is
-  available.
+- **iOS**: the Apple Pay loop needs a full (unslimmed) simulator, which the simlock farm now leases to the payments
+  e2e suite; add an iOS capture to `docs-media.yml` on one.
 
 ## Native
 
@@ -4048,7 +4049,7 @@ see [guides/change-events.md](docs/guides/change-events.md#android). Outcome of 
   shipping intents; it is answered `SUCCESS` immediately today. Routing it to `PaymentResponse.complete()` /
   `retry()` would give Android an in-sheet authorization result, but changes when `show()` resolves.
 - **On-device verification** with a signed-in Google account and a TEST-environment card is pending the Android
-  Maestro suite ([#393](https://github.com/rnw-community/rnw-community/issues/393)).
+  e2e suite ([#393](https://github.com/rnw-community/rnw-community/issues/393)).
 
 ### Native modernization — [#442](https://github.com/rnw-community/rnw-community/issues/442)
 
@@ -4072,7 +4073,7 @@ Spike findings (decision recorded on the issue):
   the consuming app's root project (React Native 0.86 apps already define it).
 - **`AppDelegate.h` PassKit import: dropped.** `react-native-payments.podspec` declares
   `s.frameworks = "PassKit", "Contacts"`, linking the framework at the Pod target level, and the bare example's
-  `AppDelegate.swift` (RN 0.86 community template) builds and passes the iOS Maestro suite without `import PassKit`.
+  `AppDelegate.swift` (RN 0.86 community template) builds and passes the iOS e2e suite without `import PassKit`.
   An `AppDelegate` import only matters when the app's own delegate code references PassKit symbols.
 
 ## W3C compliance checklist

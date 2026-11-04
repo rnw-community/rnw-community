@@ -10,7 +10,6 @@ async function acceptAndroidAlert(ctx: Ctx): Promise<void> {
     }
 }
 
-/** subflows/launch_and_wait_for_probe */
 export async function launchAndWaitForProbe(ctx: Ctx): Promise<void> {
     await launch(ctx, async () => {
         await acceptAndroidAlert(ctx);
@@ -23,7 +22,6 @@ export async function launchAndWaitForProbe(ctx: Ctx): Promise<void> {
     });
 }
 
-/** subflows/show_request */
 export async function showRequest(ctx: Ctx): Promise<void> {
     await phase('show request', async () => {
         await scrollTo(ctx, byId(ctx, 'action-show'), 'up');
@@ -32,7 +30,7 @@ export async function showRequest(ctx: Ctx): Promise<void> {
     });
 }
 
-/** subflows/dismiss_ios_sheet: the PassKit sheet's own `dismiss` button; its first presentation has taken over a minute. */
+/** The PassKit sheet's own `dismiss` button; its first presentation has taken over a minute. */
 export async function dismissIosSheet(ctx: Ctx): Promise<void> {
     if (ctx.platform !== 'ios') {
         return;
