@@ -1184,7 +1184,7 @@ describe('PaymentRequest', () => {
             const getSerializedAndroidMethodData = async (
                 requestMethodData: AndroidPaymentMethodDataInterface
             ): Promise<AndroidPaymentDataRequest> => {
-                jest.mocked(NativePayments.canMakePayments).mockResolvedValue(true);
+                jest.mocked(NativePayments.canMakePayments).mockClear().mockResolvedValue(true);
 
                 await new PaymentRequest([requestMethodData], paymentDetails).canMakePayment();
 
@@ -1427,7 +1427,7 @@ describe('PaymentRequest', () => {
         const getSerializedIosMethodData = async (
             requestMethodData: IosPaymentMethodDataInterface
         ): Promise<IosPaymentDataRequest> => {
-            jest.mocked(NativePayments.canMakePayments).mockResolvedValue(true);
+            jest.mocked(NativePayments.canMakePayments).mockClear().mockResolvedValue(true);
 
             await new PaymentRequest([requestMethodData], paymentDetails).canMakePayment();
 
