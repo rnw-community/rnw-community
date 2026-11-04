@@ -672,6 +672,9 @@ export class PaymentRequest {
                         allowedCardNetworks: getAndroidCardNetworks(methodData.supportedNetworks),
                         allowedAuthMethods:
                             methodData.allowedAuthMethods ?? defaultAndroidPaymentMethod.parameters.allowedAuthMethods,
+                        ...(isNotEmptyArray(methodData.supportedCountries) && {
+                            allowedIssuerCountryCodes: methodData.supportedCountries,
+                        }),
                         ...(isBillingRequired && {
                             billingAddressRequired: true,
                             billingAddressParameters: {
@@ -749,6 +752,7 @@ export class PaymentRequest {
                 requiredBillingContactFields: [IOSPKContactField.PKContactFieldPostalAddress],
             }),
             ...(isShippingRequested && { requiredShippingContactFields: requestedShippingFields }),
+            ...(isNotEmptyArray(methodData.supportedCountries) && { supportedCountries: methodData.supportedCountries }),
             ...(isDefined(methodData.applicationData) && { applicationData: methodData.applicationData }),
             ...(isNotEmptyString(methodData.couponCode) && { couponCode: methodData.couponCode }),
             ...(isDefined(methodData.shippingType) && { shippingType: methodData.shippingType }),

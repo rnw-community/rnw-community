@@ -22,6 +22,7 @@ createApplePayMethodData(options: ApplePayMethodDataOptions): IosPaymentMethodDa
 | `currencyCode`         | yes      | —                                                                                                                                    |
 | `supportedNetworks`    | no       | `[SupportedNetworkEnum.Visa, SupportedNetworkEnum.Mastercard]`                                                                       |
 | `merchantCapabilities` | no       | Left unset — the request then uses `3DS`, `Debit` and `Credit`, see [ios-pk-merchant-capability.md](./ios-pk-merchant-capability.md) |
+| `supportedCountries`   | no       | Left unset — cards from every issuer country are accepted, see [platforms/ios.md](../platforms/ios.md#capabilities)                  |
 
 The function is pure: it has no native call, no platform check, and every result has its own `supportedNetworks`
 array.
