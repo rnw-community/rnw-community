@@ -1,6 +1,7 @@
+import { leaseIdForUdid, mustExec, simlockApiFromEnv } from '@mobile-ci/e2e-simlock/exec';
 import { done } from '@mobile-ci/e2e-simlock/steps';
 
-import { byId, expectId, sleep, swipePercent, tapId } from '../../support/core.ts';
+import { expectId, sleep, swipePercent, tapId } from '../../support/core.ts';
 import { onPixel, recordClip } from '../../support/media.ts';
 import { openDemo } from '../../support/screen-chrome.ts';
 import { test } from '../../support/test.ts';
@@ -71,9 +72,17 @@ test('screen chrome tab bar clip', async ({ ctx: raw }) => {
 test('screen chrome keyboard footer clip', async ({ ctx: raw }) => {
     const ctx = onPixel(raw);
     await openDemo(ctx, 'keyboard', 'keyboard-demo-input');
+    // agent-device selects its own input method when the app launches, and it draws nothing. The clip exists to show the
+    // real keyboard, so select that afterwards and type through the shell, because agent-device's typing switches back.
+    const api = simlockApiFromEnv();
+    const lease = await leaseIdForUdid(api, ctx.device.unstable_raw.deviceId);
+    await mustExec(api, lease, ['shell', 'ime set com.google.android.inputmethod.latin/com.android.inputmethod.latin.LatinIME']);
+    await sleep(1_500);
     await recordClip(ctx, docs('keyboard-footer'), async () => {
         await tapId(ctx, 'keyboard-demo-input');
-        await byId(ctx, 'keyboard-demo-input').pressSequentially('hello');
+        await sleep(3_000);
+        await mustExec(api, lease, ['shell', 'input text hello']);
+        await sleep(1_000);
         await tapId(ctx, 'keyboard-demo-send');
         await done(ctx);
         await expectId(ctx, 'keyboard-demo-last-sent');
