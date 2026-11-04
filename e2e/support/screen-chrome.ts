@@ -1,6 +1,6 @@
 import { byId, expectId, launch, phase, swipePercent, tapId, type Ctx } from './core.ts';
 
-/** subflows/launch_home: the demo picker's first frame. */
+/** The demo picker's first frame. */
 export async function launchHome(ctx: Ctx): Promise<void> {
     await launch(ctx, () => expectId(ctx, 'home-open-collapsible', 60_000));
     await expectId(ctx, 'home-open-static-header');
@@ -15,7 +15,7 @@ export async function openDemo(ctx: Ctx, entry: string, readyId: string): Promis
 }
 
 /**
- * subflows/collapse_then_expand: two slow full drags collapse the `header` demo header; slow drags carry no fling,
+ * Two slow full drags collapse the `header` demo header; slow drags carry no fling,
  * so one drag back cannot undo two: keep dragging back (at most four times) until the expanded title returns.
  */
 export async function collapseThenExpand(ctx: Ctx, header: string): Promise<void> {

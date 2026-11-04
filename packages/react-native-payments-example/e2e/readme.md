@@ -1,8 +1,7 @@
 # react-native-payments-example — e2e
 
 The CI end-to-end tests for this package live in the repo root [`e2e/`](../../../e2e) project, under
-[`e2e/tests/payments/`](../../../e2e/tests/payments): one `<flow>.e2e.ts` per scenario, with the shared steps (the former
-Maestro subflows) in [`e2e/support/payments.ts`](../../../e2e/support/payments.ts). Every test targets the same file
+[`e2e/tests/payments/`](../../../e2e/tests/payments): one `<flow>.e2e.ts` per scenario, with the shared steps in [`e2e/support/payments.ts`](../../../e2e/support/payments.ts). Every test targets the same file
 regardless of app target (`apps/bare` / `apps/expo`) or platform (iOS / Android) — only the app id, the binary and the
 leased device change; platform differences inside a test branch on `ctx.platform` rather than duplicated files. The
 devices are leased from the simlock farm; no CI host boots a simulator or emulator.
@@ -21,10 +20,7 @@ runs the test on the farm's `android-gms` target (API 35 `google_apis`, with Goo
 `recording/google-pay-sheet.mp4` into the `docs-media-payments` artifact (`google-pay-sheet.mp4` plus an
 ffmpeg-converted GIF) for `packages/react-native-payments/docs/assets/`. The farm's emulator has no Google account, so
 tapping `action-show` shows Google Play services' "Google Pay requires a Google account to be set up on this device."
-dialog rather than a payment sheet — the same thing the previous Maestro capture recorded.
-
-This package's own `e2e/` keeps only manual Maestro tooling, never run in CI: `recording/android_sheet_capture.yaml`
-(superseded by `e2e/tests/payments-media`) and the `subflows/` it includes.
+dialog rather than a payment sheet.
 
 ## Running
 
@@ -115,7 +111,7 @@ before re-reading `payments-flow-state`, since after a downward scroll the statu
 ## Documented gap: the PassKit sheet sandboxes the app's accessibility tree (iOS)
 
 While a `PKPaymentAuthorizationController` sheet is presented, iOS blocks UI-test tooling (XCUITest, which agent-device
-reads just as Maestro did) from querying the hosting app's accessibility tree at all — the tree returns only the sheet's
+reads) from querying the hosting app's accessibility tree at all — the tree returns only the sheet's
 own elements (`dismiss`, `pass`, `total`, …), none of the app's. The app itself behaves correctly the whole time —
 `payments-flow-state` renders `showing`, `listeners attached` logs, the request eventually settles — but none of that is
 _observable_ by the tests until the sheet closes. The sheet's own tree **is** reliably driveable (six tests use its

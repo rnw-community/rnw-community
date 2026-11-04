@@ -29,8 +29,6 @@ apps/
 e2e/
   recording/                     — demo_capture.yaml and settings_capture.yaml, manual Maestro flows that produce the
                                    readme demo videos (not assertion flows, not run in CI)
-  subflows/                      — launch_header_demo, collapse_header: Maestro steps the capture flows include via
-                                   `runFlow`
   readme.md                      — test inventory, APP_ID table, and the accessibility-tree visibility semantics
 ```
 

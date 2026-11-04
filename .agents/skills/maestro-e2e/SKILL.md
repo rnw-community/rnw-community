@@ -21,7 +21,7 @@ When dealing with native permission dialogs, load the [./rules/permissions.md](.
 
 When working with Flutter apps, load the [./rules/platforms/flutter.md](./rules/platforms/flutter.md) file for Semantics patterns.
 
-When testing `packages/react-native-payments-example` in this repo, load the [./rules/rnw-community.md](./rules/rnw-community.md) file first for the package's app targets, appIds, flow layout, local run scripts, fleet labels, and artifact locations.
+When working on the manual capture flows in this repo, load the [./rules/rnw-community.md](./rules/rnw-community.md) file first for where they live.
 
 ## How to use
 
@@ -29,7 +29,7 @@ Read individual rule files for detailed explanations and code examples:
 
 ### This repository
 
-- [rules/rnw-community.md](rules/rnw-community.md) - `packages/react-native-payments-example` app targets, appIds, flow layout, local run scripts (`pnpm e2e:ios:bare` and siblings), self-hosted fleet labels, and CI artifact locations
+- [rules/rnw-community.md](rules/rnw-community.md) - The manual capture flows this repo still runs on Maestro
 
 ### Core
 

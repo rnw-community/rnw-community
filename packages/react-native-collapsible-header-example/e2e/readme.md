@@ -3,7 +3,7 @@
 The CI end-to-end tests exercise `@rnw-community/react-native-collapsible-header` through the shared demo screen. They
 live in the repo root [`e2e/`](../../../e2e) project, under
 [`e2e/tests/collapsible-header/`](../../../e2e/tests/collapsible-header), one `<flow>.e2e.ts` per scenario, with the
-shared steps (the former Maestro subflows) in
+shared steps in
 [`e2e/support/collapsible-header.ts`](../../../e2e/support/collapsible-header.ts). The iOS E2E and Android E2E workflows
 run them on devices leased from the simlock farm; no CI host boots a simulator or emulator.
 
@@ -52,9 +52,6 @@ This package's own `e2e/` keeps only manual Maestro tooling, never run in CI:
 - `recording/demo_capture.yaml` and `recording/settings_capture.yaml` — not assertion flows; they drive the
   collapse/expand/overscroll gestures between `startRecording`/`stopRecording` to produce the readme demo videos
   (convert with ffmpeg to `packages/react-native-collapsible-header/docs/collapsible-header-demo.gif`).
-- `subflows/launch_header_demo.yaml` (launch + first-frame wait) and `subflows/collapse_header.yaml` (drive a screen to
-  the collapsed endpoint, parameterized by the `COLLAPSED_ID` the caller waits for) — included by the capture flows via
-  `runFlow`, never run standalone.
 
 ## Waits are liveness bounds, not performance budgets
 

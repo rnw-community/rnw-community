@@ -21,8 +21,8 @@ readme](../readme.md) links here instead of carrying its own TODO ledger.
 ### Payment sheet GIFs — [#469](https://github.com/rnw-community/rnw-community/issues/469)
 
 Android capture is automated: dispatch the `docs-media.yml` workflow. It builds the bare example APK, runs
-[`e2e/recording/android_sheet_capture.yaml`](../../react-native-payments-example/e2e/readme.md#layout) on the
-self-hosted Android emulator fleet, and uploads `google-pay-sheet.mp4` plus an ffmpeg-converted GIF as the
+[`e2e/tests/payments-media/google_pay_sheet.e2e.ts`](../../react-native-payments-example/e2e/readme.md#layout) on the
+simlock farm's `android-gms` emulator, and uploads `google-pay-sheet.mp4` plus an ffmpeg-converted GIF as the
 `docs-media-payments` artifact.
 
 Remaining before the GIFs replace the [Screenshots](../readme.md#screenshots) placeholder:
@@ -73,7 +73,7 @@ Spike findings (decision recorded on the issue):
       the consuming app's root project (React Native 0.86 apps already define it).
 - **`AppDelegate.h` PassKit import: dropped.** `react-native-payments.podspec` declares
   `s.frameworks = "PassKit", "Contacts"`, linking the framework at the Pod target level, and the bare example's
-  `AppDelegate.swift` (RN 0.86 community template) builds and passes the iOS Maestro suite without `import PassKit`.
+  `AppDelegate.swift` (RN 0.86 community template) builds and passes the iOS e2e suite without `import PassKit`.
   An `AppDelegate` import only matters when the app's own delegate code references PassKit symbols.
 
 ## W3C compliance checklist

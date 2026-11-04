@@ -538,7 +538,7 @@ https://simlock.vitaliiyehorov.dev`, secret `SIMLOCK_TOKEN`); no CI host boots a
   built `.app` or `.apk`) and optionally `E2E_TARGET` (a CI target name, to pick one suite), and run `npx e2e run
 --target ios` (or `android`, `android-gms`). A local run needs a simlock token for the farm.
 - **Maestro:** only the manual readme demo-GIF capture flows (`packages/*-example/e2e/recording/`, the screen-chrome
-  example's `e2e/manual/`, and the `e2e/subflows/` they use) still use Maestro; they are run by hand, never in CI. The
+  example's `e2e/manual/`, and that example's `e2e/subflows/`) still use Maestro; they are run by hand, never in CI. The
   `.agents/skills/maestro-e2e` skill covers them.
 
 ## PR Review & Merge Policy

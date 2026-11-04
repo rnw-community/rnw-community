@@ -37,7 +37,7 @@ e2e/
                                    (`e2e:harness:check`), platform baselines
   recording/                     — manual Maestro capture-only flows for readme GIFs (not run in CI)
   manual/                        — manual Maestro playground matrix and its metrics (not run in CI)
-  subflows/                      — launch_home, launch_collapsible_demo, collapse_then_expand: Maestro steps the
+  subflows/                      — launch_home, launch_collapsible_demo: Maestro steps the
                                    capture flows include
   readme.md                      — test inventory and appId table
 ```

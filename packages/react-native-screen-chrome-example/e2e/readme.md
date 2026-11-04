@@ -3,7 +3,7 @@
 The CI end-to-end tests exercise `@rnw-community/react-native-screen-chrome` through the shared demo screens. They live
 in the repo root [`e2e/`](../../../e2e) project: [`e2e/tests/screen-chrome/`](../../../e2e/tests/screen-chrome) (the
 functional suite) and [`e2e/tests/screen-chrome-harness/`](../../../e2e/tests/screen-chrome-harness) (the edge-fade
-harness), one `<flow>.e2e.ts` per scenario, with the shared steps (the former Maestro subflows) in
+harness), one `<flow>.e2e.ts` per scenario, with the shared steps in
 [`e2e/support/screen-chrome.ts`](../../../e2e/support/screen-chrome.ts),
 [`edge-fade.ts`](../../../e2e/support/edge-fade.ts) and [`edge-fade-plan.ts`](../../../e2e/support/edge-fade-plan.ts).
 Devices are leased from the simlock farm; no CI host boots a simulator or emulator.
@@ -86,10 +86,8 @@ This package's own `e2e/` keeps manual Maestro tooling, never run in CI, alongsi
   `keyboard_capture`, `theme_capture`). Each opens its screen, then drives the gestures between
   `startRecording`/`stopRecording`, mirroring the collapsible-header example.
 - `manual/` — `playground_matrix.yaml` and its `playground-metrics.mjs`.
-- `subflows/` — `launch_home.yaml` (launch + first-frame wait on the demo picker), `launch_collapsible_demo.yaml` (opens
-  the collapsible-header screen and waits for its first frame) and `collapse_then_expand.yaml` (collapses a demo
-  collapsible header and scrolls back until it expands, parameterized by the `HEADER` testID prefix), included by the
-  flows above via `runFlow`.
+- `subflows/` — `launch_home.yaml` (launch + first-frame wait on the demo picker) and `launch_collapsible_demo.yaml`
+  (opens the collapsible-header screen and waits for its first frame), included by the flows above via `runFlow`.
 
 To record a readme GIF, with the app installed on a booted emulator or simulator, run one capture flow at a time:
 
