@@ -27,7 +27,7 @@ dialog rather than a payment sheet.
 ```bash
 cd e2e && npm ci
 # @mobile-ci/e2e-simlock ships in mobile-ci, not on npm: install it from the tag the workflows pin, after every npm ci.
-curl -fsSL https://raw.githubusercontent.com/rnw-community/mobile-ci/v4.11.0/scripts/fetch-e2e-simlock.sh | bash -s v4.11.0 .
+curl -fsSL https://raw.githubusercontent.com/rnw-community/mobile-ci/v4.11.1/scripts/fetch-e2e-simlock.sh | bash -s v4.11.1 .
 SIMLOCK_URL=https://simlock.vitaliiyehorov.dev SIMLOCK_TOKEN=<token> E2E_TARGET=payments-bare \
   E2E_APP_ID=<target appId> E2E_APP_PATH=<built .app or .apk> npx e2e run --target ios   # or android
 ```

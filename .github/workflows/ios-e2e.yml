@@ -28,7 +28,7 @@ jobs:
             contents: read
             packages: write
             actions: read
-        uses: rnw-community/mobile-ci/.github/workflows/ios-maestro.yml@7ee29bef4965a29e10f20396ec7b56da15218f45 # v4.11.0
+        uses: rnw-community/mobile-ci/.github/workflows/ios-maestro.yml@f42a0f863990b5da40b35261f7d610e42215313e # v4.11.1
         with:
             control-runner-labels: '["self-hosted","linux-portable-2x4"]'
             targets: >-
