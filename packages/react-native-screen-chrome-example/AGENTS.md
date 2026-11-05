@@ -34,11 +34,8 @@ apps/
                                    come from `expo prebuild`)
 e2e/
   harness/                       — edge-fade-metrics.mjs (shared pixel metrics), its mutation tests
-                                   (`e2e:harness:check`), platform baselines
-  recording/                     — manual Maestro capture-only flows for readme GIFs (not run in CI)
-  manual/                        — manual Maestro playground matrix and its metrics (not run in CI)
-  subflows/                      — launch_home, launch_collapsible_demo: Maestro steps the
-                                   capture flows include
+                                   (`e2e:harness:check`), platform baselines, playground-metrics.mjs (the playground
+                                   matrix's metrics, run by hand)
   readme.md                      — test inventory and appId table
 ```
 
@@ -64,7 +61,7 @@ shared steps in `e2e/support/screen-chrome.ts`, `edge-fade.ts` and `edge-fade-pl
 
 ## CI coverage
 
-Both e2e workflows (`.github/workflows/ios-maestro.yml`, `android-maestro.yml`) run this package's `screen-chrome-bare` and `screen-chrome-expo` targets, and run every
+Both e2e workflows (`.github/workflows/ios-e2e.yml`, `android-e2e.yml`) run this package's `screen-chrome-bare` and `screen-chrome-expo` targets, and run every
 example package's suite when any target's app package is affected. On iOS both targets set `tolerateTestFailures`
 until #601 is fixed.
 

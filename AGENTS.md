@@ -490,9 +490,9 @@ The monorepo uses dual ESM + CJS output. Rules:
 
 ## Mobile CI (E2E)
 
-Two workflows, `.github/workflows/ios-maestro.yml` ("iOS E2E") and `.github/workflows/android-maestro.yml` ("Android
+Two workflows, `.github/workflows/ios-e2e.yml` ("iOS E2E") and `.github/workflows/android-e2e.yml` ("Android
 E2E"), run the end-to-end suites. Each is a thin caller of the [`rnw-community/mobile-ci`](https://github.com/rnw-community/mobile-ci)
-reusable workflow of the same name, pinned to a commit SHA, with one call per platform and `test-framework: e2e`. Its
+reusable workflow for that platform, pinned to a commit SHA, with one call per platform and `test-framework: e2e`. Its
 `targets` list covers every example package (payments, collapsible-header and screen-chrome) for both the `bare` and
 `expo` app targets. To add an example package, add its targets to both workflows and its tests under `e2e/tests/`.
 Planning, building, installing the app, running the suite and uploading the artifacts all happen inside the reusable
@@ -501,9 +501,10 @@ workflows.
 - **The e2e project:** the tests live in `e2e/` at the repo root, a standalone npm project (its own `package.json` and
   `package-lock.json`, not a pnpm workspace member). `e2e/tests/<suite>/<flow>.e2e.ts` holds one test per scenario;
   `e2e/support/<suite>.ts` holds the shared steps and `e2e/support/core.ts` the common helpers. Devices come from
-  `@mobile-ci/e2e-simlock` (its `simlockDevices` provider and its Maestro-compatible `/steps`), which mobile-ci ships and
+  `@mobile-ci/e2e-simlock` (its `simlockDevices` provider and its `/steps`), which mobile-ci ships and
   installs into `e2e/node_modules` from the workflow's own tag; nothing in this repo copies it. The suites are `payments`, `collapsible-header`, `screen-chrome`,
-  `screen-chrome-harness` (the edge-fade harness) and `payments-media` (the docs-media Google Pay capture).
+  `screen-chrome-harness` (the edge-fade harness), `payments-media` (the docs-media Google Pay capture), and the readme
+  captures: `screen-chrome-media`, `screen-chrome-example-media`, `collapsible-header-media` and `screen-chrome-playground`.
 - **Devices:** every device is leased from the Mac Studio simlock farm (`simlock-url:
 https://simlock.vitaliiyehorov.dev`, secret `SIMLOCK_TOKEN`); no CI host boots a simulator or emulator. The e2e job
   runs on `["self-hosted","linux-portable-4x8"]`. `e2e/e2e.config.ts` defines three targets, all leased under the `rnw-community-e2e` tenant: `ios` (iPhone 17 Pro,
@@ -537,9 +538,9 @@ https://simlock.vitaliiyehorov.dev`, secret `SIMLOCK_TOKEN`); no CI host boots a
   `npm ci`, which wipes it), then set `SIMLOCK_URL`, `SIMLOCK_TOKEN`, `E2E_APP_ID`, `E2E_APP_PATH` (a
   built `.app` or `.apk`) and optionally `E2E_TARGET` (a CI target name, to pick one suite), and run `npx e2e run
 --target ios` (or `android`, `android-gms`). A local run needs a simlock token for the farm.
-- **Maestro:** only the manual readme demo-GIF capture flows (`packages/*-example/e2e/recording/`, the screen-chrome
-  example's `e2e/manual/`, and that example's `e2e/subflows/`) still use Maestro; they are run by hand, never in CI. The
-  `.agents/skills/maestro-e2e` skill covers them.
+- **Readme media:** the dispatch-only `docs-media.yml` also records every readme demo clip and the screen-chrome
+  playground matrix from those capture suites. `docs-media-clips` holds each GIF at its path under `packages/`; the job
+  fails on a clip too short to be real, because a recording can come back as a single frame while its test passes.
 
 ## PR Review & Merge Policy
 

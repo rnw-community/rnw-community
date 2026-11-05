@@ -27,8 +27,6 @@ apps/
   expo/                          — @rnw-community/react-native-collapsible-header-example-expo (Expo)
     index.js, app.json, babel.config.js, metro.config.js, assets/; ios/ and android/ come from `expo prebuild`
 e2e/
-  recording/                     — demo_capture.yaml and settings_capture.yaml, manual Maestro flows that produce the
-                                   readme demo videos (not assertion flows, not run in CI)
   readme.md                      — test inventory, APP_ID table, and the accessibility-tree visibility semantics
 ```
 
@@ -63,7 +61,7 @@ the model the farm leases.
 
 ## CI coverage
 
-Both e2e workflows (`.github/workflows/ios-maestro.yml`, `android-maestro.yml`) run this package's suite. Each
+Both e2e workflows (`.github/workflows/ios-e2e.yml`, `android-e2e.yml`) run this package's suite. Each
 workflow lists every example package's targets in its `targets` input — register new example packages and targets there.
 The `expo` target is wired for both platforms. Like the payments example, the `bare` target commits its own `ios/` and
 `android/` projects (copied from the payments example with the product, bundle, and Kotlin package identifiers renamed;
@@ -111,4 +109,4 @@ Keep the set moving together: bump every pin to the same contemporaneous patch l
 `@react-navigation/native-stack`, `react-native-screens`, `react-native-safe-area-context`.
 
 This is an example/demo package — no unit tests, no build, no publish. Its e2e suite lives in the repo root
-`e2e/tests/collapsible-header`; its own `e2e/` carries the manual recording flow behind the library readme's demo GIF.
+`e2e/tests/collapsible-header`; `e2e/tests/collapsible-header-media`, run by `docs-media.yml`, records the library readme's demo GIF.

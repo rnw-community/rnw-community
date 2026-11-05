@@ -9,5 +9,5 @@ with one shared demo screen and two app targets:
 
 The demo exercises provider-based scroll wiring, snap-to-endpoint, overscroll stretch, the slot-facing progress hook,
 and persistent header actions. The CI e2e tests for this app live in the repo root
-[`e2e/tests/collapsible-header`](../../e2e/tests/collapsible-header); this package's `e2e/` directory carries the
-manual Maestro readme demo-GIF recording flows — see [e2e/readme.md](./e2e/readme.md).
+[`e2e/tests/collapsible-header`](../../e2e/tests/collapsible-header); the readme demo clips come from
+[`e2e/tests/collapsible-header-media`](../../e2e/tests/collapsible-header-media) — see [e2e/readme.md](./e2e/readme.md).

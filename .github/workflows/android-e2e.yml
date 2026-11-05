@@ -1,6 +1,6 @@
 name: Android E2E
 
-# Thin caller of rnw-community/mobile-ci's android-maestro.yml: one call builds
+# Thin caller of rnw-community/mobile-ci's android e2e workflow: one call builds
 # every example package's arm64-v8a APK and runs its e2e/tests/<package> suite on
 # emulators leased from the simlock farm. Bare apps cannot be repacked, so they
 # always build natively.
@@ -15,7 +15,7 @@ on:
             - packages/react-native-collapsible-header/**
             - packages/react-native-collapsible-header-example/**
             - e2e/**
-            - .github/workflows/android-maestro.yml
+            - .github/workflows/android-e2e.yml
     schedule:
         - cron: '47 3 * * *'
 
@@ -46,8 +46,8 @@ jobs:
                 **/llms*.txt
                 **/docs/**
             trigger-paths: |
-                .github/workflows/ios-maestro.yml
-                .github/workflows/android-maestro.yml
+                .github/workflows/ios-e2e.yml
+                .github/workflows/android-e2e.yml
                 e2e/**
             build-timeout-minutes: 120
             # The farm's emulator image is arm64-v8a.

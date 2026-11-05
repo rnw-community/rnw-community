@@ -1,6 +1,6 @@
 name: iOS E2E
 
-# Thin caller of rnw-community/mobile-ci's ios-maestro.yml: one call builds every
+# Thin caller of rnw-community/mobile-ci's ios e2e workflow: one call builds every
 # example package's app and runs its e2e/tests/<package> suite on simulators leased
 # from the simlock farm. Bare apps cannot be repacked, so they always build
 # natively. The screen-chrome suites are quarantined (tolerateTestFailures) until
@@ -16,7 +16,7 @@ on:
             - packages/react-native-collapsible-header/**
             - packages/react-native-collapsible-header-example/**
             - e2e/**
-            - .github/workflows/ios-maestro.yml
+            - .github/workflows/ios-e2e.yml
     schedule:
         - cron: '17 3 * * *'
 
@@ -47,8 +47,8 @@ jobs:
                 **/llms*.txt
                 **/docs/**
             trigger-paths: |
-                .github/workflows/ios-maestro.yml
-                .github/workflows/android-maestro.yml
+                .github/workflows/ios-e2e.yml
+                .github/workflows/android-e2e.yml
                 e2e/**
             build-timeout-minutes: 120
             xcode-version: '26.4.1'

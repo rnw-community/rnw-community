@@ -45,13 +45,11 @@ app first (`ios:expo`/`ios:bare`/`android:expo`/`android:bare`). A local run nee
 - `settings_freeze_preserves_collapsed_state.e2e.ts` — the freeze case on the settings screen: collapse, open an item
   (Details), return, and assert the small title is still the visible one.
 
-## Manual Maestro capture flows
+## Readme clips
 
-This package's own `e2e/` keeps only manual Maestro tooling, never run in CI:
-
-- `recording/demo_capture.yaml` and `recording/settings_capture.yaml` — not assertion flows; they drive the
-  collapse/expand/overscroll gestures between `startRecording`/`stopRecording` to produce the readme demo videos
-  (convert with ffmpeg to `packages/react-native-collapsible-header/docs/collapsible-header-demo.gif`).
+`e2e/tests/collapsible-header-media` records the readme demo clips, driving the collapse/expand/overscroll gestures
+around `recordClip`. Dispatch `docs-media.yml`; its `docs-media-clips` artifact holds each GIF at its path under
+`packages/`, ready to copy over `packages/react-native-collapsible-header/docs/`.
 
 ## Waits are liveness bounds, not performance budgets
 

@@ -20,13 +20,16 @@ const env = (name: string): string => {
 // example package share its tests, so the target name minus its `-bare`/`-expo` suffix picks the directory.
 const suite = process.env.E2E_TARGET?.replace(/-(bare|expo)$/, '');
 
+// With no suite picked, only the suites that run on any device: the capture suites each need the target docs-media.yml names.
+const SUITES = ['payments', 'collapsible-header', 'screen-chrome', 'screen-chrome-harness'];
+
 // One agent-device session per run: simlock keys sessions by token + name, so two runs sharing a token would
 // otherwise drive each other's device. Set before the workers start, so they inherit it.
 process.env.E2E_SESSION ??= `e2e-${randomBytes(4).toString('hex')}`;
 
-type Lease = Pick<SimlockOptions, 'osVersion' | 'imageTag' | 'deviceMode' | 'iosScreenshotBackend'>;
+type Lease = Pick<SimlockOptions, 'osVersion' | 'imageTag' | 'deviceMode' | 'iosScreenshotBackend' | 'animations'> & { model?: string };
 
-const target = (name: string, platform: Platform, lease: Lease = {}) => ({
+const target = (name: string, platform: Platform, { model, ...lease }: Lease = {}) => ({
     name,
     engine: mobile({
         platform,
@@ -37,7 +40,7 @@ const target = (name: string, platform: Platform, lease: Lease = {}) => ({
             url: env('SIMLOCK_URL'),
             token: env('SIMLOCK_TOKEN'),
             platform,
-            device: DEVICES[platform].model,
+            device: model ?? DEVICES[platform].model,
             tenant: 'rnw-community-e2e',
             ...lease,
         }),
@@ -48,9 +51,9 @@ const target = (name: string, platform: Platform, lease: Lease = {}) => ({
 
 export default {
     projectId: 'rnw-community',
-    tests: suite === undefined || suite === '' ? 'tests/**/*.e2e.ts' : `tests/${suite}/**/*.e2e.ts`,
+    tests: suite === undefined || suite === '' ? SUITES.map(name => `tests/${name}/**/*.e2e.ts`) : `tests/${suite}/**/*.e2e.ts`,
     targets: [
-        // Stills from the XCTest runner have no Dynamic Island, like the Maestro-made edge-fade baselines. The Apple
+        // Stills from the XCTest runner have no Dynamic Island, like the edge-fade baselines. The Apple
         // Pay sheet needs PassKit, which a slim simulator switches off.
         target('ios', 'ios', {
             iosScreenshotBackend: 'runner',
@@ -61,6 +64,8 @@ export default {
         // Pixel lanes (the edge-fade harness, the docs media) and the Google Pay sheet: the farm's API 35 `google_apis`
         // image has Google Play services, and the ATD image's screenshots are blank and its recordings never finalize.
         target('android-gms', 'android', { osVersion: '35', imageTag: 'google_apis' }),
+        // The screen-chrome readme clips: a phone shaped like their committed GIFs, with real keyboard and window animations.
+        target('android-pixel', 'android', { model: 'Pixel 6', osVersion: '35', imageTag: 'google_apis', animations: 'on' }),
     ],
     workers: Number(process.env.E2E_WORKERS ?? 1),
     timeout: 10 * 60_000,

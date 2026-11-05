@@ -77,28 +77,18 @@ transition, because squared contrast and its one-point smoothing kept each rise 
 both the washed capture and the blur-only control. The compact wash-versus-blur comparison likewise runs over the band
 beyond that outer 8% and measures the wash against its value at the physical edge.
 
-## Manual Maestro capture flows
+## Readme clips and the playground matrix
 
-This package's own `e2e/` keeps manual Maestro tooling, never run in CI, alongside the harness metrics:
+Three capture suites run through the dispatch-only `docs-media.yml`, never the PR suite:
 
-- `recording/` — capture-only flows for the readme demo GIFs, one per demo (`collapsible_capture`,
-  `static_header_capture`, `footer_capture`, `snap_off_capture`, `bottom_fade_capture`, `tab_bar_capture`,
-  `keyboard_capture`, `theme_capture`). Each opens its screen, then drives the gestures between
-  `startRecording`/`stopRecording`, mirroring the collapsible-header example.
-- `manual/` — `playground_matrix.yaml` and its `playground-metrics.mjs`.
-- `subflows/` — `launch_home.yaml` (launch + first-frame wait on the demo picker) and `launch_collapsible_demo.yaml`
-  (opens the collapsible-header screen and waits for its first frame), included by the flows above via `runFlow`.
+- `screen-chrome-media/demo_clips.e2e.ts` — one clip per demo on the `android-pixel` target (a Pixel 6, API 35
+  `google_apis`, real animations), the shape of the GIFs in `packages/react-native-screen-chrome/docs/`.
+- `screen-chrome-example-media/collapsible_header.e2e.ts` — the iOS clip for this package's own readme.
+- `screen-chrome-playground/playground_matrix.e2e.ts` — every playground cell on iOS, with stills from the XCTest runner.
+  Measure them from the repository root with
+  `node packages/react-native-screen-chrome-example/e2e/harness/playground-metrics.mjs <the artifact's playground directory>`.
 
-To record a readme GIF, with the app installed on a booted emulator or simulator, run one capture flow at a time:
-
-```bash
-maestro test -e APP_ID=<appId> e2e/recording/static_header_capture.yaml
-```
-
-Maestro writes the clip under its test output directory (`<output>/<flow>/startRecording/<name>.mp4`). Convert it
-with `ffmpeg -i <name>.mp4 -vf "fps=12,scale=320:-2:flags=lanczos,split[a][b];[a]palettegen[p];[b][p]paletteuse"
-<name>.gif` and commit the result to `packages/react-native-screen-chrome/docs/`. A launch that misses the 60s
-first-frame wait is retried rather than recorded.
+The run's `docs-media-clips` artifact holds each GIF at its path under `packages/`, ready to copy into the repository.
 
 ## What the demos document
 
