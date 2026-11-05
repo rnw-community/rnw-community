@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [3.0.12](https://github.com/rnw-community/rnw-community/compare/v3.0.11...v3.0.12) (2026-11-05)
+
+### Performance Improvements
+
+- cut CI downloads from partial pnpm stores and full-blob checkouts ([#748](https://github.com/rnw-community/rnw-community/issues/748)) ([484bf88](https://github.com/rnw-community/rnw-community/commit/484bf88b60cc40c38821ce180b584c74082de0ff))
+
 ## [3.0.11](https://github.com/rnw-community/rnw-community/compare/v3.0.10...v3.0.11) (2026-11-05)
 
 **Note:** Version bump only for package rnw-community
