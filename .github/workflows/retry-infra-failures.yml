@@ -6,7 +6,7 @@ name: Retry infra failures
 
 on:
     workflow_run: # zizmor: ignore[dangerous-triggers] the job reads the triggering run through the API only and checks out or runs none of its code
-        workflows: ['Pull Request', 'iOS Maestro E2E', 'Android Maestro E2E']
+        workflows: ['Pull Request', 'iOS E2E', 'Android E2E']
         types: [completed]
 
 permissions:
@@ -21,6 +21,6 @@ jobs:
             actions: write
             checks: read
         steps:
-            - uses: rnw-community/mobile-ci/actions/rerun-infra-failures@d8b7f0c45ff83974aa9e4e8e14ba6dbc336f8525 # v4.10.2
+            - uses: rnw-community/mobile-ci/actions/rerun-infra-failures@v5.0.0 # v5.0.0
               with:
                   run-id: ${{ github.event.workflow_run.id }}
