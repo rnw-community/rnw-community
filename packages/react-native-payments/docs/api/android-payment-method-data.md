@@ -16,6 +16,9 @@ your `methodData` array.
 shared with [`IosPaymentMethodDataDataInterface`](./ios-payment-method-data.md) (both extend the package's
 common `GenericPaymentMethodDataDataInterface`): each is an optional boolean that, when `true`, adds the matching
 field to the resulting `PaymentResponse` — see [api/payment-response.md](./payment-response.md).
+`supportedCountries?` (`string[]`) is shared the same way: the ISO 3166-1 alpha-2 codes of the card issuer countries
+the sheet accepts, forwarded to Google Pay's `CardParameters.allowedIssuerCountryCodes` — see
+[platforms/android.md](../platforms/android.md#capabilities).
 
 [`createGooglePayMethodData`](./create-google-pay-method-data.md) builds this entry with defaults filled in.
 

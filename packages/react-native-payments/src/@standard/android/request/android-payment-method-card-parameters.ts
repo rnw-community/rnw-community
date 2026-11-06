@@ -12,6 +12,7 @@ export interface AndroidPaymentMethodCardParameters {
     allowPrepaidCards?: boolean;
     allowedAuthMethods: AndroidAllowedAuthMethodsEnum[];
     allowedCardNetworks: AndroidAllowedCardNetworksEnum[];
+    allowedIssuerCountryCodes?: string[];
     assuranceDetailsRequired?: boolean;
     billingAddressParameters?: AndroidBillingAddressParameters;
     billingAddressRequired?: boolean;

@@ -24,6 +24,7 @@ below are filled in:
 | `environment`                     | no          | `EnvironmentEnum.TEST`                                                                                                                                  |
 | `supportedNetworks`               | no          | `[SupportedNetworkEnum.Visa, SupportedNetworkEnum.Mastercard]`                                                                                          |
 | `allowedAuthMethods`              | no          | Left unset — the request then sends `PAN_ONLY` and `CRYPTOGRAM_3DS`, see [android-allowed-auth-methods-enum.md](./android-allowed-auth-methods-enum.md) |
+| `supportedCountries`              | no          | Left unset — cards from every issuer country are accepted, see [platforms/android.md](../platforms/android.md#capabilities)                             |
 
 The function is pure: it has no native call, no platform check, and every result has its own `supportedNetworks`
 array.

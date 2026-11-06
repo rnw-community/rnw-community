@@ -18,5 +18,6 @@ export interface IosPaymentDataRequest {
     requiredBillingContactFields?: IOSPKContactField[];
     requiredShippingContactFields?: IOSPKContactField[];
     shippingType?: PaymentShippingTypeEnum;
+    supportedCountries?: string[];
     supportedNetworks: IosPKPaymentNetworksEnum[];
 }
