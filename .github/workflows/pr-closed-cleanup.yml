@@ -11,7 +11,7 @@ jobs:
         name: Cancel queued/in-progress runs for the closed PR branch
         permissions:
             actions: write # cancels superseded runs of the closed PR
-        uses: rnw-community/mobile-ci/.github/workflows/pr-closed-cleanup-reusable.yml@972654d8817a6e72f370a22ab9e5fb79b30df4e6 # v4.13.1
+        uses: rnw-community/mobile-ci/.github/workflows/pr-closed-cleanup-reusable.yml@94e78d391732050f1daf02d1906708f04c5b5a71 # v4.13.2
         with:
             control-runner-labels: '["self-hosted","linux-portable-2x4"]'
             ota-preview-cleanup-runner-labels: '["self-hosted","linux-portable-2x4"]'
