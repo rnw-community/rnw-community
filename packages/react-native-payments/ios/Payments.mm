@@ -131,8 +131,6 @@ RCT_EXPORT_METHOD(show:(NSString *)requestId
         return;
     }
 
-    // TODO: Should we add supportedCountries config, if android has the same?
-    // https://developer.apple.com/documentation/passkit/pkpaymentrequest/2865929-supportedcountries?language=objc
     if(!countryCode) {
         [self rejectPromise:@"no_country_code" message:@"No country code provided" error:nil];
         return;
@@ -207,6 +205,12 @@ RCT_EXPORT_METHOD(show:(NSString *)requestId
 
     // https://developer.apple.com/documentation/passkit/pkpaymentrequest/1619248-currencycode?language=objc
     paymentRequest.currencyCode = currencyCode;
+
+    // https://developer.apple.com/documentation/passkit/pkpaymentrequest/2865929-supportedcountries?language=objc
+    NSArray *supportedCountries = methodData[@"supportedCountries"];
+    if ([supportedCountries isKindOfClass:[NSArray class]] && supportedCountries.count > 0) {
+        paymentRequest.supportedCountries = [NSSet setWithArray:supportedCountries];
+    }
 
     // https://developer.apple.com/documentation/applepayontheweb/applepaypaymentrequest/applicationdata?language=objc
     id applicationData = methodData[@"applicationData"];

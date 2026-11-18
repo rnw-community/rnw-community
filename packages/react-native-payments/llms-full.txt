@@ -331,6 +331,10 @@ No `AppDelegate` changes are needed. The pod links `PassKit` and `Contacts` itse
 
 - `merchantCapabilities` (`IosPKMerchantCapability`, see [api/ios-payment-method-data.md](docs/api/ios-payment-method-data.md))
   defaults to 3-D Secure, debit and credit when omitted.
+- `supportedCountries` forwards to PassKit's
+  [`supportedCountries`](https://developer.apple.com/documentation/passkit/pkpaymentrequest/supportedcountries): the sheet only offers cards issued in the listed ISO 3166-1
+  alpha-2 countries. Omitted or empty, every issuer country is accepted. The list does not change the transaction
+  currency. The same field sets Google Pay's `allowedIssuerCountryCodes` on Android.
 - `supportedNetworks` accepts every `SupportedNetworkEnum` member, but Apple Pay introduced some of them after the
   oldest supported iOS version: `girocard` needs iOS 14, `mir` needs iOS 14.5, `dankort` needs iOS 15.1 and
   `bancontact` needs iOS 16 — each is rejected as an invalid supported network below its minimum iOS version. See
@@ -409,6 +413,11 @@ dependencies {
 - `transactionId` correlates the payment attempt in Google Pay transaction events.
 - `allowedAuthMethods` (`AndroidAllowedAuthMethodsEnum`) defaults to both `PAN_ONLY` and `CRYPTOGRAM_3DS` when
   omitted. See [api/android-payment-method-data.md](docs/api/android-payment-method-data.md).
+- `supportedCountries` forwards to the
+  [`CardParameters.allowedIssuerCountryCodes`](https://developers.google.com/pay/api/android/reference/request-objects#CardParameters) allowlist: cards issued outside the
+  listed ISO 3166-1 alpha-2 countries are greyed out in the sheet as not accepted. Omitted or empty, every issuer
+  country is accepted. The field carries PassKit's name and sets `supportedCountries` on iOS. Google's
+  `blockedIssuerCountryCodes` blocklist is not exposed.
 - `canMakePayment()` calls Google Pay's `isReadyToPay` against the `environment` set in `methodData.data`, the same
   environment `show()` opens the sheet in.
 - `hasEnrolledInstrument()` calls Google Pay's `isReadyToPay` with `existingPaymentMethodRequired: true`. See
@@ -811,6 +820,9 @@ your `methodData` array.
 shared with [`IosPaymentMethodDataDataInterface`](docs/api/ios-payment-method-data.md) (both extend the package's
 common `GenericPaymentMethodDataDataInterface`): each is an optional boolean that, when `true`, adds the matching
 field to the resulting `PaymentResponse` — see [api/payment-response.md](docs/api/payment-response.md).
+`supportedCountries?` (`string[]`) is shared the same way: the ISO 3166-1 alpha-2 codes of the card issuer countries
+the sheet accepts, forwarded to Google Pay's `CardParameters.allowedIssuerCountryCodes` — see
+[platforms/android.md](docs/platforms/android.md#capabilities).
 
 [`createGooglePayMethodData`](docs/api/create-google-pay-method-data.md) builds this entry with defaults filled in.
 
@@ -1031,6 +1043,7 @@ createApplePayMethodData(options: ApplePayMethodDataOptions): IosPaymentMethodDa
 | `currencyCode`         | yes      | —                                                                                                                                    |
 | `supportedNetworks`    | no       | `[SupportedNetworkEnum.Visa, SupportedNetworkEnum.Mastercard]`                                                                       |
 | `merchantCapabilities` | no       | Left unset — the request then uses `3DS`, `Debit` and `Credit`, see [ios-pk-merchant-capability.md](docs/api/ios-pk-merchant-capability.md) |
+| `supportedCountries`   | no       | Left unset — cards from every issuer country are accepted, see [platforms/ios.md](docs/platforms/ios.md#capabilities)                  |
 
 The function is pure: it has no native call, no platform check, and every result has its own `supportedNetworks`
 array.
@@ -1084,6 +1097,7 @@ below are filled in:
 | `environment`                     | no          | `EnvironmentEnum.TEST`                                                                                                                                  |
 | `supportedNetworks`               | no          | `[SupportedNetworkEnum.Visa, SupportedNetworkEnum.Mastercard]`                                                                                          |
 | `allowedAuthMethods`              | no          | Left unset — the request then sends `PAN_ONLY` and `CRYPTOGRAM_3DS`, see [android-allowed-auth-methods-enum.md](docs/api/android-allowed-auth-methods-enum.md) |
+| `supportedCountries`              | no          | Left unset — cards from every issuer country are accepted, see [platforms/android.md](docs/platforms/android.md#capabilities)                             |
 
 The function is pure: it has no native call, no platform check, and every result has its own `supportedNetworks`
 array.
@@ -1359,6 +1373,9 @@ your `methodData` array.
 shared with [`AndroidPaymentMethodDataDataInterface`](docs/api/android-payment-method-data.md) (both extend the
 package's common `GenericPaymentMethodDataDataInterface`): each is an optional boolean that, when `true`, adds
 the matching field to the resulting `PaymentResponse` — see [api/payment-response.md](docs/api/payment-response.md).
+`supportedCountries?` (`string[]`) is shared the same way: the ISO 3166-1 alpha-2 codes of the card issuer countries
+the sheet accepts, forwarded to PassKit's `supportedCountries` — see
+[platforms/ios.md](docs/platforms/ios.md#capabilities).
 
 [`createApplePayMethodData`](docs/api/create-apple-pay-method-data.md) builds this entry with defaults filled in.
 

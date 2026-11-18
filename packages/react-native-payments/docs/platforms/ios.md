@@ -19,6 +19,10 @@ No `AppDelegate` changes are needed. The pod links `PassKit` and `Contacts` itse
 
 - `merchantCapabilities` (`IosPKMerchantCapability`, see [api/ios-payment-method-data.md](../api/ios-payment-method-data.md))
   defaults to 3-D Secure, debit and credit when omitted.
+- `supportedCountries` forwards to PassKit's
+  [`supportedCountries`](https://developer.apple.com/documentation/passkit/pkpaymentrequest/supportedcountries): the sheet only offers cards issued in the listed ISO 3166-1
+  alpha-2 countries. Omitted or empty, every issuer country is accepted. The list does not change the transaction
+  currency. The same field sets Google Pay's `allowedIssuerCountryCodes` on Android.
 - `supportedNetworks` accepts every `SupportedNetworkEnum` member, but Apple Pay introduced some of them after the
   oldest supported iOS version: `girocard` needs iOS 14, `mir` needs iOS 14.5, `dankort` needs iOS 15.1 and
   `bancontact` needs iOS 16 — each is rejected as an invalid supported network below its minimum iOS version. See

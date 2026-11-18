@@ -42,6 +42,11 @@ dependencies {
 - `transactionId` correlates the payment attempt in Google Pay transaction events.
 - `allowedAuthMethods` (`AndroidAllowedAuthMethodsEnum`) defaults to both `PAN_ONLY` and `CRYPTOGRAM_3DS` when
   omitted. See [api/android-payment-method-data.md](../api/android-payment-method-data.md).
+- `supportedCountries` forwards to the
+  [`CardParameters.allowedIssuerCountryCodes`](https://developers.google.com/pay/api/android/reference/request-objects#CardParameters) allowlist: cards issued outside the
+  listed ISO 3166-1 alpha-2 countries are greyed out in the sheet as not accepted. Omitted or empty, every issuer
+  country is accepted. The field carries PassKit's name and sets `supportedCountries` on iOS. Google's
+  `blockedIssuerCountryCodes` blocklist is not exposed.
 - `canMakePayment()` calls Google Pay's `isReadyToPay` against the `environment` set in `methodData.data`, the same
   environment `show()` opens the sheet in.
 - `hasEnrolledInstrument()` calls Google Pay's `isReadyToPay` with `existingPaymentMethodRequired: true`. See

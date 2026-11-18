@@ -1184,7 +1184,7 @@ describe('PaymentRequest', () => {
             const getSerializedAndroidMethodData = async (
                 requestMethodData: AndroidPaymentMethodDataInterface
             ): Promise<AndroidPaymentDataRequest> => {
-                jest.mocked(NativePayments.canMakePayments).mockResolvedValue(true);
+                jest.mocked(NativePayments.canMakePayments).mockClear().mockResolvedValue(true);
 
                 await new PaymentRequest([requestMethodData], paymentDetails).canMakePayment();
 
@@ -1243,6 +1243,38 @@ describe('PaymentRequest', () => {
                 const methodDataRequest = await getSerializedAndroidMethodData(androidMethodData);
 
                 expect(methodDataRequest.allowedPaymentMethods[0].parameters).not.toHaveProperty('billingAddressRequired');
+            });
+
+            it('should serialize the supported countries as the Google Pay allowed issuer country codes', async () => {
+                expect.hasAssertions();
+
+                const methodDataRequest = await getSerializedAndroidMethodData({
+                    ...androidMethodData,
+                    data: { ...androidMethodData.data, supportedCountries: ['US', 'GB'] },
+                });
+
+                expect(methodDataRequest.allowedPaymentMethods[0].parameters.allowedIssuerCountryCodes).toStrictEqual([
+                    'US',
+                    'GB',
+                ]);
+                expect(methodDataRequest).not.toHaveProperty('supportedCountries');
+            });
+
+            it('should not serialize missing or empty supported countries', async () => {
+                expect.hasAssertions();
+
+                const withoutSupportedCountries = await getSerializedAndroidMethodData(androidMethodData);
+                const withEmptySupportedCountries = await getSerializedAndroidMethodData({
+                    ...androidMethodData,
+                    data: { ...androidMethodData.data, supportedCountries: [] },
+                });
+
+                expect(withoutSupportedCountries.allowedPaymentMethods[0].parameters).not.toHaveProperty(
+                    'allowedIssuerCountryCodes'
+                );
+                expect(withEmptySupportedCountries.allowedPaymentMethods[0].parameters).not.toHaveProperty(
+                    'allowedIssuerCountryCodes'
+                );
             });
 
             it('should serialize a direct tokenization specification', async () => {
@@ -1395,7 +1427,7 @@ describe('PaymentRequest', () => {
         const getSerializedIosMethodData = async (
             requestMethodData: IosPaymentMethodDataInterface
         ): Promise<IosPaymentDataRequest> => {
-            jest.mocked(NativePayments.canMakePayments).mockResolvedValue(true);
+            jest.mocked(NativePayments.canMakePayments).mockClear().mockResolvedValue(true);
 
             await new PaymentRequest([requestMethodData], paymentDetails).canMakePayment();
 
@@ -1709,6 +1741,30 @@ describe('PaymentRequest', () => {
                 const methodDataRequest = await getSerializedIosMethodData(iosMethodData);
 
                 expect(methodDataRequest).not.toHaveProperty('applicationData');
+            });
+
+            it('should serialize the supported countries', async () => {
+                expect.hasAssertions();
+
+                const methodDataRequest = await getSerializedIosMethodData({
+                    ...iosMethodData,
+                    data: { ...iosMethodData.data, supportedCountries: ['US', 'GB'] },
+                });
+
+                expect(methodDataRequest.supportedCountries).toStrictEqual(['US', 'GB']);
+            });
+
+            it('should not serialize missing or empty supported countries', async () => {
+                expect.hasAssertions();
+
+                const withoutSupportedCountries = await getSerializedIosMethodData(iosMethodData);
+                const withEmptySupportedCountries = await getSerializedIosMethodData({
+                    ...iosMethodData,
+                    data: { ...iosMethodData.data, supportedCountries: [] },
+                });
+
+                expect(withoutSupportedCountries).not.toHaveProperty('supportedCountries');
+                expect(withEmptySupportedCountries).not.toHaveProperty('supportedCountries');
             });
 
             it('should exclude the postal address from the required shipping fields when shipping is not requested', async () => {
