@@ -53,7 +53,7 @@ const rulesKeptInEslint = new Map([
     ['strict-boolean-expressions', 'native checks miss non-nullable heterogeneous enums in conditions'],
     ['no-unnecessary-condition', 'optional-chain diagnostics span different lines, changing disable directive behavior'],
     ['dot-notation', 'the typed oxlint rule does not disable the active core ESLint rule'],
-    ['consistent-return', 'tsgolint skips missing final returns in async functions'],
+    ['consistent-return', 'oxlint reports at the function start and ESLint at its name, so diagnostic positions diverge'],
     ['id-length', 'oxlint also reports single-letter TypeScript type parameters, which ESLint core never visits'],
     [
         'max-params',

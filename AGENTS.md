@@ -286,14 +286,15 @@ A package MUST NOT re-export (`export type { X } from '@rnw-community/other'`) a
 
 **Production compiler and separate compatibility/API compilers, by design:**
 
-- `tsrs` (pinned to `0.18.0-ts7.1.0-dev.20260929`) runs all `ts` and `ts:nodenext` checks and all Node/NestJS
+- `tsrs` (pinned to `7.1.0-beta.tsrs2`) runs all `ts` and `ts:nodenext` checks and all Node/NestJS
   ESM/CJS JavaScript and declaration builds through `scripts/typecheck.mjs`. The launcher falls back to the native
-  reference compiler if the optional tsrs binary is unavailable (including Windows and Intel macOS); compile errors
+  reference compiler if the optional tsrs binary is unavailable for the platform; compile errors
   never trigger fallback. Turbo forwards and hashes `TSRS_BINARY`, so a custom binary never reuses cached results.
   React Native packages keep bob's Babel module/commonjs targets and use
   `../../scripts/typecheck.mjs` through bob's `typescript` target's `tsc` option for declarations. It ports the
-  TypeScript 7.1 development compiler to Rust and supports legacy decorator metadata. Keep it pinned; compare fresh
-  JavaScript/declaration output and consumer types when upgrading. `scripts/profile-tooling.py` measures type checks,
+  TypeScript 7.1 beta compiler to Rust and supports legacy decorator metadata. Keep it pinned; compare fresh
+  JavaScript/declaration output and consumer types when upgrading. Its `tsrs-lint` binary is also oxlint's
+  type-aware lint backend. `scripts/profile-tooling.py` measures type checks,
   builds and lint with process elapsed time and peak RSS.
 - `@typescript/native` (`npm:typescript@^7`) provides the reference `tsc` binary for diagnostics, emit comparison and
   performance tests. Production build/check scripts use `tsrs`. The consumer package-manager smoke matrix runs both
@@ -339,7 +340,7 @@ an ESLint rule with different options. It also requires a resolved policy for ev
 installed public handoff catalog (including nursery entries for discovery only); newly unclassified counterparts
 fail config generation. See the [type-aware audit](docs/tooling-performance.md#type-aware-rule-audit).
 
-- Keep `oxlint`, `@oxlint/migrate` and `eslint-plugin-oxlint` aligned (currently pinned to `1.89.0`).
+- Keep `oxlint`, `@oxlint/migrate` and `eslint-plugin-oxlint` aligned (currently pinned to `1.94.0`).
   `sort-imports`, `no-lonely-if` and `no-div-regex` use the revalidated native implementations. The migrator skips
   import sorting for Oxfmt users; this repository uses Prettier, so the generator copies the exact resolved
   `sort-imports` rule into each override and validates its handoff. Typed JS-plugin rules still require ESLint because
@@ -356,11 +357,11 @@ fail config generation. See the [type-aware audit](docs/tooling-performance.md#t
 - Disable directives keep ESLint syntax (`// eslint-disable-next-line <rule>`) — oxlint honours them. ESLint's
   unused-directive report skips oxlint-owned names (the `oxlint-handoff` processor), so those are not checked for
   staleness. Mixed directives still report stale ESLint-owned names without autofixes that would delete native suppressions
-- Supported type-aware rules run through the pinned `oxlint-tsgolint` backend. Unsupported rules stay in ESLint,
-  including `no-unsafe-enum-assignment` and `naming-convention`; `no-unnecessary-condition` remains for diagnostic
-  position parity. Keep `projectService`:
+- Supported type-aware rules run through `tsrs-lint` from the pinned `tsrs` package: oxlint prefers it over the
+  `oxlint-tsgolint` optional peer that pnpm also installs, so there is nothing to configure. Unsupported rules stay
+  in ESLint, including `naming-convention`; `no-unnecessary-condition` remains for diagnostic position parity. Keep `projectService`:
   the custom `@rnw-community/public-api-tsdoc` rule also needs the TypeScript program
-- Production TS/TSX enable 51 built-in typed policies: 47 native and four in ESLint.
+- Production TS/TSX enable 51 built-in typed policies: 48 native and three in ESLint.
   `strict-boolean-expressions` stays in ESLint because native checks miss heterogeneous-enum conditions.
   Exhaustive switches and numeric/object sort comparators are required; defensive defaults and string sorting remain allowed
 - `pnpm test:tooling` exercises negative type/lint fixtures, rule handoff, and mixed disable directives. CI runs it
