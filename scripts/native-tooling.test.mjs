@@ -267,6 +267,10 @@ test('additional typed policies reject unsafe or weaker constructs with one lint
         ],
         ['require-array-sort-compare', 'export const values = [3, 1, 2].sort();\n'],
         [
+            'no-unsafe-enum-assignment',
+            'enum Status { ACTIVE = 1 } export const toStatus = (value: number): Status => value;\n',
+        ],
+        [
             'strict-boolean-expressions',
             "enum Mixed { ZERO = 0, YES = 'yes' } export const active = (value: Mixed): number => value ? 1 : 0;\n",
         ],

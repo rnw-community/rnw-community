@@ -5,11 +5,40 @@ Type checks, Node/NestJS JavaScript builds and all declaration emit use pinned
 tsrs through bob's declaration compiler option. Native TypeScript 7 remains the reference for compatibility and
 profiling. The TypeScript 6 JavaScript API shim remains available to ESLint, knip and bob.
 
-Supported type-aware rules run in [oxlint with tsgolint](https://oxc.rs/docs/guide/usage/linter/type-aware.html).
+Supported type-aware rules run in [oxlint](https://oxc.rs/docs/guide/usage/linter/type-aware.html) through the
+[tsrs lint backend](https://oxc.rs/blog/2026-11-17-faster-type-aware-linting-with-tsrs) (`tsrs-lint`).
 ESLint remains the rule source of truth. The generator preserves severities, options and file overrides and verifies
 that the rules disabled in ESLint have the same options in oxlint. Rules with known behavior differences stay in
 ESLint, including `consistent-return` and heterogeneous-enum boolean checks. The custom public-API documentation rule and remaining typed rules still
 require `projectService`, so the migration does not remove the TypeScript program from ESLint.
+
+## tsrs lint backend (oxlint 1.94)
+
+Oxlint 1.92 and later look for a `tsrs-lint` binary before `tsgolint`. The pinned `tsrs` package ships it, so type-aware lint
+runs on tsrs with no configuration change. pnpm still installs `oxlint-tsgolint` as oxlint's optional peer;
+`OXLINT_TSGOLINT_PATH=node_modules/.bin/tsgolint` selects it to compare the backends. Oxlint, its migrator and the
+ESLint handoff plugin move together to **1.94.0**, and tsrs to **7.1.0-beta.tsrs2**, whose lint fast preset is on by
+default.
+
+Measured on 2026-11-18 on the Linux x86_64 AMD Ryzen AI 9 HX 470 machine used for the measurements below, with
+oxlint 1.94.0, tsrs 7.1.0-beta.tsrs2 and tsgolint 7.0.2007. Other work kept the load average between 11 and 16 on 24
+logical CPUs, so treat the ratios as more reliable than the absolute times.
+
+| Type-aware oxlint (824 files, 213 rules)       |   tsgolint |       tsrs | Speedup |
+| ---------------------------------------------- | ---------: | ---------: | ------: |
+| Root pass, median of 5 interleaved runs        |     4.06 s |     0.98 s |    4.1× |
+| Root pass, largest peak RSS                    | 776.00 MiB | 390.00 MiB |         |
+| Package stage, sum of package medians (3 runs) |   11.612 s |    6.812 s |    1.7× |
+| Package stage, largest individual peak RSS     | 382.89 MiB | 141.70 MiB |         |
+
+The package stage is the native half of `pnpm lint`, measured with `profile-tooling.py native`. Its per-process
+startup does not shrink, so it gains less than the single root pass. Both backends report the same five diagnostics
+with byte-identical JSON. Oxlint 1.94 now registers `no-unsafe-enum-assignment`, so the generator moves it from
+ESLint to oxlint, and a tooling fixture checks that both report it at the same position.
+
+Rebuilding every package with the new tsrs leaves all `.d.ts` files byte-identical. In JavaScript, one ESM file loses
+an empty named import (`import Redlock, {} from 'redlock'` becomes `import Redlock from 'redlock'`), with the same
+runtime behaviour. Source maps drop an empty `"sourceRoot"` field, and seven of them shift one segment's mapping.
 
 ## Full build migration and automation coverage
 
@@ -46,24 +75,25 @@ Full oxlint JS-plugin migration was exercised against the custom public-API docu
 its TypeScript program and ESTree-to-TypeScript maps are unavailable. The [official JS-plugin API support](https://oxc.rs/docs/guide/usage/linter/js-plugins.html#api-support)
 excludes type-aware plugins. Removing ESLint would drop required checks.
 
-The installed frontend also rejects `no-unsafe-enum-assignment` as an unknown rule, although the tsgolint backend
-contains its implementation. `no-unnecessary-condition` and `prefer-const` have observed multi-line diagnostic
+`no-unnecessary-condition` and `prefer-const` have observed multi-line diagnostic
 position differences affecting disable directives; `id-length` additionally reports TypeScript type parameters.
 Those rules retain their validated ESLint ownership. The rule generator also retains other documented parity and
 plugin exceptions; unsupported checks are never silently disabled.
 
 ## Type-aware rule audit
 
-Verified on 2026-10-25 against the [oxlint releases](https://github.com/oxc-project/oxc/releases) and
-[tsgolint 7.0.2005 release](https://github.com/oxc-project/tsgolint/releases/tag/v7.0.2005).
-Oxlint 1.89.0 and tsgolint 7.0.2005 are the current published releases. Upstream documentation headline counts
+First verified on 2026-10-25 against the [oxlint releases](https://github.com/oxc-project/oxc/releases) and
+[tsgolint 7.0.2005 release](https://github.com/oxc-project/tsgolint/releases/tag/v7.0.2005), then re-run on
+2026-11-18 for oxlint 1.94.0 and [tsrs 7.1.0-beta.tsrs2](https://github.com/oxc-project/tsrs/releases/tag/v7.1.0-beta.tsrs2),
+whose `tsrs-lint` implements all 61 rules of tsgolint 7.0.2007 according to the
+[announcement](https://oxc.rs/blog/2026-11-17-faster-type-aware-linting-with-tsrs). Upstream documentation headline counts
 vary between the [type-aware guide](https://oxc.rs/docs/guide/usage/linter/type-aware.html) and the
 [backend implementation inventory](https://github.com/oxc-project/tsgolint#implemented-rules); they are not counts
 of enabled repository rules.
 
-The installed public handoff catalog exposes 60 typed counterparts, including nursery entries for audit purposes.
-Production TS and TSX now enable **51 built-in typed policies: 47 native and four ESLint**, plus the custom typed
-public-API documentation rule. Existing `.spec.ts` exceptions reduce those files to 48 built-in policies (44 native);
+The installed public handoff catalog exposes 61 typed counterparts, including nursery entries for audit purposes.
+Production TS and TSX now enable **51 built-in typed policies: 48 native and three ESLint**, plus the custom typed
+public-API documentation rule. Existing `.spec.ts` exceptions reduce those files to 48 built-in policies (45 native);
 `.spec.tsx` retains the production configuration. This audit preserves those existing differences.
 
 Eleven additional policies are enabled beyond `strictTypeChecked`:
@@ -89,9 +119,8 @@ Eleven additional policies are enabled beyond `strictTypeChecked`:
 policy and ownership, and positive fixtures retain exhaustive switches and intentional string sorting.
 
 `strict-boolean-expressions` stays in ESLint after reproducing a native gap for non-nullable heterogeneous enums
-and their boolean unions. The other ESLint typed owners remain `no-unnecessary-condition` (diagnostic positions),
-`no-unsafe-enum-assignment` (backend implemented, frontend registration missing) and `naming-convention`.
-The backend enum-assignment addition is already covered by the existing ESLint policy.
+and their boolean unions. The other ESLint typed owners remain `no-unnecessary-condition` (diagnostic positions) and `naming-convention`.
+`no-unsafe-enum-assignment` moved to oxlint once oxlint 1.94 registered it.
 
 Recent `no-generated-empty-object-type` and `no-useless-default-assignment` rules were already enabled and native.
 `await-thenable` defaults reject mixed and entirely synchronous arrays passed to promise aggregators in both engines.
@@ -194,9 +223,9 @@ enforcement, full/fast ownership and mixed disable directives. It runs alongside
 No library source behavior or published entry point changes in this migration. The full-migration extension also
 checks default emit, decorator metadata and newly migrated syntax-rule positions.
 
-The pinned tsrs release provides binaries for Linux x64/ARM64 (GNU and musl) and Apple Silicon macOS.
+The pinned tsrs release provides binaries for Linux x64/ARM64 (GNU and musl), macOS ARM64/x64 and Windows x64/ARM64.
 Package commands and bob use `scripts/typecheck.mjs`, which resolves the installed tsrs binary before invoking it.
-When that optional binary is unavailable (including Windows and Intel macOS), it reports the reason and invokes the
+When that optional binary is unavailable for the platform, it reports the reason and invokes the
 native reference compiler instead. Invalid `TSRS_BINARY` overrides fail explicitly. Compiler diagnostics and exit
 codes never trigger a fallback. The launcher is part of Turbo's global inputs, and typed lint/check tasks depend
 on dependency builds so they cannot cache results against stale declarations. Published packages remain platform-neutral.
@@ -262,6 +291,6 @@ pnpm exec tsc -p packages/react-native-payments/tsconfig.json --noEmit --increme
 
 ## Upgrade checks
 
-Keep tsrs pinned. Before upgrading it or the tsgolint backend, compare diagnostics against the existing compiler,
+Keep tsrs pinned. Before upgrading it, which also upgrades the lint backend, compare diagnostics against the existing compiler,
 run negative fixtures and NodeNext checks, regenerate the lint config, and repeat the benchmarks. Compare JavaScript,
 declarations and source maps, then exercise both older and native consumers before accepting compiler emit changes.
