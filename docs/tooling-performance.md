@@ -14,7 +14,7 @@ require `projectService`, so the migration does not remove the TypeScript progra
 
 ## tsrs lint backend (oxlint 1.94)
 
-Oxlint 1.94 looks for a `tsrs-lint` binary before `tsgolint`. The pinned `tsrs` package ships it, so type-aware lint
+Oxlint 1.92 and later look for a `tsrs-lint` binary before `tsgolint`. The pinned `tsrs` package ships it, so type-aware lint
 runs on tsrs with no configuration change. pnpm still installs `oxlint-tsgolint` as oxlint's optional peer;
 `OXLINT_TSGOLINT_PATH=node_modules/.bin/tsgolint` selects it to compare the backends. Oxlint, its migrator and the
 ESLint handoff plugin move together to **1.94.0**, and tsrs to **7.1.0-beta.tsrs2**, whose lint fast preset is on by
@@ -85,7 +85,8 @@ plugin exceptions; unsupported checks are never silently disabled.
 First verified on 2026-10-25 against the [oxlint releases](https://github.com/oxc-project/oxc/releases) and
 [tsgolint 7.0.2005 release](https://github.com/oxc-project/tsgolint/releases/tag/v7.0.2005), then re-run on
 2026-11-18 for oxlint 1.94.0 and [tsrs 7.1.0-beta.tsrs2](https://github.com/oxc-project/tsrs/releases/tag/v7.1.0-beta.tsrs2),
-which implements every rule of tsgolint 7.0.2007. Upstream documentation headline counts
+whose `tsrs-lint` implements all 61 rules of tsgolint 7.0.2007 according to the
+[announcement](https://oxc.rs/blog/2026-11-17-faster-type-aware-linting-with-tsrs). Upstream documentation headline counts
 vary between the [type-aware guide](https://oxc.rs/docs/guide/usage/linter/type-aware.html) and the
 [backend implementation inventory](https://github.com/oxc-project/tsgolint#implemented-rules); they are not counts
 of enabled repository rules.
